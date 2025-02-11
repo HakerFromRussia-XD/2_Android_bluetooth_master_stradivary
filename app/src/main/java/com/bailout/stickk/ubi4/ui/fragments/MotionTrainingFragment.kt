@@ -129,7 +129,7 @@ class MotionTrainingFragment(
         }
         writer = BufferedWriter(FileWriter(file, true))
 
-        val mBLEParser = main?.let { BLEParser(it) }
+        val mBLEParser = main?.let { BLEParser() }
 
 
         // Подписка на события оптического обучения

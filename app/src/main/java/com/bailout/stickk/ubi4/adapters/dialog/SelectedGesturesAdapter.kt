@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
-import com.bailout.stickk.ubi4.models.BindingGestureItem
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 
 class SelectedGesturesAdapter(
     private var selectedGesturesList: MutableList<Pair<Int, Int>>,
@@ -22,9 +22,8 @@ class SelectedGesturesAdapter(
     private lateinit var myContext: Context
     inner class SprGesturesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val gestureName: TextView = view.findViewById(R.id.gestureNumber)
-        var gestureImage: ImageView = view.findViewById(R.id.imageGesture)
+        var gestureAnimation: LottieAnimationView = view.findViewById(R.id.lottieAnimationGesture)
         val dotsThreeBtnSpr: ImageView = itemView.findViewById(R.id.dotsThreeBtnSpr)
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SprGesturesViewHolder {
@@ -40,8 +39,10 @@ class SelectedGesturesAdapter(
 
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
+        //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)
         holder.gestureName.text = CollectionGesturesProvider.getGesture(bindingGesture.second).gestureName
-        holder.gestureImage.setImageResource(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
+        holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
+        holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
         }
@@ -57,4 +58,5 @@ class SelectedGesturesAdapter(
     interface OnCheckSprGestureListener {
         fun onGestureSprClicked(position: Int, title: String)
     }
+
 }

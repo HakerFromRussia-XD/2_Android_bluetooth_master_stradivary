@@ -381,11 +381,12 @@ class PlotDelegateAdapter (
 
             data.notifyDataChanged()
             emgChart.notifyDataSetChanged()
+            emgChart.moveViewToX(preparedEntries[0].x - 200.toFloat()) // Прокрутка графика
+
             if (firstInit) {
                 emgChart.setVisibleXRangeMaximum(200f)
                 firstInit = false
             }
-            emgChart.moveViewToX(preparedEntries[0].x - 200.toFloat()) // Прокрутка графика
         }
         count += 1
     }

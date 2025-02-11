@@ -107,8 +107,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
 //            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
 //            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-            manageTrainingLifecycle()
+//            manageTrainingLifecycle()
 //            bleCommandWithQueue(BLECommands.requestSlider(6, 2), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
+            main.bleCommandWithQueue(
+                BLECommands.requestSubDeviceParametrs(
+                    6,
+                    0,
+                    10
+                ), MAIN_CHANNEL, WRITE
+            ) {}
         }
 
     }

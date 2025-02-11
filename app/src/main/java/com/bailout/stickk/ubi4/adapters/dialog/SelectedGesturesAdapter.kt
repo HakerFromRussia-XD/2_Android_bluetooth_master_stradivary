@@ -19,13 +19,11 @@ class SelectedGesturesAdapter(
     private val onCheckGestureSprListener: OnCheckSprGestureListener,
     private val onDotsClickListener: (Int) -> Unit
 ) : RecyclerView.Adapter<SelectedGesturesAdapter.SprGesturesViewHolder>() {
-
-    lateinit var myContext: Context
+    private lateinit var myContext: Context
     inner class SprGesturesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val gestureName: TextView = view.findViewById(R.id.gestureNumber)
         var gestureAnimation: LottieAnimationView = view.findViewById(R.id.lottieAnimationGesture)
         val dotsThreeBtnSpr: ImageView = itemView.findViewById(R.id.dotsThreeBtnSpr)
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SprGesturesViewHolder {
@@ -41,7 +39,6 @@ class SelectedGesturesAdapter(
 
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
-
         //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)
         holder.gestureName.text = CollectionGesturesProvider.getGesture(bindingGesture.second).gestureName
         holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
@@ -49,7 +46,6 @@ class SelectedGesturesAdapter(
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
         }
-
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -59,7 +59,7 @@ class BLECommands {
             return result
         }
 
-        fun requestSubDeviceParametrs(subDeviceAddress: Int, startIndex: Int, readNum: Int): ByteArray {
+        fun requestSubDeviceParametrs(subDeviceAddress: Int, startIndex: Int, quantitiesReadParameters: Int): ByteArray {
             val header = byteArrayOf(
                 0x20,
                 DEVICE_INFORMATION.number,
@@ -73,7 +73,7 @@ class BLECommands {
                 READ_SUB_DEVICE_PARAMETERS.number,
                 subDeviceAddress.toByte(),
                 startIndex.toByte(),
-                readNum.toByte(),
+                quantitiesReadParameters.toByte(),
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

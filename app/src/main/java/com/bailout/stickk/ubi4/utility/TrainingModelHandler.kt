@@ -508,8 +508,6 @@ class TrainingModelHandler(private val context: Context) {
         return dateFormat.format(Date())
     }
 
-
-
     private fun export(path: File?, currentDateTime: String) {
 
         scope.launch {

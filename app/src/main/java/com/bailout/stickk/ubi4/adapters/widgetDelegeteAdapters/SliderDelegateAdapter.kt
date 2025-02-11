@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -50,8 +51,7 @@ class SliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
-
-
+        widgetSliderTitleTv.text = item.title
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {

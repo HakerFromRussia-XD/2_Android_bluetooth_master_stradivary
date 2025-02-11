@@ -120,7 +120,7 @@ class BLEController(
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        mBLEParser = BLEParser(mMain)
+        mBLEParser = BLEParser()
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {

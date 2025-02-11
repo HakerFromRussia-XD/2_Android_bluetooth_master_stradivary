@@ -70,7 +70,7 @@ class BLEParserTest {
         activeGestureFlow = MutableSharedFlow()
         rotationGroupFlow = MutableSharedFlow()
         MockitoAnnotations.openMocks(this)
-        bleParser = BLEParser(mockActivity) // Replace with actual initialization logic
+        bleParser = BLEParser() // Replace with actual initialization logic
         mockkObject(ParameterProvider.Companion)
         mockkStatic(android.util.Log::class)
         baseParametrInfoStructArray.clear()
@@ -120,7 +120,7 @@ class BLEParserTest {
     fun `test updateAllUI with PDCE_EMG_CH_1_3_VAL`() = runTest {
         // 1) Создаем BLEParser и нужный параметр с dataCode=8 (PDCE_EMG_CH_1_3_VAL).
         //    Допустим, ожидаем 6 байт полезной нагрузки.
-        val bleParser = BLEParser(mockActivity)
+        val bleParser = BLEParser()
         val param = BaseParameterInfoStruct(
             ID = 5,
             dataCode = PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number, // 8

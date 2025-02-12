@@ -791,19 +791,19 @@ class MotionTrainingFragment(
                 lineData.add(currentGesture)
             }
         }
-//        lineData.add(
-//            GesturePhase(
-//                prePhase = 0.0,
-//                //90
-//                timeGesture = 60.0,
-//                postPhase = 0.0,
-//                animation = sprGestureItemsProvider.getAnimationIdByKeyNameGesture(""),
-//                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
-//                description = requireContext().getString(R.string.rest_before_the_next_gesture),
-//                gestureName = "Neutral",
-//                gestureId = 0
-//            )
-//        )
+        lineData.add(
+            GesturePhase(
+                prePhase = 0.0,
+                //90
+                timeGesture = 60.0,
+                postPhase = 0.0,
+                animation = sprGestureItemsProvider.getAnimationIdByKeyNameGesture(""),
+                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
+                description = requireContext().getString(R.string.rest_before_the_next_gesture),
+                gestureName = "Neutral",
+                gestureId = 0
+            )
+        )
 
         // Добавление конечной фазы Finish
         lineData.add(

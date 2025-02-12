@@ -64,13 +64,13 @@ class SensorsFragment : BaseWidgetsFragment() {
             Log.d("onDestroyParentCallbacks", " считаем сколько раз")
             it.invoke() }
     }
-    private fun refreshWidgetsList() {
-        graphThreadFlag = false
-        listWidgets.clear()
-        onDestroyParentCallbacks.forEach { it.invoke() }
-        onDestroyParentCallbacks.clear()
-        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-    }
+//    private fun refreshWidgetsList() {
+//        graphThreadFlag = false
+//        listWidgets.clear()
+//        onDestroyParentCallbacks.forEach { it.invoke() }
+//        onDestroyParentCallbacks.clear()
+//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+//    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {

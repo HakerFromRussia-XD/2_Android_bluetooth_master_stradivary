@@ -95,13 +95,13 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     }
 
 
-    private fun refreshWidgetsList() {
-        graphThreadFlag = false
-        listWidgets.clear()
-        onDestroyParentCallbacks.forEach { it.invoke() }
-        onDestroyParentCallbacks.clear()
-        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-    }
+//    private fun refreshWidgetsList() {
+//        graphThreadFlag = false
+//        listWidgets.clear()
+//        onDestroyParentCallbacks.forEach { it.invoke() }
+//        onDestroyParentCallbacks.clear()
+//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+//    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {

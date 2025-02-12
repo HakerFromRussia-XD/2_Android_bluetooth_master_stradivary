@@ -45,6 +45,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -389,6 +390,12 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+    }
+    open fun refreshWidgetsList() {
+        listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
+        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
     }
 
     open fun showConfirmLoadingDialog(onConfirm: () -> Unit) {

@@ -8,9 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -44,6 +42,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 
@@ -56,16 +56,25 @@ abstract class BaseWidgetsFragment : Fragment() {
 
 
 
-
     protected val adapterWidgets by lazy {
+
+
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
             ),
             OneButtonDelegateAdapter(
-                onButtonPressed = { device, param, command -> oneButtonPressed(device, param, command) },
-                onButtonReleased = { device, param, command -> oneButtonReleased(device, param, command) },
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+                onButtonPressed = { device, param, command ->
+                    oneButtonPressed(device, param, command)
+                },
+                onButtonReleased = { device, param, command ->
+                    oneButtonReleased(device, param, command)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
             ),
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
 //            GesturesDelegateAdapter (
@@ -79,17 +88,35 @@ abstract class BaseWidgetsFragment : Fragment() {
 //                onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
 //                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
 //            ),
-            GesturesOpticDelegateAdapter(
+              GesturesOpticDelegateAdapter(
                 gestureNameList = gestureNameList,
-                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList -> showControlGesturesDialog(onSaveClickDialog, bindingGestureList) },
-                onShowGestureSettings = { device, param, gestureID -> showGestureSettings(device, param, gestureID) },
-                onRequestGestureSettings = { device, param, gestureID -> requestGestureSettings(device, param, gestureID) },
-                onSetCustomGesture = { onSaveDotsClick, bindingItem -> showCustomGesturesDialog(onSaveDotsClick, bindingItem) },
-                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> sendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
-                onRequestActiveGesture = { deviceAddress, parameterID -> requestActiveGesture(deviceAddress, parameterID) },
-                onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup -> sendBLEBindingGroup(deviceAddress, parameterID, bindingGestureGroup) },
-                onRequestBindingGroup = { deviceAddress, parameterID -> requestBindingGroup(deviceAddress, parameterID) },
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
+                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
+                },
+                onShowGestureSettings = { device, param, gestureID ->
+                    showGestureSettings(device, param, gestureID)
+                },
+                onRequestGestureSettings = { device, param, gestureID ->
+                    requestGestureSettings(device, param, gestureID)
+                },
+                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
+                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
+                },
+                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
+                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
+                },
+                onRequestActiveGesture = { deviceAddress, parameterID ->
+                    requestActiveGesture(deviceAddress, parameterID)
+                },
+                onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup ->
+                    sendBLEBindingGroup(deviceAddress, parameterID, bindingGestureGroup)
+                },
+                onRequestBindingGroup = { deviceAddress, parameterID ->
+                    requestBindingGroup(deviceAddress, parameterID)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
             ),
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
@@ -98,6 +125,8 @@ abstract class BaseWidgetsFragment : Fragment() {
                         showConfirmTrainingDialog {
                             navigator().showMotionTrainingScreen {
                                 main?.manageTrainingLifecycle()
+                                Log.d("StateCallBack", "manageTrainingLifecycle() run")
+
                             }
                         }
                     } else {
@@ -108,11 +137,25 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
             ),
             SwitcherDelegateAdapter(
-                onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
+                onSwitchClick = { addressDevice, parameterID, switchState ->
+                    sendSwitcherState(addressDevice, parameterID, switchState)
+                },
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            SpinnerDelegateAdapter(
+                onSpinnerItemSelected = { addressDevice, parameterID, newIndex ->
+                    Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")
+                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SliderDelegateAdapter(
-                onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress) },
+                onSetProgress = { addressDevice, parameterID, progress ->
+                    sendSliderProgress(
+                        addressDevice,
+                        parameterID,
+                        progress
+                    )
+                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             )
         )
@@ -121,13 +164,16 @@ abstract class BaseWidgetsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadGestureNameList()
-    }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
+
     }
     override fun onDestroy() {
         super.onDestroy()
@@ -138,9 +184,12 @@ abstract class BaseWidgetsFragment : Fragment() {
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        Log.d("TestButton", "oneButtonPressed run")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        Log.d("TestButton", "oneButtonReleased run")
+
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")
@@ -313,6 +362,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
     open fun sendBLEActiveGesture(deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        if (!isAdded) { return }
         transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
@@ -339,6 +389,12 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+    }
+    open fun refreshWidgetsList() {
+        listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
+        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
     }
 
     open fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
@@ -374,6 +430,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
 
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
+        Log.d("sendSwitcherState", "addressDevice: $addressDevice, parameterID: $parameterID, switchState: $switchState")
         transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE){}
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
@@ -383,7 +440,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     //Others fun
     private fun loadGestureNameList() {
-        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC)
+        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
             System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
@@ -392,10 +449,16 @@ abstract class BaseWidgetsFragment : Fragment() {
             )
         }
     }
-
     open fun closeCurrentDialog() {
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null
     }
-    open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int, progressBar: ProgressBar) {}
+    open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {}
+
+    open fun refreshActiveFilter() {
+        adapterWidgets.notifyDataSetChanged()
+
+    }
+
+
 }

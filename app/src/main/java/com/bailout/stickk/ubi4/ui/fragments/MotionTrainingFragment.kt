@@ -13,7 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
-import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
@@ -32,6 +32,7 @@ import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import java.io.BufferedWriter
 import java.io.File
@@ -53,8 +54,9 @@ class MotionTrainingFragment(
 
     // Timers
     private var timer: CountDownTimer? = null
-    private var timerIndication: CountDownTimer? = null
+    private var indicationTimer: CountDownTimer? = null
     private var preparationTimer: CountDownTimer? = null
+    private var dialogWarningTimer: CountDownTimer? = null
     private var timerDuration: Long = 0L
     private var preparationDuration: Long = 0L
     private var remainingTimerTime: Long = 0L
@@ -105,10 +107,18 @@ class MotionTrainingFragment(
     private var currentDialog: Dialog? = null
     private var counterTimer: Double = 0.0
 
+
+
 //    private var indicatorOpticStreamIv: ImageView? = null
 
     private var lineData: MutableList<GesturePhase> = mutableListOf()
     private var currentPhaseIndex: Int = 0
+
+    private var totalRealGesturesCount: Int = 0
+    private var currentRealGestureIndex: Int = 0
+
+    // Сет реальных жестов (если нужно, можете дополнять или изменять):
+    private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,11 +181,12 @@ class MotionTrainingFragment(
         savedInstanceState: Bundle?
     ): View? {
         Log.d("LagSpr", "Motion onCreateView")
+        onDataPacketReceived()
         _binding = Ubi4FragmentMotionTrainingBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d("LagSpr", "Motion onViewCreated")
         super.onViewCreated(view, savedInstanceState)
@@ -191,7 +202,10 @@ class MotionTrainingFragment(
         // Обработка данных тренировки
         lineData = trainingDataProcessing()
 
-        // Проверяем и объединяем BaseLine и Neutral
+        binding.motionRemainingGesturesTv.text =
+            getString(R.string.remaining_gestures_count, totalRealGesturesCount)
+
+//         Проверяем и объединяем BaseLine и Neutral
 //        if (lineData.size > 1 &&
 //            lineData[0].gestureName == "BaseLine" &&
 //            lineData[1].gestureName == "Neutral"
@@ -201,8 +215,8 @@ class MotionTrainingFragment(
 //            )
 //            lineData[0] = combinedPhase
 //            lineData.removeAt(1)
-//
-//            switchAnimationSmoothly(lineData[0].animation, 50)
+
+            switchAnimationSmoothly(lineData[0].animation, 0)
 //        }
 
         // Запуск первой фазы тренировки
@@ -382,6 +396,7 @@ class MotionTrainingFragment(
         currentTimerType = TimerType.NONE
     }
 
+
     private fun startPhase(phaseIndex: Int) {
         currentPhaseIndex = phaseIndex
         if (phaseIndex >= lineData.size) {
@@ -405,6 +420,14 @@ class MotionTrainingFragment(
             switchAnimationSmoothly(currentPhase.animation, 50)
         }
 
+        if (!pseudoGestures.contains(currentPhase.gestureName)) {
+            currentRealGestureIndex++
+            val remainingCount = totalRealGesturesCount - currentRealGestureIndex
+            // Отобразим в TextView (добавьте в верстку TextView с id=motionRemainingGesturesTv)
+            binding.motionRemainingGesturesTv.text =
+                getString(R.string.remaining_gestures_count, remainingCount)
+        }
+
         when {
             currentPhase.gestureName == "Neutral" || currentPhase.gestureName == "BaseLine" || currentPhase.gestureName == "Finish" -> {
                 binding.motionHandIv.playAnimation()
@@ -419,6 +442,7 @@ class MotionTrainingFragment(
             }
         }
     }
+
 
     private fun startCountdown(phase: GesturePhase, phaseIndex: Int) {
         stopTimers()
@@ -468,15 +492,17 @@ class MotionTrainingFragment(
 
         // Определение следующего жеста
         val nextGestureName = getNextGestureName(phaseIndex)
-        Log.d("GestureName", "gestureName: $nextGestureName")
 
+
+        // Если нет следующего "настоящего" жеста, значит либо впереди "Finish", либо вообще конец списка
         if (nextGestureName.isEmpty()) {
-            // Следующего жеста нет, это последний этап
-            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.you_can_relax_your_hand)
-            binding.prepareForPerformTv.text = requireContext().getString(R.string.wait_until_the_end)
+            Log.d("nextGestureName", "isEmpty() gestureName: $nextGestureName")
+            // Показываем подсказку для пользователя: "Можно расслабить руку", и ждём
+            binding.motionNameOfGesturesTv.text = getString(R.string.you_can_relax_your_hand)
+            binding.prepareForPerformTv.text = getString(R.string.wait_until_the_end)
             binding.prepareForPerformTv.visibility = View.VISIBLE
 
-            // Установка дефолтной анимации или скрытие ImageView
+            // Допустим, какая-то базовая анимация
             switchAnimationSmoothly(R.raw.open, 1)
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
@@ -495,21 +521,21 @@ class MotionTrainingFragment(
                     binding.countdownTextView.visibility = View.GONE
                     binding.motionProgressBar.visibility = View.INVISIBLE
                     Log.d("DebugCheck", "Preparation countdown finished. Ending training.")
-                    // Завершение тренировки
-                    showConfirmCompletedTrainingDialog {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, SprTrainingFragment())
-                            .commitNow()
-                    }
+
+                    // Вместо того чтобы звать диалог напрямую,
+                    // даём «Finish»-фазе закончиться штатно и идём дальше:
+                    startPhase(phaseIndex + 1)
                 }
             }.start()
 
         } else {
+            Log.d("nextGestureName", "not isEmpty() gestureName: $nextGestureName")
+            // Если есть "настоящий" жест — обычная логика подготовки к следующему жесту
             if (phase.gestureName == "Neutral") {
                 switchAnimationSmoothly(phase.animation, 50)
             }
-            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.next_gesture, nextGestureName)
-            binding.prepareForPerformTv.text = requireContext().getString(R.string.prepare_to_perform_the_gesture)
+            binding.motionNameOfGesturesTv.text = getString(R.string.next_gesture, nextGestureName)
+            binding.prepareForPerformTv.text = getString(R.string.prepare_to_perform_the_gesture)
             binding.prepareForPerformTv.visibility = View.VISIBLE
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
@@ -534,6 +560,7 @@ class MotionTrainingFragment(
         }
     }
 
+
     private fun switchAnimationSmoothly(newAnimation: Int, endPercent: Int) {
         binding.motionHandIv.animate()
             .setDuration(150)
@@ -541,20 +568,35 @@ class MotionTrainingFragment(
             .scaleY(0f)
             .setInterpolator(AccelerateDecelerateInterpolator())
             .withEndAction {
+                binding.motionHandIv.removeAllUpdateListeners()
+
                 binding.motionHandIv.setAnimation(newAnimation)
-                binding.motionHandIv.playAnimation()
-                binding.motionHandIv.addAnimatorUpdateListener { animation ->
-                    if (animation.animatedFraction >= (endPercent / 100f)) {
-                        binding.motionHandIv.pauseAnimation()
+
+                if (endPercent == 0) {
+                    binding.motionHandIv.progress = 0f
+                    binding.motionHandIv.pauseAnimation()
+                } else {
+                    // Для остальных вызываем play и добавляем слушатель
+                    binding.motionHandIv.playAnimation()
+                    binding.motionHandIv.addAnimatorUpdateListener { animation ->
+                        if (animation.animatedFraction >= endPercent / 100f) {
+                            binding.motionHandIv.pauseAnimation()
+                        }
                     }
                 }
+
+                // Анимация «всплытия» (scale back)
                 binding.motionHandIv.animate()
                     .setDuration(150)
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setInterpolator(AccelerateDecelerateInterpolator()).start()
-            }.start()
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .start()
+            }
+            .start()
     }
+
+
 
     private fun getNextGestureName(currentIndex: Int): String {
         var nextIndex = currentIndex + 1
@@ -680,13 +722,26 @@ class MotionTrainingFragment(
                 prePhase = 0.0,
                 timeGesture = baselineDuration,
                 postPhase = 0.0,
-                animation = firstGestureAnimation,
+                animation = sprGestureItemsProvider.getAnimationIdByKeyNameGesture(""),
                 headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
                 description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                gestureName = "Neutral",
-                gestureId = 0
+                gestureName = "BaseLine",
+                gestureId = -1
             )
         )
+
+//        lineData.add(
+//            GesturePhase(
+//                prePhase = 0.0,
+//                timeGesture = 4.0,
+//                postPhase = 0.0,
+//                animation = firstGestureAnimation,
+//                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                gestureName = "Neutral",
+//                gestureId = 0
+//            )
+//        )
 
         // Добавление фаз тренировки по циклам и последовательности жестов
         repeat(nCycles) {
@@ -701,7 +756,7 @@ class MotionTrainingFragment(
                 }
 
 
-                if (index < gestureSequence.size && index > 0) {
+                if (index < gestureSequence.size) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
                         Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
@@ -736,19 +791,19 @@ class MotionTrainingFragment(
                 lineData.add(currentGesture)
             }
         }
-        lineData.add(
-            GesturePhase(
-                prePhase = 0.0,
-                //90
-                timeGesture = 60.0,
-                postPhase = 0.0,
-                animation = 0,
-                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
-                description = requireContext().getString(R.string.rest_before_the_next_gesture),
-                gestureName = "Neutral",
-                gestureId = 0
-            )
-        )
+//        lineData.add(
+//            GesturePhase(
+//                prePhase = 0.0,
+//                //90
+//                timeGesture = 60.0,
+//                postPhase = 0.0,
+//                animation = sprGestureItemsProvider.getAnimationIdByKeyNameGesture(""),
+//                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
+//                description = requireContext().getString(R.string.rest_before_the_next_gesture),
+//                gestureName = "Neutral",
+//                gestureId = 0
+//            )
+//        )
 
         // Добавление конечной фазы Finish
         lineData.add(
@@ -756,13 +811,15 @@ class MotionTrainingFragment(
                 prePhase = 0.0,
                 timeGesture = baselineDuration,
                 postPhase = 0.0,
-                animation = 0,
+                animation = sprGestureItemsProvider.getAnimationIdByKeyNameGesture(""),
                 headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
                 description = requireContext().getString(R.string.rest_before_the_next_gesture),
                 gestureName = "Finish",
                 gestureId = -1
             )
         )
+
+        totalRealGesturesCount = lineData.count { !pseudoGestures.contains(it.gestureName) }
 
         Log.d("DebugCheck", "Training phases generated: ${lineData.size}")
         lineData.forEachIndexed { idx, phase ->
@@ -772,17 +829,55 @@ class MotionTrainingFragment(
         return lineData
     }
 
+    private fun showWarningDialog() {
+        if (!isAdded) return
+        val dialogFileBinding =
+            layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+        val titleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningTitleTv)
+        titleTextView.text = "Обучение прерванно"
+        val subTitleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningMessageTv)
+        subTitleTextView.text = " Потеря соединения с оптическими датчиками. Повторите обучение"
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
+        confirmBtn.setOnClickListener {
+            stopTimers()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, SprTrainingFragment())
+                .commit()
+            myDialog.dismiss()
+
+        }
+
+    }
+
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun onDataPacketReceived() {
         // Сбрасываем предыдущий таймер
+        Log.d("onDataPacketReceived", "onDataPacketReceived run")
+
         _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_green))
-        timerIndication?.cancel()
+        indicationTimer?.cancel()
+        dialogWarningTimer?.cancel()
         // Запускаем новый таймер на 100 мс
-        timerIndication = object : CountDownTimer(100, 100) {
+        indicationTimer = object : CountDownTimer(100, 100) {
             override fun onTick(millisUntilFinished: Long) = Unit
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+            }
+        }.start()
+        dialogWarningTimer = object : CountDownTimer(2000, 2000) {
+            override fun onTick(millisUntilFinished: Long) = Unit
+
+            override fun onFinish() {
+                _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+                showWarningDialog()
             }
         }.start()
     }

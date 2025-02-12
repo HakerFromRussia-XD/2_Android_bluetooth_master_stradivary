@@ -127,20 +127,19 @@ class PlotDelegateAdapter (
     }
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
         if (scope != null) {
-            Log.d("Plot view", "Scope already exists, skipping.")
-            return
+            Log.d("Plot view", "2 Scope already exists, skipping.")
+        } else {
+            // Создаем новый scope
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            initializedSensorGraph(EMGChartLc)
+            plotArrayFlowCollect()
         }
-        // Создаем новый scope
-        scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        initializedSensorGraph(EMGChartLc)
-        plotArrayFlowCollect()
         graphThreadFlag = true
         scope?.launch {
             delay(500) // Задержка на 500 мс
             Log.d("Plot view","startGraphEnteringDataCoroutine")
             startGraphEnteringDataCoroutine(EMGChartLc)
         }
-
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
 //        onDestroy()
@@ -482,8 +481,7 @@ class PlotDelegateAdapter (
     }
     fun onDestroy() {
         graphThreadFlag = false
-        scope?.cancel()
-        scope = null
+//        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }
 }

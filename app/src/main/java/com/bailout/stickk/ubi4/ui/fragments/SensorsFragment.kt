@@ -14,6 +14,11 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.OneButtonItem
+import com.bailout.stickk.ubi4.models.SliderItem
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
@@ -65,18 +70,39 @@ class SensorsFragment : BaseWidgetsFragment() {
             Log.d("onDestroyParentCallbacks", " считаем сколько раз")
             it.invoke() }
     }
-//    private fun refreshWidgetsList() {
+//    override fun refreshWidgetsList() {
 //        graphThreadFlag = false
 //        listWidgets.clear()
 //        onDestroyParentCallbacks.forEach { it.invoke() }
 //        onDestroyParentCallbacks.clear()
-//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
 //    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect {
                 main?.runOnUiThread {
+//                    val nonSliderPositions = widgets.filter { it !is SliderItem }.mapNotNull { widget ->
+//                        when (widget) {
+//                            is OneButtonItem -> (widget.widget as? BaseParameterWidgetStruct)?.widgetPosition
+//                            // если у других типов есть доступ к widgetPosition, добавляем их тоже
+//                            else -> null
+//                        }
+//                    }
+//                    val offset = (nonSliderPositions.maxOrNull() ?: 0) + 1
+//                    val widgets = mDataFactory.prepareData(display)
+//                    widgets.filterIsInstance<SliderItem>()
+//                        .forEachIndexed { index, sliderItem ->
+//                            when (sliderItem.widget) {
+//                                is SliderParameterWidgetEStruct -> {
+//                                    sliderItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition = offset + index
+//                                }
+//                                is SliderParameterWidgetSStruct -> {
+//                                    sliderItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition = offset + index
+//                                }
+//                            }
+//                        }
+
                     Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
                     binding.refreshLayout.setRefreshing(false)

@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.os.CountDownTimer
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -137,12 +136,18 @@ class SwitcherDelegateAdapter(
                         "Index меняемого свича ${getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)}"
                     )
                     if (parameter.data.isNotEmpty()) {
-                        widgetSwitchInfo[getIndexWidgetSwitch(
-                            parameterRef.addressDevice,
-                            parameterRef.parameterID
-                        )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
-                        widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+                        try {
+                            widgetSwitchInfo[getIndexWidgetSwitch(
+                                parameterRef.addressDevice,
+                                parameterRef.parameterID
+                            )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
+                            widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+
+                        } catch (e:Exception){
+                            Log.d("switchCollect","$e")
+                        }
                     }
+                    responseReceived.set(true)
                 }
             }
         }

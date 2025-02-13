@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.SprDialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -42,7 +43,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
@@ -434,6 +434,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE){}
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
+        Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE){}
     }
 
@@ -454,11 +455,4 @@ abstract class BaseWidgetsFragment : Fragment() {
         loadingCurrentDialog = null
     }
     open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {}
-
-    open fun refreshActiveFilter() {
-        adapterWidgets.notifyDataSetChanged()
-
-    }
-
-
 }

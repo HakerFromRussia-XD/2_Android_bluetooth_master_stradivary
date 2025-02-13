@@ -93,8 +93,10 @@ class BLEParser() {
 
             if (requestType == 1) {
                 // парсим параметры
-                Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
+                if ((deviceAddress == 8 && parameterID == 1) || (deviceAddress == 6 && parameterID == 2) || (deviceAddress == 6 && parameterID == 16)) {
+                    Log.d("receiveTestQuality", "парсим параметры вход deviceAddress=$deviceAddress parameterID=$parameterID  data=${receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)}")
+                }
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
                 updateAllUI(deviceAddress, parameterID, ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)//
             } else {

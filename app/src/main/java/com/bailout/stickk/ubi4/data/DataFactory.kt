@@ -107,12 +107,18 @@ internal class DataFactory {
         System.err.println("DataFactory sorted listWidgets============== ${listWidgets.size}")
         listWidgets.forEach {
             System.err.println("DataFactory sorted listWidgets: $it")
+
         }
+
 
 
         // компановка элементов для отрисовки на выбраном экране
         val setWidgets: Set<Any> = listWidgets.toSet()
         val _listWidgets = ArrayList<Any>(setWidgets.size)
+        System.err.println("DataFactory: toSet() size=${setWidgets.size}")
+
+
+
         setWidgets.forEach {
             when (it) {
                 is BaseParameterWidgetEStruct -> {
@@ -203,6 +209,8 @@ internal class DataFactory {
                     }
                 }
                 is SliderParameterWidgetSStruct -> {
+                    val wPos = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                    System.err.println("DataFactory: SliderParamSStruct widgetPos=$wPos, display=${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display}, code=${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode}")
                     if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
                         addElementS(
                             it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
@@ -213,6 +221,8 @@ internal class DataFactory {
                     }
                 }
                 is SliderParameterWidgetEStruct -> {
+                    val wPos = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                    System.err.println("DataFactory: SliderParamEStruct widgetPos=$wPos, display=${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display}, code=${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode}")
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
                         addElement(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,

@@ -15,7 +15,7 @@ android {
             keyPassword '89157719183'
         }
         release {
-            storeFile file('/Users/motoricallc/Keystore.jks')
+            storeFile file('/Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'
@@ -29,7 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "3.1.939"
+        versionName "3.1.941"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release

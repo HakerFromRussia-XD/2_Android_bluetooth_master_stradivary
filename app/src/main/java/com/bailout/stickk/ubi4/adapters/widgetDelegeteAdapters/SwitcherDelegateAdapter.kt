@@ -136,12 +136,17 @@ class SwitcherDelegateAdapter(
                         "Index меняемого свича ${getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)}"
                     )
                     if (parameter.data.isNotEmpty()) {
-                        widgetSwitchInfo[getIndexWidgetSwitch(
-                            parameterRef.addressDevice,
-                            parameterRef.parameterID
-                        )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
-                        widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
-                    }
+                        try {
+                            widgetSwitchInfo[getIndexWidgetSwitch(
+                                parameterRef.addressDevice,
+                                parameterRef.parameterID
+                            )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
+                            widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+
+                        } catch (e:Exception){
+                            Log.d("switchCollect","$e")
+                        }
+                                            }
                     responseReceived.set(true)
                 }
             }

@@ -17,7 +17,7 @@ data class BaseParameterWidgetStruct(
     val widgetLabelType: Int = 0, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
     var widgetCode: Int = 0,
     val display: Int = 0, // номер экрана, на котором виджет располагается
-    val widgetPosition: Int = 0, // позиция этого виджета
+    var widgetPosition: Int = 0, // позиция этого виджета
     var deviceId: Int = 0,
     val widgetId: Int = 0,
     val dataOffset: Int = 0,

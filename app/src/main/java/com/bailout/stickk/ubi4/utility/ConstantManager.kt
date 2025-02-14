@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.utility
 interface ConstantManager {
     companion object {
         const val REQUEST_ENABLE_BT = 1
+        const val DURATION_ANIMATION = 500L
         const val RECONNECT_BLE_PERIOD = 1000
 
         //кол-во байт в посылках

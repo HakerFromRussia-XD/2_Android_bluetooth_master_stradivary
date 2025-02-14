@@ -10,7 +10,7 @@ class ParameterInfoProvider {
             var count = 0
             parameterIDSet.forEach { if (it.dataCode == dataCode) count++ }
             if (count > 1) {
-                main.showToast("НЕШТАТНАЯ СИТУАЦИЯ в getParameterIDByCode()")
+//                main.showToast("НЕШТАТНАЯ СИТУАЦИЯ в getParameterIDByCode()")
                 parameterIDSet.forEach { if (it.dataCode == dataCode) Log.d("getParameterIDByCode", "$it") }
             }
             parameterIDSet.forEach {

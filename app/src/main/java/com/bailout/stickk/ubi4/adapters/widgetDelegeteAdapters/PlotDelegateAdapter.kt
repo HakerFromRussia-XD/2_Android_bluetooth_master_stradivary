@@ -1,10 +1,12 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -27,6 +29,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -503,10 +506,29 @@ class PlotDelegateAdapter (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
-        var y = allCHRl.height - allCHRl.height*threshold/255
-        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()
+//    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
+//        var y = allCHRl.height - allCHRl.height*threshold/255
+//        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()//end position
+//    }
+
+
+    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int, duration: Long = DURATION_ANIMATION) {
+        // Выполняем вычисления после того, как layout уже измерен
+        allCHRl.post {
+            val targetY = (allCHRl.height - (allCHRl.height * threshold / 255) - limit_CH.height / 2 + allCHRl.marginTop).toFloat()
+            val startY = limit_CH.y
+
+            ValueAnimator.ofFloat(startY, targetY).apply {
+                this.duration = duration
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener { animator ->
+                    limit_CH.y = animator.animatedValue as Float
+                }
+                start()
+            }
+        }
     }
+
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
 //        Log.d("Plot view","startGraphEnteringDataCoroutine")
 //        dataSens1 += 1
@@ -530,6 +552,8 @@ class PlotDelegateAdapter (
     }
     fun onDestroy() {
         graphThreadFlag = false
+        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }

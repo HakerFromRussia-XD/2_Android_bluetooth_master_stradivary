@@ -173,13 +173,15 @@ class GesturesOpticDelegateAdapter(
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
             MainActivityUBI4.activeFilterFlow.value = 2
-            onRequestBindingGroup(
-                deviceAddress,
-                ParameterInfoProvider.getParameterIDByCode(
-                    ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
-                    parameterInfoSet
+            Handler().postDelayed({
+                onRequestBindingGroup(
+                    deviceAddress,
+                    ParameterInfoProvider.getParameterIDByCode(
+                        ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
+                        parameterInfoSet
+                    )
                 )
-            )
+            }, 500)
         }
 
         hideCollectionBtn.setOnClickListener {

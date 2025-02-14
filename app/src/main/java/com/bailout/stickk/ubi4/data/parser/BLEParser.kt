@@ -156,6 +156,9 @@ class BLEParser() {
 
         Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
         when (dataCode) {
+            ParameterDataCodeEnum.PDCE_UNIVERSAL_CONTROL_INPUT.number -> {
+                Log.d("parameter PDCE_UNIVERSAL_CONTROL_INPUT","deviceAddress: $deviceAddress  parameterID: $parameterID   data: ${ParameterProvider.getParameter(deviceAddress, parameterID).data}")
+            }
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
@@ -206,21 +209,23 @@ class BLEParser() {
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
-                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                Log.d("parameter sliderCollect PDCE_INTERFECE_ERROR_COUNTER","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
-                Log.d("TestOptic"," dataCode: $dataCode")
+                Log.d("parameter sliderCollect PDCE_CALIBRATION_CURRENT_PERCENT","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_GLOBAL_FORCE.number -> {
                 Log.d("parameter sliderCollect PDCE_GLOBAL_FORCE"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
-                Log.d("parameter sliderCollect PDCE_GLOBAL_SENSITIVITY", "dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            } //+
+
+            //TODO после перепрошивки проверить Optic timeout slider
+            ParameterDataCodeEnum.PDCE_OPTIC_SELECT_GESTURE_TIMEOUT.number -> {
+                Log.d("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+            }
             ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {
                 Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                 val newStatusExist = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte())

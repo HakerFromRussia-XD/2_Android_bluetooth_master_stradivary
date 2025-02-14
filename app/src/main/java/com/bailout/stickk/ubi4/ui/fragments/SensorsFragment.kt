@@ -69,8 +69,8 @@ class SensorsFragment : BaseWidgetsFragment() {
             Log.d("onDestroyParentCallbacks", " считаем сколько раз")
             it.invoke() }
     }
+
 //    override fun refreshWidgetsList() {
-//        graphThreadFlag = false
 //        listWidgets.clear()
 //        onDestroyParentCallbacks.forEach { it.invoke() }
 //        onDestroyParentCallbacks.clear()
@@ -81,27 +81,6 @@ class SensorsFragment : BaseWidgetsFragment() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect {
                 main?.runOnUiThread {
-//                    val nonSliderPositions = widgets.filter { it !is SliderItem }.mapNotNull { widget ->
-//                        when (widget) {
-//                            is OneButtonItem -> (widget.widget as? BaseParameterWidgetStruct)?.widgetPosition
-//                            // если у других типов есть доступ к widgetPosition, добавляем их тоже
-//                            else -> null
-//                        }
-//                    }
-//                    val offset = (nonSliderPositions.maxOrNull() ?: 0) + 1
-//                    val widgets = mDataFactory.prepareData(display)
-//                    widgets.filterIsInstance<SliderItem>()
-//                        .forEachIndexed { index, sliderItem ->
-//                            when (sliderItem.widget) {
-//                                is SliderParameterWidgetEStruct -> {
-//                                    sliderItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition = offset + index
-//                                }
-//                                is SliderParameterWidgetSStruct -> {
-//                                    sliderItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition = offset + index
-//                                }
-//                            }
-//                        }
-
                     Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
                     binding.refreshLayout.setRefreshing(false)

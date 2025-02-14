@@ -1,9 +1,11 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
@@ -20,6 +22,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +42,6 @@ class SliderDelegateAdapter(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSlidersInfo: ArrayList<WidgetSliderInfo> = ArrayList()
 
-    private val responseReceived = AtomicBoolean(false)
     private var sliderInfoCounter = 0
 
 
@@ -119,13 +121,9 @@ class SliderDelegateAdapter(
 
 
         widgetSlidersInfo.add(currentSliderInfo)
-//        addOrReplaceWidgetInfo(currentSliderInfo)
-//        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv), widgetPosition))
 
         sliderCollect()
-//
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
-//        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
         val range = if (maxProgress == minProgress) 100 else maxProgress - minProgress
         widgetSliderSb.max = range
         if (addressDevice.size > 1) {
@@ -181,7 +179,6 @@ class SliderDelegateAdapter(
         }
 
         currentSliderInfo.responseReceived.set(false)
-
         RetryUtils.sendRequestWithRetry(
             request = {
                 Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
@@ -189,7 +186,7 @@ class SliderDelegateAdapter(
                     BLECommands.requestSlider(addressDevice[0], parameterID[0]),
                     MAIN_CHANNEL,
                     SampleGattAttributes.WRITE
-                ){}
+                ) {}
             },
             isResponseReceived = {
                 // Просто возвращаем значение нашего флага
@@ -199,12 +196,6 @@ class SliderDelegateAdapter(
             delayMillis = 400L
         )
 
-//                Handler().postDelayed({
-//            main.bleCommandWithQueue(
-//                BLECommands.requestSlider(addressDevice[0], parameterID[0]),
-//                MAIN_CHANNEL,
-//                SampleGattAttributes.WRITE){}
-//        }, 500)
     }
     private fun updateSliderProgress(widgetPosition: Int, sliderIndex: Int, step: Int, indexWidgetSlider: Int) {
         val sliderInfo = widgetSlidersInfo.find { it?.widgetPosition == widgetPosition }
@@ -257,21 +248,49 @@ class SliderDelegateAdapter(
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             if (parameter.data=="") Log.d ("parameter sliderCollect", "не успешная попытка обновления")
             if (parameter.data!="") Log.d ("parameter sliderCollect", "успешная попытка обновления")
+            try {
+                val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
+                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
+                    Log.d(
+                        "SliderDebug",
+                        "Слайдер[$index]:  sizeOf=$sizeOf, data.length=${parameter.data.length}"
+                    )
 
-
-            val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
-            widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
-                if (parameter.data=="") "" else widgetSlidersInfo[indexWidgetSlider].progress[index] = castUnsignedCharToInt(parameter.data.substring((sizeOf*it)*2, sizeOf*(it+1)*2).toInt(16).toByte())
-                widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress = widgetSlidersInfo[indexWidgetSlider].progress[index]
-                widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = widgetSlidersInfo[indexWidgetSlider].progress[index].toString()
-
-                ////ДЕБААЖИМ////
-                val substringValue = parameter.data.substring((sizeOf*it)*2, sizeOf*(it+1)*2)
-                Log.d("SliderDebug", "Parsed substring = $substringValue")
-                val progressValue = castUnsignedCharToInt(substringValue.toInt(16).toByte())
-                Log.d("SliderDebug", "Calculated progressValue = $progressValue")
+                    if (parameter.data == "") {
+                        ""
+                    } else {
+                        // Получаем старое значение для анимации
+                        val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress
+                        // Получаем новое значение из данных
+                        val newValue = castUnsignedCharToInt(
+                            parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte()
+                        )
+                        widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
+                        // Запускаем анимацию изменения прогресса
+                        animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue)
+                        // Обновляем текстовое поле
+                        widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = newValue.toString()
+                    }
+                    // Если по каким-то причинам нужно повторно установить значение:
+                    widgetSlidersInfo[indexWidgetSlider].progress[index] = castUnsignedCharToInt(
+                        parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte()
+                    )
+                    widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
+                        widgetSlidersInfo[indexWidgetSlider].progress[index]
+                    widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text =
+                        widgetSlidersInfo[indexWidgetSlider].progress[index].toString()
+                }
             }
-            widgetSlidersInfo[indexWidgetSlider].responseReceived.set(true)
+            catch (e: Exception)   {
+                Log.e("SliderDebug", "Ошибка при обработке данных: ${e.message}", e)
+            }
+            finally {
+                widgetSlidersInfo[indexWidgetSlider].responseReceived.set(true)
+                widgetSlidersInfo[indexWidgetSlider].loadingAnimators.forEach { it?.cancel() }
+                widgetSlidersInfo[indexWidgetSlider].loadingAnimators.clear()
+                Log.d("SliderDebug", "Установлен флаг responseReceived=true для слайдера с индексом $indexWidgetSlider")
+            }
+
         } else {
             Log.d ("parameter sliderCollect", "НЕТ слайдера, которому передназначаются данные")
             Log.d ("parameter sliderCollect", "данные для addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}")
@@ -280,53 +299,36 @@ class SliderDelegateAdapter(
             }
 
         }
-
         Log.d("SliderDebug", "Received parameter.data = '${parameter.data}', длина = ${parameter.data.length}")
     }
-//    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
-//        //TODO не корректно работает фугкция поиска виджета по адресам и айдишникам
-//        widgetSlidersInfo.forEachIndexed { index, widgetSliderInfo ->
-//            if (widgetSliderInfo.addressDevice[0] == addressDevice && widgetSliderInfo.parameterID[0] == parameterID) {
-//                return index
-//            }
-//        }
-//        return -1
-//    }
 
-    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
-        Log.d("SliderAdapterTest", "getIndexWidgetSlider run")
-        widgetSlidersInfo.forEachIndexed { index, sliderInfo ->
-            sliderInfo.addressDevice.forEachIndexed { i, dev ->
-                if (dev == addressDevice && sliderInfo.parameterID[i] == parameterID) {
-                    return index
-                }
+
+    private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
+        if (from == to) return
+        val animationDuration = DURATION_ANIMATION
+        ValueAnimator.ofInt(from, to).apply {
+            duration = animationDuration
+            addUpdateListener { animator ->
+                progressBar.progress = animator.animatedValue as Int
             }
+            start()
         }
-        return -1
     }
 
-//    private fun addOrReplaceWidgetInfo(newWidgetInfo: WidgetSliderInfo) {
-//        // Ищем запись с тем же набором адресов и параметров
-//        val indexOfExisting = widgetSlidersInfo.indexOfFirst {
-//            it.addressDevice == newWidgetInfo.addressDevice && it.parameterID == newWidgetInfo.parameterID
-//        }
-//        if (indexOfExisting != -1) {
-//            // Если нашли – заменяем её
-//            widgetSlidersInfo[indexOfExisting] = newWidgetInfo
-//        } else {
-//            // Если не нашли – добавляем новую
-//            widgetSlidersInfo.add(newWidgetInfo)
-//        }
-//        // Если порядок нужен для отрисовки (сортировка по widgetPosition)
-//        widgetSlidersInfo.sortBy { it.widgetPosition }
-//    }
+    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
+        return widgetSlidersInfo.indexOfFirst { sliderInfo ->
+            sliderInfo.addressDevice.zip(sliderInfo.parameterID).any { (addr, paramId) ->
+                addr == addressDevice && paramId == parameterID
+            }
+        }
+    }
 
 
     override fun isForViewType(item: Any): Boolean = item is SliderItem
     override fun SliderItem.getItemId(): Any = title
 
     fun onDestroy() {
-        scope.cancel()
+//        scope.cancel()
         Log.d("SliderAdapterTest" , "onDestroy slider")
     }
 }
@@ -342,5 +344,6 @@ data class WidgetSliderInfo (
     var widgetSliderNumTv: ArrayList<TextView>,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
-    var responseReceived: AtomicBoolean = AtomicBoolean(false)
+    var responseReceived: AtomicBoolean = AtomicBoolean(false),
+    var loadingAnimators: ArrayList<ValueAnimator?> = ArrayList()
 )

@@ -44,6 +44,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidge
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetEStruct
@@ -154,6 +156,9 @@ class BLEParser() {
 
         Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
         when (dataCode) {
+            ParameterDataCodeEnum.PDCE_UNIVERSAL_CONTROL_INPUT.number -> {
+                Log.d("parameter PDCE_UNIVERSAL_CONTROL_INPUT","deviceAddress: $deviceAddress  parameterID: $parameterID   data: ${ParameterProvider.getParameter(deviceAddress, parameterID).data}")
+            }
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
@@ -239,21 +244,23 @@ class BLEParser() {
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
-                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                Log.d("parameter sliderCollect PDCE_INTERFECE_ERROR_COUNTER","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
-                Log.d("TestOptic"," dataCode: $dataCode")
+                Log.d("parameter sliderCollect PDCE_CALIBRATION_CURRENT_PERCENT","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_GLOBAL_FORCE.number -> {
                 Log.d("parameter sliderCollect PDCE_GLOBAL_FORCE"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
-                Log.d("TestOptic", "dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            } //+
+
+            //TODO после перепрошивки проверить Optic timeout slider
+            ParameterDataCodeEnum.PDCE_OPTIC_SELECT_GESTURE_TIMEOUT.number -> {
+                Log.d("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+            }
             ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {
                 Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                 val newStatusExist = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte())
@@ -818,6 +825,11 @@ class BLEParser() {
                         opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
                         addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                        val spinnerParameterWidgetEStruct = Json.decodeFromString<SpinnerParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        spinnerParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(spinnerParameterWidgetEStruct,spinnerParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+                    }
                 }
             }
             ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
@@ -848,7 +860,13 @@ class BLEParser() {
                         plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
-                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                        System.err.println("parseWidgets SPINBOX")
+                        val spinnerParameterWidgetSStruct = Json.decodeFromString<SpinnerParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        spinnerParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(spinnerParameterWidgetSStruct,spinnerParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+
+                    }
                     ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
                     ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets GESTURE_SETTINGS") }
                     ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { System.err.println("parseWidgets CALIB_STATUS") }

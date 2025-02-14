@@ -1,10 +1,12 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -17,10 +19,11 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.ParameterInfo
+import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -28,6 +31,8 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -45,6 +50,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlin.coroutines.cancellation.CancellationException
 
 class PlotDelegateAdapter (
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
@@ -59,33 +67,37 @@ class PlotDelegateAdapter (
     private var dataSens5 = 0
     private var dataSens6 = 0
     private var numberOfCharts = 2
-    private var firstInit = true
+    private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
 
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
+    private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
+
+    private var firstInit = true
+    private var openThreshold = 0
+    private var closeThreshold = 0
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
-        onDestroyParent { onDestroy(EMGChartLc) }
+        onDestroyParent{ onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
         var deviceAddress = 0
         val parameterID = 0
-        var openThreshold = 0
-        var closeThreshold = 0
-        var parametersIDAndDataCodes: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
+
+
 
 
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                parameterInfoSet = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
             is PlotParameterWidgetSStruct -> {
-                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                parameterInfoSet = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
-        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
+        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
@@ -97,10 +109,11 @@ class PlotDelegateAdapter (
 
         countBinding += 1
 
-        main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE){}
-        main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestThresholds(ParameterInfoProvider.getDeviceAddressByDataCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet), ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet)) , MAIN_CHANNEL, WRITE){}
+        Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
-        val filteredSet = parametersIDAndDataCodes.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
+
+        val filteredSet = parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
 
         openCHV.setOnTouchListener { p0, event ->
             p0.parent.requestDisallowInterceptTouchEvent(true)
@@ -124,8 +137,10 @@ class PlotDelegateAdapter (
             }
             true
         }
+
     }
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
+        Log.d("Plot view","View attached")
         if (scope != null) {
             Log.d("Plot view", "2 Scope already exists, skipping.")
         } else {
@@ -136,12 +151,11 @@ class PlotDelegateAdapter (
         }
         graphThreadFlag = true
         scope?.launch {
-            delay(500) // Задержка на 500 мс
-            Log.d("Plot view","startGraphEnteringDataCoroutine")
             startGraphEnteringDataCoroutine(EMGChartLc)
         }
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
+        Log.d("Plot view","View detached")
 //        onDestroy()
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
@@ -151,50 +165,90 @@ class PlotDelegateAdapter (
             try {
                 merge(
                     MainActivityUBI4.plotArrayFlow.map { plotParameterRef ->
-                        val indexWidgetPlot = getIndexWidgetPlot(plotParameterRef.addressDevice, plotParameterRef.parameterID)
+                        val indexWidgetPlot = getIndexWidgetPlot(
+                            plotParameterRef.addressDevice,
+                            plotParameterRef.parameterID
+                        )
 
                         if (plotParameterRef.dataPlots.isNotEmpty()) {
                             System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} indexWidgetPlot: $indexWidgetPlot")
-                            if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
-                            if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
-                            if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
-                            if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
-                            if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
-                            if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
+                            if (plotParameterRef.dataPlots.size >= 1) {
+                                dataSens1 = plotParameterRef.dataPlots[0]
+                            } // нулевой всегда датчик открытия
+                            if (plotParameterRef.dataPlots.size >= 2) {
+                                dataSens2 = plotParameterRef.dataPlots[1]
+                            } // первый всегда датчик закрытия
+                            if (plotParameterRef.dataPlots.size >= 3) {
+                                dataSens3 = plotParameterRef.dataPlots[2]
+                            }
+                            if (plotParameterRef.dataPlots.size >= 4) {
+                                dataSens4 = plotParameterRef.dataPlots[3]
+                            }
+                            if (plotParameterRef.dataPlots.size >= 5) {
+                                dataSens5 = plotParameterRef.dataPlots[4]
+                            }
+                            if (plotParameterRef.dataPlots.size >= 6) {
+                                dataSens6 = plotParameterRef.dataPlots[5]
+                            }
                         }
                     },
                     MainActivityUBI4.thresholdFlow.map { parameterRef ->
-                        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                        val parameter = ParameterProvider.getParameter(
+                            parameterRef.addressDevice,
+                            parameterRef.parameterID
+                        )
+                        val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
+                        Log.d("plotThresholds", "plotThresholds $plotThresholds")
                         //TODO тонкое место, переписать (по факту мы должны парсить все данные в структуры и делать это защищённо (как в BaseParameterInfoStruct) даже если там всего два инта)
                         // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
                         //запись пороговых значений при изменении данных в параметре
-                        Log.d("thresholdFlow", "thresholdFlow = $parameterRef   data = ${parameter.data}")
-//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
-//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
+                        Log.d(
+                            "thresholdFlow",
+                            "thresholdFlow = $parameterRef   data = ${parameter.data}"
+                        )
+                        if (parameter.data != "") {
+                            widgetPlotsInfo[0].apply {
+                                openThreshold   = plotThresholds.threshold1
+                                closeThreshold  = plotThresholds.threshold2
+                                threshold3      = plotThresholds.threshold3
+                                threshold4      = plotThresholds.threshold4
+                                threshold5      = plotThresholds.threshold5
+                                threshold6      = plotThresholds.threshold6
+                            }
+                        }
 
-//                    //изменение UI в соответствии с новыми порогами
-//                    widgetPlotsInfo[indexWidgetPlot].openThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].openThreshold.toString()
-//                    widgetPlotsInfo[indexWidgetPlot].closeThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].closeThreshold.toString()
 
-//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-
-                        if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
-                        if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(4, 6).toInt(16).toByte())
-
-//                    //изменение UI в соответствии с новыми порогами
-                        widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()
-                        widgetPlotsInfo[0].closeThresholdTv.text = widgetPlotsInfo[0].closeThreshold.toString()
-                        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].openThreshold)
-                        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].closeThreshold)
+                        //изменение UI в соответствии с новыми порогами
+                        widgetPlotsInfo[0].openThresholdTv.text =
+                            widgetPlotsInfo[0].openThreshold.toString()
+                        widgetPlotsInfo[0].closeThresholdTv.text =
+                            widgetPlotsInfo[0].closeThreshold.toString()
+                        setLimitPosition2(
+                            widgetPlotsInfo[0].limitCH1,
+                            widgetPlotsInfo[0].allCHRl,
+                            widgetPlotsInfo[0].openThreshold
+                        )
+                        setLimitPosition2(
+                            widgetPlotsInfo[0].limitCH2,
+                            widgetPlotsInfo[0].allCHRl,
+                            widgetPlotsInfo[0].closeThreshold
+                        )
+                        openThreshold = widgetPlotsInfo[0].openThreshold
+                        closeThreshold = widgetPlotsInfo[0].closeThreshold
                     }
                 ).collect()
+            } catch (e: CancellationException) {
+                Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
             } catch (e: Exception) {
-                println("Error plotArrayFlowCollect $e")
-                main.runOnUiThread { main.showToast("Error in plotArrayFlowCollect") }
+                main.runOnUiThread {
+                    main.showToast("ERROR plotArrayFlowCollect")
+                }
+                Log.e("plotArrayFlowCollect", "Exception: ${e.message}")
+
             }
         }
     }
+
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
@@ -454,10 +508,29 @@ class PlotDelegateAdapter (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
-        var y = allCHRl.height - allCHRl.height*threshold/255
-        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()
+//    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
+//        var y = allCHRl.height - allCHRl.height*threshold/255
+//        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()//end position
+//    }
+
+
+    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int, duration: Long = DURATION_ANIMATION) {
+        // Выполняем вычисления после того, как layout уже измерен
+        allCHRl.post {
+            val targetY = (allCHRl.height - (allCHRl.height * threshold / 255) - limit_CH.height / 2 + allCHRl.marginTop).toFloat()
+            val startY = limit_CH.y
+
+            ValueAnimator.ofFloat(startY, targetY).apply {
+                this.duration = duration
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener { animator ->
+                    limit_CH.y = animator.animatedValue as Float
+                }
+                start()
+            }
+        }
     }
+
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
 //        Log.d("Plot view","startGraphEnteringDataCoroutine")
 //        dataSens1 += 1
@@ -481,6 +554,8 @@ class PlotDelegateAdapter (
     }
     fun onDestroy() {
         graphThreadFlag = false
+        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }
@@ -491,6 +566,10 @@ data class WidgetPlotInfo (
     var parameterID: Int = 0,
     var openThreshold: Int = 0,
     var closeThreshold: Int = 0,
+    var threshold3: Int = 0,
+    var threshold4: Int = 0,
+    var threshold5: Int = 0,
+    var threshold6: Int = 0,
     var limitCH1: RelativeLayout,
     var limitCH2: RelativeLayout,
     var openThresholdTv: TextView,

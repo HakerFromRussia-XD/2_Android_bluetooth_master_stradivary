@@ -12,8 +12,12 @@
  */
 package com.bailout.stickk.ubi4.persistence.preference
 
+import com.bailout.stickk.R
+import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
+
 
 object PreferenceKeysUBI4 {
+    const val SET_MODE_SMART_CONNECTION_UBI4 = "SET_MODE_SMART_CONNECTION_UBI4"
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val NUM_GESTURES = 14
@@ -24,7 +28,10 @@ object PreferenceKeysUBI4 {
     const val PARAMETER_ID_IN_SYSTEM_UBI4 = "PARAMETER_ID_IN_SYSTEM_UBI4"
     const val GESTURE_ID_IN_SYSTEM_UBI4 = "GESTURE_ID_IN_SYSTEM_UBI4"
     const val SELECT_GESTURE_SETTINGS_NUM = "SELECT_GESTURE_SETTINGS_NUM"
-    const val LAST_CONNECTION_MAC = "LAST_CONNECTION_MAC"
+    const val LAST_CONNECTION_MAC_UBI4 = "LAST_CONNECTION_MAC_UBI4"
+    const val LAST_ACTIVE_GESTURE_FILTER = "LAST_ACTIVE_GESTURE_FILTER"
+    const val LAST_HIDE_COLLECTION_BTN_STATE = "LAST_HIDE_COLLECTION_BTN_STATE"
+
 
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
 
@@ -113,18 +120,19 @@ object PreferenceKeysUBI4 {
     }
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {
-        PWLE_UNKNOW (0x00, "UNKNOW"),
-        PWLE_OPEN (0x01, "OPEN"),
-        PWLE_CLOSE (0x02, "CLOSE"),
-        PWLE_CALIBRATE (0x03, "CALIBRATE"),
-        PWLE_RESET (0x04, "RESET"),
-        PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
-        PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
-        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE"),
-        PWLE_SELECT_PROFILE (0x08, "SELECT PROFILE"),
-        PWLE_GLOBAL_FORCE (0x09, "GLOBAL FORCE"),
-        PWLE_PLOT (0x0a, "PLOT"),
-        PWLE_OMG_LEARNING (0x0b, "OMG LEARNING"),
+        PWLE_UNKNOW (0x00, applicationContext().getString(R.string.pwle_unknow)),
+        PWLE_OPEN (0x01, applicationContext().getString(R.string.open)),
+        PWLE_CLOSE (0x02, applicationContext().getString(R.string.close)),
+        PWLE_CALIBRATE (0x03, applicationContext().getString(R.string.pwle_calibrate)),
+        PWLE_RESET (0x04, applicationContext().getString(R.string.pwle_reset)),
+        PWLE_CONTROL_SETTINGS (0x05, applicationContext().getString(R.string.pwle_control_settings)),
+        PWLE_OPEN_CLOSE_THRESHOLD (0x06, applicationContext().getString(R.string.pwle_open_close_threshold)),
+        PWLE_SELECT_GESTURE (0x07, applicationContext().getString(R.string.pwle_select_gesture)),
+        PWLE_SELECT_PROFILE (0x08, applicationContext().getString(R.string.pwle_select_profile)),
+        PWLE_GLOBAL_FORCE (0x09, applicationContext().getString(R.string.pwle_global_force)),
+        PWLE_PLOT (0x0a, applicationContext().getString(R.string.pwle_plot)),
+        PWLE_OMG_LEARNING (0x0b, applicationContext().getString(R.string.pwle_omg_learning)),
+
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {
@@ -273,7 +281,10 @@ object PreferenceKeysUBI4 {
         PDCE_SWITCH_SENSORS(41),
 
         PDCE_OPTIC_CHECKPOINT_DATA_RECEIVER(42),
+
         PDCE_OPTIC_BINDING_DATA (43),
+
+        PDCE_GENERIC_0 (255)
     }
 
     enum class GestureEnum (val number: Int) {
@@ -308,4 +319,9 @@ object PreferenceKeysUBI4 {
         GESTURE_CUSTOM_12 (76),
         GESTURE_CUSTOM_13 (77)
     }
+
+    enum class TrainingModelState {
+        BASE, EXPORT, RUN,
+    }
+
 }

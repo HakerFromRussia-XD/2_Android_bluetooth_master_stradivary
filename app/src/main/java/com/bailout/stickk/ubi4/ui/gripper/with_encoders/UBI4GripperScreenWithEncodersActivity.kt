@@ -696,11 +696,11 @@ class UBI4GripperScreenWithEncodersActivity
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0), gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        main.bleCommand(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE){}
     }
     private fun compileBLERead () {
         Log.d("uiGestureSettingsObservable", "compileBLERead")
-        main.bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE){}
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
 //        val _inputNumber = validationRange(inputNumber)
@@ -774,7 +774,7 @@ class UBI4GripperScreenWithEncodersActivity
     }
     private fun loadGestureNameList() {
         val text = "load not work"
-        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, text)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
             gestureNameList.add(

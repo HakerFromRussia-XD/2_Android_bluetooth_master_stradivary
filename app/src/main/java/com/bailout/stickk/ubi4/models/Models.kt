@@ -12,7 +12,8 @@ data class TrainingGestureItem(val title: String, val widget: Any)
 
 // dialogs
 data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)
-data class SprGestureItem(val title: String, val image: Int, var check: Boolean)
+data class SprGestureItem(val sprGestureId:Int = 0, val title: String = "not set", val animationId: Int = 0, var check: Boolean = false, val keyNameGesture: String = "key")
+data class SprDialogCollectionGestureItem(val gesture: SprGestureItem, var check: Boolean = false)
 data class BindingGestureItem(
     val position: Int,
     var nameOfUserGesture: String,
@@ -35,9 +36,9 @@ data class GestureWithAddress (
     val gesture: Gesture, val gestureState: Int
 )
 
-data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
+data class ParameterInfo<A, B, C, D>(
+    val parameterID: A,
+    val dataCode: B,
+    val deviceAddress: C,
+    val dataOffset: D
 )

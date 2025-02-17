@@ -9,7 +9,6 @@ import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import kotlinx.coroutines.cancel
 
 class OneButtonDelegateAdapter(
     val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
@@ -31,14 +30,14 @@ class OneButtonDelegateAdapter(
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
             is CommandParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand

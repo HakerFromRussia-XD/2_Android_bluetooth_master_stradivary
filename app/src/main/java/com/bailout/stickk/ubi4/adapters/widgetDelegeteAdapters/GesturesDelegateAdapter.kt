@@ -29,22 +29,21 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.g
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.models.Quadruple
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 
 class GesturesDelegateAdapter(
     val gestureNameList:  ArrayList<String>,
-    val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
@@ -70,9 +69,9 @@ class GesturesDelegateAdapter(
 
     private lateinit var mAddGestureToRotationGroupBtn: View
     private lateinit var mPlusIv: ImageView
-    //TODO тут правильное взаимодействие с parameterIDSet, но при этом может возникнуть проблима
-    // если в виджет упадут два с одинаковыми датакодами
-    private var parameterIDSet = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
+    // TODO тут правильное взаимодействие с parameterIDSet, но при этом может возникнуть проблима
+    //  если в виджет упадут два с одинаковыми датакодами
+    private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
     private var gestureCastomBtns: ArrayList<View> = ArrayList()
@@ -89,19 +88,19 @@ class GesturesDelegateAdapter(
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
                 //TODO добавить здесь сортировку parameterID по датакоду
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo"," ParamInfoEStruct parameterIDSet: $parameterIDSet" )
             }
             is BaseParameterWidgetSStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo"," ParamInfoSStruct parameterIDSet: $parameterIDSet" )
             }
         }
         collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
         rotationGroupSelectBtn.setOnClickListener {
             moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl)
-            onRequestRotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+            onRequestRotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
         }
         hideCollectionBtn.setOnClickListener {
             System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
@@ -179,7 +178,7 @@ class GesturesDelegateAdapter(
             }
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
-                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number, parameterIDSet), (0x40).toInt()+i)
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
@@ -234,30 +233,27 @@ class GesturesDelegateAdapter(
         gestureBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
     private fun gestureFlowCollect() {
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                MainActivityUBI4.rotationGroupFlow.collect { _ ->
-                    val parameter = ParameterProvider.getParameter(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
-                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-                    val rotationGroupList = rotationGroup.toGestureList()
-                    Log.d("uiRotationGroupObservable", "InAdapter testList = $rotationGroupList  size = ${rotationGroupList.size}")
-                    rotationGroupGestures.clear()
-                    rotationGroupList.forEach{ item ->
-                        if (item.first != 0 )
-                            rotationGroupGestures.add(getGesture(item.first))
-                    }
-
-                    showIntroduction()
-                    setupListRecyclerView()
-                    synchronizeRotationGroup()
-                    calculatingShowAddButton()
+        scope.launch(Dispatchers.Main) {
+            rotationGroupFlow.collect { _ ->
+                val parameter = ParameterProvider.getParameter(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
+                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+                val rotationGroupList = rotationGroup.toGestureList()
+                Log.d("uiRotationGroupObservable", "InAdapter testList = $rotationGroupList  size = ${rotationGroupList.size}")
+                rotationGroupGestures.clear()
+                rotationGroupList.forEach{ item ->
+                    if (item.first != 0 ) rotationGroupGestures.add(getGesture(item.first))
                 }
+
+                showIntroduction()
+                setupListRecyclerView()
+                synchronizeRotationGroup()
+                calculatingShowAddButton()
             }
         }
     }
     // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
     fun onDestroy() {
-        Log.d("LifeCycele", "stopCollectingGestureFlow")
+        Log.d("LifeCycle", "stopCollectingGestureFlow")
         scope.cancel()
     }
 
@@ -277,18 +273,10 @@ class GesturesDelegateAdapter(
         }
     }
     private fun sendBLERotationGroup() {
-        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
     }
     private fun onSendBLEActiveGesture(activeGesture: Int) {
-        onSendBLEActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number), activeGesture)
-    }
-    private fun getParameterIDByCode(dataCode: Int): Int {
-        parameterIDSet.forEach {
-            if (it.second == dataCode) {
-                return it.first
-            }
-        }
-        return 0
+        onSendBLEActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterIDSet), activeGesture)
     }
     private fun setupListRecyclerView() {
         mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))

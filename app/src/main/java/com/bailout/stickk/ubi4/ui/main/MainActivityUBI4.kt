@@ -32,6 +32,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.PlotParameterRef
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -80,7 +81,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             val byteArray = ByteArray(249){0x55.toByte()}
             for (i in 1..100){
                 byteArray[0] = i.toByte()
-                bleCommandWithQueue(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
+                bleCommandWithQueue(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE){}
             }
             Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
         }
@@ -89,7 +90,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
 //            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
             System.err.println("BLE debug bleCommand byteArray = runCommandBtn")
-            bleCommandWithQueue(BLECommands.requestThresholds(9, 13) , MAIN_CHANNEL, WRITE)
+            bleCommandWithQueue(BLECommands.requestThresholds(9, 13) , MAIN_CHANNEL, WRITE){}
         }
 
     }
@@ -133,6 +134,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceAddress)
         //settings
     }
     internal fun sendWidgetsArray() {
@@ -146,6 +148,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
+        bindingGroupFlow = MutableSharedFlow()
+        activeGestureFlow = MutableSharedFlow()
         thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -181,18 +185,27 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
-    private fun getBleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
-    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onCommandSent)) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSent: () -> Unit): Runnable {
+        return Runnable {
+            writeData(byteArray, command, typeCommand)
+            // Invoke the callback after data is sent
+            onCommandSent()
+        }
+    }
+    private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, Command, typeCommand)
+            bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)
             }
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
+    }
+    fun getBLEController(): BLEController {
+        return mBLEController
     }
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand byteArray = ${byteArray?.let {
@@ -210,9 +223,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

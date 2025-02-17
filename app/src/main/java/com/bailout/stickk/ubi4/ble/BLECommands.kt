@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -176,6 +177,18 @@ class BLECommands {
             )
             return header
         }
+        fun requestBindingGroup(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
         fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -193,6 +206,18 @@ class BLECommands {
             header[4] = (data.size/256).toByte()
             val result = header + data
             return result
+        }
+        fun requestActiveGesture(addressDevice: Int, parameterID: Int): ByteArray{
+            val header = byteArrayOf(
+                0x60.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
         }
         fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
@@ -285,6 +310,48 @@ class BLECommands {
                 rotationGroup.gesture7ImageId.toByte(),
                 rotationGroup.gesture8Id.toByte(),
                 rotationGroup.gesture8ImageId.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+        fun sendBindingGroupInfo(addressDevice: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val header = byteArrayOf(
+                0x40.toByte(),
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                bindingGestureGroup.gestureSpr1Id.toByte(),
+                bindingGestureGroup.gesture1Id.toByte(),
+                bindingGestureGroup.gestureSpr2Id.toByte(),
+                bindingGestureGroup.gesture2Id.toByte(),
+                bindingGestureGroup.gestureSpr3Id.toByte(),
+                bindingGestureGroup.gesture3Id.toByte(),
+                bindingGestureGroup.gestureSpr4Id.toByte(),
+                bindingGestureGroup.gesture4Id.toByte(),
+                bindingGestureGroup.gestureSpr5Id.toByte(),
+                bindingGestureGroup.gesture5Id.toByte(),
+                bindingGestureGroup.gestureSpr6Id.toByte(),
+                bindingGestureGroup.gesture6Id.toByte(),
+                bindingGestureGroup.gestureSpr7Id.toByte(),
+                bindingGestureGroup.gesture7Id.toByte(),
+                bindingGestureGroup.gestureSpr8Id.toByte(),
+                bindingGestureGroup.gesture8Id.toByte(),
+                bindingGestureGroup.gestureSpr9Id.toByte(),
+                bindingGestureGroup.gesture9Id.toByte(),
+                bindingGestureGroup.gestureSpr10Id.toByte(),
+                bindingGestureGroup.gesture10Id.toByte(),
+                bindingGestureGroup.gestureSpr11Id.toByte(),
+                bindingGestureGroup.gesture11Id.toByte(),
+                bindingGestureGroup.gestureSpr12Id.toByte(),
+                bindingGestureGroup.gesture12Id.toByte(),
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

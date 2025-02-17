@@ -73,13 +73,14 @@ class BLEController(
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
-                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
+//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect("34:85:18:98:10:7E")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
-//                mBluetoothLeService?.connect(connectedDeviceAddress)
+//                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
+                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -119,6 +120,7 @@ class BLEController(
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    Toast.makeText(context, "разрыв соединения", Toast.LENGTH_SHORT).show()
                     Log.d("Connection", "ACTION_GATT_DISCONNECTED")
                     mConnected = false
                     endFlag = true
@@ -296,34 +298,38 @@ class BLEController(
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug")
-        for (i in mGattCharacteristics.indices) {
-            for (j in mGattCharacteristics[i].indices) {
-                if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
-                    mCharacteristic = mGattCharacteristics[i][j]
-                    if (typeCommand == WRITE){
-                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                            System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
-                            mCharacteristic?.value = byteArray
-                            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+        try {
+            for (i in mGattCharacteristics.indices) {
+                for (j in mGattCharacteristics[i].indices) {
+                    if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
+                        mCharacteristic = mGattCharacteristics[i][j]
+                        if (typeCommand == WRITE){
+                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                                System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
+                                mCharacteristic?.value = byteArray
+                                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                            }
                         }
-                    }
 
-                    if (typeCommand == READ){
-                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-                            mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                        if (typeCommand == READ){
+                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+                                mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                            }
                         }
-                    }
 
-                    if (typeCommand == NOTIFY){
-                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-                            System.err.println("BLE debug попытка подписки на нотификацию")
-                            mNotifyCharacteristic = mCharacteristic
-                            mBluetoothLeService?.setCharacteristicNotification(mCharacteristic, true)
+                        if (typeCommand == NOTIFY){
+                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+                                System.err.println("BLE debug попытка подписки на нотификацию")
+                                mNotifyCharacteristic = mCharacteristic
+                                mBluetoothLeService?.setCharacteristicNotification(mCharacteristic, true)
+                            }
                         }
-                    }
 
+                    }
                 }
             }
+        } catch (e: Exception) {
+            mMain.showToast("ошибка ble")
         }
     }
 

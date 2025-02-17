@@ -548,7 +548,23 @@
     <string name="spr_gestures">SPR gestures</string>
     <string name="control_gestures">Control Gestures</string>
     <string name="annotation_main_text">Here you can select gestures recorded during training, as well as attach your own gestures to them.</string>
-
+    <string name="neutral_position">Neutral position</string>
+    <string name="thumb_finger">Thumb Finger</string>
+    <string name="clenching_fist">Clenching into a fist</string>
+    <string name="palm_opening">Palm opening</string>
+    <string name="palm_closing">Closing palm</string>
+    <string name="ok_pinch">Ok/Pinch Gesture</string>
+    <string name="gesture_key">Gesture Key</string>
+    <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
+    <string name="flexion">Flexion</string>
+    <string name="extension">Extension</string>
+    <string name="adduction">Adduction</string>
+    <string name="abduction">Abduction</string>
+    <string name="pronation">Pronation</string>
+    <string name="supination">Supination</string>
+    <string name="select_learned_gestures">Select learned gestures</string>
+    <string name="assign_gesture">Assign a gesture</string>
+    <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
 
     <string-array name="numbers">
         <item>0</item>

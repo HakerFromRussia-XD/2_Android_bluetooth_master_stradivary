@@ -49,20 +49,20 @@ class SliderDelegateAdapter(
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
-                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
-                    addressDevice.add(it.third)
-                    parameterID.add(it.first)
-                    dataOffset.add(it.fourth)
+                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                    addressDevice.add(it.deviceAddress)
+                    parameterID.add(it.parameterID)
+                    dataOffset.add(it.dataOffset)
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
                 Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
-            is SliderParameterWidgetSStruct -> {
-                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
-                    addressDevice.add(it.third)
-                    parameterID.add(it.first)
-                    dataOffset.add(it.fourth)
+            is SliderParameterWidgetSStruct ->  {
+                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                    addressDevice.add(it.deviceAddress)
+                    parameterID.add(it.parameterID)
+                    dataOffset.add(it.dataOffset)
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
@@ -105,7 +105,7 @@ class SliderDelegateAdapter(
 
         Handler().postDelayed({
             Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
-            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE)
+            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
         }, 500)
     }
     private fun sliderCollect() {

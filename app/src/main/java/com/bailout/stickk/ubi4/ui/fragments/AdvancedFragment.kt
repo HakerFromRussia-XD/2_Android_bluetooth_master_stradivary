@@ -22,6 +22,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -36,16 +37,14 @@ import kotlinx.coroutines.withContext
 
 
 @Suppress("DEPRECATION")
-class AdvancedFragment : Fragment() {
+class AdvancedFragment : BaseWidgetsFragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
-    private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
-    private var count = 0
     private val display = 2
 
     @SuppressLint("CheckResult", "LogNotTimber")
@@ -95,77 +94,5 @@ class AdvancedFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private val adapterWidgets = CompositeDelegateAdapter(
-        PlotDelegateAdapter(
-            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        OneButtonDelegateAdapter (
-            onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
-            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
-        ),
-        SwitcherDelegateAdapter(
-            onSwitchClick = {
-                    addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
-            },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        SliderDelegateAdapter(
-            onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        )
-//        GesturesDelegateAdapter (
-//            onSelectorClick = {},
-//            onDeleteClick = { resultCb, gestureName -> },
-//            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
-//            onSendBLERotationGroup = {deviceAddress, parameterID -> },
-//            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
-//            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
-//            onRequestRotationGroup = {deviceAddress, parameterID -> }
-//        )
-    )
-
-    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-    }
-    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
-        Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-
-
-//        val stamp = Timestamp(System.currentTimeMillis())
-//        val calendar: Calendar = Calendar.getInstance()
-//        calendar.setTimeInMillis(System.currentTimeMillis())
-//        val year = calendar.get(Calendar.YEAR)
-//        val month = calendar.get(Calendar.MONTH) + 1
-//        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-//        transmitter().bleCommand(BLECommands.sendTimestampInfo(7,1, year, month, dayOfMonth, Date(stamp.time).day, Date(stamp.time).hours, Date(stamp.time).minutes, Date(stamp.time).seconds), MAIN_CHANNEL, WRITE)
-
-//        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-
-//        BLECommands.requestSubDeviceParametrs(6, 0, 2).forEach { i ->
-//            // проверка правильности сформированной команды
-//            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
-//        }
-//        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
-    }
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
-        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
-        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
-    }
-    private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
-        Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
-        transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
     }
 }

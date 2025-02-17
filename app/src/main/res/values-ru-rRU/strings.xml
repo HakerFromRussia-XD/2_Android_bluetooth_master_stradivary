@@ -623,6 +623,7 @@
     <string name="loading_error">Ошибка загрузки</string>
     <string name="the_file_was_not_successfully_downloaded">Файл не был успешно загружен на протез. Повторите попытку.</string>
     <string name="data_collection">Сбор данных</string>
+    <string name="active_gesture_is">Активный жест: %1$s</string>
 
 
     <string-array name="numbers">

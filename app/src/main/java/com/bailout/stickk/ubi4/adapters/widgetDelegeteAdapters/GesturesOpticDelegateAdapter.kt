@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -77,8 +78,13 @@ class GesturesOpticDelegateAdapter(
     private lateinit var _ubi4GesturesSelectorV: View
     private lateinit var _collectionGesturesCl: ConstraintLayout
     private lateinit var _sprGestureGroupCl: ConstraintLayout
+    private lateinit var _activeGestureNameCl: ConstraintLayout
+    private lateinit var _activeGestureNameTv: TextView
 
     private var currentBindingGroup: BindingGestureGroup = BindingGestureGroup()
+
+    private var isBindingGroupResponseReceived = false
+
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -122,6 +128,8 @@ class GesturesOpticDelegateAdapter(
         _ubi4GesturesSelectorV = ubi4GesturesSelectorV
         _collectionGesturesCl = collectionGesturesCl
         _sprGestureGroupCl = sprGestureGroupCl
+        _activeGestureNameCl = activeGestureNameCl
+        _activeGestureNameTv = activeGestureNameTv
 
 
         val savedHideState = main.getInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
@@ -156,8 +164,9 @@ class GesturesOpticDelegateAdapter(
         if (savedFilter == 2) {
             // Устанавливаем активный фильтр (если это необходимо для UI)
             MainActivityUBI4.activeFilterFlow.value = 2
+
             // Сразу вызываем команду запроса binding group
-            onRequestBindingGroup(
+            requestBindingGroupWithRetry(
                 deviceAddress,
                 ParameterInfoProvider.getParameterIDByCode(
                     ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
@@ -166,22 +175,24 @@ class GesturesOpticDelegateAdapter(
             )
         }
 
+
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
             MainActivityUBI4.activeFilterFlow.value = 1
+            activeGestureNameCl.visibility = View.VISIBLE
+
         }
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
             MainActivityUBI4.activeFilterFlow.value = 2
-            Handler().postDelayed({
-                onRequestBindingGroup(
+            activeGestureNameCl.visibility = View.GONE
+            onRequestBindingGroup(
                     deviceAddress,
                     ParameterInfoProvider.getParameterIDByCode(
                         ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
                         parameterInfoSet
                     )
                 )
-            }, 500)
         }
 
         hideCollectionBtn.setOnClickListener {
@@ -235,6 +246,7 @@ class GesturesOpticDelegateAdapter(
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i + 1)
+                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
                 }
             } else {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 2)) }
@@ -244,6 +256,7 @@ class GesturesOpticDelegateAdapter(
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i + 2)
+                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
                 }
             }
         }
@@ -261,6 +274,7 @@ class GesturesOpticDelegateAdapter(
             gestureCustomBtn?.setOnClickListener {
                 onSendBLEActiveGesture(63 + i)
                 setActiveGesture(gestureCustomBtn)
+                activeGestureNameTv.text = "Active gesture is: ${gestureCustomTv?.text ?: "Unknown"}"
             }
             gestureSettingsBtn?.setOnClickListener {
                 onShowGestureSettings(
@@ -321,6 +335,8 @@ class GesturesOpticDelegateAdapter(
 
         when (activeFilter) {
             1 -> {
+                _activeGestureNameCl.visibility = View.VISIBLE
+                // Остальная логика для фильтра 1
                 // Анимация индикатора в левую позицию
                 ObjectAnimator.ofFloat(_gesturesSelectV, "x", 18 * density)
                     .setDuration(ANIMATION_DURATION.toLong()).start()
@@ -346,6 +362,7 @@ class GesturesOpticDelegateAdapter(
             }
 
             2 -> {
+                _activeGestureNameCl.visibility = View.GONE
                 // Анимация индикатора вправо
                 ObjectAnimator.ofFloat(
                     _gesturesSelectV,
@@ -371,6 +388,13 @@ class GesturesOpticDelegateAdapter(
                 // Скрываем collection, показываем SPR
                 showCollectionGestures(false, _collectionGesturesCl)
                 showBindingGroup(true, _sprGestureGroupCl)
+                onRequestBindingGroup(
+                    deviceAddress,
+                    ParameterInfoProvider.getParameterIDByCode(
+                        ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
+                        parameterInfoSet
+                    )
+                )
             }
         }
     }
@@ -427,7 +451,22 @@ class GesturesOpticDelegateAdapter(
                         val activeGestureIdHex = parameter.data.takeLast(2)
                         val activeGestureId = activeGestureIdHex.toIntOrNull(16)
                         withContext(Dispatchers.Main) {
+                            // Обновляем визуальный индикатор активного жеста
                             setActiveGesture(getGestureViewById(activeGestureId))
+
+                            // Определяем имя жеста по его идентификатору
+                            val gestureName = activeGestureId?.let { id ->
+                                if (id < 63) {
+                                    // Для коллекционных жестов: индекс = id - 1
+                                    getCollectionGestures().getOrNull(id - 1)?.gestureName ?: "Unknown"
+                                } else {
+                                    // Для кастомных жестов: индекс = id - 63
+                                    gestureNameList.getOrNull(id - 63) ?: "Unknown"
+                                }
+                            } ?: "Unknown"
+
+                            // Устанавливаем текст с использованием строкового ресурса
+                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName)
                         }
                     },
                     MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
@@ -435,8 +474,7 @@ class GesturesOpticDelegateAdapter(
                             bindingGroupParameterRef.addressDevice,
                             bindingGroupParameterRef.parameterID
                         )
-                        val bindingGroup =
-                            Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+                        val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
                         listBindingGesture.clear()
                         bindingGroup.toGestureList().forEach {
                             if (it.first != 0) {
@@ -457,6 +495,21 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         }
+    }
+
+    private fun requestBindingGroupWithRetry(deviceAddress: Int, parameterId: Int) {
+        isBindingGroupResponseReceived = false
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                onRequestBindingGroup(deviceAddress, parameterId)
+                Log.d("GesturesOpticDelegateAdapter", "Отправил onRequestBindingGroup")
+            },
+            isResponseReceived = {
+                isBindingGroupResponseReceived
+            },
+            maxRetries = 5,
+            delayMillis = 400L
+        )
     }
 
     private fun showBindingGroup(show: Boolean, collectionGesturesCl: ConstraintLayout) {

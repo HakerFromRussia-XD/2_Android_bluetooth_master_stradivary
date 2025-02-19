@@ -246,7 +246,7 @@ class GesturesOpticDelegateAdapter(
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i + 1)
-                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
+//                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
                 }
             } else {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 2)) }
@@ -256,7 +256,7 @@ class GesturesOpticDelegateAdapter(
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i + 2)
-                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
+//                    activeGestureNameTv.text = "Active gesture is: ${gestureCollectionTitle?.text ?: "Unknown"}"
                 }
             }
         }
@@ -329,6 +329,7 @@ class GesturesOpticDelegateAdapter(
      * Единый метод: ставит в нужное положение индикатор, меняет цвета текста,
      * показывает или скрывает нужные блоки (collection vs SPR).
      */
+
     private fun renderFilterUI(activeFilter: Int) {
         val density = main.resources.displayMetrics.density
         val filterWidth = (_ubi4GesturesSelectorV.width / density).toInt()
@@ -460,13 +461,11 @@ class GesturesOpticDelegateAdapter(
                                     // Для коллекционных жестов: индекс = id - 1
                                     getCollectionGestures().getOrNull(id - 1)?.gestureName ?: "Unknown"
                                 } else {
-                                    // Для кастомных жестов: индекс = id - 63
-                                    gestureNameList.getOrNull(id - 63) ?: "Unknown"
+                                    gestureNameList.getOrNull(id - 64) ?: "Unknown"
                                 }
                             } ?: "Unknown"
 
-                            // Устанавливаем текст с использованием строкового ресурса
-                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName)
+                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName) ?: "Unknown"
                         }
                     },
                     MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->

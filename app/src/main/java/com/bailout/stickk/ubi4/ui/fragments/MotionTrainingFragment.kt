@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
@@ -397,7 +398,27 @@ class MotionTrainingFragment(
     }
 
 
+//    private fun startPhase(phaseIndex: Int) {
+//        currentPhaseIndex = phaseIndex
+//        if (phaseIndex >= lineData.size) {
+//            Log.d("DebugCheck", "All phases completed. Showing finish dialog.")
+//            // Все фазы завершены
+//            showConfirmCompletedTrainingDialog {
+//                parentFragmentManager.beginTransaction()
+//                    .replace(R.id.fragmentContainer, SprTrainingFragment())
+//                    .commitNow()
+//            }
+//            return
+//        }
+
     private fun startPhase(phaseIndex: Int) {
+        // Гарантируем, что анимация видима и сброшены alpha, scale и progress для новой фазы
+        binding.motionHandIv.visibility = View.VISIBLE
+        binding.motionHandIv.alpha = 1f
+        binding.motionHandIv.scaleX = 1f
+        binding.motionHandIv.scaleY = 1f
+        binding.motionHandIv.progress = 0f
+
         currentPhaseIndex = phaseIndex
         if (phaseIndex >= lineData.size) {
             Log.d("DebugCheck", "All phases completed. Showing finish dialog.")
@@ -476,8 +497,26 @@ class MotionTrainingFragment(
                 binding.countdownTextView.text = "0"
                 binding.countdownTextView.visibility = View.GONE
                 binding.motionProgressBar.progress = 0
-                // Переход к следующей фазе
-                startPhase(phaseIndex + 1)
+
+                // Modified: для активных фаз при завершении ставим анимацию на 50% и запускаем плавное уменьшение (scale down)
+                if (!pseudoGestures.contains(phase.gestureName)) {
+                    binding.motionHandIv.pauseAnimation()
+                    binding.motionHandIv.progress = 0.5f  // замораживаем на 50%
+                    binding.motionHandIv.animate().cancel() // отменяем предыдущие анимации
+                    binding.motionHandIv.animate()
+                        .scaleX(0f)
+                        .scaleY(0f)
+                        .setDuration(350)
+                        .withEndAction {
+                            // Сброс масштабов для следующей анимации
+                            binding.motionHandIv.scaleX = 1f
+                            binding.motionHandIv.scaleY = 1f
+                            startPhase(phaseIndex + 1)
+                        }
+                        .start()
+                } else {
+                    startPhase(phaseIndex + 1)
+                }
                 Log.d("DebugCheck", "Countdown finished for phase index: $currentPhaseIndex")
             }
         }.start()
@@ -563,7 +602,7 @@ class MotionTrainingFragment(
 
     private fun switchAnimationSmoothly(newAnimation: Int, endPercent: Int) {
         binding.motionHandIv.animate()
-            .setDuration(150)
+            .setDuration(0)
             .scaleX(0f)
             .scaleY(0f)
             .setInterpolator(AccelerateDecelerateInterpolator())
@@ -587,7 +626,7 @@ class MotionTrainingFragment(
 
                 // Анимация «всплытия» (scale back)
                 binding.motionHandIv.animate()
-                    .setDuration(150)
+                    .setDuration(350)
                     .scaleX(1f)
                     .scaleY(1f)
                     .setInterpolator(AccelerateDecelerateInterpolator())
@@ -595,6 +634,8 @@ class MotionTrainingFragment(
             }
             .start()
     }
+
+
 
 
 
@@ -756,6 +797,7 @@ class MotionTrainingFragment(
                 }
 
 
+
                 if (index < gestureSequence.size) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
@@ -878,6 +920,7 @@ class MotionTrainingFragment(
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
                 showWarningDialog()
+                pauseTimers()
             }
         }.start()
     }

@@ -155,6 +155,9 @@ class SliderDelegateAdapter(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                //TODO Андрей хочет что бы была возможность отправлять отрицательый значения в прогресс бар для этого нужно (1й отправить прогресс бар относитнльно minValue
+                // 2й вариант можем отправить знаковые и безнаковые значения  и решать по наличию отричательных значений в прогресс бар если minValue < 0 = signed иначе unsigned
+                // 3й вариант вычитать тип переменных из параметра к котороому относится виджет
                 widgetSlidersInfo[indexWidgetSlider].progress[1] = seekBar.progress
                 onSetProgress(addressDevice[1], parameterID[1],  widgetSlidersInfo[indexWidgetSlider].progress)
             }

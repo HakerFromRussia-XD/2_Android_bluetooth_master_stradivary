@@ -637,8 +637,6 @@ class MotionTrainingFragment(
 
 
 
-
-
     private fun getNextGestureName(currentIndex: Int): String {
         var nextIndex = currentIndex + 1
 

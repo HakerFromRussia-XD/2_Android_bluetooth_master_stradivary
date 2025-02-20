@@ -46,4 +46,6 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
 
 
     override fun getItemCount(): Int = adapterState.data.size
+
+
 }

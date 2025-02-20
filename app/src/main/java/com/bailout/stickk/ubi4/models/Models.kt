@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import java.io.File
 
 //widgets items
-data class GesturesItem(val title: String, val widget: Any)
+data class GesturesItem(var title: String, val widget: Any)
 data class OneButtonItem(val title: String, val description: String, val widget: Any)
 data class PlotItem(val title: String, val widget: Any)
 data class SliderItem(val title: String, val widget: Any)

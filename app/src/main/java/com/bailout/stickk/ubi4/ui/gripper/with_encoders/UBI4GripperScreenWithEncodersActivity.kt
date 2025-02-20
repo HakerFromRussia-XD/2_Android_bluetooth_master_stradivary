@@ -33,11 +33,13 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.GestureWithAddress
+import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -136,7 +138,7 @@ class UBI4GripperScreenWithEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
-        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gestureNumber = mSettings!!.getInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, 0)
 
 
@@ -197,14 +199,15 @@ class UBI4GripperScreenWithEncodersActivity
                         gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
 
 
-                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
                         System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                            mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                         editMode = false
+
                     } else {
-                        //переезжаемнаbinding
+                        //переезжаем на binding
                         binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
                         binding.gestureNameEt.visibility = View.VISIBLE
                         binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
@@ -277,10 +280,10 @@ class UBI4GripperScreenWithEncodersActivity
                 .subscribe {
                     if (editMode) {
                         gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
-                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
                         System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                            mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                     }
                     finish()

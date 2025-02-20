@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.internal.notifyAll
 
 @Suppress("DEPRECATION")
 class SprGestureFragment: BaseWidgetsFragment() {
@@ -32,6 +34,11 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
+    override fun onResume() {
+        super.onResume()
+        adapterWidgets.notifyDataSetChanged()
+    }
 
     @SuppressLint("CutPasteId")
     override fun onCreateView(
@@ -62,20 +69,23 @@ class SprGestureFragment: BaseWidgetsFragment() {
     }
 
 
-//    private fun refreshWidgetsList() {
-//        graphThreadFlag = false
-//        listWidgets.clear()
-//        onDestroyParentCallbacks.forEach { it.invoke() }
-//        onDestroyParentCallbacks.clear()
-//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-//    }
+    override fun refreshWidgetsList() {
+        graphThreadFlag = false
+        listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
+        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
+    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Default) {
-                updateFlow.collect { value ->
+                updateFlow.collect { _ ->
+                    Log.d("SprGestureFragment", "updateFlow emitted a new value")
                     main?.runOnUiThread {
                         binding.sprGesturesRv.post {
+                            val newData = mDataFactory.prepareData(0)
+                            Log.d("SprGestureFragment", "New data size: ${newData.size}")
                             adapterWidgets.swapData(mDataFactory.prepareData(0))
                             binding.refreshLayout.setRefreshing(false)
                         }
@@ -87,4 +97,5 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
 
 }
+
 

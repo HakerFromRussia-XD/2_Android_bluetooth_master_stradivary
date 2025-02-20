@@ -34,6 +34,7 @@ object SliderParameterWidgetSSerializer: KSerializer<SliderParameterWidgetSStruc
 
         if (string.length >= 84) {
             baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
+            //TODO перевести minprogress в SignedInt (minProgress = castSignedByteToInt(string.substring(80, 82).toInt(16).toByte())
             minProgress = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
             maxProgress = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
         }

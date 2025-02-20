@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Handler
 import android.util.Log
 import android.util.Pair
@@ -400,6 +401,11 @@ class GesturesOpticDelegateAdapter(
         }
     }
 
+    override fun Ubi4WidgetGesturesOptic1Binding.onAttachedToWindow() {
+        Log.d("GesturesAdapter", "onAttachedToWindow run")
+        loadSavedGestureNames(root.context)
+        updateGestureButtonsUI(this)
+    }
 
     private fun fillCollectionGesturesInBindingGroup(): BindingGestureGroup {
         currentBindingGroup = BindingGestureGroup()
@@ -544,7 +550,34 @@ class GesturesOpticDelegateAdapter(
     }
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
+
     override fun GesturesItem.getItemId(): Any = title
+
+    private fun loadSavedGestureNames(context: Context) {
+        val sp = context.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        val macKey = sp.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "default") ?: "default"
+        gestureNameList.clear()
+        for (i in 0 until 8) {
+            val key = PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i
+            val name = sp.getString(key, "Gesture ${i + 1}") ?: "Gesture ${i + 1}"
+            gestureNameList.add(name)
+        }
+        Log.d("GesturesAdapter", "Final loaded gesture names: $gestureNameList")
+    }
+
+    private fun updateGestureButtonsUI(binding: Ubi4WidgetGesturesOptic1Binding) {
+        for (i in 1..PreferenceKeysUBI4.NUM_GESTURES) {
+            try {
+                // Получаем ссылку на TextView через рефлексию (как уже делается в onBind)
+                val field = binding::class.java.getDeclaredField("gesture${i}NameTv")
+                field.isAccessible = true
+                val gestureTv = field.get(binding) as? TextView
+                gestureTv?.text = gestureNameList.getOrElse(i - 1) { "Gesture $i" }
+            } catch (e: Exception) {
+                Log.e("GesturesAdapter", "Ошибка обновления имени жеста $i: ${e.localizedMessage}")
+            }
+        }
+    }
 
     fun onDestroy() {
         scope.cancel()

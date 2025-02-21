@@ -694,11 +694,11 @@ class UBI4GripperScreenWithEncodersActivity
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0), gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        main.bleCommand(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE){}
     }
     private fun compileBLERead () {
         Log.d("uiGestureSettingsObservable", "compileBLERead")
-        main.bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE){}
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
 //        val _inputNumber = validationRange(inputNumber)

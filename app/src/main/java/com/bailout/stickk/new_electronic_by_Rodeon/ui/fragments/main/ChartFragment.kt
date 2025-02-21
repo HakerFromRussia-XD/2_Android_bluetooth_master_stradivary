@@ -549,7 +549,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-//              main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, countRestart)
+              main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
@@ -563,7 +563,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-//              main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, countRestart)
+              main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)

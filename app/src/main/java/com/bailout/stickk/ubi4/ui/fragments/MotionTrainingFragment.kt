@@ -795,7 +795,6 @@ class MotionTrainingFragment(
                 }
 
 
-
                 if (index < gestureSequence.size) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {

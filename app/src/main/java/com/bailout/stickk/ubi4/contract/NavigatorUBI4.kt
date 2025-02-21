@@ -9,11 +9,12 @@ fun Fragment.navigator(): NavigatorUBI4 {
 interface NavigatorUBI4 {
 
     fun showGesturesScreen()
-    fun showOpticGesturesScreen()
     fun showSensorsScreen()
+    fun showAdvancedScreen()
+    //optic
+    fun showOpticGesturesScreen()
     fun showOpticTrainingGesturesScreen()
     fun showMotionTrainingScreen(onFinish:()->Unit)
-
     fun manageTrainingLifecycle()
     fun getPercentProgressLearningModel() : Int
 

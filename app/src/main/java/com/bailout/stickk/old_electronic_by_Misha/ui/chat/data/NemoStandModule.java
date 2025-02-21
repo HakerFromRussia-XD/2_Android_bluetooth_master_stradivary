@@ -4,7 +4,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-//import dagger.hilt.migration.DisableInstallInCheck;
 
 import com.bailout.bluetooth.Bluetooth;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.interactor.NemoStandInteractor;
@@ -14,7 +13,6 @@ import com.bailout.stickk.old_electronic_by_Misha.ui.chat.presenter.NemoStandPre
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.NemoStandView;
 
 @Module
-//@DisableInstallInCheck
 public class NemoStandModule {
     private NemoStandView view;
 

@@ -147,11 +147,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
-
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
-
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
-
+    override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
@@ -194,10 +192,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
-        Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
-
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceName)
         //settings
     }
     internal fun sendWidgetsArray() {
@@ -257,29 +252,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-   override fun bleCommandWithQueue(
-        byteArray: ByteArray?,
-        сommand: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ) {
-        queue.put(getBleCommandWithQueue(byteArray, сommand, typeCommand, onChunkSent))
-    }
-
-
-    private fun getBleCommandWithQueue(
-        byteArray: ByteArray?,
-        сommand: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ): Runnable {
-        return Runnable {
-            writeData(byteArray, сommand, typeCommand)
-            // Invoke the callback after data is sent
-            onChunkSent()
-        }
-    }
-
+    fun bleCommandWithQueue(byteArray: ByteArray?, сommand: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, сommand, typeCommand, onChunkSent)) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, сommand: String, typeCommand: String, onChunkSent: () -> Unit): Runnable { return Runnable { writeData(byteArray, сommand, typeCommand) onChunkSent() } }
     private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
@@ -321,11 +295,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-
-
-        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

@@ -146,7 +146,7 @@ class SwitcherDelegateAdapter(
                         } catch (e:Exception){
                             Log.d("switchCollect","$e")
                         }
-                                            }
+                    }
                     responseReceived.set(true)
                 }
             }

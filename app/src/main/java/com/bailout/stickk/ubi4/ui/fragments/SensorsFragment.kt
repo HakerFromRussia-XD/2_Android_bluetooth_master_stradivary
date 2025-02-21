@@ -39,6 +39,7 @@ class SensorsFragment : BaseWidgetsFragment() {
     private val disposables = CompositeDisposable()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
+
     private var count = 0
     private val display = 1
 
@@ -88,4 +89,6 @@ class SensorsFragment : BaseWidgetsFragment() {
             }
         }
     }
+
+
 }

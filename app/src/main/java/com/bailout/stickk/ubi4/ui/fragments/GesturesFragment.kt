@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -30,12 +29,8 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
-import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -58,6 +53,7 @@ class GesturesFragment : BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
     private val display = 0
     private var mSettings: SharedPreferences? = null
 
@@ -66,7 +62,7 @@ class GesturesFragment : BaseWidgetsFragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         mSettings = context?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
-        Log.d("LifeCycele", "onCreateView")
+        Log.d("LifeCycle", "onCreateView")
 
         //настоящие виджеты
         widgetListUpdater()
@@ -101,7 +97,7 @@ class GesturesFragment : BaseWidgetsFragment() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("LifeCycele", "onDestroy")
+        Log.d("LifeCycle", "onDestroy")
         onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
@@ -127,13 +123,6 @@ class GesturesFragment : BaseWidgetsFragment() {
         }
     }
 
-    override fun showGestureSettings (deviceAddress: Int, parameterID: Int, gestureID: Int) {
-        val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
-        intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
-        intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
-        intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
-        startActivity(intent)
-    }
     override fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
         val rotationGroup = RotationGroup()
         rotationGroupGestures.forEachIndexed { index, item ->
@@ -145,9 +134,12 @@ class GesturesFragment : BaseWidgetsFragment() {
             idProperty?.set(rotationGroup, item.gestureId)
             imageIdProperty?.set(rotationGroup, item.gestureId)
         }
+
+        // Проверяем результат
+        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
+
         transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
     }
-
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")

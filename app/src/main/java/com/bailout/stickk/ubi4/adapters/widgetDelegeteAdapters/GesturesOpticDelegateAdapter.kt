@@ -330,7 +330,6 @@ class GesturesOpticDelegateAdapter(
      * Единый метод: ставит в нужное положение индикатор, меняет цвета текста,
      * показывает или скрывает нужные блоки (collection vs SPR).
      */
-
     private fun renderFilterUI(activeFilter: Int) {
         val density = main.resources.displayMetrics.density
         val filterWidth = (_ubi4GesturesSelectorV.width / density).toInt()

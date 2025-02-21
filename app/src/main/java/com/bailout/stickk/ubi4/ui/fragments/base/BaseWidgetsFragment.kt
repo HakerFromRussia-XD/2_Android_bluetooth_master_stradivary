@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.ui.fragments.base
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -20,7 +19,6 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -56,11 +54,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
 
-
-
     protected val adapterWidgets by lazy {
-
-
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent ->
@@ -163,29 +157,20 @@ abstract class BaseWidgetsFragment : Fragment() {
         )
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d("BaseWidgetsFragment", "onAttach called")
-
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadGestureNameList()
-        Log.d("BaseWidgetsFragment", "Размер gestureNameList после загрузки: ${gestureNameList.size}")
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("BaseWidgetsFragment", "onViewCreated called")
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
 
     }
-
     override fun onDestroy() {
         super.onDestroy()
         onDestroyParentCallbacks.forEach { it.invoke() }
@@ -374,7 +359,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     open fun sendBLEActiveGesture(deviceAddress: Int, parameterID: Int, activeGesture: Int) {
         if (!isAdded) { return }
-        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE){}
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}
@@ -461,7 +446,6 @@ abstract class BaseWidgetsFragment : Fragment() {
             )
         }
     }
-
     open fun closeCurrentDialog() {
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null

@@ -14,6 +14,7 @@
 package com.bailout.stickk.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils.Companion.instance
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
 import android.content.Context
@@ -40,7 +41,6 @@ class WDApplication : MultiDexApplication() {
 
     @JvmStatic
     lateinit var instance: WDApplication
-
     fun applicationContext() = instance!!.applicationContext
 
     @JvmStatic

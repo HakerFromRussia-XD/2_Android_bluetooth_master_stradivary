@@ -138,55 +138,6 @@ data class GesturesId(
     }
 }
 
-// Базовая фаза (Baseline)
-//data class PhaseBaseline(
-//    override val prePhase: Int = 0,
-//    override val timeGesture: Double = 5.0, // BASELINE_DURATION
-//    override val postPhase: Int = 0,
-//    override val animation: Int = 0,
-//    override val headerText: String = "Подготовьтесь к выполнению жеста",
-//    override val description: String = "",
-//    override val gestureName: String = "Baseline", // так как это baseline состояние
-//    override val gestureId: Int = -1 // baseline всегда -1
-//) : GesturePhase()
-//
-//// Pre-фаза
-//data class PhasePre(
-//    override val prePhase: Int = 0,
-//    override val timeGesture: Double = 2.0, // PRE_GEST_DURATION
-//    override val postPhase: Int = 0,
-//    override val animation: Int = 0,
-//    override val headerText: String = "Подготовьтесь к выполнению жеста",
-//    override val description: String = "",
-//    override val gestureName: String,
-//    override val gestureId: Int
-//) : GesturePhase()
-//
-//// At-фаза (выполнение жеста)
-//data class PhaseAt(
-//    override val prePhase: Int = 0,
-//    override val timeGesture: Double = 2.0, // AT_GEST_DURATION
-//    override val postPhase: Int = 0,
-//    override val animation: Int = 0,
-//    override val headerText: String = "Выполните жест",
-//    override val description: String = "",
-//    override val gestureName: String,
-//    override val gestureId: Int
-//) : GesturePhase()
-//
-//// Post-фаза
-//data class PhasePost(
-//    override val prePhase: Int = 0,
-//    override val timeGesture: Double = 2.0, // POST_GEST_DURATION
-//    override val postPhase: Int = 0,
-//    override val animation: Int = 0,
-//    override val headerText: String = "Подготовьтесь к выполнению жеста",
-//    override val description: String = "",
-//    override val gestureName: String,
-//    override val gestureId: Int
-//) : GesturePhase()
-
-
 data class ParameterInfo<A, B, C, D>(
     val parameterID: A,
     val dataCode: B,

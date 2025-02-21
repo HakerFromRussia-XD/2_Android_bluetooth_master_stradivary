@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.local
 
+import android.util.Log
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -29,16 +30,17 @@ object PlotThresholdsSerializer: KSerializer<PlotThresholds> {
 
     override fun deserialize(decoder: Decoder): PlotThresholds {
         val string = decoder.decodeString()
+        Log.d("PlotThresholds", "string $string")
         // Дополняем строку до 4 символов справа символом '0'.
-        val paddedString = string.padEnd(12, '0')
-        
+        val paddedString = string.padEnd(22, '0')
+
         val threshold1 = castUnsignedCharToInt(paddedString.substring(0, 2).toInt(16).toByte())
-        val threshold2 = castUnsignedCharToInt(paddedString.substring(2, 4).toInt(16).toByte())
-        val threshold3 = castUnsignedCharToInt(paddedString.substring(4, 6).toInt(16).toByte())
-        val threshold4 = castUnsignedCharToInt(paddedString.substring(6, 8).toInt(16).toByte())
-        val threshold5 = castUnsignedCharToInt(paddedString.substring(8, 10).toInt(16).toByte())
-        val threshold6 = castUnsignedCharToInt(paddedString.substring(10, 12).toInt(16).toByte())
-            
+        val threshold2 = castUnsignedCharToInt(paddedString.substring(4, 6).toInt(16).toByte())
+        val threshold3 = castUnsignedCharToInt(paddedString.substring(8, 10).toInt(16).toByte())
+        val threshold4 = castUnsignedCharToInt(paddedString.substring(12, 14).toInt(16).toByte())
+        val threshold5 = castUnsignedCharToInt(paddedString.substring(16, 18).toInt(16).toByte())
+        val threshold6 = castUnsignedCharToInt(paddedString.substring(20, 22).toInt(16).toByte())
+
 
         return PlotThresholds (
             threshold1 =  threshold1,

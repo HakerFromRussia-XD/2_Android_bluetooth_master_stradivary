@@ -146,13 +146,11 @@ class BLEController(
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(mContext,
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
-                        Log.d("--> reconnectThread started", " reconnectThreadFlag = $reconnectThreadFlag  mScanning = $mScanning")
                     }
 
 
                     if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
-                        Log.d("--> reconnectThread started", "BLEControllelr string 151: reconnectThreadFlag true")
                         reconnectThread()
                     }
                 }
@@ -339,7 +337,6 @@ fun reconnectThread() {
                     if (!scanWithoutConnectFlag) {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
-                        Log.d("--> reconnectThread started", "BLEControllelr string 360: reconnectThreadFlag true")
                         reconnectThread()
                     }
                 }

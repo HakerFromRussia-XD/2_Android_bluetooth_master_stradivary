@@ -192,7 +192,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceName)
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+
         //settings
     }
     internal fun sendWidgetsArray() {
@@ -252,12 +253,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun bleCommandWithQueue(byteArray: ByteArray?, сommand: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, сommand, typeCommand, onChunkSent)) }
-    private fun getBleCommandWithQueue(byteArray: ByteArray?, сommand: String, typeCommand: String, onChunkSent: () -> Unit): Runnable { return Runnable { writeData(byteArray, сommand, typeCommand) onChunkSent() } }
-    private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
+    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent)) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
+        return Runnable {
+            writeData(byteArray, command, typeCommand)
+            onChunkSent() } }
+    private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, сommand, typeCommand)
+            bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)

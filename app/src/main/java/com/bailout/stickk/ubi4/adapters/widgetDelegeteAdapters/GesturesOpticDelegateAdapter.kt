@@ -73,11 +73,13 @@ class GesturesOpticDelegateAdapter(
     private lateinit var sprGestureItemsProvider: SprGestureItemsProvider
     private lateinit var _annotationTv: TextView
     private lateinit var _annotationIv: ImageView
+    private lateinit var _bindingGroupTv: TextView
     private lateinit var _rotationGroupTv: TextView
     private lateinit var _collectionOfGesturesTv: TextView
     private lateinit var _gesturesSelectV: View
     private lateinit var _ubi4GesturesSelectorV: View
     private lateinit var _collectionGesturesCl: ConstraintLayout
+    private lateinit var _rotationGroupCl: ConstraintLayout
     private lateinit var _sprGestureGroupCl: ConstraintLayout
     private lateinit var _activeGestureNameCl: ConstraintLayout
     private lateinit var _activeGestureNameTv: TextView
@@ -123,11 +125,13 @@ class GesturesOpticDelegateAdapter(
         // Инициируем View-поля для удобства
         _annotationTv = annotationTv
         _annotationIv = annotationIv
+        _bindingGroupTv = bindingGroupTv
         _rotationGroupTv = rotationGroupTv
         _collectionOfGesturesTv = collectionOfGesturesTv
         _gesturesSelectV = gesturesSelectV
         _ubi4GesturesSelectorV = ubi4GesturesSelectorV
         _collectionGesturesCl = collectionGesturesCl
+        _rotationGroupCl = rotationGroupCl
         _sprGestureGroupCl = sprGestureGroupCl
         _activeGestureNameCl = activeGestureNameCl
         _activeGestureNameTv = activeGestureNameTv
@@ -176,7 +180,9 @@ class GesturesOpticDelegateAdapter(
             )
         }
 
-
+        rotationGroupSelectBtn.setOnClickListener {
+            //TODO тут написать обработку нажатия на группу ротации
+        }
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
             MainActivityUBI4.activeFilterFlow.value = 1
@@ -195,7 +201,6 @@ class GesturesOpticDelegateAdapter(
                     )
                 )
         }
-
         hideCollectionBtn.setOnClickListener {
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
@@ -351,7 +356,7 @@ class GesturesOpticDelegateAdapter(
                 colorAnim.start()
 
                 val colorAnim3 = ObjectAnimator.ofInt(
-                    _rotationGroupTv, "textColor",
+                    _bindingGroupTv, "textColor",
                     main.getColor(R.color.white), main.getColor(R.color.ubi4_deactivate_text)
                 )
                 colorAnim3.setEvaluator(ArgbEvaluator())
@@ -380,7 +385,7 @@ class GesturesOpticDelegateAdapter(
                 colorAnim2.start()
 
                 val colorAnim4 = ObjectAnimator.ofInt(
-                    _rotationGroupTv, "textColor",
+                    _bindingGroupTv, "textColor",
                     main.getColor(R.color.ubi4_deactivate_text), main.getColor(R.color.white)
                 )
                 colorAnim4.setEvaluator(ArgbEvaluator())

@@ -87,8 +87,6 @@ class PlotDelegateAdapter (
         val parameterID = 0
 
 
-
-
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
                 parameterInfoSet = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
@@ -108,7 +106,6 @@ class PlotDelegateAdapter (
         } else {
             numberOfCharts = 0
         }
-
         countBinding += 1
 
         main.bleCommandWithQueue(BLECommands.requestThresholds(ParameterInfoProvider.getDeviceAddressByDataCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet), ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet)) , MAIN_CHANNEL, WRITE){}

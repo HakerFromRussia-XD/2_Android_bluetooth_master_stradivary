@@ -10,11 +10,17 @@
     tools:layout_editor_absoluteY="-2dp">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidline_mid"
+        android:id="@+id/guidline_30"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.33" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidline_60"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.67" />
 
     <View
         android:id="@+id/ubi4GesturesSelectorV"
@@ -37,7 +43,7 @@
         android:background="@drawable/ubi4_view_with_corners_back_inside"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
-        app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
+        app:layout_constraintEnd_toStartOf="@+id/guidline_30"
         app:layout_constraintStart_toStartOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
 
@@ -51,7 +57,7 @@
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
-        app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
+        app:layout_constraintEnd_toStartOf="@+id/guidline_30"
         app:layout_constraintStart_toStartOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
 
@@ -61,12 +67,26 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_display_light"
+        android:text="@string/rotation_group"
+        android:textColor="@color/ubi4_deactivate_text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
+        app:layout_constraintEnd_toEndOf="@+id/guidline_60"
+        app:layout_constraintStart_toStartOf="@+id/guidline_30"
+        app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
+
+    <TextView
+        android:id="@+id/bindingGroupTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_display_light"
         android:text="@string/spr_gestures"
         android:textColor="@color/ubi4_deactivate_text"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toEndOf="@+id/ubi4GesturesSelectorV"
-        app:layout_constraintStart_toStartOf="@+id/guidline_mid"
+        app:layout_constraintStart_toStartOf="@+id/guidline_60"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
 
     <View
@@ -77,11 +97,26 @@
         android:elevation="5dp"
         android:focusable="true"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
-        app:layout_constraintEnd_toEndOf="@+id/guidline_mid"
+        app:layout_constraintEnd_toEndOf="@+id/guidline_30"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintVertical_bias="0.0"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <View
+        android:id="@+id/rotationGroupSelectBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:elevation="5dp"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
+        app:layout_constraintEnd_toEndOf="@+id/guidline_60"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guidline_30"
+        app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV"
+        app:layout_constraintVertical_bias="1.0"
         tools:ignore="SpeakableTextPresentCheck" />
 
     <View
@@ -94,7 +129,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toEndOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guidline_mid"
+        app:layout_constraintStart_toStartOf="@+id/guidline_60"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintVertical_bias="1.0"
         tools:ignore="SpeakableTextPresentCheck" />
@@ -1221,7 +1256,101 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rotationGroupCl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/ubi4_back"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
 
+
+        <com.woxthebox.draglistview.DragListView
+            android:id="@+id/rotationGroupDragLv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/ubi4_item_rotation_group"/>
+
+        <View
+            android:id="@+id/addGestureToRotationGroupBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rotationGroupDragLv" />
+
+        <ImageView
+            android:id="@+id/plusIv"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_add"
+            android:backgroundTint="@android:color/white"
+            android:elevation="3dp"
+            app:layout_constraintBottom_toBottomOf="@+id/addGestureToRotationGroupBtn"
+            app:layout_constraintEnd_toEndOf="@+id/addGestureToRotationGroupBtn"
+            app:layout_constraintStart_toStartOf="@+id/addGestureToRotationGroupBtn"
+            app:layout_constraintTop_toTopOf="@+id/addGestureToRotationGroupBtn" />
+
+        <TextView
+            android:id="@+id/rotationGroupExplanationTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="120dp"
+            android:gravity="center"
+            android:text="Здесь можно выбрать жесты для\nповседневного использования в\nгруппе ротации.\n
+            Переключение внутри этой группы\nможно осуществлять датчиками или\nкнопками на протезе."
+            android:textColor="@color/ubi4_deactivate_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addGestureToRotationGroupBtn" />
+
+        <ImageView
+            android:id="@+id/rotationGroupExplanationIv"
+            android:layout_width="140dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/annotationman"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanationTv" />
+
+        <ImageView
+            android:id="@+id/rotationGroupExplanation2Iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_long_arrow"
+            android:layout_marginTop="-24dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/addGestureToRotationGroupBtn"
+            app:layout_constraintTop_toBottomOf="@+id/addGestureToRotationGroupBtn" />
+
+        <TextView
+            android:id="@+id/rotationGroupExplanation2Tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:text="Нажми меня"
+            android:textColor="@color/ubi4_deactivate_text"
+            app:layout_constraintEnd_toEndOf="@+id/rotationGroupExplanation2Iv"
+            app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanation2Iv" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

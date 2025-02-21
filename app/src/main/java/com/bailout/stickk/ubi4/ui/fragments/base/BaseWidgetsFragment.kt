@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -84,7 +85,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 //                onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
 //                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
 //            ),
-              GesturesOpticDelegateAdapter(
+            GesturesOpticDelegateAdapter(
                 gestureNameList = gestureNameList,
                 onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
                     showControlGesturesDialog(onSaveClickDialog, bindingGestureList)

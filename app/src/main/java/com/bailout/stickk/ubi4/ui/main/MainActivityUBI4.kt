@@ -256,33 +256,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-   override fun bleCommandWithQueue(
-        byteArray: ByteArray?,
-        сommand: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ) {
-        queue.put(getBleCommandWithQueue(byteArray, сommand, typeCommand, onChunkSent))
-    }
-
-
-    private fun getBleCommandWithQueue(
-        byteArray: ByteArray?,
-        сommand: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ): Runnable {
+    fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
+    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
-            writeData(byteArray, сommand, typeCommand)
+            writeData(byteArray, command, typeCommand)
             // Invoke the callback after data is sent
             onChunkSent()
         }
     }
-
-    private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
+    private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, сommand, typeCommand)
+            bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)

@@ -32,9 +32,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
-import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -46,7 +43,6 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map

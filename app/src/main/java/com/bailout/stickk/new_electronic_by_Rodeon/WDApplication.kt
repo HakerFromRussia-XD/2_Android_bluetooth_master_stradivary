@@ -41,7 +41,7 @@ class WDApplication : MultiDexApplication() {
 
     @JvmStatic
     lateinit var instance: WDApplication
-    fun applicationContext() = instance!!.applicationContext
+    fun applicationContext() = instance.applicationContext!!
 
     @JvmStatic
     fun app(): WDApplication? {

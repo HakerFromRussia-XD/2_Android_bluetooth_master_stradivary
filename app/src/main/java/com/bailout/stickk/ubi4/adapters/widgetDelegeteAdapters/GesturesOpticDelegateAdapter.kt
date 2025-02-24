@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -16,9 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter.MyDragItem
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
+import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -28,9 +34,14 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import com.woxthebox.draglistview.DragItem
+import com.woxthebox.draglistview.DragListView
+import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,9 +53,13 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.util.stream.Collectors
 
+@Suppress("DEPRECATION")
 class GesturesOpticDelegateAdapter(
     val gestureNameList: ArrayList<String>,
+    val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
+    val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, List<Pair<Int, Int>>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
@@ -54,17 +69,22 @@ class GesturesOpticDelegateAdapter(
     ) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
     val onRequestActiveGesture: (deviceAddress: Int, parameterID: Int) -> Unit,
+    val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onSendBLEBindingGroup: (deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) -> Unit,
     val onRequestBindingGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
+    val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit
 ) : ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
     Ubi4WidgetGesturesOptic1Binding::inflate
-) {
+),RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,RotationGroupItemAdapter.OnCopyClickRotationGroupListener {
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<Pair<Int, Int>> = mutableListOf()
     private var deviceAddress = 0
     private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
+    private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
+    private var listRotationGroupAdapter: RotationGroupItemAdapter? = null
+    private var mRotationGroupDragLv: DragListView? = null
     private var hideFactoryCollectionGestures = true
 
     private var gestureCollectionBtns: ArrayList<Pair<View, Int>> = ArrayList()
@@ -83,6 +103,16 @@ class GesturesOpticDelegateAdapter(
     private lateinit var _sprGestureGroupCl: ConstraintLayout
     private lateinit var _activeGestureNameCl: ConstraintLayout
     private lateinit var _activeGestureNameTv: TextView
+
+    private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
+
+    private lateinit var mRotationGroupExplanationTv: TextView
+    private lateinit var mRotationGroupExplanation2Tv: TextView
+    private lateinit var mRotationGroupExplanationIv: ImageView
+    private lateinit var mRotationGroupExplanation2Iv: ImageView
+
+    private lateinit var mAddGestureToRotationGroupBtn: View
+    private lateinit var mPlusIv: ImageView
 
     private var currentBindingGroup: BindingGestureGroup = BindingGestureGroup()
 
@@ -108,7 +138,7 @@ class GesturesOpticDelegateAdapter(
                 fillCollectionGesturesInBindingGroup()
                 onSendBLEBindingGroup(
                     deviceAddress,
-                    ParameterInfoProvider.getParameterIDByCode(
+                    getParameterIDByCode(
                         ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
                         parameterInfoSet
                     ),
@@ -120,6 +150,7 @@ class GesturesOpticDelegateAdapter(
 
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber", "SuspiciousIndentation")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
+        mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
 
         // Инициируем View-поля для удобства
@@ -181,7 +212,13 @@ class GesturesOpticDelegateAdapter(
         }
 
         rotationGroupSelectBtn.setOnClickListener {
-            //TODO тут написать обработку нажатия на группу ротации
+            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
+            MainActivityUBI4.activeFilterFlow.value = 2
+            activeGestureNameCl.visibility = View.GONE
+            onRequestRotationGroup(
+                deviceAddress,
+              getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterInfoSet)
+            )
         }
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
@@ -191,7 +228,7 @@ class GesturesOpticDelegateAdapter(
         }
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
-            MainActivityUBI4.activeFilterFlow.value = 2
+            MainActivityUBI4.activeFilterFlow.value = 3
             activeGestureNameCl.visibility = View.GONE
             onRequestBindingGroup(
                     deviceAddress,
@@ -295,6 +332,40 @@ class GesturesOpticDelegateAdapter(
             }
         }
 
+        addGestureToRotationGroupBtn.setOnClickListener {
+            val resultCb: ((selectedGestures: ArrayList<Gesture>)->Unit) = { selectedGestures ->
+                // проверка что элемент из selectedGestures содержится в rotationGroupGestures
+                // если да, то не меняем его положение и добавляем новых в конец списка
+                val notContainsList = selectedGestures.stream().filter{element -> !rotationGroupGestures.contains(element)}.collect(
+                    Collectors.toList())//rotationGroupGestures.add())
+                notContainsList.forEach { rotationGroupGestures.add(it) }
+                // удаляем те элементы, которые были отчекнуты
+                val finalList = rotationGroupGestures.stream().filter{ element -> selectedGestures.contains(element)}.collect(
+                    Collectors.toList())
+                rotationGroupGestures = ArrayList(finalList)
+
+                showIntroduction()
+                setupListRecyclerView()
+                synchronizeRotationGroup()
+                sendBLERotationGroup()
+                calculatingShowAddButton()
+            }
+            onAddGesturesToRotationGroup(resultCb)
+        }
+        rotationGroupDragLv.recyclerView.isVerticalScrollBarEnabled = false
+        rotationGroupDragLv.setScrollingEnabled(false)
+        rotationGroupDragLv.setOnClickListener {}
+        rotationGroupDragLv.setDragListListener(object : DragListListenerAdapter() {
+            override fun onItemDragStarted(position: Int) { }
+
+            override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
+                if (fromPosition != toPosition) {
+                    synchronizeRotationGroup()
+                    sendBLERotationGroup()
+                }
+            }
+        })
+
         chooseLearningGesturesBtn1.setOnClickListener {
             val selectedGestures: (MutableList<Pair<Int, Int>>) -> Unit = { listBindingGestures ->
                 listBindingGesture = listBindingGestures
@@ -329,86 +400,134 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         }
+
+        mRotationGroupExplanationTv = rotationGroupExplanationTv
+        mRotationGroupExplanation2Tv = rotationGroupExplanation2Tv
+        mRotationGroupExplanationIv = rotationGroupExplanationIv
+        mRotationGroupExplanation2Iv = rotationGroupExplanation2Iv
+        mAddGestureToRotationGroupBtn = addGestureToRotationGroupBtn
+        mPlusIv = plusIv
+        showIntroduction()
+        setupListRecyclerView()
+
+        gestureFlowCollect()
     }
 
-    /**
-     * Единый метод: ставит в нужное положение индикатор, меняет цвета текста,
-     * показывает или скрывает нужные блоки (collection vs SPR).
-     */
     private fun renderFilterUI(activeFilter: Int) {
-        val density = main.resources.displayMetrics.density
-        val filterWidth = (_ubi4GesturesSelectorV.width / density).toInt()
+    // Параметры для индикатора
+    val density = main.resources.displayMetrics.density
+    val marginPx = 18 * density
+    val extraOffsetPx = 3 * density
+    val containerWidth = _ubi4GesturesSelectorV.width.toFloat()
+    val buttonWidth = containerWidth / 3f
 
-        when (activeFilter) {
-            1 -> {
-                _activeGestureNameCl.visibility = View.VISIBLE
-                // Остальная логика для фильтра 1
-                // Анимация индикатора в левую позицию
-                ObjectAnimator.ofFloat(_gesturesSelectV, "x", 18 * density)
-                    .setDuration(ANIMATION_DURATION.toLong()).start()
+    // Расчёт финальной координаты X для анимации индикатора
+    val indicatorX = (activeFilter - 1) * buttonWidth + marginPx + when (activeFilter) {
+        2 -> extraOffsetPx - (1 * density)
+        3 -> extraOffsetPx * 2
+        else -> 0f
+    }
 
-                // Анимация цвета текста
-                val colorAnim = ObjectAnimator.ofInt(
-                    _collectionOfGesturesTv, "textColor",
-                    main.getColor(R.color.ubi4_deactivate_text), main.getColor(R.color.white)
-                )
-                colorAnim.setEvaluator(ArgbEvaluator())
-                colorAnim.start()
+    // Анимируем движение индикатора
+    ObjectAnimator.ofFloat(_gesturesSelectV, "x", indicatorX)
+        .setDuration(ANIMATION_DURATION.toLong())
+        .start()
 
-                val colorAnim3 = ObjectAnimator.ofInt(
-                    _bindingGroupTv, "textColor",
-                    main.getColor(R.color.white), main.getColor(R.color.ubi4_deactivate_text)
-                )
-                colorAnim3.setEvaluator(ArgbEvaluator())
-                colorAnim3.start()
+    // Соберём все TextView, которые мы хотим «обнулять» цветом при любом переключении
+    val allTextViews = listOf(
+        _collectionOfGesturesTv,
+        _rotationGroupTv,
+        _bindingGroupTv
+    )
 
-                // Показываем collection, скрываем SPR
-                showCollectionGestures(true, _collectionGesturesCl)
-                showBindingGroup(false, _sprGestureGroupCl)
-            }
+    // Карта: какому фильтру соответствуют какие TextView (которые будут активироваться)
+    val filterToTextViews = mapOf(
+        1 to listOf(_collectionOfGesturesTv),
+        2 to listOf(_rotationGroupTv),
+        3 to listOf(_bindingGroupTv)
+    )
 
-            2 -> {
-                _activeGestureNameCl.visibility = View.GONE
-                // Анимация индикатора вправо
-                ObjectAnimator.ofFloat(
-                    _gesturesSelectV,
-                    "x",
-                    ((filterWidth / 2) + 18) * density
-                ).setDuration(ANIMATION_DURATION.toLong()).start()
-
-                // Анимация цвета текста
-                val colorAnim2 = ObjectAnimator.ofInt(
-                    _collectionOfGesturesTv, "textColor",
-                    main.getColor(R.color.white), main.getColor(R.color.ubi4_deactivate_text)
-                )
-                colorAnim2.setEvaluator(ArgbEvaluator())
-                colorAnim2.start()
-
-                val colorAnim4 = ObjectAnimator.ofInt(
-                    _bindingGroupTv, "textColor",
-                    main.getColor(R.color.ubi4_deactivate_text), main.getColor(R.color.white)
-                )
-                colorAnim4.setEvaluator(ArgbEvaluator())
-                colorAnim4.start()
-
-                // Скрываем collection, показываем SPR
-                showCollectionGestures(false, _collectionGesturesCl)
-                showBindingGroup(true, _sprGestureGroupCl)
-                onRequestBindingGroup(
-                    deviceAddress,
-                    ParameterInfoProvider.getParameterIDByCode(
-                        ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
-                        parameterInfoSet
-                    )
-                )
-            }
+    // Сброс: переводим все текстовые элементы в неактивный цвет
+    allTextViews.forEach { textView ->
+        ObjectAnimator.ofInt(
+            textView,
+            "textColor",
+            textView.currentTextColor,
+            main.getColor(R.color.ubi4_deactivate_text)
+        ).apply {
+            setEvaluator(ArgbEvaluator())
+            duration = ANIMATION_DURATION.toLong()
+            start()
         }
     }
 
+    // Активируем цвет только тем текстовым элементам, что соответствуют выбранному фильтру
+    filterToTextViews[activeFilter]?.forEach { textView ->
+        ObjectAnimator.ofInt(
+            textView,
+            "textColor",
+            main.getColor(R.color.ubi4_deactivate_text),
+            main.getColor(R.color.white)
+        ).apply {
+            setEvaluator(ArgbEvaluator())
+            duration = ANIMATION_DURATION.toLong()
+            start()
+        }
+    }
+
+    // Настраиваем видимость групп в зависимости от выбранного фильтра
+    when (activeFilter) {
+        1 -> {
+            // Фильтр "Коллекция жестов"
+            _activeGestureNameCl.visibility = View.VISIBLE
+            _collectionGesturesCl.visibility = View.VISIBLE
+            _rotationGroupCl.visibility = View.GONE
+            _sprGestureGroupCl.visibility = View.GONE
+        }
+        2 -> {
+            // Фильтр "Rotation Group"
+            onRequestRotationGroup(
+                deviceAddress,
+                getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterInfoSet)
+            )
+            _activeGestureNameCl.visibility = View.GONE
+            _rotationGroupCl.visibility = View.VISIBLE
+            _collectionGesturesCl.visibility = View.GONE
+            _sprGestureGroupCl.visibility = View.GONE
+        }
+        3 -> {
+            // Фильтр "SPR (Binding Group)"
+            _activeGestureNameCl.visibility = View.GONE
+            _sprGestureGroupCl.visibility = View.VISIBLE
+            _collectionGesturesCl.visibility = View.GONE
+            _rotationGroupCl.visibility = View.GONE
+
+            // Подгружаем данные, если нужно
+            onRequestBindingGroup(
+                deviceAddress,
+                getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number, parameterInfoSet)
+            )
+        }
+    }
+}
     override fun Ubi4WidgetGesturesOptic1Binding.onAttachedToWindow() {
         Log.d("GesturesAdapter", "onAttachedToWindow run")
         loadSavedGestureNames(root.context)
         updateGestureButtonsUI(this)
+    }
+
+    private fun showIntroduction() {
+        if (rotationGroupGestures.size == 0) {
+            mRotationGroupExplanationTv.visibility = View.VISIBLE
+            mRotationGroupExplanation2Tv.visibility = View.VISIBLE
+            mRotationGroupExplanationIv.visibility = View.VISIBLE
+            mRotationGroupExplanation2Iv.visibility = View.VISIBLE
+        } else {
+            mRotationGroupExplanationTv.visibility = View.GONE
+            mRotationGroupExplanation2Tv.visibility = View.GONE
+            mRotationGroupExplanationIv.visibility = View.GONE
+            mRotationGroupExplanation2Iv.visibility = View.GONE
+        }
     }
 
     private fun fillCollectionGesturesInBindingGroup(): BindingGestureGroup {
@@ -448,7 +567,6 @@ class GesturesOpticDelegateAdapter(
         }
         return null
     }
-
 
     private fun collectActiveFlows() {
         scope.launch(Dispatchers.IO) {
@@ -506,6 +624,46 @@ class GesturesOpticDelegateAdapter(
         }
     }
 
+    private fun gestureFlowCollect() {
+        scope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                MainActivityUBI4.rotationGroupFlow.collect { _ ->
+                    val parameter = ParameterProvider.getParameterDeprecated(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
+                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+                    val rotationGroupList = rotationGroup.toGestureList()
+                    Log.d("uiRotationGroupObservable", "InAdapter testList = $rotationGroupList  size = ${rotationGroupList.size}")
+                    rotationGroupGestures.clear()
+                    rotationGroupList.forEach{ item ->
+                        if (item.first != 0 )
+                            rotationGroupGestures.add(getGesture(item.first))
+                    }
+
+                    showIntroduction()
+                    setupListRecyclerView()
+                    synchronizeRotationGroup()
+                    calculatingShowAddButton()
+                }
+            }
+        }
+    }
+
+    private fun calculatingShowAddButton() {
+        if (rotationGroupGestures.size >= 8) {
+            mAddGestureToRotationGroupBtn.visibility = View.GONE
+            mPlusIv.visibility = View.GONE
+        } else {
+            mAddGestureToRotationGroupBtn.visibility = View.VISIBLE
+            mPlusIv.visibility = View.VISIBLE
+        }
+    }
+
+    private fun synchronizeRotationGroup() {
+        rotationGroupGestures.clear()
+        itemsGesturesRotationArray?.forEach {
+            rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
+        }
+    }
+
     private fun requestBindingGroupWithRetry(deviceAddress: Int, parameterId: Int) {
         isBindingGroupResponseReceived = false
         RetryUtils.sendRequestWithRetry(
@@ -537,19 +695,38 @@ class GesturesOpticDelegateAdapter(
         }
     }
 
-    private fun onSendBLEActiveGesture(activeGesture: Int) {
-        onSendBLEActiveGesture(
-            deviceAddress,
-            ParameterInfoProvider.getParameterIDByCode(
-                ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number,
-                parameterInfoSet
-            ),
-            activeGesture
+    private fun sendBLERotationGroup() {
+        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
+    }
 
-        )
+    private fun onSendBLEActiveGesture(activeGesture: Int) {
+        onSendBLEActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet), activeGesture)
         Log.d(
             "onSendBLEActiveGesture",
             "Sending active gesture command: deviceAddress=$deviceAddress, activeGesture=$activeGesture"
+        )
+    }
+
+    private fun setupListRecyclerView() {
+        mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
+        itemsGesturesRotationArray = ArrayList(rotationGroupGestures.mapIndexed { index, gesture -> Pair(index.toLong(), gesture.gestureName+"™"+gesture.gestureId.toString()) })
+        listRotationGroupAdapter =
+            RotationGroupItemAdapter(
+                itemsGesturesRotationArray,
+                R.layout.ubi4_item_rotation_group,
+                R.id.swapIv,
+                false,
+                this,
+                this
+            )
+        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
+        mRotationGroupDragLv?.setCanDragHorizontally(false)
+        mRotationGroupDragLv?.setCanDragVertically(true)
+        mRotationGroupDragLv?.setCustomDragItem(
+            MyDragItem(
+                main.applicationContext,
+                R.layout.ubi4_item_rotation_group_drag
+            )
         )
     }
 
@@ -583,7 +760,36 @@ class GesturesOpticDelegateAdapter(
         }
     }
 
-    fun onDestroy() {
-        scope.cancel()
+    class MyDragItem internal constructor(context: Context?, layoutId: Int) :
+        DragItem(context, layoutId) {
+        override fun onBindDragView(clickedView: View, dragView: View) {
+            val text = (clickedView.findViewById<View>(R.id.gestureInRotationGroupTv) as TextView).text
+            (dragView.findViewById<View>(R.id.gestureInRotationGroupTv) as TextView).text =
+                text
+        }
     }
+
+    override fun onCopyClick(position: Int, gestureName: String?) {
+        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
+        listRotationGroupAdapter?.notifyDataSetChanged()
+        synchronizeRotationGroup()
+        sendBLERotationGroup()
+        calculatingShowAddButton()
+    }
+
+    override fun onDeleteClickCb(position: Int) {
+        val resultCb: ((result: Int)->Unit) = {
+            rotationGroupGestures.removeAt(position)
+            showIntroduction()
+            setupListRecyclerView()
+            synchronizeRotationGroup()
+            sendBLERotationGroup()
+            calculatingShowAddButton()
+        }
+        onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)    }
+
+    fun onDestroy() {
+//        scope.cancel()
+    }
+
 }

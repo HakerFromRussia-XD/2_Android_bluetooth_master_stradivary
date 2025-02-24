@@ -87,6 +87,8 @@ abstract class BaseWidgetsFragment : Fragment() {
 //            ),
             GesturesOpticDelegateAdapter(
                 gestureNameList = gestureNameList,
+                onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
+                onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick)},
                 onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
                     showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
                 },
@@ -105,11 +107,15 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onRequestActiveGesture = { deviceAddress, parameterID ->
                     requestActiveGesture(deviceAddress, parameterID)
                 },
+                onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID)},
                 onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup ->
                     sendBLEBindingGroup(deviceAddress, parameterID, bindingGestureGroup)
                 },
                 onRequestBindingGroup = { deviceAddress, parameterID ->
                     requestBindingGroup(deviceAddress, parameterID)
+                },
+                onRequestRotationGroup = {deviceAddress, parameterID ->
+                    requestRotationGroup(deviceAddress, parameterID)
                 },
                 onDestroyParent = { onDestroyParent ->
                     onDestroyParentCallbacks.add(onDestroyParent)
@@ -385,7 +391,9 @@ abstract class BaseWidgetsFragment : Fragment() {
         main?.showToast("Виджет отображается вне своего экрана")
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
+        if (isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+
     }
     open fun refreshWidgetsList() {
         listWidgets.clear()

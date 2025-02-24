@@ -880,7 +880,7 @@ class MotionTrainingFragment(
         val titleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningTitleTv)
         titleTextView.text = "Обучение прерванно"
         val subTitleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningMessageTv)
-        subTitleTextView.text = " Потеря соединения с оптическими датчиками. Повторите обучение"
+        subTitleTextView.text = "Потеря соединения с оптическими датчиками. Повторите обучение"
 
         val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
         confirmBtn.setOnClickListener {

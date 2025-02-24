@@ -379,6 +379,7 @@ class GesturesDelegateAdapter(
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
     override fun GesturesItem.getItemId(): Any = title
+
     class MyDragItem internal constructor(context: Context?, layoutId: Int) :
         DragItem(context, layoutId) {
         override fun onBindDragView(clickedView: View, dragView: View) {

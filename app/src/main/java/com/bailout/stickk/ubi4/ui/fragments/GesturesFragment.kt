@@ -123,23 +123,23 @@ class GesturesFragment : BaseWidgetsFragment() {
         }
     }
 
-    override fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
-        val rotationGroup = RotationGroup()
-        rotationGroupGestures.forEachIndexed { index, item ->
-            // Используем рефлексию, чтобы найти и изменить свойства
-            val idProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}Id" } as? KMutableProperty1<RotationGroup, Int>
-            val imageIdProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}ImageId" } as? KMutableProperty1<RotationGroup, Int>
-
-            // Устанавливаем значения, если свойства найдены
-            idProperty?.set(rotationGroup, item.gestureId)
-            imageIdProperty?.set(rotationGroup, item.gestureId)
-        }
-
-        // Проверяем результат
-        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
-
-        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
-    }
+//    override fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
+//        val rotationGroup = RotationGroup()
+//        rotationGroupGestures.forEachIndexed { index, item ->
+//            // Используем рефлексию, чтобы найти и изменить свойства
+//            val idProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}Id" } as? KMutableProperty1<RotationGroup, Int>
+//            val imageIdProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}ImageId" } as? KMutableProperty1<RotationGroup, Int>
+//
+//            // Устанавливаем значения, если свойства найдены
+//            idProperty?.set(rotationGroup, item.gestureId)
+//            imageIdProperty?.set(rotationGroup, item.gestureId)
+//        }
+//
+//        // Проверяем результат
+//        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
+//
+//        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
+//    }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")

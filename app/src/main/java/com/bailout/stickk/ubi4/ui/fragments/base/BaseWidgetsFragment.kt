@@ -391,7 +391,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         main?.showToast("Виджет отображается вне своего экрана")
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
-        if (isAdded) return
+        if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
 
     }

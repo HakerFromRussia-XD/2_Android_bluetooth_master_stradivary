@@ -254,7 +254,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent)) }
+    fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
+    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray) }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
             writeData(byteArray, command, typeCommand)

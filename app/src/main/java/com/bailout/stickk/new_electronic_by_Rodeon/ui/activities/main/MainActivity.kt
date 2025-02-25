@@ -148,6 +148,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ArcanoidFra
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.BlockingQueue
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -209,7 +210,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var firstRead = true
   private var speedFinger = 0
   // Очередь для задачь работы с BLE
-  private val queue = BlockingQueueUbi4()
+  private val queue = BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   @Volatile
@@ -2180,7 +2181,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         count++
         System.err.println("$info else count = $count  mConnected = $mConnected  globalSemaphore = $globalSemaphore")
         if (count == 25) {
-          System.err.println("$info ПЕРЕЗАПУСК!!! ${queue.size()}")
           endFlag = mConnected
           count = 0
           if (localState != 0) { runStartVM(localState) } //перезапускаем функцию если споткнулись

@@ -101,7 +101,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
+//        binding.runCommandBtn.setOnClickListener {
 //            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
@@ -117,13 +117,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                    10
 //                ), MAIN_CHANNEL, WRITE
 //            ) {}
-            main.bleCommandWithQueue(
-                BLECommands.requestSlider(6, 2),
-                MAIN_CHANNEL,
-                WRITE
-            ){}
-
-        }
+//            main.bleCommandWithQueue(
+//                BLECommands.requestSlider(6, 2),
+//                MAIN_CHANNEL,
+//                WRITE
+//            ){}
+//
+//        }
 
     }
     @SuppressLint("MissingPermission")
@@ -300,10 +300,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
+        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()

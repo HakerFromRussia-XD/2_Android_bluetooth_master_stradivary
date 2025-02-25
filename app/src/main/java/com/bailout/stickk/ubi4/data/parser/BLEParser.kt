@@ -63,6 +63,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupF
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
+import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -148,6 +149,8 @@ class BLEParser() {
                     }
                 }
             }
+
+            if (requestType == 1 || codeRequest != BaseCommands.COMPLEX_PARAMETER_TRANSFER.number) main.getQueueUBI4().allowNext()
         }
     }
 

@@ -39,6 +39,7 @@ class SensorsFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -60,12 +61,6 @@ class SensorsFragment : BaseWidgetsFragment() {
             it.invoke() }
     }
 
-//    override fun refreshWidgetsList() {
-//        listWidgets.clear()
-//        onDestroyParentCallbacks.forEach { it.invoke() }
-//        onDestroyParentCallbacks.clear()
-//        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
-//    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {

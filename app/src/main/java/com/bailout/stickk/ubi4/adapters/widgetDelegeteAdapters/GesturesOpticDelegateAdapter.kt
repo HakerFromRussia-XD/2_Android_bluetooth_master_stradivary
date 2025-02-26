@@ -562,6 +562,17 @@ class GesturesOpticDelegateAdapter(
         collectJob = coroutineScope?.launch {
             try {
                 merge(
+                    MainActivityUBI4.selectGestureModeFlow.map { selectGestureModeParameterRef ->
+                        val parameter = ParameterProvider.getParameter(
+                            selectGestureModeParameterRef.addressDevice,
+                            selectGestureModeParameterRef.parameterID
+                        )
+                        val selectGestureModeHex = parameter.data.takeLast(2)
+                        val selectGestureMode = selectGestureModeHex.toIntOrNull(16)
+                        withContext(Dispatchers.Main) {
+
+                        }
+                    },
                     MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             deviceAddress,

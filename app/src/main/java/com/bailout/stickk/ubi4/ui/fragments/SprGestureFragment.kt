@@ -69,6 +69,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         }
         //настоящие виджеты
         widgetListUpdater()
+        adapterWidgets.swapData(mDataFactory.prepareData(0))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 

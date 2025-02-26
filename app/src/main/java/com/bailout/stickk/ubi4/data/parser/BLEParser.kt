@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.data.parser
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -60,6 +61,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bindingGroupFl
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.selectGestureModeFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
@@ -182,11 +184,11 @@ class BLEParser() {
                 } catch (e: Error) {
                     main.showToast("Ошибка 113")
                 }
-                CoroutineScope(Dispatchers.Default).launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray))}
+                main.lifecycleScope.launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray))}
             }
             ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
                 Log.d("parameter sliderCollect PDCE_OPEN_CLOSE_THRESHOLD","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
@@ -194,40 +196,40 @@ class BLEParser() {
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(ParameterRef(deviceAddress, parameterID, dataCode))
-                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } } // +
+                main.lifecycleScope.launch { rotationGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } } // +
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 Log.d("FileInfoWriteFile","recive ok")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode)) } //+
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_GAIN.number -> {
                 Log.d("parameter sliderCollect PDCE_EMG_CH_1_3_GAIN","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_EMG_CH_4_6_GAIN.number -> {
                 Log.d("parameter sliderCollect PDCE_EMG_CH_4_6_GAIN","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
                 Log.d("parameter sliderCollect PDCE_INTERFECE_ERROR_COUNTER","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
                 Log.d("parameter sliderCollect PDCE_CALIBRATION_CURRENT_PERCENT","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_GLOBAL_FORCE.number -> {
                 Log.d("parameter sliderCollect PDCE_GLOBAL_FORCE"," dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
 
             //TODO после перепрошивки проверить Optic timeout slider
             ParameterDataCodeEnum.PDCE_OPTIC_SELECT_GESTURE_TIMEOUT.number -> {
                 Log.d("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
             ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {
                 Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
@@ -238,22 +240,25 @@ class BLEParser() {
                 if (errorStatus != 0 && errorStatus != 255) {
                     countErrors ++
                 }
-                if (newStatusExist == 1 && errorStatus == 0)  CoroutineScope(Dispatchers.Default).launch { canSendNextChunkFlagFlow.emit(packIndex) }
+                if (newStatusExist == 1 && errorStatus == 0)  main.lifecycleScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
                 Log.d("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
             } //+
             ParameterDataCodeEnum.PDCE_ENERGY_SAVE_MODE.number -> {
                 Log.d("parameter swichCollect PDCE_ENERGY_SAVE_MODE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
                 Log.d("parameter PDCE_OPTIC_BINDING_DATA","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { bindingGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { bindingGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //-
             ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                 val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
                 Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
-                CoroutineScope(Dispatchers.Default).launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                main.lifecycleScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
+            ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
+                main.lifecycleScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+            }
         }
     }
 

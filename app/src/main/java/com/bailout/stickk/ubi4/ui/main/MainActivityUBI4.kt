@@ -211,6 +211,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow()
         activeGestureFlow = MutableSharedFlow()
+        selectGestureModeFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
@@ -302,6 +303,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var selectGestureModeFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 

@@ -43,6 +43,7 @@ class AdvancedFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 

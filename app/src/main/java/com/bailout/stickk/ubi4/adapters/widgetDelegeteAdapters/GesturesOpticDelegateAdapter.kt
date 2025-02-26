@@ -123,8 +123,7 @@ class GesturesOpticDelegateAdapter(
 
 
 //    private val adapterScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var collectJob1: Job? = null
-    private var collectJob2: Job? = null
+    private var collectJob: Job? = null
 
     @SuppressLint("LogNotTimber")
     val adapter = SelectedGesturesAdapter(
@@ -381,7 +380,6 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         })
-
         chooseLearningGesturesBtn1.setOnClickListener {
             val selectedGestures: (MutableList<Pair<Int, Int>>) -> Unit = { listBindingGestures ->
                 listBindingGesture = listBindingGestures
@@ -403,21 +401,7 @@ class GesturesOpticDelegateAdapter(
         selectedSprGesturesRv.layoutManager = gridLayoutManager
         selectedSprGesturesRv.adapter = adapter
         sprGestureItemsProvider = SprGestureItemsProvider(root.context)
-
-
-
         onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet))
-
-        collectJob1?.cancel() // Отменяем предыдущую подписку перед запуском новой
-        collectJob1 = coroutineScope?.launch {
-            MainActivityUBI4.activeFilterFlow.collect { newFilter ->
-                withContext(Dispatchers.Main) {
-                    // При любом изменении фильтра - рендерим UI
-                    renderFilterUI(newFilter)
-                }
-            }
-        }
-
 
         mRotationGroupExplanationTv = rotationGroupExplanationTv
         mRotationGroupExplanation2Tv = rotationGroupExplanation2Tv
@@ -432,6 +416,7 @@ class GesturesOpticDelegateAdapter(
 
     private fun renderFilterUI(activeFilter: Int) {
         // Параметры для индикатора
+        Log.d("renderFilterUI", "activeFilter = $activeFilter")
         val density = main.resources.displayMetrics.density
         val marginPx = 18 * density
         val extraOffsetPx = 3 * density
@@ -573,8 +558,8 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun collectActiveFlows() {
-        collectJob2?.cancel()
-        collectJob2 = coroutineScope?.launch {
+        collectJob?.cancel()
+        collectJob = coroutineScope?.launch {
             try {
                 merge(
                     MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
@@ -638,6 +623,12 @@ class GesturesOpticDelegateAdapter(
                             setupListRecyclerView()
                             synchronizeRotationGroup()
                             calculatingShowAddButton()
+                        }
+                    },
+                    MainActivityUBI4.activeFilterFlow.map { newFilter ->
+                        withContext(Dispatchers.Main) {
+                            // При любом изменении фильтра - рендерим UI
+                            renderFilterUI(newFilter)
                         }
                     }
                 ).collect()
@@ -792,9 +783,6 @@ class GesturesOpticDelegateAdapter(
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)    }
 
     fun onDestroy() {
-//        collectJob1?.cancel() // Явная отмена при уничтожении
-//        collectJob2?.cancel() // Явная отмена при уничтожении
-//        adapterScope.cancel()
+        collectJob?.cancel() // Явная отмена при уничтожении
     }
-
 }

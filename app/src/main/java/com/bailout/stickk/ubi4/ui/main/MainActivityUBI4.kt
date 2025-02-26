@@ -142,8 +142,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
-        val savedFilter = getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
-        activeFilterFlow.value = savedFilter
     }
 
 

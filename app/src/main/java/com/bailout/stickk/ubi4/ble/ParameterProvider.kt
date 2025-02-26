@@ -27,7 +27,7 @@ class ParameterProvider {
             } else {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
             }
-            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
+            return BaseParameterInfoStruct()
         }
 
         fun getParameterDeprecated(dataCode: Int): BaseParameterInfoStruct {

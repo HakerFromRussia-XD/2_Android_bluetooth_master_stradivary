@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupG
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -84,14 +85,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
     }
 
-//    private fun refreshWidgetsList() {
-//        graphThreadFlag = false
-//        listWidgets.clear()
-//        onDestroyParentCallbacks.forEach { it.invoke() }
-//        onDestroyParentCallbacks.clear()
-//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-//    }
-override fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
+    override fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
         val rotationGroup = RotationGroup()
         rotationGroupGestures.forEachIndexed { index, item ->
             // Используем рефлексию, чтобы найти и изменить свойства
@@ -120,8 +114,8 @@ override fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
         ){}
     }
 
-@SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
-override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
+    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
+    override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
     System.err.println("showAddGestureToRotationGroupDialog")
     val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_rotation_group, null)
     val myDialog = Dialog(requireContext())
@@ -213,18 +207,11 @@ override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGe
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect { _ ->
-                    Log.d("SprGestureFragment", "updateFlow emitted a new value")
-                    main?.runOnUiThread {
-                        binding.sprGesturesRv.post {
-                            val newData = mDataFactory.prepareData(0)
-                            Log.d("SprGestureFragment", "New data size: ${newData.size}")
-                            adapterWidgets.swapData(mDataFactory.prepareData(0))
-                            binding.refreshLayout.setRefreshing(false)
-                        }
-                    }
-                }
+            updateFlow.collect { _ ->
+                val newData = mDataFactory.prepareData(0)
+                Log.d("SprGestureFragment", "New data size: ${newData.size}")
+                adapterWidgets.swapData(mDataFactory.prepareData(0))
+                binding.refreshLayout.setRefreshing(false)
             }
         }
     }

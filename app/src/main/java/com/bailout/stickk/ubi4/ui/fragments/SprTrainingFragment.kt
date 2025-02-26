@@ -59,8 +59,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var canSendNextChunkFlag = true
     private var sendFileSuccessFlag = true
 
-    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -94,13 +92,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     }
 
-
-    override fun refreshWidgetsList() {
-        listWidgets.clear()
-        onDestroyParentCallbacks.forEach { it.invoke() }
-        onDestroyParentCallbacks.clear()
-        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {

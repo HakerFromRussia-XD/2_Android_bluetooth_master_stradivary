@@ -33,7 +33,6 @@ class AdvancedFragment : BaseWidgetsFragment() {
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
-    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
     private val display = 2
 
@@ -46,7 +45,6 @@ class AdvancedFragment : BaseWidgetsFragment() {
         widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
-
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -61,17 +59,7 @@ class AdvancedFragment : BaseWidgetsFragment() {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        onDestroyParentCallbacks.forEach { it.invoke() }
     }
-
-//    private fun refreshWidgetsList() {
-//        graphThreadFlag = false
-//        listWidgets.clear()
-//        onDestroyParentCallbacks.forEach { it.invoke() }
-//        onDestroyParentCallbacks.clear()
-//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-//    }
-
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Main) {
@@ -85,5 +73,4 @@ class AdvancedFragment : BaseWidgetsFragment() {
             }
         }
     }
-
 }

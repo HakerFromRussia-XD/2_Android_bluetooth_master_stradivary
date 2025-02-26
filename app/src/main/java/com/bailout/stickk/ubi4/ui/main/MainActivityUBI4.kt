@@ -193,7 +193,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
+
         saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+        Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
 
         //settings
     }
@@ -304,7 +306,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
+
         var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
+
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()

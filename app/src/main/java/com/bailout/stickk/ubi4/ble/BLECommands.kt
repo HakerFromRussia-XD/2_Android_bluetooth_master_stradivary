@@ -189,7 +189,6 @@ class BLECommands {
             )
             return header
         }
-
         fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -208,7 +207,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
         fun requestActiveGesture(addressDevice: Int, parameterID: Int): ByteArray{
             val header = byteArrayOf(
                 0x60.toByte(),
@@ -221,7 +219,6 @@ class BLECommands {
             )
             return header
         }
-
         fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -492,69 +489,6 @@ class BLECommands {
             return result
         }
 
-        fun testDataTransfer(): ByteArray {
-            val header = byteArrayOf(
-                0xE0.toByte(),
-                PreferenceKeysUBI4.BaseCommands.COMPLEX_PARAMETER_TRANSFER.number,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00
-            )
-            val data = byteArrayOf(
-                0x01,
-                0x01,
-                0x02,
-                0x02,
-                0x04,
-                0x04,
-                0x03,
-                0x03,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-            )
-            header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
-            val result = header + data
-            return result
-        }
-        fun checkpointDataTransfer(data: ByteArray): ByteArray {
-            val header = byteArrayOf(
-                0x40.toByte(),
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00
-            )
-            header[3] = data.size.toByte()
-            header[4] = (data.size / 256).toByte()
-            val result = header + data
-            return result
-        }
-        fun checkpointDataTransfer2(data: ByteArray, addressDevice: Int): ByteArray {
-            val header = byteArrayOf(
-                0x40.toByte(),
-                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                addressDevice.toByte()
-            )
-            header[3] = data.size.toByte()
-            header[4] = (data.size / 256).toByte()
-            val result = header + data
-            return result
-        }
         fun openCheckpointFileInSDCard(name: String, addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
@@ -624,8 +558,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
-
 
 
         private fun calculateDataSize(massage: ByteArray): Int {

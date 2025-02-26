@@ -189,9 +189,7 @@ class SliderDelegateAdapter(
                     BLECommands.requestSlider(addressDevice[0], parameterID[0]),
                     MAIN_CHANNEL,
                     SampleGattAttributes.WRITE
-
                 ) {}
-
             },
             isResponseReceived = {
                 // Просто возвращаем значение нашего флага
@@ -200,7 +198,6 @@ class SliderDelegateAdapter(
             maxRetries = 5,
             delayMillis = 400L
         )
-
 
     }
     private fun updateSliderProgress(widgetPosition: Int, sliderIndex: Int, step: Int, indexWidgetSlider: Int) {

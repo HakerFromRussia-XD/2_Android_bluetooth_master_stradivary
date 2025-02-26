@@ -10,7 +10,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
@@ -43,6 +42,7 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -102,6 +102,7 @@ class PlotDelegateAdapter (
         } else {
             numberOfCharts = 0
         }
+
         countBinding += 1
 
         main.bleCommandWithQueue(BLECommands.requestThresholds(ParameterInfoProvider.getDeviceAddressByDataCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet), ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet)) , MAIN_CHANNEL, WRITE){}

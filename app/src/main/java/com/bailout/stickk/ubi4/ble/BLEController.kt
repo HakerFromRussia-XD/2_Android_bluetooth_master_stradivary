@@ -236,30 +236,7 @@ class BLEController(
         }
         if (mScanning) { scanLeDevice(false) }
     }
-//    internal fun reconnectThread() {
-//        Log.d("--> reconnectThread started", "reconnectThread run")
-//        var j = 1
-//        val reconnectThread = Thread {
-//            while (reconnectThreadFlag) {
-//                mMain.runOnUiThread {
-//                    if(j % 5 == 0) {
-//                        reconnectThreadFlag = false
-//                        scanLeDevice(true)
-//                        System.err.println("DeviceControlActivity------->   Переподключение со сканированием №$j")
-//                    } else {
-//                        reconnect()
-//                        System.err.println("DeviceControlActivity------->   Переподключение без сканирования №$j")
-//                    }
-//                    j++
-//                }
-//                try {
-//                    Thread.sleep(RECONNECT_BLE_PERIOD.toLong())
-//                } catch (ignored: Exception) { }
-//            }
-//        }
-//        reconnectThread.start()
-//    }
-fun reconnectThread() {
+    fun reconnectThread() {
     var j = 1
     CoroutineScope(Dispatchers.Main).launch {
         while (reconnectThreadFlag) {

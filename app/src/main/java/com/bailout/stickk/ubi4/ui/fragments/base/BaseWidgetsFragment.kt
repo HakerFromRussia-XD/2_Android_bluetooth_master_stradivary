@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -86,6 +87,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 //                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
 //            ),
             GesturesOpticDelegateAdapter(
+                coroutineScope = main?.lifecycleScope,
                 gestureNameList = gestureNameList,
                 onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
                 onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick)},

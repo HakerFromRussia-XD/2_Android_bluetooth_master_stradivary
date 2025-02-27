@@ -59,6 +59,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var canSendNextChunkFlag = true
     private var sendFileSuccessFlag = true
 
+    private val display = 2
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +76,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -98,8 +100,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(2)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(2))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

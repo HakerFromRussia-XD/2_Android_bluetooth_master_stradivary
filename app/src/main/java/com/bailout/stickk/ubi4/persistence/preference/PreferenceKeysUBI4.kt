@@ -288,7 +288,7 @@ object PreferenceKeysUBI4 {
 
         PDCE_OPTIC_SELECT_GESTURE_TIMEOUT (45),
 
-        PDCE_OPTIC_MODE_SELECT_GESTURE (46),
+        PDCE_OPTIC_MODE_SELECT_GESTURE (47),
 
         PDCE_GENERIC_0 (255)
     }

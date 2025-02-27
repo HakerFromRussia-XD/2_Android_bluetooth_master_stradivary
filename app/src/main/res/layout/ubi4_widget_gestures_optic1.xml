@@ -141,7 +141,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/ubi4_view_with_corners_back_inside"
+        android:background="@drawable/ubi4_view_with_corners_back_active_gesture"
         android:elevation="4dp"
         app:cardCornerRadius="12dp"
         android:layout_marginTop="12dp"

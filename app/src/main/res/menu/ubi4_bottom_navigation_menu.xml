@@ -15,4 +15,9 @@
         android:enabled="true"
         android:icon="@drawable/trophy"
         android:title="@string/training" />
+    <item
+        android:id="@+id/page_4"
+        android:enabled="true"
+        android:icon="@drawable/trophy"
+        android:title="@string/training" />
 </menu>

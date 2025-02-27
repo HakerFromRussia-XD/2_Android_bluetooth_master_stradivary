@@ -110,7 +110,6 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
             return result;
         }
     }
-
     public interface OnCopyClickRotationGroupListener { void onCopyClick(int position, String gestureName); }
     public interface OnDeleteClickRotationGroupListener { void onDeleteClickCb(int position); }
 }

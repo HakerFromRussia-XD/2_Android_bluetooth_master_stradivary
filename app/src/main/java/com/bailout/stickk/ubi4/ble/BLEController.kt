@@ -34,9 +34,11 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bleParser
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,11 +47,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class BLEController(
-    main: AppCompatActivity,
-) {
+class BLEController() {
     private val mContext: Context = main.applicationContext
-    private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mBLEParser: BLEParser? = null
 
 
@@ -76,7 +75,7 @@ class BLEController(
                 canSendFlag = true
             }
             if (!mBluetoothLeService?.initialize()!!) {
-                mMain.finish()
+                main.finish()
             }
             if (!scanWithoutConnectFlag) {
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
@@ -105,22 +104,22 @@ class BLEController(
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
-        if (!mMain.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+        if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(mContext, "ошибка 1", Toast.LENGTH_SHORT).show()
-            mMain.finish()
+            main.finish()
         }
-        val bluetoothManager = mMain.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager = main.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         mBluetoothAdapter = bluetoothManager.adapter
         if (mBluetoothAdapter == null) {
             Toast.makeText(mContext, "ошибка 2", Toast.LENGTH_SHORT).show()
-            mMain.finish()
+            main.finish()
         } else {
 //            Toast.makeText(mContext, "mBluetoothAdapter != null", Toast.LENGTH_SHORT).show()
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        mBLEParser = BLEParser()
+        mBLEParser = bleParser
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -137,7 +136,7 @@ class BLEController(
                     isUploading = false
                     endFlag = true
 //                    graphThreadFlag = false
-                    mMain.invalidateOptionsMenu()
+                    main.invalidateOptionsMenu()
 //                    percentSynchronize = 0
 
                     progressDialog?.dismiss()
@@ -306,7 +305,7 @@ class BLEController(
     }
     @SuppressLint("MissingPermission")
     private val mLeScanCallback = BluetoothAdapter.LeScanCallback { device, _, _ ->
-        mMain.runOnUiThread {
+        main.runOnUiThread {
             if (device.name != null) {
                 System.err.println("------->   ===============найден девайс: ${device.address} - ${device.name}  ищем $connectedDeviceAddress ==============")
                 if (device.address == connectedDeviceAddress) {

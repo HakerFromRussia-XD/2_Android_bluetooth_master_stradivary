@@ -33,11 +33,14 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.notifyAll
@@ -51,6 +54,10 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
+    private val display = 0
+
+
 
     override fun onResume() {
         super.onResume()
@@ -69,7 +76,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         }
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(0))
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -209,7 +216,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect { _ ->
-                val newData = mDataFactory.prepareData(0)
+                val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
                 adapterWidgets.swapData(mDataFactory.prepareData(0))
                 binding.refreshLayout.setRefreshing(false)

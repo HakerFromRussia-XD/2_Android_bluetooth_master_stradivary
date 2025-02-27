@@ -201,4 +201,5 @@ data class WidgetSwitchInfo (
     var parameterID: Int = 0,
     var isChecked: Boolean = false,
     var widgetSwitch: Switch
+    //TODO добавить информацию - чей виджет? наш/не наш
 )

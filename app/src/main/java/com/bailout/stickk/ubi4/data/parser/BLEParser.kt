@@ -67,6 +67,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -257,6 +258,9 @@ class BLEParser() {
                 main.lifecycleScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
+                val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                Log.e("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+
                 main.lifecycleScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
         }
@@ -392,7 +396,7 @@ class BLEParser() {
                 when (additionalInfoSizeStruct.infoType) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                         parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
-                        GlobalScope.launch {
+                        main.lifecycleScope.launch {
                             main.sendWidgetsArray()
                         }
                     }
@@ -592,6 +596,7 @@ class BLEParser() {
             }
         }
     }
+    @OptIn(DelicateCoroutinesApi::class)
     private fun parseReadSubDeviceAdditionalParameters(addressSubDevice: Int, parameterID: Int, receiveDataString: String) {
         val offset = HEADER_BLE_OFFSET * 2 + READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
         var dataOffset = 0
@@ -628,7 +633,7 @@ class BLEParser() {
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                                     parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
-                                    GlobalScope.launch {
+                                    main.lifecycleScope.launch {
                                         main.sendWidgetsArray()
                                     }
                                 }

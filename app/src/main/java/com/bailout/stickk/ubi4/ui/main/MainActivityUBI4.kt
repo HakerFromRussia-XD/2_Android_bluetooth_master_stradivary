@@ -9,11 +9,14 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
+import android.view.MotionEvent
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -36,6 +39,7 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -49,12 +53,17 @@ import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
+import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
+import kotlin.random.Random
 
 
 @RequirePresenter(MainPresenter::class)
@@ -65,6 +74,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
     private lateinit var trainingModelHandler: TrainingModelHandler
     private var activeFragment: Fragment? = null
+    private lateinit var activeGestureNameCl: ConstraintLayout
 
 
     // Очередь для задачь работы с BLE
@@ -72,7 +82,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var bottomNavigationController: BottomNavigationController
 
 
-    @SuppressLint("CommitTransaction")
+    @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
@@ -91,7 +101,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         trainingModelHandler.initialize()
 
         // инициализация блютуз
-        mBLEController = BLEController(this)
+        mBLEController = BLEController()
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
         startQueue()
@@ -100,6 +110,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+
+
 
 //        binding.runCommandBtn.setOnClickListener {
 //            val command = BLECommands.requestActiveGesture(6, 8)
@@ -197,14 +209,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         //settings
     }
-    internal fun sendWidgetsArray() {
-        //событие эммитится только в случае если size отличается от предыдущего
-        updateFlow.value += 1
-    }
+    internal fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
         canSendNextChunkFlagFlow = MutableSharedFlow()
-        updateFlow = MutableStateFlow(0)
+        updateFlow = MutableSharedFlow()
         plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
@@ -224,6 +233,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         bindingGroupGestures = arrayListOf()
         activeFilterFlow = MutableStateFlow(1)
         spinnerFlow = MutableSharedFlow()
+        bleParser = BLEParser()
+        runCommandFlow = MutableStateFlow(0)
     }
 
     // сохранение и загрузка данных
@@ -289,9 +300,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
+        var runCommandFlow by Delegates.notNull<MutableStateFlow<Int>>()
 
+        var bleParser by Delegates.notNull<BLEParser>()
         var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-        var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
+        var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()

@@ -3,11 +3,12 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.GestureWithAddress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_PRODUCT_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.INICIALIZE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
@@ -267,7 +268,7 @@ class BLECommands {
             )
             val data = byteArrayOf(
                 READ_DATA.number,
-                DTCE_PRODUCT_INFO_TYPE.number
+                DTCE_DEVICE_INFO_TYPE.number
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

@@ -9,14 +9,12 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
-import android.view.MotionEvent
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -24,19 +22,13 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
-import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.parser.BLEParser
@@ -52,10 +44,10 @@ import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
+import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.AccountMainUBI4Item
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +55,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
-import kotlin.random.Random
 
 
 @RequirePresenter(MainPresenter::class)
@@ -75,6 +66,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var trainingModelHandler: TrainingModelHandler
     private var activeFragment: Fragment? = null
     private lateinit var activeGestureNameCl: ConstraintLayout
+
+    internal var locate = ""
+    var mDeviceName: String? = null
+    var mDeviceAddress: String? = null
+    var mDeviceType: String? = null
+    var driverVersionS: String? = null
+    var driverVersionINDY: Int? = null
+
 
 
     // Очередь для задачь работы с BLE
@@ -110,6 +109,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+        binding.accountBtn.setOnClickListener {
+            showAccountScreen()
+        }
+
 
 
 
@@ -162,6 +165,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
+    override fun showAccountScreen() { launchFragmentWithoutStack(AccountFragmentMainUBI4()) }
+
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
         val fragment = MotionTrainingFragment(onFinishTraining)
@@ -180,6 +185,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getPercentProgressLearningModel(): Int {
         return trainingModelHandler.getPercentProgressLearningModel()
     }
+
 
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
@@ -243,6 +249,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putString(key, text)
         editor.apply()
     }
+
     override fun getString(key: String) :String {
 //        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()

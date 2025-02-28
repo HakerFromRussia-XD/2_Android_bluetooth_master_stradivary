@@ -18,6 +18,8 @@ interface NavigatorUBI4 {
     fun manageTrainingLifecycle()
     fun getPercentProgressLearningModel() : Int
 
+    fun showAccountScreen()
+
     fun showToast(massage: String)
     fun saveString(key: String, text: String)
     fun getString(key: String) :String
@@ -25,4 +27,6 @@ interface NavigatorUBI4 {
     fun getBackStackEntryCount():Int
     fun goingBack()
     fun goToMenu()
+
+
 }

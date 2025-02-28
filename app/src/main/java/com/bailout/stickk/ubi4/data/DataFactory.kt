@@ -111,13 +111,10 @@ internal class DataFactory {
         }
 
 
-
         // компановка элементов для отрисовки на выбраном экране
         val setWidgets: Set<Any> = listWidgets.toSet()
         val _listWidgets = ArrayList<Any>(setWidgets.size)
         System.err.println("DataFactory: toSet() size=${setWidgets.size}")
-
-
 
         setWidgets.forEach {
             when (it) {

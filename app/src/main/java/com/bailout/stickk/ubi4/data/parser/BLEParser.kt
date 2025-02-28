@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
@@ -41,6 +42,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.serialization.json.Json
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -55,6 +57,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.models.ParameterInfo
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.activeGestureFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bindingGroupFlow
@@ -226,8 +229,6 @@ class BLEParser() {
                 Log.d("parameter sliderCollect PDCE_GLOBAL_FORCE"," dataCode: $dataCode")
                 main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-
-            //TODO после перепрошивки проверить Optic timeout slider
             ParameterDataCodeEnum.PDCE_OPTIC_SELECT_GESTURE_TIMEOUT.number -> {
                 Log.d("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
                 main.lifecycleScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
@@ -307,12 +308,13 @@ class BLEParser() {
         }
     }
     private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
+        Log.d ("parseProductInfoType", "packageCodeRequest = $packageCodeRequest")
         when (packageCodeRequest) {
             (0x00).toByte() -> { System.err.println("TEST parser 2 DEFOULT") }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {System.err.println("TEST parser 2 READ_AVAILABLE_SLOTS")}
             DataManagerCommand.WRITE_SLOT.number -> {System.err.println("TEST parser 2 WRITE_SLOT")}
             DataManagerCommand.READ_DATA.number -> { System.err.println("TEST parser 2 READ_DATA")
-                parseReadSubDeviceInfoData(receiveDataString)
+                parseProductInfoType(receiveDataString)
             }
             DataManagerCommand.WRITE_DATA.number -> {System.err.println("TEST parser 2 WRITE_DATA")}
             DataManagerCommand.RESET_TO_FACTORY.number -> {System.err.println("TEST parser 2 RESET_TO_FACTORY")}
@@ -668,6 +670,10 @@ class BLEParser() {
         val test = Json.decodeFromString<BaseSubDeviceArrayInfoDataStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         System.err.println("TEST parser 2 READ_DATA $test")
     }
+    private fun parseProductInfoType(receiveDataString: String) {
+        val deviceInfoStructs = Json.decodeFromString<DeviceInfoStructs>("\"${receiveDataString.substring(16,receiveDataString.length)}\"")
+        Log.d ("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
+    }
     private fun getNextIDParameter(ID: Int): Int{
         for (item in baseParametrInfoStructArray.indices) {
             if (ID < baseParametrInfoStructArray[item].ID ) {
@@ -742,7 +748,7 @@ class BLEParser() {
         // тут надо проверить есть-ли в сете такой же объект за исключением поля parametersIDAndDataCodes
 
 //        if (listWidgets  )
-
+        baseParameterWidgetStruct.widgetId
         Log.d("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "0 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)} ")
         baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
         count += 1

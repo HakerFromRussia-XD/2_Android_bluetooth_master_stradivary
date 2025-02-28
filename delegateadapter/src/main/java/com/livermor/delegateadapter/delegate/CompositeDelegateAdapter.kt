@@ -27,13 +27,23 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
     open fun swapData(data: List<Any>) {
         val newAdapterState = adapterState.copy(data = data)
         val diffCallback = DiffUtilCallback(adapterState, newAdapterState)
-//        System.err.println("prepareData(): diffCallback отработал")
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-//        System.err.println("prepareData(): diffResult отработал")
         adapterState = newAdapterState
-//        System.err.println("prepareData(): adapterState изменён")
-        //adds animation at the moment of re-building
         diffResult.dispatchUpdatesTo(this)
+//        recyclerView?.smoothScrollToPosition(0)
+    }
+
+    // Добавьте WeakReference для RecyclerView в адаптер
+    private var recyclerView: RecyclerView? = null
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        this.recyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        this.recyclerView = null
     }
 
     override fun onViewAttachedToWindow(holder: ViewHolder) {

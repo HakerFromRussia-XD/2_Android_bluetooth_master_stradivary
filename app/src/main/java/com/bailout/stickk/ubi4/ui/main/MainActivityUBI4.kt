@@ -116,7 +116,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
 
-//        binding.runCommandBtn.setOnClickListener {
+        binding.runCommandBtn.setOnClickListener {
 //            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
@@ -132,13 +132,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                    10
 //                ), MAIN_CHANNEL, WRITE
 //            ) {}
-//            main.bleCommandWithQueue(
-//                BLECommands.requestSlider(6, 2),
-//                MAIN_CHANNEL,
-//                WRITE
-//            ){}
-//
-//        }
+            main.bleCommandWithQueue(
+                BLECommands.requestProductInfoType(),
+                MAIN_CHANNEL,
+                WRITE
+            ){}
+        }
 
     }
     @SuppressLint("MissingPermission")

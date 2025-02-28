@@ -18,11 +18,7 @@ data class PlotThresholds(
     var threshold4: Int = 0,
     var threshold5: Int = 0,
     var threshold6: Int = 0,
-) {
-    fun toThresholdList(): List<Int> {
-        return listOf(threshold1, threshold2, threshold3, threshold4, threshold5, threshold6)
-    }
-}
+)
 
 object PlotThresholdsSerializer: KSerializer<PlotThresholds> {
     override val descriptor: SerialDescriptor =

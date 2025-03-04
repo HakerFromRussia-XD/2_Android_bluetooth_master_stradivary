@@ -39,8 +39,8 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
                 }
 
                 R.id.page_4 -> {
-                    main.showOpticTrainingGesturesScreen()
-                    System.err.println("bottomNavigation item3")
+                    main.showSpecialScreen()
+                    System.err.println("bottomNavigation item4")
                     return@setOnItemSelectedListener true
                 }
             }

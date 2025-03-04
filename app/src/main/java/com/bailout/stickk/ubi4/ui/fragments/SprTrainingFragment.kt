@@ -59,7 +59,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var canSendNextChunkFlag = true
     private var sendFileSuccessFlag = true
 
-    private val display = 2
+    private val display = 3
 
     override fun onCreateView(
         inflater: LayoutInflater,

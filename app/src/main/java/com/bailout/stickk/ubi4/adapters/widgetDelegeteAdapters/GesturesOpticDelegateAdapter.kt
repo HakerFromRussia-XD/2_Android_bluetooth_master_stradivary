@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
@@ -40,6 +41,7 @@ import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.TouchAreaExtensions.expandTouchArea
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
@@ -334,6 +336,16 @@ class GesturesOpticDelegateAdapter(
                 .get(this) as? View
             val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
                 .get(this) as? View
+
+            gestureSettingsBtn!!.doOnLayout {
+                // Устанавливаем свойства для родителя
+                (gestureSettingsBtn.parent as? View)?.apply {
+                    isClickable = true
+                }
+                val extraPadding = 20  // или (gestureSettingsBtn.width * 0.3).toInt()
+                gestureSettingsBtn.expandTouchArea(extraPadding)
+                Log.d("TouchArea", "Expanded touch area for ${gestureSettingsBtn.id} by $extraPadding")
+            }
 
             gestureCustomBtn?.let { gestureCustomBtns.add(Pair(it, 63 + i)) }
             gestureCustomTv?.text = gestureNameList[i - 1]

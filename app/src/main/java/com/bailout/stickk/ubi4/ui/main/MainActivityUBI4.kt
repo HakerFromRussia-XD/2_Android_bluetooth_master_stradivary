@@ -22,9 +22,11 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.BluetoothLeService.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -46,6 +48,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.AccountMainUBI4Item
+import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
@@ -55,7 +58,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
-
+import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
@@ -114,9 +119,22 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-
+//        binding.runCommandBtn.setOnClickListener {
+//            Log.d("RunCommand", "Кнопка нажата!")
+//            val command = BLECommands.requestProductInfoType()
+//            Log.d("RunCommand", "Команда: ${EncodeByteToHex.bytesToHexString(command)}")
+//            main.bleCommandWithQueue(
+//                command,
+//                MAIN_CHANNEL,
+//                WRITE
+//            ) {
+//                Log.d("RunCommand", "Команда отправлена, вызван callback")
+//            }
+//        }
 
         binding.runCommandBtn.setOnClickListener {
+            Log.d("RunCommand", "Кнопка нажата!")
+
 //            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
@@ -137,6 +155,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 MAIN_CHANNEL,
                 WRITE
             ){}
+//            main.bleCommand(
+//                BLECommands.requestProductInfoType(),
+//                MAIN_CHANNEL,
+//                WRITE
+//            )
         }
 
     }
@@ -164,7 +187,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
-    override fun showAccountScreen() { launchFragmentWithoutStack(AccountFragmentMainUBI4()) }
+    override fun showAccountScreen() { launchFragmentWithStack(AccountFragmentMainUBI4()) }
+    override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
 
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
@@ -185,12 +209,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return trainingModelHandler.getPercentProgressLearningModel()
     }
 
+    override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
+
 
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
-    override fun goingBack() { onBackPressed() }
+    override fun goingBackUbi4() { onBackPressed()}
+
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
@@ -202,6 +229,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             transaction.replace(R.id.fragmentContainer, fragment)
             if (!supportFragmentManager.isDestroyed) transaction.commit()
         }
+    }
+
+    private fun launchFragmentWithStack(fragment: Fragment) {
+        activeFragment = fragment
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun initAllVariables() {
@@ -289,6 +324,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
     }
+
+    fun loadText(key: String): String { return mSettings!!.getString(key, "null").toString() }
+
 
     //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {

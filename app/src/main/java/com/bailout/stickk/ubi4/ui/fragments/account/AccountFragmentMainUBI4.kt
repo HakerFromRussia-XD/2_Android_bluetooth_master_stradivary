@@ -20,13 +20,11 @@ import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountMainAdapter
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountMainItem
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.OnAccountMainClickListener
+import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,7 +35,7 @@ import kotlin.math.min
 import kotlin.properties.Delegates
 
 @Suppress("DEPRECATION")
-class AccountFragmentMainUBI4() : Fragment() {
+class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart? = null) : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
     private var linearLayoutManager: LinearLayoutManager? = null
@@ -49,9 +47,9 @@ class AccountFragmentMainUBI4() : Fragment() {
     private var gson: Gson? = null
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
-    private var serialNumber = "FEST-F-06879"//"FEST-H-04921"//"FEST-F-06879"//FEST-EP-05674//FEST-H-02211
+    // Используйте реальный серийный номер, если он доступен
+    private var serialNumber = "FEST-F-06879"
     private var myRequests: Requests? = null
-    //    private var myUser: UserV2? = null
     private var fname: String = ""
     private var sname: String = ""
     private var locate: String = "en"
@@ -61,20 +59,20 @@ class AccountFragmentMainUBI4() : Fragment() {
     private var bmsVersion = "0.01"
     private var sensorsVersion = "0.01"
 
-
     private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentPersonalAccountMainBinding.inflate(layoutInflater)
-//        WDApplication.component.inject(this)
-        if (activity != null) { main = activity as MainActivityUBI4? }
-        this.mContext = context
-        //передача реального серийного номера
-//        serialNumber = main?.mDeviceName.toString()
-//        if (testSerialNumber == "INDY") { testSer ialNumber = "INDY-H-05668" } //"INDY-H-02453" }
-//        if (serialNumber == "FEST-X") { serialNumber = "INDY-H-05668" } //"INDY-H-02453" }
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding = Ubi4FragmentPersonalAccountMainBinding.inflate(inflater, container, false)
+        // Если используется DI, можно вызвать WDApplication.component.inject(this)
+        if (activity != null) {
+            main = activity as? MainActivityUBI4
+        }
+        mContext = context
+        // Передаем серийный номер из активности, если нужно
+        serialNumber = main?.mDeviceName ?: serialNumber
         System.err.println("TEST SERIAL NUMBER $serialNumber")
-//        System.err.println("AccountFragmentMain onCreateView()")
         return binding.root
     }
 
@@ -85,14 +83,13 @@ class AccountFragmentMainUBI4() : Fragment() {
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
         attemptedRequest = 1
-        if (main?.locate?.contains("ru")!!) { locate = "ru" }
-
+        if (main?.locate?.contains("ru") == true) { locate = "ru" }
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener {
-            System.err.println("TEST SERIAL NUMBER $serialNumber  requestToken()")
+            System.err.println("Refreshing... requestToken()")
             requestToken()
         }
 
@@ -104,14 +101,12 @@ class AccountFragmentMainUBI4() : Fragment() {
             binding.preloaderLav.visibility = View.GONE
             updateAllParameters()
         }
-
-//        initializeUI()
+        initializeUI()
     }
 
     @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
-
         RxUpdateMainEvent.getInstance().uiAccountMain
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -121,10 +116,9 @@ class AccountFragmentMainUBI4() : Fragment() {
                 }
             }
     }
+
     private fun updateAllParameters() {
         activity?.runOnUiThread {
-//            initializeUI()
-
             accountMainList.clear()
             accountMainList.add(
                 AccountMainUBI4Item(
@@ -140,37 +134,30 @@ class AccountFragmentMainUBI4() : Fragment() {
             initAdapter(binding.accountRv)
         }
     }
-    private fun checkMultigrib(): Boolean {
-        return main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
-    }
 
     private fun requestToken() {
         CoroutineScope(Dispatchers.Main).launch {
             encryptionResult = encryptionManager?.encrypt(serialNumber)
-            System.err.println("encryptionResult = ${encryptionManager?.encrypt(serialNumber)}  requestToken")
+            System.err.println("encryptionResult = ${encryptionResult} requestToken")
             myRequests!!.getRequestToken(
                 { token ->
                     this@AccountFragmentMainUBI4.token = token
                     binding.preloaderLav.visibility = View.GONE
                     requestUserData()
-                    System.err.println("requestToken запрос обработан")
+                    System.err.println("requestToken processed")
                 },
                 { error ->
                     System.err.println("requestToken error: $error")
                     main?.runOnUiThread { binding.refreshLayout.setRefreshing(false) }
-
                     when (error) {
                         "500" -> {
                             if (attemptedRequest != 4) {
-                                //для того чтобы по другому зашифровать серийник
-                                attemptedRequest ++
+                                attemptedRequest++
                                 requestToken()
                             } else {
                                 main?.runOnUiThread {
                                     showInfoWithoutConnection()
-                                    Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
                                 }
                             }
                         }
@@ -182,15 +169,17 @@ class AccountFragmentMainUBI4() : Fragment() {
                         }
                     }
                 },
-                "Aesserial $encryptionResult")
+                "Aesserial $encryptionResult"
+            )
         }
     }
+
     private fun requestUserData() {
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestUserV2(
                 { user ->
-                    fname = user.userInfo?.fname.toString()
-                    sname = user.userInfo?.sname.toString()
+                    fname = user.userInfo?.fname ?: ""
+                    sname = user.userInfo?.sname ?: ""
                     binding.apply {
                         accountMainList.clear()
                         accountMainList.add(
@@ -201,97 +190,69 @@ class AccountFragmentMainUBI4() : Fragment() {
                                 patronymic = "Ivanovich",
                                 versionDriver = driverVersion,
                                 versionBms = bmsVersion,
-                                versionSensors = sensorsVersion)
+                                versionSensors = sensorsVersion
+                            )
                         )
                         initAdapter(binding.accountRv)
                         binding.refreshLayout.setRefreshing(false)
                     }
                     clientId = user.userInfo?.clientId ?: 0
-                    System.err.println("TEST  clientId: ${user.userInfo?.clientId}")
-                    System.err.println("Custom service  Manager name: ${user.userInfo?.manager?.fio}")
-                    System.err.println("Custom service  Manager phone: ${user.userInfo?.manager?.phone}")
-
+                    System.err.println("clientId: ${clientId}")
+                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
+                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
                     main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
                     main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
                     requestDeviceList()
                 },
                 { error ->
                     binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
                 },
                 token = this@AccountFragmentMainUBI4.token,
                 lang = locate
             )
         }
     }
+
     private fun requestDeviceList() {
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestUser(
                 { user ->
                     System.err.println("Device list size: ${user.devices.size}")
                     for (device in user.devices) {
-                        System.err.println("Device list id = ${device.id}    serialNumber = ${device.serialNumber}")
+                        System.err.println("Device id = ${device.id} serialNumber = ${device.serialNumber}")
                         if (device.serialNumber == serialNumber) {
-                            System.err.println("Device list искомый девайс: ${device.id}")
+                            System.err.println("Found target device: ${device.id}")
                             device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
                         }
                     }
                 },
                 { error ->
                     binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
                 },
                 token = this@AccountFragmentMainUBI4.token,
                 lang = locate
             )
         }
     }
+
     private fun requestDeviceInfo(deviceId: Int) {
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestDeviceInfo(
                 { deviceInfo ->
-                    main?.saveString(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name.toString()))
+                    main?.saveString(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
                     main?.saveString(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
                     main?.saveString(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
                     main?.saveString(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
                     main?.saveString(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
                     main?.saveString(PreferenceKeys.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
-
-
                     System.err.println("Device Info model: ${deviceInfo.model?.name}")
-                    System.err.println("Device Info size: ${deviceInfo.size?.name}")
-                    System.err.println("Device Info side: ${deviceInfo.side?.name}")
-                    System.err.println("Device Info status: ${deviceInfo.status?.name}")
-                    System.err.println("Device Info date transfer: ${deviceInfo.dateTransfer}")
-                    System.err.println("Device Info guarantee period: ${deviceInfo.guaranteePeriod}")
-                    System.err.println("Device Info options: ${deviceInfo.options.size}")
-                    var rotatorSet = false
-                    var accumulatorSet = false
-                    var touchscreenFingersSet = false
-                    for (option in deviceInfo.options) {
-                        if (option.id == 3) {
-                            main?.saveString(PreferenceKeys.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name ?: "")
-                            System.err.println("Device Info rotator: ${option.value?.name}")
-                            rotatorSet = true
-                        }
-                        if (option.id == 15) {
-                            main?.saveString(PreferenceKeys.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name ?: "")
-                            System.err.println("Device Info accumulator: ${option.value?.name}")
-                            accumulatorSet = true
-                        }
-                        if (option.id == 5) {
-                            main?.saveString(PreferenceKeys.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name ?: "")
-                            System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
-                            touchscreenFingersSet = true
-                        }
-                    }
-                    if (!rotatorSet) { System.err.println("Device Info rotator NOT SET")}
-                    if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
-                    if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
+                    // ... (другие логи)
                 },
                 { error ->
                     binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
                 },
                 token = this@AccountFragmentMainUBI4.token,
                 deviceId = deviceId,
@@ -299,6 +260,7 @@ class AccountFragmentMainUBI4() : Fragment() {
             )
         }
     }
+
     private fun initAdapter(accountRv: RecyclerView) {
         linearLayoutManager = LinearLayoutManager(mContext)
         linearLayoutManager!!.orientation = LinearLayoutManager.VERTICAL
@@ -307,97 +269,77 @@ class AccountFragmentMainUBI4() : Fragment() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onCustomerServiceClicked() {
                 navigator().showAccountCustomerServiceScreen()
-
-//                main?.showToast("onCustomerServiceClicked")
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    myRequests?.postRequestSettings(
-//                        { error -> Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() },
-//                        token = token,
-//                        prosthesisId = address,
-//                        gson = this@MainActivity.gson!!
-//                    )
-//                }
             }
 
             override fun onProsthesisInformationClicked() {
-                navigator().showAccountProsthesisInformationScreen()
-
-//                main?.showToast("onProsthesisInformationClicked")
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    myRequests?.getRequestProthesisSettings(
-//                        { allOptions ->
-//                            binding.apply {
-//                                tvUserId.visibility = View.VISIBLE
-//                                progressBar.visibility = View.GONE
-//                                tvUserId.text = allOptions.toString()
-//                            }
-//                        },
-//                        { error -> Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() },
-//                        token = token,
-//                        prosthesisId = id
-//                    )
-//                }
+//                navigator().showAccountProsthesisInformationScreen()
             }
         })
         accountRv.adapter = adapter
     }
-//    private fun initializeUI() {
-//        binding.titleClickBlockBtn.setOnClickListener {  }
-//        initAdapter(binding.accountRv)
-//
-//        binding.backBtn.setOnClickListener {
-//            System.err.println("AccountFragmentMain backBtn")
-//            main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
-//            navigator().goingBack()
-//            Handler().postDelayed({
-//                reactivatedInterface.reactivatedChart()
-//            }, 300)
-//
-//        }
-//
-//        binding.root.isFocusableInTouchMode = true
-//        binding.root.requestFocus()
-//        binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-//            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-//                System.err.println("AccountFragmentMain backBtn")
-//                main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
-//                navigator().goingBack()
-//                Handler().postDelayed({
-//                    reactivatedInterface.reactivatedChart()
-//                }, 300)
-//                requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-//                return@OnKeyListener true
-//            }
-//            false
-//        })
-//
-//        driverVersion = if (!checkMultigrib()) {
-//            ((mSettings!!.getInt(
-//                main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
-//                1
-//            )).toFloat() / 100).toString()
-//        } else {
-//            main?.driverVersionS.toString()
-//        }
-//        bmsVersion = ((mSettings!!.getInt(
-//            main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
-//            1
-//        )).toFloat() / 100).toString()
-//        sensorsVersion = ((mSettings!!.getInt(
-//            main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
-//            1
-//        )).toFloat() / 100).toString()
-//    }
+
+    // Восстанавливаем обработку кнопки "назад" как в рабочем фрагменте
+    private fun initializeUI() {
+        binding.titleClickBlockBtn.setOnClickListener { }
+        initAdapter(binding.accountRv)
+        //TODO когда придет Рома, исправить закрытие стека над SensorsFragment
+        binding.backBtn.setOnClickListener {
+            // Проверяем, что фрагмент всё ещё прикреплён
+            if (isAdded) {
+                parentFragmentManager.popBackStack()  // закрывает только верхний фрагмент
+            } else {
+                main?.finish()
+
+            }
+        }
+
+        binding.root.isFocusableInTouchMode = true
+        binding.root.requestFocus()
+        binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                System.err.println("AccountFragmentMainUBI4 back key pressed")
+                main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
+                navigator().goingBackUbi4()
+                Handler().postDelayed({
+                    reactivatedInterface?.reactivatedChart()
+                }, 300)
+                requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                return@OnKeyListener true
+            }
+            false
+        })
+        driverVersion = if (!checkMultigrib()) {
+            ((mSettings!!.getInt(
+                main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+                1
+            )).toFloat() / 100).toString()
+        } else {
+            main?.driverVersionS ?: "0.01"
+        }
+        bmsVersion = ((mSettings!!.getInt(
+            main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
+            1
+        )).toFloat() / 100).toString()
+        sensorsVersion = ((mSettings!!.getInt(
+            main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
+            1
+        )).toFloat() / 100).toString()
+    }
+
+    private fun checkMultigrib(): Boolean {
+        return main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_X) == true ||
+                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_H) == true ||
+                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_A) == true
+    }
+
     private fun simplificationName(name: String): String {
         return name.substringFrom("ПР", name.lastIndex)
     }
-    private fun String.substringFrom(char: String, maxLen: Int)
-            = indexOf(char).let {
-        if (it >= 0)
-            substring(it, min(it + maxLen, length))
-        else
-            this
-    }
+    private fun String.substringFrom(char: String, maxLen: Int) =
+        indexOf(char).let {
+            if (it >= 0) substring(it, min(it + maxLen, length)) else this
+        }
+
     private fun showInfoWithoutConnection() {
         binding.preloaderLav.visibility = View.GONE
         binding.apply {

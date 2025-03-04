@@ -323,9 +323,13 @@ class BLEController() {
         System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
+                Log.d("bleCommand", "bleCommand 1")
                 if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
+                    Log.d("bleCommand", "bleCommand 2 $typeCommand")
+
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
+                        Log.d("bleCommand", "bleCommand 3")
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
@@ -355,8 +359,6 @@ class BLEController() {
         // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
         onDisconnectedListener = listener
     }
-
-
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }

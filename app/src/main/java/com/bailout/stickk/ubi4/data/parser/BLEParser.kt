@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.parser
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -280,7 +281,6 @@ class BLEParser() {
             DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS.number -> {
                 parseReadDeviceAdditionalParameters(ID, receiveDataString, deviceAddress)
             }
-
             DeviceInformationCommand.READ_SUB_DEVICES_FIRST_INFO.number -> {System.err.println("TEST parser 2 READ_SUB_DEVICES_FIRST_INFO")}
             DeviceInformationCommand.READ_SUB_DEVICE_INFO.number -> {
                 System.err.println("TEST parser 2 READ_SUB_DEVICE_INFO")
@@ -309,6 +309,7 @@ class BLEParser() {
     }
     private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
         Log.d ("parseProductInfoType", "packageCodeRequest = $packageCodeRequest")
+        Log.d("parseDataManger", "packageCodeRequest = $packageCodeRequest, receiveDataString = $receiveDataString")
         when (packageCodeRequest) {
             (0x00).toByte() -> { System.err.println("TEST parser 2 DEFOULT") }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {System.err.println("TEST parser 2 READ_AVAILABLE_SLOTS")}
@@ -334,6 +335,7 @@ class BLEParser() {
         for(i in 0 until fullInicializeConnectionStruct.parametrsNum) {
             listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(20+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 20+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
+
         baseParametrInfoStructArray = listA
         var widgetCount = 0
         baseParametrInfoStructArray.forEach {
@@ -423,7 +425,19 @@ class BLEParser() {
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
         Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
+
+        //TODO согласовать с Романом эту проверку
+        if (baseSubDevicesInfoStructSet.isEmpty()) {
+            main.showToast("Сабдевайсов нет")
+            return
+        }
+
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
+        baseSubDevicesInfoStructSet.forEach {
+            Log.e("SubDeviceSubDevice", "$it")
+
+        }
+
         numberSubDevice = subDevices.count
         subDeviceCounter = 0
         subDeviceChankParametersCounter = 0
@@ -486,6 +500,7 @@ class BLEParser() {
             deviceAddress = castUnsignedCharToInt(receiveDataString.substring(16, 18).toInt(16).toByte())
             startIndex = castUnsignedCharToInt(receiveDataString.substring(18, 20).toInt(16).toByte())
             quantitiesReadParameters = castUnsignedCharToInt(receiveDataString.substring(20, 22).toInt(16).toByte())
+            Log.e("SubDeviceAdditionalParameters" ,"$_deviceAddress $_parametrsNum $deviceAddress $startIndex $quantitiesReadParameters")
 
             if (subDeviceChankParametersCounter == (_parametrsNum/10)) {
                 // если subDeviceChankParametersCounter выполняет последний шаг, то мы меняем
@@ -496,25 +511,27 @@ class BLEParser() {
             Log.d("listA", "listA=${listA.size}")
             Log.d("listA", "deviceAddress = ${_deviceAddress}   0 <= i < $numberCount")
             if (_deviceAddress == deviceAddress && subDeviceChankParametersCounter*10 == startIndex && quantitiesReadParameters == numberCount) {
-                for (i in 0 until numberCount) {
-                val start = 22 + (i + subDeviceChankParametersCounter) * BASE_PARAMETER_INFO_STRUCT_SIZE
-                val end   = 22 + (i + subDeviceChankParametersCounter + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
-                Log.d("listA", "start=${start}   end=${end}  receiveDataString=$receiveDataString")
+                Log.e("SubDeviceAdditionalParameters" ,"FILTER $_deviceAddress $_parametrsNum $deviceAddress $startIndex $quantitiesReadParameters")
 
-                if (end <= receiveDataString.length) {
-                    try {
-                        val parameterJson = receiveDataString.substring(start, end)
-                        listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
-                    } catch (e: Exception) {}
-                } else {
-                    Log.e("error", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
-                    break
+                for (i in 0 until numberCount) {
+                    val start = 22 + (i) * BASE_PARAMETER_INFO_STRUCT_SIZE
+                    val end   = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
+                    Log.d("SubDeviceAdditionalParameters", "start=${start}   end=${end}  receiveDataString=$receiveDataString")
+
+                    if (end <= receiveDataString.length) {
+                        try {
+                            val parameterJson = receiveDataString.substring(start, end)
+                            listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
+                        } catch (e: Exception) {}
+                    } else {
+                        Log.e("SubDeviceAdditionalParameters", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
+                        break
+                    }
                 }
-            }
                 baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList = listA
             }
             Log.d(
-                "SubDeviceAdditionalParameterss",
+                "SubDeviceAdditionalParameters",
                 "прочитали параметры из сабдевайса ${
                     _deviceAddress
                 } их ${baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.size} listA=${listA.size} subDeviceCounter=$subDeviceCounter из $numberSubDevice"
@@ -610,7 +627,7 @@ class BLEParser() {
             subDevice.parametersList.forEach { parametrSubDevice ->
                 if (subDevice.deviceAddress == addressSubDevice) {
                     if (parametrSubDevice.ID == parameterID) {
-                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}  receiveDataString=$receiveDataString")
+                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}  parameterID = ${parametrSubDevice.ID}  list = ${subDevice.parametersList.size} additionalInfoSize=${parametrSubDevice.additionalInfoSize}  receiveDataString=$receiveDataString")
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
@@ -674,6 +691,7 @@ class BLEParser() {
         val deviceInfoStructs = Json.decodeFromString<DeviceInfoStructs>("\"${receiveDataString.substring(16,receiveDataString.length)}\"")
         Log.d ("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
     }
+
     private fun getNextIDParameter(ID: Int): Int{
         for (item in baseParametrInfoStructArray.indices) {
             if (ID < baseParametrInfoStructArray[item].ID ) {

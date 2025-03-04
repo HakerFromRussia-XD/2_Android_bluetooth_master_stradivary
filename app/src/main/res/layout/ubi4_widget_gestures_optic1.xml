@@ -797,6 +797,13 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidline_settings_area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.8" />
+
             <View
                 android:id="@+id/dividerV"
                 android:layout_width="match_parent"
@@ -838,8 +845,8 @@
                 android:id="@+id/gestureCustom1Btn"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="17dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/ubi4_view_with_corners_gray_outside"
                 android:elevation="3dp"
@@ -847,19 +854,30 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/dividerV" />
 
-            <View
+            <FrameLayout
+                android:id="@+id/gesture1SettingsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                app:layout_constraintTop_toTopOf="@+id/gestureCustom1Btn"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCustom1Btn"
+                android:elevation="3dp"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCustom1Btn">
+
+            <!-- Маленькая кнопка настроек -->
+            <ImageView
                 android:id="@+id/gesture1SettingsBtn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="2dp"
+                android:layout_gravity="center"
                 android:background="@drawable/ic_setting"
                 android:backgroundTint="@android:color/white"
-                android:elevation="3dp"
-                app:layout_constraintBottom_toBottomOf="@+id/gestureCustom1Btn"
-                app:layout_constraintEnd_toEndOf="@+id/gestureCustom1Btn"
-                app:layout_constraintTop_toTopOf="@+id/gestureCustom1Btn" />
+                android:elevation="3dp" />
+        </FrameLayout>
 
-            <TextView
+
+        <TextView
                 android:id="@+id/gesture1NameTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -886,17 +904,25 @@
                 app:layout_constraintStart_toStartOf="@+id/guidline_mid_3"
                 app:layout_constraintTop_toBottomOf="@+id/dividerV" />
 
-            <View
-                android:id="@+id/gesture2SettingsBtn"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+            <FrameLayout
+                android:id="@+id/gesture2SettingsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
                 android:elevation="3dp"
+                app:layout_constraintTop_toTopOf="@+id/gestureCustom2Btn"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom2Btn"
-                app:layout_constraintEnd_toEndOf="@+id/gestureCustom2Btn"
-                app:layout_constraintTop_toTopOf="@+id/gestureCustom2Btn" />
+                app:layout_constraintEnd_toEndOf="@+id/gestureCustom2Btn">
+                <View
+                    android:id="@+id/gesture2SettingsBtn"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/ic_setting"
+                    android:backgroundTint="@android:color/white"
+                    android:elevation="3dp" />
+            </FrameLayout>
+
 
             <TextView
                 android:id="@+id/gesture2NameTv"
@@ -925,18 +951,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestureCustom1Btn" />
 
-            <View
-                android:id="@+id/gesture3SettingsBtn"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/ic_setting"
-                android:backgroundTint="@android:color/white"
+            <FrameLayout
+                android:id="@+id/gesture3SettingsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
                 android:elevation="3dp"
+                app:layout_constraintTop_toTopOf="@+id/gestureCustom3Btn"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCustom3Btn"
-                app:layout_constraintEnd_toEndOf="@+id/gestureCustom3Btn"
-                app:layout_constraintTop_toTopOf="@+id/gestureCustom3Btn" />
-
+                app:layout_constraintEnd_toEndOf="@+id/gestureCustom3Btn">
+                <View
+                    android:id="@+id/gesture3SettingsBtn"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/ic_setting"
+                    android:backgroundTint="@android:color/white"
+                    android:elevation="3dp" />
+            </FrameLayout>
             <TextView
                 android:id="@+id/gesture3NameTv"
                 android:layout_width="wrap_content"

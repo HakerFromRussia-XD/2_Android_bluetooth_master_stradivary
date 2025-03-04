@@ -240,7 +240,7 @@ internal class DataFactory {
 
     private fun addElement(widgetCode: Int, labelCode: Int, widgets: ArrayList<Any>, widget: Any) {
         val item: Any = when (widgetCode) {
-            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> {  }//OneButtonItem("PWCE_UNKNOW", "Description", widget)
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> return//OneButtonItem("PWCE_UNKNOW", "Description", widget)
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 when (labelCode) {
                     PWLE_UNKNOW.number -> {OneButtonItem(PWLE_UNKNOW.label, "description", widget)}
@@ -281,7 +281,7 @@ internal class DataFactory {
     private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
         Log.d("parseWidgets_rx", "widgetCode = ${widgetCode}  label = ${label} widget = ${widget}")
         val item: Any = when (widgetCode) {
-            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> {  }//OneButtonItem("PWCE_UNKNOW", "Description", widget)
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> return//OneButtonItem("PWCE_UNKNOW", "Description", widget)
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 OneButtonItem(label, "description", widget)
             }

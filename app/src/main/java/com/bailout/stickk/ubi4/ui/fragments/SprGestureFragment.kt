@@ -59,12 +59,13 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
 
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
         adapterWidgets.notifyDataSetChanged()
     }
 
-    @SuppressLint("CutPasteId")
+    @SuppressLint("CutPasteId", "LogNotTimber")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -74,12 +75,16 @@ class SprGestureFragment: BaseWidgetsFragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
+
         //настоящие виджеты
         widgetListUpdater()
         adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
+        mDataFactory.prepareData(display).forEach {
+            Log.d("DataType", "Element type: ${it::class.simpleName}")
+        }
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -218,7 +223,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
             updateFlow.collect { _ ->
                 val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
-                adapterWidgets.swapData(mDataFactory.prepareData(0))
+                adapterWidgets.swapData(mDataFactory.prepareData(display))
                 binding.refreshLayout.setRefreshing(false)
             }
         }

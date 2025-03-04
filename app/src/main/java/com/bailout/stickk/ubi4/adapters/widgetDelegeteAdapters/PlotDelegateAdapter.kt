@@ -135,6 +135,28 @@ class PlotDelegateAdapter (
         }
 
     }
+
+//    override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
+//        Log.d("Plot view", "View attached")
+//        // Если уже существует scope, отменяем его и создаем новый
+//        scope?.cancel()
+//        scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+//
+//        // Очищаем график и создаем новый объект данных
+//        EMGChartLc.clear()
+//        EMGChartLc.data = LineData()
+//
+//        // Инициализируем график (настройка осей, цветов, и т.д.)
+//        initializedSensorGraph(EMGChartLc)
+//
+//        // Запускаем сбор данных из flow (если это требуется)
+//        plotArrayFlowCollect()
+//
+//        graphThreadFlag = true
+//        scope?.launch {
+//            startGraphEnteringDataCoroutine(EMGChartLc)
+//        }
+//    }
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
         Log.d("Plot view","View attached")
         if (scope != null) {
@@ -373,7 +395,8 @@ class PlotDelegateAdapter (
 
     }
     private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {
-        val data: LineData =  emgChart.data
+        val data: LineData =  emgChart.data ?: LineData().also { emgChart.data = it }
+
         var set = data.getDataSetByIndex(0)
         var set1 = data.getDataSetByIndex(1)
         var set2 = data.getDataSetByIndex(2)

@@ -102,6 +102,7 @@ class BLEController() {
         }
     }
 
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -180,6 +181,7 @@ class BLEController() {
             }
         }
     }
+
     private suspend fun firstNotificationRequest()  {
         System.err.println("BLE debug firstNotificationRequest")
         System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
@@ -198,6 +200,7 @@ class BLEController() {
             mBLEParser?.parseReceivedData(data)
         }
     }
+
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
         if (gattServices == null) return
@@ -320,23 +323,25 @@ class BLEController() {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+        Log.d("bleCommand", "Вход в bleCommand. typeCommand = $typeCommand, uuid = $uuid")
         System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
-                Log.d("bleCommand", "bleCommand 1")
+                Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid}")
                 if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
-                    Log.d("bleCommand", "bleCommand 2 $typeCommand")
-
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
-                        Log.d("bleCommand", "bleCommand 3")
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                            Log.d("bleCommand", "Отправка команды: ${byteArray?.let {
+                                EncodeByteToHex.bytesToHexString(
+                                    it
+                                )
+                            }} на UUID: $uuid")
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                         }
                     }
-
                     if (typeCommand == READ){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
                             mBluetoothLeService?.readCharacteristic(mCharacteristic)

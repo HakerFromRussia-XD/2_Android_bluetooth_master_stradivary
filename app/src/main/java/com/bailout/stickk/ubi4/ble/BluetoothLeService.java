@@ -82,6 +82,7 @@ public class BluetoothLeService extends Service {
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
 
     //ubi4
+    //TODO ЗАЧЕМ??!? public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
     public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
     ///////////////////////////// самая быстрая передача данных
@@ -313,8 +314,10 @@ public class BluetoothLeService extends Service {
 
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            Log.d("onCharacteristicChanged", "Характеристика изменилась: " +
+                    characteristic.getUuid().toString() + ", данные: " +
+                    EncodeByteToHex.bytesToHexString(characteristic.getValue()));
             broadcastUpdate(characteristic, SampleGattAttributes.NOTIFY);
         }
     };
@@ -474,6 +477,8 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
+        Log.d("BLEController",
+                "Устанавливаю уведомления для " + characteristic.getUuid() + ", enabled: " + enabled);
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(

@@ -328,6 +328,8 @@ class BLEParser() {
         fullInicializeConnectionStruct = Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18,receiveDataString.length)}\"")
         System.err.println("TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct" )
         main.bleCommandWithQueue(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), MAIN_CHANNEL, WRITE){}
+//        main.bleCommand(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), MAIN_CHANNEL, WRITE)
+        Log.d("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
     }
     private fun parseReadDeviceParameters(receiveDataString: String) {
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
@@ -426,11 +428,6 @@ class BLEParser() {
         Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
 
-        //TODO согласовать с Романом эту проверку
-        if (baseSubDevicesInfoStructSet.isEmpty()) {
-            main.showToast("Сабдевайсов нет")
-            return
-        }
 
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
         baseSubDevicesInfoStructSet.forEach {

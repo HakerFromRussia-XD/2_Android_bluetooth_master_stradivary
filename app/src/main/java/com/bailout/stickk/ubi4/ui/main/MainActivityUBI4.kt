@@ -25,7 +25,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.BluetoothLeService.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -79,7 +79,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     var driverVersionS: String? = null
     var driverVersionINDY: Int? = null
 
-
+    var lastButtonPressTime: Long = 0L
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -123,19 +123,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            Log.d("RunCommand", "Кнопка нажата!")
 //            val command = BLECommands.requestProductInfoType()
 //            Log.d("RunCommand", "Команда: ${EncodeByteToHex.bytesToHexString(command)}")
-//            main.bleCommandWithQueue(
-//                command,
-//                MAIN_CHANNEL,
-//                WRITE
-//            ) {
-//                Log.d("RunCommand", "Команда отправлена, вызван callback")
-//            }
-//        }
+
 
         binding.runCommandBtn.setOnClickListener {
             Log.d("RunCommand", "Кнопка нажата!")
+            main.bleCommandWithQueue(
+                BLECommands.requestProductInfoType(),
+                MAIN_CHANNEL,
+                WRITE
+            ){}
 
-//            val command = BLECommands.requestActiveGesture(6, 8)
+        }
+    }
+
+
+    //            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
 //            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
@@ -150,19 +152,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                    10
 //                ), MAIN_CHANNEL, WRITE
 //            ) {}
-            main.bleCommandWithQueue(
-                BLECommands.requestProductInfoType(),
-                MAIN_CHANNEL,
-                WRITE
-            ){}
-//            main.bleCommand(
-//                BLECommands.requestProductInfoType(),
-//                MAIN_CHANNEL,
-//                WRITE
-//            )
-        }
-
-    }
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()

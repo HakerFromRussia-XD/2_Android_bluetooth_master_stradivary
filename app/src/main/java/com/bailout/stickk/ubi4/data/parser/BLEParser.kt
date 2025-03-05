@@ -60,6 +60,7 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.activeGestureFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bindingGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
@@ -684,9 +685,11 @@ class BLEParser() {
         val test = Json.decodeFromString<BaseSubDeviceArrayInfoDataStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         System.err.println("TEST parser 2 READ_DATA $test")
     }
+
     private fun parseProductInfoType(receiveDataString: String) {
         val deviceInfoStructs = Json.decodeFromString<DeviceInfoStructs>("\"${receiveDataString.substring(16,receiveDataString.length)}\"")
         Log.d ("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
+        main.updateSerialNumber(deviceInfoStructs)
     }
 
     private fun getNextIDParameter(ID: Int): Int{

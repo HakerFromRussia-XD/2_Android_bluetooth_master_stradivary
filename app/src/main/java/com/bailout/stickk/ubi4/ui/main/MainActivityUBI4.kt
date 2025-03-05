@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 
@@ -114,15 +115,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+        //получение серийного номера
+        main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
+
         binding.accountBtn.setOnClickListener {
             showAccountScreen()
         }
 
-
-//        binding.runCommandBtn.setOnClickListener {
-//            Log.d("RunCommand", "Кнопка нажата!")
-//            val command = BLECommands.requestProductInfoType()
-//            Log.d("RunCommand", "Команда: ${EncodeByteToHex.bytesToHexString(command)}")
 
 
         binding.runCommandBtn.setOnClickListener {
@@ -136,22 +135,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-
-    //            val command = BLECommands.requestActiveGesture(6, 8)
-//            // Логируем команду в шестнадцатеричном формате
-//            val commandHex = EncodeByteToHex.bytesToHexString(command)
-//            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
-//            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
-//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-//            manageTrainingLifecycle()
-//            bleCommandWithQueue(BLECommands.requestSlider(6, 2), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
-//            main.bleCommandWithQueue(
-//                BLECommands.requestSubDeviceParametrs(
-//                    6,
-//                    0,
-//                    10
-//                ), MAIN_CHANNEL, WRITE
-//            ) {}
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
@@ -168,6 +151,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
+        bleCommandWithQueue(
+            BLECommands.requestProductInfoType(),
+            MAIN_CHANNEL,
+            WRITE
+        ) {}
     }
 
 
@@ -227,6 +215,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             .addToBackStack(null)
             .commit()
     }
+
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
@@ -324,6 +313,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun getBottomNavigationController(): BottomNavigationController {
         return bottomNavigationController
+    }
+
+    fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
+        val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.deviceUUID}"
+        runOnUiThread {
+            binding.nameTv.text = serialNumber
+        }
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

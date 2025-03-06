@@ -144,3 +144,116 @@ data class ParameterInfo<A, B, C, D>(
     val deviceAddress: C,
     val dataOffset: D
 )
+
+//deviceInfo
+data class DeviceInfo (
+    @SerializedName("id"                   ) var id                 :            Int?               = null,
+    @SerializedName("serial_number       " ) var serialNumber       :            String?            = null,
+    @SerializedName("model"                ) var model              :            Model?             = Model(),
+    @SerializedName("version"              ) var version            :            Version?           = Version(),
+    @SerializedName("status"               ) var status             :            Status?            = Status(),
+    @SerializedName("device_model_version" ) var deviceModelVersion :            Int?               = null,
+    @SerializedName("date_transfer"        ) var dateTransfer       :            String?            = null,
+    @SerializedName("guarantee_period"     ) var guaranteePeriod    :            String?            = null,
+    @SerializedName("side"                 ) var side               :            Side?              = Side(),
+    @SerializedName("fingers"              ) var fingers            :            String?            = null,
+    @SerializedName("size"                 ) var size               :            Size?              = Size(),
+    @SerializedName("options"              ) var options            :            ArrayList<Options> = arrayListOf()
+)
+data class Model (
+    @SerializedName("id"   ) var id   : Int?    = null,
+    @SerializedName("name" ) var name : String? = null
+)
+data class Options (
+    @SerializedName("id"    ) var id    : Int?    = null,
+    @SerializedName("name"  ) var name  : String? = null,
+    @SerializedName("type"  ) var type  : Int?    = null,
+    @SerializedName("value" ) var value : Value?  = Value()
+)
+data class Side (
+    @SerializedName("id"   ) var id   : String? = null,
+    @SerializedName("name" ) var name : String? = null
+)
+data class Size (
+    @SerializedName("id"   ) var id   : Int?    = null,
+    @SerializedName("name" ) var name : String? = null
+)
+data class Status (
+    @SerializedName("id"   ) var id   : Int?    = null,
+    @SerializedName("name" ) var name : String? = null
+)
+data class Value (
+    @SerializedName("id"   ) var id   : Int?    = null,
+    @SerializedName("name" ) var name : String? = null
+)
+data class Version (
+    @SerializedName("id"   ) var id   : Int?    = null,
+    @SerializedName("name" ) var name : String? = null
+)
+//users
+data class ClientData (
+    @SerializedName("id"  ) var id  : Int?    = null,
+    @SerializedName("fio"  ) var fio  : String?    = null,
+    @SerializedName("fname" ) var fname : String? = null,
+    @SerializedName("sname" ) var sname : String? = null
+)
+data class Devices (
+    @SerializedName("id"            ) var id           : String? = null,
+    @SerializedName("serial_number" ) var serialNumber : String? = null
+)
+data class User(
+    @SerializedName("client_data" ) var clientData : ClientData?        = ClientData(),
+    @SerializedName("devices"     ) var devices    : ArrayList<Devices> = arrayListOf()
+)
+//userV2
+
+data class ClientDataV2 (
+    @SerializedName("username"     ) var username    : String?  = null,
+    @SerializedName("email"        ) var email       : String?  = null,
+    @SerializedName("sex"          ) var sex         : Int?     = null,
+    @SerializedName("phone"        ) var phone       : String?  = null,
+    @SerializedName("fio"          ) var fio         : String?  = null,
+    @SerializedName("country_code" ) var countryCode : String?  = null,
+    @SerializedName("photo"        ) var photo       : String?  = null,
+    @SerializedName("fname"        ) var fname       : String?  = null,
+    @SerializedName("sname"        ) var sname       : String?  = null,
+    @SerializedName("city"         ) var city        : String?  = null,
+    @SerializedName("birth_date"   ) var birthDate   : Int?     = null,
+    @SerializedName("client_id"    ) var clientId    : Int?     = null,
+    @SerializedName("manager"      ) var manager     : Manager? = Manager()
+)
+data class Manager (
+    @SerializedName("fio"   ) var fio   : String? = null,
+    @SerializedName("email" ) var email : String? = null,
+    @SerializedName("phone" ) var phone : String? = null,
+    @SerializedName("photo" ) var photo : String? = null
+)
+data class UserV2 (
+    @SerializedName("user_info" ) var userInfo : ClientDataV2? = ClientDataV2()
+)
+//other
+data class AllOptions (
+    @SerializedName("GAME_LAUNCH_RATE"   )  var gameLaunchRate           : String? = null,
+    @SerializedName("MAXIMUM_POINTS"  )  var maximumPoints          : String? = null,
+    @SerializedName("NUMBER_OF_CUPS"  )  var numberOfCups         : String? = null,
+//    @SerializedName("value_my" )  var valueMy         : Int? = null
+)
+data class DeviceInList_DEV(
+    @SerializedName("id"            ) var id           : Int?    = null,
+    @SerializedName("image"         ) var image        : String? = null,
+    @SerializedName("status"        ) var status       : Int?    = null,
+    @SerializedName("serial_number" ) var serialNumber : String? = null,
+    @SerializedName("name"          ) var name         : String? = null,
+    @SerializedName("model_id"      ) var modelId      : Int?    = null,
+    @SerializedName("model_name"    ) var modelName    : String? = null,
+    @SerializedName("date_transfer" ) var dateTransfer : Int?    = null
+)
+data class DevicesList_DEV(
+    @SerializedName("devices") var devices : ArrayList<DeviceInList_DEV?>   = arrayListOf()
+)
+data class TestModel (
+    @SerializedName ("settings") var allOptions : String? = null
+)
+data class Token(
+    val token: String
+)

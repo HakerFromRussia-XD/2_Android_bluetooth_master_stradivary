@@ -315,8 +315,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
+    //TODO проверить formattedDeviceUUID
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
-        val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.deviceUUID}"
+        val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.formattedDeviceUUID}"
+        mDeviceName = serialNumber
         runOnUiThread {
             binding.nameTv.text = serialNumber
         }

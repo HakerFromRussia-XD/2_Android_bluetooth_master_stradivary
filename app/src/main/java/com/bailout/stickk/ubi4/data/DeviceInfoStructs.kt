@@ -23,11 +23,17 @@ data class DeviceInfoStructs(
     var deviceUUID: Int = 0,
     var deviceAdditionalInfoType: Int = 0,
     var deviceAdditionalInfo: Int = 0,
-)
+) {
+    val formattedDeviceUUID: String
+        get() = String.format("%05d", deviceUUID)
+
+}
 
 object DeviceInfoStructsSerializer: KSerializer<DeviceInfoStructs> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("DeviceInfoStructsSerializer", PrimitiveKind.STRING)
+
+
 
     override fun deserialize(decoder: Decoder): DeviceInfoStructs {
         val string = decoder.decodeString()

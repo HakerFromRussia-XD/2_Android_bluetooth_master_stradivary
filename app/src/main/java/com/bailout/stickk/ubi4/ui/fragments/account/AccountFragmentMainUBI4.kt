@@ -15,16 +15,17 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
-import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
+import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.network.RequestsUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
+import com.bailout.stickk.ubi4.utility.ConstantManager
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -34,8 +35,10 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.properties.Delegates
 
+
+//TODO изменить импорты из UBI3 для фрагмента "help"
 @Suppress("DEPRECATION")
-class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart? = null) : Fragment() {
+class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart? = null) : BaseWidgetsFragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
     private var linearLayoutManager: LinearLayoutManager? = null
@@ -48,8 +51,8 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
     // Используйте реальный серийный номер, если он доступен
-    private var serialNumber = "FEST-F-06879"
-    private var myRequests: Requests? = null
+    private var serialNumber = ""
+    private var myRequests: RequestsUBI4? = null
     private var fname: String = ""
     private var sname: String = ""
     private var locate: String = "en"
@@ -72,15 +75,16 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         mContext = context
         // Передаем серийный номер из активности, если нужно
         serialNumber = main?.mDeviceName ?: serialNumber
+//        serialNumber = serialNumber.replace("\u0000", "").trim()
         System.err.println("TEST SERIAL NUMBER $serialNumber")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mSettings = mContext?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = mContext?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
-        myRequests = Requests()
+        myRequests = RequestsUBI4()
         encryptionManager = EncryptionManagerUtils.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
@@ -94,19 +98,22 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         }
 
         accountMainList = ArrayList()
-        if (mSettings!!.getInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0) == 0) {
-            main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 1)
-            requestToken()
-        } else {
-            binding.preloaderLav.visibility = View.GONE
-            updateAllParameters()
-        }
+//        if (mSettings!!.getInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 0) == 0) {
+//            main?.saveInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 1)
+//            requestToken()
+//        } else {
+//            binding.preloaderLav.visibility = View.GONE
+//            updateAllParameters()
+//        }
+        binding.preloaderLav.visibility = View.VISIBLE
+        requestToken()
         initializeUI()
     }
 
     @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
+        //TODO временно RxUpdateMainEvent от UBI3
         RxUpdateMainEvent.getInstance().uiAccountMain
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -134,6 +141,9 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
             initAdapter(binding.accountRv)
         }
     }
+
+    private val cleanSerialNumber = serialNumber.replace("\u0000", "").trim()
+
 
     private fun requestToken() {
         CoroutineScope(Dispatchers.Main).launch {
@@ -170,6 +180,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
                     }
                 },
                 "Aesserial $encryptionResult"
+//                cleanSerialNumber
             )
         }
     }
@@ -200,8 +211,8 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
                     System.err.println("clientId: ${clientId}")
                     System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
                     System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
-                    main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
-                    main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
                     requestDeviceList()
                 },
                 { error ->
@@ -241,12 +252,12 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestDeviceInfo(
                 { deviceInfo ->
-                    main?.saveString(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
-                    main?.saveString(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
-                    main?.saveString(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
-                    main?.saveString(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
-                    main?.saveString(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
-                    main?.saveString(PreferenceKeys.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
+                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
                     System.err.println("Device Info model: ${deviceInfo.model?.name}")
                     // ... (другие логи)
                 },
@@ -298,7 +309,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 System.err.println("AccountFragmentMainUBI4 back key pressed")
-                main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
+                main?.saveInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 0)
                 navigator().goingBackUbi4()
                 Handler().postDelayed({
                     reactivatedInterface?.reactivatedChart()
@@ -310,26 +321,26 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         })
         driverVersion = if (!checkMultigrib()) {
             ((mSettings!!.getInt(
-                main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+                main?.mDeviceAddress + PreferenceKeysUBI4.DRIVER_NUM,
                 1
             )).toFloat() / 100).toString()
         } else {
             main?.driverVersionS ?: "0.01"
         }
         bmsVersion = ((mSettings!!.getInt(
-            main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
+            main?.mDeviceAddress + PreferenceKeysUBI4.BMS_NUM,
             1
         )).toFloat() / 100).toString()
         sensorsVersion = ((mSettings!!.getInt(
-            main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
+            main?.mDeviceAddress + PreferenceKeysUBI4.SENS_NUM,
             1
         )).toFloat() / 100).toString()
     }
 
     private fun checkMultigrib(): Boolean {
-        return main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_X) == true ||
-                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_H) == true ||
-                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_A) == true
+        return main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_X) == true
+//                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_H) == true ||
+//                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_A) == true
     }
 
     private fun simplificationName(name: String): String {
@@ -340,6 +351,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
             if (it >= 0) substring(it, min(it + maxLen, length)) else this
         }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {
         binding.preloaderLav.visibility = View.GONE
         binding.apply {
@@ -356,18 +368,20 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
                 )
             )
             initAdapter(binding.accountRv)
+            adapter?.notifyDataSetChanged()
+
         }
-        main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_FIO, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_MANAGER_PHONE, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_ROTATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeys.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_ROTATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
     companion object {

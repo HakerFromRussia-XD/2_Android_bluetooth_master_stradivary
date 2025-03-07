@@ -145,6 +145,10 @@ data class ParameterInfo<A, B, C, D>(
     val dataOffset: D
 )
 
+data class MobileSettings(
+    val autoLogin:Boolean
+)
+
 //deviceInfo
 data class DeviceInfo (
     @SerializedName("id"                   ) var id                 :            Int?               = null,

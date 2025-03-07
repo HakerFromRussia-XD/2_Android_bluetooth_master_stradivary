@@ -80,7 +80,10 @@ class PlotDelegateAdapter (
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
         var deviceAddress = 0
-        val parameterID = 0
+        Log.d("PlotDelegateAdapter", "parameterInfoSet: $parameterInfoSet")
+
+        //TODO неправильное прсвоение parameterID, нужно что бы иниуиализация была из parameterInfoSet
+//        val parameterID = 0
 
 
         when (plotItem.widget) {
@@ -93,14 +96,23 @@ class PlotDelegateAdapter (
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
+        Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")
+        parameterInfoSet.forEach {
+            Log.d("PlotDelegateAdapter", "ParameterInfo: $it")
+        }
+        val parameterID = parameterInfoSet.firstOrNull()?.parameterID ?: 0
+
+        Log.d("PlotDelegateAdapter", "parameterID: $parameterID")
         widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
         if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf != 0) {
             numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
+            Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts $parameterID")
         } else {
             numberOfCharts = 0
+            Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
         }
 
         countBinding += 1

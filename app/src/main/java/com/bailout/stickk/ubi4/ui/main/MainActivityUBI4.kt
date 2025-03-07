@@ -115,6 +115,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+        //после того как фрагмент будет удалён из back stack, activeFragment обновится
+        supportFragmentManager.addOnBackStackChangedListener {
+            activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        }
         //получение серийного номера
         main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
 
@@ -122,16 +126,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-
-
         binding.runCommandBtn.setOnClickListener {
             Log.d("RunCommand", "Кнопка нажата!")
-            main.bleCommandWithQueue(
-                BLECommands.requestProductInfoType(),
-                MAIN_CHANNEL,
-                WRITE
-            ){}
-
+            main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
         }
     }
 
@@ -164,7 +161,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
-    override fun showAccountScreen() { launchFragmentWithStack(AccountFragmentMainUBI4()) }
+    override fun showAccountScreen() {
+        if (activeFragment is AccountFragmentMainUBI4)
+            return
+        launchFragmentWithStack(AccountFragmentMainUBI4())
+    }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
 
 

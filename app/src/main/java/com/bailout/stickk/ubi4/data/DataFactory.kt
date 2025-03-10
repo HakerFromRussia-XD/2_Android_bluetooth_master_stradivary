@@ -17,6 +17,8 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
+import com.bailout.stickk.ubi4.models.MobileSettings
+import com.bailout.stickk.ubi4.models.MobileSettingsItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.models.PlotItem
@@ -85,7 +87,10 @@ internal class DataFactory {
         )
     }
 
-    fun prepareData(display: Int): List<Any> {
+    fun prepareData(display: Int, isMobile: Boolean = false): List<Any> {
+        if (isMobile) {
+            return listOf(MobileSettingsItem("Авто вход", MobileSettings(false)))
+        }
         // сортировка всех виджетов по возрастанию
         System.err.println("DataFactory sorted listWidgets===========")
         sortWidgets(listWidgets.sortedWith ( compareBy {
@@ -231,6 +236,7 @@ internal class DataFactory {
                 }
             }
         }
+
         return _listWidgets
     }
     private fun sortWidgets(sortedList: List<Any>) {

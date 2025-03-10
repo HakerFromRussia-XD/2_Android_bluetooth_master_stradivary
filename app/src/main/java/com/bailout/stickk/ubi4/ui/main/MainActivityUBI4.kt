@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.main
 
+import SpecialSettingsFragment
 import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -60,7 +61,6 @@ import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 
 @RequirePresenter(MainPresenter::class)

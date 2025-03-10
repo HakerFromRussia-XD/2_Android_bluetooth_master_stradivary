@@ -17,6 +17,9 @@ interface ConstantManager {
         const val CHECKPOINT_NAME = "checkpoint.ckpt"
         const val PARAMS_BIN_NAME = "params.bin"
 
+        const val AUTO_LOGIN_KEY = "autoLogin"
+
+
 
         const val DEVICE_TYPE_FEST_X: String = "FEST-X"
         const val DEVICE_TYPE_FEST_F: String = "FEST-F"

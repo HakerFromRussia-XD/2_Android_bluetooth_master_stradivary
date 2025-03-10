@@ -169,6 +169,7 @@ class PlotDelegateAdapter (
 //            startGraphEnteringDataCoroutine(EMGChartLc)
 //        }
 //    }
+
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
         Log.d("Plot view","View attached")
         if (scope != null) {

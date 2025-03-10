@@ -149,6 +149,11 @@ data class MobileSettings(
     val autoLogin:Boolean
 )
 
+data class MobileSettingsItem(
+    val title: String,
+    val settings: MobileSettings
+)
+
 //deviceInfo
 data class DeviceInfo (
     @SerializedName("id"                   ) var id                 :            Int?               = null,

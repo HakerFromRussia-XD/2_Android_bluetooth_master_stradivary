@@ -29,7 +29,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -42,7 +42,6 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -58,14 +57,9 @@ class PlotDelegateAdapter (
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var scope: CoroutineScope? = null
     private var count: Int = 0
-    private var dataSens1 = 0
-    private var dataSens2 = 0
-    private var dataSens3 = 0
-    private var dataSens4 = 0
-    private var dataSens5 = 0
-    private var dataSens6 = 0
     private var numberOfCharts = 2
     private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
+
 
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
     private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
@@ -79,10 +73,11 @@ class PlotDelegateAdapter (
         onDestroyParent{ onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
+//        var deviceAddress: MutableSet<Int> = mutableSetOf()
         var deviceAddress = 0
         Log.d("PlotDelegateAdapter", "parameterInfoSet: $parameterInfoSet")
 
-        //TODO неправильное прсвоение parameterID, нужно что бы иниуиализация была из parameterInfoSet
+
 //        val parameterID = 0
 
 
@@ -103,16 +98,20 @@ class PlotDelegateAdapter (
         val parameterID = parameterInfoSet.firstOrNull()?.parameterID ?: 0
 
         Log.d("PlotDelegateAdapter", "parameterID: $parameterID")
-        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
+        widgetPlotsInfo.add(WidgetPlotInfo(parameterInfoSet, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
-        // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
-        if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf != 0) {
-            numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
-            Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts $parameterID")
-        } else {
-            numberOfCharts = 0
-            Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
+        parameterInfoSet.forEach {
+            if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
+                // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
+                if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf != 0) {
+                    numberOfCharts = ParameterProvider.getParameter(it.deviceAddress, it.parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf
+                    Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts ${it.parameterID}")
+                } else {
+                    numberOfCharts = 0
+                    Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
+                }
+            }
         }
 
         countBinding += 1
@@ -182,7 +181,8 @@ class PlotDelegateAdapter (
         }
         graphThreadFlag = true
         scope?.launch {
-            startGraphEnteringDataCoroutine(EMGChartLc)
+            //TODO indexWidgetPlot должен вычисляться в этом месте взависимости от того с каким посчету графиком мы работаем в этой функции
+            startGraphEnteringDataCoroutine(EMGChartLc, 0)
         }
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
@@ -202,24 +202,24 @@ class PlotDelegateAdapter (
                         )
 
                         if (plotParameterRef.dataPlots.isNotEmpty()) {
-                            System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} indexWidgetPlot: $indexWidgetPlot")
+                            System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} ")
                             if (plotParameterRef.dataPlots.size >= 1) {
-                                dataSens1 = plotParameterRef.dataPlots[0]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens1 = plotParameterRef.dataPlots[0]
                             } // нулевой всегда датчик открытия
                             if (plotParameterRef.dataPlots.size >= 2) {
-                                dataSens2 = plotParameterRef.dataPlots[1]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens2 = plotParameterRef.dataPlots[1]
                             } // первый всегда датчик закрытия
                             if (plotParameterRef.dataPlots.size >= 3) {
-                                dataSens3 = plotParameterRef.dataPlots[2]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens3 = plotParameterRef.dataPlots[2]
                             }
                             if (plotParameterRef.dataPlots.size >= 4) {
-                                dataSens4 = plotParameterRef.dataPlots[3]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens4 = plotParameterRef.dataPlots[3]
                             }
                             if (plotParameterRef.dataPlots.size >= 5) {
-                                dataSens5 = plotParameterRef.dataPlots[4]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens5 = plotParameterRef.dataPlots[4]
                             }
                             if (plotParameterRef.dataPlots.size >= 6) {
-                                dataSens6 = plotParameterRef.dataPlots[5]
+                                widgetPlotsInfo[indexWidgetPlot].dataSens6 = plotParameterRef.dataPlots[5]
                             }
                         }
                     },
@@ -516,8 +516,10 @@ class PlotDelegateAdapter (
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
-            if (widgetPlotInfo.addressDevice == addressDevice && widgetPlotInfo.parameterID == parameterID) {
-                return index
+            widgetPlotInfo.addressDeviceSet.forEach {
+                if (it.deviceAddress == addressDevice && it.parameterID == parameterID) {
+                    return index
+                }
             }
         }
         return -1
@@ -532,10 +534,7 @@ class PlotDelegateAdapter (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-//    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
-//        var y = allCHRl.height - allCHRl.height*threshold/255
-//        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()//end position
-//    }
+
 
 
     private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int, duration: Long = DURATION_ANIMATION) {
@@ -555,7 +554,7 @@ class PlotDelegateAdapter (
         }
     }
 
-    private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
+    private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart, indexWidgetPlot: Int)  {
 //        Log.d("Plot view","startGraphEnteringDataCoroutine")
 //        dataSens1 += 1
 //        dataSens2 += 1
@@ -563,17 +562,25 @@ class PlotDelegateAdapter (
 //        dataSens4 += 2
 //        dataSens5 += 2
 //        dataSens6 += 2
-        if (dataSens1 > 255) { dataSens1 = 0 }
-        if (dataSens2 > 255) { dataSens2 = 0 }
-        if (dataSens3 > 255) { dataSens3 = 0 }
-        if (dataSens4 > 255) { dataSens4 = 0 }
-        if (dataSens5 > 255) { dataSens5 = 0 }
-        if (dataSens6 > 255) { dataSens6 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens1 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens1 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens2 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens2 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens3 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens3 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens4 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens4 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens5 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens5 = 0 }
+        if (widgetPlotsInfo[indexWidgetPlot].dataSens6 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens6 = 0 }
 
-        prepareAndAddEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
+        prepareAndAddEntry(
+            widgetPlotsInfo[indexWidgetPlot].dataSens1,
+            widgetPlotsInfo[indexWidgetPlot].dataSens2,
+            widgetPlotsInfo[indexWidgetPlot].dataSens3,
+            widgetPlotsInfo[indexWidgetPlot].dataSens4,
+            widgetPlotsInfo[indexWidgetPlot].dataSens5,
+            widgetPlotsInfo[indexWidgetPlot].dataSens6,
+            emgChart
+        )
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         if (graphThreadFlag) {
-            startGraphEnteringDataCoroutine(emgChart)
+            startGraphEnteringDataCoroutine(emgChart, indexWidgetPlot)
         }
     }
     fun onDestroy() {
@@ -586,8 +593,7 @@ class PlotDelegateAdapter (
 }
 
 data class WidgetPlotInfo (
-    var addressDevice: Int = 0,
-    var parameterID: Int = 0,
+    var addressDeviceSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),
     var openThreshold: Int = 0,
     var closeThreshold: Int = 0,
     var threshold3: Int = 0,
@@ -599,4 +605,10 @@ data class WidgetPlotInfo (
     var openThresholdTv: TextView,
     var closeThresholdTv: TextView,
     var allCHRl: LinearLayout,
+    var dataSens1: Int = 0,
+    var dataSens2: Int = 0,
+    var dataSens3: Int = 0,
+    var dataSens4: Int = 0,
+    var dataSens5: Int = 0,
+    var dataSens6: Int = 0,
 )

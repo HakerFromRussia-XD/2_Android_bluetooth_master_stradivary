@@ -1,5 +1,6 @@
 package com.livermor.delegateadapter.delegate
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,10 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
         adapterState.getAdapter(holder.itemViewType).onRecycled(holder)
 
     open fun swapData(data: List<Any>) {
+        data.forEach{
+            Log.d("swapData", "data $it")
+        }
+
         val newAdapterState = adapterState.copy(data = data)
         val diffCallback = DiffUtilCallback(adapterState, newAdapterState)
         val diffResult = DiffUtil.calculateDiff(diffCallback)

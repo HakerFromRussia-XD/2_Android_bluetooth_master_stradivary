@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.data.subdevices
 
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.BASE_SUB_DEVICE_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.BASE_SUB_DEVICE_STRUCT_SIZE
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind

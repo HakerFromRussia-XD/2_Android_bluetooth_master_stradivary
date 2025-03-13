@@ -17,7 +17,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.appli
 
 
 object PreferenceKeysUBI4 {
-    const val SET_MODE_SMART_CONNECTION_UBI4 = "SET_MODE_SMART_CONNECTION_UBI4"
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val NUM_GESTURES = 14
@@ -30,6 +29,7 @@ object PreferenceKeysUBI4 {
     const val SELECT_GESTURE_SETTINGS_NUM = "SELECT_GESTURE_SETTINGS_NUM"
     const val LAST_CONNECTION_MAC_UBI4 = "LAST_CONNECTION_MAC_UBI4"
     const val LAST_ACTIVE_GESTURE_FILTER = "LAST_ACTIVE_GESTURE_FILTER"
+    const val LAST_ACTIVE_SETTINGS_FILTER = "LAST_ACTIVE_SETTINGS_FILTER"
     const val LAST_HIDE_COLLECTION_BTN_STATE = "LAST_HIDE_COLLECTION_BTN_STATE"
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
     const val GAME_LAUNCH_RATE = "GAME_LAUNCH_RATE"
@@ -362,5 +362,10 @@ object PreferenceKeysUBI4 {
         DCTE_DMS_BINDING_DATA               (23  ) ,
         DTCE_OPTIC_SETTINGS                 (24  ) ,
         DTCE_FREE_SLOT                      ((0xFF).toByte())
+    }
+
+    enum class MobileSettingsKey(val key: String) {
+       AUTO_LOGIN ("AUTO_LOGIN"),
+       AUTO_LOGIN2 ("AUTO_LOGIN2"),
     }
 }

@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -16,6 +17,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.models.SwitchItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -57,6 +60,7 @@ class SwitcherDelegateAdapter(
         var parameterID = 0
         var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0, 0, 0, 0))
         var switchChecked = false
+        var keyMobileSettings = ""
 
 
         when (item.widget) {
@@ -65,18 +69,24 @@ class SwitcherDelegateAdapter(
                 parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 parameterIDSet = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = item.widget.switchChecked
+                keyMobileSettings = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
             }
-
             is SwitchParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 parameterIDSet = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = item.widget.switchChecked
+                keyMobileSettings = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
             }
         }
 
+
+
         // Здесь происходит начальная конфигурация UI
-        widgetSwitchSc.isChecked = switchChecked
+        setUIMobileSettings(keyMobileSettings, widgetSwitchSc)
+        if (keyMobileSettings == ""){
+            widgetSwitchSc.isChecked = switchChecked
+        }
         widgetDescriptionTv.text = item.title
         Log.d("TestTitle", "${item.title}")
         if (item.title.contains("START LERNING")) {
@@ -88,6 +98,7 @@ class SwitcherDelegateAdapter(
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
             Log.d("sendSwitcherState", "setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}")
             onSwitchClick(addressDevice, parameterID, isChecked)
+            processingMobileSettings(keyMobileSettings, widgetSwitchSc)
         }
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
@@ -116,6 +127,27 @@ class SwitcherDelegateAdapter(
 //        }, 500)
 
         switchCollect()
+    }
+
+    private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {
+        if (keyMobileSettings != ""){
+            when (keyMobileSettings) {
+                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, switch.isChecked) }
+            }
+        }
+    }
+
+    private fun setUIMobileSettings(keyMobileSettings: String, @SuppressLint("UseSwitchCompatOrMaterialCode") switch: Switch) {
+        if (keyMobileSettings != ""){
+            when (keyMobileSettings) {
+                MobileSettingsKey.AUTO_LOGIN.key -> {
+                    if (main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)) {
+                        Log.d("setUIMobileSettings", "keyMobileSettings $keyMobileSettings ${main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)}")
+                        switch.isChecked = true
+                    }
+                }
+            }
+        }
     }
 
     private fun switchCollect() {
@@ -200,6 +232,7 @@ data class WidgetSwitchInfo (
     var addressDevice: Int = 0,
     var parameterID: Int = 0,
     var isChecked: Boolean = false,
-    var widgetSwitch: Switch
+    var widgetSwitch: Switch,
+    var isMobileSettings: Boolean = false
     //TODO добавить информацию - чей виджет? наш/не наш
 )

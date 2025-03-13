@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.main
 
-import SpecialSettingsFragment
 import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -48,10 +47,9 @@ import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
-import com.bailout.stickk.ubi4.ui.fragments.account.AccountMainUBI4Item
 import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,9 +57,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
-import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
@@ -250,10 +247,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         graphThreadFlag = true
         canSendFlag = false
         bindingGroupGestures = arrayListOf()
-        activeFilterFlow = MutableStateFlow(1)
+        activeGestureFragmentFilterFlow = MutableStateFlow(1)
+        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         spinnerFlow = MutableSharedFlow()
         bleParser = BLEParser()
         runCommandFlow = MutableStateFlow(0)
+        isMobileSettings = false
     }
 
     // сохранение и загрузка данных
@@ -262,7 +261,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putString(key, text)
         editor.apply()
     }
-
     override fun getString(key: String) :String {
 //        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
@@ -272,9 +270,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putInt(key, variable)
         editor.apply()
     }
-
     internal fun getInt(key: String, default: Int): Int {
         return mSettings?.getInt(key, default) ?: default
+    }
+    internal fun saveBoolean(key: String, variable: Boolean) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putBoolean(key, variable)
+        editor.apply()
+    }
+    internal fun getBoolean(key: String, default: Boolean): Boolean {
+        return mSettings?.getBoolean(key, default) ?: default
     }
 
     private fun startQueue() {
@@ -352,7 +357,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
-        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
+        var activeGestureFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
+        var activeSettingsFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
+
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
@@ -365,7 +372,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var bindingGroupGestures by Delegates.notNull<ArrayList<Pair<Int, Int>>>()
 
-
+        var isMobileSettings by Delegates.notNull<Boolean>()
 
         var connectedDeviceName by Delegates.notNull<String>()
         var connectedDeviceAddress by Delegates.notNull<String>()

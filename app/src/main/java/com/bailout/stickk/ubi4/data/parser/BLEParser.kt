@@ -2,8 +2,6 @@ package com.bailout.stickk.ubi4.data.parser
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -26,7 +24,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
@@ -34,12 +31,12 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArrayFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.serialization.json.Json
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -58,9 +55,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.models.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.activeGestureFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bindingGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
@@ -70,11 +65,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.selectGestureM
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
-import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.experimental.and
 
@@ -277,7 +268,12 @@ class BLEParser() {
                 parseInitializeInformation(receiveDataString)
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
-                parseReadDeviceParameters(receiveDataString)
+                try {
+                    parseReadDeviceParameters(receiveDataString)
+                }
+                catch (e:Exception){
+                    main.showToast("Неудалось распарсить READ_DEVICE_PARAMETRS")
+                }
             }
             DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS.number -> {
                 parseReadDeviceAdditionalParameters(ID, receiveDataString, deviceAddress)

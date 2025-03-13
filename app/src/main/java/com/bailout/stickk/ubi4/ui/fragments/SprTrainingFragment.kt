@@ -22,16 +22,13 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.models.FileItem
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
-import com.bailout.stickk.ubi4.utility.ConstantManager
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -98,7 +95,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Default) {
-                updateFlow.collect { value ->
+                updateFlow.collect {
                     main?.runOnUiThread {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
@@ -260,8 +257,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
 
                     lifecycleScope.launch {
-                        sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID)
-                        sendFileInChunks(paramFile.readBytes(), ConstantManager.PARAMS_BIN_NAME, addressDevice, parameterID)
+                        sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, addressDevice, parameterID)
+                        sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, addressDevice, parameterID)
                         showWarningLoadingDialog { closeWarningDialog() }
                     }
                 }

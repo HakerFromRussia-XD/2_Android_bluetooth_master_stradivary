@@ -10,22 +10,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
-import com.bailout.stickk.ubi4.utility.ConstantManager
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -338,7 +335,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     }
 
     private fun checkMultigrib(): Boolean {
-        return main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_X) == true
+        return main?.mDeviceType?.contains(ConstantManagerUBI4.DEVICE_TYPE_FEST_X) == true
 //                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_H) == true ||
 //                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_A) == true
     }

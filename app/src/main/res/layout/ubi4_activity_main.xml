@@ -69,15 +69,35 @@
             app:layout_constraintHorizontal_bias="0.5"
             tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
-        <ImageView
-            android:id="@+id/batteryIv"
+        <FrameLayout
+            android:id="@+id/batteryIndicator"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/ubi4_battery"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Круговой прогресс-бар, показывающий уровень заряда -->
+            <ProgressBar
+                android:id="@+id/batteryProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:max="100"
+                android:progress="0"
+                android:indeterminate="false"
+                android:progressDrawable="@drawable/circular_progress"
+                android:rotation="-90" />
+
+            <ImageView
+                android:id="@+id/batteryIcon"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/ubi4_battery"
+                android:scaleType="centerInside" />
+
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View

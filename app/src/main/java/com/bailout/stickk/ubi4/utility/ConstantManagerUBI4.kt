@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.utility
 
-interface ConstantManager {
+interface ConstantManagerUBI4 {
     companion object {
         const val REQUEST_ENABLE_BT = 1
         const val DURATION_ANIMATION = 500L
@@ -16,10 +16,6 @@ interface ConstantManager {
         const val ADDITIONAL_INFO_SIZE_STRUCT_SIZE = 8*2
         const val CHECKPOINT_NAME = "checkpoint.ckpt"
         const val PARAMS_BIN_NAME = "params.bin"
-
-        const val AUTO_LOGIN_KEY = "autoLogin"
-
-
 
         const val DEVICE_TYPE_FEST_X: String = "FEST-X"
         const val DEVICE_TYPE_FEST_F: String = "FEST-F"

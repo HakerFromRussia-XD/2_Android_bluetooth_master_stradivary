@@ -24,6 +24,7 @@ data class BaseParameterWidgetStruct(
     var dataSize: Int = 0,
     var channelOffset: Int = 0,
     var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0, 0, 0, 0)), // ID родительских параметров и их датакоды
+    var keyMobileSettings: String = ""
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {

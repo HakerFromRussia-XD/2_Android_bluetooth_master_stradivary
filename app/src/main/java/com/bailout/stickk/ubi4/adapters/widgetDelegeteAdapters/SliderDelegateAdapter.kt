@@ -2,10 +2,8 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.os.Handler
 import android.util.Log
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
@@ -22,13 +20,12 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean

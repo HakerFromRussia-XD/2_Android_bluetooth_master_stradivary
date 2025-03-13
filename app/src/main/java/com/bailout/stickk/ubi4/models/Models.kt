@@ -146,10 +146,11 @@ data class ParameterInfo<A, B, C, D>(
 )
 
 data class MobileSettings(
-    val autoLogin:Boolean
+    val switch:Boolean
 )
 
 data class MobileSettingsItem(
+    val id: String,
     val title: String,
     val settings: MobileSettings
 )

@@ -1,7 +1,5 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -13,13 +11,11 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter.MyDragItem
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
@@ -37,7 +33,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.utility.BorderAnimator
-import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
@@ -48,8 +43,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -212,7 +205,7 @@ class GesturesOpticDelegateAdapter(
         val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
         if (savedFilter == 2) {
             // Устанавливаем активный фильтр (если это необходимо для UI)
-            MainActivityUBI4.activeFilterFlow.value = 2
+            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 2
             requestRotationGroupWithRetry(
                 deviceAddress,
                 getParameterIDByCode(
@@ -222,7 +215,7 @@ class GesturesOpticDelegateAdapter(
             )
         }
         if (savedFilter == 3){
-            MainActivityUBI4.activeFilterFlow.value = 3
+            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 3
             requestBindingGroupWithRetry(
                 deviceAddress,
                 getParameterIDByCode(
@@ -234,7 +227,7 @@ class GesturesOpticDelegateAdapter(
 
         rotationGroupSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
-            MainActivityUBI4.activeFilterFlow.value = 2
+            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 2
             activeGestureNameCl.visibility = View.GONE
             onRequestRotationGroup(
                 deviceAddress,
@@ -246,13 +239,13 @@ class GesturesOpticDelegateAdapter(
         }
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
-            MainActivityUBI4.activeFilterFlow.value = 1
+            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 1
             activeGestureNameCl.visibility = View.VISIBLE
 
         }
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 3)
-            MainActivityUBI4.activeFilterFlow.value = 3
+            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 3
             activeGestureNameCl.visibility = View.GONE
             onRequestBindingGroup(
                 deviceAddress, getParameterIDByCode(
@@ -634,7 +627,7 @@ class GesturesOpticDelegateAdapter(
                             calculatingShowAddButton()
                         }
                     },
-                    MainActivityUBI4.activeFilterFlow.map { newFilter ->
+                    MainActivityUBI4.activeGestureFragmentFilterFlow.map { newFilter ->
                         withContext(Dispatchers.Main) {
                             // При любом изменении фильтра - рендерим UI
                             renderFilterUI(newFilter)

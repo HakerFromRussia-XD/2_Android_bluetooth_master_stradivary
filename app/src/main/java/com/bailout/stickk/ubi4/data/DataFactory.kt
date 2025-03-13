@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data
 
 
 import android.util.Log
+import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -26,10 +27,11 @@ import com.bailout.stickk.ubi4.models.SliderItem
 import com.bailout.stickk.ubi4.models.SpinnerItem
 import com.bailout.stickk.ubi4.models.SwitchItem
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 
 
 internal class DataFactory {
@@ -80,6 +82,13 @@ internal class DataFactory {
         return objects
     }
 
+    fun mobileWidgets() : List<Any> {
+        val objects = ArrayList<Any>(0)
+        val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(keyMobileSettings = MobileSettingsKey.AUTO_LOGIN.key, deviceId = 2)))
+        addElementS(ParameterWidgetCode.PWCE_SWITCH.number.toInt(), main.getString(R.string.auto_login), objects, objectSwitchS)
+        return objects
+    }
+
     private val baseWidget = BaseParameterWidgetStruct().apply {
         parameterInfoSet = mutableSetOf(
             ParameterInfo(8, 2, 0, 2),
@@ -88,11 +97,16 @@ internal class DataFactory {
     }
 
     fun prepareData(display: Int, isMobile: Boolean = false): List<Any> {
-        if (isMobile) {
-            return listOf(MobileSettingsItem("Авто вход", MobileSettings(false)))
-        }
-        // сортировка всех виджетов по возрастанию
         System.err.println("DataFactory sorted listWidgets===========")
+        if (isMobile) {
+            sortWidgets(listWidgets.sortedWith ( compareBy {
+                when (it) {
+//                    is SwitchParameterWidgetSStruct -> { it. }
+                    is SwitchParameterWidgetEStruct -> { it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition }
+                    else -> {0}
+                }
+            }))
+        }
         sortWidgets(listWidgets.sortedWith ( compareBy {
             System.err.println("DataFactory sorted listWidgets===========> $it")
             when (it) {
@@ -236,7 +250,10 @@ internal class DataFactory {
                 }
             }
         }
+        _listWidgets.forEach {
+            Log.d("prepareData", "_listWidgets $it")
 
+        }
         return _listWidgets
     }
     private fun sortWidgets(sortedList: List<Any>) {

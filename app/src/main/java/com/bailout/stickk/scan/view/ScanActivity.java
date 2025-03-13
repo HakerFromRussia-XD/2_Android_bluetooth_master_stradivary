@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -441,8 +442,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
     private void smartConnection(BluetoothDevice device) {
-        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION) || loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION_UBI4)) {
-//        if (false) {
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
             }

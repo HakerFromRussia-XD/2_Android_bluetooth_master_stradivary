@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.utility;
-import android.util.Log;
 
-import java.util.ArrayList;
+import java .util.ArrayList;
 
 public class BlockingQueueUbi4 {
     ArrayList<Runnable> tasks = new ArrayList<>();
@@ -15,7 +14,6 @@ public class BlockingQueueUbi4 {
                     // Проверяем, прошла ли секунда с последнего dataReceive
                     long elapsed = System.currentTimeMillis() - lastAllowTime;
                     if (elapsed >= 1000) {
-                        Log.d("BlockingQueueUbi4", "не дождались ответа!!!");
                         canTake = true; // Автоматическая разблокировка
                     } else {
                         // Ждём оставшееся время до секунды
@@ -28,6 +26,7 @@ public class BlockingQueueUbi4 {
                 e.printStackTrace();
             }
         }
+
         Runnable task = tasks.get(0);
         canTake = false;
         tasks.remove(task);
@@ -40,7 +39,6 @@ public class BlockingQueueUbi4 {
         for (byte b : byteArray) {
             byteArrayS.append(" "+b);
         }
-        Log.d("BlockingQueueUbi4", "запрос  byteArrayS = "+byteArrayS);
         notify();
     }
 
@@ -51,7 +49,6 @@ public class BlockingQueueUbi4 {
     public synchronized void allowNext() {
         canTake = true;
         lastAllowTime = System.currentTimeMillis(); // Фиксируем время события
-        Log.d("BlockingQueueUbi4", "ответ");
         notify(); // Разрешаем извлечение следующей задачи
     }
 }

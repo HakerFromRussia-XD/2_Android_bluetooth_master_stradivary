@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ble
 
-import android.util.Log
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.GestureWithAddress
@@ -61,7 +60,7 @@ class BLECommands {
         }
 
         fun requestSubDeviceParametrs(subDeviceAddress: Int, startIndex: Int, quantitiesReadParameters: Int): ByteArray {
-            Log.d("requestSubDeviceParametrs", "$subDeviceAddress, $startIndex, $quantitiesReadParameters")
+//            Log.d("requestSubDeviceParametrs", "$subDeviceAddress, $startIndex, $quantitiesReadParameters")
             val header = byteArrayOf(
                 0x20,
                 DEVICE_INFORMATION.number,

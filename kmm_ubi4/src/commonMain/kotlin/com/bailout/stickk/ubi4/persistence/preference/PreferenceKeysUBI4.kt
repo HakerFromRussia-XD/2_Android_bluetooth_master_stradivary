@@ -1,20 +1,4 @@
-/*Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.bailout.stickk.ubi4.persistence.preference
-
-import com.bailout.stickk.R
-import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
-
 
 object PreferenceKeysUBI4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
@@ -139,21 +123,23 @@ object PreferenceKeysUBI4 {
         PWCE_OPTIC_LEARNING_WIDGET          (0x0f),
     }
 
-    enum class ParameterWidgetLabel(val number: Int, val label: String) {
-        PWLE_UNKNOW                 (0x00, applicationContext().getString(R.string.pwle_unknow)),
-        PWLE_OPEN                   (0x01, applicationContext().getString(R.string.open)),
-        PWLE_CLOSE                  (0x02, applicationContext().getString(R.string.close)),
-        PWLE_CALIBRATE              (0x03, applicationContext().getString(R.string.pwle_calibrate)),
-        PWLE_RESET                  (0x04, applicationContext().getString(R.string.pwle_reset)),
-        PWLE_CONTROL_SETTINGS       (0x05, applicationContext().getString(R.string.pwle_control_settings)),
-        PWLE_OPEN_CLOSE_THRESHOLD   (0x06, applicationContext().getString(R.string.pwle_open_close_threshold)),
-        PWLE_SELECT_GESTURE         (0x07, applicationContext().getString(R.string.pwle_select_gesture)),
-        PWLE_SELECT_PROFILE         (0x08, applicationContext().getString(R.string.pwle_select_profile)),
-        PWLE_GLOBAL_FORCE           (0x09, applicationContext().getString(R.string.pwle_global_force)),
-        PWLE_PLOT                   (0x0a, applicationContext().getString(R.string.pwle_plot)),
-        PWLE_OMG_LEARNING           (0x0b, applicationContext().getString(R.string.pwle_omg_learning)),
 
+    //TODO узнать стоит можно ли обойтись без ресурсов
+    enum class ParameterWidgetLabel(val number: Int, val labelKey: String) {
+        PWLE_UNKNOW                 (0x00, "pwle_unknow"),
+        PWLE_OPEN                   (0x01, "open"),
+        PWLE_CLOSE                  (0x02, "close"),
+        PWLE_CALIBRATE              (0x03, "pwle_calibrate"),
+        PWLE_RESET                  (0x04, "pwle_reset"),
+        PWLE_CONTROL_SETTINGS       (0x05, "pwle_control_settings"),
+        PWLE_OPEN_CLOSE_THRESHOLD   (0x06, "pwle_open_close_threshold"),
+        PWLE_SELECT_GESTURE         (0x07, "pwle_select_gesture"),
+        PWLE_SELECT_PROFILE         (0x08, "pwle_select_profile"),
+        PWLE_GLOBAL_FORCE           (0x09, "pwle_global_force"),
+        PWLE_PLOT                   (0x0a, "pwle_plot"),
+        PWLE_OMG_LEARNING           (0x0b, "pwle_omg_learning")
     }
+
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {
         PWDCE_UNKNOW        (0x00),
@@ -365,7 +351,7 @@ object PreferenceKeysUBI4 {
     }
 
     enum class MobileSettingsKey(val key: String) {
-       AUTO_LOGIN ("AUTO_LOGIN"),
-       AUTO_LOGIN2 ("AUTO_LOGIN2"),
+        AUTO_LOGIN ("AUTO_LOGIN"),
+        AUTO_LOGIN2 ("AUTO_LOGIN2"),
     }
 }

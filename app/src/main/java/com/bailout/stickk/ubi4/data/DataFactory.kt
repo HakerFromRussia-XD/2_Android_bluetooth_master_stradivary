@@ -266,14 +266,14 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> return//OneButtonItem("PWCE_UNKNOW", "Description", widget)
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 when (labelCode) {
-                    PWLE_UNKNOW.number -> {OneButtonItem(PWLE_UNKNOW.label, "description", widget)}
-                    PWLE_OPEN.number -> {OneButtonItem(PWLE_OPEN.label, "description", widget)}
-                    PWLE_CLOSE.number -> {OneButtonItem(PWLE_CLOSE.label, "description", widget)}
-                    PWLE_CALIBRATE.number -> {OneButtonItem(PWLE_CALIBRATE.label, "description", widget)}
-                    PWLE_RESET.number -> {OneButtonItem(PWLE_RESET.label, "description", widget)}
-                    PWLE_CONTROL_SETTINGS.number -> {OneButtonItem(PWLE_CONTROL_SETTINGS.label, "description", widget)}
-                    PWLE_OPEN_CLOSE_THRESHOLD.number -> {OneButtonItem(PWLE_OPEN_CLOSE_THRESHOLD.label, "description", widget)}
-                    PWLE_SELECT_GESTURE.number -> {OneButtonItem(PWLE_SELECT_GESTURE.label, "description", widget)}
+                    PWLE_UNKNOW.number -> {OneButtonItem(PWLE_UNKNOW.labelKey, "description", widget)}
+                    PWLE_OPEN.number -> {OneButtonItem(PWLE_OPEN.labelKey, "description", widget)}
+                    PWLE_CLOSE.number -> {OneButtonItem(PWLE_CLOSE.labelKey, "description", widget)}
+                    PWLE_CALIBRATE.number -> {OneButtonItem(PWLE_CALIBRATE.labelKey, "description", widget)}
+                    PWLE_RESET.number -> {OneButtonItem(PWLE_RESET.labelKey, "description", widget)}
+                    PWLE_CONTROL_SETTINGS.number -> {OneButtonItem(PWLE_CONTROL_SETTINGS.labelKey, "description", widget)}
+                    PWLE_OPEN_CLOSE_THRESHOLD.number -> {OneButtonItem(PWLE_OPEN_CLOSE_THRESHOLD.labelKey, "description", widget)}
+                    PWLE_SELECT_GESTURE.number -> {OneButtonItem(PWLE_SELECT_GESTURE.labelKey, "description", widget)}
                     else -> { OneButtonItem("BUTTON", "description", widget) }
                 }
             }

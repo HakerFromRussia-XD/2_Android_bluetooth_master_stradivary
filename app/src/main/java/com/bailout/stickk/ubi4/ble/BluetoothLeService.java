@@ -300,7 +300,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            Log.d("TestSendByteArray","status =" +status + " " + EncodeByteToHex.bytesToHexString(characteristic.getValue()));
+            Log.d("TestSendByteArray","status =" +status + " " + EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendDataToReceiver(SampleGattAttributes.WRITE);
 //                Log.d("TestSendByteArray","запись удалась!!");
@@ -317,7 +317,7 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.d("onCharacteristicChanged", "Характеристика изменилась: " +
                     characteristic.getUuid().toString() + ", данные: " +
-                    EncodeByteToHex.bytesToHexString(characteristic.getValue()));
+                    EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
             broadcastUpdate(characteristic, SampleGattAttributes.NOTIFY);
         }
     };

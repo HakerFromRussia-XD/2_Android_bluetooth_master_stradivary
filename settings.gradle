@@ -1,3 +1,4 @@
 include ':app', ':bluetooth'
 include ':app'
 include ':delegateadapter'
+include ':kmm_ubi4'

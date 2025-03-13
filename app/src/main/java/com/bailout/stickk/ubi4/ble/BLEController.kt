@@ -40,6 +40,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDevic
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+//import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

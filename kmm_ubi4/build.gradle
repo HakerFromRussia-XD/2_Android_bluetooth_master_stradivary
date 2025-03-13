@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.multiplatform'
+}
+
+android {
+    namespace 'com.example.kmm_ubi4'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 24
+        consumerProguardFiles "consumer-rules.pro"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+kotlin {
+    android()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                // Пример: реализация корутин (раскомментируй и измени версию при необходимости)
+                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
+                implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22"
+
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation 'androidx.core:core-ktx:1.15.0'
+                implementation 'androidx.appcompat:appcompat:1.7.0'
+                implementation 'com.google.android.material:material:1.12.0'
+            }
+        }
+        iosMain {
+            dependencies {
+                // Добавляй зависимости для iOS, если будут нужны
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation 'junit:junit:4.13.2'
+            }
+        }
+        androidTest {
+            dependencies {
+                implementation 'androidx.test.ext:junit:1.2.1'
+                implementation 'androidx.test.espresso:espresso-core:3.6.1'
+            }
+        }
+    }
+}
+
+dependencies {
+}
+
+// Настройка jvmTarget для всех задач компиляции Kotlin
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+}

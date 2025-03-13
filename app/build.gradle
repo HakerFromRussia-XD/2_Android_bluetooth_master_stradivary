@@ -22,7 +22,7 @@ android {
         }
     }
     namespace 'com.bailout.stickk'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.bailout.stickk"
@@ -87,6 +87,8 @@ dependencies {
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     implementation 'androidx.core:core-ktx:1.13.1'
+
+    implementation project(":kmm_ubi4")
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'

@@ -1,9 +1,6 @@
 package com.bailout.stickk.ubi4.data
 
-
-import android.util.Log
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
@@ -18,8 +15,6 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
-import com.bailout.stickk.ubi4.models.MobileSettings
-import com.bailout.stickk.ubi4.models.MobileSettingsItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.models.PlotItem
@@ -36,57 +31,33 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 
 internal class DataFactory {
 
-    fun fakeData(): List<Any> {
-        val objects = ArrayList<Any>()
-        val objectGesture: Any = BaseParameterWidgetEStruct(BaseParameterWidgetStruct())
-        val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
-        val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        val objectCommandS: Any = CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
-        val objectSwitchE: Any = SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
-        val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        val objectSliderEMulti: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(baseWidget))
-        val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
-        val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        val objectsSpinnerE: Any = SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-
-
-
-//        addElement(1, 1, objects, objectCommandE)
-//         addElement(14, 1, objects, objectGesture)
-//        addElement(1, 1, objects, objectCommandE)
-//        addElement(1, 1, objects, objectCommandE)
-//        addElement(1, 1, objects, objectCommandE)
-//        addElementS(1, "5", objects, objectCommandS)
-//        addElement(2, 2, objects, objectSwitchE)
-//        addElementS(2, "START LERNING", objects, objectSwitchS)
-//        addElement(5, 10, objects, objectPlotE)
-//        addElementS(5, "3", objects, objectPlotS)
-        addElement(4, 2, objects, objectSliderE)
-        addElement(4, 2, objects, objectSliderE)
-        addElement(4, 2, objects, objectSliderE)
-        addElement(4, 2, objects, objectSliderE)
-        addElement(4, 2, objects, objectSliderE)
-        addElement(4, 2, objects, objectSliderEMulti)
-//        addElementS(4, "Описание слайдера", objects, objectSliderS)
-//        addElement(15, 1, objects, objectTrainingE)
-//        addElement(15, 1, objects, objectTrainingE)
-//        addElement(15, 1, objects, objectTrainingE)
-//        addElement(6, 1, objects, objectsSpinnerE)
-
-        return objects
-    }
-    fun fakeDataClear(): List<Any> {
-        val objects = ArrayList<Any>()
-        return objects
+    fun fakeData(): List<Any> = buildList {
+        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct())))
+        add(CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct())))
+        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct())))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(baseWidget)))
+        add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct())))
+        add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
     }
 
-    fun mobileWidgets() : List<Any> {
-        val objects = ArrayList<Any>(0)
-        val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(keyMobileSettings = MobileSettingsKey.AUTO_LOGIN.key, deviceId = 2)))
-        addElementS(ParameterWidgetCode.PWCE_SWITCH.number.toInt(), main.getString(R.string.auto_login), objects, objectSwitchS)
-        return objects
+    fun fakeDataClear(): List<Any> = emptyList()
+
+    fun mobileWidgets(): List<Any> {
+        val widget = SwitchParameterWidgetSStruct(
+            BaseParameterWidgetSStruct(
+                BaseParameterWidgetStruct(
+                    keyMobileSettings = MobileSettingsKey.AUTO_LOGIN.key,
+                    deviceId = 2
+                )
+            )
+        )
+        return listOfNotNull(toWidgetItemS(ParameterWidgetCode.PWCE_SWITCH.number.toInt(), main.getString(R.string.auto_login), widget))
     }
 
     private val baseWidget = BaseParameterWidgetStruct().apply {
@@ -96,247 +67,149 @@ internal class DataFactory {
         )
     }
 
-    fun prepareData(display: Int, isMobile: Boolean = false): List<Any> {
-        System.err.println("DataFactory sorted listWidgets===========")
-        if (isMobile) {
-            sortWidgets(listWidgets.sortedWith ( compareBy {
-                when (it) {
-//                    is SwitchParameterWidgetSStruct -> { it. }
-                    is SwitchParameterWidgetEStruct -> { it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition }
-                    else -> {0}
-                }
-            }))
-        }
-        sortWidgets(listWidgets.sortedWith ( compareBy {
-            System.err.println("DataFactory sorted listWidgets===========> $it")
-            when (it) {
-                is BaseParameterWidgetEStruct -> {it.baseParameterWidgetStruct.widgetPosition}
-                is CommandParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
-                is CommandParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
-                is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                is OpticStartLearningWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                is SwitchParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
-                is SwitchParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                is SliderParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
-                is SliderParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                else -> {0}//здесь должно быть число, иначе при попадании в ветку else приложение пытается сравнить число со строкой и падает
-            }
-        }))
-        System.err.println("DataFactory sorted listWidgets============== ${listWidgets.size}")
-        listWidgets.forEach {
-            System.err.println("DataFactory sorted listWidgets: $it")
-
-        }
-
-
-        // компановка элементов для отрисовки на выбраном экране
-        val setWidgets: Set<Any> = listWidgets.toSet()
-        val _listWidgets = ArrayList<Any>(setWidgets.size)
-        System.err.println("DataFactory: toSet() size=${setWidgets.size}")
-
-        setWidgets.forEach {
-            when (it) {
-                is BaseParameterWidgetEStruct -> {
-                    if (it.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetStruct.widgetCode,
-                            it.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                }
-                is CommandParameterWidgetSStruct -> {
-                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
-                        addElementS(
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetSStruct.label,
-                            _listWidgets,
-                            it
-                        )
-                    }
-//                    Log.d("parseWidgets_rx", "2 listWidgets = ${listWidgets}  ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display} ${display}")
-                }
-                is CommandParameterWidgetEStruct -> {
-                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetEStruct.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                    System.err.println("prepareData CommandParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
-                }
-                is PlotParameterWidgetSStruct -> {
-                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
-                        addElementS(
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetSStruct.label,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                    System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}")
-                    System.err.println("prepareData PlotParameterWidgetEStruct dataSize: ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataSize}")
-                }
-                is PlotParameterWidgetEStruct -> {
-                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetEStruct.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                    System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
-                }
-                is OpticStartLearningWidgetEStruct -> {
-                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetEStruct.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-
-                }
-
-                is SwitchParameterWidgetSStruct -> {
-                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
-                        addElementS(
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetSStruct.label,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                }
-                is SwitchParameterWidgetEStruct -> {
-                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetEStruct.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                }
-                is SliderParameterWidgetSStruct -> {
-                    val wPos = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
-                    System.err.println("DataFactory: SliderParamSStruct widgetPos=$wPos, display=${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display}, code=${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode}")
-                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
-                        addElementS(
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetSStruct.label,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                }
-                is SliderParameterWidgetEStruct -> {
-                    val wPos = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
-                    System.err.println("DataFactory: SliderParamEStruct widgetPos=$wPos, display=${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display}, code=${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode}")
-                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
-                        addElement(
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
-                            it.baseParameterWidgetEStruct.labelCode,
-                            _listWidgets,
-                            it
-                        )
-                    }
-                }
+    fun prepareData(display: Int): List<Any> {
+        // Фильтруем виджеты по display
+        val filteredWidgets = listWidgets.filter { widget ->
+            when (widget) {
+                is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.display == display
+                is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
+                is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
+                is PlotParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is OpticStartLearningWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is SwitchParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
+                is SwitchParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
+                is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                else -> false
             }
         }
-        _listWidgets.forEach {
-            Log.d("prepareData", "_listWidgets $it")
-
+        // Сортируем по widgetPosition
+        val sortedWidgets = filteredWidgets.sortedBy { widget ->
+            when (widget) {
+                is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.widgetPosition
+                is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                is PlotParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is OpticStartLearningWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is SwitchParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                is SwitchParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                else -> 0
+            }
         }
-        return _listWidgets
-    }
-    private fun sortWidgets(sortedList: List<Any>) {
-        listWidgets.clear()
-        listWidgets = sortedList.toMutableSet()
+
+        // Преобразуем виджеты в UI-элементы
+        return sortedWidgets.mapNotNull { widget ->
+            when (widget) {
+                is BaseParameterWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetStruct.widgetCode, widget.labelCode, widget)
+                is CommandParameterWidgetSStruct ->
+                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                is CommandParameterWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                is PlotParameterWidgetSStruct ->
+                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                is PlotParameterWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                is OpticStartLearningWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                is SwitchParameterWidgetSStruct ->
+                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                is SwitchParameterWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                is SliderParameterWidgetSStruct ->
+                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                is SliderParameterWidgetEStruct ->
+                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                else -> null
+            }
+        }
     }
 
-    private fun addElement(widgetCode: Int, labelCode: Int, widgets: ArrayList<Any>, widget: Any) {
-        val item: Any = when (widgetCode) {
-            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> return//OneButtonItem("PWCE_UNKNOW", "Description", widget)
-            ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
-                when (labelCode) {
-                    PWLE_UNKNOW.number -> {OneButtonItem(PWLE_UNKNOW.labelKey, "description", widget)}
-                    PWLE_OPEN.number -> {OneButtonItem(PWLE_OPEN.labelKey, "description", widget)}
-                    PWLE_CLOSE.number -> {OneButtonItem(PWLE_CLOSE.labelKey, "description", widget)}
-                    PWLE_CALIBRATE.number -> {OneButtonItem(PWLE_CALIBRATE.labelKey, "description", widget)}
-                    PWLE_RESET.number -> {OneButtonItem(PWLE_RESET.labelKey, "description", widget)}
-                    PWLE_CONTROL_SETTINGS.number -> {OneButtonItem(PWLE_CONTROL_SETTINGS.labelKey, "description", widget)}
-                    PWLE_OPEN_CLOSE_THRESHOLD.number -> {OneButtonItem(PWLE_OPEN_CLOSE_THRESHOLD.labelKey, "description", widget)}
-                    PWLE_SELECT_GESTURE.number -> {OneButtonItem(PWLE_SELECT_GESTURE.labelKey, "description", widget)}
-                    else -> { OneButtonItem("BUTTON", "description", widget) }
-                }
+    // Общие функции преобразования для виджетов (варианты с labelCode и label)
+    private fun toWidgetItemE(widgetCode: Int, labelCode: Int, widget: Any): Any? {
+        return when (widgetCode) {
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
+            ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> when (labelCode) {
+                PWLE_UNKNOW.number -> OneButtonItem(PWLE_UNKNOW.labelKey, "description", widget)
+                PWLE_OPEN.number -> OneButtonItem(PWLE_OPEN.labelKey, "description", widget)
+                PWLE_CLOSE.number -> OneButtonItem(PWLE_CLOSE.labelKey, "description", widget)
+                PWLE_CALIBRATE.number -> OneButtonItem(PWLE_CALIBRATE.labelKey, "description", widget)
+                PWLE_RESET.number -> OneButtonItem(PWLE_RESET.labelKey, "description", widget)
+                PWLE_CONTROL_SETTINGS.number -> OneButtonItem(PWLE_CONTROL_SETTINGS.labelKey, "description", widget)
+                PWLE_OPEN_CLOSE_THRESHOLD.number -> OneButtonItem(PWLE_OPEN_CLOSE_THRESHOLD.labelKey, "description", widget)
+                PWLE_SELECT_GESTURE.number -> OneButtonItem(PWLE_SELECT_GESTURE.labelKey, "description", widget)
+                else -> OneButtonItem("BUTTON", "description", widget)
             }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem("SWITCH", widget) }
-            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() ->
+                SwitchItem("SWITCH", widget)
+            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() ->
+                OneButtonItem("COMBOBOX", "description", widget)
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
                 SliderItem("SLIDER", widget)
-            }
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
-//            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
-            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
-//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-//                GesturesItem("GESTURE_SETTINGS", widget)
-            }
-            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
-            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
-            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
-            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
-            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { SpinnerItem("Test spinner text", widget) }
-            else -> { OneButtonItem("Open", "description", widget) }
-        }
-        widgets.add(item)
-    }
-    private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
-        Log.d("parseWidgets_rx", "widgetCode = ${widgetCode}  label = ${label} widget = ${widget}")
-        val item: Any = when (widgetCode) {
-            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> return//OneButtonItem("PWCE_UNKNOW", "Description", widget)
-            ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
-                OneButtonItem(label, "description", widget)
-            }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem(label, widget) }
-            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { SliderItem(label, widget) }
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-//                PlotItem(label, widget)
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
                 PlotItem("PLOT", widget)
-            }
-            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
-            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
-//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-//                GesturesItem("GESTURE_SETTINGS", widget)
-            }
-            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
-            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
-            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem(label, widget) }
-            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
-            else -> { OneButtonItem("Open", "description", widget) }
+            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() ->
+                OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)
+            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() ->
+                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() ->
+                OneButtonItem("CALIB_STATUS", "description", widget)
+            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() ->
+                OneButtonItem("CONTROL_MODE", "description", widget)
+            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() ->
+                OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() ->
+                OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() ->
+                OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() ->
+                GesturesItem("GESTURE_SETTINGS", widget)
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() ->
+                TrainingGestureItem("labelCode = $labelCode", widget)
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() ->
+                SpinnerItem("Test spinner text", widget)
+            else -> OneButtonItem("Open", "description", widget)
         }
-        widgets.add(item)
     }
 
-
-    private fun <T> List<T>.listToArrayList(): ArrayList<T> {
-        val array: ArrayList<T> = ArrayList()
-        for (index in this) array.add(index)
-        return array
+    private fun toWidgetItemS(widgetCode: Int, label: String, widget: Any): Any? {
+        return when (widgetCode) {
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
+            ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
+                OneButtonItem(label, "description", widget)
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() ->
+                SwitchItem(label, widget)
+            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() ->
+                OneButtonItem("COMBOBOX", "description", widget)
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
+                SliderItem(label, widget)
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
+                PlotItem("PLOT", widget)
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() ->
+                OneButtonItem("SPINBOX", "description", widget)
+            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() ->
+                OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)
+            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() ->
+                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() ->
+                OneButtonItem("CALIB_STATUS", "description", widget)
+            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() ->
+                OneButtonItem("CONTROL_MODE", "description", widget)
+            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() ->
+                OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() ->
+                OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() ->
+                OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() ->
+                GesturesItem(label, widget)
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() ->
+                TrainingGestureItem(label, widget)
+            else -> OneButtonItem("Open", "description", widget)
+        }
     }
 }

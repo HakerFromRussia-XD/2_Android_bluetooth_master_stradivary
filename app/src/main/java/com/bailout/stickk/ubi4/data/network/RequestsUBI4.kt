@@ -1,14 +1,14 @@
 package com.bailout.stickk.ubi4.data.network
 
+import AllOptions
+import TestModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.ArrayMap
-import com.bailout.stickk.ubi4.models.AllOptions
-import com.bailout.stickk.ubi4.models.DeviceInList_DEV
-import com.bailout.stickk.ubi4.models.DeviceInfo
-import com.bailout.stickk.ubi4.models.TestModel
 import com.bailout.stickk.ubi4.models.User
 import com.bailout.stickk.ubi4.models.UserV2
+import com.bailout.stickk.ubi4.models.device.DeviceInfo
+import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.utility.InitAllOptionsUBI4
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi

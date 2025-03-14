@@ -10,7 +10,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
-import com.bailout.stickk.ubi4.models.TrainingGestureItem
+import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow

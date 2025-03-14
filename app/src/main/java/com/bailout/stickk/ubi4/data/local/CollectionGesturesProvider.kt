@@ -1,9 +1,8 @@
 package com.bailout.stickk.ubi4.data.local
 
-import android.content.Context
-import android.content.res.Resources
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
+import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GestureEnum
 
 class CollectionGesturesProvider() {
@@ -46,7 +45,8 @@ class CollectionGesturesProvider() {
         fun getGesture(gestureId: Int): Gesture {
             val gestureList = getCollectionGestures().filter{ it.gestureId == gestureId }
             if (gestureList.isNotEmpty()) { return gestureList[0] }
-            else { return  Gesture(0)}
+            else { return  Gesture(0)
+            }
         }
     }
 }

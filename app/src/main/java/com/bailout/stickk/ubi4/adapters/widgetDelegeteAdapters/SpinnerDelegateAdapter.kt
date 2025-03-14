@@ -8,12 +8,10 @@ import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.SliderItem
-import com.bailout.stickk.ubi4.models.SpinnerItem
+import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter

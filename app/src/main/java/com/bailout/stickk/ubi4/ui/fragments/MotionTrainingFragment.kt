@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
@@ -20,20 +19,18 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.ConfigOMGDataCollection
-import com.bailout.stickk.ubi4.models.GestureConfig
-import com.bailout.stickk.ubi4.models.GesturePhase
-import com.bailout.stickk.ubi4.models.GesturesId
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
+import com.bailout.stickk.ubi4.models.config.GesturesId
+import com.bailout.stickk.ubi4.models.gestures.GestureConfig
+import com.bailout.stickk.ubi4.models.gestures.GesturePhase
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import java.io.BufferedWriter
 import java.io.File

@@ -1,11 +1,10 @@
 package com.bailout.stickk.ubi4.utility
 
+
+import AllOptions
 import android.content.Context
 import android.content.SharedPreferences
-import com.bailout.stickk.ubi4.models.AllOptions
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-
-
 import kotlin.properties.Delegates
 
 class InitAllOptionsUBI4(context: Context, mDeviceAddress: String) {

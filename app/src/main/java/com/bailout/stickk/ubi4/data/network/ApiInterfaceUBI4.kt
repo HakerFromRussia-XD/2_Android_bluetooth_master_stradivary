@@ -1,12 +1,12 @@
 package com.bailout.stickk.ubi4.data.network
 
-import com.bailout.stickk.ubi4.models.AllOptions
-import com.bailout.stickk.ubi4.models.DeviceInfo
-import com.bailout.stickk.ubi4.models.DevicesList_DEV
-import com.bailout.stickk.ubi4.models.TestModel
-import com.bailout.stickk.ubi4.models.Token
+import AllOptions
+import TestModel
+import Token
 import com.bailout.stickk.ubi4.models.User
 import com.bailout.stickk.ubi4.models.UserV2
+import com.bailout.stickk.ubi4.models.device.DeviceInfo
+import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

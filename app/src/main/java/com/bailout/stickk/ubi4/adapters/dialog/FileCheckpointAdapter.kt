@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.models.FileItem
+import com.bailout.stickk.ubi4.models.widgets.FileItem
 
 class FileCheckpointAdapter(
     private val files: List<FileItem>,

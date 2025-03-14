@@ -3,7 +3,7 @@ package com.bailout.stickk.ubi4.data.local
 import android.content.Context
 import android.util.Log
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.dialog.SprGestureItem
 
 class SprGestureItemsProvider(private val context: Context) {
 
@@ -81,7 +81,8 @@ class SprGestureItemsProvider(private val context: Context) {
     fun getSprGesture(sprGestureId: Int): SprGestureItem {
         val sprGestureList = getSprGestureItemList().filter{ it.sprGestureId == sprGestureId }
         if (sprGestureList.isNotEmpty()) { return sprGestureList[0] }
-        else { return  SprGestureItem()}
+        else { return  SprGestureItem()
+        }
     }
 
 

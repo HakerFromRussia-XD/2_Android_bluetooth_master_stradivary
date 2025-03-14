@@ -1,9 +1,5 @@
 package com.bailout.stickk.ubi4.utility
 
-import android.content.Context
-import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.models.SprGestureItem
-
 //class GestureSprAndCustomItemsProvider {
 //    fun getSprAndCustomGestureItemList(context: Context): ArrayList<SprGestureItem> {
 //        val sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()

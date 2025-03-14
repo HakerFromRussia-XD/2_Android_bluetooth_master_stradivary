@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import com.bailout.stickk.ubi4.models.ParameterInfo
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 
 
 @Serializable(with = BaseParameterWidgetSerializer::class)

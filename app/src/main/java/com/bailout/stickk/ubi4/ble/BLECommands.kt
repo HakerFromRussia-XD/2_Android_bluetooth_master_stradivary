@@ -2,7 +2,7 @@ package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.models.GestureWithAddress
+import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION

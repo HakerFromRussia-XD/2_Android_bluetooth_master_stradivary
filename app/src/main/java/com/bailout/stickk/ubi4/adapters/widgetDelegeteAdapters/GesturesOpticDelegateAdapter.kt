@@ -25,8 +25,8 @@ import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.GesturesItem
-import com.bailout.stickk.ubi4.models.ParameterInfo
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4

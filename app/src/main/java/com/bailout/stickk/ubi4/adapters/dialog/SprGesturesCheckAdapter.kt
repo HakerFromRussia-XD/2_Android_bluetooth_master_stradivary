@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.models.SprDialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
 
 class SprGesturesCheckAdapter(
     private val gesturesList: ArrayList<SprDialogCollectionGestureItem>,

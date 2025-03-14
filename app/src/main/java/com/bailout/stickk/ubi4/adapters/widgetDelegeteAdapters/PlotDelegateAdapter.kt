@@ -21,8 +21,8 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ParameterInfo
-import com.bailout.stickk.ubi4.models.PlotItem
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4

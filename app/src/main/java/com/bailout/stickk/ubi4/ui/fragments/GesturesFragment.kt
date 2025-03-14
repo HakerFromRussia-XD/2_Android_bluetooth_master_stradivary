@@ -27,7 +27,7 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment

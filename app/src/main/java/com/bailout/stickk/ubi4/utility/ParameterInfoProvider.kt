@@ -1,8 +1,7 @@
 package com.bailout.stickk.ubi4.utility
 
 import android.util.Log
-import com.bailout.stickk.ubi4.models.ParameterInfo
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 
 class ParameterInfoProvider {
     companion object {

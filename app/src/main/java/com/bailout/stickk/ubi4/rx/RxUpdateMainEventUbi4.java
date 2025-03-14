@@ -1,9 +1,9 @@
 package com.bailout.stickk.ubi4.rx;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
-import com.bailout.stickk.ubi4.models.GestureInfo;
-import com.bailout.stickk.ubi4.models.GestureWithAddress;
-import com.bailout.stickk.ubi4.models.ParameterRef;
+import com.bailout.stickk.ubi4.models.gestures.GestureInfo;
+import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress;
+import com.bailout.stickk.ubi4.models.ble.ParameterRef;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;

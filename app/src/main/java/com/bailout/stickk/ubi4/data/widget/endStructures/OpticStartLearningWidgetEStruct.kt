@@ -2,7 +2,7 @@ package com.bailout.stickk.ubi4.data.widget.endStructures
 
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ParameterInfo
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind

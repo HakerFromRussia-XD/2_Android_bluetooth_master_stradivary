@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.models.widgets.FileItem
+import com.bailout.stickk.ubi4.models.widgets.PlatformFile
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
@@ -181,7 +182,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             matchResult?.let {
                 val number = it.groupValues[1].toIntOrNull()
                 if (number != null) {
-                    FileItem("checkpoint №$number", file, number)
+                    FileItem("checkpoint №$number", PlatformFile(file.path), number)
                 } else {
                     null
                 }

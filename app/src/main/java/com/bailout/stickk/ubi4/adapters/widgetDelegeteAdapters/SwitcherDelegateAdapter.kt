@@ -57,25 +57,27 @@ class SwitcherDelegateAdapter(
         _indicatorOpticStreamIv = indicatorOpticStreamIv
         var addressDevice = 0
         var parameterID = 0
-        var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0, 0, 0, 0))
+        var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(
+            ParameterInfo(0, 0, 0, 0)
+        )
         var switchChecked = false
         var keyMobileSettings = ""
 
 
-        when (item.widget) {
+        when (val widget = item.widget) {
             is SwitchParameterWidgetEStruct -> {
-                addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
-                parameterIDSet = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-                switchChecked = item.widget.switchChecked
-                keyMobileSettings = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                switchChecked = widget.switchChecked
+                keyMobileSettings = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
             }
             is SwitchParameterWidgetSStruct -> {
-                addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
-                parameterIDSet = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-                switchChecked = item.widget.switchChecked
-                keyMobileSettings = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                switchChecked = widget.switchChecked
+                keyMobileSettings = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
             }
         }
 

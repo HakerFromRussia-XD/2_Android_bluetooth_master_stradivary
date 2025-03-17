@@ -83,16 +83,16 @@ class GesturesDelegateAdapter(
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
 
-        when (item.widget) {
+        when (val widget = item.widget) {
             is BaseParameterWidgetEStruct -> {
-                deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
+                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+                parameterIDSet = widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo", " ParamInfoEStruct parameterIDSet: $parameterIDSet")
             }
 
             is BaseParameterWidgetSStruct -> {
-                deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
+                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+                parameterIDSet = widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo", " ParamInfoSStruct parameterIDSet: $parameterIDSet")
             }
         }

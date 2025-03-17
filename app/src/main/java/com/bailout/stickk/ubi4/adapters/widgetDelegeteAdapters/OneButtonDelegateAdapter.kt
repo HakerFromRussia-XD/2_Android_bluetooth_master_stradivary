@@ -27,20 +27,20 @@ class OneButtonDelegateAdapter(
         var releasedCommand = 0
 
 
-        when (item.widget) {
+        when (val widget = item.widget) {
             is CommandParameterWidgetEStruct -> {
-                addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
-                clickCommand = item.widget.clickCommand
-                pressedCommand = item.widget.pressedCommand
-                releasedCommand = item.widget.releasedCommand
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                clickCommand = widget.clickCommand
+                pressedCommand = widget.pressedCommand
+                releasedCommand = widget.releasedCommand
             }
             is CommandParameterWidgetSStruct -> {
-                addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
-                clickCommand = item.widget.clickCommand
-                pressedCommand = item.widget.pressedCommand
-                releasedCommand = item.widget.releasedCommand
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                clickCommand = widget.clickCommand
+                pressedCommand = widget.pressedCommand
+                releasedCommand = widget.releasedCommand
             }
         }
         widget1Button.setOnTouchListener(View.OnTouchListener { _, motionEvent ->

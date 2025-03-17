@@ -726,20 +726,34 @@ class MotionTrainingFragment(
     }
 
     private fun trainingDataProcessing(): MutableList<GesturePhase> {
-        // Чтение и парсинг конфигурационного файла
-        val json =
-            requireContext().assets.open("config.json").bufferedReader().use { it.readText() }
-        val gson = Gson()
-        val config: ConfigOMGDataCollection =
-            gson.fromJson(json, ConfigOMGDataCollection::class.java)
+
+        val jsonString = requireContext().assets.open("config.json")
+            .bufferedReader().use { it.readText() }
+
+        // Создаем декодер с игнорированием неизвестных ключей
+        val json = Json { ignoreUnknownKeys = true }
+        // Парсинг JSON в объект ConfigOMGDataCollection
+        val config = json.decodeFromString<ConfigOMGDataCollection>(jsonString)
+
 
         val lineData = mutableListOf<GesturePhase>()
+
+
         nCycles = config.nCycles ?: 0
-        gestureSequence = config.gestureSequence
 
-        if (gestureSequence.isNotEmpty()) (gestureSequence as MutableList<String>).removeAt(0)
+        Log.d("Training", "gestureSequence before removal: ${config.gestureSequence}")
+        val mutableSequence = config.gestureSequence.toMutableList()
+// Если список не пустой, удаляем первый элемент
+        if (mutableSequence.isNotEmpty()) {
+            mutableSequence.removeAt(0)
+        }
 
-        gestureNumber = (gestureSequence as ArrayList<*>).size - 1
+// Обновляем gestureSequence и вычисляем количество жестов
+        gestureSequence = mutableSequence
+        gestureNumber = mutableSequence.size - 1
+// Определяем количество жестов
+        gestureNumber = gestureSequence.size - 1
+        Log.d("Training", "gestureSequence after removal: ${gestureSequence}")
         preGestDuration = config.preGestDuration?.toDouble() ?: 0.0
         atGestDuration = config.atGestDuration?.toDouble() ?: 0.0
         postGestDuration = config.postGestDuration?.toDouble() ?: 0.0
@@ -912,8 +926,8 @@ class MotionTrainingFragment(
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
-                showWarningDialog()
-                pauseTimers()
+//                showWarningDialog()
+//                pauseTimers()
             }
         }.start()
     }

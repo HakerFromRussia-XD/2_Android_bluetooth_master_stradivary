@@ -55,38 +55,38 @@ class SliderDelegateAdapter(
         var widgetPosition = 0
 
 
-        when (item.widget) {
+        when (val widget = item.widget) {
             is SliderParameterWidgetEStruct -> {
-                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
                     dataCode.add(it.dataCode)
                 }
-                minProgress = item.widget.minProgress
-                maxProgress = item.widget.maxProgress
+                minProgress = widget.minProgress
+                maxProgress = widget.maxProgress
                 widgetPosition =
-                    item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
                 Log.d(
                     "addressDevice",
-                    "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}"
+                    "E struct addressDevice = $addressDevice   ${widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
 
             is SliderParameterWidgetSStruct -> {
-                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
                     dataCode.add(it.dataCode)
                 }
                 widgetPosition =
-                    item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
-                minProgress = item.widget.minProgress
-                maxProgress = item.widget.maxProgress
+                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
+                minProgress = widget.minProgress
+                maxProgress = widget.maxProgress
                 Log.d(
                     "addressDevice",
-                    "S struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
+                    "S struct addressDevice = $addressDevice   ${widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
 

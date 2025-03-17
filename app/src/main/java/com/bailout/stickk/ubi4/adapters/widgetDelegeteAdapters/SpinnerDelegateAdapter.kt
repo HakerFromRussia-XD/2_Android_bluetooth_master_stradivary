@@ -46,32 +46,32 @@ class SpinnerDelegateAdapter(
         var spinnerItems: List<String> = emptyList()
         var selectedIndex = 0
 
-        when (item.widget) {
+        when (val widget =item.widget) {
             is SpinnerParameterWidgetEStruct -> {
-                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDeviceList.add(it.deviceAddress)
                     parameterIDList.add(it.parameterID)
                 }
 //                spinnerItems = item.widget.dataSpinnerParameterWidgetEStruct.spinnerItems
                 spinnerItems =
                     main.baseContext.resources.getStringArray(R.array.gesture_loop).toList()
-                selectedIndex = item.widget.dataSpinnerParameterWidgetStruct.selectedIndex
+                selectedIndex = widget.dataSpinnerParameterWidgetStruct.selectedIndex
 
                 Log.d(
                     "SpinnerDelegateAdapter",
-                    "E struct: addressDevice = $addressDeviceList, deviceId = ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}"
+                    "E struct: addressDevice = $addressDeviceList, deviceId = ${widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
             is SpinnerParameterWidgetSStruct -> {
-                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDeviceList.add(it.deviceAddress)
                     parameterIDList.add(it.parameterID)
                 }
-                spinnerItems = item.widget.dataSpinnerParameterWidgetStruct.spinnerItems
-                selectedIndex = item.widget.dataSpinnerParameterWidgetStruct.selectedIndex
+                spinnerItems = widget.dataSpinnerParameterWidgetStruct.spinnerItems
+                selectedIndex = widget.dataSpinnerParameterWidgetStruct.selectedIndex
                 Log.d(
                     "SpinnerDelegateAdapter",
-                    "S struct: addressDevice = $addressDeviceList, deviceId = ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
+                    "S struct: addressDevice = $addressDeviceList, deviceId = ${widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
             else -> {

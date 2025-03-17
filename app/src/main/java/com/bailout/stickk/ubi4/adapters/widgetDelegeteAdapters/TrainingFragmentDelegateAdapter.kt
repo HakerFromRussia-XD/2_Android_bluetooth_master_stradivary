@@ -56,15 +56,15 @@ class TrainingFragmentDelegateAdapter(
         var addressDevice = 0
         var parameterId = 0
 
-        when (item.widget) {
+        when (val widget = item.widget) {
             is OpticStartLearningWidgetEStruct -> {
-                addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterId = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
             }
 
             is OpticStartLearningWidgetSStruct -> {
-                addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterId = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
             }
         }
 

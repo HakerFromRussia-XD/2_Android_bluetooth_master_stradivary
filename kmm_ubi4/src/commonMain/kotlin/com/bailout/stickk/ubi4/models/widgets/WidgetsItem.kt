@@ -1,6 +1,12 @@
 package com.bailout.stickk.ubi4.models.widgets
 
-import java.io.File
+// Объявляем ожидаемый тип для представления файлов в KMM
+expect class PlatformFile(path: String) {
+    val path: String
+    fun delete(): Boolean
+    val name: String
+    fun readBytes(): ByteArray
+}
 
 // Widgets items
 data class GesturesItem(
@@ -42,7 +48,7 @@ data class SpinnerItem(
 // Файл (checkpoint) для оптических тренировок / сохранений
 data class FileItem(
     val name: String,
-    val file: File,
+    val file: PlatformFile,
     val number: Int,
     val timestamp: String = ""
 )

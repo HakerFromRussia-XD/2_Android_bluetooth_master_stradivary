@@ -774,25 +774,33 @@ class BLEParser() {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(commandParameterWidgetEStruct, commandParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
                         val switchParameterWidgetEStruct = Json.decodeFromString<SwitchParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        switchParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        switchParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(switchParameterWidgetEStruct,switchParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                         System.err.println("parseWidgets SLIDER")
                         val sliderParameterWidgetEStruct = Json.decodeFromString<SliderParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        sliderParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        sliderParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(sliderParameterWidgetEStruct, sliderParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT CODE_LABEL")
                         val plotParameterWidgetEStruct = Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(plotParameterWidgetEStruct, plotParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
@@ -806,7 +814,9 @@ class BLEParser() {
                         thresholdParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode = 5
                         val plotParameterWidgetEStruct = PlotParameterWidgetEStruct(baseParameterWidgetEStruct = thresholdParameterWidgetEStruct.baseParameterWidgetEStruct)
                         Log.d("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "1 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)} ")
-                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(plotParameterWidgetEStruct, plotParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
@@ -814,18 +824,24 @@ class BLEParser() {
                     ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
                         System.err.println("parseWidgets PWCE_GESTURES_WINDOW")
                         val gesturesParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        gesturesParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        gesturesParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(gesturesParameterWidgetEStruct, gesturesParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
                         System.err.println("parseWidgets PWCE_OPTIC_LERNING_WIDGET $receiveDataStringForParse")
                         val opticParameterWidgetEStruct = Json.decodeFromString<OpticStartLearningWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
                         val spinnerParameterWidgetEStruct = Json.decodeFromString<SpinnerParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        spinnerParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        spinnerParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(spinnerParameterWidgetEStruct,spinnerParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
                     }
                 }
@@ -836,32 +852,42 @@ class BLEParser() {
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         System.err.println("parseWidgets BUTTON STRING_LABEL")
                         val commandParameterWidgetSStruct = Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        commandParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        commandParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
                         System.err.println("parseWidgets SWITCH")
                         val switchParameterWidgetSStruct = Json.decodeFromString<SwitchParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        switchParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        switchParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(switchParameterWidgetSStruct,switchParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                         val sliderParameterWidgetSStruct = Json.decodeFromString<SliderParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
                         System.err.println("parseWidgets SLIDER S dataOffset = ${baseParameterWidgetStruct.dataOffset} dataCode = $dataCode  deviceAddress = $deviceAddress    parameterID = $parameterID")
-                        sliderParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        sliderParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT STRING_LABEL")
                         val plotParameterWidgetSStruct = Json.decodeFromString<PlotParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
                         System.err.println("parseWidgets SPINBOX")
                         val spinnerParameterWidgetSStruct = Json.decodeFromString<SpinnerParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        spinnerParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        spinnerParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(spinnerParameterWidgetSStruct,spinnerParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
 
                     }
@@ -878,7 +904,9 @@ class BLEParser() {
                             closeThresholdUpper = thresholdParameterWidgetSStruct.closeThresholdUpper,
                             closeThresholdLower = thresholdParameterWidgetSStruct.closeThresholdLower,
                         )
-                        plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
@@ -886,12 +914,16 @@ class BLEParser() {
                     ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
                         System.err.println("parseWidgets PWCE_GESTURES_WINDOW")
                         val gesturesParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        gesturesParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        gesturesParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(gesturesParameterWidgetSStruct, gesturesParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { System.err.println("parseWidgets PWCE_OPTIC_LEARNING_WIDGET")
                         val opticParameterWidgetSStruct = Json.decodeFromString<OpticStartLearningWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        opticParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        opticParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
                         addToListWidgets(opticParameterWidgetSStruct,opticParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                 }
@@ -950,11 +982,15 @@ class BLEParser() {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId*256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId*256 +  it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                     }
                     is PlotParameterWidgetEStruct -> {
@@ -971,7 +1007,9 @@ class BLEParser() {
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
                             Log.d("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "3 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
+                            )
                             System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD PLOT E!!! addToListWidgets combineWidgetId  Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)}")
                         }
                     }
@@ -979,11 +1017,15 @@ class BLEParser() {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId*256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId*256 +  it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                     }
                     else -> { Log.d("addToListWidgets", "E it = $it") }
@@ -996,23 +1038,31 @@ class BLEParser() {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId*256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                         if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId*256 +  it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                     }
                     is PlotParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId*256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                             System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD PLOT S!!! addToListWidgets areEqualExcludingSetIdS")
                         }
                         if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId*256 +  it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                             System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD PLOT S!!! addToListWidgets combineWidgetId")
                         }
                     }
@@ -1028,7 +1078,9 @@ class BLEParser() {
                         }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)
+                            )
                         }
                     }
                     is ThresholdParameterWidgetSStruct -> {
@@ -1045,7 +1097,9 @@ class BLEParser() {
                         }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
+                            )
                         }
                     }
                     else -> { //Log.d("addToListWidgets", "S it = $it")

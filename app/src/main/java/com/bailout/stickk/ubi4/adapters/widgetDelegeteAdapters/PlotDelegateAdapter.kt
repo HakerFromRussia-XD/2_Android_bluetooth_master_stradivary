@@ -80,15 +80,14 @@ class PlotDelegateAdapter (
 
 //        val parameterID = 0
 
-
-        when (plotItem.widget) {
+        when (val widget = plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                parameterInfoSet = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-                deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterInfoSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                deviceAddress = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
             is PlotParameterWidgetSStruct -> {
-                parameterInfoSet = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-                deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                deviceAddress = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
         Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")

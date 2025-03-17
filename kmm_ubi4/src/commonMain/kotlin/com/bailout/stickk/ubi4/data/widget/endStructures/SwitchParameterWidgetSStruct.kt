@@ -14,35 +14,34 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = SwitchParameterWidgetSSerializer::class)
 data class SwitchParameterWidgetSStruct(
-    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID"),
+    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID"),
     val switchChecked: Boolean = false
 )
 
-object SwitchParameterWidgetSSerializer: KSerializer<SwitchParameterWidgetSStruct> {
+object SwitchParameterWidgetSSerializer : KSerializer<SwitchParameterWidgetSStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("SwitchParameterWidgetSStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): SwitchParameterWidgetSStruct {
         val string = decoder.decodeString()
-        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID")
         var switchChecked = false
 
-
-
         if (string.length >= 82) {
-            baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
-            switchChecked = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte()) !=0
+            baseParameterWidgetSStruct = Json.decodeFromString(
+                BaseParameterWidgetSStruct.serializer(),
+                "\"${string.substring(0, 80)}\""
+            )
+            switchChecked = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte()) != 0
         }
 
-        return SwitchParameterWidgetSStruct (
+        return SwitchParameterWidgetSStruct(
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             switchChecked = switchChecked
         )
     }
 
     override fun serialize(encoder: Encoder, value: SwitchParameterWidgetSStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        encoder.encodeString("")
     }
-
 }

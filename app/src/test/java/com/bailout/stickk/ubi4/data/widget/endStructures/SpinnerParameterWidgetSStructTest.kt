@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
-import android.util.Log
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

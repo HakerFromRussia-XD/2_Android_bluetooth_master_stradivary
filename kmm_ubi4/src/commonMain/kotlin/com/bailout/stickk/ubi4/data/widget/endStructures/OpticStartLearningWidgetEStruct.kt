@@ -16,13 +16,12 @@ import kotlinx.serialization.json.Json
 data class OpticStartLearningWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
     val startLearningButtonId: Int = 0,
-    val clickCommand: Int = 0,
-
+    val clickCommand: Int = 0
 )
 
-object OpticStartLearningWidgetESerializer: KSerializer<OpticStartLearningWidgetEStruct> {
+object OpticStartLearningWidgetESerializer : KSerializer<OpticStartLearningWidgetEStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("OpticStartLearningWidgetESerializer", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("OpticStartLearningWidgetEStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): OpticStartLearningWidgetEStruct {
         val string = decoder.decodeString()
@@ -30,27 +29,32 @@ object OpticStartLearningWidgetESerializer: KSerializer<OpticStartLearningWidget
         var startLearningButtonId = 0
         var clickCommand = 0
 
-
         if (string.length >= 18) {
-            baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
-//            startLearningButtonId = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
-//            clickCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+            baseParameterWidgetEStruct = Json.decodeFromString(
+                BaseParameterWidgetEStruct.serializer(),
+                "\"${string.substring(0, 18)}\""
+            )
+
+            // startLearningButtonId = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
+            // clickCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
         } else {
-            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (
-                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
-                    ParameterInfo(0,0,0,0)
-                )),0)
+            baseParameterWidgetEStruct = BaseParameterWidgetEStruct(
+                baseParameterWidgetStruct = BaseParameterWidgetStruct(
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    mutableSetOf(ParameterInfo(0, 0, 0, 0))
+                ),
+                labelCode = 0
+            )
         }
 
-        return OpticStartLearningWidgetEStruct (
+        return OpticStartLearningWidgetEStruct(
             baseParameterWidgetEStruct = baseParameterWidgetEStruct,
             startLearningButtonId = startLearningButtonId,
-            clickCommand = clickCommand,
+            clickCommand = clickCommand
         )
     }
 
     override fun serialize(encoder: Encoder, value: OpticStartLearningWidgetEStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        encoder.encodeString("")
     }
 }

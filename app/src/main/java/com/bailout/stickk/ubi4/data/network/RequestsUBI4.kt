@@ -5,8 +5,8 @@ import TestModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.ArrayMap
-import com.bailout.stickk.ubi4.models.User
-import com.bailout.stickk.ubi4.models.UserV2
+import com.bailout.stickk.ubi4.models.user.User
+import com.bailout.stickk.ubi4.models.user.UserV2
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.utility.InitAllOptionsUBI4

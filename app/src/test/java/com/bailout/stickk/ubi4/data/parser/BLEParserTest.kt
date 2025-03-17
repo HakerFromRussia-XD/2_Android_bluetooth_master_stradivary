@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
@@ -19,14 +18,11 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
@@ -35,14 +31,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import okhttp3.internal.tls.OkHostnameVerifier.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.mockito.kotlin.mock

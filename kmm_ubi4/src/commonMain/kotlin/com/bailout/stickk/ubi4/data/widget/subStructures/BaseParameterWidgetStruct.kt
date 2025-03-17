@@ -10,26 +10,26 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 
-
 @Serializable(with = BaseParameterWidgetSerializer::class)
 data class BaseParameterWidgetStruct(
-    val widgetType: Int = 0,      // 7 bit   младшие биты
-    val widgetLabelType: Int = 0, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
+    val widgetType: Int = 0,      // младшие 7 бит
+    val widgetLabelType: Int = 0, // старший 1 бит
     var widgetCode: Int = 0,
-    val display: Int = 0, // номер экрана, на котором виджет располагается
-    var widgetPosition: Int = 0, // позиция этого виджета
+    val display: Int = 0,         // номер экрана, на котором располагается виджет
+    var widgetPosition: Int = 0,  // позиция виджета
     var deviceId: Int = 0,
     val widgetId: Int = 0,
     val dataOffset: Int = 0,
     var dataSize: Int = 0,
-    var channelOffset: Int = 0,
-    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0, 0, 0, 0)), // ID родительских параметров и их датакоды
+    var channelOffset: Int = 0,   // если понадобится, можно добавить в десериализацию
+    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> =
+        mutableSetOf(ParameterInfo(0, 0, 0, 0)),
     var keyMobileSettings: String = ""
 )
 
-object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
+object BaseParameterWidgetSerializer : KSerializer<BaseParameterWidgetStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("BaseParameterWidgetStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): BaseParameterWidgetStruct {
         val string = decoder.decodeString()
@@ -45,8 +45,9 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
         val parentIDParameter = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
 
         if (string.length >= 16) {
-            widgetType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()) shr 0 and 0b01111111
-            widgetLabelType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()) shr 7 and 0b00000001
+            val firstByte = string.substring(0, 2).toInt(16).toByte()
+            widgetType = castUnsignedCharToInt(firstByte) and 0b01111111
+            widgetLabelType = castUnsignedCharToInt(firstByte) shr 7 and 0b00000001
             widgetCode = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
             display = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
             widgetPosition = castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte())
@@ -56,7 +57,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             dataSize = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
         }
 
-        return BaseParameterWidgetStruct (
+        return BaseParameterWidgetStruct(
             widgetType = widgetType,
             widgetLabelType = widgetLabelType,
             widgetCode = widgetCode,
@@ -67,11 +68,12 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             dataOffset = dataOffset,
             dataSize = dataSize,
             parameterInfoSet = parentIDParameter,
+            keyMobileSettings = ""
         )
     }
 
     override fun serialize(encoder: Encoder, value: BaseParameterWidgetStruct) {
-        val code: String = value.widgetType.toString()
-        encoder.encodeString("$code")
+        // Пока не реализовано, можно доработать по необходимости
+        encoder.encodeString("${value.widgetType}")
     }
 }

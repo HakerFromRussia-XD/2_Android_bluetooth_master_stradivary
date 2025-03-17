@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.models
+package com.bailout.stickk.ubi4.models.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

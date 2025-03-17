@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
-import android.util.Pair
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -13,7 +12,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
-
 @Serializable(with = CommandParameterWidgetSSerializer::class)
 data class CommandParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct,
@@ -22,26 +20,28 @@ data class CommandParameterWidgetSStruct(
     val releasedCommand: Int = 0
 )
 
-object CommandParameterWidgetSSerializer: KSerializer<CommandParameterWidgetSStruct> {
+object CommandParameterWidgetSSerializer : KSerializer<CommandParameterWidgetSStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("CommandParameterWidgetSStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): CommandParameterWidgetSStruct {
         val string = decoder.decodeString()
-        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID")
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
 
-
         if (string.length >= 86) {
-            baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
+            baseParameterWidgetSStruct = Json.decodeFromString(
+                BaseParameterWidgetSStruct.serializer(),
+                "\"${string.substring(0, 80)}\""
+            )
             clickCommand = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
             pressedCommand = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
             releasedCommand = castUnsignedCharToInt(string.substring(84, 86).toInt(16).toByte())
         }
 
-        return CommandParameterWidgetSStruct (
+        return CommandParameterWidgetSStruct(
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             clickCommand = clickCommand,
             pressedCommand = pressedCommand,
@@ -50,7 +50,7 @@ object CommandParameterWidgetSSerializer: KSerializer<CommandParameterWidgetSStr
     }
 
     override fun serialize(encoder: Encoder, value: CommandParameterWidgetSStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        // Пока не реализовано – доработай по необходимости
+        encoder.encodeString("")
     }
 }

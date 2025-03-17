@@ -27,26 +27,28 @@ data class PlotParameterWidgetSStruct(
     val closeThresholdLower : Int = 0,
 )
 
-object PlotParameterWidgetSSerializer: KSerializer<PlotParameterWidgetSStruct> {
+object PlotParameterWidgetSSerializer : KSerializer<PlotParameterWidgetSStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("PlotParameterWidgetSStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): PlotParameterWidgetSStruct {
         val string = decoder.decodeString()
-        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID")
         var color = 0
         var maxSize = 0
         var minSize = 0
 
-
         if (string.length >= 86) {
-            baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
+            baseParameterWidgetSStruct = Json.decodeFromString(
+                BaseParameterWidgetSStruct.serializer(),
+                "\"${string.substring(0, 80)}\""
+            )
             color = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
             maxSize = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
             minSize = castUnsignedCharToInt(string.substring(84, 86).toInt(16).toByte())
         }
 
-        return PlotParameterWidgetSStruct (
+        return PlotParameterWidgetSStruct(
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             color = color,
             maxSize = maxSize,
@@ -55,7 +57,6 @@ object PlotParameterWidgetSSerializer: KSerializer<PlotParameterWidgetSStruct> {
     }
 
     override fun serialize(encoder: Encoder, value: PlotParameterWidgetSStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        encoder.encodeString("")
     }
 }

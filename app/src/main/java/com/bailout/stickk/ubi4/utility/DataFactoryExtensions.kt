@@ -1,0 +1,10 @@
+package com.bailout.stickk.ubi4.utility
+
+import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+
+fun DataFactory.prepareDataWithMain(display: Int): List<Any> {
+    // Достаём список из MainActivityUBI4, конвертируем в list
+    val widgetsFromMain = MainActivityUBI4.listWidgets.toList()
+    return this.prepareData(display, widgetsFromMain)
+}

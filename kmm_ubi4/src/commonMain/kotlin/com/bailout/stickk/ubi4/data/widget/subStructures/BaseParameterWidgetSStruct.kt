@@ -10,36 +10,37 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
-
 @Serializable(with = BaseParameterWidgetSSerializer::class)
 data class BaseParameterWidgetSStruct(
     val baseParameterWidgetStruct: BaseParameterWidgetStruct = BaseParameterWidgetStruct(),
     val label: String = ""
 )
 
-object BaseParameterWidgetSSerializer: KSerializer<BaseParameterWidgetSStruct> {
+object BaseParameterWidgetSSerializer : KSerializer<BaseParameterWidgetSStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("BaseParameterWidgetSStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): BaseParameterWidgetSStruct {
         val string = decoder.decodeString()
         var baseParameterWidgetStruct = BaseParameterWidgetStruct()
         var label = ""
 
-
         if (string.length >= 80) {
-            baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 16)}\"")
+            baseParameterWidgetStruct = Json.decodeFromString(
+                BaseParameterWidgetStruct.serializer(),
+                "\"${string.substring(0, 16)}\""
+            )
             label = string.substring(16, 80).decodeHex()
         }
 
-        return BaseParameterWidgetSStruct (
+        return BaseParameterWidgetSStruct(
             baseParameterWidgetStruct = baseParameterWidgetStruct,
             label = label
         )
     }
 
     override fun serialize(encoder: Encoder, value: BaseParameterWidgetSStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        // Пока не реализовано, можно доработать по необходимости
+        encoder.encodeString("")
     }
 }

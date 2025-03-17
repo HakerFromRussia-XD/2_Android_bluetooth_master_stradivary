@@ -14,42 +14,39 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = OpticStartLearningWidgetSSerializer::class)
 data class OpticStartLearningWidgetSStruct(
-    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct,
-    //val switchChecked: Boolean
+    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct
+    // Дополнительные параметры можно добавить по необходимости
 )
 
-object OpticStartLearningWidgetSSerializer: KSerializer<OpticStartLearningWidgetSStruct> {
+object OpticStartLearningWidgetSSerializer : KSerializer<OpticStartLearningWidgetSStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("OpticStartLearningWidgetSStruct", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): OpticStartLearningWidgetSStruct {
         val string = decoder.decodeString()
         val baseParameterWidgetSStruct: BaseParameterWidgetSStruct
-        //var switchChecked = false
-
-
 
         if (string.length >= 82) {
-            baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
-            //switchChecked = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte()) !=0
-
+            baseParameterWidgetSStruct = Json.decodeFromString(
+                BaseParameterWidgetSStruct.serializer(),
+                "\"${string.substring(0, 80)}\""
+            )
         } else {
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct (
-                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  mutableSetOf(
-                    ParameterInfo(0,0, 0, 0)
-                )),"")
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+                baseParameterWidgetStruct = BaseParameterWidgetStruct(
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    mutableSetOf(ParameterInfo(0, 0, 0, 0))
+                ),
+                label = ""
+            )
         }
 
-        return OpticStartLearningWidgetSStruct (
-            baseParameterWidgetSStruct = baseParameterWidgetSStruct,
-            //switchChecked = switchChecked
-
+        return OpticStartLearningWidgetSStruct(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct
         )
     }
 
     override fun serialize(encoder: Encoder, value: OpticStartLearningWidgetSStruct) {
-        val code = ""
-        encoder.encodeString("$code")
+        encoder.encodeString("")
     }
-
 }

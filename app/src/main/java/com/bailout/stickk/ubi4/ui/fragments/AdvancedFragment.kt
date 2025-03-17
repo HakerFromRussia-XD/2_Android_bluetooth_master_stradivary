@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.prepareDataWithMain
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
@@ -37,7 +38,7 @@ class AdvancedFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
+        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -60,8 +61,8 @@ class AdvancedFragment : BaseWidgetsFragment() {
             withContext(Main) {
                 updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareDataWithMain(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

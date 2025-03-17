@@ -14,9 +14,11 @@ import kotlinx.serialization.json.Json
 @Serializable(with = SpinnerParameterWidgetSSerializer::class)
 data class SpinnerParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(
-        BaseParameterWidgetStruct(),"NOT VALID"),
-    val dataSpinnerParameterWidgetStruct : DataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct()
+        BaseParameterWidgetStruct(), "NOT VALID"
+    ),
+    val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct()
 )
+
 object SpinnerParameterWidgetSSerializer : KSerializer<SpinnerParameterWidgetSStruct> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("SpinnerParameterWidgetSSerializer", PrimitiveKind.STRING)
@@ -24,22 +26,20 @@ object SpinnerParameterWidgetSSerializer : KSerializer<SpinnerParameterWidgetSSt
     override fun deserialize(decoder: Decoder): SpinnerParameterWidgetSStruct {
         val string = decoder.decodeString()
         val paddedString = string.padEnd(180, '0')
-        println("paddedString $paddedString")
+        println("paddedString: $paddedString")
         val basePart = paddedString.substring(0, 80)
         val dataPart = paddedString.substring(80, 180)
 
         val baseParameterWidgetSStruct: BaseParameterWidgetSStruct =
-            Json.decodeFromString("\"$basePart\"")
+            Json.decodeFromString(BaseParameterWidgetSStruct.serializer(), "\"$basePart\"")
 
         val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct =
-            Json.decodeFromString("\"$dataPart\"")
-
+            Json.decodeFromString(DataSpinnerParameterWidgetStruct.serializer(), "\"$dataPart\"")
 
         return SpinnerParameterWidgetSStruct(
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             dataSpinnerParameterWidgetStruct = dataSpinnerParameterWidgetStruct
         )
-
     }
 
     override fun serialize(encoder: Encoder, value: SpinnerParameterWidgetSStruct) {

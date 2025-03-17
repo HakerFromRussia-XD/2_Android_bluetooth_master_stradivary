@@ -3,8 +3,8 @@ package com.bailout.stickk.ubi4.data.network
 import AllOptions
 import TestModel
 import Token
-import com.bailout.stickk.ubi4.models.User
-import com.bailout.stickk.ubi4.models.UserV2
+import com.bailout.stickk.ubi4.models.user.User
+import com.bailout.stickk.ubi4.models.user.UserV2
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
 import retrofit2.Response

@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.prepareDataWithMain
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers.Default
@@ -62,7 +63,7 @@ class GesturesFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(0))
+        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -98,8 +99,8 @@ class GesturesFragment : BaseWidgetsFragment() {
             withContext(Default) {
                 updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareDataWithMain(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

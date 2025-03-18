@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -41,6 +43,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -52,6 +55,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
+    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
     protected val adapterWidgets by lazy {
         CompositeDelegateAdapter(
@@ -171,6 +175,14 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -209,7 +221,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
         val sprGestureDialogList: ArrayList<SprDialogCollectionGestureItem> =
             ArrayList(
-                SprGestureItemsProvider(requireContext()).getSprGestureItemList()
+                SprGestureItemsProvider(AndroidResourceProvider(requireContext())).getSprGestureItemList()
                     .map { SprDialogCollectionGestureItem(it) })
 
         for (sprDialogCollectionGestureItem in sprGestureDialogList) {
@@ -293,7 +305,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         titleText.setText(R.string.assign_gesture)
 
         val collectionGestureDialogList: ArrayList<DialogCollectionGestureItem> = ArrayList(
-            CollectionGesturesProvider.getCollectionGestures().map { gesture ->
+            collectionGesturesProvider.getCollectionGestures().map { gesture ->
                 DialogCollectionGestureItem(
                     gesture = gesture,
                     check = (gesture.gestureId == bindingItem.second)

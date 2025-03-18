@@ -1,0 +1,10 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Фон с закруглёнными углами, как у твоего примера -->
+  <item android:drawable="@drawable/ubi4_view_with_corners_gray_outside_oval" />
+
+  <item
+      android:width="24dp"
+      android:height="24dp"
+      android:gravity="center"
+      android:drawable="@drawable/mechanical_arm" />
+</layer-list>

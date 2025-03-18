@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
@@ -42,6 +43,8 @@ class SprGestureFragment: BaseWidgetsFragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
+    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
     private val display = 0
 
@@ -63,7 +66,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-
+        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
         //настоящие виджеты
         widgetListUpdater()
         adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
@@ -129,7 +132,8 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
 
     val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
-        ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+        ArrayList(collectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+        Log.d("SprGestureFragment", "Gestures list: ${collectionGesturesProvider.getCollectionGestures()}")
 
     // установка галочек в списке соответственно текущей группе ротации
     for (dialogGesture in dialogCollectionGestures) {

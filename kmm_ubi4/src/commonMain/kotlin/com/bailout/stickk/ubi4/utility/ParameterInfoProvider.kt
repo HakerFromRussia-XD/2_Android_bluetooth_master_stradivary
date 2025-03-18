@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.utility
 
-import com.bailout.stickk.ubi4.logging.platformLog
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 
 class ParameterInfoProvider {

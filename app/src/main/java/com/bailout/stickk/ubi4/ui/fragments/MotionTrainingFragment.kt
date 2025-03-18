@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
+import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -193,7 +194,7 @@ class MotionTrainingFragment(
         learningStepTimer = Chronometer(requireContext())
 
         // Инициализация поставщика жестов
-        sprGestureItemsProvider = SprGestureItemsProvider(requireContext())
+        sprGestureItemsProvider = SprGestureItemsProvider(AndroidResourceProvider(requireContext()))
 
         // Обработка данных тренировки
         lineData = trainingDataProcessing()

@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.data.local
 
 
-import com.bailout.stickk.ubi4.logging.platformLog
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.CastBytesToFloat
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer

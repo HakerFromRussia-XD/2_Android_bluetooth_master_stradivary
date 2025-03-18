@@ -262,7 +262,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.apply()
     }
     override fun getString(key: String) :String {
-//        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
     }
     internal fun saveInt(key: String, variable: Int) {
@@ -292,7 +291,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         worker.start()
     }
     fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
-    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray) }
+    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
+        if (byteArray != null) {
+            queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
+        }
+    }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
             writeData(byteArray, command, typeCommand)

@@ -29,6 +29,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -53,6 +54,9 @@ class GesturesFragment : BaseWidgetsFragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private val display = 0
     private var mSettings: SharedPreferences? = null
+    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
+        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
+    }
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -86,9 +90,6 @@ class GesturesFragment : BaseWidgetsFragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
-
-
-
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
         return binding.root
@@ -139,7 +140,7 @@ class GesturesFragment : BaseWidgetsFragment() {
 
 
         val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
-            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+            ArrayList(collectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
 
         // установка галочек в списке соответственно текущей группе ротации
         for (dialogGesture in dialogCollectionGestures) {

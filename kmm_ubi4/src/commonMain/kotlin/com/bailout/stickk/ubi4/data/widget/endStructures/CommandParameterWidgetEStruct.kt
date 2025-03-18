@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -11,7 +12,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
 // Функция для корректного преобразования байта в беззнаковое целое значение в KMM.
-internal fun castUnsignedCharToInt(byte: Byte): Int = byte.toInt() and 0xFF
+//internal fun castUnsignedCharToInt(byte: Byte): Int = byte.toInt() and 0xFF
 
 @Serializable(with = CommandParameterWidgetESerializer::class)
 data class CommandParameterWidgetEStruct(

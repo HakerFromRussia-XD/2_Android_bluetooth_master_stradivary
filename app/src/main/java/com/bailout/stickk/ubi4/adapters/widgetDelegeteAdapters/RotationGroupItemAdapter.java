@@ -16,7 +16,6 @@
 
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters;
 
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,9 @@ import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.util.ArrayList;
 
-class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, RotationGroupItemAdapter.ViewHolder> {
+import kotlin.Pair;
+
+class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>, RotationGroupItemAdapter.ViewHolder> {
 
     private int mLayoutId;
     private int mGrabHandleId;
@@ -37,7 +38,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
     OnCopyClickRotationGroupListener onCopyClickRotationGroupListener;
     OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener;
 
-    RotationGroupItemAdapter(ArrayList<Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener) {
+    RotationGroupItemAdapter(ArrayList<kotlin.Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
@@ -56,15 +57,15 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        String text = mItemList.get(position).second.split("™")[0];
+        String text = mItemList.get(position).getSecond().split("™")[0];
         holder.gestureInRotationGroupTv.setText(text);
-        holder.itemView.setTag(mItemList.get(position).first);
+        holder.itemView.setTag(mItemList.get(position).getFirst());
     }
 
     @Override
     public long getUniqueItemId(int position) {
         System.err.println("setTag getUniqueItemId ==========================" + mItemList.get(position));
-        return mItemList.get(position).first;
+        return mItemList.get(position).getFirst();
     }
 
     class ViewHolder extends DragItemAdapter.ViewHolder {
@@ -84,8 +85,8 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
             copyBtn.setOnClickListener(v -> {
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 Long setUniqueItemId = (long)mItemList.size();
-                addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).second));
-                onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).second);
+                addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).getSecond()));
+                onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).getSecond());
             });
         }
 
@@ -102,7 +103,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
             int count = 0;
             int result = 0;
             for (Pair<Long, String> variable : mItemList) {
-                if (index == variable.first) {
+                if (index == variable.getFirst()) {
                     result = count;
                 }
                 count += 1;

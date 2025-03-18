@@ -16,35 +16,37 @@ data class BaseParameterInfoStruct(
     val broadcastID: Int = 0,
     var dataCode: Int = 0,
     val dataInstance: Int = 0,
-    val parameterDataSize: Int = 0,//2 байта
+    val parameterDataSize: Int = 0, // 2 байта
     val flagShift: Int = 0,
     val optimisation: Int = 0,
     val valueLimit: Int = 0,
 
-    val initRead: Int = 0,      //1 bit
-    val initWrite: Int = 0,     //1 bit
-    val synchType: Int = 0,     //3 bit
-    val synchDirection: Int = 0,//3 bit
+    val initRead: Int = 0,       // 1 bit
+    val initWrite: Int = 0,      // 1 bit
+    val synchType: Int = 0,      // 3 bit
+    val synchDirection: Int = 0, // 3 bit
     val synchPeriod: Int = 0,
 
     val type: Int = 0,
-    val saveInMaster: Int = 0,//1 bit
-    val saveInSlave: Int = 0, //1 bit
-    val saveReserv: Int = 0,  //6 bit
+    val saveInMaster: Int = 0, // 1 bit
+    val saveInSlave: Int = 0,  // 1 bit
+    val saveReserv: Int = 0,   // 6 bit
 
     val additionalInfoSize: Int = 0,
 
     val relatedParametrID: Int = 0,
     val relatedDataCode: Int = 0,
 
-    var data: String = "")
+    var data: String = ""
+)
 
-object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
+object BaseParametrInfoSerializer : KSerializer<BaseParameterInfoStruct> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): BaseParameterInfoStruct {
         val string = decoder.decodeString()
+
         var ID = 0
         var broadcastID = 0
         var dataCode = 0
@@ -72,36 +74,36 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
 
         val data = ""
 
-        System.err.println("TEST deserialize BaseParametrInfoSerializer count ${string.length}")
+        // Пример: проверяем, что строка достаточной длины
         if (string.length >= 32) {
+            // castUnsignedCharToInt и т.д. должны лежать в commonMain, иначе iOS не увидит
             ID = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
             broadcastID = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
             dataCode = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
             dataInstance = castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte())
             parametrSize = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte()) +
-                           castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte())*256// 2
+                    castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte()) * 256
             flagShift = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
             optimisation = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
             valueLimit = castUnsignedCharToInt(string.substring(16, 18).toInt(16).toByte())
 
-            initRead = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 0 and 0b00000001
-            initWrite = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 1 and 0b00000001
-            synchType = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 2 and 0b00000111
+            initRead       = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 0 and 0b00000001
+            initWrite      = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 1 and 0b00000001
+            synchType      = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 2 and 0b00000111
             synchDirection = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte()) shr 5 and 0b00000111
-            synchPeriod = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+            synchPeriod    = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
 
             type = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
             saveInMaster = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 0 and 0b00000001
-            saveInSlave = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 1 and 0b00000001
-            saveReserv = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 2 and 0b00111111
+            saveInSlave  = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 1 and 0b00000001
+            saveReserv   = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 2 and 0b00111111
 
             additionalInfoSize = castUnsignedCharToInt(string.substring(26, 28).toInt(16).toByte())
-
-            relatedParametrID = castUnsignedCharToInt(string.substring(28, 30).toInt(16).toByte())
-            relatedDataCode = castUnsignedCharToInt(string.substring(30, 32).toInt(16).toByte())
+            relatedParametrID  = castUnsignedCharToInt(string.substring(28, 30).toInt(16).toByte())
+            relatedDataCode    = castUnsignedCharToInt(string.substring(30, 32).toInt(16).toByte())
         }
 
-        return BaseParameterInfoStruct (
+        return BaseParameterInfoStruct(
             ID = ID,
             broadcastID = broadcastID,
             dataCode = dataCode,
@@ -124,7 +126,6 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
             saveReserv = saveReserv,
 
             additionalInfoSize = additionalInfoSize,
-
             relatedParametrID = relatedParametrID,
             relatedDataCode = relatedDataCode,
 
@@ -133,9 +134,8 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
     }
 
     override fun serialize(encoder: Encoder, value: BaseParameterInfoStruct) {
-        val code: String =
-            value.ID.toString()
-
-        encoder.encodeString("$code")
+        // Тут формируем строку для сериализации (пока пусто или по-своему)
+        val code: String = value.ID.toString()
+        encoder.encodeString(code)
     }
 }

@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.local
 
-import android.util.Pair
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -9,7 +8,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-
 
 @Serializable(with = BindingGroupSerializer::class)
 data class BindingGestureGroup(
@@ -43,7 +41,7 @@ data class BindingGestureGroup(
         ).toMutableList()
     }
     fun setGestureAt(index: Int, pair: Pair<Int, Int>) {
-        when(index) {
+        when (index) {
             0 -> { gestureSpr1Id = pair.first; gesture1Id = pair.second }
             1 -> { gestureSpr2Id = pair.first; gesture2Id = pair.second }
             2 -> { gestureSpr3Id = pair.first; gesture3Id = pair.second }
@@ -60,9 +58,6 @@ data class BindingGestureGroup(
         }
     }
 }
-
-
-
 
 object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
     override val descriptor: SerialDescriptor =
@@ -122,11 +117,9 @@ object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
             gesture11Id = castUnsignedCharToInt(string.substring(42, 44).toInt(16).toByte())
             gestureSpr12Id = castUnsignedCharToInt(string.substring(44, 46).toInt(16).toByte())
             gesture12Id = castUnsignedCharToInt(string.substring(46, 48).toInt(16).toByte())
-
         }
 
-        return BindingGestureGroup (
-
+        return BindingGestureGroup(
             gestureSpr1Id = gestureSpr1Id,
             gestureSpr2Id = gestureSpr2Id,
             gestureSpr3Id = gestureSpr3Id,
@@ -157,9 +150,6 @@ object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
 
     override fun serialize(encoder: Encoder, value: BindingGestureGroup) {
         val code = ""
-        encoder.encodeString("$code")
+        encoder.encodeString(code)
     }
-
-
-
 }

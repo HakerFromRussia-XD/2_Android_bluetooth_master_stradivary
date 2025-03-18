@@ -1,8 +1,7 @@
 package com.bailout.stickk.ubi4.data.local
 
 
-import android.util.Log
-import com.bailout.stickk.ubi4.data.FullInicializeConnectionSerializer
+import com.bailout.stickk.ubi4.logging.platformLog
 import com.bailout.stickk.ubi4.utility.CastBytesToFloat
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
@@ -29,7 +28,7 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
         var numberOfFrame = 0L
         var data = arrayListOf<Float>()
 
-        Log.d("TestOptic","OpticTrainingStruct length = ${string.length}")
+        platformLog("TestOptic","OpticTrainingStruct length = ${string.length}")
 
 
         if (string.length >= 8) {
@@ -59,8 +58,8 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
                 val byteArrayData = byteList.toByteArray()
                 data = (arrayListOf(numberOfFrame) + CastBytesToFloat.castBytesToFloatArray(byteArrayData)) as ArrayList<Float>
 
-                Log.d("OpticTrainingSerializer", "data :$data")
-                Log.d("OpticTrainingSerializer", "numberOfFrame :$numberOfFrame")
+                platformLog("OpticTrainingSerializer", "data :$data")
+                platformLog("OpticTrainingSerializer", "numberOfFrame :$numberOfFrame")
             }
         }
 

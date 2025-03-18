@@ -4,12 +4,9 @@ import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedC
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-
 
 @Serializable(with = FullInicializeConnectionSerializer::class)
 data class FullInicializeConnectionStruct(
@@ -28,14 +25,16 @@ data class FullInicializeConnectionStruct(
     val parametrsNum: Int,
     val subDeviceNum: Int,
     val programType: Int,
-    val defaultPort: Int)
+    val defaultPort: Int
+)
 
-object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionStruct> {
+object FullInicializeConnectionSerializer : KSerializer<FullInicializeConnectionStruct> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): FullInicializeConnectionStruct {
         val string = decoder.decodeString()
+
         var deviceName = ""
         var deviceVersion = 0
         var deviceSubVersion = 0
@@ -44,7 +43,6 @@ object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionS
         var deviceCode = 0
 
         var deviceAddress = 0
-
         var deviceUUID_Prefix = ""
         var deviceUUID = 0L
 
@@ -53,22 +51,21 @@ object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionS
         var programType = 0
         var defaultPort = 0
 
-        System.err.println("TEST deserialize  count ${string.length}")
-        if (string.length >= 154) {//
-            deviceName = string.substring(0, 64).decodeHex() // 32
+        if (string.length >= 154) {
+            deviceName = string.substring(0, 64).decodeHex()
             deviceVersion = castUnsignedCharToInt(string.substring(64, 66).toInt(16).toByte())
             deviceSubVersion = castUnsignedCharToInt(string.substring(66, 68).toInt(16).toByte())
-            deviceLabel = string.substring(68, 100) // 16
+            deviceLabel = string.substring(68, 100) // или decodeHex() - см. твой код
             deviceType = castUnsignedCharToInt(string.substring(100, 102).toInt(16).toByte())
             deviceCode = castUnsignedCharToInt(string.substring(102, 104).toInt(16).toByte())
 
             deviceAddress = castUnsignedCharToInt(string.substring(104, 106).toInt(16).toByte())
 
             deviceUUID_Prefix = string.substring(106, 138).decodeHex()
-            deviceUUID = castUnsignedCharToInt(string.substring(138, 140).toInt(16).toByte()).toLong() +
-                         castUnsignedCharToInt(string.substring(140, 142).toInt(16).toByte()).toLong()*256 +
-                         castUnsignedCharToInt(string.substring(142, 144).toInt(16).toByte()).toLong()*256*256 +
-                         castUnsignedCharToInt(string.substring(144, 146).toInt(16).toByte()).toLong()*256*256*256
+            deviceUUID = (castUnsignedCharToInt(string.substring(138, 140).toInt(16).toByte()).toLong() +
+                    castUnsignedCharToInt(string.substring(140, 142).toInt(16).toByte()).toLong() * 256 +
+                    castUnsignedCharToInt(string.substring(142, 144).toInt(16).toByte()).toLong() * 256 * 256 +
+                    castUnsignedCharToInt(string.substring(144, 146).toInt(16).toByte()).toLong() * 256 * 256 * 256)
 
             parametrsNum = castUnsignedCharToInt(string.substring(146, 148).toInt(16).toByte())
             subDeviceNum = castUnsignedCharToInt(string.substring(148, 150).toInt(16).toByte())
@@ -76,7 +73,6 @@ object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionS
             defaultPort = castUnsignedCharToInt(string.substring(152, 154).toInt(16).toByte())
         }
 
-//        decoder.endStructure(descriptor)
         return FullInicializeConnectionStruct(
             deviceName = deviceName,
             deviceVersion = deviceVersion,
@@ -84,33 +80,18 @@ object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionS
             deviceLabel = deviceLabel,
             deviceType = deviceType,
             deviceCode = deviceCode,
-
             deviceAddress = deviceAddress,
-
             deviceUUID_Prefix = deviceUUID_Prefix,
             deviceUUID = deviceUUID,
-
             parametrsNum = parametrsNum,
             subDeviceNum = subDeviceNum,
             programType = programType,
-            defaultPort = defaultPort)
+            defaultPort = defaultPort
+        )
     }
 
     override fun serialize(encoder: Encoder, value: FullInicializeConnectionStruct) {
-        val code: String =
-            value.deviceName +
-            value.deviceVersion +
-            value.deviceSubVersion +
-            value.deviceType +
-            value.deviceCode  +
-            value.deviceAddress +
-            value.deviceUUID_Prefix +
-            value.deviceUUID +
-            value.parametrsNum +
-            value.subDeviceNum +
-            value.programType +
-            value.defaultPort
-
-        encoder.encodeString("$code")
+        val code = "" // здесь формируешь строку, если надо
+        encoder.encodeString(code)
     }
 }

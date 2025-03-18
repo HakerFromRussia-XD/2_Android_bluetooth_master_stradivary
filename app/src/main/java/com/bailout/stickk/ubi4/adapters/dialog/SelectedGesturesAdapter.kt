@@ -15,7 +15,7 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 
 class SelectedGesturesAdapter(
-    private var selectedGesturesList: MutableList<Pair<Int, Int>>,
+    private var selectedGesturesList: MutableList<kotlin.Pair<Int, Int>>,
     private val onCheckGestureSprListener: OnCheckSprGestureListener,
     private val onDotsClickListener: (Int) -> Unit
 ) : RecyclerView.Adapter<SelectedGesturesAdapter.SprGesturesViewHolder>() {
@@ -49,7 +49,7 @@ class SelectedGesturesAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateGestures(newGestures: List<Pair<Int, Int>>) {
+    fun updateGestures(newGestures: List<kotlin.Pair<Int, Int>>) {
         selectedGesturesList.clear()
         selectedGesturesList.addAll(newGestures)
         notifyDataSetChanged()

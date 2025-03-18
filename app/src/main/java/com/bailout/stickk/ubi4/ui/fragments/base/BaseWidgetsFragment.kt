@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.util.Pair
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment

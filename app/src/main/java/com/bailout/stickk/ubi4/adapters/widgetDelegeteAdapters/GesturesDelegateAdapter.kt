@@ -58,7 +58,7 @@ class GesturesDelegateAdapter(
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
     private val ANIMATION_DURATION = 200
-    private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
+    private var itemsGesturesRotationArray: ArrayList<kotlin.Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapter? = null
     private var mRotationGroupDragLv: DragListView? = null
     private var hideFactoryCollectionGestures = true
@@ -335,7 +335,7 @@ class GesturesDelegateAdapter(
     private fun setupListRecyclerView() {
         mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
         itemsGesturesRotationArray = ArrayList(rotationGroupGestures.mapIndexed { index, gesture ->
-            Pair(
+            kotlin.Pair(
                 index.toLong(),
                 gesture.gestureName + "™" + gesture.gestureId.toString()
             )

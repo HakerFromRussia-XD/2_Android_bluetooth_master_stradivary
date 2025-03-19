@@ -112,4 +112,5 @@ class SprGestureItemsProvider(private val resourceProvider: ResourceProvider) {
         val sprGestureList = getSprGestureItemList().filter { it.sprGestureId == sprGestureId }
         return if (sprGestureList.isNotEmpty()) sprGestureList[0] else SprGestureItem()
     }
+
 }

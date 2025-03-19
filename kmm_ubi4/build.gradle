@@ -2,10 +2,11 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.multiplatform'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id "dev.icerock.mobile.multiplatform-resources" version "0.24.5"
 }
 
 android {
-    namespace 'com.example.kmm_ubi4'
+    namespace 'com.bailout.stickk.ubi4'
     compileSdk 34
 
     defaultConfig {
@@ -26,7 +27,6 @@ android {
 
 kotlin {
     android {
-
     }
     iosX64()
     iosArm64()
@@ -47,6 +47,8 @@ kotlin {
                 implementation "io.ktor:ktor-serialization-kotlinx-json:2.3.2"
                 // Kotlin стандартная библиотека
                 implementation "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22"
+                implementation "dev.icerock.moko:resources:0.24.5"
+                kotlin.srcDir "$buildDir/generated/moko/resources/commonMain/kotlin"
             }
         }
         androidMain {
@@ -56,6 +58,8 @@ kotlin {
                 implementation 'com.google.android.material:material:1.12.0'
                 // Ktor для Android (движок OkHttp)
                 implementation "io.ktor:ktor-client-okhttp:2.3.2"
+                implementation("dev.icerock.moko:resources:0.24.5")
+                kotlin.srcDir "$buildDir/generated/moko/resources/androidMain/kotlin"
             }
         }
         // Создаем общий iosMain source set
@@ -64,6 +68,7 @@ kotlin {
             dependencies {
                 // Ktor для iOS (движок Darwin)
                 implementation "io.ktor:ktor-client-darwin:2.3.2"
+                kotlin.srcDir "$buildDir/generated/moko/resources/iosMain/kotlin"
             }
         }
         iosX64Main {
@@ -92,4 +97,9 @@ kotlin {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions.jvmTarget = "1.8"
+}
+multiplatformResources {
+    resourcesPackage.set("com.bailout.stickk.ubi4")
+    resourcesClassName.set("MR")
+
 }

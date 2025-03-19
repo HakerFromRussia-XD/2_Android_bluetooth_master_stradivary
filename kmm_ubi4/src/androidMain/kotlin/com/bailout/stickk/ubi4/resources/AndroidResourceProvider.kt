@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.resources
 
 import android.content.Context
-import com.example.kmm_ubi4.R
+import com.bailout.stickk.ubi4.R
 
 class AndroidResourceProvider(private val context: Context) : ResourceProvider {
     override fun getString(id: ResourceString): String {

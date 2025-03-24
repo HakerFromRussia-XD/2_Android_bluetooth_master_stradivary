@@ -92,9 +92,10 @@
 
             <ImageView
                 android:id="@+id/batteryIcon"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:src="@drawable/ubi4_battery"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:src="@drawable/lightning_bolt"
+                android:layout_gravity="center"
                 android:scaleType="centerInside" />
 
         </FrameLayout>

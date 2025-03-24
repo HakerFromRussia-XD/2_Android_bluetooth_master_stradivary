@@ -17,11 +17,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.isMobileSettings
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
-import com.bailout.stickk.ubi4.utility.prepareDataWithMain
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
@@ -87,7 +83,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         if (isMobileSettings) {
             adapterWidgets.swapData(mDataFactory.mobileWidgets())
         } else {
-            adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
+            adapterWidgets.swapData(mDataFactory.prepareData(display))
         }
         updateSelectorUI()
 

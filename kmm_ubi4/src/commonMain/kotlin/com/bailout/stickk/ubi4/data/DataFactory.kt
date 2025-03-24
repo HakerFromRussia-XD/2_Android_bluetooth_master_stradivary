@@ -31,12 +31,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.PWLE_RESET
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.PWLE_SELECT_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.PWLE_UNKNOW
-
+import com.bailout.stickk.ubi4.data.state.UiState
 
 
 class DataFactory {
-
-
 
     fun fakeData(): List<Any> = buildList {
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
@@ -74,9 +72,9 @@ class DataFactory {
         )
     }
 
-    fun prepareData(display: Int, widgetList: List<Any>): List<Any> {
+    fun prepareData(display: Int): List<Any> {
         // Фильтруем виджеты по display
-        val filteredWidgets = widgetList.filter { widget ->
+        val filteredWidgets = UiState.listWidgets.filter { widget ->
             when (widget) {
                 is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.display == display
                 is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display

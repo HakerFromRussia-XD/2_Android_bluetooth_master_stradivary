@@ -227,7 +227,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     internal fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
     private fun setStaticVariables() {
-        listWidgets = mutableSetOf()
+//        listWidgets = mutableSetOf()
         canSendNextChunkFlagFlow = MutableSharedFlow()
         updateFlow = MutableSharedFlow()
         plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
@@ -239,8 +239,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         selectGestureModeFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         thresholdFlow = MutableSharedFlow()
-        baseSubDevicesInfoStructSet = mutableSetOf()
-        baseParametrInfoStructArray = arrayListOf()
+//        baseSubDevicesInfoStructSet = mutableSetOf()
+//        baseParametrInfoStructArray = arrayListOf()
         plotArray = arrayListOf()
         rotationGroupGestures = arrayListOf()
         countBinding = 0
@@ -324,7 +324,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
-    //TODO проверить formattedDeviceUUID
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
         val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.formattedDeviceUUID}"
         mDeviceName = serialNumber
@@ -347,7 +346,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var bleParser by Delegates.notNull<BLEParser>()
         var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-        var listWidgets by Delegates.notNull<MutableSet<Any>>()
+//        var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
@@ -368,10 +367,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
-        var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
+//        var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
         var opticTrainingStructArray by Delegates.notNull<ArrayList<OpticTrainingStruct>>()
 
-        var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
+//        var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
 

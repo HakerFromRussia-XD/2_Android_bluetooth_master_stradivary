@@ -30,7 +30,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
-import com.bailout.stickk.ubi4.utility.prepareDataWithMain
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -75,7 +74,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -99,8 +98,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             withContext(Default) {
                 updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareDataWithMain(display)}")
-                        adapterWidgets.swapData(mDataFactory.prepareDataWithMain(display))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

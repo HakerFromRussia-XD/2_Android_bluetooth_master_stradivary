@@ -8,6 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
@@ -120,7 +121,7 @@ class SpinnerDelegateAdapter(
     private fun collectSpinnerUpdates() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                MainActivityUBI4.spinnerFlow.collect { parameterRef ->
+                spinnerFlow.collect { parameterRef ->
                     // Ищем нужный элемент по адресу и parameterID
                     val index = getIndexWidgetSpinner(parameterRef.addressDevice, parameterRef.parameterID)
                     if (index >= 0) {

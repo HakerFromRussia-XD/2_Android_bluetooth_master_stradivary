@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -154,7 +155,7 @@ class SwitcherDelegateAdapter(
     private fun switchCollect() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                MainActivityUBI4.switcherFlow.collect { parameterRef ->
+                switcherFlow.collect { parameterRef ->
                     val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
                     Log.d(
                         "SwitcherCollect",

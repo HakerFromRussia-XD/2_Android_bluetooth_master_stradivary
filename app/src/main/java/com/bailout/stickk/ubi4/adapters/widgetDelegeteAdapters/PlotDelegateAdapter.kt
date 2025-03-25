@@ -19,6 +19,10 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
+import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
+import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
+import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -26,8 +30,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
@@ -194,7 +197,7 @@ class PlotDelegateAdapter (
         scope?.launch(Dispatchers.IO) {
             try {
                 merge(
-                    MainActivityUBI4.plotArrayFlow.map { plotParameterRef ->
+                    plotArrayFlow.map { plotParameterRef ->
                         val indexWidgetPlot = getIndexWidgetPlot(
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
@@ -222,7 +225,7 @@ class PlotDelegateAdapter (
                             }
                         }
                     },
-                    MainActivityUBI4.thresholdFlow.map { parameterRef ->
+                    thresholdFlow.map { parameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             parameterRef.addressDevice,
                             parameterRef.parameterID

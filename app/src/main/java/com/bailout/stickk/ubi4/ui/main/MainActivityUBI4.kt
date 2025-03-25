@@ -8,39 +8,36 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.util.Pair
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
-import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
+import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
+import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -52,17 +49,16 @@ import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
-    TransmitterUBI4 {
+    TransmitterUBI4, BleCommandExecutor {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
@@ -88,7 +84,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
         val window = this.window
@@ -117,6 +113,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         }
         //получение серийного номера
+        val requestData = BLECommands.requestProductInfoType()
+        Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
         main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
 
         binding.accountBtn.setOnClickListener {
@@ -225,34 +223,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         //settings
     }
-    internal fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
+    override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
     private fun setStaticVariables() {
-//        listWidgets = mutableSetOf()
-        canSendNextChunkFlagFlow = MutableSharedFlow()
-        updateFlow = MutableSharedFlow()
-        plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
-        rotationGroupFlow = MutableSharedFlow()
-        slidersFlow = MutableSharedFlow()
-        switcherFlow = MutableSharedFlow()
-        bindingGroupFlow = MutableSharedFlow()
-        activeGestureFlow = MutableSharedFlow()
-        selectGestureModeFlow = MutableSharedFlow()
-        stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
-        thresholdFlow = MutableSharedFlow()
-//        baseSubDevicesInfoStructSet = mutableSetOf()
-//        baseParametrInfoStructArray = arrayListOf()
-        plotArray = arrayListOf()
-        rotationGroupGestures = arrayListOf()
-        countBinding = 0
-        graphThreadFlag = true
-        canSendFlag = false
-        bindingGroupGestures = arrayListOf()
-        activeGestureFragmentFilterFlow = MutableStateFlow(1)
-        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
-        spinnerFlow = MutableSharedFlow()
-        bleParser = BLEParser()
-        runCommandFlow = MutableStateFlow(0)
-        isMobileSettings = false
+//        canSendNextChunkFlagFlow = MutableSharedFlow()
+//        updateFlow = MutableSharedFlow()
+
+//        countBinding = 0
+//        graphThreadFlag = true
+
+//        canSendFlag = false
+//        activeGestureFragmentFilterFlow = MutableStateFlow(1)
+//        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
+        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
+//        bleParser = BLEParser()
+//        runCommandFlow = MutableStateFlow(0)
+//        isMobileSettings = false
     }
 
     // сохранение и загрузка данных
@@ -290,7 +275,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
+    override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
         if (byteArray != null) {
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
@@ -324,7 +309,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
-    fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
+    override fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
         val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.formattedDeviceUUID}"
         mDeviceName = serialNumber
         runOnUiThread {
@@ -341,51 +326,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
-        var runCommandFlow by Delegates.notNull<MutableStateFlow<Int>>()
-
         var bleParser by Delegates.notNull<BLEParser>()
-        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-        var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-//        var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
-        var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
-        var plotArray by Delegates.notNull<ArrayList<Int>>()
-        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
-        var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
-        var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var selectGestureModeFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-
-
-        var activeGestureFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
-        var activeSettingsFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
-
-
-
-        var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
-//        var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
-        var opticTrainingStructArray by Delegates.notNull<ArrayList<OpticTrainingStruct>>()
-
-//        var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
-
-        var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
-
-        var bindingGroupGestures by Delegates.notNull<ArrayList<Pair<Int, Int>>>()
-
-        var isMobileSettings by Delegates.notNull<Boolean>()
-
-        var connectedDeviceName by Delegates.notNull<String>()
-        var connectedDeviceAddress by Delegates.notNull<String>()
-
-        var countBinding by Delegates.notNull<Int>()
-        var graphThreadFlag by Delegates.notNull<Boolean>()
-
-        var canSendFlag by Delegates.notNull<Boolean>()
-
-        var inScanFragmentFlag by Delegates.notNull<Boolean>()
     }
 }

@@ -10,11 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
@@ -61,10 +62,11 @@ class SensorsFragment : BaseWidgetsFragment() {
             it.invoke() }
     }
 
-
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            updateFlow.collect {
+            updateFlow.collect {updateEvent->
+                Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
+
                 main?.runOnUiThread {
                     Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
@@ -73,6 +75,6 @@ class SensorsFragment : BaseWidgetsFragment() {
             }
         }
     }
-
-
 }
+
+

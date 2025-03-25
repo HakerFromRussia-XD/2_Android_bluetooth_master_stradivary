@@ -23,12 +23,12 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -211,7 +211,9 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            updateFlow.collect { _ ->
+            updateFlow.collect { updateEvent ->
+                Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
+
                 val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
                 adapterWidgets.swapData(mDataFactory.prepareData(display))

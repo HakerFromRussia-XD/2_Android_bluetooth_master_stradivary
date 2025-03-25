@@ -314,10 +314,36 @@ public class BluetoothLeService extends Service {
 
 
         @Override
+//        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+//            Log.d("onCharacteristicChanged", "Характеристика изменилась: " +
+//                    characteristic.getUuid().toString() + ", данные: " +
+//                    EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
+//            broadcastUpdate(characteristic, SampleGattAttributes.NOTIFY);
+//        }
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.d("onCharacteristicChanged", "Характеристика изменилась: " +
-                    characteristic.getUuid().toString() + ", данные: " +
-                    EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
+            byte[] data = characteristic.getValue();
+
+            // Преобразуем байты в HEX-строку
+            String hexString = EncodeByteToHex.Companion.bytesToHexString(data);
+
+            // Собираем байты в десятичном виде
+            StringBuilder decimalBuilder = new StringBuilder();
+            for (byte b : data) {
+                decimalBuilder.append(b & 0xFF).append(" ");
+            }
+            String decimalString = decimalBuilder.toString().trim();
+
+            Log.d("onCharacteristicChanged", "Характеристика изменилась: " + characteristic.getUuid().toString());
+            Log.d("onCharacteristicChanged", "Raw data (decimal): [" + decimalString + "]");
+            Log.d("onCharacteristicChanged", "Raw data (hex): " + hexString);
+
+            // Логируем первый байт: десятичное и бинарное представление
+            if (data.length > 0) {
+                int firstByteDec = data[0] & 0xFF;
+                String binaryString = String.format("%8s", Integer.toBinaryString(firstByteDec)).replace(' ', '0');
+                Log.d("onCharacteristicChanged", "Первый байт: " + firstByteDec + ", Binary: " + binaryString);
+            }
+
             broadcastUpdate(characteristic, SampleGattAttributes.NOTIFY);
         }
     };

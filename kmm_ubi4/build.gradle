@@ -9,6 +9,10 @@ android {
     namespace 'com.bailout.stickk.ubi4'
     compileSdk 34
 
+    sourceSets {
+        main.java.srcDirs += "src/androidMain/java"
+    }
+
     defaultConfig {
         minSdk 24
         consumerProguardFiles "consumer-rules.pro"
@@ -49,14 +53,6 @@ kotlin {
                 implementation "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22"
                 implementation "dev.icerock.moko:resources:0.24.5"
                 kotlin.srcDir "$buildDir/generated/moko/resources/commonMain/kotlin"
-                //rx
-                implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
-                implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-                implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
-                implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
-                implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.2'
-                implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.2'
-                implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
             }
         }
         androidMain {
@@ -68,6 +64,15 @@ kotlin {
                 implementation "io.ktor:ktor-client-okhttp:2.3.2"
                 implementation("dev.icerock.moko:resources:0.24.5")
                 kotlin.srcDir "$buildDir/generated/moko/resources/androidMain/kotlin"
+
+                // rxJava
+                implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
+                implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+                implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
+                implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
+                implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.2'
+                implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.2'
+                implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
             }
         }
         // Создаем общий iosMain source set
@@ -113,6 +118,5 @@ multiplatformResources {
 }
 
 dependencies {
-    implementation project(':app')
-    implementation project(':app')
+//    implementation project(':app')
 }

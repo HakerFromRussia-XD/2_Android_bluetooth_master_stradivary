@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import kotlinx.coroutines.Job
@@ -31,7 +32,7 @@ class BorderAnimator(
     fun checkStateSelectGestureMode() {
         collectJob?.cancel()
         collectJob = main.lifecycleScope.launch {
-            MainActivityUBI4.selectGestureModeFlow.collect { selectGestureModeParameterRef ->
+            selectGestureModeFlow.collect { selectGestureModeParameterRef ->
                 val parameter = ParameterProvider.getParameter(
                     selectGestureModeParameterRef.addressDevice,
                     selectGestureModeParameterRef.parameterID

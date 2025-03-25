@@ -21,6 +21,11 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.state.UiState.activeGestureFragmentFilterFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -30,7 +35,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
@@ -209,7 +213,7 @@ class GesturesOpticDelegateAdapter(
         val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
         if (savedFilter == 2) {
             // Устанавливаем активный фильтр (если это необходимо для UI)
-            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 2
+            activeGestureFragmentFilterFlow.value = 2
             requestRotationGroupWithRetry(
                 deviceAddress,
                 getParameterIDByCode(
@@ -219,7 +223,7 @@ class GesturesOpticDelegateAdapter(
             )
         }
         if (savedFilter == 3){
-            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 3
+            activeGestureFragmentFilterFlow.value = 3
             requestBindingGroupWithRetry(
                 deviceAddress,
                 getParameterIDByCode(
@@ -231,7 +235,7 @@ class GesturesOpticDelegateAdapter(
 
         rotationGroupSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
-            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 2
+            activeGestureFragmentFilterFlow.value = 2
             activeGestureNameCl.visibility = View.GONE
             onRequestRotationGroup(
                 deviceAddress,
@@ -243,13 +247,13 @@ class GesturesOpticDelegateAdapter(
         }
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
-            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 1
+            activeGestureFragmentFilterFlow.value = 1
             activeGestureNameCl.visibility = View.VISIBLE
 
         }
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 3)
-            MainActivityUBI4.activeGestureFragmentFilterFlow.value = 3
+            activeGestureFragmentFilterFlow.value = 3
             activeGestureNameCl.visibility = View.GONE
             onRequestBindingGroup(
                 deviceAddress, getParameterIDByCode(
@@ -569,7 +573,7 @@ class GesturesOpticDelegateAdapter(
         collectJob = coroutineScope?.launch {
             try {
                 merge(
-                    MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
+                    activeGestureFlow.map { activeGestureParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             deviceAddress,
                             activeGestureParameterRef.parameterID
@@ -593,7 +597,7 @@ class GesturesOpticDelegateAdapter(
                             _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName) ?: "Unknown"
                         }
                     },
-                    MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
+                    bindingGroupFlow.map { bindingGroupParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             bindingGroupParameterRef.addressDevice,
                             bindingGroupParameterRef.parameterID
@@ -610,7 +614,7 @@ class GesturesOpticDelegateAdapter(
                             fillCollectionGesturesInBindingGroup()
                         }
                     },
-                    MainActivityUBI4.rotationGroupFlow.map { rotationGroupParameterRef ->
+                    rotationGroupFlow.map { rotationGroupParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             rotationGroupParameterRef.addressDevice,
                             rotationGroupParameterRef.parameterID
@@ -631,7 +635,7 @@ class GesturesOpticDelegateAdapter(
                             calculatingShowAddButton()
                         }
                     },
-                    MainActivityUBI4.activeGestureFragmentFilterFlow.map { newFilter ->
+                    activeGestureFragmentFilterFlow.map { newFilter ->
                         withContext(Dispatchers.Main) {
                             // При любом изменении фильтра - рендерим UI
                             renderFilterUI(newFilter)

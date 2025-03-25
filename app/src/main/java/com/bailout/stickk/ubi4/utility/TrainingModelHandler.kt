@@ -6,8 +6,8 @@ import android.content.res.AssetManager
 import android.os.SystemClock
 import android.util.Log
 import android.widget.Chronometer
+import com.bailout.stickk.ubi4.data.state.WidgetState.stateOpticTrainingFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_START_FEATURES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_ID
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_STATE

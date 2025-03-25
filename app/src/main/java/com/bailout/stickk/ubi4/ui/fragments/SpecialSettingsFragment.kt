@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
+import com.bailout.stickk.ubi4.data.state.UiState.isMobileSettings
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.isMobileSettings
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
@@ -47,7 +48,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
         binding.prostheticSettingsBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)
-            MainActivityUBI4.activeSettingsFragmentFilterFlow.value = 1
+            activeSettingsFragmentFilterFlow.value = 1
             if (isMobileSettings) {
                 isMobileSettings = false
                 updateUI()
@@ -56,7 +57,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
         binding.mobileSettingsBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 2)
-            MainActivityUBI4.activeSettingsFragmentFilterFlow.value = 2
+            activeSettingsFragmentFilterFlow.value = 2
             if (!isMobileSettings) {
                 isMobileSettings = true
                 updateUI()

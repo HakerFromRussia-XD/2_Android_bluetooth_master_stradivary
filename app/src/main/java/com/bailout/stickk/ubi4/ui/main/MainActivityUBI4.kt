@@ -31,6 +31,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
@@ -55,6 +56,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
+
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
@@ -326,7 +328,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
-        var bleParser by Delegates.notNull<BLEParser>()
+//        var bleParser by Delegates.notNull<BLEParser>()
 
     }
 }

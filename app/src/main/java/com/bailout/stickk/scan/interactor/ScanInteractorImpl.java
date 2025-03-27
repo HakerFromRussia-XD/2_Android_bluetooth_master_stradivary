@@ -11,10 +11,12 @@ import com.bailout.bluetooth.Bluetooth;
 import com.bailout.bluetooth.BluetoothCallback;
 import com.bailout.bluetooth.DiscoveryCallback;
 import com.bailout.stickk.scan.data.ScanItem;
+import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
 
 
 public class ScanInteractorImpl implements ScanInteractor {
     private final Bluetooth bluetooth;
+    private final AndroidBleScanner androidBleScanner = new AndroidBleScanner();
     private DiscoveryCallback presenterDiscoveryCallback;
     private List<BluetoothDevice> discoveredDevices;
     private int ourGadgets = 0;
@@ -36,6 +38,7 @@ public class ScanInteractorImpl implements ScanInteractor {
             public void onDeviceFound(BluetoothDevice device) {
                 presenterDiscoveryCallback.onDeviceFound(device);
                 discoveredDevices.add(device);
+                androidBleScanner.onDeviceFound(device);
             }
 
             @Override

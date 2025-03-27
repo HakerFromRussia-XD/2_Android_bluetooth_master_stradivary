@@ -1,8 +1,9 @@
 plugins {
     id 'com.android.library'
+    id "dev.icerock.mobile.multiplatform-resources" version "0.24.5"
     id 'org.jetbrains.kotlin.multiplatform'
     id 'org.jetbrains.kotlin.plugin.serialization'
-    id "dev.icerock.mobile.multiplatform-resources" version "0.24.5"
+    id 'org.jetbrains.kotlin.native.cocoapods'
 }
 
 android {
@@ -30,8 +31,14 @@ android {
 }
 
 kotlin {
-    android {
+    cocoapods {
+        summary = "Shared business logic"
+        homepage = "https://github.com/your‑repo"
+        version = "1.0.0"
+        ios.deploymentTarget = "14.0"
+        framework { baseName = "Shared" }
     }
+    android()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -73,6 +80,9 @@ kotlin {
                 implementation 'com.trello.rxlifecycle2:rxlifecycle:2.2.2'
                 implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.2'
                 implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
+
+                implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.1"
+                implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
             }
         }
         // Создаем общий iosMain source set

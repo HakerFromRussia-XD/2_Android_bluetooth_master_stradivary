@@ -926,8 +926,8 @@ class MotionTrainingFragment(
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
-//                showWarningDialog()
-//                pauseTimers()
+                showWarningDialog()
+                pauseTimers()
             }
         }.start()
     }

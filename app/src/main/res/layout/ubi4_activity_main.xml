@@ -147,4 +147,12 @@
         android:text="Run command"
         app:layout_constraintBottom_toBottomOf="@id/fragmentContainer"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ExpandableListView
+        android:id="@+id/gatt_services_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

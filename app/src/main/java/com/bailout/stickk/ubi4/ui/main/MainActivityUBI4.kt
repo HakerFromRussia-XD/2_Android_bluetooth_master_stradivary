@@ -3,11 +3,18 @@ package com.bailout.stickk.ubi4.ui.main
 import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
+import android.view.View
+import android.widget.ExpandableListView
+import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -20,11 +27,15 @@ import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
+import com.bailout.stickk.ubi4.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.ble.DisconnectHelper
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -40,6 +51,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
+import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
@@ -55,6 +67,7 @@ import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.properties.Delegates
 
 
@@ -67,6 +80,27 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var trainingModelHandler: TrainingModelHandler
     private var activeFragment: Fragment? = null
     private lateinit var activeGestureNameCl: ConstraintLayout
+
+
+    private lateinit var mConnectView: View
+    private lateinit var mDisconnectView: View
+    private lateinit var mGattServicesList: ExpandableListView
+    private var bluetoothLeService: BluetoothLeService? = null
+    private lateinit var mServiceConnection: ServiceConnection
+    private lateinit var disconnectHelper: DisconnectHelper
+
+
+    @Volatile
+    var endFlag = true
+    private var mDisconnected = false
+    private var mConnected = false
+    var percentSynchronize = 0
+    private var isServiceBound = false
+    private var mBluetoothAdapter: BluetoothAdapter? = null
+
+
+
+
 
     internal var locate = ""
     var mDeviceName: String? = null
@@ -104,9 +138,38 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController = BLEController()
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
+        bluetoothLeService = BluetoothLeService()
         startQueue()
 
+        bluetoothLeService = BluetoothLeService()
+        mServiceConnection = object : ServiceConnection {
+            override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
+                System.err.println("Check ServiceConnection onServiceConnected()")
+                bluetoothLeService = (service as BluetoothLeService.LocalBinder).service
+                bluetoothLeService?.let { service ->
+                    if (!service.initialize()) {
+                        Timber.e("Unable to initialize Bluetooth")
+                        finish()
+                    }
+                } ?: run {
+                    Timber.e("BluetoothLeService is null")
+                    finish()
+                }
+            }
+            override fun onServiceDisconnected(componentName: ComponentName) {
+                System.err.println("Service disconnected")
+                bluetoothLeService = null
+            }
+        }
         showSensorsScreen()
+
+        bindBleService()
+
+        mConnectView = findViewById(R.id.connect_view)
+        mDisconnectView = findViewById(R.id.disconnect_view)
+        mGattServicesList = findViewById(R.id.gatt_services_list)
+
+
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
@@ -119,6 +182,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
         main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
 
+        val dialogManager = DialogManager(this) {
+           disconnect()
+        }
+        binding.nameTv.setOnClickListener {
+            dialogManager.showDisconnectDialog()
+        }
+
         binding.accountBtn.setOnClickListener {
             showAccountScreen()
         }
@@ -127,6 +197,50 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("RunCommand", "Кнопка нажата!")
             main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
         }
+    }
+
+    private fun openScanActivity() {
+        System.err.println("Check openScanActivity()")
+        resetLastMAC()
+        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    private fun resetLastMAC() {
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+    }
+
+    private fun bindBleService() {
+        val intent = Intent(this, BluetoothLeService::class.java)
+        isServiceBound = bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun isDisconnected(): Boolean = mDisconnected
+
+    fun disconnect() {
+        System.err.println("Check disconnect()")
+        mDisconnected = true
+        if (bluetoothLeService != null) {
+            println("--> дисконнектим всё к хуям и анбайндим")
+            bluetoothLeService!!.disconnect()
+            // Проверяем, что сервис действительно был привязан
+            if (isServiceBound) {
+                unbindService(mServiceConnection)
+                isServiceBound = false
+            }
+            bluetoothLeService = null
+        }
+        mConnected = false
+//        mDisconnected = true
+        endFlag = true
+        runOnUiThread {
+            mConnectView.visibility = View.GONE
+            mDisconnectView.visibility = View.VISIBLE
+            mGattServicesList.setAdapter(null as SimpleExpandableListAdapter?)
+        }
+        invalidateOptionsMenu()
+        percentSynchronize = 0
+        openScanActivity()
     }
 
     @SuppressLint("MissingPermission")
@@ -152,6 +266,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         ) {}
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mBLEController.cleanup()
+    }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
@@ -164,6 +282,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(AccountFragmentMainUBI4())
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
+
+    private fun clearUI() {
+        mGattServicesList!!.setAdapter(null as SimpleExpandableListAdapter?)
+    }
 
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {

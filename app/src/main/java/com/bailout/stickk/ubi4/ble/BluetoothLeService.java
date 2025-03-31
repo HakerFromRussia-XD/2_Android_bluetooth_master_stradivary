@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,6 +97,7 @@ public class BluetoothLeService extends Service {
             }
         });
     }
+
     public void setReceiverCallback(ReceiverCallback callback) {
         this.receiverCallback = callback;
     }
@@ -236,25 +238,58 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
+
+
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                broadcastUpdate(intentAction);
-                System.err.println("BLE debug onConnectionStateChange STATE_CONNECTED");
+                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
+                broadcastUpdate(ACTION_GATT_CONNECTED);
                 requestMTU();
-//                mBluetoothGatt.discoverServices();
-
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
-                Timber.i("Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
+                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
+                broadcastUpdate(ACTION_GATT_DISCONNECTED);
+                // Вызываем close() с небольшой задержкой, чтобы убедиться, что разрыв завершён
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    close();
+                }, 500);
             }
         }
+
+
+
+//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+//            String intentAction;
+//            if (newState == BluetoothProfile.STATE_CONNECTED) {
+//                intentAction = ACTION_GATT_CONNECTED;
+//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
+//                broadcastUpdate(intentAction);
+//                requestMTU();
+//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+//                intentAction = ACTION_GATT_DISCONNECTED;
+//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
+//                broadcastUpdate(intentAction);
+//            }
+//        }
+//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+//            String intentAction;
+//            if (newState == BluetoothProfile.STATE_CONNECTED) {
+//                intentAction = ACTION_GATT_CONNECTED;
+//                broadcastUpdate(intentAction);
+//                System.err.println("BLE debug onConnectionStateChange STATE_CONNECTED");
+//                requestMTU();
+////                mBluetoothGatt.discoverServices();
+//
+//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+//                intentAction = ACTION_GATT_DISCONNECTED;
+//                Timber.i("Disconnected from GATT server.");
+//                broadcastUpdate(intentAction);
+//            }
+//        }
+
         private void requestMTU() {
             int mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
 
@@ -340,6 +375,7 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d("BLE_DEBUG", "onUnbind called. Closing BluetoothGatt.");
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
@@ -419,6 +455,8 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
+        Log.d("BLE_DEBUG11", "disconnect(): вызов disconnect() на mBluetoothGatt");
+//        refreshGattCache();
         mBluetoothGatt.disconnect();
     }
 
@@ -428,11 +466,30 @@ public class BluetoothLeService extends Service {
      */
     public void close() {
         if (mBluetoothGatt == null) {
+            Log.d("BLE_DEBUG", "close() called but mBluetoothGatt is already null.");
             return;
         }
+        Log.d("BLE_DEBUG11", "close(): вызов close() на mBluetoothGatt");
         mBluetoothGatt.close();
         mBluetoothGatt = null;
     }
+
+
+    public boolean refreshGattCache() {
+        try {
+            if (mBluetoothGatt == null) return false;
+            Method refreshMethod = mBluetoothGatt.getClass().getMethod("refresh");
+            if (refreshMethod != null) {
+                boolean success = (boolean) refreshMethod.invoke(mBluetoothGatt);
+                Log.d("BLE_DEBUG", "refresh() returned " + success);
+                return success;
+            }
+        } catch (Exception e) {
+            Log.e("BLE_DEBUG", "Could not invoke refresh method", e);
+        }
+        return false;
+    }
+
 
     /**
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
@@ -497,5 +554,11 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getServices();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("BLE_DEBUG", "onDestroy called. Service is being destroyed.");
+        super.onDestroy();
     }
 }

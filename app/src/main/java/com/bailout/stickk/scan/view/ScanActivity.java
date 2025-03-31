@@ -51,7 +51,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
 import com.bailout.stickk.ubi4.ble.BleDevice;
-import com.bailout.stickk.ubi4.ble.BleScanner;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
@@ -335,19 +334,16 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onResume() {
         super.onResume();
+        mLeDevices.clear();
+        mRssisList.clear();
         presenter.setOnPauseActivity(false);
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-//        mLeDevices.clear();
-//        mRssisList.clear();
-//        animateScanList(0);
-//        showScanList(mLeDevices, mRssisList);
         scanLeDevice(true);
-//
-        scanner.startScan();
+//        scanner.startScan();
     }
     @Override
     protected void onPause() {
@@ -396,12 +392,24 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     // Device scan callback.
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.M)
+//    private final BluetoothAdapter.LeScanCallback mLeScanCallback =
+//            (device, rssi, scanRecord) -> runOnUiThread(() -> {
+//                if(device.getName() != null){
+//                    addLEDeviceToLeDevicesList(device, rssi);
+//                }
+//            });
     private final BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
+                Log.d("mLeScanCallback", "Callback triggered for device: "
+                        + device.getName() + ", address: " + device.getAddress()
+                        + ", rssi: " + rssi);
                 if(device.getName() != null){
                     addLEDeviceToLeDevicesList(device, rssi);
+                } else {
+                    Log.d("mLeScanCallback", "Device name is null for device: " + device.getAddress());
                 }
             });
+
     private final BluetoothAdapter.LeScanCallback mLeAdvertisingCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> { });
     @Override
@@ -453,7 +461,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 canAdd = false;
             }
         }
-
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
         if (canAdd) {
             System.err.println("--> my addLEDeviceToLeDevicesList name = "+device.getName() + " Address: " + device.getAddress());
@@ -492,6 +499,23 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }
         }
     }
+
+//    private void smartConnection(BluetoothDevice device) {
+//        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION: " + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+//        // Если мы сейчас сканируем, не выполнять автоматическое переподключение
+//        if (mScanning) {
+//            Log.d("smartConnection", "Сканирование активно, пропускаем smartConnection для устройства: " + device.getAddress());
+//            return;
+//        }
+//        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
+//            String lastMac1 = loadString(PreferenceKeys.LAST_CONNECTION_MAC);
+//            String lastMac2 = loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4);
+//            if (device.getAddress().equals(lastMac1) || device.getAddress().equals(lastMac2)) {
+//                Log.d("smartConnection", "Устройство совпадает со сохранённым MAC, выполняем переход: " + device.getAddress());
+//                navigateToLEChart("device", device);
+//            }
+//        }
+//    }
     @Override
     public void setScanStatus(String status, boolean enabled) {
         try {
@@ -753,6 +777,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             return false;
         }
     }
+
+
 
 
     private void initUI() {

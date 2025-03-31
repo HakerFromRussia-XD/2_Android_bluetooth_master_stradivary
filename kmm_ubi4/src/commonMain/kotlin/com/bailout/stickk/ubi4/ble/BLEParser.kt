@@ -530,6 +530,7 @@ class BLEParser(
         subDeviceAdditionalCounter = 1
         val parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
 
+
         if (baseSubDevicesInfoStructSet.size != 0) {
             platformLog("getNextSubDevice", "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet")
             if (getNextSubDevice(subDeviceCounter) != -1) {

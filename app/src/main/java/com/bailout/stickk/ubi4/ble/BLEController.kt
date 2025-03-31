@@ -19,6 +19,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.ExpandableListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
@@ -40,6 +41,7 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,13 +59,18 @@ class BLEController() {
     private var progressDialog: Dialog? = null
     private var isUploading = false
     private var onDisconnectedListener: (() -> Unit)? = null
-
+    private lateinit var disconnectHelper:DisconnectHelper
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
     private var mConnected = false
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
+    private var mGattServicesList: ExpandableListView? = null
+
+    private val bleJob = Job()
+    private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
+
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
@@ -126,15 +133,24 @@ class BLEController() {
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-                    Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
+                    System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
+                    main.runOnUiThread {
+                        main.invalidateOptionsMenu()
+                    }
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    if (main.isDisconnected()) {
+                        System.err.println("Устройство отключено намеренно, не переподключаемся")
+                        return
+                    }
                     mConnected = false
                     isUploading = false
                     endFlag = true
 //                    graphThreadFlag = false
-                    main.invalidateOptionsMenu()
+                    main.runOnUiThread {
+                        main.invalidateOptionsMenu()
+                    }
 //                    percentSynchronize = 0
 
                     progressDialog?.dismiss()
@@ -145,8 +161,10 @@ class BLEController() {
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
                     }
 
+                    mBluetoothLeService?.disconnect()
+                    mBluetoothLeService?.close()
 
-                    if(!reconnectThreadFlag && !mScanning){
+                    if (!reconnectThreadFlag && !mScanning) {
                         reconnectThreadFlag = true
                         reconnectThread()
                     }
@@ -178,6 +196,8 @@ class BLEController() {
             }
         }
     }
+
+
 
     private suspend fun firstNotificationRequest()  {
         System.err.println("BLE debug firstNotificationRequest")
@@ -237,7 +257,7 @@ class BLEController() {
     }
     fun reconnectThread() {
     var j = 1
-    CoroutineScope(Dispatchers.Main).launch {
+    bleScope.launch {
         while (reconnectThreadFlag) {
             if (j % 5 == 0) {
                 reconnectThreadFlag = false
@@ -361,6 +381,17 @@ class BLEController() {
         // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
         onDisconnectedListener = listener
     }
+
+    fun cleanup() {
+        // Отменяем запущенные корутины
+        bleJob.cancel()
+        try {
+            mContext.unregisterReceiver(mGattUpdateReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.w("BLEController", "Ресивер уже отписан")
+        }
+    }
+
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }

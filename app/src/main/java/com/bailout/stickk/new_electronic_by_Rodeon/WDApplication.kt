@@ -14,16 +14,16 @@
 package com.bailout.stickk.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils.Companion.instance
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
-import android.content.Context
+import com.bailout.stickk.ubi4.AndroidContextProvider
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
 
 class WDApplication : MultiDexApplication() {
   private var bluetoothModule: BluetoothModule? = null
+
 
   override fun onCreate() {
     super.onCreate()
@@ -33,6 +33,7 @@ class WDApplication : MultiDexApplication() {
         .applicationModule(ApplicationModule1(this))
         .build()
     bluetoothModule = BluetoothModule(this)
+    AndroidContextProvider.init(applicationContext)
   }
 
   companion object {

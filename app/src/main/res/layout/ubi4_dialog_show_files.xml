@@ -50,7 +50,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/ubi4_view_with_corners_back_inside"
+                android:background="@drawable/ubi4_view_with_corners_back_outside"
                 android:elevation="0dp"
                 app:cardCornerRadius="12dp"
                 app:cardUseCompatPadding="true"

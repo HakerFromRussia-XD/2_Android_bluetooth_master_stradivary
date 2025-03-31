@@ -2,13 +2,13 @@ package com.bailout.stickk.ubi4
 
 import android.app.Application
 
-class App : Application() {
-    companion object {
-        lateinit var instance: App
-            private set
-    }
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
-    }
-}
+//class App : Application() {
+//    companion object {
+//        lateinit var instance: App
+//            private set
+//    }
+//    override fun onCreate() {
+//        super.onCreate()
+//        instance = this
+//    }
+//}

@@ -110,10 +110,12 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private fun canSendNextChunkFlagUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             canSendNextChunkFlagFlow.collect { value ->
+                Log.d("BLEFlowDebug", "Получено значение от оптики: $value, текущий chunksSend: ${chunksSend.get()}")
                 if (value == chunksSend.toInt()) {
                     canSendNextChunkFlag = true
+                    Log.d("BLEFlowDebug", "Соответствие пакетов: canSendNextChunkFlag установлен в true")
                 } else {
-                    Log.d("ChunkProcessing", "не соответствие пакетов")
+                    Log.d("BLEFlowDebug", "Несоответствие пакетов: ожидается ${chunksSend.get()}, получено $value")
                 }
             }
         }

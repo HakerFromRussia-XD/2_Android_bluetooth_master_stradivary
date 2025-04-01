@@ -50,6 +50,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
@@ -66,6 +67,7 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.properties.Delegates
@@ -189,14 +191,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             dialogManager.showDisconnectDialog()
         }
 
-        binding.accountBtn.setOnClickListener {
-            showAccountScreen()
-        }
+//        binding.accountBtn.setOnClickListener {
+//            showAccountScreen()
+//        }
 
-        binding.runCommandBtn.setOnClickListener {
-            Log.d("RunCommand", "Кнопка нажата!")
-            main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            Log.d("RunCommand", "Кнопка нажата!")
+//            main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
+//        }
     }
 
     private fun openScanActivity() {
@@ -349,13 +351,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
     private fun setStaticVariables() {
-//        canSendNextChunkFlagFlow = MutableSharedFlow()
+        canSendNextChunkFlagFlow = MutableSharedFlow()
 //        updateFlow = MutableSharedFlow()
 
 //        countBinding = 0
 //        graphThreadFlag = true
 
-//        canSendFlag = false
+        canSendFlag = false
 //        activeGestureFragmentFilterFlow = MutableStateFlow(1)
 //        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
@@ -451,6 +453,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
 //        var bleParser by Delegates.notNull<BLEParser>()
+//        var canSendFlag by Delegates.notNull<Boolean>()
+//        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
 
     }
 }

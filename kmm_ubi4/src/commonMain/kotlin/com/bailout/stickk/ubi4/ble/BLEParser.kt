@@ -277,7 +277,7 @@ class BLEParser(
                 platformLog("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
                 coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-            ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {
+            ParameterDataCodeEnum.PDCE_GENERIC_2.number -> {
                 platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                 val newStatusExist = castUnsignedCharToInt(
                     ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte()

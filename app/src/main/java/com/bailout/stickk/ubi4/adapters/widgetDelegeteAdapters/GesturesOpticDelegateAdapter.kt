@@ -60,12 +60,12 @@ class GesturesOpticDelegateAdapter(
     val gestureNameList: ArrayList<String>,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
-    val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<kotlin.Pair<Int, Int>>) -> Unit, List<kotlin.Pair<Int, Int>>) -> Unit,
+    val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, List<Pair<Int, Int>>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onSetCustomGesture: (
-        onSaveDotsClick: (kotlin.Pair<Int, Int>) -> Unit,
-        bindingItem: kotlin.Pair<Int, Int>
+        onSaveDotsClick: (Pair<Int, Int>) -> Unit,
+        bindingItem: Pair<Int, Int>
     ) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
     val onRequestActiveGesture: (deviceAddress: Int, parameterID: Int) -> Unit,

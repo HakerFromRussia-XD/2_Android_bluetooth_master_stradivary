@@ -55,8 +55,9 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
-    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
-
+    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
+        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
+    }
     protected val adapterWidgets by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
@@ -180,7 +181,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 

@@ -15,27 +15,18 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.ExpandableListView
-import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_BT05
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_A
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_TEST
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_MY_IPHONE
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
@@ -50,7 +41,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -76,7 +66,6 @@ class BLEController() {
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
-    private var mGattServicesList: ExpandableListView? = null
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -151,6 +140,7 @@ class BLEController() {
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     if (main.isDisconnected()) {
+                        Log.d("BLE_DEBUG11", " isDisconnected = ${main.isDisconnected()}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
                         return
                     }
@@ -184,7 +174,7 @@ class BLEController() {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        GlobalScope.launch {
+                        main.lifecycleScope.launch {
                             firstNotificationRequest()
                         }
                     }
@@ -282,58 +272,6 @@ class BLEController() {
         }
     }
 }
-
-//    private fun clearUI() {
-//        mGattServicesList!!.setAdapter(null as SimpleExpandableListAdapter?)
-//        enableInterface(false)
-//    }
-//
-//    private fun updateUIChart(source: Int) {
-//        System.err.println("updateAllParameters updateUIChart($source) 1")
-//        try {
-//            System.err.println("updateAllParameters updateUIChart($source) 2")
-//            runOnUiThread{
-//                System.err.println("updateAllParameters updateUIChart($source) 3")
-//                timer?.cancel()
-//                timer = object : CountDownTimer(300, 1) {
-//                    override fun onTick(millisUntilFinished: Long) {}
-//
-//                    override fun onFinish() {
-//                        System.err.println("gonka main updateUIChart $enableInterfaceStatus  source:$source  $mDeviceType")
-//                        RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
-//
-//                        System.err.println("updateAllParameters updateUIChart($source) 4")
-//                    }
-//                }.start()
-//            }
-//        } catch (err : Exception)  {
-//            System.err.println("Exception: $err")
-//            return
-//        }
-//    }
-//
-//    private fun enableInterface(enabled: Boolean) {
-//        if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
-//            enableInterfaceStatus = enabled
-////      System.err.println("gonka main enableInterface $enabled")
-//            updateUIChart(100)
-//            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
-//                || mDeviceType!!.contains(DEVICE_TYPE_BT05)
-//                || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
-//                || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-//                || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
-//            ) {
-//                if (enabled) {
-//                    RxUpdateMainEvent.getInstance().updateUIGestures(100)
-//                } else {
-//                    RxUpdateMainEvent.getInstance().updateUIGestures(101)
-//                }
-//            }
-//            if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-//                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enabled)
-//            }
-//        }
-//    }
 
     private suspend fun reconnect() {
         // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»

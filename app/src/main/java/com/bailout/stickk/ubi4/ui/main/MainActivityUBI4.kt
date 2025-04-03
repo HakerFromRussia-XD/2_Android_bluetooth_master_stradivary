@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.ui.main
 import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,7 +15,6 @@ import android.view.View
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -27,7 +25,6 @@ import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
@@ -35,7 +32,6 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.DisconnectHelper
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -81,7 +77,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
     private lateinit var trainingModelHandler: TrainingModelHandler
     private var activeFragment: Fragment? = null
-    private lateinit var activeGestureNameCl: ConstraintLayout
 
 
     private lateinit var mConnectView: View
@@ -89,7 +84,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mGattServicesList: ExpandableListView
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
-    private lateinit var disconnectHelper: DisconnectHelper
 
 
     @Volatile
@@ -101,22 +95,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
 
-
-
-
     internal var locate = ""
     var mDeviceName: String? = null
     var mDeviceAddress: String? = null
     var mDeviceType: String? = null
     var driverVersionS: String? = null
-    var driverVersionINDY: Int? = null
-
-    var lastButtonPressTime: Long = 0L
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
-
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -199,6 +186,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            Log.d("RunCommand", "Кнопка нажата!")
 //            main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
 //        }
+
+//        clearUI()
     }
 
     private fun openScanActivity() {
@@ -233,13 +222,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             bluetoothLeService = null
         }
         mConnected = false
-//        mDisconnected = true
         endFlag = true
         runOnUiThread {
             mConnectView.visibility = View.GONE
             mDisconnectView.visibility = View.VISIBLE
             mGattServicesList.setAdapter(null as SimpleExpandableListAdapter?)
         }
+//        clearUI()
         invalidateOptionsMenu()
         percentSynchronize = 0
         openScanActivity()
@@ -284,10 +273,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(AccountFragmentMainUBI4())
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
-
-    private fun clearUI() {
-        mGattServicesList!!.setAdapter(null as SimpleExpandableListAdapter?)
-    }
 
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {

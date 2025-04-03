@@ -52,6 +52,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.util.Locale
 import java.util.stream.Collectors
 
 @Suppress("DEPRECATION")
@@ -425,6 +426,7 @@ class GesturesOpticDelegateAdapter(
 
     }
 
+
     private fun renderFilterUI(activeFilter: Int) {
     // Параметры для индикатора
     val density = main.resources.displayMetrics.density
@@ -567,6 +569,25 @@ class GesturesOpticDelegateAdapter(
         return null
     }
 
+//    private var isActiveGestureResponseReceived = false
+//
+//    private fun requestActiveGestureWithRetry(deviceAddress: Int, parameterID: Int) {
+//        isActiveGestureResponseReceived = false
+//        try {
+//            RetryUtils.sendRequestWithRetry(
+//                request = {
+//                    onRequestActiveGesture(deviceAddress, parameterID)
+//                    Log.d("SprGestureFragment", "Отправил запрос активного жеста")
+//                },
+//                isResponseReceived = { isActiveGestureResponseReceived },
+//                maxRetries = 5,
+//                delayMillis = 400L
+//            )
+//        } catch (e: Exception) {
+//            Log.e("SprGestureFragment", "Ошибка запроса активного жеста: ${e.message}")
+//        }
+//    }
+
     private fun collectActiveFlows() {
         Log.d("BorderAnimator", "collectActiveFlows() started")
         collectJob?.cancel()
@@ -594,7 +615,8 @@ class GesturesOpticDelegateAdapter(
                                 }
                             } ?: "Unknown"
 
-                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName) ?: "Unknown"
+                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName)
+
                         }
                     },
                     bindingGroupFlow.map { bindingGroupParameterRef ->

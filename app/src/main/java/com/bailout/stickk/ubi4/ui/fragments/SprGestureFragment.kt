@@ -117,7 +117,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         ){}
     }
 
-    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
+    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n", "SuspiciousIndentation")
     override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
     System.err.println("showAddGestureToRotationGroupDialog")
     val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_rotation_group, null)

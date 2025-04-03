@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
@@ -25,6 +26,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private lateinit var binding: Ubi4FragmentSpecialSettingsBinding
     private val mDataFactory: DataFactory = DataFactory()
     private val display = 2
+    private var previousMobileSettings: Boolean? = null
+
 
 
     override fun onCreateView(
@@ -45,6 +48,12 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+        binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.settingsRecyclerView.adapter = adapterWidgets
+
+
         binding.prostheticSettingsBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)
             activeSettingsFragmentFilterFlow.value = 1
@@ -63,7 +72,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             }
         }
 
-        binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
+
 
         val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)
         when(savedFilter) {
@@ -72,20 +81,23 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
 
         binding.settingsSelectorContainer.post {
-            updateUI()
+        updateUI()
         }
+
 
     }
 
 
     private fun updateUI() {
-        binding.settingsRecyclerView.adapter = adapterWidgets
         if (isMobileSettings) {
             adapterWidgets.swapData(mDataFactory.mobileWidgets())
         } else {
             adapterWidgets.swapData(mDataFactory.prepareData(display))
         }
-        updateSelectorUI()
+        if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
+            updateSelectorUI()
+            previousMobileSettings = isMobileSettings
+        }
 
     }
 

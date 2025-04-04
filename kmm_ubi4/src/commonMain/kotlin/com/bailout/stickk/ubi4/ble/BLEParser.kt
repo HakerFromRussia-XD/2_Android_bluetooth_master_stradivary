@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
@@ -116,6 +117,7 @@ class BLEParser(
                 }
                 ParameterProvider.getParameter(deviceAddress, parameterID).data =
                     receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)
+                platformLog("CheckUpdateAllUI","data = ${receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)}")
                 updateAllUI(
                     deviceAddress,
                     parameterID,
@@ -185,6 +187,7 @@ class BLEParser(
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2,
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2 + parameter.parameterDataSize) * 2
                                 )
+                                platformLog("CheckUpdateAllUI","data2 = ${parameter.data}")
                                 updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                                 dataLength -= (parameter.parameterDataSize + 2)
                                 counter += 1
@@ -202,121 +205,123 @@ class BLEParser(
     }
 
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
-        platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
-        when (dataCode) {
-            ParameterDataCodeEnum.PDCE_UNIVERSAL_CONTROL_INPUT.number -> {
-                platformLog(
-                    "parameter PDCE_UNIVERSAL_CONTROL_INPUT",
-                    "deviceAddress: $deviceAddress  parameterID: $parameterID   data: ${ParameterProvider.getParameter(deviceAddress, parameterID).data}"
-                )
-            }
-            ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
-                platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
-                val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                val data = parameter.data
-                val paddedData: String = data.padEnd(12, '0')
-                platformLog("updateAllUITest", "data = $data")
+        platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
+        ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
 
-                try {
-                    plotArray = arrayListOf(
-                        castUnsignedCharToInt(paddedData.substring(0, 2).toInt(16).toByte()),
-                        castUnsignedCharToInt(paddedData.substring(2, 4).toInt(16).toByte()),
-                        castUnsignedCharToInt(paddedData.substring(4, 6).toInt(16).toByte()),
-                        castUnsignedCharToInt(paddedData.substring(6, 8).toInt(16).toByte()),
-                        castUnsignedCharToInt(paddedData.substring(8, 10).toInt(16).toByte()),
-                        castUnsignedCharToInt(paddedData.substring(10, 12).toInt(16).toByte())
-                    )
-                } catch (e: Error) {
-                    showToast("Ошибка 113")
+            platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
+            when (it.widgetCode) {
+                ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> {
+                    when(dataCode) {
+                        //TODO проверить!
+                        ParameterDataCodeEnum.PDCE_GENERIC_2.number -> {
+                            platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
+                            val newStatusExist = castUnsignedCharToInt(
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte()
+                            )
+                            val errorStatus = castUnsignedCharToInt(
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte()
+                            )
+                            val packIndex = castUnsignedCharToInt(
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(6, 8).toInt(16).toByte()
+                            ) * 256 + castUnsignedCharToInt(
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(4, 6).toInt(16).toByte()
+                            )
+                            if (errorStatus != 0 && errorStatus != 255) {
+                                countErrors++
+                            }
+                            if (newStatusExist == 1 && errorStatus == 0)
+                                coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
+                            platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
+                        }
+                    }
                 }
-                coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray)) }
-            }
-            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
-                platformLog("parameter sliderCollect PDCE_OPEN_CLOSE_THRESHOLD", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
-                platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
-                RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
-            }
-            ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
-                platformLog("uiRotationGroupObservable", "dataCode = $dataCode")
-                RxUpdateMainEventUbi4Wrapper.updateUiRotationGroup(ParameterRef(deviceAddress, parameterID, dataCode))
-                coroutineScope.launch { rotationGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
-                platformLog("TestOptic", " dataCode: $dataCode")
-                platformLog("FileInfoWriteFile", "recive ok")
-                RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode))
-            }
-            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
-                platformLog("parameter sliderCollect", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_EMG_CH_1_3_GAIN.number -> {
-                platformLog("parameter sliderCollect PDCE_EMG_CH_1_3_GAIN", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_EMG_CH_4_6_GAIN.number -> {
-                platformLog("parameter sliderCollect PDCE_EMG_CH_4_6_GAIN", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
-                platformLog("parameter sliderCollect PDCE_INTERFECE_ERROR_COUNTER", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
-                platformLog("parameter sliderCollect PDCE_CALIBRATION_CURRENT_PERCENT", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_GLOBAL_FORCE.number -> {
-                platformLog("parameter sliderCollect PDCE_GLOBAL_FORCE", " dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_OPTIC_SELECT_GESTURE_TIMEOUT.number -> {
-                platformLog("parameter sliderCollect PDCE_OPTIC_SELECT_GESTURE_TIMEOUT", "dataCode: $dataCode")
-                coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_GENERIC_2.number -> {
-                platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
-                val newStatusExist = castUnsignedCharToInt(
-                    ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte()
-                )
-                val errorStatus = castUnsignedCharToInt(
-                    ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte()
-                )
-                val packIndex = castUnsignedCharToInt(
-                    ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(6, 8).toInt(16).toByte()
-                ) * 256 + castUnsignedCharToInt(
-                    ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(4, 6).toInt(16).toByte()
-                )
-                if (errorStatus != 0 && errorStatus != 255) {
-                    countErrors++
+                ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                    //TODO проверить!
+                    ParameterProvider.getParameter(deviceAddress, parameterID)
+                    platformLog("parameter swichCollect PDCE_ENERGY_SAVE_MODE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data}")
+                    coroutineScope.launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                 }
-                if (newStatusExist == 1 && errorStatus == 0)
-                    coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
-                platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
-            }
-            ParameterDataCodeEnum.PDCE_ENERGY_SAVE_MODE.number -> {
-                platformLog("parameter swichCollect PDCE_ENERGY_SAVE_MODE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
-                platformLog("parameter PDCE_OPTIC_BINDING_DATA", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                coroutineScope.launch { bindingGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
-                val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
-                platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
-                coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-            }
-            ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
-                val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
-                platformLog("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
-                coroutineScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } }
+                ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                    platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
+                    val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                    val data = parameter.data
+                    val paddedData: String = data.padEnd(12, '0')
+                    platformLog("updateAllUITest", "data = $data")
+                    try {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(paddedData.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(6, 8).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(8, 10).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(10, 12).toInt(16).toByte())
+                        )
+                    } catch (e: Error) {
+                        showToast("Ошибка 113")
+                    }
+                    coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray)) }
+                }
+                ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                    platformLog("parameter sliderCollect PDCE_OPEN_CLOSE_THRESHOLD", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                    coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                }
+                ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> {}
+                ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
+                    when (dataCode){
+                        ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                            platformLog("uiRotationGroupObservable", "dataCode = $dataCode")
+                            RxUpdateMainEventUbi4Wrapper.updateUiRotationGroup(ParameterRef(deviceAddress, parameterID, dataCode))
+                            coroutineScope.launch { rotationGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                            val parameter =
+                                ParameterProvider.getParameter(deviceAddress, parameterID)
+                            platformLog("uiRotationGroupObservable", "parameter.data = ${parameter.data}")
+                        }
+                        ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
+                            platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
+                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
+                        }
+                        ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
+                            val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                        }
+                        ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+                            platformLog("parameter PDCE_OPTIC_BINDING_DATA", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                            coroutineScope.launch { bindingGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                        }
+                        ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
+                            val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            platformLog("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            coroutineScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                        }
+                    }
+                }
+                ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
+                    when (dataCode) {
+                        ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
+                            //TODO проверить!
+                            platformLog("TestOptic", " dataCode: $dataCode")
+                            platformLog("FileInfoWriteFile", "recive ok")
+                            RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode))
+                        }
+
+
+                    }
+                }
             }
         }
     }
+
 
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, deviceAddress: Int, receiveDataString: String) {
         when (packageCodeRequest) {
@@ -721,7 +726,8 @@ class BLEParser(
 
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                                    parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
+                                    val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
+                                    parametrSubDevice.additionalInfoRefSet.add(widgetStruct)
                                     coroutineScope.launch {
                                         bleCommandExecutor.sendWidgetsArray()
                                     }
@@ -822,13 +828,14 @@ class BLEParser(
         return baseParameterWidgetStruct1 == baseParameterWidgetStruct2
     }
 
-    private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int, dataCode: Int, deviceAddress: Int) {
+    private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int, dataCode: Int, deviceAddress: Int):BaseParameterWidgetStruct {
         var baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
         baseParameterWidgetStruct.widgetId
         platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "0 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)} ")
         baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
         count += 1
         platformLog("BLEParser", "dataCode=$dataCode  deviceAddress = $deviceAddress parameterID = $parameterID  parseWidgets ID:  dataOffset = ${baseParameterWidgetStruct.dataOffset}")
+
         when (baseParameterWidgetStruct.widgetLabelType) {
             ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
                 when (baseParameterWidgetStruct.widgetCode) {
@@ -1024,6 +1031,7 @@ class BLEParser(
                 }
             }
         }
+        return baseParameterWidgetStruct
     }
 
     private fun getSubDeviceParameterWithAdditionalParameters(itemPosition: Int): Triple<Int, Int, Int> {

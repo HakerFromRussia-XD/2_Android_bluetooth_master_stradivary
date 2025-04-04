@@ -41,6 +41,7 @@ import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
@@ -78,22 +79,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var trainingModelHandler: TrainingModelHandler
     private var activeFragment: Fragment? = null
 
-
-    private lateinit var mConnectView: View
-    private lateinit var mDisconnectView: View
-    private lateinit var mGattServicesList: ExpandableListView
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
-
-
-    @Volatile
-    var endFlag = true
-    private var mDisconnected = false
-    private var mConnected = false
-    var percentSynchronize = 0
-    private var isServiceBound = false
-    private var mBluetoothAdapter: BluetoothAdapter? = null
-
 
     internal var locate = ""
     var mDeviceName: String? = null
@@ -152,11 +139,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         showSensorsScreen()
 
-        bindBleService()
-
-        mConnectView = findViewById(R.id.connect_view)
-        mDisconnectView = findViewById(R.id.disconnect_view)
-        mGattServicesList = findViewById(R.id.gatt_services_list)
 
 
         if (savedInstanceState == null) {
@@ -172,7 +154,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
 
         val dialogManager = DialogManager(this) {
-           disconnect()
+            mBLEController.disconnect()
         }
         binding.nameTv.setOnClickListener {
             dialogManager.showDisconnectDialog()
@@ -182,56 +164,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showAccountScreen()
 //        }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            Log.d("RunCommand", "Кнопка нажата!")
-//            main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
-//        }
-
-//        clearUI()
-    }
-
-    private fun openScanActivity() {
-        System.err.println("Check openScanActivity()")
-        resetLastMAC()
-        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-    private fun resetLastMAC() {
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
-    }
-
-    private fun bindBleService() {
-        val intent = Intent(this, BluetoothLeService::class.java)
-        isServiceBound = bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    fun isDisconnected(): Boolean = mDisconnected
-
-    fun disconnect() {
-        System.err.println("Check disconnect()")
-        mDisconnected = true
-        if (bluetoothLeService != null) {
-            println("--> дисконнектим всё к хуям и анбайндим")
-            bluetoothLeService!!.disconnect()
-            // Проверяем, что сервис действительно был привязан
-            if (isServiceBound) {
-                unbindService(mServiceConnection)
-                isServiceBound = false
-            }
-            bluetoothLeService = null
+        binding.runCommandBtn.setOnClickListener {
+            Log.d("RunCommand", "Кнопка нажата!")
+            main.bleCommandWithQueue(BLECommands.requestSwitcher(9,14), MAIN_CHANNEL, WRITE){}
         }
-        mConnected = false
-        endFlag = true
-        runOnUiThread {
-            mConnectView.visibility = View.GONE
-            mDisconnectView.visibility = View.VISIBLE
-            mGattServicesList.setAdapter(null as SimpleExpandableListAdapter?)
-        }
-//        clearUI()
-        invalidateOptionsMenu()
-        percentSynchronize = 0
-        openScanActivity()
+
     }
 
     @SuppressLint("MissingPermission")
@@ -273,7 +210,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(AccountFragmentMainUBI4())
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
-
+    fun openScanActivity() {
+        System.err.println("Check openScanActivity()")
+        resetLastMAC()
+        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    private fun resetLastMAC() {
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+    }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
         val fragment = MotionTrainingFragment(onFinishTraining)

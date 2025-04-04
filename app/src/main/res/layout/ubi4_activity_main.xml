@@ -8,21 +8,6 @@
     android:layout_height="match_parent"
     android:background="@color/ubi4_back">
 
-    <View
-        android:id="@+id/connect_view"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/green"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/disconnect_view"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/red"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/status_bar"
@@ -140,19 +125,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/ubi4_bottom_navigation_menu" />
 
-<!--    <Button-->
-<!--        android:id="@+id/runCommandBtn"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Run command"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/fragmentContainer"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
+    <Button
+        android:id="@+id/runCommandBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Run command"
+        app:layout_constraintBottom_toBottomOf="@id/fragmentContainer"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <ExpandableListView
-        android:id="@+id/gatt_services_list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

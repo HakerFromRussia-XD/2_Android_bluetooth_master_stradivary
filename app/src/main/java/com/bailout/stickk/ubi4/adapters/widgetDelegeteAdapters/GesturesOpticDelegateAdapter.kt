@@ -105,7 +105,7 @@ class GesturesOpticDelegateAdapter(
     private lateinit var _activeGestureNameCl: ConstraintLayout
     private lateinit var _activeGestureNameTv: TextView
 
-    private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
+//    private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
 
     private lateinit var mRotationGroupExplanationTv: TextView
     private lateinit var mRotationGroupExplanation2Tv: TextView
@@ -721,7 +721,7 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun sendBLERotationGroup() {
-        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
+        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterInfoSet))
     }
 
     private fun onSendBLEActiveGesture(activeGesture: Int) {

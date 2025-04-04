@@ -19,11 +19,14 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.ExpandableListView
+import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
@@ -35,6 +38,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
+import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -69,6 +73,7 @@ class BLEController() {
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
+    private var mDisconnected = false
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -134,25 +139,16 @@ class BLEController() {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
-                    main.runOnUiThread {
-                        main.invalidateOptionsMenu()
-                    }
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
-                    if (main.isDisconnected()) {
-                        Log.d("BLE_DEBUG11", " isDisconnected = ${main.isDisconnected()}")
+                    if (mDisconnected) {
+                        Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
                         return
                     }
                     mConnected = false
                     isUploading = false
                     endFlag = true
-//                    graphThreadFlag = false
-                    main.runOnUiThread {
-                        main.invalidateOptionsMenu()
-                    }
-//                    percentSynchronize = 0
-
                     progressDialog?.dismiss()
                     progressDialog = null
 
@@ -256,22 +252,22 @@ class BLEController() {
         if (mScanning) { scanLeDevice(false) }
     }
     fun reconnectThread() {
-    var j = 1
-    bleScope.launch {
-        while (reconnectThreadFlag) {
-            if (j % 5 == 0) {
-                reconnectThreadFlag = false
-                scanLeDevice(true)
-                System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
-            } else {
-                reconnect()
-                System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
+        var j = 1
+        bleScope.launch {
+            while (reconnectThreadFlag) {
+                if (j % 5 == 0) {
+                    reconnectThreadFlag = false
+                    scanLeDevice(true)
+                    System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
+                } else {
+                    reconnect()
+                    System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
+                }
+                j++
+                delay(RECONNECT_BLE_PERIOD.toLong())
             }
-            j++
-            delay(RECONNECT_BLE_PERIOD.toLong())
         }
     }
-}
 
     private suspend fun reconnect() {
         // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
@@ -299,6 +295,19 @@ class BLEController() {
             }
             mBluetoothLeService?.connect(connectedDeviceAddress)
         }
+    }
+    fun disconnect() {
+        mDisconnected = true
+        if (mBluetoothLeService != null) {
+            println("--> дисконнектим всё к хуям и анбайндим")
+            mBluetoothLeService!!.disconnect()
+            mContext.unbindService(mServiceConnection)
+            mBluetoothLeService = null
+        }
+        mConnected = false
+//        invalidateOptionsMenu()
+        listWidgets.clear()
+        main.openScanActivity()
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()

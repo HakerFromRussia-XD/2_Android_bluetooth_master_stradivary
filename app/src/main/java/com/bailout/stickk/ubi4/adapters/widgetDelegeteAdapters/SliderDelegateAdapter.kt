@@ -240,6 +240,8 @@ class SliderDelegateAdapter(
 
     private fun setUI(parameterRef: ParameterRef) {
         val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+        Log.d("setUITest", "ParameterRef = $parameterRef, parameter = $parameter")
+
         // в parameterRef прилетают addressDevice и parameterID для того слайдера, который нужно обновить
         // а в Array widgetSlidersInfo хранится список всех сочетаний адресов девайсов
         // и айдишников параметров вместе с их вьюхами для изменения

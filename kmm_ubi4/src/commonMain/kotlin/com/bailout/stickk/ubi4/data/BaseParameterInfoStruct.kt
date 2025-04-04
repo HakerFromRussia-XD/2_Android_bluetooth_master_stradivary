@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data
 
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -36,7 +37,7 @@ data class BaseParameterInfoStruct(
 
     val relatedParametrID: Int = 0,
     val relatedDataCode: Int = 0,
-
+    val additionalInfoRefSet: MutableSet<BaseParameterWidgetStruct> = mutableSetOf(),
     var data: String = ""
 )
 

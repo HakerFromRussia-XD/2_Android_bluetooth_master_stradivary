@@ -39,7 +39,7 @@ class ParameterProvider {
                     if (parameter.dataCode == dataCode) return parameter
                 }
             }
-            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
+            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, mutableSetOf(),"")
         }
     }
     }

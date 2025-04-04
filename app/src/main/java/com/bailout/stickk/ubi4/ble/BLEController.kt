@@ -297,6 +297,7 @@ class BLEController() {
         }
     }
     fun disconnect() {
+        reconnectThreadFlag = false
         mDisconnected = true
         if (mBluetoothLeService != null) {
             println("--> дисконнектим всё к хуям и анбайндим")
@@ -308,6 +309,7 @@ class BLEController() {
 //        invalidateOptionsMenu()
         listWidgets.clear()
         main.openScanActivity()
+
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()

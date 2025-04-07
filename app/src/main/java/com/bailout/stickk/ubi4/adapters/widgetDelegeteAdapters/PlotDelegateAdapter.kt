@@ -45,6 +45,7 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -149,6 +150,7 @@ class PlotDelegateAdapter (
 
     }
 
+//
 //    override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
 //        Log.d("Plot view", "View attached")
 //        // Если уже существует scope, отменяем его и создаем новый
@@ -189,7 +191,8 @@ class PlotDelegateAdapter (
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
         Log.d("Plot view","View detached")
-//        onDestroy()
+        scope?.cancel()
+        scope = null
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
@@ -593,6 +596,8 @@ class PlotDelegateAdapter (
         Log.d("onDestroy" , "onDestroy plot")
     }
 }
+
+
 
 data class WidgetPlotInfo (
     var addressDeviceSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),

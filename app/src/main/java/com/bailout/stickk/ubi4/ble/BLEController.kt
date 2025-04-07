@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ble
 
-//import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -19,14 +18,10 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import android.view.View
-import android.widget.ExpandableListView
-import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD

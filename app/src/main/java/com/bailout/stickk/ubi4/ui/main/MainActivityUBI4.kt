@@ -160,9 +160,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             dialogManager.showDisconnectDialog()
         }
 
-//        binding.accountBtn.setOnClickListener {
-//            showAccountScreen()
-//        }
+        binding.accountBtn.setOnClickListener {
+            showAccountScreen()
+        }
 
         binding.runCommandBtn.setOnClickListener {
             Log.d("RunCommand", "Кнопка нажата!")
@@ -204,10 +204,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
+
+
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4)
             return
-        launchFragmentWithStack(AccountFragmentMainUBI4())
+        val sourceFragment = activeFragment?.javaClass?.name ?: ""
+        val accountFragment = AccountFragmentMainUBI4().apply {
+            arguments = Bundle().apply {
+                putString("sourceFragmentClass", sourceFragment)
+            }
+        }
+        launchFragmentWithStack(accountFragment)
+//        launchFragmentWithStack(AccountFragmentMainUBI4())
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
     fun openScanActivity() {
@@ -251,7 +260,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
-    private fun launchFragmentWithoutStack(fragment: Fragment) {
+    fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
             activeFragment = fragment

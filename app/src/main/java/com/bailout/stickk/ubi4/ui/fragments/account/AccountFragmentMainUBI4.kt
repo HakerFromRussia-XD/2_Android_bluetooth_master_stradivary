@@ -1,15 +1,19 @@
 package com.bailout.stickk.ubi4.ui.fragments.account
 
+import SprGestureFragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +24,9 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
@@ -35,7 +42,7 @@ import kotlin.properties.Delegates
 
 //TODO изменить импорты из UBI3 для фрагмента "help"
 @Suppress("DEPRECATION")
-class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart? = null) : BaseWidgetsFragment() {
+class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
     private var linearLayoutManager: LinearLayoutManager? = null
@@ -64,6 +71,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        System.err.println("AccountFragmentMainUBI4: onCreateView")
         binding = Ubi4FragmentPersonalAccountMainBinding.inflate(inflater, container, false)
         // Если используется DI, можно вызвать WDApplication.component.inject(this)
         if (activity != null) {
@@ -78,6 +86,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        System.err.println("AccountFragmentMainUBI4: onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         mSettings = mContext?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
@@ -85,6 +94,19 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         encryptionManager = EncryptionManagerUtils.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
+
+
+        //кнопка назад самого андроида - дублируем код из backBtn
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isAdded) {
+                    handleBackPress()
+                } else {
+                    main?.finish()
+                }
+            }
+        })
+
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -95,13 +117,6 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         }
 
         accountMainList = ArrayList()
-//        if (mSettings!!.getInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 0) == 0) {
-//            main?.saveInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 1)
-//            requestToken()
-//        } else {
-//            binding.preloaderLav.visibility = View.GONE
-//            updateAllParameters()
-//        }
         binding.preloaderLav.visibility = View.VISIBLE
         requestToken()
         initializeUI()
@@ -110,6 +125,7 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
+        System.err.println("AccountFragmentMainUBI4: onResume")
         //TODO временно RxUpdateMainEvent от UBI3
         RxUpdateMainEvent.getInstance().uiAccountMain
             .compose(main?.bindToLifecycle())
@@ -290,32 +306,22 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
     private fun initializeUI() {
         binding.titleClickBlockBtn.setOnClickListener { }
         initAdapter(binding.accountRv)
-        //TODO когда придет Рома, исправить закрытие стека над SensorsFragment
+
+
+
         binding.backBtn.setOnClickListener {
-            // Проверяем, что фрагмент всё ещё прикреплён
             if (isAdded) {
-                parentFragmentManager.popBackStack()  // закрывает только верхний фрагмент
+                handleBackPress()
             } else {
                 main?.finish()
-
             }
         }
 
+
+
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
-        binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-                System.err.println("AccountFragmentMainUBI4 back key pressed")
-                main?.saveInt(PreferenceKeysUBI4.FIRST_LOAD_ACCOUNT_INFO, 0)
-                navigator().goingBackUbi4()
-                Handler().postDelayed({
-                    reactivatedInterface?.reactivatedChart()
-                }, 300)
-                requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                return@OnKeyListener true
-            }
-            false
-        })
+
         driverVersion = if (!checkMultigrib()) {
             ((mSettings!!.getInt(
                 main?.mDeviceAddress + PreferenceKeysUBI4.DRIVER_NUM,
@@ -334,6 +340,27 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
         )).toFloat() / 100).toString()
     }
 
+    private fun handleBackPress() {
+        // Получаем имя исходного фрагмента из аргументов
+        val sourceFragmentClassName = arguments?.getString("sourceFragmentClass")
+        if (sourceFragmentClassName != null) {
+            when (sourceFragmentClassName) {
+                SensorsFragment::class.java.name -> { main?.showSensorsScreen() }
+                SpecialSettingsFragment::class.java.name -> { main?.showSpecialScreen() }
+                SprTrainingFragment::class.java.name -> { main?.showOpticTrainingGesturesScreen() }
+                SprGestureFragment::class.java.name -> { main?.showOpticGesturesScreen() }
+                // Если будут ещё варианты, их можно добавить здесь
+                else -> {
+                    // Если имя фрагмента неизвестно – возвращаемся в back stack
+                    parentFragmentManager.popBackStack()
+                }
+            }
+        } else {
+            // Если аргумента нет – возвращаемся в back stack по умолчанию
+            parentFragmentManager.popBackStack()
+        }
+    }
+
     private fun checkMultigrib(): Boolean {
         return main?.mDeviceType?.contains(ConstantManagerUBI4.DEVICE_TYPE_FEST_X) == true
 //                main?.mDeviceType?.contains(ConstantManager.DEVICE_TYPE_FEST_H) == true ||
@@ -348,6 +375,22 @@ class AccountFragmentMainUBI4(private val reactivatedInterface: ReactivatedChart
             if (it >= 0) substring(it, min(it + maxLen, length)) else this
         }
 
+
+    override fun onPause() {
+        super.onPause()
+        System.err.println("AccountFragmentMainUBI4: onPause")
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        System.err.println("AccountFragmentMainUBI4: onDestroyView")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        System.err.println("AccountFragmentMainUBI4: onDestroy")
+    }
     @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {
         binding.preloaderLav.visibility = View.GONE

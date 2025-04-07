@@ -53,6 +53,7 @@ class SensorsFragment : BaseWidgetsFragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()

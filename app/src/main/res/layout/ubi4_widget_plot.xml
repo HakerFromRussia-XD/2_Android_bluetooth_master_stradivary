@@ -95,6 +95,7 @@
                 android:textColor="@color/ubi4_white"
                 android:textSize="9sp" />
 
+            //менялись android:text="@string/close" вместо android:text="@string/open_threshold
             <TextView
                 android:id="@+id/subtitle_open_threshold_tv"
                 android:layout_width="wrap_content"
@@ -162,6 +163,7 @@
                 android:textColor="@color/ubi4_deactivate_text"
                 android:textSize="9sp" />
 
+            //менялись android:text="@string/open_threshold" вместо android:text="@string/close_threshold"
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

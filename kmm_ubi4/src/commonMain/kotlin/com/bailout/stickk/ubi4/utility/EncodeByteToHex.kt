@@ -1,8 +1,12 @@
 package com.bailout.stickk.ubi4.utility
 
+import io.ktor.utils.io.charsets.Charsets
+import kotlin.jvm.JvmStatic
+
 class EncodeByteToHex {
     companion object {
         // Пример для UTF-8
+        @JvmStatic
         fun bytesToHexString(bytes: ByteArray): String {
             val sb = StringBuilder()
             for (i in bytes.indices) {
@@ -16,6 +20,7 @@ class EncodeByteToHex {
         }
 
         // Пример для ISO-8859-1 (написан вручную)
+        @JvmStatic
         fun String.decodeHex(): String {
             require(length % 2 == 0) { "Must have an even length" }
             val bytes = chunked(2)
@@ -36,6 +41,15 @@ class EncodeByteToHex {
                 sb.append(code.toChar())
             }
             return sb.toString()
+        }
+
+        fun String.decodeHexRussian(): String {
+            require(length % 2 == 0) { "Hex строка должна иметь чётную длину" }
+            val bytes = chunked(2)
+                .map { it.toInt(16).toByte() }
+                .toByteArray()
+            // Если твоя платформа не поддерживает передачу Charset, вызываем decodeToString() без аргументов
+            return bytes.decodeToString()
         }
     }
 }

@@ -105,7 +105,7 @@
                 android:layout_toEndOf="@+id/touch_aria_open"
                 android:fontFamily="@font/font_open_sans_bold"
                 android:paddingStart="0dp"
-                android:text="@string/open_threshold"
+                android:text="@string/close_threshold"
                 android:textAlignment="viewStart"
                 android:textColor="@color/ubi4_white"
                 android:textSize="6sp" />
@@ -170,7 +170,7 @@
                 android:layout_toStartOf="@+id/touch_aria_close"
                 android:fontFamily="@font/font_open_sans_bold"
                 android:paddingStart="0dp"
-                android:text="@string/close_threshold"
+                android:text="@string/open_threshold"
                 android:textAlignment="viewEnd"
                 android:textColor="@color/ubi4_white"
                 android:textSize="6sp" />

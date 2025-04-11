@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.widget.subStructures
 
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHex
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHexRussian
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -30,7 +31,7 @@ object BaseParameterWidgetSSerializer : KSerializer<BaseParameterWidgetSStruct> 
                 BaseParameterWidgetStruct.serializer(),
                 "\"${string.substring(0, 16)}\""
             )
-            label = string.substring(16, 80).decodeHex()
+            label = string.substring(16, 80).decodeHexRussian()
         }
 
         return BaseParameterWidgetSStruct(

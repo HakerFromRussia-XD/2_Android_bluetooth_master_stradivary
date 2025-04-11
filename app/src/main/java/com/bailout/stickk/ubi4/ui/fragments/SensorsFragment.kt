@@ -6,7 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -65,9 +67,9 @@ class SensorsFragment : BaseWidgetsFragment() {
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            updateFlow.collect {updateEvent->
+            //viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED){}
+            updateFlow.collect { updateEvent->
                 Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
-
                 main?.runOnUiThread {
                     Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                     adapterWidgets.swapData(mDataFactory.prepareData(display))

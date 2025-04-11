@@ -80,7 +80,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         mContext = context
         // Передаем серийный номер из активности, если нужно
         serialNumber = main?.mDeviceName ?: serialNumber
-//        serialNumber = serialNumber.replace("\u0000", "").trim()
         System.err.println("TEST SERIAL NUMBER $serialNumber")
         return binding.root
     }
@@ -306,9 +305,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private fun initializeUI() {
         binding.titleClickBlockBtn.setOnClickListener { }
         initAdapter(binding.accountRv)
-
-
-
         binding.backBtn.setOnClickListener {
             if (isAdded) {
                 handleBackPress()
@@ -316,9 +312,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 main?.finish()
             }
         }
-
-
-
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
 

@@ -248,9 +248,9 @@ class PlotDelegateAdapter (
 
                         //изменение UI в соответствии с новыми порогами
                         widgetPlotsInfo[0].openThresholdTv.text =
-                            widgetPlotsInfo[0].openThreshold.toString()
-                        widgetPlotsInfo[0].closeThresholdTv.text =
                             widgetPlotsInfo[0].closeThreshold.toString()
+                        widgetPlotsInfo[0].closeThresholdTv.text =
+                            widgetPlotsInfo[0].openThreshold.toString()
                         setLimitPosition2(
                             widgetPlotsInfo[0].limitCH1,
                             widgetPlotsInfo[0].allCHRl,

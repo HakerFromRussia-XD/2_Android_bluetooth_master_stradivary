@@ -100,7 +100,9 @@ class GesturesFragment : BaseWidgetsFragment() {
                 updateFlow.collect {
                     main?.runOnUiThread {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        binding.homeRv.post {
+                            adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        }
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

@@ -2,7 +2,12 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -89,14 +94,16 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
 
     private fun updateUI() {
-        if (isMobileSettings) {
-            adapterWidgets.swapData(mDataFactory.mobileWidgets())
-        } else {
-            adapterWidgets.swapData(mDataFactory.prepareData(display))
-        }
-        if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
-            updateSelectorUI()
-            previousMobileSettings = isMobileSettings
+        binding.settingsRecyclerView.post {
+            if (isMobileSettings) {
+                adapterWidgets.swapData(mDataFactory.mobileWidgets())
+            } else {
+                adapterWidgets.swapData(mDataFactory.prepareData(display))
+            }
+            if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
+                updateSelectorUI()
+                previousMobileSettings = isMobileSettings
+            }
         }
 
     }
@@ -145,5 +152,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             }
         }
     }
+
 
 }

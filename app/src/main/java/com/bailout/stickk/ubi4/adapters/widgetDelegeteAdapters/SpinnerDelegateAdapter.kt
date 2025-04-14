@@ -13,7 +13,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWid
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
@@ -125,11 +124,11 @@ class SpinnerDelegateAdapter(
                     // Ищем нужный элемент по адресу и parameterID
                     val index = getIndexWidgetSpinner(parameterRef.addressDevice, parameterRef.parameterID)
                     if (index >= 0) {
-                        val param = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                        Log.d("SpinnerCollect", "Got data = ${param.data} for device=${parameterRef.addressDevice}, paramID=${parameterRef.parameterID}")
+                        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                        Log.d("SpinnerCollect", "Got data = ${parameter.data} for device=${parameterRef.addressDevice}, paramID=${parameterRef.parameterID}")
                         // Предполагаем, что param.data содержит индекс в hex, например "03" означает индекс 3
-                        val selectedIndex = Json.decodeFromString<DataSpinnerParameterWidgetStruct>("\"${param.data}\"").selectedIndex
-                        spinnerInfoList[index].items = Json.decodeFromString<DataSpinnerParameterWidgetStruct>("\"${param.data}\"").spinnerItems
+                        val selectedIndex = Json.decodeFromString<DataSpinnerParameterWidgetStruct>("\"${parameter.data}\"").selectedIndex
+                        spinnerInfoList[index].items = Json.decodeFromString<DataSpinnerParameterWidgetStruct>("\"${parameter.data}\"").spinnerItems
                         _psvGesturesSpinner.setItems(spinnerInfoList[index].items)
                         if (selectedIndex in spinnerInfoList[index].items.indices) {
                             _psvGesturesSpinner.selectItemByIndex(selectedIndex)

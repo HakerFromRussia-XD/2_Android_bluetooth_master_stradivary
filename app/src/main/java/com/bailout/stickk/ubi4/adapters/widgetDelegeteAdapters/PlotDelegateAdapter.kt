@@ -106,7 +106,6 @@ class PlotDelegateAdapter (
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
-                // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
                 if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf != 0) {
                     numberOfCharts = ParameterProvider.getParameter(it.deviceAddress, it.parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf
                     Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts ${it.parameterID}")

@@ -5,5 +5,4 @@ import kotlin.properties.Delegates
 
 object BLEState {
     var bleParser by Delegates.notNull<BLEParser>()
-
 }

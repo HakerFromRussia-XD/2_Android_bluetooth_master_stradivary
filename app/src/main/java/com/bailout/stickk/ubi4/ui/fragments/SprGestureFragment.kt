@@ -216,7 +216,9 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
                 val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
-                adapterWidgets.swapData(mDataFactory.prepareData(display))
+                binding.sprGesturesRv.post {
+                    adapterWidgets.swapData(mDataFactory.prepareData(display))
+                }
                 binding.refreshLayout.setRefreshing(false)
             }
         }

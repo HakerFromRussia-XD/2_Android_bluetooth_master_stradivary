@@ -164,10 +164,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            Log.d("RunCommand", "Кнопка нажата!")
-            main.bleCommandWithQueue(BLECommands.requestSwitcher(9,14), MAIN_CHANNEL, WRITE){}
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            Log.d("RunCommand", "Кнопка нажата!")
+//            main.bleCommandWithQueue(BLECommands.requestSwitcher(9,14), MAIN_CHANNEL, WRITE){}
+//        }
 
     }
 

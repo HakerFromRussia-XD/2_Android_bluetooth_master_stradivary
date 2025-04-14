@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
@@ -63,19 +64,22 @@ class SwitcherDelegateAdapter(
         )
         var switchChecked = false
         var keyMobileSettings = ""
+        var dataCode = 0
 
 
         when (val widget = item.widget) {
             is SwitchParameterWidgetEStruct -> {
-                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                dataCode = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
                 parameterIDSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = widget.switchChecked
                 keyMobileSettings = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
             }
             is SwitchParameterWidgetSStruct -> {
-                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                dataCode = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
                 parameterIDSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = widget.switchChecked
                 keyMobileSettings = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
@@ -106,21 +110,29 @@ class SwitcherDelegateAdapter(
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
         responseReceived.set(false)
-        RetryUtils.sendRequestWithRetry(
-            request = {
-                Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
-                main.bleCommandWithQueue(
-                    BLECommands.requestSwitcher(addressDevice, parameterID),
-                    MAIN_CHANNEL,
-                    WRITE
-                ){}
-            },
-            isResponseReceived = {
-                responseReceived.get()
-            },
-            maxRetries = 5,
-            delayMillis = 1000L
-        )
+        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)){
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                    main.bleCommandWithQueue(
+                        BLECommands.requestSwitcher(addressDevice, parameterID),
+                        MAIN_CHANNEL,
+                        WRITE
+                    ){}
+                },
+                isResponseReceived = {
+                    responseReceived.get()
+                },
+                maxRetries = 5,
+                delayMillis = 1000L
+            )
+            Log.d("RequestUtilsSwitch",  "IF Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+
+        } else {
+            setUI(ParameterRef(addressDevice,parameterID, dataCode))
+            Log.d("RequestUtilsSwitch",  "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+        }
+
 //        Handler().postDelayed({
 //            main.bleCommandWithQueue(
 //                BLECommands.requestSwitcher(addressDevice, parameterID),
@@ -156,35 +168,41 @@ class SwitcherDelegateAdapter(
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 switcherFlow.collect { parameterRef ->
-                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                    Log.d(
-                        "SwitcherCollect",
-                        "addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, parameter.data = ${parameter.data}"
-                    )
-                    Log.d(
-                        "SwitcherCollect",
-                        "значение свича ${castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0}"
-                    )
-                    Log.d(
-                        "SwitcherCollect",
-                        "Index меняемого свича ${getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)}"
-                    )
-                    if (parameter.data.isNotEmpty()) {
-                        try {
-                            widgetSwitchInfo[getIndexWidgetSwitch(
-                                parameterRef.addressDevice,
-                                parameterRef.parameterID
-                            )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
-                            widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
-
-                        } catch (e:Exception){
-                            Log.d("switchCollect","$e")
-                        }
-                    }
-                    responseReceived.set(true)
+                    setUI(parameterRef)
                 }
             }
         }
+    }
+
+    private fun setUI(parameterRef: ParameterRef){
+        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+        Log.d(
+            "SwitcherCollect",
+            "addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, parameter.data = ${parameter.data}"
+        )
+        Log.d("RequestUtilsSwitch",  "parameterData = ${ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID).data} deviceAddress = ${parameterRef.addressDevice}, parameterId = ${parameterRef.parameterID}")
+
+        Log.d(
+            "SwitcherCollect",
+            "значение свича ${castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0}"
+        )
+        Log.d(
+            "SwitcherCollect",
+            "Index меняемого свича ${getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)}"
+        )
+        if (parameter.data.isNotEmpty()) {
+            try {
+                widgetSwitchInfo[getIndexWidgetSwitch(
+                    parameterRef.addressDevice,
+                    parameterRef.parameterID
+                )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
+                widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+
+            } catch (e:Exception){
+                Log.d("switchCollect","$e")
+            }
+        }
+        responseReceived.set(true)
     }
     private fun opticLearnCollect() {
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable

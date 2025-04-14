@@ -11,7 +11,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 
-@Serializable(with = BaseParametrInfoSerializer::class)
+@Serializable(with = BaseParameterInfoSerializer::class)
 data class BaseParameterInfoStruct(
     val ID: Int = 0,
     val broadcastID: Int = 0,
@@ -35,13 +35,14 @@ data class BaseParameterInfoStruct(
 
     val additionalInfoSize: Int = 0,
 
-    val relatedParametrID: Int = 0,
+    val relatedParameterID: Int = 0,
     val relatedDataCode: Int = 0,
     val additionalInfoRefSet: MutableSet<BaseParameterWidgetStruct> = mutableSetOf(),
-    var data: String = ""
+    var data: String = "",
+    var firstReceiveDataFlag: Boolean = true
 )
 
-object BaseParametrInfoSerializer : KSerializer<BaseParameterInfoStruct> {
+object BaseParameterInfoSerializer : KSerializer<BaseParameterInfoStruct> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
 
@@ -70,10 +71,11 @@ object BaseParametrInfoSerializer : KSerializer<BaseParameterInfoStruct> {
 
         var additionalInfoSize = 0
 
-        var relatedParametrID = 0
+        var relatedParameterID = 0
         var relatedDataCode = 0
 
         val data = ""
+        val firstReceiveDataFlag = true
 
         // Пример: проверяем, что строка достаточной длины
         if (string.length >= 32) {
@@ -100,7 +102,7 @@ object BaseParametrInfoSerializer : KSerializer<BaseParameterInfoStruct> {
             saveReserv   = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte()) shr 2 and 0b00111111
 
             additionalInfoSize = castUnsignedCharToInt(string.substring(26, 28).toInt(16).toByte())
-            relatedParametrID  = castUnsignedCharToInt(string.substring(28, 30).toInt(16).toByte())
+            relatedParameterID  = castUnsignedCharToInt(string.substring(28, 30).toInt(16).toByte())
             relatedDataCode    = castUnsignedCharToInt(string.substring(30, 32).toInt(16).toByte())
         }
 
@@ -127,10 +129,12 @@ object BaseParametrInfoSerializer : KSerializer<BaseParameterInfoStruct> {
             saveReserv = saveReserv,
 
             additionalInfoSize = additionalInfoSize,
-            relatedParametrID = relatedParametrID,
+            relatedParameterID = relatedParameterID,
             relatedDataCode = relatedDataCode,
 
-            data = data
+            data = data,
+            firstReceiveDataFlag = firstReceiveDataFlag
+
         )
     }
 

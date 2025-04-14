@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.utility
 
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -28,4 +31,10 @@ object RetryUtils {
             }
         }
     }
+
+    fun canSendRequestWithFirstReceiveDataFlag(deviceAddress: Int, parameterID: Int): Boolean {
+        val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+        return parameter.firstReceiveDataFlag
+    }
 }
+

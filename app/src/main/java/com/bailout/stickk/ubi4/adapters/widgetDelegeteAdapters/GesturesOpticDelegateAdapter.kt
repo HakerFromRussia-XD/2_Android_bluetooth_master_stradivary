@@ -352,7 +352,7 @@ class GesturesOpticDelegateAdapter(
                         ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number,
                         parameterInfoSet
                     ),
-                    (0x40).toInt() + i
+                    (0x3F).toInt() + i
                 )
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }

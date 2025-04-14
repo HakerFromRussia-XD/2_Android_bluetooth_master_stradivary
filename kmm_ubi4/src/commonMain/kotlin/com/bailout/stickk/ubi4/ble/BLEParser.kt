@@ -117,6 +117,7 @@ class BLEParser(
                 }
                 ParameterProvider.getParameter(deviceAddress, parameterID).data =
                     receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)
+                ParameterProvider.getParameter(deviceAddress, parameterID).firstReceiveDataFlag = false
                 platformLog("CheckUpdateAllUI","data = ${receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)}")
                 updateAllUI(
                     deviceAddress,
@@ -187,7 +188,8 @@ class BLEParser(
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2,
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2 + parameter.parameterDataSize) * 2
                                 )
-                                platformLog("CheckUpdateAllUI","data2 = ${parameter.data}")
+                                parameter.firstReceiveDataFlag = false
+                                platformLog("CheckUpdateAllUI","data2 = ${parameter.data} deviceAddress = $deviceAddress, parameterId = $parameterID")
                                 updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                                 dataLength -= (parameter.parameterDataSize + 2)
                                 counter += 1

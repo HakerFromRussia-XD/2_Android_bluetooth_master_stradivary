@@ -25,6 +25,8 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -34,6 +36,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -53,6 +56,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 class PlotDelegateAdapter (
@@ -72,38 +76,54 @@ class PlotDelegateAdapter (
     private var openThreshold = 0
     private var closeThreshold = 0
 
+    private val responseReceived = AtomicBoolean(false)
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
         onDestroyParent{ onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 //        var deviceAddress: MutableSet<Int> = mutableSetOf()
-        var deviceAddress = 0
         Log.d("PlotDelegateAdapter", "parameterInfoSet: $parameterInfoSet")
 
+//        val parameterID = parameterInfoSet.firstOrNull()?.parameterID ?: 0
+        var addressDevice = 0
+        var parameterID = 0
+        var dataCode = 0
 
-//        val parameterID = 0
 
         when (val widget = plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
                 parameterInfoSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-                deviceAddress = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+//                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                    .parameterInfoSet.elementAt(0).deviceAddress
+                parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                    .parameterInfoSet.elementAt(0).parameterID
+                dataCode = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
+
+
             }
             is PlotParameterWidgetSStruct -> {
                 parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-                deviceAddress = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+//                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                    .parameterInfoSet.elementAt(0).deviceAddress
+                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                    .parameterInfoSet.elementAt(0).parameterID
+                dataCode = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
+
             }
         }
         Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")
         parameterInfoSet.forEach {
             Log.d("PlotDelegateAdapter", "ParameterInfo: $it")
         }
-        val parameterID = parameterInfoSet.firstOrNull()?.parameterID ?: 0
 
-        Log.d("PlotDelegateAdapter", "parameterID: $parameterID")
         widgetPlotsInfo.add(WidgetPlotInfo(parameterInfoSet, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
 
-        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
+        Log.d("PlotDelegateAdapter", "deviceAddress = $addressDevice")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
                 if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf != 0) {
@@ -118,7 +138,37 @@ class PlotDelegateAdapter (
 
         countBinding += 1
 
-        main.bleCommandWithQueue(BLECommands.requestThresholds(ParameterInfoProvider.getDeviceAddressByDataCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet), ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet)) , MAIN_CHANNEL, WRITE){}
+        responseReceived.set(false)
+        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)){
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                    main.bleCommandWithQueue(
+                        BLECommands.requestThresholds(
+                            ParameterInfoProvider.getDeviceAddressByDataCode(
+                                ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+                                parameterInfoSet
+                            ),
+                            ParameterInfoProvider.getParameterIDByCode(
+                                ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+                                parameterInfoSet
+                            )
+                        ), MAIN_CHANNEL, WRITE
+                    ) {}
+
+                },
+                isResponseReceived = {
+                    responseReceived.get()
+                },
+                maxRetries = 5,
+                delayMillis = 1000L
+            )
+            Log.d("RequestUtilsPlot",  "IF Запрос выполнен: firstReceiveDataFlag true! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+
+        } else {
+            setUI(ParameterRef(addressDevice,parameterID, dataCode))
+            Log.d("RequestUtilsPlot",  "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+        }
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
 
@@ -140,7 +190,7 @@ class PlotDelegateAdapter (
             closeThreshold = setLimitPosition(limitCH2, closeThresholdTv, allCHRl, event)
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $deviceAddress  parameterID = $parameterID")
+                    Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $addressDevice parameterId = $parameterID")
                     main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).deviceAddress, filteredSet.elementAt(1).parameterID, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
                 }
             }
@@ -228,40 +278,7 @@ class PlotDelegateAdapter (
                         }
                     },
                     thresholdFlow.map { parameterRef ->
-                        val parameter = ParameterProvider.getParameter(
-                            parameterRef.addressDevice,
-                            parameterRef.parameterID
-                        )
-                        val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
-                        if (parameter.data != "") {
-                            widgetPlotsInfo[0].apply {
-                                openThreshold   = plotThresholds.threshold1
-                                closeThreshold  = plotThresholds.threshold2
-                                threshold3      = plotThresholds.threshold3
-                                threshold4      = plotThresholds.threshold4
-                                threshold5      = plotThresholds.threshold5
-                                threshold6      = plotThresholds.threshold6
-                            }
-                        }
-
-
-                        //изменение UI в соответствии с новыми порогами
-                        widgetPlotsInfo[0].openThresholdTv.text =
-                            widgetPlotsInfo[0].openThreshold.toString()
-                        widgetPlotsInfo[0].closeThresholdTv.text =
-                            widgetPlotsInfo[0].closeThreshold.toString()
-                        setLimitPosition2(
-                            widgetPlotsInfo[0].limitCH1,
-                            widgetPlotsInfo[0].allCHRl,
-                            widgetPlotsInfo[0].openThreshold
-                        )
-                        setLimitPosition2(
-                            widgetPlotsInfo[0].limitCH2,
-                            widgetPlotsInfo[0].allCHRl,
-                            widgetPlotsInfo[0].closeThreshold
-                        )
-                        openThreshold = widgetPlotsInfo[0].openThreshold
-                        closeThreshold = widgetPlotsInfo[0].closeThreshold
+                        setUI(parameterRef)
                     }
                 ).collect()
             } catch (e: CancellationException) {
@@ -276,6 +293,43 @@ class PlotDelegateAdapter (
         }
     }
 
+    private fun setUI(parameterRef: ParameterRef) {
+        val parameter = ParameterProvider.getParameter(
+            parameterRef.addressDevice,
+            parameterRef.parameterID
+        )
+        val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
+        if (parameter.data != "") {
+            widgetPlotsInfo[0].apply {
+                openThreshold   = plotThresholds.threshold1
+                closeThreshold  = plotThresholds.threshold2
+                threshold3      = plotThresholds.threshold3
+                threshold4      = plotThresholds.threshold4
+                threshold5      = plotThresholds.threshold5
+                threshold6      = plotThresholds.threshold6
+            }
+        }
+
+
+        //изменение UI в соответствии с новыми порогами
+        widgetPlotsInfo[0].openThresholdTv.text =
+            widgetPlotsInfo[0].openThreshold.toString()
+        widgetPlotsInfo[0].closeThresholdTv.text =
+            widgetPlotsInfo[0].closeThreshold.toString()
+        setLimitPosition2(
+            widgetPlotsInfo[0].limitCH1,
+            widgetPlotsInfo[0].allCHRl,
+            widgetPlotsInfo[0].openThreshold
+        )
+        setLimitPosition2(
+            widgetPlotsInfo[0].limitCH2,
+            widgetPlotsInfo[0].allCHRl,
+            widgetPlotsInfo[0].closeThreshold
+        )
+        openThreshold = widgetPlotsInfo[0].openThreshold
+        closeThreshold = widgetPlotsInfo[0].closeThreshold
+
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/

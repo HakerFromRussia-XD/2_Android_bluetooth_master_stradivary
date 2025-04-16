@@ -195,7 +195,7 @@ class SliderDelegateAdapter(
                 maxRetries = 5,
                 delayMillis = 400L
             )
-            Log.d("RequestUtils", "ВЕТКА IF Запрос не выполнен: firstReceiveDataFlag true parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+            Log.d("RequestUtils", "ВЕТКА IF Запрос выполнен: firstReceiveDataFlag true parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
 
         }
         else {

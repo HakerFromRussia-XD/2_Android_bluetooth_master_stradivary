@@ -117,8 +117,6 @@ internal class DataFactory {
         val _listWidgets = ArrayList<Any>(setWidgets.size)
         System.err.println("DataFactory: toSet() size=${setWidgets.size}")
 
-
-
         setWidgets.forEach {
             when (it) {
                 is BaseParameterWidgetEStruct -> {
@@ -187,7 +185,6 @@ internal class DataFactory {
                     }
 
                 }
-
                 is SwitchParameterWidgetSStruct -> {
                     if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
                         addElementS(
@@ -234,6 +231,7 @@ internal class DataFactory {
                 }
             }
         }
+
         return _listWidgets
     }
     private fun sortWidgets(sortedList: List<Any>) {
@@ -312,8 +310,7 @@ internal class DataFactory {
         }
         widgets.add(item)
     }
-
-
+    
     private fun <T> List<T>.listToArrayList(): ArrayList<T> {
         val array: ArrayList<T> = ArrayList()
         for (index in this) array.add(index)

@@ -36,8 +36,11 @@ import android.util.Log;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import timber.log.Timber;
 
@@ -49,7 +52,15 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
+    // multi-connection
+    private Map<String, BluetoothGatt> mBluetoothGatts = new ConcurrentHashMap<>();
+    private Map<String, BluetoothDevice> mConnectedDevices = new ConcurrentHashMap<>();
 
+    public final static String NEW_ACTION_GATT_CONNECTED = "com.motorica.start.bluetooth.le.ACTION_GATT_CONNECTED";
+    public final static String NEW_ACTION_GATT_DISCONNECTED = "com.motorica.start.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String NEW_ACTION_GATT_SERVICES_DISCOVERED = "com.motorica.start.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String NEW_ACTION_DATA_AVAILABLE = "com.motorica.start.bluetooth.le.ACTION_DATA_AVAILABLE";
+    public final static String NEW_CHARACTERISTIC_UUID = "com.motorica.start.bluetooth.le.CHARACTERISTIC_UUID";
     public final static String ACTION_GATT_CONNECTED = "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_STATE = "com.example.bluetooth.le.ACTION_STATE";
     public final static String ACTION_GATT_DISCONNECTED = "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
@@ -460,7 +471,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
-
     /**
      * Enables or disables notification on a give characteristic.
      *
@@ -491,5 +501,171 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getServices();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //работа с несколькими ble
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    private class DeviceAwareGattCallback extends BluetoothGattCallback {
+        private final String mDeviceAddress;
+
+        public DeviceAwareGattCallback(String deviceAddress) {
+            this.mDeviceAddress = deviceAddress;
+        }
+
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            String intentAction;
+            BluetoothGatt deviceGatt = mBluetoothGatts.get(mDeviceAddress);
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                mConnectedDevices.put(mDeviceAddress, gatt.getDevice());
+                intentAction = NEW_ACTION_GATT_CONNECTED;
+                broadcastDeviceUpdate(intentAction, mDeviceAddress);
+                requestMTU(deviceGatt);
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                mConnectedDevices.remove(mDeviceAddress);
+                mBluetoothGatts.remove(mDeviceAddress);
+                intentAction = NEW_ACTION_GATT_DISCONNECTED;
+                broadcastDeviceUpdate(intentAction, mDeviceAddress);
+                newClose(mDeviceAddress);
+            }
+        }
+
+        private void requestMTU(BluetoothGatt gatt) {
+            if (gatt != null) {
+                gatt.requestMtu(256);
+            }
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            super.onMtuChanged(gatt, mtu, status);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                BluetoothGatt deviceGatt = mBluetoothGatts.get(mDeviceAddress);
+                if (deviceGatt != null) {
+                    deviceGatt.discoverServices();
+                }
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                broadcastDeviceUpdate(NEW_ACTION_GATT_SERVICES_DISCOVERED, mDeviceAddress);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    gatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK,
+                            BluetoothDevice.PHY_LE_2M_MASK,
+                            BluetoothDevice.PHY_OPTION_NO_PREFERRED);
+                }
+            }
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic characteristic,
+                                         int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                broadcastDeviceUpdateSendData(characteristic, SampleGattAttributes.READ);
+            }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+//            Log.d("TestSendByteArray","status =" +status);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                sendDataToReceiver(SampleGattAttributes.WRITE);
+//                Log.d("TestSendByteArray","запись удалась!!");
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
+                System.err.println("запись не удалась");
+//                Log.d("TestSendByteArray","запись не удалась");
+
+            }
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt,
+                                            BluetoothGattCharacteristic characteristic) {
+            broadcastDeviceUpdateSendData(characteristic, SampleGattAttributes.NOTIFY);
+        }
+    }
+
+    // Обновленный broadcast с указанием адреса устройства
+    private void broadcastDeviceUpdate(final String action, String deviceAddress) {
+        final Intent intent = new Intent(action);
+        intent.putExtra("DEVICE_ADDRESS", deviceAddress);
+        sendBroadcast(intent);
+    }
+    private void broadcastDeviceUpdateSendData(final BluetoothGattCharacteristic characteristic, final String state) {
+        final Intent intent = new Intent(BluetoothLeService.NEW_ACTION_DATA_AVAILABLE);
+        final byte[] data = characteristic.getValue();
+        if (data != null && data.length > 0) {
+            if (state.equals(SampleGattAttributes.NOTIFY)) {
+                intent.putExtra(NEW_CHARACTERISTIC_UUID, data);
+            }
+            if (state.equals(SampleGattAttributes.WRITE)) {
+                intent.putExtra(NEW_CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid()));
+            }
+        }
+        sendBroadcast(intent);
+    }
+
+    public boolean newConnect(final String address) {
+        if (mBluetoothAdapter == null || address == null) {
+            Timber.tag(TAG).w("BluetoothAdapter not initialized or unspecified address.");
+            return false;
+        }
+        if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
+            Timber.d("Trying to use an existing mBluetoothGatt for connection.");
+            return mBluetoothGatt.connect();
+        }
+
+        if (mBluetoothGatts.containsKey(address)) return true;
+
+        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        if (device == null) {
+            Timber.tag(TAG).w("Device not found.  Unable to connect.");
+            return false;
+        }
+        BluetoothGatt gatt = device.connectGatt(this, false, new DeviceAwareGattCallback(address));
+        mBluetoothGatts.put(address, gatt);
+        return true;
+    }
+
+    public void newDisconnect(String address) {
+        BluetoothGatt gatt = mBluetoothGatts.get(address);
+        if (gatt != null) {
+            gatt.disconnect();
+        }
+    }
+
+    public void newDisconnectAll() {
+        for (BluetoothGatt gatt : mBluetoothGatts.values()) {
+            gatt.disconnect();
+        }
+    }
+
+    public void newClose(String deviceAddress) {
+        BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
+        if (gatt != null) {
+            gatt.close();
+            mBluetoothGatts.remove(deviceAddress);
+            mConnectedDevices.remove(deviceAddress);
+        }
+    }
+
+    public List<BluetoothDevice> getConnectedDevices() {
+        return new ArrayList<>(mConnectedDevices.values());
+    }
+
+    public void writeCharacteristic(String deviceAddress, UUID serviceUuid, UUID characteristicUuid, byte[] value) {
+        BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
+        if (gatt != null) {
+            BluetoothGattService service = gatt.getService(serviceUuid);
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
+            characteristic.setValue(value);
+            gatt.writeCharacteristic(characteristic);
+        }
     }
 }

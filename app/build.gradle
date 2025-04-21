@@ -28,8 +28,8 @@ android {
         applicationId "com.bailout.stickk"
         minSdk 24
         targetSdk 33
-        versionCode 7
-        versionName "3.0.819"
+        versionCode 9
+        versionName "3.0.844"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release

@@ -737,6 +737,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (data != null) {
       saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[0]) and 0b00000001) ==  1))
       if (data.size >= 5 ) {
+        Log.d("numActiveGestures","принимаем NUM_ACTIVE_GESTURES=${castUnsignedCharToInt(data[1])}")
         System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   NUM_ACTIVE_GESTURES=${castUnsignedCharToInt(data[1])}")
         System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   SET_MODE_PROSTHESIS=${castUnsignedCharToInt(data[2])}")
         System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   MAX_STAND_CYCLES=${(castUnsignedCharToInt(data[3]) + 256*castUnsignedCharToInt(data[4]))}")
@@ -947,8 +948,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         if (data.size >= 8) {
           if (castUnsignedCharToInt(data[6]) >= 14) { showToast("ошибка протеза start gesture "+castUnsignedCharToInt(data[6])) }
           else { saveInt(mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, castUnsignedCharToInt(data[6])) }
-          if (castUnsignedCharToInt(data[7]) >= 14) { showToast("ошибка протеза end gesture "+castUnsignedCharToInt(data[6])) }
-          else { saveInt(mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, castUnsignedCharToInt(data[7])) }
+//          if (castUnsignedCharToInt(data[7]) >= 14) { showToast("ошибка протеза end gesture "+castUnsignedCharToInt(data[6])) }
+//          else { saveInt(mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, castUnsignedCharToInt(data[7])) }
         }
       }
 

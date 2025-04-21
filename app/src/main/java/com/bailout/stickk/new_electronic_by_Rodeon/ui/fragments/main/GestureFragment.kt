@@ -259,6 +259,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings15Btn.setOnClickListener(this)
         binding.gestureSettings16Btn.setOnClickListener(this)
         binding.gestureSettings17Btn.setOnClickListener(this)
+        binding.gestureSettings18Btn.setOnClickListener(this)
+        binding.gestureSettings19Btn.setOnClickListener(this)
+        binding.gestureSettings20Btn.setOnClickListener(this)
+        binding.gestureSettings21Btn.setOnClickListener(this)
+        binding.gestureSettings22Btn.setOnClickListener(this)
+        binding.gestureSettings23Btn.setOnClickListener(this)
+        binding.gestureSettings24Btn.setOnClickListener(this)
+        binding.gestureSettings25Btn.setOnClickListener(this)
         binding.gesture1Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(1)
@@ -1017,6 +1025,38 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     R.id.gesture_settings_17_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 16)
                     }
+
+                    R.id.gesture_settings_18_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 17)
+                    }
+
+                    R.id.gesture_settings_19_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 18)
+                    }
+
+                    R.id.gesture_settings_20_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 19)
+                    }
+
+                    R.id.gesture_settings_21_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 20)
+                    }
+
+                    R.id.gesture_settings_22_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 21)
+                    }
+
+                    R.id.gesture_settings_23_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 22)
+                    }
+
+                    R.id.gesture_settings_24_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 23)
+                    }
+
+                    R.id.gesture_settings_25_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 24)
+                    }
                 }
             } else {
                 when (v?.id) {
@@ -1142,16 +1182,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
 
-//                Handler().postDelayed({
-                    // Получаем координаты
-                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
-                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
-//
-//                    // Вычисляем расстояние между верхними границами
-                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
-                    Log.d("Distance", "distance = $distance  loadAllVariables isChecked")
-                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
-//                }, 1000)
+                binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+                binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+
+                // Вычисляем расстояние между верхними границами
+                distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+                Log.d("Distance", "distance = $distance  loadAllVariables isChecked")
+                binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
             } else {
                 binding.onOffSensorGestureSwitchingSw.isChecked = false
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
@@ -1165,17 +1202,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     300
                 offAllRotationImage()
 
-//                Handler().postDelayed({
-                    heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
-                    // Получаем координаты
-                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
-                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
-                    // Вычисляем расстояние между верхними границами
-                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
-                    Log.d("Distance", "distance = $distance  loadAllVariables notChecked")
+                heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
+                // Получаем координаты
+                binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+                binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+                // Вычисляем расстояние между верхними границами
+                distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+                Log.d("Distance", "distance = $distance  loadAllVariables notChecked")
 
-                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
-//                }, 1000)
+                binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
             }
         }
 

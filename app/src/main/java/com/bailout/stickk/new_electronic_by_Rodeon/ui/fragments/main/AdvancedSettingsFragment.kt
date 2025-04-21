@@ -25,6 +25,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -280,6 +281,7 @@ class AdvancedSettingsFragment : Fragment() {
       binding.smartConnectionSwapSw.isChecked = false
       binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
     }
+    Log.d("numActiveGestures","initializeUI gesturePsv.selectItemByIndex  NUM_ACTIVE_GESTURES = ${mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)}")
     when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
       7 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
@@ -288,10 +290,10 @@ class AdvancedSettingsFragment : Fragment() {
       8 -> {
         if (checkDriverVersionGreaterThan240()) {
           binding.gesturePsvRl.visibility = View.VISIBLE
-          binding.activeGesturesSwapTv.text = "7"
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+          binding.activeGesturesSwapTv.text = "8"
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)
           sendFlag = false
-          binding.gesturePsv.selectItemByIndex(0)
+          binding.gesturePsv.selectItemByIndex(1)
         } else {
           binding.gesturePsvRl.visibility = View.GONE
           binding.activeGesturesSwapSw.isChecked = false
@@ -301,14 +303,14 @@ class AdvancedSettingsFragment : Fragment() {
       13 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
         sendFlag = false
-        binding.gesturePsv.selectItemByIndex(1) }
+        binding.gesturePsv.selectItemByIndex(2) }
       14 -> {
         if (checkDriverVersionGreaterThan240()) {
           binding.gesturePsvRl.visibility = View.VISIBLE
-          binding.activeGesturesSwapTv.text = "13"
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+          binding.activeGesturesSwapTv.text = "14"
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 14)
           sendFlag = false
-          binding.gesturePsv.selectItemByIndex(1)
+          binding.gesturePsv.selectItemByIndex(2)
         } else {
           binding.gesturePsvRl.visibility = View.GONE
           binding.activeGesturesSwapSw.isChecked = true
@@ -317,8 +319,8 @@ class AdvancedSettingsFragment : Fragment() {
       23 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
         sendFlag = false
-        binding.gesturePsv.selectItemByIndex(2) }
-      25 -> {
+        binding.gesturePsv.selectItemByIndex(3) }
+      else -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
         sendFlag = false
         binding.gesturePsv.selectItemByIndex(3) }
@@ -1014,87 +1016,96 @@ class AdvancedSettingsFragment : Fragment() {
       sendActiveGestures(numActiveGestures)
       sendGestureRotation()
     }
+
     binding.gesturePsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
       val numActiveGestures: Int
-      when (newIndex) {
-        0 -> {
-          numActiveGestures = 7
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-          //ограничиваем диапазон старт/стопа ргуппы ротации
-          if (startGestureInLoopNum >= numActiveGestures) {
-            startGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-          }
-          if (endGestureInLoopNum >= numActiveGestures) {
-            endGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
-          }
-          //если активный жест больше 7 то он устанавливается на 7
-          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
-          if (activeGesture >= numActiveGestures) {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
-            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
-            //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
-          } else {
-            RxUpdateMainEvent.getInstance().updateUIGestures(100)
-          }
-        }
-        1 -> {
-          numActiveGestures = 13
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-          //ограничиваем диапазон старт/стопа ргуппы ротации
-          if (startGestureInLoopNum >= numActiveGestures) {
-            startGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-          }
-          if (endGestureInLoopNum >= numActiveGestures) {
-            endGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
-          }
-          //если активный жест больше 13 то он устанавливается на 13
-          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
-          if (activeGesture >= numActiveGestures) {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
-            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
-            //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
-          } else {
-            RxUpdateMainEvent.getInstance().updateUIGestures(100)
-          }
-        }
-        2 -> {
-          numActiveGestures = 23
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-          //ограничиваем диапазон старт/стопа ргуппы ротации
-          if (startGestureInLoopNum >= numActiveGestures) {
-            startGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-          }
-          if (endGestureInLoopNum >= numActiveGestures) {
-            endGestureInLoopNum = (numActiveGestures - 1)
-            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
-          }
-          //если активный жест больше 23 то он устанавливается на 23
-          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
-          if (activeGesture >= numActiveGestures) {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
-            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
-            //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
-          } else {
-            RxUpdateMainEvent.getInstance().updateUIGestures(100)
-          }
-        }
-        3 -> {
-          numActiveGestures = 25
-          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-          RxUpdateMainEvent.getInstance().updateUIGestures(100)
-        }
-        else -> {numActiveGestures = 7}
-      }
-      RxUpdateMainEvent.getInstance().updateUIChart(true)
       if (sendFlag) {
+        Log.d("numActiveGestures","gesturePsv.setOnSpinnerItemSelectedListener  newIndex = $newIndex")
+        when (newIndex) {
+          0 -> {
+            numActiveGestures = 7
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+            //ограничиваем диапазон старт/стопа ргуппы ротации
+            if (startGestureInLoopNum >= numActiveGestures) {
+              startGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+              Log.d("numActiveGestures","startGestureInLoopNum = $startGestureInLoopNum")
+            }
+            if (endGestureInLoopNum >= numActiveGestures) {
+              endGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+              Log.d("numActiveGestures","endGestureInLoopNum = $endGestureInLoopNum")
+            }
+            //если активный жест больше 7 то он устанавливается на 7
+            val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+            if (activeGesture >= numActiveGestures) {
+              saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+              RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+              //отправлять используемый жест
+              Log.d("numActiveGestures","отправляем = ${numActiveGestures - 1}")
+              main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
+            } else {
+              RxUpdateMainEvent.getInstance().updateUIGestures(100)
+            }
+          }
+          1 -> {
+            numActiveGestures = 8
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+            //ограничиваем диапазон старт/стопа ргуппы ротации
+            if (startGestureInLoopNum >= numActiveGestures) {
+              startGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+            }
+            if (endGestureInLoopNum >= numActiveGestures) {
+              endGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+            }
+            //если активный жест больше 13 то он устанавливается на 13
+            val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+            if (activeGesture >= numActiveGestures) {
+              saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+              RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+              //отправлять используемый жест
+              Log.d("numActiveGestures","отправляем = ${numActiveGestures - 1}")
+              main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
+            } else {
+              RxUpdateMainEvent.getInstance().updateUIGestures(100)
+            }
+          }
+          2 -> {
+            numActiveGestures = 14
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+            //ограничиваем диапазон старт/стопа ргуппы ротации
+            if (startGestureInLoopNum >= numActiveGestures) {
+              startGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+            }
+            if (endGestureInLoopNum >= numActiveGestures) {
+              endGestureInLoopNum = (numActiveGestures - 1)
+              saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+            }
+            //если активный жест больше 23 то он устанавливается на 23
+            val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+            if (activeGesture >= numActiveGestures) {
+              saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+              RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+              //отправлять используемый жест
+              Log.d("numActiveGestures","отправляем = ${numActiveGestures - 1}")
+              main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
+            } else {
+              RxUpdateMainEvent.getInstance().updateUIGestures(100)
+            }
+          }
+          3 -> {
+            numActiveGestures = 23
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+            Log.d("numActiveGestures","не отправляем ничего но = ${numActiveGestures - 1}")
+            RxUpdateMainEvent.getInstance().updateUIGestures(100)
+          }
+          else -> {numActiveGestures = 7}
+        }
+        RxUpdateMainEvent.getInstance().updateUIChart(true)
+
         sendActiveGestures(numActiveGestures)
         sendGestureRotation()
       } else {
@@ -1360,6 +1371,7 @@ class AdvancedSettingsFragment : Fragment() {
 
       startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
       endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+      Log.d("numActiveGestures","изменение gesturePsv = ${mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)}")
       when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
         7 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
@@ -1368,10 +1380,10 @@ class AdvancedSettingsFragment : Fragment() {
         8 -> {
           if (checkDriverVersionGreaterThan240()) {
             binding.gesturePsvRl.visibility = View.VISIBLE
-            binding.activeGesturesSwapTv.text = "7"
-            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+            binding.activeGesturesSwapTv.text = "8"
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)
             sendFlag = false
-            binding.gesturePsv.selectItemByIndex(0)
+            binding.gesturePsv.selectItemByIndex(1)
           } else {
             binding.gesturePsvRl.visibility = View.GONE
             binding.activeGesturesSwapSw.isChecked = false
@@ -1381,14 +1393,14 @@ class AdvancedSettingsFragment : Fragment() {
         13 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
           sendFlag = false
-          binding.gesturePsv.selectItemByIndex(1) }
+          binding.gesturePsv.selectItemByIndex(2) }
         14 -> {
           if (checkDriverVersionGreaterThan240()) {
             binding.gesturePsvRl.visibility = View.VISIBLE
-            binding.activeGesturesSwapTv.text = "13"
-            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+            binding.activeGesturesSwapTv.text = "14"
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 14)
             sendFlag = false
-            binding.gesturePsv.selectItemByIndex(1)
+            binding.gesturePsv.selectItemByIndex(2)
           } else {
             binding.gesturePsvRl.visibility = View.GONE
             binding.activeGesturesSwapSw.isChecked = true
@@ -1398,8 +1410,8 @@ class AdvancedSettingsFragment : Fragment() {
         23 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
           sendFlag = false
-          binding.gesturePsv.selectItemByIndex(2) }
-        25 -> {
+          binding.gesturePsv.selectItemByIndex(3) }
+        else -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
           sendFlag = false
           binding.gesturePsv.selectItemByIndex(3) }
@@ -1628,6 +1640,7 @@ class AdvancedSettingsFragment : Fragment() {
   private fun sendActiveGestures(numActiveGestures: Int) {
     //TODO функция не отправляет активный жест
     System.err.println("sendActiveGestures activeGesture = $numActiveGestures")
+    Log.d("numActiveGestures","отправляем  activeGesture = $numActiveGestures")
     val setReverse = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) { 1 } else { 0 }
     val prosthesisMode = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, 0)
     val numberOfCyclesStand = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, 0)

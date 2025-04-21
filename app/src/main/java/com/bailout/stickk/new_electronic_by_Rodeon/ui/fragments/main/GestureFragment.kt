@@ -856,6 +856,50 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.gesture14Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings14Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            15 -> { binding.gesture15Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture15Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings15Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop15Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            16 -> { binding.gesture16Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture16Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings16Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop16Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            17 -> { binding.gesture17Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture17Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings17Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop17Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            18 -> { binding.gesture18Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture18Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings18Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop18Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            19 -> { binding.gesture19Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture19Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings19Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop19Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            20 -> { binding.gesture20Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture20Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings20Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop20Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            21 -> { binding.gesture21Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture21Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings21Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop21Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            22 -> { binding.gesture22Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture22Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings22Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop22Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            23 -> { binding.gesture23Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture23Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings23Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop23Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            24 -> { binding.gesture24Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture24Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings24Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop24Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            25 -> { binding.gesture25Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture25Btn.setTextColor(resources.getColor(R.color.orange))
+                binding.gestureSettings25Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop25Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
     }
@@ -1024,38 +1068,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
                     R.id.gesture_settings_17_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 16)
-                    }
-
-                    R.id.gesture_settings_18_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 17)
-                    }
-
-                    R.id.gesture_settings_19_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 18)
-                    }
-
-                    R.id.gesture_settings_20_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 19)
-                    }
-
-                    R.id.gesture_settings_21_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 20)
-                    }
-
-                    R.id.gesture_settings_22_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 21)
-                    }
-
-                    R.id.gesture_settings_23_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 22)
-                    }
-
-                    R.id.gesture_settings_24_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 23)
-                    }
-
-                    R.id.gesture_settings_25_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 24)
                     }
                 }
             } else {

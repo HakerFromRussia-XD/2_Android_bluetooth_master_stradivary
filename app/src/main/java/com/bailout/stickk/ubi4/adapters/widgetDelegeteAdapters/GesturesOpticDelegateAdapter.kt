@@ -88,8 +88,8 @@ class GesturesOpticDelegateAdapter(
     private var mRotationGroupDragLv: DragListView? = null
     private var hideFactoryCollectionGestures = true
 
-    private var gestureCollectionBtns: ArrayList<kotlin.Pair<View, Int>> = ArrayList()
-    private var gestureCustomBtns: ArrayList<kotlin.Pair<View, Int>> = ArrayList()
+    private var gestureCollectionBtns: ArrayList<Pair<View, Int>> = ArrayList()
+    private var gestureCustomBtns: ArrayList<Pair<View, Int>> = ArrayList()
 
     private lateinit var sprGestureItemsProvider: SprGestureItemsProvider
     private lateinit var _annotationTv: TextView
@@ -352,8 +352,9 @@ class GesturesOpticDelegateAdapter(
                         ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number,
                         parameterInfoSet
                     ),
-                    (0x3F).toInt() + i
+                    63 + i
                 )
+
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
@@ -725,6 +726,8 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun onSendBLEActiveGesture(activeGesture: Int) {
+        Log.d("ActiveGestureTest",
+            "i=${activeGesture - 0x3F}  ->  byte=0x%02X".format(activeGesture))
         onSendBLEActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet), activeGesture)
         Log.d(
             "onSendBLEActiveGesture",

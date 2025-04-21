@@ -289,11 +289,30 @@ class BLEParser(
                             platformLog("uiRotationGroupObservable", "parameter.data = ${parameter.data}")
                         }
                         ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
+
+                            val raw = ParameterProvider
+                                .getParameter(deviceAddress, parameterID)
+                                .data                     // hex‑строка без заголовка
+
+                            platformLog("GestureSettings‑RX", "raw=$raw")
+
+                            if (raw.length >= 2) {
+                                val idHex = raw.substring(0, 2)
+                                val idDec = idHex.toInt(16)
+                                platformLog(
+                                    "GestureSettings‑RX",
+                                    "byte0=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})"
+                                )
+                                // ↓ здесь же можно парсить остальные байты настройки, если протокол известен
+                            }
                             platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
                             RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            val idHex = paramData.substring(0, 2)
+                            val idDec = idHex.toInt(16)
+                            platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
                             coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }

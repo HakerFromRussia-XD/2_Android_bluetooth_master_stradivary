@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
 
@@ -418,6 +419,8 @@ object BLECommands {
         return header + data
     }
 
+
+
     fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
         val code: Byte = (128 + gestureWithAddress.parameterID).toByte()
         val header = byteArrayOf(
@@ -456,9 +459,22 @@ object BLECommands {
             gestureWithAddress.gesture.closeToOpenTimeShift5.toByte(),
             gestureWithAddress.gesture.closeToOpenTimeShift6.toByte(),
             gestureWithAddress.gestureState.toByte()
+
         )
+
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
+
+//        platformLog("SendCommandTest", "packet = " + data.contentToString())
+        platformLog(
+            "SendCommandTest",
+            "packet = " + data.joinToString(" ") { byte ->
+                (byte.toInt() and 0xFF)
+                    .toString(16)         // → "a" … "ff"
+                    .padStart(2, '0')     // → "0a" … "ff"
+                    .uppercase()          // → "0A" … "FF"
+            }
+        )
         return header + data
     }
 

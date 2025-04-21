@@ -503,7 +503,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="0dp"
                     android:layout_marginEnd="0dp"
-                    android:background="@drawable/touch_aria_close" />
+                    android:background="@drawable/touch_aria_open" />
 
                 <ImageView
                     android:id="@+id/close_threshold_iv"

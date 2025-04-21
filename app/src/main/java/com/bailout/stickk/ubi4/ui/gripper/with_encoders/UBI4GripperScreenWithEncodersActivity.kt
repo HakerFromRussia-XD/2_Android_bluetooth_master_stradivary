@@ -695,7 +695,7 @@ class UBI4GripperScreenWithEncodersActivity
         main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE){}
     }
     private fun compileBLERead () {
-        Log.d("uiGestureSettingsObservable", "compileBLERead")
+        Log.d("uiGestureSettingsObservable", "compileBLERead gesture id = $gestureID")
         main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE){}
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {

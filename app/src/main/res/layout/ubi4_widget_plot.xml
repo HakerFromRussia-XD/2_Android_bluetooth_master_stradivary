@@ -47,7 +47,7 @@
             tools:ignore="ExtraText">
 
             <View
-                android:id="@+id/open_threshold_help_v"
+                android:id="@+id/close_threshold_help_v"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignEnd="@+id/subtitle_open_threshold_tv"
@@ -62,7 +62,7 @@
                 android:background="@color/transparent" />
 
             <ImageView
-                android:id="@+id/open_threshold_iv"
+                android:id="@+id/close_threshold_iv"
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:layout_alignParentTop="true"
@@ -73,20 +73,20 @@
                 android:background="@color/ubi4_deactivate_text" />
 
             <View
-                android:id="@+id/touch_aria_open"
+                android:id="@+id/touch_aria_close"
                 android:layout_width="30dp"
                 android:layout_height="15dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="0dp"
-                android:background="@drawable/ubi4_touch_aria_open" />
+                android:background="@drawable/ubi4_touch_aria_close" />
 
 
             <TextView
-                android:id="@+id/open_threshold_tv"
+                android:id="@+id/close_threshold_tv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignEnd="@+id/touch_aria_open"
-                android:layout_alignBottom="@+id/touch_aria_open"
+                android:layout_alignEnd="@+id/touch_aria_close"
+                android:layout_alignBottom="@+id/touch_aria_close"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
@@ -97,15 +97,14 @@
                 android:textColor="@color/ubi4_white"
                 android:textSize="9sp" />
 
-            // менялись android:text="@string/close" вместо android:text="@string/open_threshold
             <TextView
-                android:id="@+id/subtitle_open_threshold_tv"
+                android:id="@+id/subtitle_close_threshold_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/open_threshold_iv"
+                android:layout_below="@+id/close_threshold_iv"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
-                android:layout_toEndOf="@+id/touch_aria_open"
+                android:layout_toEndOf="@+id/touch_aria_close"
                 android:fontFamily="@font/font_open_sans_bold"
                 android:paddingStart="0dp"
                 android:text="@string/close_threshold"
@@ -127,17 +126,17 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <View
-                android:id="@+id/touch_aria_close"
+                android:id="@+id/touch_aria_open"
                 android:layout_width="30dp"
                 android:layout_height="15dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
-                android:background="@drawable/touch_aria_close" />
+                android:background="@drawable/ubi4_touch_aria_open" />
 
             <ImageView
-                android:id="@+id/close_threshold_iv"
+                android:id="@+id/open_threshold_iv"
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:layout_alignParentStart="true"
@@ -145,16 +144,16 @@
                 android:layout_marginStart="40dp"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="10dp"
-                android:background="@color/close_threshold"/>
+                android:background="@color/ubi4_open_threshold"/>
 
             <TextView
-                android:id="@+id/close_threshold_tv"
+                android:id="@+id/open_threshold_tv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignStart="@+id/touch_aria_close"
-                android:layout_alignTop="@+id/touch_aria_close"
-                android:layout_alignEnd="@+id/touch_aria_close"
-                android:layout_alignBottom="@+id/touch_aria_close"
+                android:layout_alignStart="@+id/touch_aria_open"
+                android:layout_alignTop="@+id/touch_aria_open"
+                android:layout_alignEnd="@+id/touch_aria_open"
+                android:layout_alignBottom="@+id/touch_aria_open"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
@@ -165,13 +164,12 @@
                 android:textColor="@color/ubi4_deactivate_text"
                 android:textSize="9sp" />
 
-            //менялись android:text="@string/open_threshold" вместо android:text="@string/close_threshold"
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/close_threshold_iv"
+                android:layout_below="@+id/open_threshold_iv"
                 android:layout_marginEnd="0dp"
-                android:layout_toStartOf="@+id/touch_aria_close"
+                android:layout_toStartOf="@+id/touch_aria_open"
                 android:fontFamily="@font/font_open_sans_bold"
                 android:paddingStart="0dp"
                 android:text="@string/open_threshold"
@@ -202,7 +200,7 @@
                 android:layout_weight="1">
 
                 <View
-                    android:id="@+id/open_CH_v"
+                    android:id="@+id/close_CH_v"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_alignParentStart="true"
@@ -222,7 +220,7 @@
                 android:layout_weight="1">
 
                 <View
-                    android:id="@+id/close_CH_v"
+                    android:id="@+id/open_CH_v"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_alignParentStart="true"

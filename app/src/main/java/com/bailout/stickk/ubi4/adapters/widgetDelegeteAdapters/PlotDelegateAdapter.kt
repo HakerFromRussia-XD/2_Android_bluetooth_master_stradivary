@@ -81,7 +81,7 @@ class PlotDelegateAdapter (
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
-        onDestroyParent{ onDestroy() }
+        onDestroyParent { onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 //        var deviceAddress: MutableSet<Int> = mutableSetOf()
@@ -95,24 +95,33 @@ class PlotDelegateAdapter (
 
         when (val widget = plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                parameterInfoSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                parameterInfoSet =
+                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
 //                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).parameterID
-                dataCode = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
+                dataCode =
+                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
+                        0
+                    ).dataCode
 
 
             }
+
             is PlotParameterWidgetSStruct -> {
-                parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                parameterInfoSet =
+                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
 //                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).parameterID
-                dataCode = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).dataCode
+                dataCode =
+                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
+                        0
+                    ).dataCode
 
             }
         }
@@ -121,14 +130,42 @@ class PlotDelegateAdapter (
             Log.d("PlotDelegateAdapter", "ParameterInfo: $it")
         }
 
-        widgetPlotsInfo.add(WidgetPlotInfo(parameterInfoSet, openThreshold, closeThreshold,0,0,0,0, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
+        widgetPlotsInfo.add(
+            WidgetPlotInfo(
+                parameterInfoSet,
+                openThreshold,
+                closeThreshold,
+                0,
+                0,
+                0,
+                0,
+                limitCH1,
+                limitCH2,
+                closeThresholdTv,
+                openThresholdTv,
+                allCHRl
+            )
+        )
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $addressDevice")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
-                if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf != 0) {
-                    numberOfCharts = ParameterProvider.getParameter(it.deviceAddress, it.parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(it.deviceAddress, it.parameterID).type].sizeOf
-                    Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts ${it.parameterID}")
+                if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                        it.deviceAddress,
+                        it.parameterID
+                    ).type].sizeOf != 0
+                ) {
+                    numberOfCharts = ParameterProvider.getParameter(
+                        it.deviceAddress,
+                        it.parameterID
+                    ).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                        it.deviceAddress,
+                        it.parameterID
+                    ).type].sizeOf
+                    Log.d(
+                        "PlotDelegateAdapter",
+                        "Количество графиков: $numberOfCharts ${it.parameterID}"
+                    )
                 } else {
                     numberOfCharts = 0
                     Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
@@ -139,10 +176,13 @@ class PlotDelegateAdapter (
         countBinding += 1
 
         responseReceived.set(false)
-        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)){
+        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)) {
             RetryUtils.sendRequestWithRetry(
                 request = {
-                    Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                    Log.d(
+                        "SwitcherRequest",
+                        "addressDevice = $addressDevice parameterID = $parameterID"
+                    )
                     main.bleCommandWithQueue(
                         BLECommands.requestThresholds(
                             ParameterInfoProvider.getDeviceAddressByDataCode(
@@ -163,41 +203,87 @@ class PlotDelegateAdapter (
                 maxRetries = 5,
                 delayMillis = 1000L
             )
-            Log.d("RequestUtilsPlot",  "IF Запрос выполнен: firstReceiveDataFlag true! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+            Log.d(
+                "RequestUtilsPlot",
+                "IF Запрос выполнен: firstReceiveDataFlag true! parameterData = ${
+                    ParameterProvider.getParameter(
+                        addressDevice,
+                        parameterID
+                    ).data
+                } deviceAddress = $addressDevice, parameterId = $parameterID"
+            )
 
         } else {
-            setUI(ParameterRef(addressDevice,parameterID, dataCode))
-            Log.d("RequestUtilsPlot",  "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+            setUI(ParameterRef(addressDevice, parameterID, dataCode))
+            Log.d(
+                "RequestUtilsPlot",
+                "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${
+                    ParameterProvider.getParameter(
+                        addressDevice,
+                        parameterID
+                    ).data
+                } deviceAddress = $addressDevice, parameterId = $parameterID"
+            )
         }
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
 
-        val filteredSet = parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
+        val filteredSet =
+            parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
+                .toSet()
 
-        openCHV.setOnTouchListener { p0, event ->
-            p0.parent.requestDisallowInterceptTouchEvent(true)
-            openThreshold = setLimitPosition(limitCH1, openThresholdTv, allCHRl, event)
-            when (event.action) {
+        // Порог открытия — слушаем openCHV
+        openCHV.setOnTouchListener { v, ev ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            // двигаем ползунок открытия
+            openThreshold = setLimitPosition(
+                limitCH2,
+                openThresholdTv,
+                allCHRl,
+                ev
+            )
+            when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("setOnTouchListener", "openThreshold send $openThreshold")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).deviceAddress, filteredSet.elementAt(0).parameterID, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
+                    Log.d("Plot", "openThreshold send $openThreshold")
+                    main.bleCommandWithQueue(
+                        BLECommands.sendThresholdsCommand(
+                            filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
+                            filteredSet.elementAt(0).parameterID,
+                            arrayListOf(openThreshold, 0, closeThreshold, 0)
+                        ), MAIN_CHANNEL, WRITE
+                    ) {}
                 }
             }
             true
         }
-        closeCHV.setOnTouchListener { p0, event ->
-            p0.parent.requestDisallowInterceptTouchEvent(true)
-            closeThreshold = setLimitPosition(limitCH2, closeThresholdTv, allCHRl, event)
-            when (event.action) {
+
+// Порог закрытия — слушаем closeCHV
+        closeCHV.setOnTouchListener { v, ev ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            // двигаем ползунок закрытия
+            closeThreshold = setLimitPosition(
+                limitCH1,
+                closeThresholdTv,
+                allCHRl,
+                ev
+            )
+            when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $addressDevice parameterId = $parameterID")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).deviceAddress, filteredSet.elementAt(1).parameterID, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
+                    Log.d("Plot", "closeThreshold send $closeThreshold")
+                    main.bleCommandWithQueue(
+                        BLECommands.sendThresholdsCommand(
+                            filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
+                            filteredSet.elementAt(1).parameterID,
+                            arrayListOf(openThreshold, 0, closeThreshold, 0)
+                        ), MAIN_CHANNEL, WRITE
+                    ) {}
                 }
             }
             true
         }
 
     }
+
 
 //
 //    override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
@@ -317,12 +403,12 @@ class PlotDelegateAdapter (
         widgetPlotsInfo[0].closeThresholdTv.text =
             widgetPlotsInfo[0].closeThreshold.toString()
         setLimitPosition2(
-            widgetPlotsInfo[0].limitCH1,
+            widgetPlotsInfo[0].limitCH2,
             widgetPlotsInfo[0].allCHRl,
             widgetPlotsInfo[0].openThreshold
         )
         setLimitPosition2(
-            widgetPlotsInfo[0].limitCH2,
+            widgetPlotsInfo[0].limitCH1,
             widgetPlotsInfo[0].allCHRl,
             widgetPlotsInfo[0].closeThreshold
         )
@@ -643,8 +729,8 @@ class PlotDelegateAdapter (
     }
     fun onDestroy() {
         graphThreadFlag = false
-        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
         setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
+        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }
@@ -662,8 +748,8 @@ data class WidgetPlotInfo (
     var threshold6: Int = 0,
     var limitCH1: RelativeLayout,
     var limitCH2: RelativeLayout,
-    var openThresholdTv: TextView,
     var closeThresholdTv: TextView,
+    var openThresholdTv: TextView,
     var allCHRl: LinearLayout,
     var dataSens1: Int = 0,
     var dataSens2: Int = 0,

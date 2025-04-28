@@ -44,6 +44,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.serialization.json.Json
 import kotlin.math.abs
 import kotlin.properties.Delegates
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
 
 
 @Suppress("DEPRECATION")
@@ -128,6 +130,11 @@ class UBI4GripperScreenWithEncodersActivity
 
     private lateinit var binding: Ubi4LayoutGripperSettingsLeWithEncodersBinding
 
+    // --- Open/Close selector ---
+    private var isOpenMode = true
+    private var halfSelectorWidth = 0f
+    private val animDuration = 200L
+
     @SuppressLint("CheckResult", "ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,7 +161,7 @@ class UBI4GripperScreenWithEncodersActivity
         animationInProgress6 = false
         //control side in 3D
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                                       + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+                + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
         deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
         parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
@@ -184,112 +191,95 @@ class UBI4GripperScreenWithEncodersActivity
                 loadGestureState(gestureSettings)
             }
         RxView.clicks(findViewById(R.id.editGestureNameBtn))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
-                    if (editMode) {
-                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_edit_24)
-                        binding.gestureNameTv.visibility = View.VISIBLE
-                        imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
-                        binding.gestureNameTv.text = binding.gestureNameEt.text
-                        binding.gestureNameEt.visibility = View.GONE
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+                if (editMode) {
+                    binding.editGestureNameBtn.setImageResource(R.drawable.ic_edit_24)
+                    binding.gestureNameTv.visibility = View.VISIBLE
+                    imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
+                    binding.gestureNameTv.text = binding.gestureNameEt.text
+                    binding.gestureNameEt.visibility = View.GONE
 
-                        gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
+                    gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
 
 
-                        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
-                        System.err.println("6 LAST_CONNECTION_MAC: $macKey")
-                        for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
-                        }
-                        editMode = false
-
-                    } else {
-                        //переезжаем на binding
-                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
-                        binding.gestureNameEt.visibility = View.VISIBLE
-                        binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
-                        binding.gestureNameTv.visibility = View.GONE
-                        binding.gestureNameEt.requestFocus()
-                        imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
-                        imm.showSoftInput(binding.gestureNameEt, 0)
-                        binding.gestureNameEt.isFocusableInTouchMode = true
-                        editMode = true
+                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    System.err.println("6 LAST_CONNECTION_MAC: $macKey")
+                    for (i in 0 until gestureNameList.size) {
+                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
+                    editMode = false
+
+                } else {
+                    //переезжаем на binding
+                    binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
+                    binding.gestureNameEt.visibility = View.VISIBLE
+                    binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
+                    binding.gestureNameTv.visibility = View.GONE
+                    binding.gestureNameEt.requestFocus()
+                    imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
+                    imm.showSoftInput(binding.gestureNameEt, 0)
+                    binding.gestureNameEt.isFocusableInTouchMode = true
+                    editMode = true
                 }
+            }
         RxUpdateMainEventUbi4.getInstance().fingerAngleObservable
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { parameters ->
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameters ->
 //                    System.err.println(
 //                        "GripperSettingsRender--------> fingerAngleObservable  numberFinger = "
 //                                + parameters.numberFinger + "     fingerAngel = " + parameters.fingerAngel)
-                    numberFinger = parameters.numberFinger
-                    angleFinger = parameters.fingerAngel
-                    if (numberFinger == 1) {
-                        changeStateFinger1 (angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 2) {
-                        changeStateFinger2 (angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 3) {
-                        changeStateFinger3 (angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 4) {
-                        changeStateFinger4 (angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 5) {
-                        changeStateFinger5 (88 - angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 6) {
-                        changeStateFinger6 (98 - angleFinger)
-                        compileBLEMassage ()
-                    }
-                    if (numberFinger == 55) { }
-                }
-        RxView.clicks(findViewById(R.id.gripperStateBtn))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    animateFinger1 ()
-                    animateFinger2 ()
-                    animateFinger3 ()
-                    animateFinger4 ()
-                    animateFinger5 ()
-                    animateFinger6 ()
-                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
-                        gestureState = States.GESTURE_STATE_OPEN.number
-                        gestureState += 128
-                        binding.gripperStateBtn.text = getString(R.string.gesture_state_open)
-                    } else {
-                        gestureState = States.GESTURE_STATE_CLOSE.number
-                        gestureState += 128
-                        binding.gripperStateBtn.text = getString(R.string.gesture_state_close)
-                    }
+                numberFinger = parameters.numberFinger
+                angleFinger = parameters.fingerAngel
+                if (numberFinger == 1) {
+                    changeStateFinger1 (angleFinger)
                     compileBLEMassage ()
-                    gestureState -= 128
                 }
+                if (numberFinger == 2) {
+                    changeStateFinger2 (angleFinger)
+                    compileBLEMassage ()
+                }
+                if (numberFinger == 3) {
+                    changeStateFinger3 (angleFinger)
+                    compileBLEMassage ()
+                }
+                if (numberFinger == 4) {
+                    changeStateFinger4 (angleFinger)
+                    compileBLEMassage ()
+                }
+                if (numberFinger == 5) {
+                    changeStateFinger5 (88 - angleFinger)
+                    compileBLEMassage ()
+                }
+                if (numberFinger == 6) {
+                    changeStateFinger6 (98 - angleFinger)
+                    compileBLEMassage ()
+                }
+                if (numberFinger == 55) { }
+            }
+
         RxView.clicks(findViewById(R.id.gripperSaveBtn))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (editMode) {
-                        gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
-                        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
-                        System.err.println("1 LAST_CONNECTION_MAC: $macKey")
-                        for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
-                        }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (editMode) {
+                    gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
+                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    System.err.println("1 LAST_CONNECTION_MAC: $macKey")
+                    for (i in 0 until gestureNameList.size) {
+                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
-                    finish()
                 }
+                finish()
+            }
 
         binding.fingersDelayBtn.setOnClickListener {
             showFingersDelayDialog()
         }
+
+        // initialize selector
+        binding.gestureStateSelectorContainer.post { initSelector() }
     }
 
     override fun initializeUI() {
@@ -778,4 +768,61 @@ class UBI4GripperScreenWithEncodersActivity
             )
         }
     }
+private fun initSelector() {
+    halfSelectorWidth = binding.gestureStateSelectorContainer.width / 2f
+    updateSelectorUI(isOpenMode)
+    binding.gestureOpenBtn.setOnClickListener {
+        if (!isOpenMode) {
+            // animate closing → opening
+            animateFinger1(); animateFinger2(); animateFinger3()
+            animateFinger4(); animateFinger5(); animateFinger6()
+            // update selector UI
+            isOpenMode = true
+            updateSelectorUI(true)
+            // send OPEN command
+            gestureState = States.GESTURE_STATE_OPEN.number
+            gestureState += 128
+            compileBLEMassage()
+            gestureState -= 128
+        }
+    }
+    binding.gestureCloseBtn.setOnClickListener {
+        if (isOpenMode) {
+            // animate opening → closing
+            animateFinger1(); animateFinger2(); animateFinger3()
+            animateFinger4(); animateFinger5(); animateFinger6()
+            // update selector UI
+            isOpenMode = false
+            updateSelectorUI(false)
+            // send CLOSE command
+            gestureState = States.GESTURE_STATE_CLOSE.number
+            gestureState += 128
+            compileBLEMassage()
+            gestureState -= 128
+        }
+    }
 }
+
+private fun updateSelectorUI(isOpen: Boolean) {
+    ObjectAnimator.ofFloat(
+        binding.selectorIndicator,
+        "translationX",
+        if (isOpen) 0f else halfSelectorWidth
+    ).setDuration(animDuration).start()
+
+    ObjectAnimator.ofInt(
+        binding.gestureOpenBtn,
+        "textColor",
+        if (isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
+        if (isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+    ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
+
+    ObjectAnimator.ofInt(
+        binding.gestureCloseBtn,
+        "textColor",
+        if (!isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
+        if (!isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+    ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
+}
+
+    }

@@ -340,8 +340,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
-
-
     private val mutex = Mutex()
     override suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {
         mutex.withLock {

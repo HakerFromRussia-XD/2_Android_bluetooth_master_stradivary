@@ -10,10 +10,8 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
+import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
-import android.view.View
-import android.widget.ExpandableListView
-import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -37,12 +35,13 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
-import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.models.other.LoginRequest
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
@@ -58,6 +57,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -66,7 +66,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import timber.log.Timber
+import java.io.File
 import kotlin.properties.Delegates
 
 
@@ -91,6 +95,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
+
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,12 +169,22 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            Log.d("RunCommand", "Кнопка нажата!")
-//            main.bleCommandWithQueue(BLECommands.requestSwitcher(9,14), MAIN_CHANNEL, WRITE){}
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+
+            if (frag is MotionTrainingFragment) {
+                lifecycleScope.launch {
+                    frag.onRunCommandClicked()     // ← вызов
+                }
+            } else {
+                Log.w(TAG, "Сейчас активен не MotionTrainingFragment – команда не выполнена")
+            }
+        }
 
     }
+
+
+
 
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -392,6 +407,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
+
 //        var bleParser by Delegates.notNull<BLEParser>()
 //        var canSendFlag by Delegates.notNull<Boolean>()
 //        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()

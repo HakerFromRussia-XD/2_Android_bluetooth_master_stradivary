@@ -15,23 +15,34 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity.MODE_PRIVATE
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
+import com.bailout.stickk.ubi4.models.other.LoginRequest
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -117,6 +128,9 @@ class MotionTrainingFragment(
 
     // Сет реальных жестов (если нужно, можете дополнять или изменять):
     private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
+
+    private val prefs by lazy { requireContext().getSharedPreferences("ubi4_prefs", MODE_PRIVATE) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -663,7 +677,6 @@ class MotionTrainingFragment(
                     return
                 }
 
-
                 val currentPhase = lineData.getOrNull(currentPhaseIndex) ?: run {
                     return
                 }
@@ -902,6 +915,118 @@ class MotionTrainingFragment(
 
         }
 
+    }
+
+
+   suspend fun onRunCommandClicked() = lifecycleScope.launch(Dispatchers.IO) {
+        try {
+            val token = getOrFetchJwtToken() ?: return@launch   // уже залогировано, если null
+
+            val parts = prepareAssetFilesForUpload(
+                "2025-04-17_16-54-17.emg8",
+                "2025-04-17_16-54-17.emg8.data_passport"
+            )
+
+            uploadFilesToServer(token, parts)
+
+
+        } catch (t: Throwable) {
+            Log.e(LOG_TAG, "❌ runCommand — unexpected exception", t)
+        }
+    }
+
+    // ───────────────────────────────────────── auth
+    /** Берём токен из SharedPrefs или логинимся и сохраняем. */
+    private suspend fun getOrFetchJwtToken(): String? {
+        val prefs  = requireContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+
+
+        Log.d(LOG_TAG, "No saved token — requesting new one…")
+        val response = RetrofitInstanceUBI4.api.login(
+            BaseUrlUtilsUBI4.API_KEY,
+            LoginRequest(username = "Лаштун Олег", password = "123фыв6")
+        )
+
+        return if (response.isSuccessful) {
+            val body  = response.body()!!
+            val token = "${body.tokenType} ${body.accessToken}"
+            prefs.edit().putString(PREF_KEY_TOKEN, token).apply()
+            Log.d(LOG_TAG, "✅ Token obtained: $token")
+            token
+        } else {
+            Log.e(
+                LOG_TAG,
+                "❌ Login failed ${response.code()}: ${response.errorBody()?.string()}"
+            )
+            null
+        }
+    }
+
+    // ───────────────────────────────────────── file helpers
+    /** Копирует указанные файлы из assets во временные и формирует Multipart-части. */
+    private fun prepareAssetFilesForUpload(vararg assetNames: String): List<MultipartBody.Part> {
+        val parts = mutableListOf<MultipartBody.Part>()
+
+        assetNames.forEach { name ->
+            val tempFile = File(requireContext().cacheDir, name).also { tmp ->
+                requireContext().assets.open(name).use { input ->
+                    tmp.outputStream().use { output -> input.copyTo(output) }
+                }
+            }
+            val reqBody = tempFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+            parts += MultipartBody.Part.createFormData("files", name, reqBody)
+        }
+        return parts
+    }
+
+    // ───────────────────────────────────────── upload
+    private suspend fun uploadFilesToServer(
+        bearerToken: String,
+        parts: List<MultipartBody.Part>,
+        maxAttempts: Int = 3                 // ← сколько раз всего пытаться
+    ) {
+        var attempt   = 1
+        var token = bearerToken
+        var lastError = ""
+
+        while (attempt <= maxAttempts) {
+            Log.d(LOG_TAG, "uploadFiles → attempt $attempt/$maxAttempts")
+            val resp = RetrofitInstanceUBI4.api.uploadFiles(token, parts)
+
+            if (resp.isSuccessful) {
+                Log.d(LOG_TAG, "✅ uploadFiles success: ${resp.body()}")
+                return                                       // 🎉  всё ок — выходим
+            }
+
+            // ─── проверяем, не «битый» ли токен ──────────────────────────────
+            val code = resp.code()
+            val body = resp.errorBody()?.string().orEmpty()
+            lastError = "uploadFiles failed $code: $body"
+            Log.w(LOG_TAG, "❌ $lastError")
+
+            val invalidToken = code == 401 && "invalid token" in body.lowercase()
+            if (!invalidToken) break                         // другая ошибка → нет смысла ретраить
+
+            // Запрашиваем новый токен
+            Log.d(LOG_TAG, "Trying to refresh token…")
+            val newToken = getOrFetchJwtToken()
+            if (newToken == null) {
+                Log.e(LOG_TAG, "Refresh token failed")
+                break                                        // не смогли получить токен → выходим
+            }
+
+            token = newToken
+            attempt++
+        }
+
+        Log.e(LOG_TAG, "❌ $lastError  |  all retry attempts exhausted")
+    }
+
+    companion object {
+
+        private const val LOG_TAG       = "MainActivityUBI4Test"
+        private const val PREFS_NAME    = "ubi4_prefs"
+        private const val PREF_KEY_TOKEN = "pref_key_token"
     }
 
 

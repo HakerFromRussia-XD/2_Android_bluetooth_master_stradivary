@@ -137,6 +137,26 @@ object GestureSerializer: KSerializer<Gesture> {
 
     override fun serialize(encoder: Encoder, value: Gesture) {
         val code = ""
-        encoder.encodeString("$code")
+        val parts = listOf(
+            value.gestureId,
+            value.openPosition1, value.openPosition2, value.openPosition3,
+            value.openPosition4, value.openPosition5, value.openPosition6,
+            value.closePosition1, value.closePosition2, value.closePosition3,
+            value.closePosition4, value.closePosition5, value.closePosition6,
+            value.openToCloseTimeShift1, value.openToCloseTimeShift2,
+            value.openToCloseTimeShift3, value.openToCloseTimeShift4,
+            value.openToCloseTimeShift5, value.openToCloseTimeShift6,
+            value.closeToOpenTimeShift1, value.closeToOpenTimeShift2,
+            value.closeToOpenTimeShift3, value.closeToOpenTimeShift4,
+            value.closeToOpenTimeShift5, value.closeToOpenTimeShift6
+        )
+        // Конвертим каждый Int в unsigned byte и в двухсимвольный hex
+        val hex = parts.joinToString("") { byteInt ->
+            (byteInt and 0xFF)
+                .toString(16)
+                .padStart(2, '0')
+        }
+//        encoder.encodeString("$code")
+        encoder.encodeString(hex)
     }
 }

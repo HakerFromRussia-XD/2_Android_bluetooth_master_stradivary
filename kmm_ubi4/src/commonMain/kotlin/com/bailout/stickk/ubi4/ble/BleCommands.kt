@@ -208,6 +208,15 @@ object BLECommands {
         val data = byteArrayOf(gestureId.toByte())
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
+        platformLog(
+            "SendCommandTest",
+            "packet = " + data.joinToString(" ") { byte ->
+                (byte.toInt() and 0xFF)
+                    .toString(16)         // → "a" … "ff"
+                    .padStart(2, '0')     // → "0a" … "ff"
+                    .uppercase()          // → "0A" … "FF"
+            }
+        )
         return header + data
     }
 

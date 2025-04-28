@@ -20,6 +20,9 @@ object PreferenceKeysUBI4 {
     const val MAXIMUM_POINTS = "MAXIMUM_POINTS"
     const val NUMBER_OF_CUPS = "NUMBER_OF_CUPS"
     const val FIRST_LOAD_ACCOUNT_INFO = "FIRST_LOAD_ACCOUNT_INFO"
+    const val PREF_GESTURE_STATE = "pref_gesture_state"
+
+
 
     const val DRIVER_NUM = "DRIVER_NUM"
     const val SENS_NUM = "SENS_NUM"

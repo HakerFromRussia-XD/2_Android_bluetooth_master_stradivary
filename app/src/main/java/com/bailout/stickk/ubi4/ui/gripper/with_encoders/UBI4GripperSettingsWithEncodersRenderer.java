@@ -1760,6 +1760,9 @@ public class UBI4GripperSettingsWithEncodersRenderer implements GLSurfaceView.Re
 		return res.get(0);
 	}
 
+
+
+
 	private void transferCommand() {
 		FingerAngle fingerAngleModel;
 		FingerAngle fingerAngleModel2;

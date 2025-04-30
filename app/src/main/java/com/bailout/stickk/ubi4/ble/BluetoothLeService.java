@@ -32,6 +32,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+
+import com.bailout.stickk.ubi4.data.state.BLEState;
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
@@ -247,10 +249,12 @@ public class BluetoothLeService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
+                BLEState.INSTANCE.publishConnecting();
                 broadcastUpdate(ACTION_GATT_CONNECTED);
                 requestMTU();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
+                BLEState.INSTANCE.publishDisconnect();
                 broadcastUpdate(ACTION_GATT_DISCONNECTED);
                 // Вызываем close() с небольшой задержкой, чтобы убедиться, что разрыв завершён
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -313,12 +317,14 @@ public class BluetoothLeService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                BLEState.INSTANCE.publishReady();
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     System.err.println("установили доп параметры соединения");
                     mBluetoothGatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_OPTION_NO_PREFERRED);
                 }
             } else {
+                BLEState.INSTANCE.publishError();
                 Timber.tag(TAG).w("onServicesDiscovered received: %s", status);
             }
         }

@@ -46,6 +46,11 @@ import kotlin.math.abs
 import kotlin.properties.Delegates
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import androidx.lifecycle.lifecycleScope
+import com.bailout.stickk.ubi4.data.state.BLEState
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 @Suppress("DEPRECATION")
@@ -168,10 +173,12 @@ class UBI4GripperScreenWithEncodersActivity
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
 
 
-
-        Handler().postDelayed({
+        lifecycleScope.launchWhenStarted {
+            BLEState.state.filter { it == BLEState.State.READY }
+                .first()
             compileBLERead()
-        }, 1000)
+        }
+
         Log.d("gestureNameList" , "onCreate")
         loadGestureNameList()
         binding.gestureNameTv.text = gestureNameList[gestureNumber-1]
@@ -825,4 +832,4 @@ private fun updateSelectorUI(isOpen: Boolean) {
     ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
 }
 
-    }
+}

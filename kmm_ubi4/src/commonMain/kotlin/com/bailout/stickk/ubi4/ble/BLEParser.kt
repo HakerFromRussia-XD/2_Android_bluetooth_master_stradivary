@@ -9,11 +9,12 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
-import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.bmsStatusFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
@@ -53,6 +54,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
@@ -235,6 +237,7 @@ class BLEParser(
                                 coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
                             platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
                         }
+
                     }
                 }
                 ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {}
@@ -336,9 +339,30 @@ class BLEParser(
                             RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode))
                         }
 
-
                     }
                 }
+                ParameterWidgetCode.PWCE_SERVICE_INFO.number.toInt() -> {
+                    platformLog("updateAllUITest", "here!")
+
+                    when(dataCode){
+                        ParameterDataCodeEnum.PDCE_BMS_STATUS_COMBINED_PARAM.number -> {
+                            val paramData = ParameterProvider.getParameter(deviceAddress,parameterID).data
+                            platformLog("updateAllUITest", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            val percent = paramData.hexToBatteryPercent()
+                            platformLog(
+                                "BatteryParser",
+                                "raw=$paramData → percent=$percent%"
+                            )
+                            coroutineScope.launch { bmsStatusFlow.emit(ParameterRef(deviceAddress,parameterID, dataCode))
+                            }
+                            coroutineScope.launch { batteryPercentFlow.emit(percent) }
+
+                        }
+
+                    }
+
+                }
+
             }
         }
     }
@@ -351,6 +375,7 @@ class BLEParser(
             }
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 parseInitializeInformation(receiveDataString)
+
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
                 try {
@@ -493,6 +518,7 @@ class BLEParser(
                 }
             }
         }
+
     }
 
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String, deviceAddress: Int) {
@@ -515,7 +541,9 @@ class BLEParser(
 
                 when (additionalInfoSizeStruct.infoType) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                        parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
+                        val parsedWidget = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
+                        platformLog("parsedWidget", "▶️widgetcode - ${parsedWidget.widgetCode}")
+
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             bleCommandExecutor.sendWidgetsArray()
@@ -748,6 +776,14 @@ class BLEParser(
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                                     val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
+                                    if (widgetStruct.widgetCode == 16){
+                                        platformLog("parsedWidget", "▶️ parsedWidget run")
+                                        bleCommandExecutor.bleCommandWithQueue(
+                                            BLECommands.requestBatteryStatus(7,0),
+                                            MAIN_CHANNEL,
+                                            WRITE
+                                        ) {}
+                                    }
                                     parametrSubDevice.additionalInfoRefSet.add(widgetStruct)
                                     coroutineScope.launch {
                                         bleCommandExecutor.sendWidgetsArray()

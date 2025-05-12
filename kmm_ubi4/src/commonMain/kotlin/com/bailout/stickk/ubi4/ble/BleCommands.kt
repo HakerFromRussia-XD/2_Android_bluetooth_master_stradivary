@@ -244,6 +244,18 @@ object BLECommands {
         )
     }
 
+        fun requestBatteryStatus(addressDevice: Int, parameterID: Int): ByteArray {
+        return byteArrayOf(
+            0x60.toByte(),
+            parameterID.toByte(),
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            addressDevice.toByte()
+        )
+    }
+
     fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
         return byteArrayOf(
             0xE0.toByte(),

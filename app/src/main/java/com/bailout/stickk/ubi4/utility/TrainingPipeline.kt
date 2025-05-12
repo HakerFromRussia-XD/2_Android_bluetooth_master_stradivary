@@ -72,7 +72,7 @@ data class Parameters(
     @SerializedName("WEIGHTS_LABELS") val WEIGHTS_LABELS: List<String>
 )
 
-class TrainingModelHandler(private val context: Context) {
+class TrainingPipeline(private val context: Context) {
     private var path: File? = null
     private lateinit var modelFile: File
     private lateinit var modelInfo: String

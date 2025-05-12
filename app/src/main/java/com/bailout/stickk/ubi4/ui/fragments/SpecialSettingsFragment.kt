@@ -44,20 +44,15 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
         // Обработчики переключения режимов
 
-
         widgetListUpdater()
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
-
 
         binding.prostheticSettingsBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)

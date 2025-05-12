@@ -3,9 +3,9 @@
     <item android:id="@android:id/background">
         <shape android:shape="ring"
             android:useLevel="false">
-            <size
+
                 android:width="20dp"
-                android:height="20dp"/>
+                android:height="20dp"
             <solid android:color="#4DFFFFFF"/>
         </shape>
     </item>

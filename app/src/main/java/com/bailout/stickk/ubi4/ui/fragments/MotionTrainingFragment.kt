@@ -666,7 +666,7 @@ class MotionTrainingFragment(
         return ""
     }
 
-    private fun writeToFile(data: String, isAppend: Boolean = true) {
+    private fun writeToFile(data: String) {
         if (isRecordingPaused) return
 
         synchronized(fileLock) {
@@ -929,7 +929,6 @@ class MotionTrainingFragment(
 
             uploadFilesToServer(token, parts)
 
-
         } catch (t: Throwable) {
             Log.e(LOG_TAG, "❌ runCommand — unexpected exception", t)
         }
@@ -946,6 +945,7 @@ class MotionTrainingFragment(
             BaseUrlUtilsUBI4.API_KEY,
             LoginRequest(username = "Лаштун Олег", password = "123фыв6")
         )
+
 
         return if (response.isSuccessful) {
             val body  = response.body()!!

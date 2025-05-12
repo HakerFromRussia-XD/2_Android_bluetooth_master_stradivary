@@ -2,16 +2,21 @@ package com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountCustomerServiceBinding
+import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -37,10 +42,10 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
     private var testSerialNumber = "FEST-EP-05674"
     private var myRequests: Requests? = null
 
-    private lateinit var binding: Ubi4FragmentPersonalAccountCustomerServiceBinding
+    private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentPersonalAccountCustomerServiceBinding.inflate(layoutInflater)
+        binding = Ubi4FragmentPersonalAccountMainBinding.inflate(layoutInflater)
 //        WDApplication.component.inject(this)
         Log.d("AccountFragment", "Activity: $activity, is NavigatorUBI4: ${activity is NavigatorUBI4}")
         if (activity != null) { main = activity as MainActivityUBI4? }
@@ -92,7 +97,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
                 yourManagerPhone = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString(),
                 prosthesisStatus = main?.loadText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS).toString())
         )
-        initAdapter(binding.accountCustomerServiceRv)
+        initAdapter(binding.accountRv)
     }
 
 //    private fun requestToken() {
@@ -131,7 +136,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
     }
     private fun initializeUI() {
         binding.titleClickBlockBtn.setOnClickListener {  }
-        initAdapter(binding.accountCustomerServiceRv)
+        initAdapter(binding.accountRv)
 
         binding.backBtn.setOnClickListener {
             Log.d("AccountFragment", "Clicked: activity = $activity, is NavigatorUBI4: ${activity is NavigatorUBI4}")

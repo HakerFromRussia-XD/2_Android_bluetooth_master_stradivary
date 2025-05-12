@@ -14,8 +14,8 @@ class AccountMainAdapterUBI4(private val onAccountClickListener: OnAccountMainUB
 ) : RecyclerView.Adapter<AccountMainAdapterUBI4.AccountViewHolder>() {
 
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val customerServiceBtn: View = view.findViewById(R.id.ubi4_customer_service_btn)
-        val prosthesisInformationBtn: View = view.findViewById(R.id.ubi4_prosthesis_information_btn)
+        val customerServiceBtn: View = view.findViewById(R.id.customerServiceClick)
+        val prosthesisInformationBtn: View = view.findViewById(R.id.prosthesisInfoClick)
         val fioTv: TextView = view.findViewById(R.id.ubi4_fio_tv) as TextView
         val driverVersionNumTv: TextView = view.findViewById(R.id.ubi4_driver_version_num_tv) as TextView
         val bmsVersionNumTv: TextView = view.findViewById(R.id.ubi4_bms_version_num_tv) as TextView
@@ -32,8 +32,6 @@ class AccountMainAdapterUBI4(private val onAccountClickListener: OnAccountMainUB
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
         holder.fioTv.text = accountMainList[position].getName()+" "+accountMainList[position].getSurname()
-
-
         holder.driverVersionNumTv.text = accountMainList[position].getVersionDriver()
         holder.bmsVersionNumTv.text = accountMainList[position].getVersionBms()
         holder.sensorsVersionNumTv.text = accountMainList[position].getVersionSensors()

@@ -22,7 +22,10 @@ object WidgetState {
     var rotationGroupGestures: ArrayList<Gesture> by Delegates.notNull()
     var bindingGroupGestures: ArrayList<Pair<Int, Int>> by Delegates.notNull()
     var plotArray by Delegates.notNull<ArrayList<Int>>()
+    var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
+    var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
 
+    //
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()
@@ -43,6 +46,8 @@ object WidgetState {
         bindingGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
+        bmsStatusFlow = MutableSharedFlow()
+        batteryPercentFlow = MutableSharedFlow(replay = 1)
 
     }
 }

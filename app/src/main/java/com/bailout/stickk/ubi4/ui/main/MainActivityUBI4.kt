@@ -35,13 +35,12 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.models.other.LoginRequest
+import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
@@ -57,20 +56,16 @@ import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
-import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import com.bailout.stickk.ubi4.utility.TrainingModelHandler
+import com.bailout.stickk.ubi4.utility.TrainingPipeline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import timber.log.Timber
-import java.io.File
 import kotlin.properties.Delegates
 
 
@@ -80,7 +75,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-    private lateinit var trainingModelHandler: TrainingModelHandler
+    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
 
     private var bluetoothLeService: BluetoothLeService? = null
@@ -111,10 +106,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         initAllVariables()
         bottomNavigationController =
             BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+//        binding.batteryProgressBar.progress = 80
 
-        trainingModelHandler = TrainingModelHandler(this)
-        trainingModelHandler.initialize()
-
+        trainingPipeline = TrainingPipeline(this)
+        trainingPipeline.initialize()
+        observeBattery()
         // инициализация блютуз
         mBLEController = BLEController()
         mBLEController.initBLEStructure()
@@ -169,17 +165,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-
-            if (frag is MotionTrainingFragment) {
-                lifecycleScope.launch {
-                    frag.onRunCommandClicked()     // ← вызов
-                }
-            } else {
-                Log.w(TAG, "Сейчас активен не MotionTrainingFragment – команда не выполнена")
-            }
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+//
+//            if (frag is MotionTrainingFragment) {
+//                lifecycleScope.launch {
+//                    frag.onRunCommandClicked()     // ← вызов
+//                }
+//            } else {
+//                Log.w(TAG, "Сейчас активен не MotionTrainingFragment – команда не выполнена")
+//            }
+//        }
 
     }
 
@@ -256,11 +252,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun manageTrainingLifecycle() {
         Log.d("StateCallBack", "manageTrainingLifecycle called")
-        trainingModelHandler.runModel()
+        trainingPipeline.runModel()
     }
 
     override fun getPercentProgressLearningModel(): Int {
-        return trainingModelHandler.getPercentProgressLearningModel()
+        return trainingPipeline.getPercentProgressLearningModel()
     }
 
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
@@ -399,6 +395,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
 
+    private fun observeBattery(){
+        lifecycleScope.launch {
+            batteryPercentFlow.collect{ percent ->
+                binding.batteryProgressBar.progress = percent
+
+            }
+
+        }
+    }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")

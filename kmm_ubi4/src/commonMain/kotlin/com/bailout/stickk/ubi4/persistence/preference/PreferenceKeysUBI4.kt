@@ -124,6 +124,7 @@ object PreferenceKeysUBI4 {
 
         PWCE_GESTURES_WINDOW                (0x0e),
         PWCE_OPTIC_LEARNING_WIDGET          (0x0f),
+        PWCE_SERVICE_INFO                   (0x10),
     }
 
 
@@ -140,7 +141,8 @@ object PreferenceKeysUBI4 {
         PWLE_SELECT_PROFILE         (0x08, "pwle_select_profile"),
         PWLE_GLOBAL_FORCE           (0x09, "pwle_global_force"),
         PWLE_PLOT                   (0x0a, "pwle_plot"),
-        PWLE_OMG_LEARNING           (0x0b, "pwle_omg_learning")
+        PWLE_OMG_LEARNING           (0x0b, "pwle_omg_learning"),
+
     }
 
 

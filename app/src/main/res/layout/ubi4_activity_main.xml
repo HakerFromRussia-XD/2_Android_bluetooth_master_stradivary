@@ -66,22 +66,22 @@
             <!-- Круговой прогресс-бар, показывающий уровень заряда -->
             <ProgressBar
                 android:id="@+id/batteryProgressBar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                style="@android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:indeterminate="false"
+                android:indeterminateOnly="false"
                 android:max="100"
                 android:progress="0"
-                android:indeterminate="false"
+                android:scaleX="-1"
                 android:progressDrawable="@drawable/circular_progress"
-                android:rotation="-90" />
+                android:rotation="0"/>
 
             <ImageView
-                android:id="@+id/batteryIcon"
                 android:layout_width="19dp"
                 android:layout_height="19dp"
                 android:src="@drawable/lightning_bolt"
-                android:layout_gravity="center"
-                android:scaleType="centerInside" />
+                android:layout_gravity="center"/>
 
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -125,13 +125,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/ubi4_bottom_navigation_menu" />
 
-    <Button
-        android:id="@+id/runCommandBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Run command"
-        app:layout_constraintBottom_toBottomOf="@id/fragmentContainer"
-        app:layout_constraintEnd_toEndOf="parent"/>
+<!--    <Button-->
+<!--        android:id="@+id/runCommandBtn"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Run command"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/fragmentContainer"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

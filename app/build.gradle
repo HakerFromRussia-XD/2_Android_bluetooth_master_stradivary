@@ -29,7 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 9
-        versionName "3.0.844"
+        versionName "3.0.846"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release
@@ -86,6 +86,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     implementation 'androidx.core:core-ktx:1.13.1'
 
     implementation 'androidx.appcompat:appcompat:1.7.0'

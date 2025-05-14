@@ -739,7 +739,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             startGestureInLoopNum = newIndex
             selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
             System.err.println("test gestures in loop  GF gestureLoop1Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
-            System.err.println("DeviceControlActivity-------> gestureLoop1Psv sendFlag = $sendFlag")
+//            System.err.println("DeviceControlActivity-------> gestureLoop1Psv sendFlag = $sendFlag")
             if (useNewSystemSendCommand() && sendFlag) {
                 main?.runSendCommand(
                     byteArrayOf(
@@ -770,7 +770,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
             selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
 
-            System.err.println("DeviceControlActivity-------> gestureLoop2Psv sendFlag = $sendFlag")
+//            System.err.println("DeviceControlActivity-------> gestureLoop2Psv sendFlag = $sendFlag")
             if (useNewSystemSendCommand() && sendFlag) {
                 main?.runSendCommand(byteArrayOf(
                         sensorGestureSwitching.toByte(),

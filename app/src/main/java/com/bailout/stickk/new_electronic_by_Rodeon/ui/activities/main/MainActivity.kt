@@ -39,6 +39,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.viewpager.widget.ViewPager
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
@@ -154,7 +155,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
@@ -162,6 +162,7 @@ import timber.log.Timber
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.xor
+import kotlin.properties.Delegates
 
 
 @SuppressLint("MissingPermission")
@@ -174,7 +175,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var startScrollForChartFragment: ((enabledGraph: Boolean)->Unit)? = null
   var startScrollForAdvancedSettingsFragment: (()->Unit)? = null
   private var sensorsDataThreadFlag: Boolean = true
-  var reconnectThreadFlag: Boolean = false
+  private var reconnectThreadFlag: Boolean = false
   private var reconnectThread: Thread? = null
   private var mScanning = false
   private var mDisconnected = false
@@ -970,6 +971,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     val view = binding.root
     setContentView(view)
     initBaseView(this)
+    mainOld = this
     //changing statusbar
     val window = this.window
     decorator = Decorator( this, window, this, binding.myMainLl)
@@ -988,7 +990,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mBluetoothAdapter = bluetoothManager.adapter
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
 
 
     locate = Locale.getDefault().toString()
@@ -1311,7 +1313,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     try {
       System.err.println("DeviceControlActivity-------> onDestroy() unregisterReceiver")
-      unregisterReceiver(mGattUpdateReceiver)
+      LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver)
     } catch (e: IllegalArgumentException) {
       showToast("Receiver не был зарегистрирован" )
     }
@@ -2358,12 +2360,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeInt(dataSens2)
     parcel.writeInt(state)
   }
-  override fun describeContents(): Int { return 0 }   
-
-  companion object CREATOR : Parcelable.Creator<MainActivity> {
-    override fun createFromParcel(parcel: Parcel): MainActivity { return MainActivity(parcel) }
-    override fun newArray(size: Int): Array<MainActivity?> { return arrayOfNulls(size) }
-  }
+  override fun describeContents(): Int { return 0 }
 
   private fun openFragmentQuestion() {
     dialog = CustomUpdateDialogFragment()
@@ -3201,6 +3198,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
     }
+  }
+
+  companion object CREATOR : Parcelable.Creator<MainActivity> {
+    var mainOld by Delegates.notNull<MainActivity>()
+    override fun createFromParcel(parcel: Parcel): MainActivity { return MainActivity(parcel) }
+    override fun newArray(size: Int): Array<MainActivity?> { return arrayOfNulls(size) }
   }
 }
 

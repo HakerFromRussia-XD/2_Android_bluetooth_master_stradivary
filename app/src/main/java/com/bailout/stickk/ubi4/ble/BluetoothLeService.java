@@ -33,6 +33,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
@@ -250,10 +252,14 @@ public class BluetoothLeService extends Service {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            System.err.println("BLE debug onConnectionStateChange " + BluetoothProfile.STATE_CONNECTED);
             String intentAction;
+            System.err.println("BLE debug после создания intentAction");
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
+                System.err.println("BLE debug после присвоения intentAction");
                 broadcastUpdate(intentAction);
+                System.err.println("BLE debug после бродкаст рассылки");
                 System.err.println("BLE debug onConnectionStateChange STATE_CONNECTED");
                 requestMTU();
 //                mBluetoothGatt.discoverServices();
@@ -280,6 +286,8 @@ public class BluetoothLeService extends Service {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.err.println("BLE debug onMtuChanged GATT_SUCCESS");
                 mBluetoothGatt.discoverServices();
+            } else {
+                System.err.println("BLE debug onMtuChanged GATT_NOT_SUCCESS");
             }
         }
 
@@ -331,7 +339,7 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-        sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public class LocalBinder extends Binder {
@@ -392,11 +400,13 @@ public class BluetoothLeService extends Service {
      *         callback.
      */
     public boolean connect(final String address) {
+        System.err.println("connectedDeviceAddress 1");
         if (mBluetoothAdapter == null || address == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
 
+        System.err.println("connectedDeviceAddress 2");
         // Previously connected device.  Try to reconnect.
         if (address.equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null) {
@@ -404,6 +414,7 @@ public class BluetoothLeService extends Service {
             return mBluetoothGatt.connect();
         }
 
+        System.err.println("connectedDeviceAddress 3");
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             Timber.tag(TAG).w("Device not found.  Unable to connect.");
@@ -412,6 +423,7 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Timber.d("Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
+        System.err.println("connectedDeviceAddress 4");
         return true;
     }
 

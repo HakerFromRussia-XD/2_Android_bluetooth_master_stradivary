@@ -24,6 +24,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 
 
 interface ApplicationGraph {
@@ -37,6 +38,8 @@ interface ApplicationGraph {
   fun inject(target_: GripperFragment)
   fun inject(target_: GripperScreenPresenter)
   fun inject(target_: KibiFragment)
+
+  fun inject(fragment: AccountFragmentProsthesisInformationUBI4)
 
   fun inject(settingsFragment: HelpFragment)
   fun inject(sensorsFragment: SensorsFragmentHelp) {}

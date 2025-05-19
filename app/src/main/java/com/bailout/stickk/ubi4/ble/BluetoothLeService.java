@@ -33,6 +33,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.bailout.stickk.ubi4.data.state.BLEState;
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 
@@ -41,6 +44,7 @@ import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import timber.log.Timber;
@@ -237,7 +241,9 @@ public class BluetoothLeService extends Service {
                 intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
             }
         }
-        sendBroadcast(intent);
+        LocalBroadcastManager
+                .getInstance(getApplicationContext())
+                .sendBroadcast(intent);
     }
 
 
@@ -245,54 +251,40 @@ public class BluetoothLeService extends Service {
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-        @Override
+//        @Override
+//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+//            if (newState == BluetoothProfile.STATE_CONNECTED) {
+//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
+//                BLEState.INSTANCE.publishConnecting();
+//                broadcastUpdate(ACTION_GATT_CONNECTED);
+//                requestMTU();
+//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
+//                BLEState.INSTANCE.publishDisconnect();
+//                broadcastUpdate(ACTION_GATT_DISCONNECTED);
+//                // Вызываем close() с небольшой задержкой, чтобы убедиться, что разрыв завершён
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//                    close();
+//                }, 500);
+//            }
+//        }
+
+
+
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                intentAction = ACTION_GATT_CONNECTED;
                 Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
-                BLEState.INSTANCE.publishConnecting();
-                broadcastUpdate(ACTION_GATT_CONNECTED);
+                broadcastUpdate(intentAction);
                 requestMTU();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                intentAction = ACTION_GATT_DISCONNECTED;
                 Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
-                BLEState.INSTANCE.publishDisconnect();
-                broadcastUpdate(ACTION_GATT_DISCONNECTED);
-                // Вызываем close() с небольшой задержкой, чтобы убедиться, что разрыв завершён
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    close();
-                }, 500);
+                broadcastUpdate(intentAction);
             }
         }
 
-
-
-//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            String intentAction;
-//            if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                intentAction = ACTION_GATT_CONNECTED;
-//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
-//                broadcastUpdate(intentAction);
-//                requestMTU();
-//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-//                intentAction = ACTION_GATT_DISCONNECTED;
-//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
-//                broadcastUpdate(intentAction);
-//            }
-//        }
-//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            String intentAction;
-//            if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                intentAction = ACTION_GATT_CONNECTED;
-//                broadcastUpdate(intentAction);
-//                System.err.println("BLE debug onConnectionStateChange STATE_CONNECTED");
-//                requestMTU();
-////                mBluetoothGatt.discoverServices();
-//
-//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-//                intentAction = ACTION_GATT_DISCONNECTED;
-//                Timber.i("Disconnected from GATT server.");
-//                broadcastUpdate(intentAction);
-//            }
-//        }
 
         private void requestMTU() {
             int mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
@@ -365,7 +357,9 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-        sendBroadcast(intent);
+        LocalBroadcastManager
+                .getInstance(getApplicationContext())
+                .sendBroadcast(intent);
     }
 
     public class LocalBinder extends Binder {

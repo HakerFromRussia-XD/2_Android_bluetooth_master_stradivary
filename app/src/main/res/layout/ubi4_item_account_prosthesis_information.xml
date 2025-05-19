@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:viewBindingIgnore="true">
+
+    <!-- Отступы слева/справа -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/beginGuideline_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="16dp" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuideline_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="false"
+        android:clipToOutline="true"
+        android:elevation="3dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ubi4_view_with_corners_gray_outside"
+            android:clipToOutline="true"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/prosthesis_model_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/prosthesis_model"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/prosthesis_model_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/prosthesis_model_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="ПР4 MANIFESTO-EP пассивный"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/ubi4_gray_border" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/prosthesis_size_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/prosthesis_size"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/prosthesis_size_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/prosthesis_size_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="S"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/ubi4_gray_border" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/hand_side_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/hand_side_2"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/hand_side_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/hand_side_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="Left"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/ubi4_gray_border" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/rotator_type_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/rotator_type"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/rotator_type_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/rotator_type_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="quick-release with passive rotation"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/ubi4_gray_border" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/touchscreen_finger_pads_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/touchscreen_finger_pads"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/touchscreen_finger_pads_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/touchscreen_finger_pads_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="yes (index finger + middle finger)"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/ubi4_gray_border" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/battery_type_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/battery_type"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/battery_type_str_tv_ubi4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_below="@id/battery_type_tv_ubi4"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="25dp"
+                            android:fontFamily="@font/font_open_sans_semi_bold"
+                            android:text="3400 mА*h (18650)"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="12sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

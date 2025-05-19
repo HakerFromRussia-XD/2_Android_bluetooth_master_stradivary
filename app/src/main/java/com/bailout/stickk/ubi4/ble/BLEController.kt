@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -58,7 +59,6 @@ class BLEController() {
     private var progressDialog: Dialog? = null
     private var isUploading = false
     private var onDisconnectedListener: (() -> Unit)? = null
-    private lateinit var disconnectHelper:DisconnectHelper
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
     private var mConnected = false
@@ -122,7 +122,7 @@ class BLEController() {
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-        mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
         mBLEParser = bleParser
     }
 
@@ -162,6 +162,7 @@ class BLEController() {
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
                     mConnected = true
+                    Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
@@ -394,7 +395,9 @@ class BLEController() {
         // Отменяем запущенные корутины
         bleJob.cancel()
         try {
-            mContext.unregisterReceiver(mGattUpdateReceiver)
+            LocalBroadcastManager
+                .getInstance(mContext)
+                .unregisterReceiver(mGattUpdateReceiver)
         } catch (e: IllegalArgumentException) {
             Log.w("BLEController", "Ресивер уже отписан")
         }

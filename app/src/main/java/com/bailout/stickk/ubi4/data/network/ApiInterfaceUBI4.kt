@@ -25,6 +25,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 interface ApiInterfaceUBI4 {
 
@@ -105,6 +106,7 @@ interface ApiInterfaceUBI4 {
 
     @Multipart
     @POST("/passport_data/")
+    @Streaming
     suspend fun uploadFiles(
         @Header("Authorization") auth: String,
         @Part files: List<MultipartBody.Part>

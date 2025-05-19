@@ -36,7 +36,9 @@ kotlin {
         homepage = "https://github.com/your‑repo"
         version = "1.0.0"
         ios.deploymentTarget = "14.0"
-        framework { baseName = "Shared" }
+        framework { baseName = "Shared"
+            export("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+        }
     }
     android()
     iosX64()
@@ -92,6 +94,8 @@ kotlin {
                 // Ktor для iOS (движок Darwin)
                 implementation "io.ktor:ktor-client-darwin:2.3.2"
                 kotlin.srcDir "$buildDir/generated/moko/resources/iosMain/kotlin"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
+
             }
         }
         iosX64Main {

@@ -8,9 +8,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.RotateDrawable
 import android.os.Bundle
 import android.os.IBinder
-import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -54,8 +56,9 @@ import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
-import com.bailout.stickk.ubi4.ui.fragments.account.AccountFragmentMainUBI4
-import com.bailout.stickk.ubi4.ui.fragments.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -63,7 +66,6 @@ import com.bailout.stickk.ubi4.utility.TrainingPipeline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.properties.Delegates
@@ -229,7 +231,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(accountFragment)
 //        launchFragmentWithStack(AccountFragmentMainUBI4())
     }
-    override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(AccountFragmentCustomerServiceUBI4()) }
+    override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
+        AccountFragmentCustomerServiceUBI4()
+    ) }
+
+    override fun showAccountProsthesisInformationScreen() { launchFragmentWithStack(
+        AccountFragmentProsthesisInformationUBI4()
+    ) }
+
     fun openScanActivity() {
         System.err.println("Check openScanActivity()")
         resetLastMAC()
@@ -396,10 +405,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     private fun observeBattery(){
+        val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
+        val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
+        val shapeDrawable = rotate.drawable as GradientDrawable
         lifecycleScope.launch {
             batteryPercentFlow.collect{ percent ->
                 binding.batteryProgressBar.progress = percent
-
+                if (percent < 20){
+                    shapeDrawable.setColor(ContextCompat.getColor(this@MainActivityUBI4, R.color.red))
+                }
+                else{
+                    (percent >= 22)
+                    shapeDrawable.setColor(ContextCompat.getColor(this@MainActivityUBI4, R.color.ubi4_active))
+                }
             }
 
         }

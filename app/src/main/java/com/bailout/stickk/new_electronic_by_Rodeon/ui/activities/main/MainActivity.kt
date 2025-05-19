@@ -39,6 +39,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.viewpager.widget.ViewPager
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
@@ -988,7 +989,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mBluetoothAdapter = bluetoothManager.adapter
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
 
 
     locate = Locale.getDefault().toString()
@@ -1311,7 +1312,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     try {
       System.err.println("DeviceControlActivity-------> onDestroy() unregisterReceiver")
-      unregisterReceiver(mGattUpdateReceiver)
+      LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver)
     } catch (e: IllegalArgumentException) {
       showToast("Receiver не был зарегистрирован" )
     }

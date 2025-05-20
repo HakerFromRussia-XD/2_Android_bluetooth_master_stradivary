@@ -19,14 +19,14 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.A1_MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.A0_MAIN_CHANNEL_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.A0_MAIN_SERVICE_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
@@ -37,11 +37,11 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCom
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class BLEController(
     main: AppCompatActivity,
@@ -66,6 +66,7 @@ class BLEController(
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
+    private val firstNotificationRequestFlags = mutableMapOf<String, Boolean>()
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
@@ -77,7 +78,7 @@ class BLEController(
                 mMain.finish()
             }
             if (!scanWithoutConnectFlag) {
-//                System.err.println("connectedDeviceAddress $connectedDeviceAddress")
+                System.err.println("connectedDeviceAddress $connectedDeviceAddress")
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
@@ -89,7 +90,7 @@ class BLEController(
 //                mBluetoothLeService?.connect("34:85:18:98:10:7E")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
 
-//                mBluetoothLeService?.connect(connectedDeviceAddress)
+                mBluetoothLeService?.connect(connectedDeviceAddress)
 //                System.err.println("connectedDeviceAddress A0:BB:CC:DD:EE:FF")
 //                System.err.println("connectedDeviceAddress A1:BB:CC:DD:EE:FF")
 //                System.err.println("connectedDeviceAddress A2:BB:CC:DD:EE:FF")
@@ -97,12 +98,12 @@ class BLEController(
 //                System.err.println("connectedDeviceAddress A4:BB:CC:DD:EE:FF")
 //                System.err.println("connectedDeviceAddress A5:BB:CC:DD:EE:FF")
 //                Log.d("connectedDeviceAddress", "${mBluetoothLeService?.newConnect(connectedDeviceAddress)}" )
-                mBluetoothLeService?.newConnect("A0:BB:CC:DD:EE:FF")
-                mBluetoothLeService?.newConnect("A1:BB:CC:DD:EE:FF")
-                mBluetoothLeService?.newConnect("A2:BB:CC:DD:EE:FF")
-                mBluetoothLeService?.newConnect("A3:BB:CC:DD:EE:FF")
-                mBluetoothLeService?.newConnect("A4:BB:CC:DD:EE:FF")
-                mBluetoothLeService?.newConnect("A5:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A0:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A1:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A2:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A3:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A4:BB:CC:DD:EE:FF")
+//                mBluetoothLeService?.newConnect("A5:BB:CC:DD:EE:FF")
             }
         }
 
@@ -147,16 +148,19 @@ class BLEController(
                     mConnected = true
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
-
+                        val deviceAddress: String = intent.getStringExtra("DEVICE_ADDRESS") ?: "A0:BB:CC:DD:EE:FF"
+                        firstNotificationRequestFlags[deviceAddress] = true
                         GlobalScope.launch {
-                            newFirstNotificationRequest()
+                            newFirstNotificationRequest(deviceAddress)
                         }
                     }
                 }
                 BluetoothLeService.NEW_ACTION_DATA_AVAILABLE == action -> {
                     if(intent.getByteArrayExtra(BluetoothLeService.NEW_CHARACTERISTIC_UUID) != null) {
                         firstNotificationRequestFlag = false
-                        Log.d("newGattUpdateReceiver","${intent.getByteArrayExtra(BluetoothLeService.NEW_CHARACTERISTIC_UUID)}")
+                        val deviceAddress = intent.getStringExtra("DEVICE_ADDRESS")
+                        val receiveDataString: String = EncodeByteToHex.bytesToHexString(intent.getByteArrayExtra(BluetoothLeService.NEW_CHARACTERISTIC_UUID)!!)
+                        Log.d("newGattUpdateReceiver","пришли данные = $receiveDataString от $deviceAddress")
                     }
                 }
             }
@@ -221,16 +225,16 @@ class BLEController(
             }
         }
     }
-    private suspend fun newFirstNotificationRequest()  {
+    private suspend fun newFirstNotificationRequest(deviceAddress: String)  {
         System.err.println("BLE debug firstNotificationRequest")
         System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
-        Log.d("newGattUpdateReceiver", "newFirstNotificationRequest = ${mBluetoothLeService?.connectedDevices}" )
+        Log.d("newGattUpdateReceiver", "newFirstNotificationRequest = ${mBluetoothLeService?.connectedDevices} A0_MAIN_CHANNEL_UUID = $A0_MAIN_CHANNEL_UUID" )
 
-        bleCommand(null, A1_MAIN_CHANNEL, NOTIFY)
+        newBleCommand(deviceAddress, A0_MAIN_SERVICE_UUID, A0_MAIN_CHANNEL_UUID,null, NOTIFY)
         delay(1000)
 
-        if (firstNotificationRequestFlag) {
-            firstNotificationRequest()
+        if (firstNotificationRequestFlags[deviceAddress] == true) {
+            newFirstNotificationRequest(deviceAddress)
         }
     }
     private suspend fun firstNotificationRequest()  {
@@ -242,7 +246,7 @@ class BLEController(
         delay(1000)
 
         if (firstNotificationRequestFlag) {
-            newFirstNotificationRequest()
+            firstNotificationRequest()
         }
     }
     private fun parseReceivedData (data: ByteArray?) {
@@ -405,6 +409,13 @@ class BLEController(
 
                 }
             }
+        }
+    }
+    internal fun newBleCommand(deviceAddres: String, serviceUuid: UUID, characteristicUuid: UUID, byteArray: ByteArray?, typeCommand: String) {
+        when (typeCommand) {
+            WRITE -> { mBluetoothLeService?.newWriteCharacteristic(deviceAddres, serviceUuid, characteristicUuid, byteArray) }
+            READ -> { mBluetoothLeService?.newReadCharacteristic(deviceAddres, serviceUuid, characteristicUuid) }
+            NOTIFY -> { mBluetoothLeService?.newSetCharacteristicNotification(deviceAddres, serviceUuid, characteristicUuid, true) }
         }
     }
     fun setOnDisconnectedListener(listener: () -> Unit) {

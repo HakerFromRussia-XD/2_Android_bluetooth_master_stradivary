@@ -113,6 +113,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService
 import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
@@ -990,8 +991,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mBluetoothAdapter = bluetoothManager.adapter
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-    LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      // Android 15 и выше
+      LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    } else {
+      // Android 14 и ниже
+      registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    }
 
     locate = Locale.getDefault().toString()
 
@@ -1313,7 +1319,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     try {
       System.err.println("DeviceControlActivity-------> onDestroy() unregisterReceiver")
-      LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        // Android 15 и выше
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver)
+      } else {
+        // Android 14 и ниже
+        unregisterReceiver(mGattUpdateReceiver)
+      }
     } catch (e: IllegalArgumentException) {
       showToast("Receiver не был зарегистрирован" )
     }

@@ -13,6 +13,8 @@
 
 package com.bailout.stickk.ubi4.ble;
 
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_INDICATE;
+
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -39,6 +41,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -339,7 +342,14 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 15 и выше
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        } else {
+            // Android 14 и ниже
+            sendBroadcast(intent);
+        }
+
     }
 
     public class LocalBinder extends Binder {
@@ -534,7 +544,11 @@ public class BluetoothLeService extends Service {
                 mConnectedDevices.put(mDeviceAddress, gatt.getDevice());
                 intentAction = NEW_ACTION_GATT_CONNECTED;
                 broadcastDeviceUpdate(intentAction, mDeviceAddress);
-                requestMTU(deviceGatt);
+//                BluetoothGatt deviceGatt = mBluetoothGatts.get(mDeviceAddress);
+                if (deviceGatt != null) {
+                    deviceGatt.discoverServices();
+                }
+//                requestMTU(deviceGatt);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mConnectedDevices.remove(mDeviceAddress);
                 mBluetoothGatts.remove(mDeviceAddress);
@@ -564,12 +578,8 @@ public class BluetoothLeService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastDeviceUpdate(NEW_ACTION_GATT_SERVICES_DISCOVERED, mDeviceAddress);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    gatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK,
-                            BluetoothDevice.PHY_LE_2M_MASK,
-                            BluetoothDevice.PHY_OPTION_NO_PREFERRED);
-                }
+                String deviceAddress = gatt.getDevice().getAddress();
+                broadcastDeviceUpdate(NEW_ACTION_GATT_SERVICES_DISCOVERED, deviceAddress);
             }
         }
 
@@ -578,7 +588,8 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastDeviceUpdateSendData(characteristic, SampleGattAttributes.READ);
+                String deviceAddress = gatt.getDevice().getAddress();
+                broadcastDeviceUpdateSendData(deviceAddress, characteristic, SampleGattAttributes.READ);
             }
         }
 
@@ -599,7 +610,17 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            broadcastDeviceUpdateSendData(characteristic, SampleGattAttributes.NOTIFY);
+            String deviceAddress = gatt.getDevice().getAddress();
+            broadcastDeviceUpdateSendData(deviceAddress, characteristic, SampleGattAttributes.NOTIFY);
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt,
+                                      BluetoothGattDescriptor descriptor,
+                                      int status) {
+            Log.d("newGattUpdateReceiver", "onDescriptorWrite: uuid="
+                    + descriptor.getUuid()
+                    + " status=" + status);
         }
     }
 
@@ -609,15 +630,17 @@ public class BluetoothLeService extends Service {
         intent.putExtra("DEVICE_ADDRESS", deviceAddress);
         sendBroadcast(intent);
     }
-    private void broadcastDeviceUpdateSendData(final BluetoothGattCharacteristic characteristic, final String state) {
+    private void broadcastDeviceUpdateSendData(String deviceAddress, final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.NEW_ACTION_DATA_AVAILABLE);
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             if (state.equals(SampleGattAttributes.NOTIFY)) {
                 intent.putExtra(NEW_CHARACTERISTIC_UUID, data);
+                intent.putExtra("DEVICE_ADDRESS", deviceAddress);
             }
             if (state.equals(SampleGattAttributes.WRITE)) {
                 intent.putExtra(NEW_CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid()));
+                intent.putExtra("DEVICE_ADDRESS", deviceAddress);
             }
         }
         sendBroadcast(intent);
@@ -641,6 +664,7 @@ public class BluetoothLeService extends Service {
             return false;
         }
         BluetoothGatt gatt = device.connectGatt(this, false, new DeviceAwareGattCallback(address));
+        Log.e("newGattUpdateReceiver", "connectGatt вернул: " + gatt);
         mBluetoothGatts.put(address, gatt);
         return true;
     }
@@ -671,7 +695,30 @@ public class BluetoothLeService extends Service {
         return new ArrayList<>(mConnectedDevices.values());
     }
 
-    public void writeCharacteristic(String deviceAddress, UUID serviceUuid, UUID characteristicUuid, byte[] value) {
+    /**
+     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristicUuid The characteristic to read from.
+     */
+    public void newReadCharacteristic(String deviceAddress, UUID serviceUuid, UUID characteristicUuid) {
+        BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
+        if (gatt != null) {
+            BluetoothGattService service = gatt.getService(serviceUuid);
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
+            gatt.readCharacteristic(characteristic);
+        }
+    }
+
+    /**
+     * Request a write {@code BluetoothGattCharacteristic}. The read result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristicUuid The characteristic a write.
+     */
+    public void newWriteCharacteristic(String deviceAddress, UUID serviceUuid, UUID characteristicUuid, byte[] value) {
         BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
         if (gatt != null) {
             BluetoothGattService service = gatt.getService(serviceUuid);
@@ -679,5 +726,91 @@ public class BluetoothLeService extends Service {
             characteristic.setValue(value);
             gatt.writeCharacteristic(characteristic);
         }
+    }
+
+    /**
+     * Enables or disables notification on a give characteristic.
+     *
+     * @param characteristicUuid Characteristic to act on.
+     * @param enabled If true, enable notification.  False otherwise.
+     */
+//    public void newSetCharacteristicNotification(String deviceAddress, UUID serviceUuid, UUID characteristicUuid,
+//                                              boolean enabled) {
+//        BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
+//        if (gatt != null) {
+//            BluetoothGattService service = gatt.getService(serviceUuid);
+//            if (service != null) {
+//                Log.d("newGattUpdateReceiver", "service = " + service.getUuid());
+//                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUuid);
+//                Log.d("newGattUpdateReceiver", "characteristic = "+characteristic.getUuid());
+//                int props = characteristic.getProperties();
+//                if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+//                    Log.d("newGattUpdateReceiver", "не поддерживает NOTIFY");
+//                } else {
+//                    Log.d("newGattUpdateReceiver", "поддерживает NOTIFY");
+//                }
+//                if ((props & PROPERTY_INDICATE) == 0) {
+////                    descriptor.setValue(ENABLE_INDICATION_VALUE);
+//                    Log.d("newGattUpdateReceiver", "не поддерживает PROPERTY_INDICATE");
+//                } else {
+//                    Log.d("newGattUpdateReceiver", "поддерживает PROPERTY_INDICATE");
+//                }
+//                gatt.setCharacteristicNotification(characteristic, enabled);
+//                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+//                        UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+//                if (descriptor != null) {
+//                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                    gatt.writeDescriptor(descriptor);
+//                    Log.e("newGattUpdateReceiver", "Descriptor успешно записан");
+//                } else {
+//                    Log.e("newGattUpdateReceiver", "Descriptor not found for characteristic " + characteristicUuid);
+//                }
+//            } else { Log.e("newGattUpdateReceiver", "service == null"); }
+//        } else { Log.e("newGattUpdateReceiver", "gatt == null"); }
+//    }
+    public void newSetCharacteristicNotification(String deviceAddress, UUID serviceUuid, UUID characteristicUuid, boolean enabled) {
+        BluetoothGatt gatt = mBluetoothGatts.get(deviceAddress);
+        if (gatt == null) {
+            Log.e("newGattUpdateReceiver", "gatt == null");
+            return;
+        }
+
+        BluetoothGattService service = gatt.getService(serviceUuid);
+        if (service == null) {
+            Log.e("newGattUpdateReceiver", "service == null");
+            return;
+        }
+
+        BluetoothGattCharacteristic characteristic =
+                service.getCharacteristic(characteristicUuid);
+        if (characteristic == null) {
+            Log.e("newGattUpdateReceiver", "characteristic == null");
+            return;
+        }
+
+        int props = characteristic.getProperties();
+        gatt.setCharacteristicNotification(characteristic, enabled);
+
+
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+        if (descriptor == null) {
+            Log.e("newGattUpdateReceiver", "Descriptor not found");
+            return;
+        }
+
+        if ((props & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            Log.d("newGattUpdateReceiver", "Writing ENABLE_NOTIFICATION_VALUE");
+        } else if ((props & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+            Log.d("newGattUpdateReceiver", "Writing ENABLE_INDICATION_VALUE");
+        } else {
+            Log.e("newGattUpdateReceiver", "Neither NOTIFY nor INDICATE supported");
+            return;
+        }
+
+        // асинхронно пишем дескриптор
+        gatt.writeDescriptor(descriptor);
     }
 }

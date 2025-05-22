@@ -19,14 +19,13 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.A0_MAIN_CHANNEL_UUID
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.A0_MAIN_SERVICE_UUID
+import com.bailout.stickk.ubi4.ble.BLEState.bleParser
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
@@ -34,20 +33,20 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.UUID
+import kotlinx.coroutines.withContext
 
-class BLEController(
-    main: AppCompatActivity,
-) {
+class BLEController() {
     private val mContext: Context = main.applicationContext
-    private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mBLEParser: BLEParser? = null
 
 
@@ -59,23 +58,26 @@ class BLEController(
     private var progressDialog: Dialog? = null
     private var isUploading = false
     private var onDisconnectedListener: (() -> Unit)? = null
-
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
     private var mConnected = false
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
-    private val firstNotificationRequestFlags = mutableMapOf<String, Boolean>()
+
+    private val bleJob = Job()
+    private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
+    private var mDisconnected = false
+
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
                 if(state == WRITE)
-                canSendFlag = true
+                    canSendFlag = true
             }
             if (!mBluetoothLeService?.initialize()!!) {
-                mMain.finish()
+                main.finish()
             }
             if (!scanWithoutConnectFlag) {
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
@@ -89,21 +91,11 @@ class BLEController(
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E")  // протез Макса
 //                mBluetoothLeService?.connect("34:85:18:98:10:7E")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
+//                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
+//                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") //fest FO3
+
 
                 mBluetoothLeService?.connect(connectedDeviceAddress)
-//                System.err.println("connectedDeviceAddress A0:BB:CC:DD:EE:FF")
-//                System.err.println("connectedDeviceAddress A1:BB:CC:DD:EE:FF")
-//                System.err.println("connectedDeviceAddress A2:BB:CC:DD:EE:FF")
-//                System.err.println("connectedDeviceAddress A3:BB:CC:DD:EE:FF")
-//                System.err.println("connectedDeviceAddress A4:BB:CC:DD:EE:FF")
-//                System.err.println("connectedDeviceAddress A5:BB:CC:DD:EE:FF")
-//                Log.d("connectedDeviceAddress", "${mBluetoothLeService?.newConnect(connectedDeviceAddress)}" )
-//                mBluetoothLeService?.newConnect("A0:BB:CC:DD:EE:FF")
-//                mBluetoothLeService?.newConnect("A1:BB:CC:DD:EE:FF")
-//                mBluetoothLeService?.newConnect("A2:BB:CC:DD:EE:FF")
-//                mBluetoothLeService?.newConnect("A3:BB:CC:DD:EE:FF")
-//                mBluetoothLeService?.newConnect("A4:BB:CC:DD:EE:FF")
-//                mBluetoothLeService?.newConnect("A5:BB:CC:DD:EE:FF")
             }
         }
 
@@ -112,78 +104,45 @@ class BLEController(
         }
     }
 
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
-        if (!mMain.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+        if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(mContext, "ошибка 1", Toast.LENGTH_SHORT).show()
-            mMain.finish()
+            main.finish()
         }
-        val bluetoothManager = mMain.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager = main.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         mBluetoothAdapter = bluetoothManager.adapter
         if (mBluetoothAdapter == null) {
             Toast.makeText(mContext, "ошибка 2", Toast.LENGTH_SHORT).show()
-            mMain.finish()
+            main.finish()
         } else {
 //            Toast.makeText(mContext, "mBluetoothAdapter != null", Toast.LENGTH_SHORT).show()
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        mContext.registerReceiver(newGattUpdateReceiver, makeNewGattUpdateIntentFilter())
-        mBLEParser = BLEParser()
+        mBLEParser = bleParser
     }
 
-    private val newGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            when {
-                BluetoothLeService.NEW_ACTION_GATT_CONNECTED == action -> {
-//                    Log.d("newGattUpdateReceiver","${intent.getByteArrayExtra("DEVICE_ADDRESS")}")
-//                    Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
-                    Log.d("newGattUpdateReceiver", "connectedDevices = ${mBluetoothLeService?.connectedDevices}" )
-                    reconnectThreadFlag = false
-                }
-                BluetoothLeService.NEW_ACTION_GATT_DISCONNECTED == action -> {}
-                BluetoothLeService.NEW_ACTION_GATT_SERVICES_DISCOVERED == action -> {
-                    mConnected = true
-                    if (mBluetoothLeService != null) {
-                        displayGattServices(mBluetoothLeService!!.supportedGattServices)
-                        val deviceAddress: String = intent.getStringExtra("DEVICE_ADDRESS") ?: "A0:BB:CC:DD:EE:FF"
-                        firstNotificationRequestFlags[deviceAddress] = true
-                        GlobalScope.launch {
-                            newFirstNotificationRequest(deviceAddress)
-                        }
-                    }
-                }
-                BluetoothLeService.NEW_ACTION_DATA_AVAILABLE == action -> {
-                    if(intent.getByteArrayExtra(BluetoothLeService.NEW_CHARACTERISTIC_UUID) != null) {
-                        firstNotificationRequestFlag = false
-                        val deviceAddress = intent.getStringExtra("DEVICE_ADDRESS")
-                        val receiveDataString: String = EncodeByteToHex.bytesToHexString(intent.getByteArrayExtra(BluetoothLeService.NEW_CHARACTERISTIC_UUID)!!)
-                        Log.d("newGattUpdateReceiver","пришли данные = $receiveDataString от $deviceAddress")
-                    }
-                }
-            }
-        }
-
-    }
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressLint("ResourceAsColor")
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-                    Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
+                    System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    if (mDisconnected) {
+                        Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
+                        System.err.println("Устройство отключено намеренно, не переподключаемся")
+                        return
+                    }
                     mConnected = false
                     isUploading = false
                     endFlag = true
-//                    graphThreadFlag = false
-                    mMain.invalidateOptionsMenu()
-//                    percentSynchronize = 0
-
                     progressDialog?.dismiss()
                     progressDialog = null
 
@@ -192,8 +151,10 @@ class BLEController(
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
                     }
 
+                    mBluetoothLeService?.disconnect()
+                    mBluetoothLeService?.close()
 
-                    if(!reconnectThreadFlag && !mScanning){
+                    if (!reconnectThreadFlag && !mScanning) {
                         reconnectThreadFlag = true
                         reconnectThread()
                     }
@@ -203,7 +164,7 @@ class BLEController(
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        GlobalScope.launch {
+                        main.lifecycleScope.launch {
                             firstNotificationRequest()
                         }
                     }
@@ -221,22 +182,16 @@ class BLEController(
                             0xff.toByte(), 0x01, 0x02, 0x03)
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
+
                 }
+
             }
         }
     }
-    private suspend fun newFirstNotificationRequest(deviceAddress: String)  {
-        System.err.println("BLE debug firstNotificationRequest")
-        System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
-        Log.d("newGattUpdateReceiver", "newFirstNotificationRequest = ${mBluetoothLeService?.connectedDevices} A0_MAIN_CHANNEL_UUID = $A0_MAIN_CHANNEL_UUID" )
 
-        newBleCommand(deviceAddress, A0_MAIN_SERVICE_UUID, A0_MAIN_CHANNEL_UUID,null, NOTIFY)
-        delay(1000)
 
-        if (firstNotificationRequestFlags[deviceAddress] == true) {
-            newFirstNotificationRequest(deviceAddress)
-        }
-    }
+
+
     private suspend fun firstNotificationRequest()  {
         System.err.println("BLE debug firstNotificationRequest")
         System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
@@ -255,6 +210,7 @@ class BLEController(
             mBLEParser?.parseReceivedData(data)
         }
     }
+
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
         if (gattServices == null) return
@@ -292,46 +248,64 @@ class BLEController(
         }
         if (mScanning) { scanLeDevice(false) }
     }
-    internal fun reconnectThread() {
-//        System.err.println("--> reconnectThread started")
+    fun reconnectThread() {
         var j = 1
-        val reconnectThread = Thread {
+        bleScope.launch {
             while (reconnectThreadFlag) {
-                mMain.runOnUiThread {
-                    if(j % 5 == 0) {
-                        reconnectThreadFlag = false
-                        scanLeDevice(true)
-                        System.err.println("DeviceControlActivity------->   Переподключение со сканированием №$j")
-                    } else {
-                        reconnect()
-                        System.err.println("DeviceControlActivity------->   Переподключение без сканирования №$j")
-                    }
-                    j++
+                if (j % 5 == 0) {
+                    reconnectThreadFlag = false
+                    scanLeDevice(true)
+                    System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
+                } else {
+                    reconnect()
+                    System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
                 }
-                try {
-                    Thread.sleep(RECONNECT_BLE_PERIOD.toLong())
-                } catch (ignored: Exception) { }
+                j++
+                delay(RECONNECT_BLE_PERIOD.toLong())
             }
         }
-        reconnectThread.start()
     }
-    private fun reconnect () {
-        //полное завершение сеанса связи и создание нового в onResume
+
+    private suspend fun reconnect() {
+        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
+        withContext(Dispatchers.IO) {
+            try {
+                mContext.unbindService(mServiceConnection)
+            } catch (ex: Exception) {
+                // Если не был привязан, можно игнорировать ошибку
+                Log.w("BLEController", "Не удалось отцепить сервис: ${ex.message}")
+            }
+            mBluetoothLeService = null
+
+            val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
+            mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+        }
+
+        // На главном потоке регистрируем ресивер (если требуется)
+        withContext(Dispatchers.Main) {
+            try {
+                // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
+                mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+            } catch (e: IllegalArgumentException) {
+                // Если уже зарегистрирован, игнорируем
+                Log.w("BLEController", "Ресивер уже зарегистрирован")
+            }
+            mBluetoothLeService?.connect(connectedDeviceAddress)
+        }
+    }
+    fun disconnect() {
+        reconnectThreadFlag = false
+        mDisconnected = true
         if (mBluetoothLeService != null) {
+            println("--> дисконнектим всё к хуям и анбайндим")
+            mBluetoothLeService!!.disconnect()
             mContext.unbindService(mServiceConnection)
             mBluetoothLeService = null
         }
-
-        val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
-        mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-
-//        BLE
-        mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        if (mBluetoothLeService != null) {
-            mBluetoothLeService!!.connect(connectedDeviceAddress)
-        } else {
-//            println("--> вызываем функцию коннекта к устройству $connectedDeviceName = null")
-        }
+        mConnected = false
+//        invalidateOptionsMenu()
+        listWidgets.clear()
+        main.openScanActivity()
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()
@@ -339,14 +313,6 @@ class BLEController(
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED)
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE)
-        return intentFilter
-    }
-    private fun makeNewGattUpdateIntentFilter(): IntentFilter {
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(BluetoothLeService.NEW_ACTION_GATT_CONNECTED)
-        intentFilter.addAction(BluetoothLeService.NEW_ACTION_GATT_DISCONNECTED)
-        intentFilter.addAction(BluetoothLeService.NEW_ACTION_GATT_SERVICES_DISCOVERED)
-        intentFilter.addAction(BluetoothLeService.NEW_ACTION_DATA_AVAILABLE)
         return intentFilter
     }
     internal fun scanLeDevice(enable: Boolean) {
@@ -365,7 +331,7 @@ class BLEController(
     }
     @SuppressLint("MissingPermission")
     private val mLeScanCallback = BluetoothAdapter.LeScanCallback { device, _, _ ->
-        mMain.runOnUiThread {
+        main.runOnUiThread {
             if (device.name != null) {
                 System.err.println("------->   ===============найден девайс: ${device.address} - ${device.name}  ищем $connectedDeviceAddress ==============")
                 if (device.address == connectedDeviceAddress) {
@@ -380,19 +346,25 @@ class BLEController(
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+        Log.d("BLEController", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
+                Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid}")
                 if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                            Log.d("bleCommand", "Отправка команды: ${byteArray?.let {
+                                EncodeByteToHex.bytesToHexString(
+                                    it
+                                )
+                            }} на UUID: $uuid")
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                         }
                     }
-
                     if (typeCommand == READ){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
                             mBluetoothLeService?.readCharacteristic(mCharacteristic)
@@ -411,18 +383,20 @@ class BLEController(
             }
         }
     }
-    internal fun newBleCommand(deviceAddres: String, serviceUuid: UUID, characteristicUuid: UUID, byteArray: ByteArray?, typeCommand: String) {
-        when (typeCommand) {
-            WRITE -> { mBluetoothLeService?.newWriteCharacteristic(deviceAddres, serviceUuid, characteristicUuid, byteArray) }
-            READ -> { mBluetoothLeService?.newReadCharacteristic(deviceAddres, serviceUuid, characteristicUuid) }
-            NOTIFY -> { mBluetoothLeService?.newSetCharacteristicNotification(deviceAddres, serviceUuid, characteristicUuid, true) }
-        }
-    }
     fun setOnDisconnectedListener(listener: () -> Unit) {
         // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
         onDisconnectedListener = listener
     }
 
+    fun cleanup() {
+        // Отменяем запущенные корутины
+        bleJob.cancel()
+        try {
+            mContext.unregisterReceiver(mGattUpdateReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.w("BLEController", "Ресивер уже отписан")
+        }
+    }
 
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }

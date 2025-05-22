@@ -22,6 +22,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
@@ -90,7 +91,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         trainingModelHandler.initialize()
 
         // инициализация блютуз
-        mBLEController = BLEController(this)
+        mBLEController = BLEController()
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
         startQueue()
@@ -176,6 +177,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
+    fun openScanActivity() {
+        System.err.println("Check openScanActivity()")
+        resetLastMAC()
+        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    private fun resetLastMAC() {
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+    }
     override fun goingBack() { onBackPressed() }
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)

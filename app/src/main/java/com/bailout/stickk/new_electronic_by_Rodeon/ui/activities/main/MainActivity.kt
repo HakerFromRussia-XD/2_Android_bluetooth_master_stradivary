@@ -991,11 +991,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mBluetoothAdapter = bluetoothManager.adapter
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
       // Android 15 и выше
+//      Log.d("Android version","Android 15 и выше")
       LocalBroadcastManager.getInstance(this).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     } else {
       // Android 14 и ниже
+//      Log.d("Android version","Android 14 и ниже")
       registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     }
 
@@ -1319,11 +1321,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     try {
       System.err.println("DeviceControlActivity-------> onDestroy() unregisterReceiver")
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         // Android 15 и выше
+//        Log.d("Android version","Android 15 и выше")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mGattUpdateReceiver)
       } else {
         // Android 14 и ниже
+//        Log.d("Android version","Android 14 и ниже")
         unregisterReceiver(mGattUpdateReceiver)
       }
     } catch (e: IllegalArgumentException) {
@@ -2023,7 +2027,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     System.err.println("DeviceControlActivity-------> queue add tasks runStartVM")} }
   private fun getStartVM(state: Int): Runnable { return Runnable { readStartVM(state) }}
   private fun readStartVM(state: Int) {
-    val info = "DeviceControlActivity-------> $mDeviceAddress  Чтение порогов и версий state"
+    val info = "DeviceControlActivity-------> $mDeviceAddress  Чтение порогов и версий state VM"
     var count = 0
     var localState = state // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции

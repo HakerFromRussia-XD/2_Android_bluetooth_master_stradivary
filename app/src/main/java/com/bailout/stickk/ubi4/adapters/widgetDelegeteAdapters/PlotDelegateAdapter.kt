@@ -180,7 +180,7 @@ class PlotDelegateAdapter (
             RetryUtils.sendRequestWithRetry(
                 request = {
                     Log.d(
-                        "SwitcherRequest",
+                        "PlotRequest",
                         "addressDevice = $addressDevice parameterID = $parameterID"
                     )
                     main.bleCommandWithQueue(

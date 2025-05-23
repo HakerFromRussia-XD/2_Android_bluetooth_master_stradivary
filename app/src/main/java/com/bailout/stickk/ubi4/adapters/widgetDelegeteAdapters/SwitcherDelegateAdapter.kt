@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSS
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -53,6 +54,8 @@ class SwitcherDelegateAdapter(
 
     private lateinit var _indicatorOpticStreamIv: ImageView
     private var timer: CountDownTimer? = null
+    private var programmaticChange = false
+
 
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItem) {
         onDestroyParent { onDestroy() }
@@ -90,9 +93,6 @@ class SwitcherDelegateAdapter(
 
         // Здесь происходит начальная конфигурация UI
         setUIMobileSettings(keyMobileSettings, widgetSwitchSc)
-        if (keyMobileSettings == ""){
-            widgetSwitchSc.isChecked = switchChecked
-        }
         widgetDescriptionTv.text = item.title
         Log.d("TestTitle", "${item.title}")
         if (item.title.contains("START LERNING")) {
@@ -102,10 +102,13 @@ class SwitcherDelegateAdapter(
 
 
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
+            if (programmaticChange) return@setOnCheckedChangeListener
             Log.d("sendSwitcherState", "setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}")
             onSwitchClick(addressDevice, parameterID, isChecked)
             processingMobileSettings(keyMobileSettings, widgetSwitchSc)
         }
+
+
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
@@ -143,10 +146,15 @@ class SwitcherDelegateAdapter(
         switchCollect()
     }
 
+    private fun updateSwitchState(newState: Boolean, switch: Switch) {
+        programmaticChange = true
+        switch.isChecked = newState
+        programmaticChange = false
+    }
     private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, switch.isChecked) }
+                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION, switch.isChecked) }
             }
         }
     }
@@ -154,12 +162,7 @@ class SwitcherDelegateAdapter(
     private fun setUIMobileSettings(keyMobileSettings: String, @SuppressLint("UseSwitchCompatOrMaterialCode") switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> {
-                    if (main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)) {
-                        Log.d("setUIMobileSettings", "keyMobileSettings $keyMobileSettings ${main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)}")
-                        switch.isChecked = true
-                    }
-                }
+                MobileSettingsKey.AUTO_LOGIN.key -> { switch.isChecked = true }
             }
         }
     }
@@ -192,11 +195,9 @@ class SwitcherDelegateAdapter(
         )
         if (parameter.data.isNotEmpty()) {
             try {
-                widgetSwitchInfo[getIndexWidgetSwitch(
-                    parameterRef.addressDevice,
-                    parameterRef.parameterID
-                )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
-                widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+                widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
+                updateSwitchState(widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked,widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch )
+//                widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
 
             } catch (e:Exception){
                 Log.d("switchCollect","$e")

@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
 import com.bailout.stickk.ubi4.data.state.UiState.isMobileSettings
@@ -32,7 +33,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val mDataFactory: DataFactory = DataFactory()
     private val display = 2
     private var previousMobileSettings: Boolean? = null
-
+    private var isMobileSettings = false
 
 
     override fun onCreateView(
@@ -50,41 +51,34 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        isMobileSettings = main.getBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, false)
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
 
         binding.prostheticSettingsBtn.setOnClickListener {
-            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)
+            main.saveBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, false)
             activeSettingsFragmentFilterFlow.value = 1
             if (isMobileSettings) {
                 isMobileSettings = false
+                binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
+                binding.settingsRecyclerView.adapter = adapterWidgets
                 updateUI()
             }
         }
 
         binding.mobileSettingsBtn.setOnClickListener {
-            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 2)
+            main.saveBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, true)
             activeSettingsFragmentFilterFlow.value = 2
             if (!isMobileSettings) {
                 isMobileSettings = true
+                binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
+                binding.settingsRecyclerView.adapter = adapterWidgets
                 updateUI()
             }
         }
 
 
-
-        val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, 1)
-        when(savedFilter) {
-            1 -> isMobileSettings = false
-            2 -> isMobileSettings = true
-        }
-
-        binding.settingsSelectorContainer.post {
-        updateUI()
-        }
-
-
+        binding.settingsSelectorContainer.post { updateUI() }
     }
 
 

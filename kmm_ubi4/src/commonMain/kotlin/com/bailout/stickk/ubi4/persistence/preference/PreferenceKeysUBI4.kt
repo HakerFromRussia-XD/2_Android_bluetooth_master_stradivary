@@ -21,6 +21,8 @@ object PreferenceKeysUBI4 {
     const val NUMBER_OF_CUPS = "NUMBER_OF_CUPS"
     const val FIRST_LOAD_ACCOUNT_INFO = "FIRST_LOAD_ACCOUNT_INFO"
     const val PREF_GESTURE_STATE = "pref_gesture_state"
+    const val SET_MODE_SMART_CONNECTION = "SET_MODE_SMART_CONNECTION"
+
 
 
 
@@ -364,8 +366,8 @@ object PreferenceKeysUBI4 {
         DTCE_FREE_SLOT                      ((0xFF).toByte())
     }
 
+    //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),
-        AUTO_LOGIN2 ("AUTO_LOGIN2"),
     }
 }

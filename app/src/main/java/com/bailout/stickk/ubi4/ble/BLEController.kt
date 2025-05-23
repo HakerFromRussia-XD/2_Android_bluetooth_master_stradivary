@@ -14,6 +14,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -122,7 +123,12 @@ class BLEController() {
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        }
+        else {
+            mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        }
         mBLEParser = bleParser
     }
 

@@ -490,6 +490,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
@@ -498,6 +499,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 navigateToLEChart("device", device);
             }
         }
+
     }
 
 //    private void smartConnection(BluetoothDevice device) {

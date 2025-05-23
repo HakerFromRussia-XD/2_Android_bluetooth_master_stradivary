@@ -213,7 +213,6 @@ class GesturesOpticDelegateAdapter(
 
         val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
         if (savedFilter == 2) {
-            // Устанавливаем активный фильтр (если это необходимо для UI)
             activeGestureFragmentFilterFlow.value = 2
             requestRotationGroupWithRetry(
                 deviceAddress,

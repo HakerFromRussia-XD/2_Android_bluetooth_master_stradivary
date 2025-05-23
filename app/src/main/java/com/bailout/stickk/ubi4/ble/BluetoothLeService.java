@@ -241,9 +241,13 @@ public class BluetoothLeService extends Service {
                 intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
             }
         }
-        LocalBroadcastManager
-                .getInstance(getApplicationContext())
-                .sendBroadcast(intent);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+        else {
+            sendBroadcast(intent);
+        }
+
     }
 
 
@@ -357,9 +361,14 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-        LocalBroadcastManager
-                .getInstance(getApplicationContext())
-                .sendBroadcast(intent);
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+        else {
+            sendBroadcast(intent);
+        }
+
     }
 
     public class LocalBinder extends Binder {

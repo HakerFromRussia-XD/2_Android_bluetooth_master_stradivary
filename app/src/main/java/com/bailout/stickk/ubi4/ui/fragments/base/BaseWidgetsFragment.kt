@@ -52,6 +52,7 @@ import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 abstract class BaseWidgetsFragment : Fragment() {
     private var gestureNameList = ArrayList<String>()
     private val onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+    private var onClearSwitcherCache : () -> Unit = {}
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
@@ -147,8 +148,10 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
                 },
+                onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
+//            switcherAdapter,
             SpinnerDelegateAdapter(
                 onSpinnerItemSelected = { addressDevice, parameterID, newIndex ->
                     Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")
@@ -452,7 +455,10 @@ abstract class BaseWidgetsFragment : Fragment() {
         Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE){}
     }
-
+    open fun clearSwitcherCache() {
+        Log.d("clearSwitcherCache", "clearSwitcherCache run")
+        onClearSwitcherCache.invoke()
+    }
 
     //Others fun
     private fun loadGestureNameList() {

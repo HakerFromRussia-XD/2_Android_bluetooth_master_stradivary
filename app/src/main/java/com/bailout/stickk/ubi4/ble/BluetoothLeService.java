@@ -26,16 +26,19 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import com.bailout.stickk.ubi4.data.state.BLEState;
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 

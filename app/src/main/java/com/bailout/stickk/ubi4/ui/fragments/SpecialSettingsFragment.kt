@@ -16,14 +16,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.WidgetSwitchInfo
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
 import com.bailout.stickk.ubi4.data.state.UiState.isMobileSettings
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -34,6 +42,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val display = 2
     private var previousMobileSettings: Boolean? = null
     private var isMobileSettings = false
+
+
 
 
     override fun onCreateView(
@@ -84,6 +94,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     private fun updateUI() {
         binding.settingsRecyclerView.post {
+            clearSwitcherCache()
             if (isMobileSettings) {
                 adapterWidgets.swapData(mDataFactory.mobileWidgets())
             } else {

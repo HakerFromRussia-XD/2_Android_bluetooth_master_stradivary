@@ -3130,8 +3130,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     startActivity(intent)
     finish()
   }
-  private fun resetLastMAC() {
-    saveText(PreferenceKeys.LAST_CONNECTION_MAC, "null")
+  fun resetLastMAC() {
+    saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, false);   // выключаем авто-логин
+    saveText(PreferenceKeys.LAST_CONNECTION_MAC, "");
+  // очищаем MAC
   }
   fun disconnect () {
     System.err.println("Check disconnect()")

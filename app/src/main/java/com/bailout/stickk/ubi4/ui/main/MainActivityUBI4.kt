@@ -321,9 +321,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        activeGestureFragmentFilterFlow = MutableStateFlow(1)
 //        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
-//        bleParser = BLEParser()
-//        runCommandFlow = MutableStateFlow(0)
-//        isMobileSettings = false
+
     }
 
     // сохранение и загрузка данных

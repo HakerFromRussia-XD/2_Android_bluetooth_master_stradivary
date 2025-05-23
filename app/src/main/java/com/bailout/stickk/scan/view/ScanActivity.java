@@ -499,7 +499,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 navigateToLEChart("device", device);
             }
         }
-
+        if (loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION)) {
+            if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
+                navigateToLEChart("device", device);
+            }
+            if (device.getAddress().toString().equals(loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4))) {
+                navigateToLEChart("device", device);
+            }
+        }
     }
 
 //    private void smartConnection(BluetoothDevice device) {

@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class SwitcherDelegateAdapter(
     val onSwitchClick: (addressDevice: Int, parameterID: Int, switchState: Boolean) -> Unit,
+    val onClearCache: (onClearCache: (() -> Unit)) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<SwitchItem, Ubi4WidgetSwitcherBinding>(
@@ -59,6 +60,7 @@ class SwitcherDelegateAdapter(
 
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItem) {
         onDestroyParent { onDestroy() }
+        onClearCache { clearCache() }
         _indicatorOpticStreamIv = indicatorOpticStreamIv
         var addressDevice = 0
         var parameterID = 0
@@ -146,6 +148,9 @@ class SwitcherDelegateAdapter(
         switchCollect()
     }
 
+    private fun clearCache() {
+        widgetSwitchInfo.clear()
+    }
     private fun updateSwitchState(newState: Boolean, switch: Switch) {
         programmaticChange = true
         switch.isChecked = newState
@@ -162,10 +167,11 @@ class SwitcherDelegateAdapter(
     private fun setUIMobileSettings(keyMobileSettings: String, @SuppressLint("UseSwitchCompatOrMaterialCode") switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> { switch.isChecked = true }
+                MobileSettingsKey.AUTO_LOGIN.key -> { switch.isChecked = main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false) }
             }
         }
     }
+
 
     private fun switchCollect() {
         scope.launch(Dispatchers.IO) {
@@ -197,7 +203,7 @@ class SwitcherDelegateAdapter(
             try {
                 widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
                 updateSwitchState(widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked,widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch )
-//                widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
+
 
             } catch (e:Exception){
                 Log.d("switchCollect","$e")
@@ -205,6 +211,8 @@ class SwitcherDelegateAdapter(
         }
         responseReceived.set(true)
     }
+
+
     private fun opticLearnCollect() {
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .compose(main.bindToLifecycle())

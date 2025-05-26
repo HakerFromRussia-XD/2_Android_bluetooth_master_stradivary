@@ -23,24 +23,19 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.ble.BLEState.bleParser
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
-import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ParameterRef
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.models.PlotParameterRef
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -145,7 +140,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val savedFilter = getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
         activeFilterFlow.value = savedFilter
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        mBLEController.cleanup()
+    }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
 
@@ -206,7 +204,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
         saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
-
+        bleParser = BLEParser()
         //settings
     }
     internal fun sendWidgetsArray() {

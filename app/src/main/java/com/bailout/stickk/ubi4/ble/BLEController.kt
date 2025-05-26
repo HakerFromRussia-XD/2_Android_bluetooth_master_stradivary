@@ -14,6 +14,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -23,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.ubi4.ble.BLEState.bleParser
@@ -104,7 +106,6 @@ class BLEController() {
         }
     }
 
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -121,7 +122,11 @@ class BLEController() {
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-        mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        } else {
+            mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        }
         mBLEParser = bleParser
     }
 
@@ -135,6 +140,7 @@ class BLEController() {
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    System.err.println("Check BroadcastReceiver() ACTION_GATT_DISCONNECTED")
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
@@ -160,7 +166,9 @@ class BLEController() {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    System.err.println("Check BroadcastReceiver() ACTION_GATT_SERVICES_DISCOVERED")
                     mConnected = true
+                    Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
@@ -170,6 +178,7 @@ class BLEController() {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+                    System.err.println("Check BroadcastReceiver() ACTION_DATA_AVAILABLE")
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -184,12 +193,9 @@ class BLEController() {
                     }
 
                 }
-
             }
         }
     }
-
-
 
 
     private suspend fun firstNotificationRequest()  {
@@ -207,7 +213,12 @@ class BLEController() {
     private fun parseReceivedData (data: ByteArray?) {
         if (data != null) {
             firstNotificationRequestFlag = false
-            mBLEParser?.parseReceivedData(data)
+            try {
+                mBLEParser?.parseReceivedData(data)
+            } catch (e: Exception) {
+//                main.showToast("ошибка парсинга")
+            }
+
         }
     }
 
@@ -285,7 +296,11 @@ class BLEController() {
         withContext(Dispatchers.Main) {
             try {
                 // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
-                mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                   LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+                } else {
+                    mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+                }
             } catch (e: IllegalArgumentException) {
                 // Если уже зарегистрирован, игнорируем
                 Log.w("BLEController", "Ресивер уже зарегистрирован")
@@ -387,12 +402,15 @@ class BLEController() {
         // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
         onDisconnectedListener = listener
     }
-
     fun cleanup() {
         // Отменяем запущенные корутины
         bleJob.cancel()
         try {
-            mContext.unregisterReceiver(mGattUpdateReceiver)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
         } catch (e: IllegalArgumentException) {
             Log.w("BLEController", "Ресивер уже отписан")
         }

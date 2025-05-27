@@ -506,6 +506,7 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
         return false // Не удалось дождаться флага после всех попыток
     }
 
+
     override fun onRunCommand() {
         Log.d("SprTrainingFragment", "▶ onRunCommand start")
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {

@@ -18,7 +18,7 @@ data class ConfigOMGDataCollection(
     @SerialName("IS_ML") var isMl: Boolean? = null,
     @SerialName("N_ML_CH") var nMlCh: Int? = null,
     @SerialName("GESTURES_ID") var gesturesId: GesturesId? = GesturesId(),
-    @SerialName("GESTURE_SEQUENCE") var gestureSequence: List<String> = emptyList(),
+    @SerialName("gesture_sequence") var gestureSequence: List<String> = emptyList(),
     @SerialName("HEADER") var header: String? = null,
     @SerialName("FNAME") var fName: String? = null,
     @SerialName("FPROTNAME") var fProtName: String? = null,
@@ -26,58 +26,111 @@ data class ConfigOMGDataCollection(
     @SerialName("N_COLS") var nCols: Int? = null
 )
 
+//@Serializable
+//data class GesturesId(
+//    @SerialName("Neutral")      var Neutral: String? = null,
+//    @SerialName("ThumbFingers") var ThumbFingers: String? = null,
+//    @SerialName("Close")        var Close: String? = null,
+//    @SerialName("Open")         var Open: String? = null,
+//    @SerialName("Pinch")        var Pinch: String? = null,
+//    @SerialName("Indication")   var Indication: String? = null,
+//    @SerialName("Wrist_Flex")   var WristFlex: String? = null,
+//    @SerialName("Wrist_Extend") var WristExtend: String? = null,
+//    @SerialName("Supination")   var Supination: String? = null,
+//    @SerialName("Pronation")    var Pronation: String? = null,
+//    @SerialName("Abduction")    var Abduction: String? = null,
+//    @SerialName("Adduction")    var Adduction: String? = null,
+//    @SerialName("Key")          var Key: String? = null,
+//) {
+//    // Метод для получения имени жеста по значению
+//    fun getGestureNameByValue(value: Int): String? {
+//        return mapOf(
+//            Neutral?.toIntOrNull()      to "Neutral",
+//            ThumbFingers?.toIntOrNull() to "ThumbFingers",
+//            Close?.toIntOrNull()        to "Close",
+//            Open?.toIntOrNull()         to "Open",
+//            Pinch?.toIntOrNull()        to "Pinch",
+//            Indication?.toIntOrNull()   to "Indication",
+//            WristFlex?.toIntOrNull()    to "Wrist_Flex",
+//            WristExtend?.toIntOrNull()  to "Wrist_Extend",
+//            Supination?.toIntOrNull()   to "Supination",
+//            Pronation?.toIntOrNull()    to "Pronation",
+//            Abduction?.toIntOrNull()    to "Abduction",
+//            Adduction?.toIntOrNull()    to "Adduction",
+//            Key?.toIntOrNull()          to "Key",
+//        )[value]
+//    }
+//
+//    // Метод для получения значения жеста по имени
+//    fun getGestureValueByName(name: String): Int? {
+//        return when (name) {
+//            "Neutral"      -> Neutral?.toIntOrNull()
+//            "ThumbFingers" -> ThumbFingers?.toIntOrNull()
+//            "Close"        -> Close?.toIntOrNull()
+//            "Open"         -> Open?.toIntOrNull()
+//            "Pinch"        -> Pinch?.toIntOrNull()
+//            "Indication"   -> Indication?.toIntOrNull()
+//            "Wrist_Flex"   -> WristFlex?.toIntOrNull()
+//            "Wrist_Extend" -> WristExtend?.toIntOrNull()
+//            "Supination"   -> Supination?.toIntOrNull()
+//            "Pronation"    -> Pronation?.toIntOrNull()
+//            "Abduction"    -> Abduction?.toIntOrNull()
+//            "Adduction"    -> Adduction?.toIntOrNull()
+//            "Key"          -> Key?.toIntOrNull()
+//            else -> null
+//        }
+//    }
+//}
+
 @Serializable
 data class GesturesId(
-    @SerialName("Neutral")      var Neutral: String? = null,
-    @SerialName("ThumbFingers") var ThumbFingers: String? = null,
-    @SerialName("Close")        var Close: String? = null,
-    @SerialName("Open")         var Open: String? = null,
-    @SerialName("Pinch")        var Pinch: String? = null,
-    @SerialName("Indication")   var Indication: String? = null,
-    @SerialName("Wrist_Flex")   var WristFlex: String? = null,
-    @SerialName("Wrist_Extend") var WristExtend: String? = null,
-    @SerialName("Supination")   var Supination: String? = null,
-    @SerialName("Pronation")    var Pronation: String? = null,
-    @SerialName("Abduction")    var Abduction: String? = null,
-    @SerialName("Adduction")    var Adduction: String? = null,
-    @SerialName("Key")          var Key: String? = null,
+    @SerialName("Neutral"     ) var Neutral     : Int? = null,
+    @SerialName("ThumbFingers") var ThumbFingers: Int? = null,
+    @SerialName("Close"       ) var Close       : Int? = null,
+    @SerialName("Open"        ) var Open        : Int? = null,
+    @SerialName("Pinch"       ) var Pinch       : Int? = null,
+    @SerialName("Indication"  ) var Indication  : Int? = null,
+    @SerialName("Wrist_Flex"  ) var WristFlex   : Int? = null,
+    @SerialName("Wrist_Extend") var WristExtend : Int? = null,
+    @SerialName("Supination"  ) var Supination  : Int? = null,
+    @SerialName("Pronation"   ) var Pronation   : Int? = null,
+    @SerialName("Abduction"   ) var Abduction   : Int? = null,
+    @SerialName("Adduction"   ) var Adduction   : Int? = null,
+    @SerialName("Key"         ) var Key         : Int? = null,
 ) {
-    // Метод для получения имени жеста по значению
+    // Получаем имя по числу:
     fun getGestureNameByValue(value: Int): String? {
         return mapOf(
-            Neutral?.toIntOrNull()      to "Neutral",
-            ThumbFingers?.toIntOrNull() to "ThumbFingers",
-            Close?.toIntOrNull()        to "Close",
-            Open?.toIntOrNull()         to "Open",
-            Pinch?.toIntOrNull()        to "Pinch",
-            Indication?.toIntOrNull()   to "Indication",
-            WristFlex?.toIntOrNull()    to "Wrist_Flex",
-            WristExtend?.toIntOrNull()  to "Wrist_Extend",
-            Supination?.toIntOrNull()   to "Supination",
-            Pronation?.toIntOrNull()    to "Pronation",
-            Abduction?.toIntOrNull()    to "Abduction",
-            Adduction?.toIntOrNull()    to "Adduction",
-            Key?.toIntOrNull()          to "Key",
+            Neutral      to "Neutral",
+            ThumbFingers to "ThumbFingers",
+            Close        to "Close",
+            Open         to "Open",
+            Pinch        to "Pinch",
+            Indication   to "Indication",
+            WristFlex    to "Wrist_Flex",
+            WristExtend  to "Wrist_Extend",
+            Supination   to "Supination",
+            Pronation    to "Pronation",
+            Abduction    to "Abduction",
+            Adduction    to "Adduction",
+            Key          to "Key",
         )[value]
     }
-
-    // Метод для получения значения жеста по имени
-    fun getGestureValueByName(name: String): Int? {
-        return when (name) {
-            "Neutral"      -> Neutral?.toIntOrNull()
-            "ThumbFingers" -> ThumbFingers?.toIntOrNull()
-            "Close"        -> Close?.toIntOrNull()
-            "Open"         -> Open?.toIntOrNull()
-            "Pinch"        -> Pinch?.toIntOrNull()
-            "Indication"   -> Indication?.toIntOrNull()
-            "Wrist_Flex"   -> WristFlex?.toIntOrNull()
-            "Wrist_Extend" -> WristExtend?.toIntOrNull()
-            "Supination"   -> Supination?.toIntOrNull()
-            "Pronation"    -> Pronation?.toIntOrNull()
-            "Abduction"    -> Abduction?.toIntOrNull()
-            "Adduction"    -> Adduction?.toIntOrNull()
-            "Key"          -> Key?.toIntOrNull()
-            else -> null
-        }
+    // Получаем число по имени:
+    fun getGestureValueByName(name: String): Int? = when (name) {
+        "Neutral"      -> Neutral
+        "ThumbFingers" -> ThumbFingers
+        "Close"        -> Close
+        "Open"         -> Open
+        "Pinch"        -> Pinch
+        "Indication"   -> Indication
+        "Wrist_Flex"   -> WristFlex
+        "Wrist_Extend" -> WristExtend
+        "Supination"   -> Supination
+        "Pronation"    -> Pronation
+        "Abduction"    -> Abduction
+        "Adduction"    -> Adduction
+        "Key"          -> Key
+        else           -> null
     }
 }

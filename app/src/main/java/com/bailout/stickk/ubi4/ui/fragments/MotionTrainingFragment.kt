@@ -83,8 +83,8 @@ class MotionTrainingFragment(
     private var elapsedLearningStepTime: Long = 0L
 
     // File Logging
-    private var stamp = 0
-    private var loggingFilename = "serial_data"
+    private lateinit var recordingTimestamp: String
+    private lateinit var loggingFilename: String
     private val fileLock = Any()
 
     // RxJava
@@ -145,9 +145,30 @@ class MotionTrainingFragment(
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
         deleteSerialDataFile()
-        stamp = ((System.currentTimeMillis() / 1000) % Int.MAX_VALUE).toInt()
-        loggingFilename += stamp
+        // Генерация метки времени в формате yyyy-MM-dd_HH-mm-ss
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.getDefault())
+        recordingTimestamp = sdf.format(java.util.Date())
+        loggingFilename = "$recordingTimestamp.emg8"
         path = requireContext().getExternalFilesDir(null)!!
+        // Удаление старых .emg8 файлов, кроме текущего
+        path.listFiles()
+            ?.filter { it.name.endsWith(".emg8") && it.name != loggingFilename }
+            ?.forEach { oldFile ->
+                if (oldFile.delete()) {
+                    Log.d(LOG_TAG, "Deleted old log file: ${oldFile.absolutePath}")
+                }
+            }
+        // Переименование passport-файла под текущий timestamp записи
+        val extDir = path
+        extDir.listFiles()
+            ?.firstOrNull { it.name.endsWith(".emg8.data_passport") }
+            ?.let { passportRaw ->
+                val newPassportFile = File(extDir, "$recordingTimestamp.emg8.data_passport")
+                if (passportRaw.exists()) {
+                    passportRaw.renameTo(newPassportFile)
+                    Log.d(LOG_TAG, "Passport file renamed to: ${newPassportFile.absolutePath}")
+                }
+            }
         file = File(path, loggingFilename)
 
         if (!file.exists()) {
@@ -157,8 +178,10 @@ class MotionTrainingFragment(
                         "emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno0 bno1 bno2 prb0 prb1 prb2 prb3 prb4 prb5 " +
                         "prb6 prb7 argmax denoize prot state id now\n"
             )
+            Log.d("SprTrainingFragment", "Created log file: ${file.absolutePath}")
         }
         writer = BufferedWriter(FileWriter(file, true))
+        Log.d("SprTrainingFragment", "Logging to file: ${file.absolutePath}")
 
 
 
@@ -192,6 +215,7 @@ class MotionTrainingFragment(
                 onDataPacketReceived()
             }
         disposables.add(opticStreamDisposable)
+
 
     }
 
@@ -747,20 +771,20 @@ class MotionTrainingFragment(
         }
     }
 
-//    private fun loadConfigJson(): String {
-//        val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
-//        if (!extFile.exists()) {
-//            main?.showToast("Файл не найден")
-//            throw IllegalStateException("config.json is missing")
-//        }
-//        return extFile.readText()
-//    }
+    private fun loadConfigJson(): String {
+        val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
+        if (!extFile.exists()) {
+            main?.showToast("Файл не найден")
+            throw IllegalStateException("config.json is missing")
+        }
+        return extFile.readText()
+    }
 
     private fun trainingDataProcessing(): MutableList<GesturePhase> {
 
-        val jsonString = requireContext().assets.open("config.json")
-            .bufferedReader().use { it.readText() }
-//        val jsonString = loadConfigJson()
+//        val jsonString = requireContext().assets.open("config.json")
+//            .bufferedReader().use { it.readText() }
+        val jsonString = loadConfigJson()
         // Создаем декодер с игнорированием неизвестных ключей
         val json = Json { ignoreUnknownKeys = true }
         // Парсинг JSON в объект ConfigOMGDataCollection
@@ -938,128 +962,7 @@ class MotionTrainingFragment(
 
 
 
-    suspend fun onRunCommandClicked() = lifecycleScope.launch(Dispatchers.IO) {
 
-
-//        // 2) Получаем паспорт
-//        Log.d(LOG_TAG, "🔄 fetchAndSavePassport(serial=$fixedSerial)")
-//        val passportFile: File = try {
-//            repo.fetchAndSavePassport(
-//                token    = tkn,
-//                serial   = fixedSerial,
-//                cacheDir = requireContext().cacheDir
-//            ).also { Log.d(LOG_TAG, "✅ Passport saved: ${it.name}") }
-//        } catch (e: Throwable) {
-//            Log.e(LOG_TAG, "❌ fetchAndSavePassport failed", e)
-//            return@launch
-//        }
-        val rawPassport = token?.let { repo.fetchAndSavePassport(it, serial, requireContext().externalCacheDir!!) }
-        val configFile = File(requireContext().filesDir, "config.json")
-        rawPassport?.let {
-            configFile.writeText(it.readText())
-        }
-
-
-        // 3) Здесь можете вставить вызовы uploadTrainingData и downloadAndUnpackCheckpoint
-        //    с аналогичным логированием Log.d / Log.e
-    }
-
-//    // 1) Получение токена по серийному номеру + паролю
-//    private suspend fun fetchTokenBySerial(): String {
-//        token?.let { return it } // если уже есть — вернём
-//        val req = SerialTokenRequest(serialNumber = serial, password = password)
-//        val resp = RetrofitInstanceUBI4.api.loginBySerial(BaseUrlUtilsUBI4.API_KEY, req)
-//        if (!resp.isSuccessful) throw IOException("Login failed ${resp.code()}")
-//        val body = resp.body()!!
-//        return "${body.tokenType} ${body.accessToken}".also { token = it }
-//    }
-//
-//    // 2) Скачивание и сохранение паспорта в файл
-//    private suspend fun fetchAndSavePassport(token: String): File {
-//        val resp = RetrofitInstanceUBI4.api.getPassportData(auth = token, serial = serial)
-//        if (!resp.isSuccessful) throw IOException("Passport failed ${resp.code()}")
-//        val pr = resp.body()!!
-//        val out = File(requireContext().cacheDir, pr.filename)
-//        out.writeText(pr.content)
-//        return out
-//    }
-//
-//    // 3) Подготовка и отправка данных для обучения (multipart + SSE)
-//    private suspend fun uploadTrainingData(
-//        token: String,
-//        dataFile: File,
-//        passportFile: File
-//    ): String {
-//        val serialPart = MultipartBody.Part.createFormData("serial", serial)
-//        val files = listOf(
-//            MultipartBody.Part.createFormData("files", dataFile.name, dataFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())),
-//            MultipartBody.Part.createFormData("files", passportFile.name, passportFile.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
-//        )
-//
-//        val call = RetrofitInstanceUBI4.api.uploadTrainingData(
-//            auth   = token,
-//            serial = serialPart,
-//            files  = files
-//        )
-//        if (!call.isSuccessful) throw IOException("Upload failed ${call.code()}")
-//        // Читаем SSE, запоминаем последний checkpoint-name
-//        var lastCheckpoint: String? = null
-//        call.body()?.source()?.let { src ->
-//            while (!src.exhausted()) {
-//                val line = src.readUtf8Line() ?: break
-//                Log.d(LOG_TAG, "SSE: $line")
-//                // 예: {"progress":100,"message":"checkpoint-id-1_1747911660"}
-//                if (line.contains("message")) {
-//                    // простой парсинг
-//                    lastCheckpoint = Json.parseToJsonElement(line)
-//                        .jsonObject["message"]?.jsonPrimitive?.content
-//                }
-//            }
-//        }
-//        return lastCheckpoint
-//            ?: throw IOException("No checkpoint name received from SSE")
-//    }
-//
-//    // 4) Скачивание архива весов модели
-//    private suspend fun downloadAndUnpackCheckpoint(
-//        token:      String,
-//        checkpoint: String,
-//        outputDir:  File
-//    ): Pair<File, List<File>> {
-//        // 1) Запрос
-//        val resp = RetrofitInstanceUBI4.api.downloadArchive(
-//            auth    = token,
-//            request = TakeDataRequest(listOf(checkpoint))
-//        )
-//        if (!resp.isSuccessful) {
-//            throw IOException("Download failed ${resp.code()}")
-//        }
-//
-//        // 2) Сохраняем ZIP с именем "${checkpoint}.zip"
-//        val zipFile = File(outputDir, "$checkpoint.zip")
-//        resp.body()!!.byteStream().use { input ->
-//            zipFile.outputStream().use { output ->
-//                input.copyTo(output)
-//            }
-//        }
-//
-//        // 3) Распаковываем
-//        val unpacked = mutableListOf<File>()
-//        ZipFile(zipFile).use { zip ->
-//            zip.entries().asSequence().forEach { entry ->
-//                val outFile = File(outputDir, entry.name)
-//                zip.getInputStream(entry).use { inp ->
-//                    outFile.outputStream().use { out ->
-//                        inp.copyTo(out)
-//                    }
-//                }
-//                unpacked += outFile
-//            }
-//        }
-//
-//        return zipFile to unpacked
-//    }
-//
 
 
     companion object {
@@ -1093,8 +996,8 @@ class MotionTrainingFragment(
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
-                showWarningDialog()
-                pauseTimers()
+//                showWarningDialog()
+//                pauseTimers()
             }
         }.start()
     }

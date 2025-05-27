@@ -66,6 +66,7 @@ import com.bailout.stickk.ubi4.utility.TrainingPipeline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.properties.Delegates
@@ -82,6 +83,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
+
+    private val percentProgressLearningModel = MutableStateFlow(0)
 
     internal var locate = ""
     var mDeviceName: String? = null
@@ -167,15 +170,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            Log.d("MotionTrainingFragment", "▶ runCommandBtn clicked")
-//            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-//            if (frag is OnRunCommandListener) {
-//                    frag.onRunCommand()
-//            } else {
-//                Log.e("MainActivityUBI4", "activeFragment не умеет onRunCommand()")
-//            }
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            Log.d("MotionTrainingFragment", "▶ runCommandBtn clicked")
+            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (frag is OnRunCommandListener) {
+                    frag.onRunCommand()
+            } else {
+                Log.e("MainActivityUBI4", "activeFragment не умеет onRunCommand()")
+            }
+        }
 
     }
 
@@ -215,6 +218,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
+
 
 
     override fun showAccountScreen() {
@@ -296,6 +300,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             .commit()
     }
 
+    fun setPercentProgressLearningModel(p: Int) {
+        percentProgressLearningModel.value = p.coerceIn(0, 100)
+        }
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()

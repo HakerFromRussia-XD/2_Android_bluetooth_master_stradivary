@@ -4,7 +4,9 @@ import android.util.Log
 import com.bailout.stickk.ubi4.data.network.ApiInterfaceUBI4
 import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
 import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -18,6 +20,8 @@ import java.util.zip.ZipFile
 class Ubi4TrainingRepository(
     private val api: ApiInterfaceUBI4
 ) {
+
+
 
     suspend fun fetchTokenBySerial(
         apiKey: String,
@@ -45,6 +49,8 @@ class Ubi4TrainingRepository(
         out.writeText(pr.content)
         return out
     }
+
+
 
     suspend fun uploadTrainingData(
         token: String,

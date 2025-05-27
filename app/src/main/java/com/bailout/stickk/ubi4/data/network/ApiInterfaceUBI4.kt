@@ -3,14 +3,17 @@ package com.bailout.stickk.ubi4.data.network
 import AllOptions
 import TestModel
 import Token
-import com.bailout.stickk.ubi4.models.user.User
-import com.bailout.stickk.ubi4.models.user.UserV2
+import com.bailout.stickk.ubi4.data.network.model.Client
+import com.bailout.stickk.ubi4.data.network.model.LoginResponse
+import com.bailout.stickk.ubi4.data.network.model.PassportResponse
+import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
+import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
-import com.bailout.stickk.ubi4.models.other.LoginRequest
-import com.bailout.stickk.ubi4.models.other.LoginResponse
-import com.bailout.stickk.ubi4.models.other.UploadResponse
+import com.bailout.stickk.ubi4.models.user.User
+import com.bailout.stickk.ubi4.models.user.UserV2
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -98,17 +101,42 @@ interface ApiInterfaceUBI4 {
         @Path("id") id : Int
     ) : Response<User>
 
-    @POST("token/")
-    suspend fun login(
+    // 1) API Key + serial + password → JWT
+    @POST("/ser_n_token/")
+    suspend fun loginBySerial(
         @Header("X-API-Key") apiKey: String,
-        @Body request: LoginRequest
+        @Body request: SerialTokenRequest
     ): Response<LoginResponse>
 
+    // 2) token + serial → паспорт (YAML-контент + имя файла)
+    @FormUrlEncoded
+    @POST("/get_passports_data/")
+    suspend fun getPassportData(
+        @Header("Authorization") auth: String,
+        @Field("serial") serial: String
+    ): Response<PassportResponse>
+
+    // 3) serial + файлы (.emg8 + .data_passport) → обучение (SSE-прогресс)
     @Multipart
     @POST("/passport_data/")
     @Streaming
-    suspend fun uploadFiles(
+    suspend fun uploadTrainingData(
         @Header("Authorization") auth: String,
+        @Part serial: MultipartBody.Part,
         @Part files: List<MultipartBody.Part>
-    ): Response<UploadResponse>
+    ): Response<ResponseBody>
+
+    // 4) token + checkpoint-name → ZIP с весами модели
+    @POST("/take_data/")
+    @Streaming
+    suspend fun downloadArchive(
+        @Header("Authorization") auth: String,
+        @Body request: TakeDataRequest
+    ): Response<ResponseBody>
+
+    // 5) token → список клиентов
+    @GET("/clients_table/clients/")
+    suspend fun getClients(
+        @Header("Authorization") auth: String
+    ): Response<List<Client>>
 }

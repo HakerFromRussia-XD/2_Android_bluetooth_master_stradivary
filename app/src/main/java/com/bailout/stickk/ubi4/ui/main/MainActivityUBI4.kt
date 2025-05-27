@@ -168,14 +168,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 //        binding.runCommandBtn.setOnClickListener {
+//            Log.d("MotionTrainingFragment", "▶ runCommandBtn clicked")
 //            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-//
-//            if (frag is MotionTrainingFragment) {
-//                lifecycleScope.launch {
-//                    frag.onRunCommandClicked()     // ← вызов
-//                }
+//            if (frag is OnRunCommandListener) {
+//                    frag.onRunCommand()
 //            } else {
-//                Log.w(TAG, "Сейчас активен не MotionTrainingFragment – команда не выполнена")
+//                Log.e("MainActivityUBI4", "activeFragment не умеет onRunCommand()")
 //            }
 //        }
 
@@ -419,6 +417,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
 
         }
+    }
+
+    interface OnRunCommandListener {
+        fun onRunCommand()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

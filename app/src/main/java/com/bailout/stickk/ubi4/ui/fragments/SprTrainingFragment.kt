@@ -22,13 +22,17 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
+import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 import com.bailout.stickk.ubi4.models.widgets.PlatformFile
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
@@ -40,10 +44,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class SprTrainingFragment: BaseWidgetsFragment() {
+class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandListener {
     private lateinit var binding: Ubi4FragmentSprTrainingBinding
     private lateinit var bleController: BLEController
     private var main: MainActivityUBI4? = null
@@ -58,6 +63,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var sendFileSuccessFlag = true
 
     private val display = 3
+
+    private val repo = Ubi4TrainingRepository(RetrofitInstanceUBI4.api)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -459,6 +466,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
+
+
     override fun closeCurrentDialog() {
         currentDialog?.dismiss()
         currentDialog = null
@@ -495,5 +504,64 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             Log.d("ChunkProcessing", "Retrying action, attempt ${attempt + 1} / $retryCount   command = $command")
         }
         return false // Не удалось дождаться флага после всех попыток
+    }
+
+    override fun onRunCommand() {
+        Log.d("SprTrainingFragment", "▶ onRunCommand start")
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val fixedSerial = "CYBI-F-05663"
+                val fixedPassword = "123фыв6"
+
+                // 1) Авторизация
+                Log.d("SprTrainingFragment", "🔄 fetchTokenBySerial(serial=$fixedSerial)")
+                val token = repo.fetchTokenBySerial(API_KEY, fixedSerial, fixedPassword)
+                Log.d("SprTrainingFragment", "✅ fetchTokenBySerial → $token")
+
+                // 2) Скачиваем паспорт (во временный cacheDir)
+                Log.d("SprTrainingFragment", "🔄 fetchAndSavePassport")
+                val rawPassport = repo.fetchAndSavePassport(
+                    token    = token,
+                    serial   = fixedSerial,
+                    cacheDir = requireContext().cacheDir
+                )
+                Log.d("SprTrainingFragment", "✅ fetchAndSavePassport → ${rawPassport.absolutePath}")
+
+                // 3) Извлекаем timestamp из имени
+                val timestamp = rawPassport.name.removeSuffix(".emg8.data_passport")
+                Log.d("SprTrainingFragment", "⏱ timestamp = $timestamp")
+
+                // 4) Готовим externalFilesDir для хранения
+                val extDir = requireContext().getExternalFilesDir(null)
+                    ?: throw IOException("External storage unavailable")
+
+                // 5) Копируем и переименовываем паспорт в externalFilesDir
+                val passportFile = File(extDir, "$timestamp.emg8.data_passport")
+                rawPassport.copyTo(passportFile, overwrite = true)
+                Log.d("SprTrainingFragment", "✅ passportFile saved to ${passportFile.absolutePath}")
+
+                // 6) Генерим config.json из тела паспорта и сохраняем в тот же externalFilesDir
+                val configFile = File(extDir, "config.json")
+                configFile.writeText(passportFile.readText())
+                Log.d("SprTrainingFragment", "✅ config.json written to ${configFile.absolutePath}")
+
+                // 7) На UI вызываем MotionTrainingFragment
+                withContext(Main) {
+                    Log.d("SprTrainingFragment", "▶ showMotionTrainingScreen")
+                    (activity as? NavigatorUBI4)
+                        ?.showMotionTrainingScreen { /* onFinishTraining */ }
+                }
+
+            } catch (e: Exception) {
+                Log.e("SprTrainingFragment", "❌ Ошибка onRunCommand", e)
+                withContext(Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Не удалось загрузить паспорт: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 }

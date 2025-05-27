@@ -151,7 +151,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-//            switcherAdapter,
             SpinnerDelegateAdapter(
                 onSpinnerItemSelected = { addressDevice, parameterID, newIndex ->
                     Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")

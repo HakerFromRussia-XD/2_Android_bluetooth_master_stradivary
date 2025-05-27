@@ -23,26 +23,21 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
+import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
-import com.bailout.stickk.ubi4.models.other.LoginRequest
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -52,6 +47,8 @@ import kotlin.math.roundToInt
 class MotionTrainingFragment(
     private val onFinishTraining: () -> Unit
 ) : Fragment() {
+
+    private val repo = Ubi4TrainingRepository(RetrofitInstanceUBI4.api)
 
     // View Binding
     private var _binding: Ubi4FragmentMotionTrainingBinding? = null
@@ -130,6 +127,18 @@ class MotionTrainingFragment(
     private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
 
     private val prefs by lazy { requireContext().getSharedPreferences("ubi4_prefs", MODE_PRIVATE) }
+    private var token: String?
+        get() = prefs.getString(PREF_KEY_TOKEN, null)
+        set(v) = prefs.edit().putString(PREF_KEY_TOKEN, v).apply()
+
+    private var serial: String
+        get() = prefs.getString(PREF_KEY_SERIAL, "")!!
+        set(v) = prefs.edit().putString(PREF_KEY_SERIAL, v).apply()
+
+    private var password: String
+        get() = prefs.getString(PREF_KEY_PASSWORD, "")!!
+        set(v) = prefs.edit().putString(PREF_KEY_PASSWORD, v).apply()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -738,11 +747,20 @@ class MotionTrainingFragment(
         }
     }
 
+//    private fun loadConfigJson(): String {
+//        val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
+//        if (!extFile.exists()) {
+//            main?.showToast("Файл не найден")
+//            throw IllegalStateException("config.json is missing")
+//        }
+//        return extFile.readText()
+//    }
+
     private fun trainingDataProcessing(): MutableList<GesturePhase> {
 
         val jsonString = requireContext().assets.open("config.json")
             .bufferedReader().use { it.readText() }
-
+//        val jsonString = loadConfigJson()
         // Создаем декодер с игнорированием неизвестных ключей
         val json = Json { ignoreUnknownKeys = true }
         // Парсинг JSON в объект ConfigOMGDataCollection
@@ -918,115 +936,139 @@ class MotionTrainingFragment(
     }
 
 
-   suspend fun onRunCommandClicked() = lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            val token = getOrFetchJwtToken() ?: return@launch   // уже залогировано, если null
-
-            val parts = prepareAssetFilesForUpload(
-                "2025-04-17_16-54-17.emg8",
-                "2025-04-17_16-54-17.emg8.data_passport"
-            )
-
-            uploadFilesToServer(token, parts)
-
-        } catch (t: Throwable) {
-            Log.e(LOG_TAG, "❌ runCommand — unexpected exception", t)
-        }
-    }
-
-    // ───────────────────────────────────────── auth
-    /** Берём токен из SharedPrefs или логинимся и сохраняем. */
-    private suspend fun getOrFetchJwtToken(): String? {
-        val prefs  = requireContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
 
-        Log.d(LOG_TAG, "No saved token — requesting new one…")
-        val response = RetrofitInstanceUBI4.api.login(
-            BaseUrlUtilsUBI4.API_KEY,
-            LoginRequest(username = "Лаштун Олег", password = "123фыв6")
-        )
+    suspend fun onRunCommandClicked() = lifecycleScope.launch(Dispatchers.IO) {
 
 
-        return if (response.isSuccessful) {
-            val body  = response.body()!!
-            val token = "${body.tokenType} ${body.accessToken}"
-            prefs.edit().putString(PREF_KEY_TOKEN, token).apply()
-            Log.d(LOG_TAG, "✅ Token obtained: $token")
-            token
-        } else {
-            Log.e(
-                LOG_TAG,
-                "❌ Login failed ${response.code()}: ${response.errorBody()?.string()}"
-            )
-            null
-        }
-    }
-
-    // ───────────────────────────────────────── file helpers
-    /** Копирует указанные файлы из assets во временные и формирует Multipart-части. */
-    private fun prepareAssetFilesForUpload(vararg assetNames: String): List<MultipartBody.Part> {
-        val parts = mutableListOf<MultipartBody.Part>()
-
-        assetNames.forEach { name ->
-            val tempFile = File(requireContext().cacheDir, name).also { tmp ->
-                requireContext().assets.open(name).use { input ->
-                    tmp.outputStream().use { output -> input.copyTo(output) }
-                }
-            }
-            val reqBody = tempFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-            parts += MultipartBody.Part.createFormData("files", name, reqBody)
-        }
-        return parts
-    }
-
-    // ───────────────────────────────────────── upload
-    private suspend fun uploadFilesToServer(
-        bearerToken: String,
-        parts: List<MultipartBody.Part>,
-        maxAttempts: Int = 3                 // ← сколько раз всего пытаться
-    ) {
-        var attempt   = 1
-        var token = bearerToken
-        var lastError = ""
-
-        while (attempt <= maxAttempts) {
-            Log.d(LOG_TAG, "uploadFiles → attempt $attempt/$maxAttempts")
-            val resp = RetrofitInstanceUBI4.api.uploadFiles(token, parts)
-
-            if (resp.isSuccessful) {
-                Log.d(LOG_TAG, "✅ uploadFiles success: ${resp.body()}")
-                return                                       // 🎉  всё ок — выходим
-            }
-
-            // ─── проверяем, не «битый» ли токен ──────────────────────────────
-            val code = resp.code()
-            val body = resp.errorBody()?.string().orEmpty()
-            lastError = "uploadFiles failed $code: $body"
-            Log.w(LOG_TAG, "❌ $lastError")
-
-            val invalidToken = code == 401 && "invalid token" in body.lowercase()
-            if (!invalidToken) break                         // другая ошибка → нет смысла ретраить
-
-            // Запрашиваем новый токен
-            Log.d(LOG_TAG, "Trying to refresh token…")
-            val newToken = getOrFetchJwtToken()
-            if (newToken == null) {
-                Log.e(LOG_TAG, "Refresh token failed")
-                break                                        // не смогли получить токен → выходим
-            }
-
-            token = newToken
-            attempt++
+//        // 2) Получаем паспорт
+//        Log.d(LOG_TAG, "🔄 fetchAndSavePassport(serial=$fixedSerial)")
+//        val passportFile: File = try {
+//            repo.fetchAndSavePassport(
+//                token    = tkn,
+//                serial   = fixedSerial,
+//                cacheDir = requireContext().cacheDir
+//            ).also { Log.d(LOG_TAG, "✅ Passport saved: ${it.name}") }
+//        } catch (e: Throwable) {
+//            Log.e(LOG_TAG, "❌ fetchAndSavePassport failed", e)
+//            return@launch
+//        }
+        val rawPassport = token?.let { repo.fetchAndSavePassport(it, serial, requireContext().externalCacheDir!!) }
+        val configFile = File(requireContext().filesDir, "config.json")
+        rawPassport?.let {
+            configFile.writeText(it.readText())
         }
 
-        Log.e(LOG_TAG, "❌ $lastError  |  all retry attempts exhausted")
+
+        // 3) Здесь можете вставить вызовы uploadTrainingData и downloadAndUnpackCheckpoint
+        //    с аналогичным логированием Log.d / Log.e
     }
+
+//    // 1) Получение токена по серийному номеру + паролю
+//    private suspend fun fetchTokenBySerial(): String {
+//        token?.let { return it } // если уже есть — вернём
+//        val req = SerialTokenRequest(serialNumber = serial, password = password)
+//        val resp = RetrofitInstanceUBI4.api.loginBySerial(BaseUrlUtilsUBI4.API_KEY, req)
+//        if (!resp.isSuccessful) throw IOException("Login failed ${resp.code()}")
+//        val body = resp.body()!!
+//        return "${body.tokenType} ${body.accessToken}".also { token = it }
+//    }
+//
+//    // 2) Скачивание и сохранение паспорта в файл
+//    private suspend fun fetchAndSavePassport(token: String): File {
+//        val resp = RetrofitInstanceUBI4.api.getPassportData(auth = token, serial = serial)
+//        if (!resp.isSuccessful) throw IOException("Passport failed ${resp.code()}")
+//        val pr = resp.body()!!
+//        val out = File(requireContext().cacheDir, pr.filename)
+//        out.writeText(pr.content)
+//        return out
+//    }
+//
+//    // 3) Подготовка и отправка данных для обучения (multipart + SSE)
+//    private suspend fun uploadTrainingData(
+//        token: String,
+//        dataFile: File,
+//        passportFile: File
+//    ): String {
+//        val serialPart = MultipartBody.Part.createFormData("serial", serial)
+//        val files = listOf(
+//            MultipartBody.Part.createFormData("files", dataFile.name, dataFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())),
+//            MultipartBody.Part.createFormData("files", passportFile.name, passportFile.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
+//        )
+//
+//        val call = RetrofitInstanceUBI4.api.uploadTrainingData(
+//            auth   = token,
+//            serial = serialPart,
+//            files  = files
+//        )
+//        if (!call.isSuccessful) throw IOException("Upload failed ${call.code()}")
+//        // Читаем SSE, запоминаем последний checkpoint-name
+//        var lastCheckpoint: String? = null
+//        call.body()?.source()?.let { src ->
+//            while (!src.exhausted()) {
+//                val line = src.readUtf8Line() ?: break
+//                Log.d(LOG_TAG, "SSE: $line")
+//                // 예: {"progress":100,"message":"checkpoint-id-1_1747911660"}
+//                if (line.contains("message")) {
+//                    // простой парсинг
+//                    lastCheckpoint = Json.parseToJsonElement(line)
+//                        .jsonObject["message"]?.jsonPrimitive?.content
+//                }
+//            }
+//        }
+//        return lastCheckpoint
+//            ?: throw IOException("No checkpoint name received from SSE")
+//    }
+//
+//    // 4) Скачивание архива весов модели
+//    private suspend fun downloadAndUnpackCheckpoint(
+//        token:      String,
+//        checkpoint: String,
+//        outputDir:  File
+//    ): Pair<File, List<File>> {
+//        // 1) Запрос
+//        val resp = RetrofitInstanceUBI4.api.downloadArchive(
+//            auth    = token,
+//            request = TakeDataRequest(listOf(checkpoint))
+//        )
+//        if (!resp.isSuccessful) {
+//            throw IOException("Download failed ${resp.code()}")
+//        }
+//
+//        // 2) Сохраняем ZIP с именем "${checkpoint}.zip"
+//        val zipFile = File(outputDir, "$checkpoint.zip")
+//        resp.body()!!.byteStream().use { input ->
+//            zipFile.outputStream().use { output ->
+//                input.copyTo(output)
+//            }
+//        }
+//
+//        // 3) Распаковываем
+//        val unpacked = mutableListOf<File>()
+//        ZipFile(zipFile).use { zip ->
+//            zip.entries().asSequence().forEach { entry ->
+//                val outFile = File(outputDir, entry.name)
+//                zip.getInputStream(entry).use { inp ->
+//                    outFile.outputStream().use { out ->
+//                        inp.copyTo(out)
+//                    }
+//                }
+//                unpacked += outFile
+//            }
+//        }
+//
+//        return zipFile to unpacked
+//    }
+//
+
 
     companion object {
 
-        private const val LOG_TAG       = "MainActivityUBI4Test"
-        private const val PREFS_NAME    = "ubi4_prefs"
-        private const val PREF_KEY_TOKEN = "pref_key_token"
+        private const val LOG_TAG           = "MotionTrainingFragment"
+        private const val PREF_KEY_TOKEN    = "pref_key_token"
+        private const val PREF_KEY_SERIAL   = "pref_key_serial"
+        private const val PREF_KEY_PASSWORD = "pref_key_password"
+        private const val PREFS_NAME = "ubi4_prefs"
     }
 
 

@@ -199,11 +199,11 @@ abstract class BaseWidgetsFragment : Fragment() {
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-        Log.d("TestButton", "oneButtonPressed run")
+        Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-        Log.d("TestButton", "oneButtonReleased run")
+        Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
 
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {

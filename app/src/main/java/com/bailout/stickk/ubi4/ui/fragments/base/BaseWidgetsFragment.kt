@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -45,6 +46,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
@@ -58,7 +62,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
         CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
     }
-    protected val adapterWidgets by lazy {
+    protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent ->
@@ -165,7 +169,9 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             )
-        )
+        ).apply {
+            setHasStableIds(true)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -197,11 +203,11 @@ abstract class BaseWidgetsFragment : Fragment() {
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-        Log.d("TestButton", "oneButtonPressed run")
+        Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-        Log.d("TestButton", "oneButtonReleased run")
+        Log.d("TestButton", "oneButtonReleased run $addressDevice $parameterID $command")
 
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {

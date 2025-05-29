@@ -401,9 +401,7 @@ class BLEController() {
         // Отменяем запущенные корутины
         bleJob.cancel()
         try {
-            LocalBroadcastManager
-                .getInstance(mContext)
-                .unregisterReceiver(mGattUpdateReceiver)
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
         } catch (e: IllegalArgumentException) {
             Log.w("BLEController", "Ресивер уже отписан")
         }

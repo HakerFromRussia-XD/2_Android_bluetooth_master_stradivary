@@ -1,49 +1,58 @@
 plugins {
-    id 'com.android.library'
-    id "dev.icerock.mobile.multiplatform-resources" version "0.24.5"
-    id 'org.jetbrains.kotlin.multiplatform'
-    id 'org.jetbrains.kotlin.plugin.serialization'
-    id 'org.jetbrains.kotlin.native.cocoapods'
+    id("com.android.library")
+    id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 android {
-    namespace 'com.bailout.stickk.ubi4'
-    compileSdk 34
-
-    sourceSets {
-        main.java.srcDirs += "src/androidMain/java"
-    }
+    namespace = "com.bailout.stickk.ubi4"
+    compileSdk = 34
 
     defaultConfig {
-        minSdk 24
-        consumerProguardFiles "consumer-rules.pro"
+        minSdk = 24
+        consumerProguardFiles("consumer-rules.pro")
     }
+
+    android.sourceSets.named("main") {
+        java.srcDirs("src/androidMain/java", "src/kotlin+java")
+        res.srcDirs("src/androidMain/res")
+    }
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+
     buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
 kotlin {
+    androidTarget()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
     cocoapods {
         summary = "Shared business logic"
         homepage = "https://github.com/your‑repo"
         version = "1.0.0"
         ios.deploymentTarget = "14.0"
-        framework { baseName = "Shared"
+        framework {
+            baseName = "Shared"
             export("org.jetbrains.kotlinx:kotlinx-coroutines-core")
         }
     }
-    android()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     sourceSets {
         val commonMain by getting {
@@ -59,6 +68,7 @@ kotlin {
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
+
         val androidMain by getting {
             dependencies {
                 implementation("androidx.core:core-ktx:1.15.0")
@@ -79,49 +89,40 @@ kotlin {
                 implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
-            resources.srcDir("src/androidMain/res") // ✅ только здесь
         }
-        // Создаем общий iosMain source set
-        val iosMain by getting {
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+            kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:2.3.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
             }
-            kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
         }
-        iosX64Main {
-            dependsOn iosMain
+        val iosX64Main by getting { dependsOn(iosMain) }
+        val iosArm64Main by getting { dependsOn(iosMain) }
+        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("junit:junit:4.13.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+            }
         }
-        iosArm64Main {
-            dependsOn iosMain
-        }
-        iosSimulatorArm64Main {
-            dependsOn iosMain
-        }
-        val androidTest by getting {
+        val androidUnitTest by getting {
             dependencies {
                 implementation("androidx.test.ext:junit:1.2.1")
                 implementation("androidx.test.espresso:espresso-core:3.6.1")
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation("junit:junit:4.13.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-            }
-        }
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
 }
+
 multiplatformResources {
     resourcesPackage.set("com.bailout.stickk.ubi4")
     resourcesClassName.set("MR")
-
-}
-
-dependencies {
-//    implementation project(':app')
 }

@@ -201,11 +201,17 @@ class GesturesOpticDelegateAdapter(
         // Определяем deviceAddress/parameterInfoSet в зависимости от widget
         when (val widget = item.widget) {
             is BaseParameterWidgetEStruct -> {
-                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+//                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+//                Log.d("ParamInfo deviceAddress", "deviceAddress1 : $deviceAddress")
+                deviceAddress = widget.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
+                widget.baseParameterWidgetStruct.parameterInfoSet.forEachIndexed { index, it ->
+                    Log.d("ParamInfo deviceAddress", "${widget.baseParameterWidgetStruct.parameterInfoSet.size} - $index deviceAddress2 : $it")
+                }
                 parameterInfoSet = widget.baseParameterWidgetStruct.parameterInfoSet
             }
             is BaseParameterWidgetSStruct -> {
-                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+//                deviceAddress = widget.baseParameterWidgetStruct.deviceId
+                deviceAddress = widget.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
                 parameterInfoSet = widget.baseParameterWidgetStruct.parameterInfoSet
             }
         }

@@ -4,13 +4,30 @@ pluginManagement {
         google()
         mavenCentral()
     }
+
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == "org.jetbrains.kotlin.plugin.serialization") {
-                useVersion "1.9.22" // укажите нужную версию плагина
+            when (requested.id.id) {
+                "org.jetbrains.kotlin.plugin.serialization" -> useVersion("1.9.22")
+                "org.jetbrains.kotlin.multiplatform" -> useVersion("1.9.22")
+                "org.jetbrains.kotlin.native.cocoapods" -> useVersion("1.9.22")
             }
         }
     }
 }
 
-include ':app', ':bluetooth', ':delegateadapter', ':kmm_ubi4'
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven(url = "https://jitpack.io")
+    }
+}
+
+rootProject.name = "2_Android_bluetooth_master_stradivary"
+
+include(":app")
+include(":bluetooth")
+include(":delegateadapter")
+include(":kmm_ubi4")

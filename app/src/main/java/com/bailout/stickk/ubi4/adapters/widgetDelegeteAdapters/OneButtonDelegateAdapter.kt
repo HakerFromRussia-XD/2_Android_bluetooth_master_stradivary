@@ -29,14 +29,18 @@ class OneButtonDelegateAdapter(
 
         when (val widget = item.widget) {
             is CommandParameterWidgetEStruct -> {
-                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = widget.clickCommand
                 pressedCommand = widget.pressedCommand
                 releasedCommand = widget.releasedCommand
+                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+                    Log.d("TestButton", "$it")
+                    Log.d("TestButton", "deviceId = $addressDevice")
+                }
             }
             is CommandParameterWidgetSStruct -> {
-                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = widget.clickCommand
                 pressedCommand = widget.pressedCommand
@@ -72,7 +76,6 @@ class OneButtonDelegateAdapter(
                     onButtonReleased(addressDevice, parameterID, clickCommand)
                 }
             }
-
             true
         }
 

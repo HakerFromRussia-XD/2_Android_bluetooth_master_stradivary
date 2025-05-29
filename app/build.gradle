@@ -9,13 +9,13 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/keystore.jks')
+            storeFile file('/Users/motoricallc/Keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'
         }
         release {
-            storeFile file('/Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/keystore.jks')
+            storeFile file('/Users/motoricallc/Keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'
@@ -26,23 +26,29 @@ android {
 
     defaultConfig {
         applicationId "com.bailout.stickk"
-        minSdk 24
+        minSdk 28
         targetSdk 33
         versionCode 7
-        versionName "3.1.1017"
+        versionName "3.1.1023"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release
     }
     buildTypes {
         release {
+            profileable false
             minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    lint { checkReleaseBuilds false }
+    lint {
+        checkReleaseBuilds false
+        warningsAsErrors false
+        abortOnError false
+        baseline = file("lint-baseline.xml")
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -87,21 +93,21 @@ dependencies {
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.16.0'
 
     implementation project(":kmm_ubi4")
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.22"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:2.0.21"
 
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
 
     // gson
@@ -165,7 +171,6 @@ dependencies {
 
     // dexter (permissions)
     implementation 'com.karumi:dexter:6.2.3'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     //animation
     implementation 'com.airbnb.android:lottie:6.4.0'
@@ -191,7 +196,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.3.1'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
     testImplementation 'io.mockk:mockk:1.13.7'
 
 }

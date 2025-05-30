@@ -167,21 +167,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-//
-//            if (frag is MotionTrainingFragment) {
-//                lifecycleScope.launch {
-//                    frag.onRunCommandClicked()     // ← вызов
-//                }
-//            } else {
-//                Log.w(TAG, "Сейчас активен не MotionTrainingFragment – команда не выполнена")
-//            }
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            bleCommandWithQueue(BLECommands.requestGestureInfo(6, 12, 64), MAIN_CHANNEL, WRITE){}
+        }
 
     }
-
-
 
 
     @SuppressLint("MissingPermission")

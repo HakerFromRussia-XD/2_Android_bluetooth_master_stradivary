@@ -191,7 +191,7 @@ class UBI4GripperScreenWithEncodersActivity
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { dataCode ->
-                Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
+                Log.d("uiGestureSettingsObservable", "rx dataCode = $dataCode")
                 val parameter = ParameterProvider.getParameterDeprecated(dataCode)
                 Log.d("uiGestureSettingsObservable", "data = ${parameter.data}")
                 val gestureSettings = Json.decodeFromString<Gesture>("\"${parameter.data}\"")

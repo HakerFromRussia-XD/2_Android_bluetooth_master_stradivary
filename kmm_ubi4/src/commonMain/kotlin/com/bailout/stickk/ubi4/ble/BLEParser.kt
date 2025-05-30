@@ -251,7 +251,6 @@ class BLEParser(
                 ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                     coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-                    platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
                     val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data
                     val paddedData: String = data.padEnd(12, '0')
@@ -292,7 +291,6 @@ class BLEParser(
                             platformLog("uiRotationGroupObservable", "parameter.data = ${parameter.data}")
                         }
                         ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
-
                             val raw = ParameterProvider
                                 .getParameter(deviceAddress, parameterID)
                                 .data                     // hex‑строка без заголовка
@@ -308,7 +306,7 @@ class BLEParser(
                                 )
                                 // ↓ здесь же можно парсить остальные байты настройки, если протокол известен
                             }
-                            platformLog("uiGestureSettingsObservable", "dataCode = $dataCode")
+                            platformLog("uiGestureSettingsObservable", "перед RX dataCode = $dataCode")
                             RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
@@ -1191,6 +1189,16 @@ class BLEParser(
                             )
                         }
                     }
+                    is SwitchParameterWidgetEStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
+                            canAdd = false
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                            )
+                        }
+                        platformLog("SwitchParameterWidgetEStruct_addToListWidgets", "combineWidgetId = $combineWidgetId")
+                    }
                     else -> {
                         platformLog("addToListWidgets", "E it = $it")
                     }
@@ -1268,6 +1276,16 @@ class BLEParser(
                             )
                         }
 //                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
+                    }
+                    is SwitchParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
+                            canAdd = false
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                            )
+                        }
+                        platformLog("SwitchParameterWidgetEStruct_addToListWidgets не E а S", "combineWidgetId = $combineWidgetId")
                     }
                     else -> {
                     }

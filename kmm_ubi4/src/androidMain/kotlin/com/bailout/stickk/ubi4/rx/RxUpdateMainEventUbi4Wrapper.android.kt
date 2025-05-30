@@ -5,18 +5,18 @@ import com.bailout.stickk.ubi4.models.ble.ParameterRef
 
 actual object RxUpdateMainEventUbi4Wrapper {
     actual fun updateUiGestureSettings(data: Int) {
-//        RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(data)
+        RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(data)
     }
 
     actual fun updateUiRotationGroup(parameterRef: ParameterRef) {
-//        RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(parameterRef)
+        RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(parameterRef)
     }
 
     actual fun updateUiOpticTraining(parameterRef: ParameterRef) {
-//        RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(parameterRef)
+        RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(parameterRef)
     }
 
     actual fun updateFingerAngle(parameters: FingerAngle) {
-//        RxUpdateMainEventUbi4.getInstance().updateFingerAngle(parameters)
+        RxUpdateMainEventUbi4.getInstance().updateFingerAngle(parameters)
     }
 }

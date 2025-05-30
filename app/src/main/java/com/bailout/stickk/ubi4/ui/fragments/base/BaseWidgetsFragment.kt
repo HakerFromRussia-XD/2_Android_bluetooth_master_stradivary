@@ -132,7 +132,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                         Log.d("StateCallBack", "onConfirmClick: Button clicked")
                         showConfirmTrainingDialog {
                             navigator().showMotionTrainingScreen {
-                                main?.manageTrainingLifecycle()
+//                                main?.manageTrainingLifecycle()
                                 Log.d("StateCallBack", "manageTrainingLifecycle() run")
 
                             }

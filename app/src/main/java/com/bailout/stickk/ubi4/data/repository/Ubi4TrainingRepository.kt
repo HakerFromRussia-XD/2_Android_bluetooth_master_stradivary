@@ -4,6 +4,7 @@ import android.util.Log
 import com.bailout.stickk.ubi4.data.network.ApiInterfaceUBI4
 import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
 import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
+import com.bailout.stickk.ubi4.utility.asCountingPart
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.intOrNull
@@ -12,13 +13,14 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile
 
 class Ubi4TrainingRepository(
-    private val api: ApiInterfaceUBI4
+    val api: ApiInterfaceUBI4
 ) {
 
 
@@ -52,6 +54,8 @@ class Ubi4TrainingRepository(
 
 
 
+
+
     suspend fun uploadTrainingData(
         token: String,
         serial: String,
@@ -76,6 +80,26 @@ class Ubi4TrainingRepository(
             serial = serialPart,
             files = files
         )
+//        val serialBody = serial
+//            .toRequestBody("text/plain".toMediaTypeOrNull())
+//
+//        // 2) файлы остаются как MultipartBody.Part
+//        val filesParts = listOf(
+//            dataFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+//                .let { body ->
+//                    MultipartBody.Part.createFormData("files", dataFile.name, body)
+//                },
+//            passportFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+//                .let { body ->
+//                    MultipartBody.Part.createFormData("files", passportFile.name, body)
+//                }
+//        )
+//
+//        val resp = api.uploadTrainingData(
+//            auth   = token,
+//            serial = serialBody,    // ← сюда передаём RequestBody
+//            files  = filesParts
+//        )
         if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code()}")
 
         // читаем SSE-поток и возвращаем последний checkpoint-name
@@ -83,6 +107,7 @@ class Ubi4TrainingRepository(
         resp.body()?.source()?.let { src ->
             while (!src.exhausted()) {
                 val line = src.readUtf8Line() ?: break
+                Log.d("SprTrainingFragment", "SSE raw = $line")
                 onProgress(line)       // можно парсить прогресс
                 if (line.contains("message")) {
                     lastCheckpoint = Json.parseToJsonElement(line)

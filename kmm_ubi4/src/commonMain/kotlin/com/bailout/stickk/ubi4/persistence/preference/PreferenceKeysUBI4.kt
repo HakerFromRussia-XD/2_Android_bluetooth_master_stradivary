@@ -22,6 +22,12 @@ object PreferenceKeysUBI4 {
     const val FIRST_LOAD_ACCOUNT_INFO = "FIRST_LOAD_ACCOUNT_INFO"
     const val PREF_GESTURE_STATE = "pref_gesture_state"
     const val SET_MODE_SMART_CONNECTION = "SET_MODE_SMART_CONNECTION"
+    const val NAME           = "ubi4_prefs"
+    const val KEY_TOKEN      = "pref_key_token"
+    const val KEY_SERIAL     = "pref_key_serial"
+    const val KEY_PASSWORD   = "pref_key_password"
+    const val TRAINING_PREFS     = "training_model_prefs"
+    const val KEY_CHECKPOINT_NUMBER = "checkpoint_number"
 
 
 

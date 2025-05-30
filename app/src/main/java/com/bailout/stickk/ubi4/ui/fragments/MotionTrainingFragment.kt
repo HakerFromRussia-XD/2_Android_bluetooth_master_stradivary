@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
+import android.content.Context
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
@@ -18,7 +21,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity.MODE_PRIVATE
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
@@ -32,6 +34,7 @@ import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -126,20 +129,12 @@ class MotionTrainingFragment(
     // Сет реальных жестов (если нужно, можете дополнять или изменять):
     private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
 
-    private val prefs by lazy { requireContext().getSharedPreferences("ubi4_prefs", MODE_PRIVATE) }
-    private var token: String?
-        get() = prefs.getString(PREF_KEY_TOKEN, null)
-        set(v) = prefs.edit().putString(PREF_KEY_TOKEN, v).apply()
-
-    private var serial: String
-        get() = prefs.getString(PREF_KEY_SERIAL, "")!!
-        set(v) = prefs.edit().putString(PREF_KEY_SERIAL, v).apply()
-
-    private var password: String
-        get() = prefs.getString(PREF_KEY_PASSWORD, "")!!
-        set(v) = prefs.edit().putString(PREF_KEY_PASSWORD, v).apply()
-
-
+    private val prefs by lazy {
+        requireContext().getSharedPreferences(
+            PreferenceKeysUBI4.NAME,
+            Context.MODE_PRIVATE
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -205,7 +200,7 @@ class MotionTrainingFragment(
                     Log.d("TestFileContain", "OpticTrainingStruct = $dataString")
                     Log.d("TestFileContain", "Number Frame = ${opticTrainingStruct.numberOfFrame}")
 
-                    writeToFile(dataString)
+                   writeToFile(dataString)
                 } catch (e: Exception) {
                     Log.e("TestOptic", "Error decoding data: ${e.message}")
                 }
@@ -340,10 +335,23 @@ class MotionTrainingFragment(
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4CompletedTrainingBtn)
         confirmBtn.setOnClickListener {
+
+            Log.d("SprTrainingFragment", "⏹ user confirmed finish – closing writer")
+            lifecycleScope.launch(Dispatchers.Default) { writer.close() }
             myDialog.dismiss()
             confirmClick()
             Log.d("StateCallBack", "confirmClick() run")
-            onFinishTraining()
+//            onFinishTraining()
+            val appCtx = myDialog.context.applicationContext
+            val prefs   = appCtx.getSharedPreferences(PreferenceKeysUBI4.NAME, Context.MODE_PRIVATE)
+            val token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
+            val serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
+            TrainingUploadManager.launch(
+                context = appCtx,
+                repo    = Ubi4TrainingRepository(RetrofitInstanceUBI4.api),
+                token   = token,
+                serial  = serial
+            )
         }
     }
 
@@ -959,19 +967,8 @@ class MotionTrainingFragment(
 
     }
 
-
-
-
-
-
-
     companion object {
-
-        private const val LOG_TAG           = "MotionTrainingFragment"
-        private const val PREF_KEY_TOKEN    = "pref_key_token"
-        private const val PREF_KEY_SERIAL   = "pref_key_serial"
-        private const val PREF_KEY_PASSWORD = "pref_key_password"
-        private const val PREFS_NAME = "ubi4_prefs"
+        private const val LOG_TAG = "MotionTrainingFragment"
     }
 
 

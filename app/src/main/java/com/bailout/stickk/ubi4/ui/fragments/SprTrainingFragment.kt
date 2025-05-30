@@ -1,12 +1,12 @@
 package com.bailout.stickk.ubi4.ui.fragments
-
-
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import android.content.Context.MODE_PRIVATE
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.simform.refresh.SSPullToRefreshLayout
+import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
@@ -66,6 +67,8 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
 
     private val repo = Ubi4TrainingRepository(RetrofitInstanceUBI4.api)
 
+    private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -95,6 +98,8 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
+        // подписка на прогресс обучения модели
+        subscribeTrainingUpload()
         return binding.root
 
     }
@@ -172,7 +177,8 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
         val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
         val path = requireContext().getExternalFilesDir(null)
 
-        val regex = Regex("^checkpoint_№(\\d+)_\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}$")
+//        val regex = Regex("^checkpoint_№(\\d+)_\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}$")
+        val regex = Regex("^checkpoint_№(\\d+)_.*\\.ckpt$")
 
         val files = path?.listFiles()?.filter {
             it.name.startsWith("checkpoint_№") &&
@@ -234,7 +240,8 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
                     return
                 }
 
-                val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})$")
+//                val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})$")
+                val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})")
                 val match = dateTimeRegex.find(fileItem.file.name)
                 val dateTimeStr = match?.groupValues?.get(1) ?: run {
                     Toast.makeText(
@@ -515,42 +522,31 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
                 val fixedPassword = "123фыв6"
 
                 // 1) Авторизация
-                Log.d("SprTrainingFragment", "🔄 fetchTokenBySerial(serial=$fixedSerial)")
-                val token = repo.fetchTokenBySerial(API_KEY, fixedSerial, fixedPassword)
-                Log.d("SprTrainingFragment", "✅ fetchTokenBySerial → $token")
+                val rawToken = repo.fetchTokenBySerial(API_KEY, fixedSerial, fixedPassword)
+                val bearer   = "$rawToken"
+                prefs.edit()
+                    .putString(PreferenceKeysUBI4.KEY_TOKEN, bearer)
+                    .putString(PreferenceKeysUBI4.KEY_SERIAL, fixedSerial)
+                    .putString(PreferenceKeysUBI4.KEY_PASSWORD, fixedPassword)
+                    .apply()
 
-                // 2) Скачиваем паспорт (во временный cacheDir)
-                Log.d("SprTrainingFragment", "🔄 fetchAndSavePassport")
-                val rawPassport = repo.fetchAndSavePassport(
-                    token    = token,
-                    serial   = fixedSerial,
-                    cacheDir = requireContext().cacheDir
-                )
-                Log.d("SprTrainingFragment", "✅ fetchAndSavePassport → ${rawPassport.absolutePath}")
-
-                // 3) Извлекаем timestamp из имени
+                // 2) Скачиваем паспорт, сохраняем и т.д...
+                val rawPassport = repo.fetchAndSavePassport(bearer, fixedSerial, requireContext().cacheDir)
                 val timestamp = rawPassport.name.removeSuffix(".emg8.data_passport")
-                Log.d("SprTrainingFragment", "⏱ timestamp = $timestamp")
-
-                // 4) Готовим externalFilesDir для хранения
-                val extDir = requireContext().getExternalFilesDir(null)
-                    ?: throw IOException("External storage unavailable")
-
-                // 5) Копируем и переименовываем паспорт в externalFilesDir
+                val extDir = requireContext().getExternalFilesDir(null)!!
                 val passportFile = File(extDir, "$timestamp.emg8.data_passport")
                 rawPassport.copyTo(passportFile, overwrite = true)
-                Log.d("SprTrainingFragment", "✅ passportFile saved to ${passportFile.absolutePath}")
+                File(extDir, "config.json").writeText(passportFile.readText())
 
-                // 6) Генерим config.json из тела паспорта и сохраняем в тот же externalFilesDir
-                val configFile = File(extDir, "config.json")
-                configFile.writeText(passportFile.readText())
-                Log.d("SprTrainingFragment", "✅ config.json written to ${configFile.absolutePath}")
-
-                // 7) На UI вызываем MotionTrainingFragment
                 withContext(Main) {
                     Log.d("SprTrainingFragment", "▶ showMotionTrainingScreen")
-                    (activity as? NavigatorUBI4)
-                        ?.showMotionTrainingScreen { /* onFinishTraining */ }
+                    (activity as? NavigatorUBI4)?.showMotionTrainingScreen {
+                        // этот блок выполняется при возврате из MotionTrainingFragment
+                        TrainingUploadManager.launch(requireContext(), repo, bearer, fixedSerial)
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, this@SprTrainingFragment)
+                            .commit()
+                    }
                 }
 
             } catch (e: Exception) {
@@ -565,4 +561,36 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
             }
         }
     }
+
+
+    //TODO удалить метод
+    private fun subscribeTrainingUpload() {
+        // прогресс %
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            TrainingUploadManager.progressFlow.collect { pct ->
+                Log.d("TrainingUpload", "progress = $pct")
+                // Refresh the widget list to update the percentage in the adapter
+                // пример: binding.trainingPercentTv?.text = "$pct %"
+            }
+        }
+        // состояние процесса
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            TrainingUploadManager.stateFlow.collect { state ->
+                Log.d("TrainingUpload", "state = $state")
+                when (state) {
+                    TrainingUploadManager.State.RUNNING    -> { /* показать индикатор */ }
+                    TrainingUploadManager.State.EXPORTING  -> { /* показать "Экспортируем…" */ }
+                    TrainingUploadManager.State.DONE       -> {
+//                        processDownloadedCheckpoint()
+                        Toast.makeText(requireContext(), "Модель готова 🎉", Toast.LENGTH_SHORT).show()
+                    }
+                    TrainingUploadManager.State.ERROR      -> {
+                        Toast.makeText(requireContext(), "Ошибка обучения", Toast.LENGTH_LONG).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
 }

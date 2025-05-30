@@ -1,3 +1,4 @@
+package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
@@ -168,8 +169,6 @@ class SprGestureFragment: BaseWidgetsFragment() {
         }
     })
     gesturesRv.adapter = adapter
-
-
 
     val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupCancelBtn)
     cancelBtn.setOnClickListener {

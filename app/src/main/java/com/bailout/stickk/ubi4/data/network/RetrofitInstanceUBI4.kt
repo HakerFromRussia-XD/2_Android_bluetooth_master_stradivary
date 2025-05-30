@@ -6,24 +6,33 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
 object RetrofitInstanceUBI4 {
     private val interceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.HEADERS
     }
 
-//    private val client = OkHttpClient.Builder()
-//        .addInterceptor(interceptor)
-//        .build()
-private val client = OkHttpClient.Builder()
-    .connectTimeout(60, TimeUnit.SECONDS)
-    .readTimeout(60, TimeUnit.SECONDS)
-    .writeTimeout(60, TimeUnit.SECONDS)
-    .addInterceptor(interceptor)
-    .build()
+
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .protocols(listOf(Protocol.HTTP_1_1))
+        // handshake – сколько ждём установку TCP + TLS
+        .connectTimeout(15, TimeUnit.SECONDS)
+
+        // upload .emg8 может идти 2-3 минуты → убираем writeTimeout
+        .writeTimeout(0, TimeUnit.SECONDS)
+
+        // SSE-поток: сервер может молчать дольше минуты → убираем readTimeout
+        .readTimeout(0, TimeUnit.SECONDS)
+
+        // если внезапно drop – пробуем переподключиться
+        .retryOnConnectionFailure(true)
+
+        .addInterceptor(interceptor)
+        .build()
 
     // Настраиваем Json с игнорированием неизвестных ключей
     private val json = Json {

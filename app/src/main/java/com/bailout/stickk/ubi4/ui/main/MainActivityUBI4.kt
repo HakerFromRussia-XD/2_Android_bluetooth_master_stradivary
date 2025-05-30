@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.main
 
-import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
@@ -55,6 +54,7 @@ import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
@@ -181,7 +181,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
     }
-
 
 
 
@@ -429,6 +428,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     interface OnRunCommandListener {
         fun onRunCommand()
     }
+
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")

@@ -6,21 +6,30 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
-import com.bailout.stickk.ubi4.data.state.WidgetState.stateOpticTrainingFlow
+
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.TrainingModelState
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -33,24 +42,54 @@ class TrainingFragmentDelegateAdapter(
         Ubi4WidgetTrainingOpticBinding::inflate
     ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private lateinit var _trainingTitleTv: TextView
-    private lateinit var _trainingSubTitleTv: TextView
-    private lateinit var _trainingAnnotationIv: ImageView
-    private lateinit var _trainingBtn: View
-    private lateinit var _lottieAnimationLoading: com.airbnb.lottie.LottieAnimationView
-    private lateinit var _percentLearning: TextView
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
+        // 1) сразу подписываемся на прогресс и состояние
+        main.lifecycleScope.launchWhenStarted {
+            TrainingUploadManager.stateFlow.collect { state ->
+                when (state) {
+                    TrainingUploadManager.State.RUNNING -> {
+                        trainingSubTitleTv.text = main.getString(R.string.model_training_in_progress_please_wait)
+                        trainingTitleTv.text = main.getString(R.string.spppr_is_learning)
+                        trainingAnnotationIv.visibility = View.GONE
+                        lottieAnimationLoading.visibility = View.VISIBLE
+                        percentLearningTv.visibility = View.VISIBLE
+                        trainingBtn.isEnabled = true
+                        percentLearningTv.text = ""
+                        trainingBtn.setOnClickListener {
+                            Toast.makeText(main, main.getString(R.string.wait_until_the_model_file_is_created), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    TrainingUploadManager.State.EXPORTING -> {
+                        trainingSubTitleTv.text = main.getString(R.string.the_model_file_is_saved_to_the_device_memory_please_wait)
+                        trainingTitleTv.text = main.getString(R.string.spppr_is_saving)
+                        percentLearningTv.visibility = View.GONE
+                        lottieAnimationLoading.visibility = View.GONE
+                        trainingAnnotationIv.visibility = View.VISIBLE
+                        trainingBtn.isEnabled = true
+                        trainingBtn.setOnClickListener { onConfirmClick() }
+                    }
+                    else -> { // BASE
+                        trainingSubTitleTv.text = main.getString(R.string.follow_the_gestures_on_the_screen_and_keep_track_of_the_time)
+                        trainingTitleTv.text = main.getString(R.string.let_s_start_training_spr)
+                        trainingAnnotationIv.visibility = View.VISIBLE
+                        lottieAnimationLoading.visibility = View.GONE
+                        percentLearningTv.visibility = View.GONE
+                        trainingBtn.isEnabled = true
+                        trainingBtn.setOnClickListener { onConfirmClick() }
+                    }
+                }
+            }
+        }
+        main.lifecycleScope.launchWhenStarted {
+            TrainingUploadManager.progressFlow.collect { pct ->
+                percentLearningTv.text = "$pct %"
+            }
+        }
         Log.d("TestWidgetView", "Start onBind, item: ${item} item.getItemId() = ${item.getItemId()}")
         onDestroyParent { onDestroy() }
-        _trainingTitleTv = trainingTitleTv
-        _trainingSubTitleTv = trainingSubTitleTv
-        _trainingAnnotationIv = trainingAnnotationIv
-        _trainingBtn = trainingBtn
-        _lottieAnimationLoading = lottieAnimationLoading
-        _percentLearning = percentLearningTv
         main.getPercentProgressLearningModel()
         Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
         var addressDevice = 0
@@ -68,86 +107,13 @@ class TrainingFragmentDelegateAdapter(
             }
         }
 
-
         showFileBtn.setOnClickListener {
             Log.d("TestWidgetView", "setOnClickListener OK")
             onShowFileClick(addressDevice)
         }
-        startStateFlowCollector()
-    }
-
-    private fun startStateFlowCollector() {
-        scope.launch(Dispatchers.Main) {
-            try {
-                stateOpticTrainingFlow.collect { state ->
-                    Log.d("StateFlowCollector", "Collected state: $state")
-                    updateUI(state)
-                    scope.launch(Dispatchers.Main) {
-                        while (isActive && stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
-                            _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
-                            Log.d("StateFlowCollector", "scope 2 run")
-                            delay(100)
-                        }
-                    }
-                }
-            }
-            catch (e:CancellationException){
-                Log.d("StateFlowCollector", "Job was cancelled: ${e.message}")
-            }
-            catch (e:Exception){
-                main.showToast("ERROR startStateFlowCollector")
-                Log.e("StateFlowCollector", "Exception: ${e.message}")
-            }
-
-        }
     }
 
 
-    /**
-     * Обновляет UI в зависимости от текущего состояния.
-     */
-    private fun updateUI(state: PreferenceKeysUBI4.TrainingModelState) {
-        when (state) {
-            PreferenceKeysUBI4.TrainingModelState.BASE -> {
-                _trainingSubTitleTv.text = main.getString(R.string.follow_the_gestures_on_the_screen_and_keep_track_of_the_time)
-                _trainingTitleTv.text = main.getString(R.string.let_s_start_training_spr)
-                _trainingAnnotationIv.visibility = View.VISIBLE
-                _lottieAnimationLoading.visibility = View.GONE
-                _percentLearning.visibility = View.GONE
-                _trainingBtn.isEnabled = true
-                _trainingBtn.setOnClickListener {
-                    onConfirmClick()
-                }
-            }
-
-            PreferenceKeysUBI4.TrainingModelState.RUN -> {
-                _trainingSubTitleTv.text = main.getString(R.string.model_training_in_progress_please_wait)
-                _trainingTitleTv.text = main.getString(R.string.spppr_is_learning)
-                _trainingAnnotationIv.visibility = View.GONE
-                _lottieAnimationLoading.visibility = View.VISIBLE
-                _percentLearning.visibility = View.VISIBLE
-                _trainingBtn.isEnabled = true
-                _percentLearning.text = ""
-                _trainingBtn.setOnClickListener {
-                    Toast.makeText(
-                        main,
-                        main.getString(R.string.wait_until_the_model_file_is_created),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            PreferenceKeysUBI4.TrainingModelState.EXPORT -> {
-                _trainingSubTitleTv.text = main.getString(R.string.the_model_file_is_saved_to_the_device_memory_please_wait)
-                _trainingTitleTv.text = main.getString(R.string.spppr_is_saving)
-                _percentLearning.visibility = View.GONE
-                _trainingBtn.isEnabled = true
-                _trainingBtn.setOnClickListener {
-                    onConfirmClick()
-                }
-            }
-        }
-    }
 
 
     override fun isForViewType(item: Any): Boolean = item is TrainingGestureItem

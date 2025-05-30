@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4
 
-import SprGestureFragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -20,6 +19,7 @@ import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment

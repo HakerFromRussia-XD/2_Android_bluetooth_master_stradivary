@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
 import com.bailout.stickk.ubi4.models.user.User
 import com.bailout.stickk.ubi4.models.user.UserV2
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -118,13 +119,14 @@ interface ApiInterfaceUBI4 {
 
     // 3) serial + файлы (.emg8 + .data_passport) → обучение (SSE-прогресс)
     @Multipart
-    @POST("/passport_data/")
     @Streaming
+    @POST("/passport_data/")
     suspend fun uploadTrainingData(
         @Header("Authorization") auth: String,
         @Part serial: MultipartBody.Part,
         @Part files: List<MultipartBody.Part>
     ): Response<ResponseBody>
+
 
     // 4) token + checkpoint-name → ZIP с весами модели
     @POST("/take_data/")
@@ -139,4 +141,6 @@ interface ApiInterfaceUBI4 {
     suspend fun getClients(
         @Header("Authorization") auth: String
     ): Response<List<Client>>
+
+
 }

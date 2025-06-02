@@ -49,7 +49,7 @@ import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandListener {
+class SprTrainingFragment: BaseWidgetsFragment() {
     private lateinit var binding: Ubi4FragmentSprTrainingBinding
     private lateinit var bleController: BLEController
     private var main: MainActivityUBI4? = null
@@ -99,7 +99,7 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
         binding.sprTrainingRv.adapter = adapterWidgets
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         // подписка на прогресс обучения модели
-        subscribeTrainingUpload()
+//        subscribeTrainingUpload()
         return binding.root
 
     }
@@ -154,6 +154,7 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
             Log.d("showConfirmTrainingDialog", "cancelBtn ok")
             closeCurrentDialog()
         }
+
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmTrainingBtn)
         confirmBtn.setOnClickListener {
@@ -513,84 +514,42 @@ class SprTrainingFragment: BaseWidgetsFragment(), MainActivityUBI4.OnRunCommandL
         return false // Не удалось дождаться флага после всех попыток
     }
 
+    fun handleTrainingFinished() {
+        val bearer = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
+        val serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
+        TrainingUploadManager.launch(requireContext(), repo, bearer, serial)
+    }
 
-    override fun onRunCommand() {
-        Log.d("SprTrainingFragment", "▶ onRunCommand start")
+
+    fun startAuthAndDownloadPassport() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val fixedSerial = "CYBI-F-05663"
-                val fixedPassword = "123фыв6"
+                val serial = "CYBI-F-05663"
+                val pass   = "123фыв6"
 
-                // 1) Авторизация
-                val rawToken = repo.fetchTokenBySerial(API_KEY, fixedSerial, fixedPassword)
-                val bearer   = "$rawToken"
+                // авторизация
+                val token  = repo.fetchTokenBySerial(API_KEY, serial, pass)
                 prefs.edit()
-                    .putString(PreferenceKeysUBI4.KEY_TOKEN, bearer)
-                    .putString(PreferenceKeysUBI4.KEY_SERIAL, fixedSerial)
-                    .putString(PreferenceKeysUBI4.KEY_PASSWORD, fixedPassword)
+                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token.toString())
+                    .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                    .putString(PreferenceKeysUBI4.KEY_PASSWORD, pass)
                     .apply()
 
-                // 2) Скачиваем паспорт, сохраняем и т.д...
-                val rawPassport = repo.fetchAndSavePassport(bearer, fixedSerial, requireContext().cacheDir)
-                val timestamp = rawPassport.name.removeSuffix(".emg8.data_passport")
-                val extDir = requireContext().getExternalFilesDir(null)!!
-                val passportFile = File(extDir, "$timestamp.emg8.data_passport")
-                rawPassport.copyTo(passportFile, overwrite = true)
-                File(extDir, "config.json").writeText(passportFile.readText())
-
-                withContext(Main) {
-                    Log.d("SprTrainingFragment", "▶ showMotionTrainingScreen")
-                    (activity as? NavigatorUBI4)?.showMotionTrainingScreen {
-                        // этот блок выполняется при возврате из MotionTrainingFragment
-                        TrainingUploadManager.launch(requireContext(), repo, bearer, fixedSerial)
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, this@SprTrainingFragment)
-                            .commit()
-                    }
-                }
+                // скачиваем паспорт
+                val raw = repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+                val ts  = raw.name.removeSuffix(".emg8.data_passport")
+                val dst = File(requireContext().getExternalFilesDir(null), "$ts.emg8.data_passport")
+                raw.copyTo(dst, overwrite = true)
+                File(dst.parentFile!!, "config.json").writeText(dst.readText())
 
             } catch (e: Exception) {
-                Log.e("SprTrainingFragment", "❌ Ошибка onRunCommand", e)
+                Log.e("SprTrainingFragment", "auth/download error", e)
                 withContext(Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Не удалось загрузить паспорт: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "Не удалось загрузить паспорт: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
 
-    //TODO удалить метод
-    private fun subscribeTrainingUpload() {
-        // прогресс %
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            TrainingUploadManager.progressFlow.collect { pct ->
-                Log.d("TrainingUpload", "progress = $pct")
-                // Refresh the widget list to update the percentage in the adapter
-                // пример: binding.trainingPercentTv?.text = "$pct %"
-            }
-        }
-        // состояние процесса
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            TrainingUploadManager.stateFlow.collect { state ->
-                Log.d("TrainingUpload", "state = $state")
-                when (state) {
-                    TrainingUploadManager.State.RUNNING    -> { /* показать индикатор */ }
-                    TrainingUploadManager.State.EXPORTING  -> { /* показать "Экспортируем…" */ }
-                    TrainingUploadManager.State.DONE       -> {
-//                        processDownloadedCheckpoint()
-                        Toast.makeText(requireContext(), "Модель готова 🎉", Toast.LENGTH_SHORT).show()
-                    }
-                    TrainingUploadManager.State.ERROR      -> {
-                        Toast.makeText(requireContext(), "Ошибка обучения", Toast.LENGTH_LONG).show()
-                    }
-                    else -> {}
-                }
-            }
-        }
     }
-
-}

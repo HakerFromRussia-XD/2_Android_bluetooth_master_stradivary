@@ -4,17 +4,12 @@ import android.util.Log
 import com.bailout.stickk.ubi4.data.network.ApiInterfaceUBI4
 import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
 import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
-import com.bailout.stickk.ubi4.utility.asCountingPart
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile

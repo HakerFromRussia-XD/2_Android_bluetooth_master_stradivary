@@ -45,8 +45,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -128,17 +130,18 @@ abstract class BaseWidgetsFragment : Fragment() {
             ),
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
-                    if (isAdded) {
-                        Log.d("StateCallBack", "onConfirmClick: Button clicked")
-                        showConfirmTrainingDialog {
-                            navigator().showMotionTrainingScreen {
-//                                main?.manageTrainingLifecycle()
-                                Log.d("StateCallBack", "manageTrainingLifecycle() run")
+                    if (!isAdded) return@TrainingFragmentDelegateAdapter
+                    // Получаем ссылку на текущий SprTrainingFragment
+                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
+                    spr.startAuthAndDownloadPassport()
+                    showConfirmTrainingDialog {
+                        navigator().showMotionTrainingScreen {
+                            spr.handleTrainingFinished()
 
-                            }
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragmentContainer, spr)
+                                .commit()
                         }
-                    } else {
-                        Log.e("StateCallBack", "Fragment is not attached to activity")
                     }
                 },
                 onShowFileClick = { addressDevice -> showFilesDialog(addressDevice,6) },

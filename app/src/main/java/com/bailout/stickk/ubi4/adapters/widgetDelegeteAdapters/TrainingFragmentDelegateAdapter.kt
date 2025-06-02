@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidge
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CancellationException
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
@@ -90,8 +92,8 @@ class TrainingFragmentDelegateAdapter(
         }
         Log.d("TestWidgetView", "Start onBind, item: ${item} item.getItemId() = ${item.getItemId()}")
         onDestroyParent { onDestroy() }
-        main.getPercentProgressLearningModel()
-        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
+//        main.getPercentProgressLearningModel()
+//        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
         var addressDevice = 0
         var parameterId = 0
 

@@ -51,8 +51,8 @@ class TrainingFragmentDelegateAdapter(
         _trainingBtn = trainingBtn
         _lottieAnimationLoading = lottieAnimationLoading
         _percentLearning = percentLearningTv
-        main.getPercentProgressLearningModel()
-        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
+//        main.getPercentProgressLearningModel()
+//        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
         var addressDevice = 0
         var parameterId = 0
 
@@ -84,7 +84,7 @@ class TrainingFragmentDelegateAdapter(
                     updateUI(state)
                     scope.launch(Dispatchers.Main) {
                         while (isActive && stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
-                            _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
+//                            _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
                             Log.d("StateFlowCollector", "scope 2 run")
                             delay(100)
                         }

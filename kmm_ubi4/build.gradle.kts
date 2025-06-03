@@ -11,7 +11,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 28
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -19,7 +19,7 @@ android {
         java.srcDirs("src/androidMain/java", "src/kotlin+java")
         res.srcDirs("src/androidMain/res")
     }
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
+//    sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     buildTypes {
         getByName("release") {
@@ -42,7 +42,6 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-
     cocoapods {
         summary = "Shared business logic"
         homepage = "https://github.com/your‑repo"
@@ -68,7 +67,6 @@ kotlin {
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
-
         val androidMain by getting {
             dependencies {
                 implementation("androidx.core:core-ktx:1.15.0")
@@ -90,7 +88,6 @@ kotlin {
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
         }
-
         val iosMain by creating {
             dependsOn(commonMain)
             kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")

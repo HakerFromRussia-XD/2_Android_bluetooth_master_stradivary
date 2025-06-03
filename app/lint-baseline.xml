@@ -3811,16 +3811,16 @@
             column="17"/>
     </issue>
 
-    <issue
-        id="LogNotTimber"
-        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"
-        errorLine1="                Log.d(&quot;TFLite&quot;, &quot;Interpreter initialized: $tflite&quot;)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/bailout/stickk/ubi4/utility/TrainingPipeline.kt"
-            line="363"
-            column="17"/>
-    </issue>
+<!--    <issue-->
+<!--        id="LogNotTimber"-->
+<!--        message="Using &apos;Log&apos; instead of &apos;Timber&apos;"-->
+<!--        errorLine1="                Log.d(&quot;TFLite&quot;, &quot;Interpreter initialized: $tflite&quot;)"-->
+<!--        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">-->
+<!--        <location-->
+<!--            file="src/main/java/com/bailout/stickk/ubi4/utility/TrainingPipeline.kt"-->
+<!--            line="363"-->
+<!--            column="17"/>-->
+<!--    </issue>-->
 
     <issue
         id="LogNotTimber"

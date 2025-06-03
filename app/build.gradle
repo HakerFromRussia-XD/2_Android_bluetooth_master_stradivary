@@ -36,8 +36,10 @@ android {
     }
     buildTypes {
         release {
+            minifyEnabled false // должны быть true
+            shrinkResources false
+            ////////////////////
             profileable false
-            minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -52,6 +54,11 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    packaging {
+        dex {
+            useLegacyPackaging true
+        }
     }
     packagingOptions {
         resources {
@@ -183,8 +190,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
 
     //tesnorflow
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
-    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
+//    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+//    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
 
     //TESTS
     implementation 'org.junit.jupiter:junit-jupiter:5.10.2'

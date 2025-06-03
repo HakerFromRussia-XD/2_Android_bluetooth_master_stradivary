@@ -62,7 +62,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmen
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import com.bailout.stickk.ubi4.utility.TrainingPipeline
+//import com.bailout.stickk.ubi4.utility.TrainingPipeline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -77,7 +77,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-    private lateinit var trainingPipeline: TrainingPipeline
+//    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
 
     private var bluetoothLeService: BluetoothLeService? = null
@@ -110,8 +110,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 //        binding.batteryProgressBar.progress = 80
 
-        trainingPipeline = TrainingPipeline(this)
-        trainingPipeline.initialize()
+//        trainingPipeline = TrainingPipeline(this)
+//        trainingPipeline.initialize()
         observeBattery()
         // инициализация блютуз
         mBLEController = BLEController()
@@ -249,14 +249,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
 
-    override fun manageTrainingLifecycle() {
-        Log.d("StateCallBack", "manageTrainingLifecycle called")
-        trainingPipeline.runModel()
-    }
-
-    override fun getPercentProgressLearningModel(): Int {
-        return trainingPipeline.getPercentProgressLearningModel()
-    }
+//    override fun manageTrainingLifecycle() {
+//        Log.d("StateCallBack", "manageTrainingLifecycle called")
+//        trainingPipeline.runModel()
+//    }
+//
+//    override fun getPercentProgressLearningModel(): Int {
+//        return trainingPipeline.getPercentProgressLearningModel()
+//    }
 
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
 

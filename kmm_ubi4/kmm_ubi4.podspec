@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'kmm_ubi4'
     spec.version                  = '1.0.0'
-    spec.homepage                 = 'https://github.com/your‑repo'
+    spec.homepage                 = 'https://github.com/your-repo'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
     spec.license                  = ''

@@ -16,10 +16,11 @@ android {
     }
 
     android.sourceSets.named("main") {
-        java.srcDirs("src/androidMain/java", "src/kotlin+java")
+        java.srcDirs("src/androidMain/java")
         res.srcDirs("src/androidMain/res")
     }
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    // Дублирующая строка с res уже не нужна, но оставил на всякий случай:
+    // sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     buildTypes {
         getByName("release") {
@@ -31,11 +32,16 @@ android {
         }
     }
 
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+
 }
+
 
 kotlin {
     androidTarget()
@@ -45,7 +51,7 @@ kotlin {
 
     cocoapods {
         summary = "Shared business logic"
-        homepage = "https://github.com/your‑repo"
+        homepage = "https://github.com/your-repo"
         version = "1.0.0"
         ios.deploymentTarget = "14.0"
         framework {
@@ -102,6 +108,7 @@ kotlin {
         val iosX64Main by getting { dependsOn(iosMain) }
         val iosArm64Main by getting { dependsOn(iosMain) }
         val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))

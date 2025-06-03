@@ -100,14 +100,15 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:2.0.21"
+//    implementation "org.jetbrains.kotlin:kotlin-reflect:2.0.21"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.22"
 
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
 
     // gson
@@ -159,12 +160,12 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
     //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:30.0.0-alpha'
-    implementation 'com.android.support:design:34.0.0'
-    implementation 'com.android.support:mediarouter-v7:34.0.0'
-    implementation 'com.android.support:recyclerview-v7:34.0.0'
-    implementation 'com.android.support:support-v13:34.0.0'
-    implementation 'com.android.support:support-v4:34.0.0'
+//    implementation 'com.android.support:appcompat-v7:30.0.0-alpha'
+//    implementation 'com.android.support:design:34.0.0'
+//    implementation 'com.android.support:mediarouter-v7:34.0.0'
+//    implementation 'com.android.support:recyclerview-v7:34.0.0'
+//    implementation 'com.android.support:support-v13:34.0.0'
+//    implementation 'com.android.support:support-v4:34.0.0'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation project(path: ':bluetooth')
     implementation project(path: ':delegateadapter')

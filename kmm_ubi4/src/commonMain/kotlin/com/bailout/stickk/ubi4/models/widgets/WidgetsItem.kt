@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.models.widgets
 
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+
 // Объявляем ожидаемый тип для представления файлов в KMM
 expect class PlatformFile(path: String) {
     val path: String

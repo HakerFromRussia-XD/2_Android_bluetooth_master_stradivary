@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
+import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
@@ -37,6 +38,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -84,10 +86,9 @@ class PlotDelegateAdapter (
         onDestroyParent { onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
-//        var deviceAddress: MutableSet<Int> = mutableSetOf()
         Log.d("PlotDelegateAdapter", "parameterInfoSet: $parameterInfoSet")
 
-//        val parameterID = parameterInfoSet.firstOrNull()?.parameterID ?: 0
+
         var addressDevice = 0
         var parameterID = 0
         var dataCode = 0
@@ -98,6 +99,7 @@ class PlotDelegateAdapter (
                 parameterInfoSet =
                     widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
 //                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                //TODO должно быть так ↓    но пока работает только так ↑
                 addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
@@ -106,14 +108,13 @@ class PlotDelegateAdapter (
                     widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
                         0
                     ).dataCode
-
-
             }
 
             is PlotParameterWidgetSStruct -> {
                 parameterInfoSet =
                     widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
 //                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                //TODO должно быть так ↓    но пока работает только так ↑
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
@@ -129,6 +130,7 @@ class PlotDelegateAdapter (
         parameterInfoSet.forEach {
             Log.d("PlotDelegateAdapter", "ParameterInfo: $it")
         }
+        platformLog("sendWidgetsArray", "▶\uFE0F▶\uFE0F▶\uFE0F parameterInfoSet: $parameterInfoSet")
 
         widgetPlotsInfo.add(
             WidgetPlotInfo(
@@ -227,11 +229,6 @@ class PlotDelegateAdapter (
         }
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
-
-        val filteredSet =
-            parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-                .toSet()
-
         // Порог открытия — слушаем openCHV
         openCHV.setOnTouchListener { v, ev ->
             v.parent.requestDisallowInterceptTouchEvent(true)
@@ -244,20 +241,25 @@ class PlotDelegateAdapter (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("Plot", "openThreshold send $openThreshold")
-                    main.bleCommandWithQueue(
-                        BLECommands.sendThresholdsCommand(
-                            filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
-                            filteredSet.elementAt(0).parameterID,
-                            arrayListOf(openThreshold, 0, closeThreshold, 0)
-                        ), MAIN_CHANNEL, WRITE
-                    ) {}
+                    val filteredSet =
+                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
+                            .toSet()
+                    if (filteredSet.isNotEmpty()) {
+                        Log.d("Plot", "openThreshold send $openThreshold  deviceAddress = ${filteredSet.elementAt(0).deviceAddress},  parameterID = ${filteredSet.elementAt(0).parameterID}")
+                        main.bleCommandWithQueue(
+                            BLECommands.sendThresholdsCommand(
+                                filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
+                                filteredSet.elementAt(0).parameterID,
+                                arrayListOf(openThreshold, 0, closeThreshold, 0)
+                            ), MAIN_CHANNEL, WRITE
+                        ) {}
+                    }
                 }
             }
             true
         }
 
-// Порог закрытия — слушаем closeCHV
+        // Порог закрытия — слушаем closeCHV
         closeCHV.setOnTouchListener { v, ev ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             // двигаем ползунок закрытия
@@ -269,44 +271,25 @@ class PlotDelegateAdapter (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("Plot", "closeThreshold send $closeThreshold")
-                    main.bleCommandWithQueue(
-                        BLECommands.sendThresholdsCommand(
-                            filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
-                            filteredSet.elementAt(1).parameterID,
-                            arrayListOf(openThreshold, 0, closeThreshold, 0)
-                        ), MAIN_CHANNEL, WRITE
-                    ) {}
+                    val filteredSet =
+                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
+                            .toSet()
+                    if (filteredSet.size >= 2) {
+                        Log.d("Plot", "closeThreshold send $closeThreshold")
+                        main.bleCommandWithQueue(
+                            BLECommands.sendThresholdsCommand(
+                                filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
+                                filteredSet.elementAt(1).parameterID,
+                                arrayListOf(openThreshold, 0, closeThreshold, 0)
+                            ), MAIN_CHANNEL, WRITE
+                        ) {}
+                    }
                 }
             }
             true
         }
-
     }
 
-
-//
-//    override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
-//        Log.d("Plot view", "View attached")
-//        // Если уже существует scope, отменяем его и создаем новый
-//        scope?.cancel()
-//        scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-//
-//        // Очищаем график и создаем новый объект данных
-//        EMGChartLc.clear()
-//        EMGChartLc.data = LineData()
-//
-//        // Инициализируем график (настройка осей, цветов, и т.д.)
-//        initializedSensorGraph(EMGChartLc)
-//
-//        // Запускаем сбор данных из flow (если это требуется)
-//        plotArrayFlowCollect()
-//
-//        graphThreadFlag = true
-//        scope?.launch {
-//            startGraphEnteringDataCoroutine(EMGChartLc)
-//        }
-//    }
 
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
         Log.d("Plot view","View attached")
@@ -334,6 +317,7 @@ class PlotDelegateAdapter (
     private fun plotArrayFlowCollect() {
         scope?.launch(Dispatchers.IO) {
             try {
+                System.err.println("plotArrayFlowCollectttttt")
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
                         val indexWidgetPlot = getIndexWidgetPlot(

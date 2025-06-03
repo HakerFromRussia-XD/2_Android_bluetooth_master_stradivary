@@ -196,6 +196,7 @@ object BLECommands {
     }
 
     fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
+        platformLog("uiGestureSettingsObservable", "addressDevice = $addressDevice parameterID = $parameterID  gestureId = $gestureId")
         val header = byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -244,7 +245,7 @@ object BLECommands {
         )
     }
 
-        fun requestBatteryStatus(addressDevice: Int, parameterID: Int): ByteArray {
+    fun requestBatteryStatus(addressDevice: Int, parameterID: Int): ByteArray {
         return byteArrayOf(
             0x60.toByte(),
             parameterID.toByte(),

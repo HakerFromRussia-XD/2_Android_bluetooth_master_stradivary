@@ -14,22 +14,11 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.android.tools.build:gradle:8.6.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:$spotlessVersion"
-    }
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-        maven { url = uri('https://jitpack.io') }
-        maven { url 'https://plugins.gradle.org/m2' }
-        google()
-        gradlePluginPortal()
     }
 }
 

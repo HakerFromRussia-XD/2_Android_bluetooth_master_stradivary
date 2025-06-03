@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="switch_tabs">
+        <item>двойное</item>
+        <item>одновременное</item>
+        <item>в упоре</item>
+    </string-array>
+    <string-array name="switch_force">
+        <item>минимальная</item>
+        <item>средняя</item>
+        <item>максимальная</item>
+    </string-array>
+    <string-array name="gesture_loop">
+        <item>жест №1</item>
+        <item>жест №2</item>
+        <item>жест №3</item>
+        <item>жест №4</item>
+        <item>жест №5</item>
+        <item>жест №6</item>
+        <item>жест №7</item>
+        <item>жест №8</item>
+        <item>жест №9</item>
+        <item>жест №10</item>
+        <item>жест №11</item>
+        <item>жест №12</item>
+        <item>жест №13</item>
+        <item>жест №14</item>
+    </string-array>
+    <string-array name="emg_modes">
+        <item>классический</item>
+        <item>чувствительный</item>
+        <item>искуственный интеллект</item>
+    </string-array>
+    <string-array name="gesture_ranges">
+        <item>7</item>
+        <item>13</item>
+        <item>23</item>
+        <item>25</item>
+    </string-array>
+    <string-array name="prosthesis_modes">
+        <item>стандартный</item>
+        <item>стенд</item>
+        <item>демо</item>
+    </string-array>
+    <string-array name="autocalibration_indy_modes">
+        <item>0x00</item>
+        <item>0x01</item>
+        <item>0x02</item>
+    </string-array>
+</resources>

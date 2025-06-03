@@ -89,6 +89,11 @@ class GesturesDelegateAdapter(
         when (val widget = item.widget) {
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = widget.baseParameterWidgetStruct.deviceId
+                Log.d("ParamInfo deviceAddress", "deviceAddress1 : $deviceAddress")
+                deviceAddress = widget.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
+                Log.d("ParamInfo deviceAddress", "deviceAddress2 : $deviceAddress")
+
+
                 parameterIDSet = widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo", " ParamInfoEStruct parameterIDSet: $parameterIDSet")
             }

@@ -1,0 +1,73 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/dark_orange</item>
+    </style>
+
+    <style name="MyDarkToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay">AppTheme</style>
+    <style name="AppTheme.PopupOverlay">PopupOverlay</style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">#ffff00</item>
+    </style>
+
+    <style name="Text">
+        <item name="colorControlHighlight">#fff</item>
+        <item name="fontFamily">@font/font_open_sans_bold</item>
+    </style>
+
+    <style name="Text_transparency_80">
+        <item name="android:textColor">#CCFFFFFF</item>
+        <item name="fontFamily">@font/font_open_sans_bold</item>
+    </style>
+
+    <style name="Text_transparency_30">
+        <item name="android:textColor">#4DFFFFFF</item>
+        <item name="fontFamily">@font/font_open_sans_bold</item>
+    </style>
+
+    <style name="TextInputLayout">
+        <item name="colorAccent">@color/dark_orange</item>
+        <item name="android:textColorPrimary">@color/dark_orange</item>
+        <item name="android:textColor">@color/dark_orange</item>
+        <item name="colorControlNormal">@color/dark_orange</item>
+        <item name="colorControlActivated">@color/dark_orange</item>
+        <item name="colorControlHighlight">@color/dark_orange</item>
+    </style>
+
+    <style name="NumberPickerTheme" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@android:color/white</item>
+        <!-- To remove divider of the number picker -->
+        <item name="colorControlNormal">@android:color/transparent</item>
+
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:background">@color/number_picker_bg</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:textColor">@color/ubi4_deactivate_text</item>
+        <item name="android:fontFamily">@font/sf_pro_display_light</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="BottomNavigationView.Active" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">@font/sf_pro_display_light</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

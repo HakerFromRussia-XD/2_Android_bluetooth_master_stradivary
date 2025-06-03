@@ -211,7 +211,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
 
 
-
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4)
             return

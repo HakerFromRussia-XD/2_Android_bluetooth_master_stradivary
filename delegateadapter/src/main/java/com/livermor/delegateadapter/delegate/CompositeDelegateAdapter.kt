@@ -7,7 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 
-open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : RecyclerView.Adapter<ViewHolder>() {
+open class CompositeDelegateAdapter(
+//    private val itemCallback: DiffUtil.ItemCallback<Any>,
+    vararg adapters: DelegateAdapter
+) : RecyclerView.Adapter<ViewHolder>() {
 
     //  Contract is: adapters position is used as ViewType.
     protected open var adapterState = AdaptersState(adapters.toList())
@@ -35,7 +38,30 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         adapterState = newAdapterState
         diffResult.dispatchUpdatesTo(this)
-//        recyclerView?.smoothScrollToPosition(0)
+        recyclerView?.smoothScrollToPosition(0)
+
+
+//        // новый вариант
+//        val oldData = adapterState.data
+//
+//        // 2) собираем DiffUtil.Callback на лету, делегируя сравнение в ваш itemCallback
+//        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+//            override fun getOldListSize() = oldData.size
+//            override fun getNewListSize() = data.size
+//
+//            override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean {
+//                return itemCallback.areItemsTheSame(oldData[oldPos], data[newPos])
+//            }
+//
+//            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
+//                return itemCallback.areContentsTheSame(oldData[oldPos], data[newPos])
+//            }
+//            // опционально можно override getChangePayload(...)
+//        })
+//
+//        // 3) обновляем состояние и диспатчим
+//        adapterState = adapterState.copy(data = data)
+//        diff.dispatchUpdatesTo(this)
     }
 
     // Добавьте WeakReference для RecyclerView в адаптер
@@ -61,6 +87,4 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
 
 
     override fun getItemCount(): Int = adapterState.data.size
-
-
 }

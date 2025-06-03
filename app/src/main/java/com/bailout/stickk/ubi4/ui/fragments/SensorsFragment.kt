@@ -9,12 +9,17 @@ import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +70,7 @@ class SensorsFragment : BaseWidgetsFragment() {
             it.invoke() }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             //viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED){}
@@ -72,6 +78,7 @@ class SensorsFragment : BaseWidgetsFragment() {
                 Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
                 main?.runOnUiThread {
                     Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                    platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=${mDataFactory.prepareData(display)}")
                     binding.homeRv.post {
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
                     }

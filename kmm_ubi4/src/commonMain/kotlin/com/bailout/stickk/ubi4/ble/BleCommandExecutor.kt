@@ -8,5 +8,4 @@ interface BleCommandExecutor {
     fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit)
     fun sendWidgetsArray()
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs)
-
 }

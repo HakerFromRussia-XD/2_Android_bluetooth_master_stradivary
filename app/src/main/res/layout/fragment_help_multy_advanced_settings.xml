@@ -563,7 +563,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prostheses_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices"
+                        android:text="@string/if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"

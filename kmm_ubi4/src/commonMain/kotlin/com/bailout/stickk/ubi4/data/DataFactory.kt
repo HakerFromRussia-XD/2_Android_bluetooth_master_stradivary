@@ -32,6 +32,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.PWLE_SELECT_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.PWLE_UNKNOW
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 
 class DataFactory {
@@ -105,7 +106,6 @@ class DataFactory {
                 else -> 0
             }
         }
-
         // Преобразуем виджеты в UI-элементы
         return sortedWidgets.mapNotNull { widget ->
             when (widget) {
@@ -155,8 +155,10 @@ class DataFactory {
                 OneButtonItem("COMBOBOX", "description", widget)
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
                 SliderItem("SLIDER", widget)
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                platformLog("areEqualExcludingSetIdE", "widget = $widget")
                 PlotItem("PLOT", widget)
+            }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() ->
                 OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() ->

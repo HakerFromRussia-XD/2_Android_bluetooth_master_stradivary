@@ -150,5 +150,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/trainingSubTitleTv" />
+    <View
+        android:id="@+id/showFileModelBtn"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/ubi4_viwe_with_corners_white"
+        android:elevation="3dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showFileBtnTv"/>
+
+    <TextView
+        android:id="@+id/showFileModelBtnTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:text="Show Model Files(test)"
+        android:textColor="@color/ubi4_dark_back"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/showFileModelBtn"
+        app:layout_constraintEnd_toEndOf="@id/showFileModelBtn"
+        app:layout_constraintStart_toStartOf="@id/showFileModelBtn"
+        app:layout_constraintTop_toTopOf="@id/showFileModelBtn"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

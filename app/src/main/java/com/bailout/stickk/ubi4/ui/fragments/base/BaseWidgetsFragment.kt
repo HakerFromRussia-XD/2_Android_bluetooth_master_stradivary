@@ -11,12 +11,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.adapters.dialog.Emg8FilesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnCheckEmg8FileListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
@@ -45,10 +48,12 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
     private var gestureNameList = ArrayList<String>()
@@ -135,15 +140,21 @@ abstract class BaseWidgetsFragment : Fragment() {
                     spr.startAuthAndDownloadPassport()
                     showConfirmTrainingDialog {
                         navigator().showMotionTrainingScreen {
-                            spr.handleTrainingFinished()
+//                            spr.handleTrainingFinished()
 
                             parentFragmentManager.beginTransaction()
                                 .replace(R.id.fragmentContainer, spr)
                                 .commit()
                         }
+
                     }
                 },
-                onShowFileClick = { addressDevice -> showFilesDialog(addressDevice,6) },
+                onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
+                onShowEmg8Files = {
+                    if (isAdded) {
+                        showModelEmg8FilesDialog { }
+                    }
+                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
             ),
             SwitcherDelegateAdapter(
@@ -296,6 +307,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE) {}
     }
+
     open fun showCustomGesturesDialog(onSaveDotsClick: (Pair<Int, Int>) -> Unit, bindingItem: Pair<Int, Int>) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
         val myDialog = Dialog(requireContext())
@@ -444,6 +456,10 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun showFilesDialog(addressDevice: Int, parameterID: Int) {
         main?.showToast("Виджет отображается вне своего экрана")
     }
+    open fun showModelEmg8FilesDialog(preselectName: String? = null,onSendClick: (selectedFiles: List<File>) -> Unit) {
+
+    }
+
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     open fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit), gestureName: String) {
         main?.showToast("Виджет отображается вне своего экрана")

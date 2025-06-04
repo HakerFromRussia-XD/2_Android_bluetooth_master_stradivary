@@ -49,49 +49,49 @@ class Ubi4TrainingRepository(
     suspend fun uploadTrainingData(
         token: String,
         serial: String,
-        dataFile: File,
-        passportFile: File,
+        pairs: List<Pair<File, File>>,          // ← список «данные + паспорт»
         onProgress: (String) -> Unit
     ): String {
 
-        // multipart: plain поле serial + два binary-файла
         val serialPart = MultipartBody.Part.createFormData("serial", serial)
-        val files = listOf(
-            MultipartBody.Part.createFormData(
-                "files", dataFile.name,
-                dataFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-            ),
-            MultipartBody.Part.createFormData(
-                "files", passportFile.name,
-                passportFile.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-            )
-        )
 
-        // POST /train/upload
+        // ➋  превращаем все пары в один общий список `files`
+        val fileParts = pairs.flatMap { (data, passport) ->
+            listOf(
+                MultipartBody.Part.createFormData(
+                    "files", data.name,
+                    data.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+                ),
+                MultipartBody.Part.createFormData(
+                    "files", passport.name,
+                    passport.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+                )
+            )
+        }
+
         val resp = api.uploadTrainingData(
-            auth = token,
+            auth   = token,
             serial = serialPart,
-            files = files
+            files  = fileParts
         )
         if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code()}")
 
-        // SSE-стрим: в progress-строках обычное число, а checkpoint приходит в JSON-сообщении
         var lastCheckpoint: String? = null
         resp.body()?.source()?.use { src ->
             while (!src.exhausted()) {
-                val line = src.readUtf8Line() ?: break     // "data: 42" или "data: {"message":"checkpoint_X"}"
-                onProgress(line)
+                val line = src.readUtf8Line() ?: break
+                onProgress(line)                               // «data: NN»
 
-                if (!line.startsWith("data:")) continue
-                val payload = line.removePrefix("data:").trim()
-                if (payload.startsWith("{") && payload.contains("message")) {
-                    lastCheckpoint = Json.parseToJsonElement(payload)
-                        .jsonObject["message"]!!.jsonPrimitive.content
+                if (line.startsWith("data:") &&
+                    line.contains("checkpoint")
+                ) {
+                    lastCheckpoint = Json.parseToJsonElement(
+                        line.removePrefix("data:")
+                    ).jsonObject["message"]!!.jsonPrimitive.content
                 }
             }
         }
-
-        return lastCheckpoint ?: throw IOException("No checkpoint name received from SSE")
+        return lastCheckpoint ?: error("No checkpoint name in SSE")
     }
 
     suspend fun downloadAndUnpackCheckpoint(

@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
+import com.bailout.stickk.ubi4.adapters.dialog.Emg8FilesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnCheckEmg8FileListener
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -27,8 +29,10 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
 import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 import com.bailout.stickk.ubi4.models.widgets.PlatformFile
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ARG_LAST_EMG8
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -62,6 +66,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private var canSendNextChunkFlag = true
     private var sendFileSuccessFlag = true
+    private var autoDialogShown = false
 
     private val display = 3
 
@@ -104,6 +109,24 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (!autoDialogShown) {
+            val lastEmg8 = arguments?.getString(ARG_LAST_EMG8)
+            if (lastEmg8 != null) {                         // ← ключевое условие
+                view.post {
+                    showModelEmg8FilesDialog(lastEmg8) { selected ->
+                        startUploadSelectedTrainingFiles(selected)
+                    }
+                }
+
+                autoDialogShown = true
+                arguments?.remove(ARG_LAST_EMG8)
+            }
+        }
+
+
+    }
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
@@ -163,7 +186,121 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             confirmClick()
         }
     }
+
+
+    override fun showModelEmg8FilesDialog(
+        preselectName: String?,
+        onSendClick: (selectedFiles: List<File>) -> Unit
+    ) {
+        val dialogBinding = LayoutInflater.from(requireContext())
+            .inflate(R.layout.ubi4_dialog_model_emg8_files, null)
+        val dlg = Dialog(requireContext()).apply {
+            setContentView(dialogBinding)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }
+
+        // Собираем список .emg8
+        val dir   = requireContext().getExternalFilesDir(null)
+        val files = dir?.listFiles()?.filter { it.extension == "emg8" } ?: emptyList()
+
+        val items = files.map { f ->
+            Emg8FileItem(f, f.name == preselectName)         // авто-галочка
+        }.toMutableList()
+
+        // RecyclerView + адаптер
+        val rv = dialogBinding.findViewById<RecyclerView>(R.id.dialogModelEmg8Rv).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = Emg8FilesCheckAdapter(items, object : OnCheckEmg8FileListener {
+                override fun onFileClicked(pos: Int, item: Emg8FileItem) {
+                    items[pos] = item.copy(isChecked = !item.isChecked)
+                    adapter?.notifyItemChanged(pos)
+                }
+            })
+        }
+
+        // ----- Кнопка Send -----
+        dialogBinding.findViewById<View>(R.id.dialogModelEmg8SendBtn).setOnClickListener {
+            val selected = items.filter { it.isChecked }.map { it.file }
+            if (selected.isEmpty()) {
+                Toast.makeText(context, "Выберите хотя бы один файл", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            dlg.dismiss()
+            onSendClick(selected)               // передаём выбранные .emg8 наверх
+        }
+
+        // ----- Cancel -----
+        dialogBinding.findViewById<View>(R.id.dialogModelEmg8CancelBtn)
+            .setOnClickListener { dlg.dismiss() }
+    }
+
+    private fun startUploadSelectedTrainingFiles(selectedEmg8: List<File>) {
+
+        // 1. Подготавливаем пары .emg8 + .data_passport
+        val pairs = selectedEmg8.mapNotNull { emg ->
+            val passport = File(emg.parentFile, "${emg.name}.data_passport")
+            if (passport.exists()) emg to passport else {
+                Toast.makeText(requireContext(),
+                    "Паспорт не найден для ${emg.name}", Toast.LENGTH_LONG).show()
+                null
+            }
+        }
+        if (pairs.isEmpty()) return                       // нечего отправлять
+
+        // 2. Проверяем наличие токена / серийника
+        val prefs   = requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
+        var token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN,  "") ?: ""
+        var serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+
+            /* ─── быстрый путь: токен уже есть ─── */
+            if (token.isNotBlank() && serial.isNotBlank()) {
+                TrainingUploadManager.launch(requireContext(), repo, token, serial, pairs)
+                return@launch
+            }
+
+            /* ─── токена нет → авторизуемся тем же методом, что и после MotionTraining ─── */
+            try {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Авторизация…", Toast.LENGTH_SHORT).show()
+                }
+
+                // !!! используйте свой реальный serial / password !!!
+                val tmpSerial   = "CYBI-F-05663"
+                val tmpPassword = "123фыв6"
+                token  = repo.fetchTokenBySerial(API_KEY, tmpSerial, tmpPassword)
+                serial = tmpSerial
+
+                prefs.edit()
+                    .putString(PreferenceKeysUBI4.KEY_TOKEN,  token)
+                    .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                    .apply()
+
+                // параллельно можно сразу скачать паспорт, если нужно
+                repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Авторизация OK", Toast.LENGTH_SHORT).show()
+                }
+
+                TrainingUploadManager.launch(requireContext(), repo, token, serial, pairs)
+
+            } catch (e: Exception) {
+                Log.e("SprTrainingFragment", "Auth failed", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(),
+                        "Не удалось авторизоваться: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+
     override fun showFilesDialog(addressDevice: Int, parameterID: Int) {
+        Log.d("showFilesDialog", "parameterID = $parameterID")
         if (currentDialog != null && currentDialog?.isShowing == true) {
             return
         }
@@ -275,8 +412,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
 
                     lifecycleScope.launch {
-                        sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, addressDevice, parameterID)
-                        sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, addressDevice, parameterID)
+                        //TODO РАЗОБРАТЬСЯ с parameterID, нам передается параметерID = 5!!!!
+                        sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, addressDevice, 6)
+                        sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, addressDevice, 6)
                         showWarningLoadingDialog { closeWarningDialog() }
                     }
                 }
@@ -514,11 +652,11 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         return false // Не удалось дождаться флага после всех попыток
     }
 
-    fun handleTrainingFinished() {
-        val bearer = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
-        val serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
-        TrainingUploadManager.launch(requireContext(), repo, bearer, serial)
-    }
+//    fun handleTrainingFinished() {
+//        val bearer = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
+//        val serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
+//        TrainingUploadManager.launch(requireContext(), repo, bearer, serial)
+//    }
 
 
     fun startAuthAndDownloadPassport() {
@@ -549,6 +687,13 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 }
             }
         }
+    }
+
+    companion object {
+        fun newInstance(lastEmg8: String) : SprTrainingFragment  =
+            SprTrainingFragment().apply {
+                arguments = Bundle().apply { putString(PreferenceKeysUBI4.ARG_LAST_EMG8, lastEmg8) }
+            }
     }
 
 

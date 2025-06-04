@@ -53,6 +53,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    packaging {
+        dex {
+            useLegacyPackaging true
+        }
+    }
+
     packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

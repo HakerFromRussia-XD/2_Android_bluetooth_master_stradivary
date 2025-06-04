@@ -145,18 +145,23 @@ class MotionTrainingFragment(
         recordingTimestamp = sdf.format(java.util.Date())
         loggingFilename = "$recordingTimestamp.emg8"
         path = requireContext().getExternalFilesDir(null)!!
-        // Удаление старых .emg8 файлов, кроме текущего
+
         path.listFiles()
-            ?.filter { it.name.endsWith(".emg8") && it.name != loggingFilename }
-            ?.forEach { oldFile ->
-                if (oldFile.delete()) {
-                    Log.d(LOG_TAG, "Deleted old log file: ${oldFile.absolutePath}")
+            ?.filter { it.name.endsWith(".emg8.data_passport") }
+            ?.maxByOrNull { it.lastModified() }                // самый «свежий»
+            ?.let { passportRaw ->
+                val dst = File(path, "$recordingTimestamp.emg8.data_passport")
+                if (!dst.exists()) {                           // защита от перезаписи
+                    passportRaw.copyTo(dst, overwrite = false)
+                    Log.d(LOG_TAG, "Passport copied to: ${dst.absolutePath}")
                 }
             }
+
         // Переименование passport-файла под текущий timestamp записи
         val extDir = path
         extDir.listFiles()
-            ?.firstOrNull { it.name.endsWith(".emg8.data_passport") }
+//            ?.firstOrNull { it.name.endsWith(".emg8.data_passport") }
+            ?.maxByOrNull { it.lastModified() }
             ?.let { passportRaw ->
                 val newPassportFile = File(extDir, "$recordingTimestamp.emg8.data_passport")
                 if (passportRaw.exists()) {
@@ -339,19 +344,22 @@ class MotionTrainingFragment(
             Log.d("SprTrainingFragment", "⏹ user confirmed finish – closing writer")
             lifecycleScope.launch(Dispatchers.Default) { writer.close() }
             myDialog.dismiss()
+            val spr = SprTrainingFragment.newInstance(loggingFilename)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, spr)
+                .commit()
             confirmClick()
-            Log.d("StateCallBack", "confirmClick() run")
-//            onFinishTraining()
-            val appCtx = myDialog.context.applicationContext
-            val prefs   = appCtx.getSharedPreferences(PreferenceKeysUBI4.NAME, Context.MODE_PRIVATE)
-            val token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
-            val serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
-            TrainingUploadManager.launch(
-                context = appCtx,
-                repo    = Ubi4TrainingRepository(RetrofitInstanceUBI4.api),
-                token   = token,
-                serial  = serial
-            )
+//            Log.d("StateCallBack", "confirmClick() run")
+//            val appCtx = myDialog.context.applicationContext
+//            val prefs   = appCtx.getSharedPreferences(PreferenceKeysUBI4.NAME, Context.MODE_PRIVATE)
+//            val token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
+//            val serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
+//            TrainingUploadManager.launch(
+//                context = appCtx,
+//                repo    = Ubi4TrainingRepository(RetrofitInstanceUBI4.api),
+//                token   = token,
+//                serial  = serial
+//            )
         }
     }
 

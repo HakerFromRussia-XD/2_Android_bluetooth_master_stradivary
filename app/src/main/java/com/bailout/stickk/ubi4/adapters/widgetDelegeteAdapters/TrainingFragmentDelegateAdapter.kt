@@ -3,41 +3,27 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.TrainingModelState
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import java.io.File
 
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
-    var onShowFileClick: (addressDevice: Int, ) -> Unit,
+    var onShowFileClick: (addressDevice: Int, parameterId: Int) -> Unit,
+    var onShowEmg8Files:() -> Unit,
     var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(
@@ -96,22 +82,33 @@ class TrainingFragmentDelegateAdapter(
 //        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
         var addressDevice = 0
         var parameterId = 0
+        var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(
+            ParameterInfo(0, 0, 0, 0)
+        )
 
         when (val widget = item.widget) {
             is OpticStartLearningWidgetEStruct -> {
                 addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 parameterId = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
             }
 
             is OpticStartLearningWidgetSStruct -> {
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterId = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+
             }
         }
+        parameterIDSet.forEach { Log.d("parameterTestID", "parameterID = $it") }
 
         showFileBtn.setOnClickListener {
             Log.d("TestWidgetView", "setOnClickListener OK")
-            onShowFileClick(addressDevice)
+            onShowFileClick(addressDevice, parameterId)
+        }
+
+        showFileModelBtn.setOnClickListener {
+            onShowEmg8Files()
         }
     }
 
@@ -124,7 +121,7 @@ class TrainingFragmentDelegateAdapter(
 
     private fun onDestroy() {
         onConfirmClick = {}
-        onShowFileClick = {}
+        onShowFileClick = { i: Int, i1: Int -> }
         onDestroyParent = {}
         scope.cancel()
     }

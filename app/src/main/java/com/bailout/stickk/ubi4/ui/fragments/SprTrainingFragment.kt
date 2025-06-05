@@ -236,68 +236,67 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             .setOnClickListener { dlg.dismiss() }
     }
 
-    private fun startUploadSelectedTrainingFiles(selectedEmg8: List<File>) {
-
-        // 1. Подготавливаем пары .emg8 + .data_passport
-        val pairs = selectedEmg8.mapNotNull { emg ->
-            val passport = File(emg.parentFile, "${emg.name}.data_passport")
-            if (passport.exists()) emg to passport else {
-                Toast.makeText(requireContext(),
-                    "Паспорт не найден для ${emg.name}", Toast.LENGTH_LONG).show()
-                null
-            }
-        }
-        if (pairs.isEmpty()) return                       // нечего отправлять
-
-        // 2. Проверяем наличие токена / серийника
-        val prefs   = requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
-        var token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN,  "") ?: ""
-        var serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+    fun startUploadSelectedTrainingFiles(selectedEmg8: List<File>) {
+        // 1. Достаём токен и серийник
+        val prefs = requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
+        var token  = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
+        var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-
-            /* ─── быстрый путь: токен уже есть ─── */
+            // Если токен уже есть, сразу вызываем:
             if (token.isNotBlank() && serial.isNotBlank()) {
-                TrainingUploadManager.launch(requireContext(), repo, token, serial, pairs)
+                TrainingUploadManager.launch(
+                    requireContext(),
+                    repo,
+                    token,
+                    serial,
+                    selectedEmg8
+                )
                 return@launch
             }
 
-            /* ─── токена нет → авторизуемся тем же методом, что и после MotionTraining ─── */
+            // Иначе — авторизуемся, сохраняем токен и serial
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "Авторизация…", Toast.LENGTH_SHORT).show()
+            }
             try {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Авторизация…", Toast.LENGTH_SHORT).show()
-                }
-
-                // !!! используйте свой реальный serial / password !!!
                 val tmpSerial   = "CYBI-F-05663"
                 val tmpPassword = "123фыв6"
                 token  = repo.fetchTokenBySerial(API_KEY, tmpSerial, tmpPassword)
                 serial = tmpSerial
 
                 prefs.edit()
-                    .putString(PreferenceKeysUBI4.KEY_TOKEN,  token)
+                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
                     .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
                     .apply()
 
-                // параллельно можно сразу скачать паспорт, если нужно
+                // (Опционально) сразу скачать паспорт
                 repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Авторизация OK", Toast.LENGTH_SHORT).show()
                 }
 
-                TrainingUploadManager.launch(requireContext(), repo, token, serial, pairs)
-
+                // После успешной авторизации отправляем только выбранные .emg8
+                TrainingUploadManager.launch(
+                    requireContext(),
+                    repo,
+                    token,
+                    serial,
+                    selectedEmg8
+                )
             } catch (e: Exception) {
                 Log.e("SprTrainingFragment", "Auth failed", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(),
-                        "Не удалось авторизоваться: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Не удалось авторизоваться: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
     }
-
 
     override fun showFilesDialog(addressDevice: Int, parameterID: Int) {
         Log.d("showFilesDialog", "parameterID = $parameterID")

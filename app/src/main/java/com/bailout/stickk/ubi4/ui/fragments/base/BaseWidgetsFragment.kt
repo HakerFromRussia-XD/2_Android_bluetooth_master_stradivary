@@ -152,7 +152,14 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
                 onShowEmg8Files = {
                     if (isAdded) {
-                        showModelEmg8FilesDialog { }
+                        val spr = this@BaseWidgetsFragment as? SprTrainingFragment
+                        if (spr != null) {
+                            spr.showModelEmg8FilesDialog(preselectName = null) { selectedFiles ->
+                                spr.startUploadSelectedTrainingFiles(selectedFiles)
+                            }
+
+
+                        }
                     }
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },

@@ -1,171 +1,178 @@
 package com.bailout.stickk.ubi4.utility
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okio.IOException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import java.util.zip.ZipFile
+import java.util.Date
+import java.util.Locale
 
 object TrainingUploadManager {
 
-    /* ------------------- публичные флоу ------------------- */
-
+    /** Все возможные состояния операции */
     enum class State { IDLE, RUNNING, EXPORTING, DONE, ERROR }
-    val stateFlow    = MutableStateFlow(State.IDLE)
+
+    /** Флоу для состояния и прогресса (0–100%) */
+    val stateFlow = MutableStateFlow(State.IDLE)
     val progressFlow = MutableSharedFlow<Int>(
-        replay = 1, extraBufferCapacity = 64,
+        replay = 1,
+        extraBufferCapacity = 64,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    /* ------------------- API ------------------- */
-
     /**
-     * Отправляет одну или много пар ( .emg8  +  .emg8.data_passport ).
-     * Если `pairs` не передан – берётся **последний** .emg8 в директории.
+     * Отправляет **только** те .emg8-файлы, которые пришли в selectedEmg8Files.
+     * Для каждого ищет рядом лежащий "<имя>.emg8.data_passport".
+     * Если паспорт не найден — этот .emg8 пропускается.
+     * Если ни одной пары не сформируется — просто возвращает отменённый Job.
+     *
+     * @param context   — нужен, чтобы взять externalFilesDir и SharedPreferences.
+     * @param repo      — ваш Ubi4TrainingRepository (с методами uploadTrainingData и downloadAndUnpackCheckpoint).
+     * @param token     — токен авторизации (Bearer ...).
+     * @param serial    — серийник устройства.
+     * @param selectedEmg8Files — список тех .emg8, что пользователь отметил в диалоге.
      */
     fun launch(
-        ctx   : Context,
-        repo  : Ubi4TrainingRepository,
-        token : String,
-        serial: String,
-        pairs : List<Pair<File, File>>? = null
-    ): Job = CoroutineScope(Dispatchers.IO).launch {
-        val dir = ctx.getExternalFilesDir(null) ?: error("No external storage")
-
-        // --------- 0. Составляем пары файлов ---------
-        val batch: List<Pair<File, File>> = pairs ?: run {
-            val data = dir.listFiles()?.filter { it.extension == "emg8" }
-                ?.maxByOrNull { it.lastModified() }
-                ?: error(".emg8 not found")
-            val pass = File(dir, "${data.name}.data_passport")
-                .takeIf(File::exists) ?: error("passport not found")
-            listOf(data to pass)
-        }
-
-        try {
-            // --------- 1. upload + SSE ---------
-            stateFlow.value = State.RUNNING
-            val ckpt = repo.uploadBatch(token, serial, batch) { s ->
-                s.removePrefix("data:").trim().toIntOrNull()
-                    ?.let { progressFlow.tryEmit(it.coerceIn(0, 100)) }
-            }
-
-            // --------- 2. Скачиваем и распаковываем ---------
-            stateFlow.value = State.EXPORTING
-            val (zip, files) = repo.downloadAndUnpack(token, ckpt, dir)
-
-            // --------- 3. Переименовываем ckpt / bin ---------
-            val ckptSrc = files.first { it.extension == "ckpt" }
-            val binSrc  = files.first { it.extension == "bin" }
-            val ts      = ckptSrc.extractTimestamp()
-            val num     = ctx.nextCheckpointNumber()
-
-            ckptSrc.copyTo(File(dir, "checkpoint_№${num}_${ts}.ckpt"), overwrite = true)
-            binSrc .copyTo(File(dir, "params_$ts.bin"),           overwrite = true)
-            zip.delete(); files.forEach(File::delete)
-
-            // --------- 4. Успех ---------
-            stateFlow.value = State.DONE
-            progressFlow.tryEmit(100)
-            withContext(Dispatchers.Main) {
-                Toast.makeText(ctx, "Модель обучена 🎉", Toast.LENGTH_SHORT).show()
-            }
-
-        } catch (e: Throwable) {
-            stateFlow.value = State.ERROR
-            withContext(Dispatchers.Main) {
-                Toast.makeText(ctx, "Ошибка: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    /* ------------------- private-helpers ------------------- */
-
-    private inline fun Context.nextCheckpointNumber(): Int =
-        getSharedPreferences(PreferenceKeysUBI4.TRAINING_PREFS, Context.MODE_PRIVATE).run {
-            val cur = getInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, 1)
-            edit().putInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, cur + 1).apply(); cur
-        }
-
-    private fun File.extractTimestamp(): String =
-        Regex("_(\\d{9,})$").find(nameWithoutExtension)
-            ?.groupValues?.get(1)?.toLongOrNull()
-            ?.let { Date(it * 1_000) }
-            ?.let { SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault()).format(it) }
-            ?: SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault()).format(Date())
-}
-
-/* ========================================================================== */
-/* =====  расширения к  Ubi4TrainingRepository  (короткие, в том же файле)  ==*/
-/* ========================================================================== */
-
-private suspend fun Ubi4TrainingRepository.uploadBatch(
-    token : String,
-    serial: String,
-    pairs : List<Pair<File, File>>,
-    onSse : (String) -> Unit
-): String {
-    /** формируем multipart: serial + 2N файлов */
-    fun File.part() = MultipartBody.Part.createFormData(
-        "files", name, asRequestBody("application/octet-stream".toMediaTypeOrNull())
-    )
-
-    val serialPart = MultipartBody.Part.createFormData("serial", serial)
-    val fileParts  = pairs.flatMap { (emg, pass) -> listOf(emg.part(), pass.part()) }
-
-    val resp = api.uploadTrainingData(
-        auth   = token,
-        serial = serialPart,
-        files  = fileParts
-    )
-    if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code()}")
-
-    var ckpt: String? = null
-    resp.body()?.source()?.use { src ->
-        while (!src.exhausted()) {
-            val ln = src.readUtf8Line() ?: break
-            onSse(ln)
-            if (ln.startsWith("data:") && ln.contains("message"))
-                ckpt = kotlinx.serialization.json.Json.parseToJsonElement(ln.removePrefix("data:").trim())
-                    .jsonObject["message"]!!.jsonPrimitive.content
-        }
-    }
-    return ckpt ?: error("checkpoint not found in SSE")
-}
-
-    private suspend fun Ubi4TrainingRepository.downloadAndUnpack(
+        context: Context,
+        repo: Ubi4TrainingRepository,
         token: String,
-        ckpt : String,
-        outDir: File
-    ): Pair<File, List<File>> {
-        val zip = File(outDir, "$ckpt.zip")
-        val body = api.downloadArchive(
-            auth = token,
-            request = com.bailout.stickk.ubi4.data.network.model.TakeDataRequest(listOf(ckpt))
-        ).body() ?: error("empty response")
+        serial: String,
+        selectedEmg8Files: List<File>
+    ): Job {
+        // 1. Берём папку externalFilesDir
+        val dir = context.getExternalFilesDir(null)
+            ?: throw IllegalStateException("External storage unavailable")
 
-        body.byteStream().use { input -> zip.outputStream().use { input.copyTo(it) } }
-
-        val unpacked = mutableListOf<File>()
-        ZipFile(zip).use { z ->
-            z.entries().asSequence().forEach { e ->
-                val out = File(outDir, e.name)
-                z.getInputStream(e).use { it.copyTo(out.outputStream()) }
-                unpacked += out
+        // 2. Формируем List<Pair<emg8, emg8.data_passport>> только из выбранных файлов
+        val pairs: List<Pair<File, File>> = selectedEmg8Files.mapNotNull { emg ->
+            val passport = File(dir, "${emg.name}.data_passport")
+            if (passport.exists()) {
+                emg to passport
+            } else {
+                Log.w("TrainingUploadManager", "Не найден passport для ${emg.name}, пропускаем")
+                null
             }
         }
-        return zip to unpacked
+
+        // Если получилось пусто — нечего отправлять
+        if (pairs.isEmpty()) {
+            Log.e("TrainingUploadManager", "Из выбранных .emg8 ни одна пара (emg8 + passport) не найдена")
+            // Возвращаем сразу отменённый Job
+            return Job().apply { cancel() }
+        }
+
+        // 3. Запускаем корутину для upload → download → распаковка
+        return CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // ─── 3.1. Переключаем состояние в RUNNING ───
+                stateFlow.value = State.RUNNING
+
+                // ─── 3.2. Вызываем uploadTrainingData, передавая сразу все пары ───
+                //      repo.uploadTrainingData сам отправит multipart со всеми парами
+                val checkpoint: String = repo.uploadTrainingData(
+                    token  = token,
+                    serial = serial,
+                    pairs  = pairs
+                ) { rawSseLine ->
+                    // SSE-строки вида "data: 37" или JSON "data: {\"message\":\"ckpt_123\"}"
+                    rawSseLine
+                        .removePrefix("data:")
+                        .trim()
+                        .toIntOrNull()
+                        ?.let { progressFlow.tryEmit(it.coerceIn(0, 100)) }
+                }
+
+                Log.d("TrainingUploadManager", "Получили checkpoint = $checkpoint")
+
+                // ─── 3.3. Меняем состояние на EXPORTING ───
+                stateFlow.value = State.EXPORTING
+
+                // ─── 3.4. Скачиваем архив и распаковываем:
+                //      ВАЖНО: этот метод **не меняем**, он совпадает с вашим:
+                //      suspend fun downloadAndUnpackCheckpoint(token, checkpoint, outputDir): Pair<File, List<File>>
+                val (zipFile, unpackedFiles) = repo.downloadAndUnpackCheckpoint(
+                    token      = token,
+                    checkpoint = checkpoint,
+                    outputDir  = dir
+                )
+
+                // ─── 3.5. Находим среди unpackedFiles .ckpt и .bin ───
+                val ckptSrc: File = unpackedFiles.first { it.extension == "ckpt" }
+                val binSrc : File = unpackedFiles.first { it.extension == "bin"  }
+
+                // ─── 3.6. Формируем timestamp (если в имени .ckpt есть “_<число секунд>”, парсим,
+                // otherwise — fallback на текущую дату) ───
+                val ts: String = run {
+                    val fallback = SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault())
+                        .format(Date())
+                    Regex("_(\\d{9,})\$").find(ckptSrc.nameWithoutExtension)
+                        ?.groupValues?.get(1)
+                        ?.toLongOrNull()
+                        ?.let { secs ->
+                            SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault())
+                                .format(Date(secs * 1000))
+                        } ?: fallback
+                }
+
+                // ─── 3.7. Берём следующий номер чекпоинта из SharedPreferences ───
+                val nextNum = getNextCheckpointNumber(context)
+
+                // ─── 3.8. Копируем оригинальные файлы в новые имена:
+                //      checkpoint_№<nextNum>_<ts>.ckpt
+                //      params_<ts>.bin
+                val ckptDst = File(dir, "checkpoint_№${nextNum}_$ts.ckpt")
+                val binDst  = File(dir, "params_$ts.bin")
+                ckptSrc.copyTo(ckptDst, overwrite = true)
+                binSrc.copyTo(binDst, overwrite = true)
+
+                // ─── 3.9. Удаляем временный .zip и все распакованные файлы ───
+                zipFile.delete()
+                unpackedFiles.forEach { it.delete() }
+
+                // ─── 3.10. Всё успешно ───
+                stateFlow.value = State.DONE
+                progressFlow.tryEmit(100)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Модель обучена 🎉 (checkpoint=$checkpoint)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            catch (e: Throwable) {
+                Log.e("TrainingUploadManager", "pipeline error", e)
+                stateFlow.value = State.ERROR
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Ошибка обучения: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    /**
+     * Берёт из SharedPreferences текущее значение KEY_CHECKPOINT_NUMBER (по имени TRAINING_PREFS),
+     * возвращает это число и тут же увеличивает его на +1.
+     */
+    private fun getNextCheckpointNumber(ctx: Context): Int =
+        ctx.getSharedPreferences(PreferenceKeysUBI4.TRAINING_PREFS, Context.MODE_PRIVATE).run {
+            val cur = getInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, 1)
+            edit().putInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, cur + 1).apply()
+            cur
+        }
 }

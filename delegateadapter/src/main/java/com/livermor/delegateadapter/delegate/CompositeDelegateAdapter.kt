@@ -38,7 +38,7 @@ open class CompositeDelegateAdapter(
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         adapterState = newAdapterState
         diffResult.dispatchUpdatesTo(this)
-        recyclerView?.smoothScrollToPosition(0)
+//        recyclerView?.smoothScrollToPosition(0)
 
 
 //        // новый вариант

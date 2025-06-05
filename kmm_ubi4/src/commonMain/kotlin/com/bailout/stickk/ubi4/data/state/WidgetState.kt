@@ -24,8 +24,7 @@ object WidgetState {
     var plotArray by Delegates.notNull<ArrayList<Int>>()
     var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
-
-    //
+    
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()

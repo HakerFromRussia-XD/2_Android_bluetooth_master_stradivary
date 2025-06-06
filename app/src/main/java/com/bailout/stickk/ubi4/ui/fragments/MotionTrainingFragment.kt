@@ -269,6 +269,7 @@ class MotionTrainingFragment(
         // Обработка нажатия на кнопку остановки тренировки
         binding.stopTrainingBtn.setOnClickListener {
             showConfirmCancelTrainingDialog {
+                    deleteLastModifiedEmgAndPassport(requireContext())
                 // Подтверждение отмены обучения: переход на SprTrainingFragment
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragmentContainer, SprTrainingFragment())
@@ -276,6 +277,24 @@ class MotionTrainingFragment(
             }
         }
         (activity as? MainActivityUBI4)?.getBottomNavigationController()?.setNavigationEnabled(false)
+
+    }
+
+    private fun deleteLastModifiedEmgAndPassport(context: Context){
+        try {
+            val path = context.getExternalFilesDir(null)
+
+            path?.listFiles()
+                ?.filter { it.name.endsWith(".emg8.data_passport") }
+                ?.maxByOrNull { it.lastModified() }
+                ?.delete()
+
+            path?.listFiles()
+                ?.filter { it.name.endsWith(".emg8") && !it.name.endsWith(".emg8.data_passport") }
+                ?.maxByOrNull { it.lastModified() }
+                ?.delete()
+        }
+        catch (e:Exception){}
 
     }
 
@@ -970,7 +989,7 @@ class MotionTrainingFragment(
                 .replace(R.id.fragmentContainer, SprTrainingFragment())
                 .commit()
             myDialog.dismiss()
-
+            deleteLastModifiedEmgAndPassport(requireContext())
         }
 
     }
@@ -1001,8 +1020,8 @@ class MotionTrainingFragment(
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
-//                showWarningDialog()
-//                pauseTimers()
+                showWarningDialog()
+                pauseTimers()
             }
         }.start()
     }

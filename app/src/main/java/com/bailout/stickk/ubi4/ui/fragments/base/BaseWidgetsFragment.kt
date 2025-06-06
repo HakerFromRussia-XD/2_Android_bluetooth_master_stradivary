@@ -187,9 +187,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             )
-        ).apply {
-            setHasStableIds(true)
-        }
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

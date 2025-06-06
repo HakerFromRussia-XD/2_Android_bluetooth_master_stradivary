@@ -31,18 +31,6 @@ object TrainingUploadManager {
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    /**
-     * Отправляет **только** те .emg8-файлы, которые пришли в selectedEmg8Files.
-     * Для каждого ищет рядом лежащий "<имя>.emg8.data_passport".
-     * Если паспорт не найден — этот .emg8 пропускается.
-     * Если ни одной пары не сформируется — просто возвращает отменённый Job.
-     *
-     * @param context   — нужен, чтобы взять externalFilesDir и SharedPreferences.
-     * @param repo      — ваш Ubi4TrainingRepository (с методами uploadTrainingData и downloadAndUnpackCheckpoint).
-     * @param token     — токен авторизации (Bearer ...).
-     * @param serial    — серийник устройства.
-     * @param selectedEmg8Files — список тех .emg8, что пользователь отметил в диалоге.
-     */
     fun launch(
         context: Context,
         repo: Ubi4TrainingRepository,

@@ -45,17 +45,14 @@ class Ubi4TrainingRepository(
         return out
     }
 
-
     suspend fun uploadTrainingData(
         token: String,
         serial: String,
-        pairs: List<Pair<File, File>>,          // ← список «данные + паспорт»
-        onProgress: (String) -> Unit
+        pairs: List<Pair<File, File>>,
+        onProgress: (String) -> Unit  // сюда будем отдавать только проценты при новом обучении
     ): String {
-
+        // 1. Собираем MultipartBody.Part
         val serialPart = MultipartBody.Part.createFormData("serial", serial)
-
-        // ➋  превращаем все пары в один общий список `files`
         val fileParts = pairs.flatMap { (data, passport) ->
             listOf(
                 MultipartBody.Part.createFormData(
@@ -69,29 +66,54 @@ class Ubi4TrainingRepository(
             )
         }
 
-        val resp = api.uploadTrainingData(
-            auth   = token,
-            serial = serialPart,
-            files  = fileParts
-        )
+        // 2. Делаем запрос
+        val resp = api.uploadTrainingData(auth = token, serial = serialPart, files = fileParts)
         if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code()}")
 
+        // 3. Смотрим заголовок Content-Type
+        val contentType = resp.headers()["Content-Type"] ?: ""
+        Log.d("Ubi4Repo", "uploadTrainingData: Content-Type = $contentType")
+
+        // 4. Если сервер возвращает JSON (duplicate), сразу разбираем тело как строку
+        if (contentType.contains("application/json")) {
+            val raw = resp.body()?.string()
+                ?: throw IOException("Empty JSON response")
+            val json = Json.parseToJsonElement(raw).jsonObject
+            val checkpoint = json["message"]!!.jsonPrimitive.content
+            Log.d("Ubi4Repo", "→ JSON-ответ, checkpoint = $checkpoint")
+            return checkpoint
+        }
+
+        // 5. Иначе — считаем, что это SSE (новое обучение). Читаем поток построчно:
         var lastCheckpoint: String? = null
         resp.body()?.source()?.use { src ->
             while (!src.exhausted()) {
                 val line = src.readUtf8Line() ?: break
-                onProgress(line)                               // «data: NN»
+                // line выглядит как "data: 37" или "data: {\"message\":\"checkpoint-...\"}"
+                val payload = line.removePrefix("data:").trim()
 
-                if (line.startsWith("data:") &&
-                    line.contains("checkpoint")
-                ) {
-                    lastCheckpoint = Json.parseToJsonElement(
-                        line.removePrefix("data:")
-                    ).jsonObject["message"]!!.jsonPrimitive.content
+                // 5.1. Если payload — число (процент) → передаём в onProgress
+                if (payload.matches(Regex("\\d+"))) {
+                    onProgress(payload) // UI покажет проценты, например "37"
+                    continue
                 }
+
+                // 5.2. Если payload содержит JSON с "message" → парсим checkpoint и выходим
+                if (payload.startsWith("{") && payload.contains("\"message\"")) {
+                    val parsed = Json.parseToJsonElement(payload)
+                        .jsonObject["message"]!!
+                        .jsonPrimitive
+                        .content
+                    lastCheckpoint = parsed
+                    Log.d("Ubi4Repo", "→ SSE вернул checkpoint = $parsed")
+                    break
+                }
+                // прочие случаи (например, пустые строки) игнорируем
             }
         }
-        return lastCheckpoint ?: error("No checkpoint name in SSE")
+
+        return lastCheckpoint
+            ?: error("Не удалось получить checkpoint из SSE")
     }
 
     suspend fun downloadAndUnpackCheckpoint(

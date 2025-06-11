@@ -129,13 +129,6 @@ class MotionTrainingFragment(
     // Сет реальных жестов (если нужно, можете дополнять или изменять):
     private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
 
-    private val prefs by lazy {
-        requireContext().getSharedPreferences(
-            PreferenceKeysUBI4.NAME,
-            Context.MODE_PRIVATE
-        )
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
@@ -368,17 +361,6 @@ class MotionTrainingFragment(
                 .replace(R.id.fragmentContainer, spr)
                 .commit()
             confirmClick()
-//            Log.d("StateCallBack", "confirmClick() run")
-//            val appCtx = myDialog.context.applicationContext
-//            val prefs   = appCtx.getSharedPreferences(PreferenceKeysUBI4.NAME, Context.MODE_PRIVATE)
-//            val token   = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
-//            val serial  = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
-//            TrainingUploadManager.launch(
-//                context = appCtx,
-//                repo    = Ubi4TrainingRepository(RetrofitInstanceUBI4.api),
-//                token   = token,
-//                serial  = serial
-//            )
         }
     }
 

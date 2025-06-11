@@ -137,17 +137,16 @@ abstract class BaseWidgetsFragment : Fragment() {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
                     // Получаем ссылку на текущий SprTrainingFragment
                     val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
-                    spr.startAuthAndDownloadPassport()
-                    showConfirmTrainingDialog {
-                        navigator().showMotionTrainingScreen {
-//                            spr.handleTrainingFinished()
-
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fragmentContainer, spr)
-                                .commit()
+                    spr.startAuthAndDownloadPassport{
+                        showConfirmTrainingDialog {
+                            navigator().showMotionTrainingScreen {
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.fragmentContainer, spr)
+                                    .commit()
+                            }
                         }
-
                     }
+
                 },
                 onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
                 onShowEmg8Files = {
@@ -196,14 +195,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

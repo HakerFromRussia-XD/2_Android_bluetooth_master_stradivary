@@ -46,6 +46,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.internal.notifyAll
 
 class BLEController() {
     private val mContext: Context = main.applicationContext
@@ -71,12 +72,17 @@ class BLEController() {
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
     private var mDisconnected = false
 
+    private var receiverRegistered = false
+
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
                 if(state == WRITE)
-                canSendFlag = true
+                synchronized(main.writeLock) {
+                    canSendFlag = true
+                    main.writeLock.notifyAll()
+                }
             }
             if (!mBluetoothLeService?.initialize()!!) {
                 main.finish()
@@ -302,20 +308,23 @@ class BLEController() {
         }
     }
     fun disconnect() {
+        if (mDisconnected) return
         reconnectThreadFlag = false
         mDisconnected = true
-        if (mBluetoothLeService != null) {
             println("--> дисконнектим всё к хуям и анбайндим")
-            mBluetoothLeService!!.disconnect()
-            mContext.unbindService(mServiceConnection)
-            mBluetoothLeService = null
-        }
-        mConnected = false
-//        invalidateOptionsMenu()
-        listWidgets.clear()
-        main.openScanActivity()
+            bleScope.launch(Dispatchers.IO) {
+                mBluetoothLeService?.disconnect()
+                runCatching { mContext.unbindService(mServiceConnection) }
+                withContext(Dispatchers.Main){
+                    mConnected = false
+                    listWidgets.clear()
+                    main.openScanActivity()
+                }
+            }
 
     }
+
+
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED)

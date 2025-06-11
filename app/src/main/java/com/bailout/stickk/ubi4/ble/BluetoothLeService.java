@@ -289,6 +289,9 @@ public class BluetoothLeService extends Service {
                 intentAction = ACTION_GATT_DISCONNECTED;
                 Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
                 broadcastUpdate(intentAction);
+                if (receiverCallback != null) {
+                    receiverCallback.onDataReceived(SampleGattAttributes.NOTIFY);
+                }
             }
         }
 

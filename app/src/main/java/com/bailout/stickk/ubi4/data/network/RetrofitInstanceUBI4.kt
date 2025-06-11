@@ -16,21 +16,16 @@ object RetrofitInstanceUBI4 {
         level = HttpLoggingInterceptor.Level.HEADERS
     }
 
-
     private val client: OkHttpClient = OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_1_1))
         // handshake – сколько ждём установку TCP + TLS
         .connectTimeout(15, TimeUnit.SECONDS)
-
         // upload .emg8 может идти 2-3 минуты → убираем writeTimeout
         .writeTimeout(0, TimeUnit.SECONDS)
-
         // SSE-поток: сервер может молчать дольше минуты → убираем readTimeout
         .readTimeout(0, TimeUnit.SECONDS)
-
         // если внезапно drop – пробуем переподключиться
         .retryOnConnectionFailure(true)
-
         .addInterceptor(interceptor)
         .build()
 

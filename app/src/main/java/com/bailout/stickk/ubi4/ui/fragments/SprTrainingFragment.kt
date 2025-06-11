@@ -184,6 +184,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             myDialog.dismiss()
             closeCurrentDialog()
             confirmClick()
+
         }
     }
 
@@ -236,65 +237,118 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             .setOnClickListener { dlg.dismiss() }
     }
 
+
+
+
+//    fun startUploadSelectedTrainingFiles(selectedEmg8: List<File>) {
+//        // 1. Достаём токен и серийник
+//        val prefs = requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
+//        var token  = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
+//        var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+//
+//        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+//            // Если токен уже есть, сразу вызываем:
+//            if (token.isNotBlank() && serial.isNotBlank()) {
+//                TrainingUploadManager.launch(
+//                    requireContext(),
+//                    repo,
+//                    token,
+//                    serial,
+//                    selectedEmg8
+//                )
+//                return@launch
+//            }
+//
+//            // Иначе — авторизуемся, сохраняем токен и serial
+//            withContext(Main) {
+//                Toast.makeText(requireContext(), "Авторизация…", Toast.LENGTH_SHORT).show()
+//            }
+//            try {
+//                val tmpSerial   = "CYBI-F-05663"
+//                val tmpPassword = "123фыв6"
+//                token  = repo.fetchTokenBySerial(API_KEY, tmpSerial, tmpPassword)
+//                serial = tmpSerial
+//
+//                prefs.edit()
+//                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
+//                    .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+//                    .apply()
+//
+//                // (Опционально) сразу скачать паспорт
+//                repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+//
+//                withContext(Main) {
+//                    Toast.makeText(requireContext(), "Авторизация OK", Toast.LENGTH_SHORT).show()
+//                }
+//
+//                // После успешной авторизации отправляем только выбранные .emg8
+//                TrainingUploadManager.launch(
+//                    requireContext(),
+//                    repo,
+//                    token,
+//                    serial,
+//                    selectedEmg8
+//                )
+//            } catch (e: Exception) {
+//                Log.e("SprTrainingFragment", "Auth failed", e)
+//                withContext(Main) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Не удалось авторизоваться: ${e.message}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            }
+//        }
+//    }
+
     fun startUploadSelectedTrainingFiles(selectedEmg8: List<File>) {
-        // 1. Достаём токен и серийник
-        val prefs = requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            uploadWithAuthRetry(selectedEmg8)
+        }
+    }
+
+    /** Отправка + единоразовый retry при 401 */
+    private suspend fun uploadWithAuthRetry(selectedEmg8: List<File>) {
+
+        val prefs  = requireContext()
+            .getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
+
         var token  = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
         var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            // Если токен уже есть, сразу вызываем:
-            if (token.isNotBlank() && serial.isNotBlank()) {
-                TrainingUploadManager.launch(
-                    requireContext(),
-                    repo,
-                    token,
-                    serial,
-                    selectedEmg8
-                )
-                return@launch
-            }
+        // если пусто после холодного старта → берём дефолты
+        if (token.isBlank() || serial.isBlank()) {
+            serial = SERIAL_DEFAULT
+            token  = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
 
-            // Иначе — авторизуемся, сохраняем токен и serial
-            withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(), "Авторизация…", Toast.LENGTH_SHORT).show()
-            }
-            try {
-                val tmpSerial   = "CYBI-F-05663"
-                val tmpPassword = "123фыв6"
-                token  = repo.fetchTokenBySerial(API_KEY, tmpSerial, tmpPassword)
-                serial = tmpSerial
+            prefs.edit()
+                .putString(PreferenceKeysUBI4.KEY_TOKEN,  token)
+                .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                .apply()
 
-                prefs.edit()
-                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
-                    .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
-                    .apply()
+            // паспорт качаем, как и раньше
+            repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+        }
 
-                // (Опционально) сразу скачать паспорт
-                repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+        fun doUpload(bearer: String) {
+            TrainingUploadManager.launch(
+                requireContext(), repo, bearer, serial, selectedEmg8
+            )
+        }
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Авторизация OK", Toast.LENGTH_SHORT).show()
-                }
+        try {
+            doUpload(token)                 // 🔹 первая попытка
+        } catch (e: retrofit2.HttpException) {
+            if (e.code() != 401) throw e    // не 401 → дальше
 
-                // После успешной авторизации отправляем только выбранные .emg8
-                TrainingUploadManager.launch(
-                    requireContext(),
-                    repo,
-                    token,
-                    serial,
-                    selectedEmg8
-                )
-            } catch (e: Exception) {
-                Log.e("SprTrainingFragment", "Auth failed", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Не удалось авторизоваться: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+            // 🔄 401 → берём новый токен теми же константами
+            val fresh = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
+            prefs.edit().putString(
+                PreferenceKeysUBI4.KEY_TOKEN, fresh
+            ).apply()
+
+            doUpload(fresh)                 // 🔹 вторая (успешная) попытка
         }
     }
 
@@ -314,7 +368,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
         val path = requireContext().getExternalFilesDir(null)
 
-//        val regex = Regex("^checkpoint_№(\\d+)_\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}$")
         val regex = Regex("^checkpoint_№(\\d+)_.*\\.ckpt$")
 
         val files = path?.listFiles()?.filter {
@@ -377,7 +430,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     return
                 }
 
-//                val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})$")
                 val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})")
                 val match = dateTimeRegex.find(fileItem.file.name)
                 val dateTimeStr = match?.groupValues?.get(1) ?: run {
@@ -658,11 +710,11 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 //    }
 
 
-    fun startAuthAndDownloadPassport() {
+    fun startAuthAndDownloadPassport(onSuccess:() -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val serial = "CYBI-F-05663"
-                val pass   = "123фыв6"
+                val serial = SERIAL_DEFAULT
+                val pass   = PASSWORD_DEFAULT
 
                 // авторизация
                 val token  = repo.fetchTokenBySerial(API_KEY, serial, pass)
@@ -678,22 +730,30 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 val dst = File(requireContext().getExternalFilesDir(null), "$ts.emg8.data_passport")
                 raw.copyTo(dst, overwrite = true)
                 File(dst.parentFile!!, "config.json").writeText(dst.readText())
+                withContext(Main) { onSuccess() }
 
-            } catch (e: Exception) {
-                Log.e("SprTrainingFragment", "auth/download error", e)
+            } catch (e: IOException) {
                 withContext(Main) {
-                    Toast.makeText(context, "Не удалось загрузить паспорт: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "На сервере ведутся работы. Повторите позже!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
     }
 
     companion object {
-        fun newInstance(lastEmg8: String) : SprTrainingFragment  =
+        fun newInstance(lastEmg8: String): SprTrainingFragment =
             SprTrainingFragment().apply {
                 arguments = Bundle().apply { putString(PreferenceKeysUBI4.ARG_LAST_EMG8, lastEmg8) }
             }
+
+        private const val SERIAL_DEFAULT = "CYBI-F-05663"
+        private const val PASSWORD_DEFAULT = "123фыв6"
     }
+}
 
 
-    }
+

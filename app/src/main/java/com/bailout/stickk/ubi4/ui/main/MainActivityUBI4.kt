@@ -67,6 +67,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.internal.notifyAll
+import okhttp3.internal.wait
 import timber.log.Timber
 import kotlin.properties.Delegates
 
@@ -303,8 +305,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        countBinding = 0
 //        graphThreadFlag = true
 
-        canSendFlag = false
-//        activeGestureFragmentFilterFlow = MutableStateFlow(1)
+        synchronized(writeLock) {
+            canSendFlag = false
+            writeLock.notifyAll()
+        }//        activeGestureFragmentFilterFlow = MutableStateFlow(1)
 //        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
 
@@ -355,16 +359,22 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return Runnable {
             writeData(byteArray, command, typeCommand)
             onChunkSent() } }
+    val writeLock = Any()
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
-        synchronized(this) {
+        synchronized(writeLock) {
             canSendFlag = false
             bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
-                Thread.sleep(1)
+                writeLock.wait()    // ждём, пока кто-то вызовет notify()
             }
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
+//        while (!canSendFlag) {
+//            Thread.sleep(1)
+//        }
+//        Log.d("TestSendByteArray","CallBack is BLEService was complete")
+
     }
 
     fun loadText(key: String): String { return mSettings!!.getString(key, "null").toString() }

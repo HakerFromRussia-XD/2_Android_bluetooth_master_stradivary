@@ -312,6 +312,7 @@ class BLEController() {
         reconnectThreadFlag = false
         mDisconnected = true
             println("--> дисконнектим всё к хуям и анбайндим")
+
             bleScope.launch(Dispatchers.IO) {
                 mBluetoothLeService?.disconnect()
                 runCatching { mContext.unbindService(mServiceConnection) }

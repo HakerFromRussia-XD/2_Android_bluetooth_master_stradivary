@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.bailout.stickk",
+  "applicationId": "com.bailout.stickk.dev",
   "variantName": "release",
   "elements": [
     {
@@ -12,7 +12,7 @@
       "filters": [],
       "attributes": [],
       "versionCode": 11,
-      "versionName": "3.1.1022",
+      "versionName": "3.1.1038",
       "outputFile": "app-release.apk"
     }
   ],

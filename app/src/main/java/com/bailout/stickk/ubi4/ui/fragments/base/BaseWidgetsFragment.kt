@@ -452,6 +452,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun showFilesDialog(addressDevice: Int, parameterID: Int) {
         main?.showToast("Виджет отображается вне своего экрана")
     }
+
     open fun showModelEmg8FilesDialog(preselectName: String? = null,onSendClick: (selectedFiles: List<File>) -> Unit) {
 
     }

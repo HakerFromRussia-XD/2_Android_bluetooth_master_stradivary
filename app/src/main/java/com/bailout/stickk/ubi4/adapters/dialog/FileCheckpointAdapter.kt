@@ -23,7 +23,7 @@ class FileCheckpointAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.ubi4_item_dialog_file, parent, false)
+            .inflate(R.layout.ubi4_item_firmware_file, parent, false)
         return FileViewHolder(itemView)
     }
 

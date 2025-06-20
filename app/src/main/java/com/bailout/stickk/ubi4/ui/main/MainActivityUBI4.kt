@@ -1,24 +1,32 @@
 package com.bailout.stickk.ubi4.ui.main
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RotateDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -27,6 +35,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
+import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
@@ -42,6 +51,7 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
+import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
@@ -70,6 +80,7 @@ import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
+import java.io.File
 import kotlin.properties.Delegates
 
 
@@ -81,6 +92,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
 //    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
+
 
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
@@ -166,15 +178,48 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            Log.d("MotionTrainingFragment", "▶ runCommandBtn clicked")
-//            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-//            if (frag is OnRunCommandListener) {
-//                    frag.onRunCommand()
-//            } else {
-//                Log.e("MainActivityUBI4", "activeFragment не умеет onRunCommand()")
-//            }
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            val dir = getExternalFilesDir(null)
+            val items: MutableList<FirmwareFileItem> = dir
+                ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+                ?.map { f ->
+                    FirmwareFileItem(name = f.name, file = File(f.path))
+                }
+                ?.toMutableList()
+                ?: mutableListOf()
+
+            // 2) Inflate диалога и RecyclerView
+            val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
+            val dialog = AlertDialog.Builder(this)
+                .setView(view)
+                .create()
+
+            val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
+            val adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
+                override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
+                    items.removeAt(position)
+                    // уведомляем RV
+                    rv.adapter?.notifyItemRemoved(position)
+                }
+                override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
+                    // запускаем реальный runCommand, передаём путь
+//                    startFirmwareUpload(fileItem.file)
+                    onComplete()
+                    dialog.dismiss()
+                    showConfirmSendFirmwareFileDialog {
+
+                    }
+                }
+            })
+
+            rv.layoutManager = LinearLayoutManager(this)
+            rv.adapter = adapter
+
+            view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn)
+                .setOnClickListener { dialog.dismiss() }
+
+            dialog.show()
+        }
 
     }
 
@@ -206,6 +251,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.cleanup()
     }
 
+    private fun showConfirmSendFirmwareFileDialog( onConfirm:() -> Unit) {
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_send_firmware_file, null)
+        val myDialog = Dialog(this)
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmSendFirmwareBtn)
+        confirmBtn.setOnClickListener {
+            onConfirm()
+        }
+        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogSendFirmwareCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
+        }
+    }
+
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
@@ -225,6 +288,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(accountFragment)
 //        launchFragmentWithStack(AccountFragmentMainUBI4())
     }
+
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
         AccountFragmentCustomerServiceUBI4()
     ) }

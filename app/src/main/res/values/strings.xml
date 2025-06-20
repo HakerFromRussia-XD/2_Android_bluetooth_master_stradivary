@@ -626,6 +626,8 @@
     <string name="prosthetic_settings">Prosthetic settings</string>
     <string name="mobile_settings">Mobile Settings</string>
     <string name="auto_login">Auto login</string>
+    <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
+
 
 
     <string-array name="numbers">

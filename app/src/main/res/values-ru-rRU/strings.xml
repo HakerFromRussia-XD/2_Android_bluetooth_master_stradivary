@@ -587,6 +587,7 @@
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">Файл модели сохраняется в память устройства, пожалуйста, подождите...</string>
     <string name="file_is_being_downloaded">Идет загрузка файла</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
+    <string name="are_you_sure_you_want_to_update_software_version">Вы уверены что хотите обновить версию ПО?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth соеденение отключенно</string>
     <string name="there_is_no_bluetooth_connection_check_the_connection">Bluetooth соединение отсутствует. Проверьте подключение.</string>
     <string name="gesture_point">Указательный</string>

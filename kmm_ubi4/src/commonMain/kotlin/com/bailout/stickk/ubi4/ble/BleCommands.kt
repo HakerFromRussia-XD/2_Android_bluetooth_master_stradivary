@@ -155,20 +155,22 @@ object BLECommands {
     }
 
     fun requestAdditionalParametrInfo(idParameter: Byte): ByteArray {
-        val result = byteArrayOf(
+        val header = byteArrayOf(
             0x20,
             DEVICE_INFORMATION.number,
             0x00,
-            0x00, // будет установлено ниже
+            0x00, // здесь запишем длину
             0x00,
             0x00,
-            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
             READ_DEVICE_ADDITIONAL_PARAMETRS.number,
             idParameter
         )
-        result[3] = calculateDataSize(result).toByte()
-        result[4] = (calculateDataSize(result) / 256).toByte()
-        return result
+        header[3] = data.size.toByte()
+        header[4] = (data.size ushr 8).toByte()
+        return header + data
     }
 
     fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {

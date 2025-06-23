@@ -149,7 +149,6 @@ class BLEController() {
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     if (mDisconnected) {
-                        Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
                         return
                     }
@@ -173,6 +172,7 @@ class BLEController() {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     if (mBluetoothLeService != null) {
@@ -184,20 +184,20 @@ class BLEController() {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                        if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
-                        val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
-                        val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x83.toByte(),
-                            0xf1.toByte(), 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02,
-                            0xff.toByte(), 0x43, 0x50, 0x55, 0x20, 0x4d, 0x4f, 0x44, 0x55, 0x4c, 0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x87.toByte(), 0xd6.toByte(), 0x12, 0x00, 0x01)
-                        val fakeData3 = byteArrayOf(0x00, 0x01, 0x00, 0x12, 0x00, 0x16, 0x00, 0x02, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-                            0xff.toByte(), 0x0b, 0x0c,
-                            0xff.toByte(), 0x01, 0x02, 0x03)
+                    if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
-
                 }
+//                BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+//                    val raw = intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL)
+//                    if (raw != null) {
+//                        val hex = EncodeByteToHex.bytesToHexString(raw)
+//                        Log.d("BLE_RX", "▶ DATA_AVAILABLE size=${raw.size}, data=$hex")
+//                    } else {
+//                        Log.d("BLE_RX", "▶ DATA_AVAILABLE, но MAIN_CHANNEL extra = null")
+//                    }
+//                    parseReceivedData(raw)
+//                }
 
                 }
             }
@@ -206,24 +206,51 @@ class BLEController() {
 
 
 
-    private suspend fun firstNotificationRequest()  {
-        System.err.println("BLE debug firstNotificationRequest")
-        System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
-
-        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        bleCommand(null, MAIN_CHANNEL, NOTIFY)
-        delay(1000)
-
+//    private suspend fun firstNotificationRequest()  {
+//        System.err.println("BLE debug firstNotificationRequest")
+//        System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
+//
+//        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+//        bleCommand(null, MAIN_CHANNEL, NOTIFY)
+//        delay(1000)
+//
+//        if (firstNotificationRequestFlag) {
+//            firstNotificationRequest()
+//        }
+//    }
+// 1. BLEController.firstNotificationRequest
+    private suspend fun firstNotificationRequest() {
+        var attempts = 0
+        while (firstNotificationRequestFlag && attempts < 5) {
+            Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
+            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+            bleCommand(null, MAIN_CHANNEL, NOTIFY)
+            delay(1000)
+            attempts++
+        }
         if (firstNotificationRequestFlag) {
-            firstNotificationRequest()
+            Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
+        } else {
+            Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
         }
     }
-    private fun parseReceivedData (data: ByteArray?) {
-        if (data != null) {
-            firstNotificationRequestFlag = false
-            mBLEParser?.parseReceivedData(data)
-        }
+//    private fun parseReceivedData (data: ByteArray?) {
+//        if (data != null) {
+//            firstNotificationRequestFlag = false
+//            mBLEParser?.parseReceivedData(data)
+//        }
+//    }
+private fun parseReceivedData(data: ByteArray?) {
+    val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
+    Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
+    val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
+    val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
+    Log.d("BLE_PARSER", "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex")
+    if (data != null) {
+        firstNotificationRequestFlag = false
+        mBLEParser?.parseReceivedData(data)
     }
+}
 
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
@@ -365,6 +392,8 @@ class BLEController() {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+        val hex = byteArray?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
+        Log.d("BLE_SEND", "▶ bleCommand type=$typeCommand, uuid=$uuid, data=$hex")
         Log.d("BLEController", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {

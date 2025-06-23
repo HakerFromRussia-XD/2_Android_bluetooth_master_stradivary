@@ -377,4 +377,19 @@ object PreferenceKeysUBI4 {
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),
     }
+
+    enum class FirmwareCmd(val id: UByte) {
+        GET_RUN_PROGRAM_TYPE (0x01u),
+        JUMP_TO_BOOTLOADER   (0x02u),
+        CHECK_NEW_FW         (0x03u),
+        PRELOAD_INFO         (0x04u),
+        GET_BOOTLOADER_STATUS(0x05u),
+        LOAD_NEW_FW          (0x06u),
+        CALCULATE_CRC        (0x07u),
+        COMPLETE_UPDATE      (0x08u),
+        GET_BOOTLOADER_INFO  (0x09u),
+        GET_MAX_CHANK_SIZE   (0x0Au),
+        START_SYSTEM_UPDATE  (0x0Bu),
+        FINISH_SYSTEM_UPDATE (0x0Cu);
+    }
 }

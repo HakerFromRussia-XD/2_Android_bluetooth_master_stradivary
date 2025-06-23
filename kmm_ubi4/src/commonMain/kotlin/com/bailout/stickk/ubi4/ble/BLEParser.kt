@@ -86,6 +86,7 @@ class BLEParser(
 
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
+
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             platformLog("BLEParser", "data.size=${data.size}")
             platformLog("BLEParser", "dataString=$receiveDataString")
@@ -372,6 +373,7 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 DEFOULT")
             }
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
+                platformLog("BLE_DEVINFO", "▶ INITIALIZE_INFORMATION пакет, packageByte=$packageCodeRequest, ID=$ID, addr=$deviceAddress, rawData=$receiveDataString")
                 parseInitializeInformation(receiveDataString)
 
             }
@@ -465,7 +467,11 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
-        platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
+        platformLog("BLE_PARSER", "▶ parseInitializeInformation → $fullInicializeConnectionStruct")
+//        if (fullInicializeConnectionStruct.programType == 2) {
+//            platformLog("BLE_FLOW", "Устройство в бутлоадере — останавливаем инициализацию")
+//            return
+//        }
         bleCommandExecutor.bleCommandWithQueue(
             BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
             MAIN_CHANNEL,
@@ -591,15 +597,18 @@ class BLEParser(
                 if (subDeviceChankParametersCounter == (parametrsNum / 10)) {
                     numberCount = parametrsNum - subDeviceChankParametersCounter * 10
                 }
-                bleCommandExecutor.bleCommandWithQueue(
-                    BLECommands.requestSubDeviceParametrs(
-                        baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
-                        subDeviceChankParametersCounter * 10,
-                        numberCount
-                    ),
-                    MAIN_CHANNEL,
-                    WRITE
-                ) {}
+                if (numberCount != 0) {
+                    bleCommandExecutor.bleCommandWithQueue(
+                        BLECommands.requestSubDeviceParametrs(
+                            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+                            subDeviceChankParametersCounter * 10,
+                            numberCount
+                        ),
+                        MAIN_CHANNEL,
+                        WRITE
+                    ) {}
+                }
+
 //                val test = subDeviceChankParametersCounter*10
 //                val test2 = numberCount
 //                val test3 = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
@@ -707,11 +716,14 @@ class BLEParser(
 //                if (quantitiesReadParameters != numberCount) showToast("обнаружено несоответствие numberCount $quantitiesReadParameters != $numberCount")
             }
 
-            bleCommandExecutor.bleCommandWithQueue(
-                BLECommands.requestSubDeviceParametrs(_deviceAddress, subDeviceChankParametersCounter * 10, numberCount),
-                MAIN_CHANNEL,
-                WRITE
-            ) {}
+            if (numberCount != 0){
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestSubDeviceParametrs(_deviceAddress, subDeviceChankParametersCounter * 10, numberCount),
+                    MAIN_CHANNEL,
+                    WRITE
+                ) {}
+            }
+
 //            val test = subDeviceChankParametersCounter*10
 //            val test2 = numberCount
 //            val test3 = _deviceAddress

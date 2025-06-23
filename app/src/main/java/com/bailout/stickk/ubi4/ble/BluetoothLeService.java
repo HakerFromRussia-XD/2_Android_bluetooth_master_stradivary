@@ -279,6 +279,7 @@ public class BluetoothLeService extends Service {
 
 
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            Log.d("onConnectionStateChangeTAG", "onConnectionStateChange: status=" + status + ", newState=" + newState);
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
@@ -318,6 +319,7 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            Log.d("onConnectionStateChangeTAG", "onServicesDiscovered: status=" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 BLEState.INSTANCE.publishReady();
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
@@ -390,7 +392,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d("BLE_DEBUG", "onUnbind called. Closing BluetoothGatt.");
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
@@ -470,7 +471,6 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
-        Log.d("BLE_DEBUG11", "disconnect(): вызов disconnect() на mBluetoothGatt");
 //        refreshGattCache();
         mBluetoothGatt.disconnect();
     }
@@ -481,7 +481,6 @@ public class BluetoothLeService extends Service {
      */
     public void close() {
         if (mBluetoothGatt == null) {
-            Log.d("BLE_DEBUG", "close() called but mBluetoothGatt is already null.");
             return;
         }
         Log.d("BLE_DEBUG11", "close(): вызов close() на mBluetoothGatt");
@@ -573,7 +572,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d("BLE_DEBUG", "onDestroy called. Service is being destroyed.");
         super.onDestroy();
     }
 }

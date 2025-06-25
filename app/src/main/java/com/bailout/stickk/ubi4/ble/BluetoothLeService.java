@@ -360,6 +360,9 @@ public class BluetoothLeService extends Service {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            byte[] d   = characteristic.getValue();
+            String hex = EncodeByteToHex.bytesToHexString(d);
+            Log.d("BLE_RAW", "UUID=" + characteristic.getUuid() + "  len=" + d.length + "  " + hex);
             Log.d("onCharacteristicChanged", "Характеристика изменилась: " +
                     characteristic.getUuid().toString() + ", данные: " +
                     EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginBottom="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+        android:clipToOutline="true"
+        android:orientation="vertical">
+
+        <!-- уже готовый item-layout плат -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bootloader_rv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+
+            tools:listitem="@layout/ubi4_item_bootloader_board" />
+
+        <!-- 4. App Version (без divider под ним) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+
+            <TextView
+                android:id="@+id/ubi4_version_app_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/version_app"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                android:fontFamily="@font/font_open_sans_regular"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="16dp"/>
+
+            <TextView
+                android:id="@+id/ubi4_version_app_num_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2.4.000"
+                android:textColor="@color/ubi4_white"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="16dp"/>
+            <View
+                android:id="@+id/dividerAppVesrion"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/ubi4_gray_border"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -9,14 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
+import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
@@ -33,14 +37,14 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.properties.Delegates
 
+import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderCardAdapter
+
 
 //TODO изменить импорты из UBI3 для фрагмента "help"
 @Suppress("DEPRECATION")
 class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private var mContext: Context? = null
     private var main: MainActivityUBI4? = null
-    private var linearLayoutManager: LinearLayoutManager? = null
-    private var adapter: AccountMainAdapterUBI4? = null
     private var mSettings: SharedPreferences? = null
 
     private var token = ""
@@ -59,6 +63,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private var driverVersion = "0.01"
     private var bmsVersion = "0.01"
     private var sensorsVersion = "0.01"
+
+    private lateinit var accountAdapter: AccountMainAdapterUBI4
+    private lateinit var bootloaderAdapter: BootloaderAdapterUBI4
+    private lateinit var concatAdapter: ConcatAdapter
 
     private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
 
@@ -119,6 +127,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         binding.preloaderLav.visibility = View.VISIBLE
         requestToken()
         initializeUI()
+        showBoardsVersion()
     }
 
     @SuppressLint("CheckResult")
@@ -137,21 +146,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     }
 
     private fun updateAllParameters() {
-        activity?.runOnUiThread {
-            accountMainList.clear()
-            accountMainList.add(
-                AccountMainUBI4Item(
-                    avatarUrl = "avatarUrl",
-                    name = fname,
-                    surname = sname,
-                    patronymic = "Ivanovich",
-                    versionDriver = driverVersion,
-                    versionBms = bmsVersion,
-                    versionSensors = sensorsVersion
-                )
-            )
-            initAdapter(binding.accountRv)
-        }
+        val item = AccountMainUBI4Item(
+            avatarUrl      = "avatarUrl",
+            name           = fname,
+            surname        = sname,
+            patronymic     = "Ivanovich",
+            versionDriver  = driverVersion,
+            versionBms     = bmsVersion,
+            versionSensors = sensorsVersion
+        )
+        updateAccountSafe(item)
     }
 
     private val cleanSerialNumber = serialNumber.replace("\u0000", "").trim()
@@ -204,19 +208,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                     fname = user.userInfo?.fname ?: ""
                     sname = user.userInfo?.sname ?: ""
                     binding.apply {
-                        accountMainList.clear()
-                        accountMainList.add(
-                            AccountMainUBI4Item(
-                                avatarUrl = "avatarUrl",
-                                name = fname,
-                                surname = sname,
-                                patronymic = "Ivanovich",
-                                versionDriver = driverVersion,
-                                versionBms = bmsVersion,
-                                versionSensors = sensorsVersion
-                            )
+                        val item = AccountMainUBI4Item(
+                            avatarUrl      = "avatarUrl",
+                            name           = fname,
+                            surname        = sname,
+                            patronymic     = "Ivanovich",
+                            versionDriver  = driverVersion,
+                            versionBms     = bmsVersion,
+                            versionSensors = sensorsVersion
                         )
-                        initAdapter(binding.accountRv)
+                        updateAccountSafe(item)
                         binding.refreshLayout.setRefreshing(false)
                     }
                     clientId = user.userInfo?.clientId ?: 0
@@ -284,53 +285,75 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
     }
 
-    private fun initAdapter(accountRv: RecyclerView) {
-        linearLayoutManager = LinearLayoutManager(mContext)
-        linearLayoutManager!!.orientation = LinearLayoutManager.VERTICAL
-        accountRv.layoutManager = linearLayoutManager
-        adapter = AccountMainAdapterUBI4(object : OnAccountMainUBI4ClickListener {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onCustomerServiceClicked() {
-                navigator().showAccountCustomerServiceScreen()
-            }
 
-            override fun onProsthesisInformationClicked() {
-                navigator().showAccountProsthesisInformationScreen()
+    private fun initAdapter() {
+
+        // ==== 1. Листенеры ===========================================
+        val accountClickListener = object : OnAccountMainUBI4ClickListener {
+            override fun onCustomerServiceClicked() { navigator().showAccountCustomerServiceScreen() }
+            override fun onProsthesisInformationClicked() { navigator().showAccountProsthesisInformationScreen() }
+        }
+
+        val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
+            override fun onUpdateClick(item: BootloaderBoardItemUBI4) {
+                Toast.makeText(requireContext(), "Update ${item.boardName}", Toast.LENGTH_SHORT).show()
             }
-        })
-        accountRv.adapter = adapter
+        }
+
+        // ==== 2. Адаптеры секций =====================================
+        accountAdapter    = AccountMainAdapterUBI4(accountClickListener)     // профиль и софт
+
+        // строки‑платы
+        bootloaderAdapter = BootloaderAdapterUBI4(bootloaderClickListener)
+
+        // карточка‑обёртка, которая содержит вложенный RecyclerView
+        val bootloaderCardAdapter = BootloaderCardAdapter(bootloaderAdapter)
+
+        // ==== 3. ConcatAdapter – порядок: профиль → карточка плат =====
+        concatAdapter = ConcatAdapter(accountAdapter, bootloaderCardAdapter)
+
+        // ==== 4. RecyclerView — общий ================================
+        binding.accountRv.apply {
+            layoutManager  = LinearLayoutManager(requireContext())
+            adapter        = concatAdapter
+            setHasFixedSize(true)
+            itemAnimator   = null
+        }
     }
 
     // Восстанавливаем обработку кнопки "назад" как в рабочем фрагменте
     private fun initializeUI() {
+        // Заглушка на клик заголовка (оставь, если нужен)
         binding.titleClickBlockBtn.setOnClickListener { }
-        initAdapter(binding.accountRv)
+
+        // Подключаем ConcatAdapter с двумя секциями
+        initAdapter()
+
+        // Кнопка «назад» в шапке
         binding.backBtn.setOnClickListener {
-            if (isAdded) {
-                handleBackPress()
-            } else {
-                main?.finish()
-            }
+            if (isAdded) handleBackPress() else main?.finish()
         }
+
+        // Чтобы «Back» отрабатывал даже при фокусе внутри списка
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
 
+        // Локальные версии прошивок
         driverVersion = if (!checkMultigrib()) {
-            ((mSettings!!.getInt(
-                main?.mDeviceAddress + PreferenceKeysUBI4.DRIVER_NUM,
-                1
-            )).toFloat() / 100).toString()
+            ((mSettings?.getInt(
+                main?.mDeviceAddress + PreferenceKeysUBI4.DRIVER_NUM, 1
+            ) ?: 1) / 100f).toString()
         } else {
             main?.driverVersionS ?: "0.01"
         }
-        bmsVersion = ((mSettings!!.getInt(
-            main?.mDeviceAddress + PreferenceKeysUBI4.BMS_NUM,
-            1
-        )).toFloat() / 100).toString()
-        sensorsVersion = ((mSettings!!.getInt(
-            main?.mDeviceAddress + PreferenceKeysUBI4.SENS_NUM,
-            1
-        )).toFloat() / 100).toString()
+
+        bmsVersion = ((mSettings?.getInt(
+            main?.mDeviceAddress + PreferenceKeysUBI4.BMS_NUM, 1
+        ) ?: 1) / 100f).toString()
+
+        sensorsVersion = ((mSettings?.getInt(
+            main?.mDeviceAddress + PreferenceKeysUBI4.SENS_NUM, 1
+        ) ?: 1) / 100f).toString()
     }
 
     private fun handleBackPress() {
@@ -388,20 +411,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private fun showInfoWithoutConnection() {
         binding.preloaderLav.visibility = View.GONE
         binding.apply {
-            accountMainList.clear()
-            accountMainList.add(
-                AccountMainUBI4Item(
-                    avatarUrl = "avatarUrl",
-                    name = fname,
-                    surname = sname,
-                    patronymic = "Ivanovich",
-                    versionDriver = driverVersion,
-                    versionBms = bmsVersion,
-                    versionSensors = sensorsVersion
-                )
+            val item = AccountMainUBI4Item(
+                avatarUrl      = "avatarUrl",
+                name           = fname,
+                surname        = sname,
+                patronymic     = "Ivanovich",
+                versionDriver  = driverVersion,
+                versionBms     = bmsVersion,
+                versionSensors = sensorsVersion
             )
-            initAdapter(binding.accountRv)
-            adapter?.notifyDataSetChanged()
+            updateAccountSafe(item)
 
         }
         main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, "")
@@ -417,6 +436,60 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         main?.saveString(PreferenceKeysUBI4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
+//    private fun addFakeBoards() {
+//        val fake = listOf(
+//            BootloaderBoardItemUBI4("Board 01", 0x01, true),
+//            BootloaderBoardItemUBI4("Board 02", 0x02, false),
+//            BootloaderBoardItemUBI4("Board 03", 0x03, true)
+//        )
+//        updateBootloaderSafe(fake)
+//    }
+
+    private fun showBoardsVersion() {
+        val boards = buildList {
+            fullInicializeConnectionStruct?.let { add(it.toBoardItem()) }
+
+            baseSubDevicesInfoStructSet.forEach { sub ->
+                add(sub.toBoardItem())
+            }
+        }
+            .distinctBy { it.deviceCode } // вдруг дубликаты
+            .map { it.copy(boardName = it.boardName.removeSuffix(" version").trimEnd()) }
+        updateBootloaderSafe(boards)
+    }
+
+    private fun FullInicializeConnectionStruct.toBoardItem() =
+        BootloaderBoardItemUBI4(
+            boardName = PreferenceKeysUBI4.DeviceCode.from(deviceCode).title,
+            deviceCode = deviceCode,
+            deviceAddress = 0,
+            canUpdate = true
+        )
+
+
+    private fun BaseSubDeviceInfoStruct.toBoardItem() =
+        BootloaderBoardItemUBI4(
+            boardName = PreferenceKeysUBI4.DeviceCode.from(deviceCode).title,
+            deviceCode = deviceCode,
+            deviceAddress = deviceAddress,
+            canUpdate = true
+        )
+
+
+    fun updateBoardVersion(deviceAddress: Int, version: String) {
+        val fresh = bootloaderAdapter.currentList.map { item ->
+            if (item.deviceAddress == deviceAddress)          // ← ищем по адресу
+                item.copy(boardName = "${item.boardName}  $version")
+            else item
+        }
+        updateBootloaderSafe(fresh)
+    }
+
+    private fun updateAccountSafe(item: AccountMainUBI4Item) =
+        binding.accountRv.post { accountAdapter.submitProfile(item) }
+
+    private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) =
+        binding.accountRv.post { bootloaderAdapter.submitBoards(list) }
     companion object {
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }

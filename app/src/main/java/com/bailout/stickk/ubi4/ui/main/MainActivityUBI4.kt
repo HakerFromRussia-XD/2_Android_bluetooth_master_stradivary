@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.ui.main
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
@@ -19,14 +18,11 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -35,7 +31,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
@@ -51,12 +46,12 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
-import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
@@ -80,7 +75,6 @@ import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
-import java.io.File
 import kotlin.properties.Delegates
 
 
@@ -120,7 +114,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val window = this.window
         window.statusBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
-        setContentView(view)
+//        setContentView(view)
         initAllVariables()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         observeBattery()
@@ -165,7 +159,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //получение серийного номера
         val requestData = BLECommands.requestProductInfoType()
         Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
-        main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestProductInfoType(0x00.toByte()), MAIN_CHANNEL, WRITE){}
 
         val dialogManager = DialogManager(this) {
             mBLEController.disconnect()
@@ -179,49 +173,63 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-            val dir = getExternalFilesDir(null)
-            val items: MutableList<FirmwareFileItem> = dir
-                ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
-                ?.map { f ->
-                    FirmwareFileItem(name = f.name, file = File(f.path))
-                }
-                ?.toMutableList()
-                ?: mutableListOf()
+//            val dir = getExternalFilesDir(null)
+//            val items: MutableList<FirmwareFileItem> = dir
+//                ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+//                ?.map { f ->
+//                    FirmwareFileItem(name = f.name, file = File(f.path))
+//                }
+//                ?.toMutableList()
+//                ?: mutableListOf()
+//
+//            // 2) Inflate диалога и RecyclerView
+//            val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
+//            val dialog = AlertDialog.Builder(this)
+//                .setView(view)
+//                .create()
+//
+//            val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
+//            val adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
+//                override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
+//                    items.removeAt(position)
+//                    // уведомляем RV
+//                    rv.adapter?.notifyItemRemoved(position)
+//                }
+//                override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
+//                    // запускаем реальный runCommand, передаём путь
+////                    startFirmwareUpload(fileItem.file)
+//                    onComplete()
+//                    dialog.dismiss()
+//                    showConfirmSendFirmwareFileDialog {
+//
+//                    }
+//                }
+//            })
+//
+//            rv.layoutManager = LinearLayoutManager(this)
+//            rv.adapter = adapter
+//
+//            view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn)
+//                .setOnClickListener { dialog.dismiss() }
+//
+//            dialog.show()
 
-            // 2) Inflate диалога и RecyclerView
-            val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
-            val dialog = AlertDialog.Builder(this)
-                .setView(view)
-                .create()
+//            val cmd = BLECommands.requestProductFWInfoType()
+//
+//            // 2. Логируем в hex – сразу видно, что именно ушло
+//            val hex = EncodeByteToHex.bytesToHexString(cmd)
+//            Log.d("FW_INFO_SEND", "→ $hex")
+//
+//            // 3. Отправляем через очередь BLE
+//            bleCommandWithQueue(cmd, MAIN_CHANNEL, WRITE) {
+//                // колбэк onChunkSent() – выполнится, когда пакет покинет очередь
+//                Log.d("FW_INFO_SEND", "→ пакет отправлен в GATT")
+//            }
 
-            val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
-            val adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
-                override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
-                    items.removeAt(position)
-                    // уведомляем RV
-                    rv.adapter?.notifyItemRemoved(position)
-                }
-                override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
-                    // запускаем реальный runCommand, передаём путь
-//                    startFirmwareUpload(fileItem.file)
-                    onComplete()
-                    dialog.dismiss()
-                    showConfirmSendFirmwareFileDialog {
-
-                    }
-                }
-            })
-
-            rv.layoutManager = LinearLayoutManager(this)
-            rv.adapter = adapter
-
-            view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn)
-                .setOnClickListener { dialog.dismiss() }
-
-            dialog.show()
         }
 
     }
+
 
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -239,11 +247,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
-        bleCommandWithQueue(
-            BLECommands.requestProductInfoType(),
-            MAIN_CHANNEL,
-            WRITE
-        ) {}
+//        bleCommandWithQueue(
+//            BLECommands.requestProductInfoType(0x00.toByte()),
+//            MAIN_CHANNEL,
+//            WRITE
+//        ) {}
     }
 
     override fun onDestroy() {
@@ -453,11 +461,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
-    override fun updateSerialNumber(deviceInfo: DeviceInfoStructs) {
-        val serialNumber = "${deviceInfo.deviceUUIDPrefix}${deviceInfo.formattedDeviceUUID}"
-        mDeviceName = serialNumber
+    override fun updateSerialNumber(info: DeviceInfoStructs) {
+        val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
+        val uuidOk = info.deviceUUID != 0
+        if (!isCpu || !uuidOk) return          // игнорируем саб-модули
+        val serial = "${info.deviceUUIDPrefix}${info.formattedDeviceUUID}"
+        mDeviceName = serial
+        runOnUiThread { binding.nameTv.text = serial }
+    }
+
+    override fun updateFirmwareInfo(info: FirmwareInfoStruct) {
         runOnUiThread {
-            binding.nameTv.text = serialNumber
+            (supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                    as? AccountFragmentMainUBI4)
+                ?.updateBoardVersion(info.deviceAddress, info.fwVersion)
         }
     }
 

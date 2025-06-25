@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -24,7 +25,7 @@ object WidgetState {
     var plotArray by Delegates.notNull<ArrayList<Int>>()
     var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
-    
+
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()

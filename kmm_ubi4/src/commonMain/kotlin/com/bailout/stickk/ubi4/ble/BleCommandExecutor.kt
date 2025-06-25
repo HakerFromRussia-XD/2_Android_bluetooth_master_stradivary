@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 
 interface BleCommandExecutor {
@@ -8,4 +9,5 @@ interface BleCommandExecutor {
     fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit)
     fun sendWidgetsArray()
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs)
+    fun updateFirmwareInfo(info: FirmwareInfoStruct)
 }

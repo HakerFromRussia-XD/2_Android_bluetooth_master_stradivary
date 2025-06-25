@@ -16,6 +16,7 @@ interface ConstantManagerUBI4 {
         const val ADDITIONAL_INFO_SIZE_STRUCT_SIZE = 8*2
         const val CHECKPOINT_NAME = "checkpoint.ckpt"
         const val PARAMS_BIN_NAME = "params.bin"
+        const val DATA_MANAGER_PAYLOAD_OFFSET = (HEADER_BLE_OFFSET + 3) * 2
 
         const val DEVICE_TYPE_FEST_X: String = "FEST-X"
         const val DEVICE_TYPE_FEST_F: String = "FEST-F"

@@ -11,6 +11,8 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -54,12 +56,14 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DATA_MANAGER_PAYLOAD_OFFSET
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
@@ -84,6 +88,7 @@ class BLEParser(
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
 
+    private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
 
@@ -361,8 +366,8 @@ class BLEParser(
                     }
 
                 }
-
             }
+
         }
     }
 
@@ -375,7 +380,7 @@ class BLEParser(
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 platformLog("BLE_DEVINFO", "▶ INITIALIZE_INFORMATION пакет, packageByte=$packageCodeRequest, ID=$ID, addr=$deviceAddress, rawData=$receiveDataString")
                 parseInitializeInformation(receiveDataString)
-
+//                parseInitializeInformation(deviceAddress, receiveDataString)
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
                 try {
@@ -451,6 +456,7 @@ class BLEParser(
             DataManagerCommand.READ_DATA.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_DATA")
                 parseProductInfoType(receiveDataString)
+                parseProductFwInfoType(receiveDataString)
             }
             DataManagerCommand.WRITE_DATA.number -> {
                 platformLog("BLEParser", "TEST parser 2 WRITE_DATA")
@@ -462,23 +468,24 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 SAVE_DATA")
             }
         }
+
     }
 
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+
         platformLog("BLE_PARSER", "▶ parseInitializeInformation → $fullInicializeConnectionStruct")
-//        if (fullInicializeConnectionStruct.programType == 2) {
-//            platformLog("BLE_FLOW", "Устройство в бутлоадере — останавливаем инициализацию")
-//            return
-//        }
         bleCommandExecutor.bleCommandWithQueue(
             BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
             MAIN_CHANNEL,
             WRITE
         ) {}
+
+
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
     }
+
 
     private fun parseReadDeviceParameters(receiveDataString: String) {
         platformLog("BLEParserTest", "▶️ parseReadDeviceParameters start, raw=${receiveDataString.take(40)}…")
@@ -609,6 +616,16 @@ class BLEParser(
                     ) {}
                 }
 
+
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestProductInfoType(),
+                    MAIN_CHANNEL, WRITE) {}
+
+                baseSubDevicesInfoStructSet.forEach { sub ->
+                    bleCommandExecutor.bleCommandWithQueue(
+                        BLECommands.requestProductFWInfoType(sub.deviceAddress),
+                        MAIN_CHANNEL, WRITE) {}
+                }
 //                val test = subDeviceChankParametersCounter*10
 //                val test2 = numberCount
 //                val test3 = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
@@ -840,7 +857,35 @@ class BLEParser(
         )
         platformLog("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
         bleCommandExecutor.updateSerialNumber(deviceInfoStructs)
+
     }
+
+
+//    private fun parseProductFwInfoType(hex: String) {
+//
+//        val payload = hex.substring(16)                               // 7-байт header -> вон
+//        val fwInfo  = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
+//
+//        platformLog("parseProductFwInfoType", "fwInfoStruct = $fwInfo")
+//
+//        platformLog("FW_INFO_RX", "code=${fwInfo.fwCode}  ver=${fwInfo.fwVersion}")
+//
+//        // ➜  единая точка выхода наружу
+//        bleCommandExecutor.updateFirmwareInfo(fwInfo)
+//    }
+    private fun parseProductFwInfoType(hex: String) {
+        val deviceAddr = castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        val payload = hex.substring(16)
+
+        val fw = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
+            .copy(deviceAddress = deviceAddr)
+
+    platformLog("parseProductInfoTypefw", "fw = $fw")
+    platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
+        bleCommandExecutor.updateFirmwareInfo(fw)
+    }
+
+
 
     private fun getNextIDParameter(ID: Int): Int {
         for (item in baseParametrInfoStructArray.indices) {

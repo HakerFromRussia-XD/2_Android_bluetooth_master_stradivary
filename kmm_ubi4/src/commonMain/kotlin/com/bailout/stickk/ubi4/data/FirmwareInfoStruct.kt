@@ -43,15 +43,6 @@ data class FirmwareInfoStruct(
     val fwVersion: String
         get() = "$fwMajor.$fwMinor.$fwQuickFix"
 
-    val displayName: String
-        get() {
-            // 1) берём base-title: “Cpu module version”
-            val rawTitle = PreferenceKeysUBI4.DeviceCode.from(deviceCode).title
-            // 2) убрать суффикс " version"
-            val baseName = rawTitle.removeSuffix(" version")
-            // 3) склеить с версией
-            return "$baseName $fwVersion"
-        }
 }
 
 

@@ -52,6 +52,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
@@ -86,6 +87,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
 //    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
+
 
 
     private var bluetoothLeService: BluetoothLeService? = null
@@ -169,6 +171,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.accountBtn.setOnClickListener {
+            sendFwInfoRequests()
             showAccountScreen()
         }
 
@@ -214,17 +217,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //
 //            dialog.show()
 
-//            val cmd = BLECommands.requestProductFWInfoType()
 //
-//            // 2. Логируем в hex – сразу видно, что именно ушло
-//            val hex = EncodeByteToHex.bytesToHexString(cmd)
-//            Log.d("FW_INFO_SEND", "→ $hex")
-//
-//            // 3. Отправляем через очередь BLE
-//            bleCommandWithQueue(cmd, MAIN_CHANNEL, WRITE) {
-//                // колбэк onChunkSent() – выполнится, когда пакет покинет очередь
-//                Log.d("FW_INFO_SEND", "→ пакет отправлен в GATT")
-//            }
 
         }
 
@@ -259,23 +252,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.cleanup()
     }
 
-    private fun showConfirmSendFirmwareFileDialog( onConfirm:() -> Unit) {
-        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_send_firmware_file, null)
-        val myDialog = Dialog(this)
-        myDialog.setContentView(dialogFileBinding)
-        myDialog.setCancelable(false)
-        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        myDialog.show()
 
-        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmSendFirmwareBtn)
-        confirmBtn.setOnClickListener {
-            onConfirm()
-        }
-        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogSendFirmwareCancelBtn)
-        cancelBtn.setOnClickListener {
-            myDialog.dismiss()
-        }
-    }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
@@ -470,14 +447,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         runOnUiThread { binding.nameTv.text = serial }
     }
 
-    override fun updateFirmwareInfo(info: FirmwareInfoStruct) {
-        runOnUiThread {
-            (supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-                    as? AccountFragmentMainUBI4)
-                ?.updateBoardVersion(info.deviceAddress, info.fwVersion)
+
+    private fun sendFwInfoRequests() {
+        // CPU
+        bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE) {}
+        // Sub-devices (если уже известны)
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            bleCommandWithQueue(
+                BLECommands.requestProductFWInfoType(sub.deviceAddress),
+                MAIN_CHANNEL, WRITE
+            ) {}
         }
     }
-
 
     private fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable

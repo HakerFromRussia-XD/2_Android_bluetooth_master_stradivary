@@ -18,12 +18,13 @@ class BootloaderAdapterUBI4(
     }
     object Diff : DiffUtil.ItemCallback<BootloaderBoardItemUBI4>() {
         override fun areItemsTheSame(o: BootloaderBoardItemUBI4, n: BootloaderBoardItemUBI4) =
-            o.deviceCode == n.deviceCode
+            o.deviceAddress == n.deviceAddress
         override fun areContentsTheSame(o: BootloaderBoardItemUBI4, n: BootloaderBoardItemUBI4) = o == n
     }
 
     inner class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title     : TextView = view.findViewById(R.id.board_name_tv)
+        val versionTv : TextView = view.findViewById(R.id.boardVerTv)
         val updateBtn : TextView = view.findViewById(R.id.update_btn)   // ← было Button
     }
 
@@ -35,11 +36,12 @@ class BootloaderAdapterUBI4(
 
     override fun onBindViewHolder(holder: BoardViewHolder, position: Int) {
         val item = getItem(position)
-        holder.title.text = item.boardName
+
+        holder.title.text    = item.boardName
+        holder.versionTv.text = item.version
         holder.updateBtn.isEnabled = item.canUpdate
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
     }
-
     /** Передаём новый список плат в адаптер. */
     fun submitBoards(list: List<BootloaderBoardItemUBI4>) = submitList(list)
 }

@@ -41,13 +41,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_trash"
-        app:layout_constraintBottom_toBottomOf="@+id/deleteBtn"
-        app:layout_constraintEnd_toEndOf="@+id/deleteBtn"
-        app:layout_constraintStart_toStartOf="@+id/deleteBtn"
-        app:layout_constraintTop_toTopOf="@+id/deleteBtn" />
+        app:layout_constraintBottom_toBottomOf="@+id/deleteFwBtn"
+        app:layout_constraintEnd_toEndOf="@+id/deleteFwBtn"
+        app:layout_constraintStart_toStartOf="@+id/deleteFwBtn"
+        app:layout_constraintTop_toTopOf="@+id/deleteFwBtn" />
 
     <View
-        android:id="@+id/deleteBtn"
+        android:id="@+id/deleteFwBtn"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="16dp"

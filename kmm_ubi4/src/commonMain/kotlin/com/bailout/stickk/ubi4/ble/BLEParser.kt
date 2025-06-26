@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
@@ -882,7 +883,8 @@ class BLEParser(
 
     platformLog("parseProductInfoTypefw", "fw = $fw")
     platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
-        bleCommandExecutor.updateFirmwareInfo(fw)
+//        bleCommandExecutor.updateFirmwareInfo(fw)
+        FirmwareInfoState.emitFirmwareInfo(fw)
     }
 
 

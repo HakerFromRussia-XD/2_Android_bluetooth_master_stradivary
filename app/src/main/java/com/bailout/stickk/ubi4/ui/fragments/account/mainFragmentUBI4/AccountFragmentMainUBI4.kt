@@ -1,32 +1,43 @@
 package com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
+import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
+import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
@@ -34,10 +45,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
+import java.util.Properties
+import java.util.zip.ZipFile
 import kotlin.math.min
 import kotlin.properties.Delegates
-
-import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderCardAdapter
 
 
 //TODO изменить импорты из UBI3 для фрагмента "help"
@@ -67,8 +80,13 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private lateinit var accountAdapter: AccountMainAdapterUBI4
     private lateinit var bootloaderAdapter: BootloaderAdapterUBI4
     private lateinit var concatAdapter: ConcatAdapter
+    private val boardNameByAddr = mutableMapOf<Int, String>()
+
 
     private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
+
+    private val fwVersions = mutableMapOf<Int, String>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -101,6 +119,18 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         encryptionManager = EncryptionManagerUtils.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                FirmwareInfoState.firmwareInfoFlow.collect { fw ->
+                    // апдейтим конкретную плату
+                    fwVersions[fw.deviceAddress] = fw.fwVersion
+//                    updateBoardVersion(fw.deviceAddress, fw.fwVersion)
+//                    showBoardsVersion()
+                    refreshBoards()
+                }
+            }
+        }
+
 
 
         //кнопка назад самого андроида - дублируем код из backBtn
@@ -127,7 +157,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         binding.preloaderLav.visibility = View.VISIBLE
         requestToken()
         initializeUI()
-        showBoardsVersion()
+//        showBoardsVersion()
+        refreshBoards()
     }
 
     @SuppressLint("CheckResult")
@@ -296,6 +327,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) {
+                showFirmwareFilesDialog(item)
                 Toast.makeText(requireContext(), "Update ${item.boardName}", Toast.LENGTH_SHORT).show()
             }
         }
@@ -436,54 +468,186 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         main?.saveString(PreferenceKeysUBI4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
-//    private fun addFakeBoards() {
-//        val fake = listOf(
-//            BootloaderBoardItemUBI4("Board 01", 0x01, true),
-//            BootloaderBoardItemUBI4("Board 02", 0x02, false),
-//            BootloaderBoardItemUBI4("Board 03", 0x03, true)
-//        )
-//        updateBootloaderSafe(fake)
-//    }
 
-    private fun showBoardsVersion() {
+
+
+    private fun rebuildBoardNameCache() {
+        boardNameByAddr.clear()
+        // CPU (addr = 0)
+        fullInicializeConnectionStruct?.let {
+            boardNameByAddr[0] =
+                PreferenceKeysUBI4.DeviceCode
+                    .from(it.deviceCode)
+                    .title.removeSuffix(" version")      // ← важно!
+        }
+
+        // Sub-devices
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            boardNameByAddr[sub.deviceAddress] =
+                PreferenceKeysUBI4.DeviceCode
+                    .from(sub.deviceCode)
+                    .title.removeSuffix(" version")      // ← то же
+        }
+    }
+
+
+    private fun refreshBoards() {
+        // старт
+        Log.d("refreshBoards", ">>> called, fullInit=$fullInicializeConnectionStruct, subsSize=${baseSubDevicesInfoStructSet.size}, fwVersions=$fwVersions")
+
+        // 1) Перекешируем имена
+        rebuildBoardNameCache()
+        Log.d("refreshBoards", ">>> name cache = $boardNameByAddr")
+
+        // 2) Строим список
         val boards = buildList {
-            fullInicializeConnectionStruct?.let { add(it.toBoardItem()) }
+            fullInicializeConnectionStruct?.let { cpu ->
+                val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
+                val nameCpu = boardNameByAddr[0] ?: "Unknown"
+                Log.d("refreshBoards", "Adding CPU -> addr=0, code=${cpu.deviceCode}, name=$nameCpu, version=$versionCpu")
+                add(
+                    BootloaderBoardItemUBI4(
+                        boardName     = nameCpu,
+                        deviceCode    = cpu.deviceCode,
+                        deviceAddress = 0,
+                        canUpdate     = true,
+                        version       = versionCpu
+                    )
+                )
+            }
 
             baseSubDevicesInfoStructSet.forEach { sub ->
-                add(sub.toBoardItem())
+                val addr = sub.deviceAddress
+                val versionSub = fwVersions.getOrDefault(addr, "—")
+                val nameSub = boardNameByAddr[addr] ?: "Unknown"
+                Log.d("refreshBoards", "Adding Sub -> addr=$addr, code=${sub.deviceCode}, name=$nameSub, version=$versionSub")
+                add(
+                    BootloaderBoardItemUBI4(
+                        boardName     = nameSub,
+                        deviceCode    = sub.deviceCode,
+                        deviceAddress = addr,
+                        canUpdate     = true,
+                        version       = versionSub
+                    )
+                )
             }
         }
-            .distinctBy { it.deviceCode } // вдруг дубликаты
-            .map { it.copy(boardName = it.boardName.removeSuffix(" version").trimEnd()) }
+            .distinctBy { it.deviceAddress }
+
+        // финал
+        Log.d("refreshBoards", "<<< built boards (${boards.size}): $boards")
         updateBootloaderSafe(boards)
     }
 
-    private fun FullInicializeConnectionStruct.toBoardItem() =
-        BootloaderBoardItemUBI4(
-            boardName = PreferenceKeysUBI4.DeviceCode.from(deviceCode).title,
-            deviceCode = deviceCode,
-            deviceAddress = 0,
-            canUpdate = true
-        )
+    private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
+        // 1) Собираем список ZIP-файлов
+        val dir = requireActivity().getExternalFilesDir(null)
+        val items: MutableList<FirmwareFileItem> = dir
+            ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+            ?.map { f -> FirmwareFileItem(name = f.name, file = f) }
+            ?.toMutableList()
+            ?: mutableListOf()
+
+        // 2) Inflate диалога и RecyclerView
+        val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(view)
+            .create()
+
+        val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
+        val adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
+            override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
+                items.removeAt(position)
+                rv.adapter?.notifyItemRemoved(position)
+            }
+
+                override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
+                try {
+                    ZipFile(fileItem.file).use { zip ->
+                        val entry = zip.entries().asSequence()
+                            .firstOrNull { it.name.equals("FW_ini.ini", ignoreCase = true) }
+
+                        if (entry == null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "В архиве нет FW_ini.ini", Toast.LENGTH_SHORT
+                            ).show()
+                            return
+                        }
+
+                        val props = Properties().apply {
+                            zip.getInputStream(entry).use { load(it) }
+                        }
+                        val nameIniRaw = props.getProperty("BoardName") ?: ""
+                        val codeIni = props.getProperty("BoardCode")?.toIntOrNull() ?: -1
+
+                        // 1) Сравниваем коды
+                        if (codeIni != boardItem.deviceCode) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Неверный код модуля: в INI=$codeIni, ожидается=${boardItem.deviceCode}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return
+                        }
+
+                        // 2) Сравниваем названия без учёта регистра и подчёркиваний
+                        fun String.norm() = replace('_', ' ')
+                            .trim()
+                            .lowercase()
+                        if (nameIniRaw.norm() != boardItem.boardName.norm()) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Неверный модуль: INI='${nameIniRaw}', ожидается='${boardItem.boardName}'",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return
+                        }
+
+                        // Всё совпало!
+                        Log.d("FW_UPLOAD", "OK: ${boardItem.boardName}(${boardItem.deviceCode})")
+                        onComplete()
+                        dialog.dismiss()
+                        showConfirmSendFirmwareFileDialog { /*…*/ }
+                    }
+                } catch (e: IOException) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Ошибка чтения ZIP: ${e.message}", Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        })
 
 
-    private fun BaseSubDeviceInfoStruct.toBoardItem() =
-        BootloaderBoardItemUBI4(
-            boardName = PreferenceKeysUBI4.DeviceCode.from(deviceCode).title,
-            deviceCode = deviceCode,
-            deviceAddress = deviceAddress,
-            canUpdate = true
-        )
+        rv.layoutManager = LinearLayoutManager(requireContext())
+        rv.adapter = adapter
 
+        view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn)
+            .setOnClickListener { dialog.dismiss() }
 
-    fun updateBoardVersion(deviceAddress: Int, version: String) {
-        val fresh = bootloaderAdapter.currentList.map { item ->
-            if (item.deviceAddress == deviceAddress)          // ← ищем по адресу
-                item.copy(boardName = "${item.boardName}  $version")
-            else item
-        }
-        updateBootloaderSafe(fresh)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
     }
+
+    private fun showConfirmSendFirmwareFileDialog( onConfirm:() -> Unit) {
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_send_firmware_file, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmSendFirmwareBtn)
+        confirmBtn.setOnClickListener {
+            onConfirm()
+        }
+        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogSendFirmwareCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
+        }
+    }
+
 
     private fun updateAccountSafe(item: AccountMainUBI4Item) =
         binding.accountRv.post { accountAdapter.submitProfile(item) }

@@ -38,30 +38,6 @@ open class CompositeDelegateAdapter(
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         adapterState = newAdapterState
         diffResult.dispatchUpdatesTo(this)
-//        recyclerView?.smoothScrollToPosition(0)
-
-
-//        // новый вариант
-//        val oldData = adapterState.data
-//
-//        // 2) собираем DiffUtil.Callback на лету, делегируя сравнение в ваш itemCallback
-//        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-//            override fun getOldListSize() = oldData.size
-//            override fun getNewListSize() = data.size
-//
-//            override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean {
-//                return itemCallback.areItemsTheSame(oldData[oldPos], data[newPos])
-//            }
-//
-//            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
-//                return itemCallback.areContentsTheSame(oldData[oldPos], data[newPos])
-//            }
-//            // опционально можно override getChangePayload(...)
-//        })
-//
-//        // 3) обновляем состояние и диспатчим
-//        adapterState = adapterState.copy(data = data)
-//        diff.dispatchUpdatesTo(this)
     }
 
     // Добавьте WeakReference для RecyclerView в адаптер

@@ -4,11 +4,11 @@ package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 //import platform.Mo
 //import MotoricaStart
 //import MotoricaBLEB
-import platform.Foundation.*
-import kotlinx.cinterop.*
-import platform.CoreBluetooth.CBCharacteristic
-import platform.Foundation.NSData
-import platform.Foundation.dataWithBytes
+//import platform.Foundation.*
+//import kotlinx.cinterop.*
+//import platform.CoreBluetooth.CBCharacteristic
+//import platform.Foundation.NSData
+//import platform.Foundation.dataWithBytes
 
 
 //actual object BleCommandDispatcher {
@@ -30,13 +30,13 @@ import platform.Foundation.dataWithBytes
 //    }
 //}
 
-actual object BleCommandDispatcher {
-    actual fun bleCommandWithQueue(
-        // Вызов функции из вашего существующего класса BluetoothRepositoryImpl
-//        val bluetoothRepo = BluetoothRepositoryImpl()
-//        bluetoothRepo.connectToDevice(deviceId)
-    }
-}
+//actual object BleCommandDispatcher {
+//    actual fun bleCommandWithQueue(
+//        // Вызов функции из вашего существующего класса BluetoothRepositoryImpl
+////        val bluetoothRepo = BluetoothRepositoryImpl()
+////        bluetoothRepo.connectToDevice(deviceId)
+//    }
+//}
 
 
 //@ExperimentalForeignApi

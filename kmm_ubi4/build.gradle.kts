@@ -58,7 +58,7 @@ kotlin {
             baseName = "Shared"
             export("org.jetbrains.kotlinx:kotlinx-coroutines-core")
         }
-        pod("MotoricaBLEBridge", path = file("/Users/motoricallc/Documents/iOs/iOS-Clean-Architecture-MVVM"))
+//        pod("MotoricaBLEBridge", path = file("/Users/motoricallc/Documents/iOs/iOS-Clean-Architecture-MVVM"))
     }
 
     sourceSets {

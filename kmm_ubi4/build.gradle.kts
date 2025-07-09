@@ -44,21 +44,19 @@ android {
 
 kotlin {
     androidTarget()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
-    cocoapods {
-        summary = "Shared business logic"
-        homepage = "https://github.com/your-repo"
-        version = "1.0.0"
-        ios.deploymentTarget = "14.0"
-        framework {
-            baseName = "Shared"
-            export("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "shared"
+            isStatic = true
         }
-//        pod("MotoricaBLEBridge", path = file("/Users/motoricallc/Documents/iOs/iOS-Clean-Architecture-MVVM"))
     }
+
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
         val commonMain by getting {

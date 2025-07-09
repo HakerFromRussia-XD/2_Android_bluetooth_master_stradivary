@@ -11,6 +11,7 @@ pluginManagement {
                 "org.jetbrains.kotlin.plugin.serialization" -> useVersion("1.9.22")
                 "org.jetbrains.kotlin.multiplatform" -> useVersion("1.9.22")
                 "org.jetbrains.kotlin.native.cocoapods" -> useVersion("1.9.22")
+                "org.jetbrains.kotlin.plugin.compose" -> useVersion("1.9.22")
             }
         }
     }

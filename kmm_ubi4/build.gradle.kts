@@ -1,8 +1,11 @@
 plugins {
-    id("com.android.library")
-    id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
     kotlin("multiplatform")
+    kotlin("plugin.compose")
+    id("com.android.library")
+    id("org.jetbrains.compose")
     kotlin("plugin.serialization")
+    id("kotlin-parcelize")
+    id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
     id("org.jetbrains.kotlin.native.cocoapods")
 }
 
@@ -32,14 +35,10 @@ android {
         }
     }
 
-
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-
-
 }
 
 

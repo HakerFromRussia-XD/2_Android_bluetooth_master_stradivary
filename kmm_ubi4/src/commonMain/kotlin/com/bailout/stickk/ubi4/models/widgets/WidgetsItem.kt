@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 
 // Объявляем ожидаемый тип для представления файлов в KMM
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect class PlatformFile(path: String) {
     val path: String
     fun delete(): Boolean

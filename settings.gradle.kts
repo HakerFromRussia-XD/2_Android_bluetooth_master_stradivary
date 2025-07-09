@@ -3,6 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
     resolutionStrategy {
@@ -11,7 +12,8 @@ pluginManagement {
                 "org.jetbrains.kotlin.plugin.serialization" -> useVersion("1.9.22")
                 "org.jetbrains.kotlin.multiplatform" -> useVersion("1.9.22")
                 "org.jetbrains.kotlin.native.cocoapods" -> useVersion("1.9.22")
-                "org.jetbrains.kotlin.plugin.compose" -> useVersion("1.9.22")
+                "org.jetbrains.compose" -> useVersion("1.8.2")
+                "org.jetbrains.kotlin.plugin.compose" -> useVersion("2.0.0")
             }
         }
     }

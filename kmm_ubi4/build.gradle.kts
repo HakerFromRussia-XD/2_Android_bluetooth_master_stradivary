@@ -59,6 +59,12 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
+        all {
+            languageSettings {
+                optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+            }
+        }
+
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
@@ -67,7 +73,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:2.3.2")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:2.0.0")
                 implementation("dev.icerock.moko:resources:0.24.5")
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")

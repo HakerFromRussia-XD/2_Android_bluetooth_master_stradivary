@@ -32,13 +32,29 @@ class Ubi4TrainingRepository(
         return "$capitalizedType ${body.accessToken}"
     }
 
+//    suspend fun fetchAndSavePassport(
+//        token: String,
+//        serial: String,
+//        cacheDir: File
+//    ): File {
+//        val resp = api.getPassportData(auth = token, serial = serial)
+//        if (!resp.isSuccessful) throw IOException("Passport failed ${resp.code()}")
+//        val pr = resp.body()!!
+//        val out = File(cacheDir, pr.filename)
+//        out.writeText(pr.content)
+//        return out
+//    }
     suspend fun fetchAndSavePassport(
         token: String,
         serial: String,
         cacheDir: File
     ): File {
         val resp = api.getPassportData(auth = token, serial = serial)
-        if (!resp.isSuccessful) throw IOException("Passport failed ${resp.code()}")
+        if (!resp.isSuccessful) {
+            val err = resp.errorBody()?.string().orEmpty()
+            Log.e("Ubi4Repo", "Passport failed ${resp.code()}: $err")
+            throw IOException("Passport failed ${resp.code()}: $err")
+        }
         val pr = resp.body()!!
         val out = File(cacheDir, pr.filename)
         out.writeText(pr.content)

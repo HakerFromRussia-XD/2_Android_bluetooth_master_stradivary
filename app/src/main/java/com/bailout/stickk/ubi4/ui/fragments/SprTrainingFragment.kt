@@ -670,11 +670,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
             } catch (e: IOException) {
                 withContext(Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "На сервере ведутся работы. Повторите позже!",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
                 }
             }
         }

@@ -87,6 +87,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
 //    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
+    var dialogManager: DialogManager? = null
 
 
 
@@ -163,11 +164,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
         main.bleCommandWithQueue(BLECommands.requestProductInfoType(0x00.toByte()), MAIN_CHANNEL, WRITE){}
 
-        val dialogManager = DialogManager(this) {
+        dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
             mBLEController.disconnect()
         }
         binding.nameTv.setOnClickListener {
-            dialogManager.showDisconnectDialog()
+            dialogManager?.showDisconnectDialog()
         }
 
         binding.accountBtn.setOnClickListener {

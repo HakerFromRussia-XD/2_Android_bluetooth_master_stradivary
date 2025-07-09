@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.WRITE_FW_COMMAND
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
@@ -17,6 +18,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -318,6 +323,72 @@ object BLECommands {
             READ_DATA.number,
             DTCE_FW_INFO_TYPE.number
         )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+
+    //TODO сделать параметр для бриджа
+    fun requestRunProgramType(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),                               // read-request
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,                         // длина → ниже
+            0x00,
+            0x00,
+            deviceAddress                       // адрес саб-платы
+        )
+        val data = byteArrayOf(GET_RUN_PROGRAM_TYPE.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+    fun jumpToBootloader(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),                               // write-request
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(JUMP_TO_BOOTLOADER.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+    fun requestStartSystemUpdate(deviceAddress: Byte = 0x00): ByteArray {
+        val header = byteArrayOf(
+            0x20.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,                                     // длина → выставим ниже
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(START_SYSTEM_UPDATE.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size ushr 8).toByte()
+        return header + data
+    }
+
+    fun getBootloaderInfo(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),                               // write-request
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(GET_BOOTLOADER_INFO.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data

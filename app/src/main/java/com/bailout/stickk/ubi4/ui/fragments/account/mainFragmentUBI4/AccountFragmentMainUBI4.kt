@@ -25,10 +25,15 @@ import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
+import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -44,6 +49,10 @@ import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -560,62 +569,61 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 items.removeAt(position)
                 rv.adapter?.notifyItemRemoved(position)
             }
-
                 override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
-                try {
-                    ZipFile(fileItem.file).use { zip ->
-                        val entry = zip.entries().asSequence()
-                            .firstOrNull { it.name.equals("FW_ini.ini", ignoreCase = true) }
-
-                        if (entry == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "В архиве нет FW_ini.ini", Toast.LENGTH_SHORT
-                            ).show()
-                            return
-                        }
-
-                        val props = Properties().apply {
-                            zip.getInputStream(entry).use { load(it) }
-                        }
-                        val nameIniRaw = props.getProperty("BoardName") ?: ""
-                        val codeIni = props.getProperty("BoardCode")?.toIntOrNull() ?: -1
-
-                        // 1) Сравниваем коды
-                        if (codeIni != boardItem.deviceCode) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Неверный код модуля: в INI=$codeIni, ожидается=${boardItem.deviceCode}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return
-                        }
-
-                        // 2) Сравниваем названия без учёта регистра и подчёркиваний
-                        fun String.norm() = replace('_', ' ')
-                            .trim()
-                            .lowercase()
-                        if (nameIniRaw.norm() != boardItem.boardName.norm()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Неверный модуль: INI='${nameIniRaw}', ожидается='${boardItem.boardName}'",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return
-                        }
-
-                        // Всё совпало!
-                        Log.d("FW_UPLOAD", "OK: ${boardItem.boardName}(${boardItem.deviceCode})")
-                        onComplete()
-                        dialog.dismiss()
-                        showConfirmSendFirmwareFileDialog { /*…*/ }
-                    }
-                } catch (e: IOException) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Ошибка чтения ZIP: ${e.message}", Toast.LENGTH_SHORT
-                    ).show()
-                }
+//                try {
+//                    ZipFile(fileItem.file).use { zip ->
+//                        val entry = zip.entries().asSequence()
+//                            .firstOrNull { it.name.equals("FW_ini.ini", ignoreCase = true) }
+//
+//                        if (entry == null) {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "В архиве нет FW_ini.ini", Toast.LENGTH_SHORT
+//                            ).show()
+//                            return
+//                        }
+//
+//                        val props = Properties().apply {
+//                            zip.getInputStream(entry).use { load(it) }
+//                        }
+//                        val nameIniRaw = props.getProperty("BoardName") ?: ""
+//                        val codeIni = props.getProperty("BoardCode")?.toIntOrNull() ?: -1
+//
+//                        // 1) Сравниваем коды
+//                        if (codeIni != boardItem.deviceCode) {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Неверный код модуля: в INI=$codeIni, ожидается=${boardItem.deviceCode}",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                            return
+//                        }
+//
+//                        // 2) Сравниваем названия без учёта регистра и подчёркиваний
+//                        fun String.norm() = replace('_', ' ')
+//                            .trim()
+//                            .lowercase()
+//                        if (nameIniRaw.norm() != boardItem.boardName.norm()) {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Неверный модуль: INI='${nameIniRaw}', ожидается='${boardItem.boardName}'",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                            return
+//                        }
+//
+//                        // Всё совпало!
+//                        Log.d("FW_UPLOAD", "OK: ${boardItem.boardName}(${boardItem.deviceCode})")
+//                        onComplete()
+//                        dialog.dismiss()
+                        main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, fileItem) {  }
+//                    }
+//                } catch (e: IOException) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Ошибка чтения ZIP: ${e.message}", Toast.LENGTH_SHORT
+//                    ).show()
+//                }
             }
         })
 
@@ -630,23 +638,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         dialog.show()
     }
 
-    private fun showConfirmSendFirmwareFileDialog( onConfirm:() -> Unit) {
-        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_send_firmware_file, null)
-        val myDialog = Dialog(requireContext())
-        myDialog.setContentView(dialogFileBinding)
-        myDialog.setCancelable(false)
-        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        myDialog.show()
 
-        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmSendFirmwareBtn)
-        confirmBtn.setOnClickListener {
-            onConfirm()
-        }
-        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogSendFirmwareCancelBtn)
-        cancelBtn.setOnClickListener {
-            myDialog.dismiss()
-        }
-    }
 
 
     private fun updateAccountSafe(item: AccountMainUBI4Item) =

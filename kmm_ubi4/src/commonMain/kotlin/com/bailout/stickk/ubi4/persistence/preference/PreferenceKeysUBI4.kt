@@ -399,6 +399,63 @@ object PreferenceKeysUBI4 {
         }
     }
 
+    enum class FirmwareManagerCommand(val number: Byte) {
+        GET_RUN_PROGRAM_TYPE   (0x01),
+        JUMP_TO_BOOTLOADER     (0x02),
+        CHECK_NEW_FW           (0x03),
+        PRELOAD_INFO           (0x04),
+        LOAD_NEW_FW            (0x05),
+        GET_BOOTLOADER_STATUS  (0x06),
+        CALCULATE_CRC          (0x07),
+        COMPLETE_UPDATE        (0x08),
+        GET_BOOTLOADER_INFO    (0x09),
+        CHECK_NEW_BOOTLOADER   (0x0A),
+        LOAD_NEW_BOOTLOADER    (0x0B),
+        GET_MAX_CHANK_SIZE     (0x0C),
+        START_SYSTEM_UPDATE    (0x0D),
+        FINISH_SYSTEM_UPDATE   (0x0E)
+    }
+
+    /** Ответ на GET_RUN_PROGRAM_TYPE */
+    enum class RunProgramType(val code: Int) {
+        MAIN_APP   (0x01),
+        BOOTLOADER (0x02);
+        //from(v: Int) берёт число v (байт, который прислала плата)
+        // и ищет в списке констант RunProgramType ту одну, у которой поле code равно этому числу.
+        // В итоге вы получаете не «сырое» число, а понятную константу MAIN_APP или BOOTLOADER.
+        companion object { fun from(code: Int) = values().first { it.code == code } }
+    }
+
+    /** Ответ на GET_BOOTLOADER_STATUS */
+    enum class BootloaderStatus(val code: Int) {
+        IDLE                   (0x01),
+        PROCESSING_CLEAR       (0x02),
+        DONE_CLEAR             (0x03),
+        PRELOAD_STATE          (0x04),
+        CONTINUE_WRITE_FW      (0x05),
+        CHECK_INFO_FW          (0x06),
+        PROCESSING_CRC         (0x07),
+        DONE_CRC               (0x08);
+        companion object { fun from(code: Int) = values().first { it.code == code } }
+    }
+
+
+    enum class StartSystemUpdateStatus(val code: Int) {
+        NEW_FW_ACCEPT   (1),
+        READY_TO_UPDATE (2),
+        PART_WRITEN     (3),
+        UPDATE_COMPLETE (4),
+        NEW_FW_NOT_ACCEPT  (5),
+        MEMORY_NOT_READY   (6),
+        PART_NOT_WRITEN    (7),
+        UNKNOW_ERROR       (8);
+
+        companion object {
+            fun from(code: Int) = values().firstOrNull { it.code == code }
+                ?: UNKNOW_ERROR
+        }
+    }
+
     //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),

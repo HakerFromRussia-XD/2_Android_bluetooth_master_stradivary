@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Switch
+import android.widget.Toast
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -138,14 +139,10 @@ class SwitcherDelegateAdapter(
             Log.d("RequestUtilsSwitch",  "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
         }
 
-//        Handler().postDelayed({
-//            main.bleCommandWithQueue(
-//                BLECommands.requestSwitcher(addressDevice, parameterID),
-//                MAIN_CHANNEL,
-//                SampleGattAttributes.WRITE)
-//        }, 500)
 
-        switchCollect()
+         switchCollect()
+
+
     }
 
     private fun clearCache() {
@@ -176,9 +173,15 @@ class SwitcherDelegateAdapter(
     private fun switchCollect() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                switcherFlow.collect { parameterRef ->
-                    setUI(parameterRef)
+                try {
+                    switcherFlow.collect { parameterRef ->
+                        setUI(parameterRef)
+                    }
                 }
+                catch (e:Exception){
+                    main.showToast("error widgets SIOBE")
+                }
+
             }
         }
     }

@@ -11,9 +11,11 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -47,6 +49,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
@@ -54,17 +57,16 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DATA_MANAGER_PAYLOAD_OFFSET
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
@@ -88,6 +90,7 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
+
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
     fun parseReceivedData(data: ByteArray?) {
@@ -148,6 +151,43 @@ class BLEParser(
                         parseDataManger(packageCodeRequest, receiveDataString)
                     }
                     BaseCommands.WRITE_FW_COMMAND.number -> {
+                        when (packageCodeRequest) {
+                            PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                startSystemUpdateFlow.tryEmit(statusCode)
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number -> {
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                // 1) читаем первый payload-байт (или 0, если пришло меньше)
+                                val statusByte = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                // 2) пробуем найти в enum, иначе дефолтим на MAIN_APP
+                                val runType = PreferenceKeysUBI4.RunProgramType.values()
+                                    .firstOrNull { it.code == statusByte }
+                                    ?: PreferenceKeysUBI4.RunProgramType.MAIN_APP
+                                platformLog("FW_FLOW", "GET_RUN_PROGRAM_TYPE ← addr=$deviceAddress  runType=$runType")
+                                runProgramTypeFlow.tryEmit(Pair(deviceAddress, runType))
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number -> {
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                // 2) Безопасно достаём байт (или 0, если данных меньше)
+                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                // 3) Мапим в enum, дефолтим в IDLE
+                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                    .firstOrNull { it.code == statusCode }
+                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                platformLog("FW_FLOW", "GET_BOOTLOADER_STATUS ← $status")
+                                bootloaderStatusFlow.tryEmit(status)
+                            }
+
+                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
+                                val start = HEADER_BLE_OFFSET + 1
+                                val payload = data.drop(start).map { it.toInt().and(0xFF) }
+                                platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
+                                bootloaderInfoFlow.tryEmit(payload)
+                            }
+
+                        }
                         platformLog("BLEParser", "TEST parser WRITE_FW_COMMAND")
                     }
                     BaseCommands.DEVICE_ACCESS_COMMAND.number -> {

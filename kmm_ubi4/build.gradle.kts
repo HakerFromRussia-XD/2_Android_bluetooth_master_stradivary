@@ -51,7 +51,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "shared"
+            baseName = "kmm_ubi4"
             isStatic = true
         }
     }
@@ -67,6 +67,10 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.components.resources)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
@@ -81,8 +85,9 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("androidx.core:core-ktx:1.15.0")
-                implementation("androidx.appcompat:appcompat:1.7.0")
+                api("androidx.activity:activity-compose:1.8.2")
+                api("androidx.appcompat:appcompat:1.7.0")
+                api("androidx.core:core-ktx:1.15.0")
                 implementation("com.google.android.material:material:1.12.0")
                 implementation("io.ktor:ktor-client-okhttp:2.3.2")
                 implementation("dev.icerock.moko:resources:0.24.5")
@@ -100,32 +105,6 @@ kotlin {
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
         }
-
-//        val iosMain by creating {
-//            dependsOn(commonMain)
-//            kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
-//            dependencies {
-//                implementation("io.ktor:ktor-client-darwin:2.3.2")
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-//            }
-//        }
-//        val iosX64Main by getting { dependsOn(iosMain) }
-//        val iosArm64Main by getting { dependsOn(iosMain) }
-//        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
-//
-//        val commonTest by getting {
-//            dependencies {
-//                implementation(kotlin("test"))
-//                implementation("junit:junit:4.13.2")
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-//            }
-//        }
-//        val androidUnitTest by getting {
-//            dependencies {
-//                implementation("androidx.test.ext:junit:1.2.1")
-//                implementation("androidx.test.espresso:espresso-core:3.6.1")
-//            }
-//        }
     }
 }
 

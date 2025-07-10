@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
-    id("org.jetbrains.kotlin.native.cocoapods")
+//    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 android {
@@ -101,31 +101,31 @@ kotlin {
             kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
         }
 
-        val iosMain by creating {
-            dependsOn(commonMain)
-            kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:2.3.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-            }
-        }
-        val iosX64Main by getting { dependsOn(iosMain) }
-        val iosArm64Main by getting { dependsOn(iosMain) }
-        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation("junit:junit:4.13.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-            }
-        }
-        val androidUnitTest by getting {
-            dependencies {
-                implementation("androidx.test.ext:junit:1.2.1")
-                implementation("androidx.test.espresso:espresso-core:3.6.1")
-            }
-        }
+//        val iosMain by creating {
+//            dependsOn(commonMain)
+//            kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
+//            dependencies {
+//                implementation("io.ktor:ktor-client-darwin:2.3.2")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+//            }
+//        }
+//        val iosX64Main by getting { dependsOn(iosMain) }
+//        val iosArm64Main by getting { dependsOn(iosMain) }
+//        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+//
+//        val commonTest by getting {
+//            dependencies {
+//                implementation(kotlin("test"))
+//                implementation("junit:junit:4.13.2")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+//            }
+//        }
+//        val androidUnitTest by getting {
+//            dependencies {
+//                implementation("androidx.test.ext:junit:1.2.1")
+//                implementation("androidx.test.espresso:espresso-core:3.6.1")
+//            }
+//        }
     }
 }
 

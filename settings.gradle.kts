@@ -11,7 +11,7 @@ pluginManagement {
             when (requested.id.id) {
                 "org.jetbrains.kotlin.plugin.serialization" -> useVersion("2.0.0")
                 "org.jetbrains.kotlin.multiplatform" -> useVersion("2.0.0")
-                "org.jetbrains.kotlin.native.cocoapods" -> useVersion("2.0.0")
+//                "org.jetbrains.kotlin.native.cocoapods" -> useVersion("2.0.0")
                 "org.jetbrains.compose" -> useVersion("1.8.2")
                 "org.jetbrains.kotlin.plugin.compose" -> useVersion("2.0.0")
             }

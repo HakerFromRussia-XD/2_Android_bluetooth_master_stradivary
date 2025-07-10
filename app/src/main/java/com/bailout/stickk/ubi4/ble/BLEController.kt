@@ -106,7 +106,6 @@ class BLEController() {
         }
     }
 
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!main.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -195,8 +194,6 @@ class BLEController() {
                 }
             }
         }
-
-
 
 
     private suspend fun firstNotificationRequest()  {

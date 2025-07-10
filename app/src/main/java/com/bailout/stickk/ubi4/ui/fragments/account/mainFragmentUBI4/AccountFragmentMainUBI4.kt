@@ -110,11 +110,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         // Передаем серийный номер из активности, если нужно
         val deviceName = main?.mDeviceName
         //TODO после теста убрать фильтр по названию серийного номера
-        serialNumber = deviceName
-            .takeIf { !it.isNullOrBlank() && it.startsWith("FEST-") }
-            ?: serialNumber
+//        serialNumber = deviceName
+//            .takeIf { !it.isNullOrBlank() && it.startsWith("FEST-") }
+//            ?: serialNumber
 
 //        serialNumber = main?.mDeviceName ?: serialNumber
+        serialNumber = deviceName ?: serialNumber
         System.err.println("TEST SERIAL NUMBER $serialNumber")
         return binding.root
     }

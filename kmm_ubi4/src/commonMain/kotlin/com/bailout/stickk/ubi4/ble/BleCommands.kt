@@ -394,6 +394,22 @@ object BLECommands {
         return header + data
     }
 
+    fun requestCheckNewFw(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,                                      
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size ushr 8).toByte()
+        return header + data
+    }
+
     fun sendTimestampInfo(
         addressDevice: Int,
         parameterID: Int,

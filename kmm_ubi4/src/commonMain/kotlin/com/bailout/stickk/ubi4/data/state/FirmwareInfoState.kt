@@ -13,6 +13,7 @@ object FirmwareInfoState {
     val bootloaderStatusFlow = MutableSharedFlow<PreferenceKeysUBI4.BootloaderStatus>(extraBufferCapacity = 4)
     val bootloaderInfoFlow = MutableSharedFlow<List<Int>>(replay = 1)
     val startSystemUpdateFlow = MutableSharedFlow<Int>(replay = 1)
+    val checkNewFwFlow = MutableSharedFlow<Int>(replay = 1)
 
 
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {

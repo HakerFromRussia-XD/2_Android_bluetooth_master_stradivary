@@ -455,6 +455,22 @@ object PreferenceKeysUBI4 {
                 ?: UNKNOW_ERROR
         }
     }
+    enum class CheckNewFwStatus(val code: Int) {
+        NEW_FW_ACCEPT      (1),
+        READY_TO_UPDATE    (2),
+        PART_WRITTEN       (3),
+        UPDATE_COMPLETE    (4),
+
+        NEW_FW_NOT_ACCEPT  (5),
+        MEMORY_NOT_READY   (6),
+        PART_NOT_WRITTEN   (7),
+        UNKNOWN_ERROR      (8);
+
+        companion object {
+            fun from(code: Int) = values().firstOrNull { it.code == code }
+                ?: UNKNOWN_ERROR
+        }
+    }
 
     //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {

@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
+import com.bailout.stickk.ubi4.data.network.UserRetrofitInstance
 
 class RequestsUBI4 {
     @SuppressLint("SetTextI18n")
@@ -25,7 +26,7 @@ class RequestsUBI4 {
     suspend fun getRequestToken(token: (String) -> Unit, error: (String) -> Unit, encryptedSerialNumber: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getToken(encryptedSerialNumber)
+                UserRetrofitInstance.api.getToken(encryptedSerialNumber)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -48,7 +49,7 @@ class RequestsUBI4 {
     suspend fun getRequestUser(clientData: (User) -> Unit, error: (String) -> Unit, token: String, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getUserInfo("Bearer $token", lang)
+                UserRetrofitInstance.api.getUserInfo("Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -71,7 +72,7 @@ class RequestsUBI4 {
     suspend fun getRequestUserV2(clientData: (UserV2) -> Unit, error: (String) -> Unit, token: String, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getUserInfoV2("Bearer $token", lang)
+                UserRetrofitInstance.api.getUserInfoV2("Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -94,7 +95,7 @@ class RequestsUBI4 {
     suspend fun getRequestDevicesList(devicesList: (ArrayList<DeviceInList_DEV>) -> Unit, error: (String) -> Unit, token: String, clientId: Int, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getDevicesList(clientId, "Bearer $token", lang)
+                UserRetrofitInstance.api.getDevicesList(clientId, "Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -116,7 +117,7 @@ class RequestsUBI4 {
     suspend fun getRequestDeviceInfo(devicesInfo: (DeviceInfo) -> Unit, error: (String) -> Unit, token: String, deviceId: Int, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getDeviceInfo(deviceId, "Bearer $token", lang)
+                UserRetrofitInstance.api.getDeviceInfo(deviceId, "Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -148,7 +149,7 @@ class RequestsUBI4 {
                 System.err.println("mSettings MAXIMUM_POINTS ${InitAllOptionsUBI4.myAllOptions.maximumPoints}")
                 System.err.println("mSettings NUMBER_OF_CUPS ${InitAllOptionsUBI4.myAllOptions.numberOfCups}")
 
-                RetrofitInstanceUBI4.api.createPost(
+                UserRetrofitInstance.api.createPost(
                     deviceId,
                     "Bearer $token",
                     TestModel(gson.toJson(classForReceive))
@@ -172,7 +173,7 @@ class RequestsUBI4 {
     suspend fun getRequestProthesisSettings(allOptions: (AllOptions) -> Unit, error: (String) -> Unit, token: String, prosthesisId: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstanceUBI4.api.getRequestProthesisSettings(prosthesisId, "Bearer $token")
+                UserRetrofitInstance.api.getRequestProthesisSettings(prosthesisId, "Bearer $token")
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch

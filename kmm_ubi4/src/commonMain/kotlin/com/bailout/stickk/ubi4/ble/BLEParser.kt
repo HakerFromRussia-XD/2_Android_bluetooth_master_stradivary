@@ -186,6 +186,19 @@ class BLEParser(
                                 platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
                                 bootloaderInfoFlow.tryEmit(payload)
                             }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
+                                val rawHex = data.joinToString(" ") { byte ->
+                                    // получаем unsigned-значение в Int
+                                    val unsigned = byte.toInt() and 0xFF
+                                    // переводим в hex-строку, делаем её заглавной и дополняем до 2 символов
+                                    unsigned.toString(16).uppercase().padStart(2, '0')
+                                }
+                                platformLog("FW_FLOW", "CHECK_NEW_FW raw data = [$rawHex]")
+                                val payloadIndex = HEADER_BLE_OFFSET
+                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
+                                FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
+                            }
 
                         }
                         platformLog("BLEParser", "TEST parser WRITE_FW_COMMAND")

@@ -81,25 +81,25 @@ class DialogManager(
                 Log.d("FW_FLOW", "CONFIRM  addr=$addr (${board.boardName})")
 
                 viewLifecycleOwner.lifecycleScope.launch {
-
+// 1) Запускаем системное обновление
                     Log.d("FW_FLOW", "TX START_SYSTEM_UPDATE")
                     main?.bleCommandWithQueue(
                         BLECommands.requestStartSystemUpdate(),
                         MAIN_CHANNEL, WRITE
-                    ) {  }
+                    ) { }
                     val rawStatus = startSystemUpdateFlow.first()
-                    val status = PreferenceKeysUBI4.StartSystemUpdateStatus.from(rawStatus)
-                    Log.d("FW_FLOW", "RX START_SYSTEM_UPDATE status=$status")
-                    if (status != PreferenceKeysUBI4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
-                        Log.e("FW_FLOW", "Не удалось запустить системное обновление, статус=$status")
+                    val startStatus = PreferenceKeysUBI4.StartSystemUpdateStatus.from(rawStatus)
+                    Log.d("FW_FLOW", "RX START_SYSTEM_UPDATE status=$startStatus")
+                    if (startStatus != PreferenceKeysUBI4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
                         Toast.makeText(context,
-                            "Не удалось начать обновление (status=$status)",
+                            "Не удалось начать обновление (status=$startStatus)",
                             Toast.LENGTH_LONG
                         ).show()
                         dlg.dismiss()
                         return@launch
                     }
-                    // функция, которая шлёт GET_RUN_PROGRAM_TYPE и читает первый пришедший статус
+
+                    // 2) Читаем RUN_PROGRAM_TYPE
                     suspend fun readRunType(): PreferenceKeysUBI4.RunProgramType {
                         Log.d("FW_FLOW", "TX GET_RUN_PROGRAM_TYPE")
                         main?.bleCommandWithQueue(
@@ -112,44 +112,62 @@ class DialogManager(
                             .first()
                     }
 
-                    // шаг 1: прочитать начальный статус
                     val initial = readRunType()
                     Log.d("FW_FLOW", "RX initial status = $initial")
 
-                    // если плата уже в bootloader — сразу выходим и вызываем onConfirm
+                    // 3) Если уже в загрузчике — сразу получаем инфо
                     if (initial == PreferenceKeysUBI4.RunProgramType.BOOTLOADER) {
-                        main?.bleCommandWithQueue(BLECommands.getBootloaderInfo(addr.toByte()), MAIN_CHANNEL, WRITE) { }
-                        Log.d("FW_FLOW", "Плата уже в bootloader — сразу запускаем прошивку")
+                        Log.d("FW_FLOW", "Плата уже в bootloader — получаем инфо")
+                    } else {
+                        // иначе прыгаем в загрузчик
+                        Log.d("FW_FLOW", "TX JUMP_TO_BOOTLOADER")
+                        main?.bleCommandWithQueue(
+                            BLECommands.jumpToBootloader(addr.toByte()),
+                            MAIN_CHANNEL, WRITE
+                        ) { }
+                        delay(800)
+                        Log.d("FW_FLOW", "TX GET_RUN_PROGRAM_TYPE (после delay)")
+                        main?.bleCommandWithQueue(
+                            BLECommands.requestRunProgramType(addr.toByte()),
+                            MAIN_CHANNEL, WRITE
+                        ) { }
+                        runProgramTypeFlow
+                            .filter { it.first == addr && it.second == PreferenceKeysUBI4.RunProgramType.BOOTLOADER }
+                            .first()
+                        Log.d("FW_FLOW", "BOOTLOADER готов")
+                    }
+
+                    // 4) Запрашиваем информацию о загрузчике
+                    Log.d("FW_FLOW", "TX GET_BOOTLOADER_INFO")
+                    main?.bleCommandWithQueue(
+                        BLECommands.getBootloaderInfo(addr.toByte()),
+                        MAIN_CHANNEL, WRITE
+                    ) { }
+
+                    // 5) Ждём и обрабатываем ответ GET_BOOTLOADER_INFO
+                    val infoPayload = FirmwareInfoState.bootloaderInfoFlow.first()
+                    Log.d("FW_FLOW", "RX GET_BOOTLOADER_INFO payload=$infoPayload")
+                    // здесь можно распарсить байты из infoPayload по вашему enum’у
+
+                    // 6) И сразу после этого – CHECK_NEW_FW
+                    Log.d("FW_FLOW", "TX CHECK_NEW_FW")
+                    main?.bleCommandWithQueue(
+                        BLECommands.requestCheckNewFw(addr.toByte()),
+                        MAIN_CHANNEL, WRITE
+                    ) { }
+                    val raw = FirmwareInfoState.checkNewFwFlow.first()
+                    val status = PreferenceKeysUBI4.CheckNewFwStatus.from(raw)
+                    Log.e("FW_FLOW", "CHECK_NEW_FW ← raw=$raw mapped=$status")
+                    if (status != PreferenceKeysUBI4.CheckNewFwStatus.NEW_FW_ACCEPT) {
+                        Toast.makeText(context,
+                            "Модуль не готов к записи (status=$status)",
+                            Toast.LENGTH_LONG
+                        ).show()
                         dlg.dismiss()
-                        onConfirm(fileItem)
                         return@launch
                     }
 
-                    // иначе — переводим в bootloader
-                    Log.d("FW_FLOW", "TX JUMP_TO_BOOTLOADER")
-                    main?.bleCommandWithQueue(
-                        BLECommands.jumpToBootloader(addr.toByte()),
-                        MAIN_CHANNEL, WRITE
-                    ) { }
-
-                    // даём плате время перезагрузиться
-                    delay(800)
-
-                    // шаг 2: опрашиваем, пока не получим BOOTLOADER
-                    Log.d("FW_FLOW", "TX GET_RUN_PROGRAM_TYPE (после delay)")
-                    main?.bleCommandWithQueue(
-                        BLECommands.requestRunProgramType(addr.toByte()),
-                        MAIN_CHANNEL, WRITE
-                    ) { }
-
-                    Log.d("FW_FLOW", "Ждём BOOTLOADER...")
-                    runProgramTypeFlow
-                        .filter { it.first == addr && it.second == PreferenceKeysUBI4.RunProgramType.BOOTLOADER }
-                        .first()
-                    Log.d("FW_FLOW", "BOOTLOADER готов")
-                    Log.d("FW_FLOW", "TX GET_BOOTLOADER_INFO")
-                    main?.bleCommandWithQueue(BLECommands.getBootloaderInfo(addr.toByte()), MAIN_CHANNEL, WRITE) { }
-                    // всё готово — закрываем окно и исполняем прошивку
+                    // 7) Все проверки пройдены — шлём файл
                     dlg.dismiss()
                     onConfirm(fileItem)
                 }

@@ -1,10 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import android.content.Context
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -24,7 +22,7 @@ import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
-import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
+import com.bailout.stickk.ubi4.data.network.PassportRetrofitInstance
 import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
@@ -34,7 +32,6 @@ import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -51,7 +48,7 @@ class MotionTrainingFragment(
     private val onFinishTraining: () -> Unit
 ) : Fragment() {
 
-    private val repo = Ubi4TrainingRepository(RetrofitInstanceUBI4.api)
+    private val repo = Ubi4TrainingRepository(PassportRetrofitInstance.api)
 
     // View Binding
     private var _binding: Ubi4FragmentMotionTrainingBinding? = null

@@ -1,12 +1,11 @@
 package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context.MODE_PRIVATE
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import android.content.Context.MODE_PRIVATE
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,22 +23,22 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.network.RetrofitInstanceUBI4
+import com.bailout.stickk.ubi4.data.network.PassportRetrofitInstance
 import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 import com.bailout.stickk.ubi4.models.widgets.PlatformFile
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ARG_LAST_EMG8
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
-import com.simform.refresh.SSPullToRefreshLayout
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
+import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
@@ -70,7 +69,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private val display = 3
 
-    private val repo = Ubi4TrainingRepository(RetrofitInstanceUBI4.api)
+    private val repo = Ubi4TrainingRepository(PassportRetrofitInstance.api)
 
     private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
 

@@ -1,8 +1,7 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.compose")
     id("com.android.library")
-    id("org.jetbrains.compose")
+    id("org.jetbrains.compose") version "1.5.14.1"
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
@@ -64,6 +63,7 @@ kotlin {
     sourceSets {
         all {
             languageSettings {
+                optIn("org.jetbrains.compose.ExperimentalComposeLibrary")
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
             }
         }
@@ -73,7 +73,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
-                implementation(compose.components.resources)
+//                implementation(compose.components.resources)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")

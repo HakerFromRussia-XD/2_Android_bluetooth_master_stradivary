@@ -48,7 +48,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
+//import butterknife.ButterKnife;
 import com.bailout.bluetooth.BluetoothConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.old_electronic_by_Misha.data.GesstureAdapter;
@@ -66,6 +66,8 @@ import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.service_settings.
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.service_settings.SettingsDialog;
 import com.bailout.stickk.old_electronic_by_Misha.utils.ConstantManager;
+
+import butterknife.ButterKnife;
 import timber.log.Timber;
 import static com.bailout.stickk.R.id.view_pager;
 
@@ -425,6 +427,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 .chatModule(new ChatModule(this))
                 .build().inject(this);
         ButterKnife.bind(this);
+//        binding = ActivityChatBinding.inflate(getLayoutInflater());
+//        setContentView(binding.getRoot());
 
 
         ////////initialized graph for channel 1

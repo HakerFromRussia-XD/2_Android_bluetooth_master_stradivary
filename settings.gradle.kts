@@ -9,9 +9,9 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when (requested.id.id) {
-                "org.jetbrains.kotlin.plugin.serialization" -> useVersion("1.9.24")
-                "org.jetbrains.kotlin.multiplatform" -> useVersion("1.9.24")
-                "org.jetbrains.compose" -> useVersion("1.5.14.1")
+                "org.jetbrains.kotlin.plugin.serialization" -> useVersion("2.0.0")
+                "org.jetbrains.kotlin.multiplatform" -> useVersion("2.0.0")
+                "org.jetbrains.compose" -> useVersion("1.7.0")
             }
         }
     }

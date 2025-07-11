@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.5.14.1"
+    id("org.jetbrains.compose") version "1.7.0"
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
@@ -88,7 +88,7 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.8.2")
+                api("androidx.activity:activity-compose:1.7.0")
                 api("androidx.appcompat:appcompat:1.7.0")
                 api("androidx.core:core-ktx:1.15.0")
                 implementation("com.google.android.material:material:1.12.0")

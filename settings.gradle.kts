@@ -30,4 +30,4 @@ rootProject.name = "2_Android_bluetooth_master_stradivary"
 include(":app")
 include(":bluetooth")
 include(":delegateadapter")
-include(":kmm_ubi4")
+include(":shared")

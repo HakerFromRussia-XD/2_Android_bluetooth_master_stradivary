@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-    spec.name                     = 'kmm_ubi4'
+    spec.name                     = 'shared'
     spec.version                  = '1.0.0'
     spec.homepage                 = 'https://github.com/your-repo'
     spec.source                   = { :http=> ''}
@@ -17,19 +17,19 @@ Pod::Spec.new do |spec|
         Kotlin framework 'Shared' doesn't exist yet, so a proper Xcode project can't be generated.
         'pod install' should be executed after running ':generateDummyFramework' Gradle task:
 
-            ./gradlew :kmm_ubi4:generateDummyFramework
+            ./gradlew :shared:generateDummyFramework
 
         Alternatively, proper pod installation is performed during Gradle sync in the IDE (if Podfile location is set)"
     end
                 
     spec.pod_target_xcconfig = {
-        'KOTLIN_PROJECT_PATH' => ':kmm_ubi4',
+        'KOTLIN_PROJECT_PATH' => ':shared',
         'PRODUCT_MODULE_NAME' => 'Shared',
     }
                 
     spec.script_phases = [
         {
-            :name => 'Build kmm_ubi4',
+            :name => 'Build shared',
             :execution_position => :before_compile,
             :shell_path => '/bin/sh',
             :script => <<-SCRIPT

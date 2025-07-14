@@ -5,7 +5,6 @@ plugins {
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
-//    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 android {
@@ -53,7 +52,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "kmm_ubi4"
+            baseName = "shared"
             isStatic = true
         }
     }

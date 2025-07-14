@@ -43,6 +43,7 @@ android {
 }
 
 kotlin {
+    val kotlinVersion = project.property("kotlin.version") as String
     androidTarget()
 
     listOf(
@@ -78,7 +79,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:2.3.2")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
                 implementation("dev.icerock.moko:resources:0.24.5")
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")

@@ -1,13 +1,11 @@
 plugins {
-    kotlin("multiplatform") //apply false
-//    id("org.jetbrains.kotlin.plugin.compose")
-//    kotlin("plugin.compose")
-    id("org.jetbrains.compose") //apply false
-    kotlin("plugin.serialization") //apply false
-    id("com.android.library") //apply false
-    kotlin("plugin.parcelize") //apply false
-    id("dev.icerock.mobile.multiplatform-resources") //apply false
-    kotlin("jvm") apply false
+    kotlin("multiplatform")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.compose")
+    kotlin("plugin.serialization")
+    id("com.android.library")
+    kotlin("plugin.parcelize")
+    id("dev.icerock.mobile.multiplatform-resources")
 }
 
 android {
@@ -38,17 +36,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin {
-        jvmToolchain(17)
-    }
 }
 
 kotlin {
     val kotlinVersion = project.property("kotlin.version") as String
-    androidTarget()
-//    compilerOptions {
-//        jvmTarget.set(JvmTarget.fromTarget("17"))
-//    }
+//    androidTarget()
+    android{}
+    jvmToolchain(17)
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-Xjvm-default=all"))
+    }
 
     listOf(
         iosX64(),
@@ -113,10 +110,6 @@ kotlin {
         }
     }
 }
-
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//    kotlinOptions.jvmTarget = "17"
-//}
 
 multiplatformResources {
     resourcesPackage.set("com.bailout.stickk.ubi4")

@@ -1,5 +1,7 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id("org.jetbrains.kotlin.android")
+    id("com.android.library")
+}
 
 ext {
     PUBLISH_GROUP_ID = 'io.github.d00mch'

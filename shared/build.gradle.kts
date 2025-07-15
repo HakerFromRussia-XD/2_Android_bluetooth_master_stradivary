@@ -1,10 +1,13 @@
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
-    id("org.jetbrains.compose") version "1.7.0"
-    kotlin("plugin.serialization")
-    id("kotlin-parcelize")
-    id("dev.icerock.mobile.multiplatform-resources") version "0.24.5"
+    kotlin("multiplatform") //apply false
+//    id("org.jetbrains.kotlin.plugin.compose")
+//    kotlin("plugin.compose")
+    id("org.jetbrains.compose") //apply false
+    kotlin("plugin.serialization") //apply false
+    id("com.android.library") //apply false
+    kotlin("plugin.parcelize") //apply false
+    id("dev.icerock.mobile.multiplatform-resources") //apply false
+    kotlin("jvm") apply false
 }
 
 android {
@@ -20,8 +23,6 @@ android {
         java.srcDirs("src/androidMain/java")
         res.srcDirs("src/androidMain/res")
     }
-    // Дублирующая строка с res уже не нужна, но оставил на всякий случай:
-    // sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     buildTypes {
         getByName("release") {
@@ -45,6 +46,9 @@ android {
 kotlin {
     val kotlinVersion = project.property("kotlin.version") as String
     androidTarget()
+//    compilerOptions {
+//        jvmTarget.set(JvmTarget.fromTarget("17"))
+//    }
 
     listOf(
         iosX64(),
@@ -72,7 +76,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
-//                implementation(compose.components.resources)
+                implementation(compose.components.resources)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
@@ -110,9 +114,9 @@ kotlin {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "17"
-}
+//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+//    kotlinOptions.jvmTarget = "17"
+//}
 
 multiplatformResources {
     resourcesPackage.set("com.bailout.stickk.ubi4")

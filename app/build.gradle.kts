@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
-    id("kotlinx-serialization")
+    kotlin("plugin.serialization")
     id("com.diffplug.spotless")
 }
 
@@ -108,6 +108,9 @@ android {
 
 dependencies {
     val kotlinVersion = project.property("kotlin.version") as String
+    implementation(project(":bluetooth"))
+    implementation(project(":delegateadapter"))
+    implementation(project(":shared"))
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
@@ -184,9 +187,6 @@ dependencies {
 //    implementation 'com.android.support:support-v13:34.0.0'
 //    implementation 'com.android.support:support-v4:34.0.0'
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation(project(":bluetooth"))
-    implementation(project(":delegateadapter"))
-    implementation(project(":shared"))
 
     // dexter (permissions)
     implementation("com.karumi:dexter:6.2.3")
@@ -215,10 +215,7 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    // говорим Gradle использовать JUnit Platform (JUnit 5)
     useJUnitPlatform()
-
-    // при желании можно настраивать отчёты:
     reports {
         junitXml.required.set(true)
         html.required.set(false)

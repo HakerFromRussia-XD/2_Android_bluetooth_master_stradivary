@@ -22,6 +22,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Firmwar
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -394,21 +396,100 @@ object BLECommands {
         return header + data
     }
 
-    fun requestCheckNewFw(deviceAddress: Byte): ByteArray {
+    fun requestMaxChunkSize(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
             WRITE_FW_COMMAND.number,
-            0x00,                                      
+            0x00,
             0x00,
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number)
+        val data = byteArrayOf(GET_MAX_CHANK_SIZE.number)
         header[3] = data.size.toByte()
-        header[4] = (data.size ushr 8).toByte()
+        header[4] = (data.size / 256).toByte()
         return header + data
     }
+
+    fun requestCheckNewFw(
+        deviceAddress: Byte,
+        fwDesc: ByteArray
+    ): ByteArray {
+
+        val header = byteArrayOf(
+            0xA0.toByte(), // write-request
+            WRITE_FW_COMMAND.number,          // базовая команда 0x03
+            0x00,
+            0x00,
+            0x00,
+            0x00,           // здесь заполним длину
+            deviceAddress                     // адрес устройства
+        )
+
+        val data = byteArrayOf(
+            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number
+        ) + fwDesc
+
+        val len = data.size
+        header[3] = len.toByte()            // младший байт длины
+        header[4] = (len / 256).toByte()   // старший байт длины
+
+        return header + data
+    }
+
+    fun requestPreloadInfo(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(PRELOAD_INFO.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+    fun requestBootloaderStatus(deviceAddress: Byte): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00, // длина payload
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number)
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+    fun requestLoadNewFw(deviceAddress: Byte, offset: Int, chunk: ByteArray): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+        val data = byteArrayOf(
+            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number,
+            (offset and 0xFF).toByte(),
+            ((offset shr 8) and 0xFF).toByte()
+        ) + chunk
+        header[2] = data.size.toByte()
+        header[3] = (data.size / 256).toByte()
+        return header + data
+    }
+
+
 
     fun sendTimestampInfo(
         addressDevice: Int,

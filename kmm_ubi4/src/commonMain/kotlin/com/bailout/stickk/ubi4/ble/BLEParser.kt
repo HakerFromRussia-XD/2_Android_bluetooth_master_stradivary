@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
@@ -57,7 +58,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -151,6 +152,24 @@ class BLEParser(
                         parseDataManger(packageCodeRequest, receiveDataString)
                     }
                     BaseCommands.WRITE_FW_COMMAND.number -> {
+                        platformLog("FW_PARSER",
+                            "CHECK_NEW_FW: header=${data[0].toHex()} " +
+                                    "requestType=$requestType waitingAnsver=$waitingAnsver " +
+                                    "codeRequest=0x${data[1].toHex()}"
+                        )
+                        val cmdHex = (packageCodeRequest.toInt() and 0xFF)
+                            .toString(16)
+                            .padStart(2, '0')
+                            .uppercase()
+
+                        val rawHex = data.joinToString(" ") { byte ->
+                            (byte.toInt() and 0xFF)
+                                .toString(16)
+                                .padStart(2, '0')
+                                .uppercase()
+                        }
+
+                       platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
                         when (packageCodeRequest) {
                             PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
@@ -176,29 +195,57 @@ class BLEParser(
                                 val status = PreferenceKeysUBI4.BootloaderStatus.values()
                                     .firstOrNull { it.code == statusCode }
                                     ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
-                                platformLog("FW_FLOW", "GET_BOOTLOADER_STATUS ← $status")
                                 bootloaderStatusFlow.tryEmit(status)
                             }
 
                             PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
                                 val start = HEADER_BLE_OFFSET + 1
                                 val payload = data.drop(start).map { it.toInt().and(0xFF) }
-                                platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
+//                                platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
                                 bootloaderInfoFlow.tryEmit(payload)
                             }
                             PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
-                                val rawHex = data.joinToString(" ") { byte ->
-                                    // получаем unsigned-значение в Int
-                                    val unsigned = byte.toInt() and 0xFF
-                                    // переводим в hex-строку, делаем её заглавной и дополняем до 2 символов
-                                    unsigned.toString(16).uppercase().padStart(2, '0')
-                                }
+                                val rawHex = data.joinToString(" ")
                                 platformLog("FW_FLOW", "CHECK_NEW_FW raw data = [$rawHex]")
-                                val payloadIndex = HEADER_BLE_OFFSET
-                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
-                                platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
-                                FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
+                                    val payloadIndex = HEADER_BLE_OFFSET + 1
+                                    val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                    platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
+                                    FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
                             }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val payload = data.copyOfRange(payloadIndex, data.size)
+                                val rawHex = data.joinToString(" ") { byte ->
+                                    byte.toInt().and(0xFF).toString(16).padStart(2, '0')
+                                }
+                                platformLog("FW_FLOW", "GET_MAX_CHANK_SIZE raw data = [$rawHex]")
+                                val info = payload.toMaxChunkSizeInfo()
+                                FirmwareInfoState.maxChunkSizeFlow.tryEmit(Pair(deviceAddress, info))
+
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO.number -> {
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val code = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                // мапим в enum BootloaderStatus
+                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                    .firstOrNull { it.code == code }
+                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                platformLog("FW_FLOW", "PRELOAD_INFO ← status=$status")
+                                FirmwareInfoState.preloadInfoFlow.tryEmit(status)
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
+                                val rawHex = data.joinToString(" ") { byte ->
+                                    ((byte.toInt() and 0xFF).toString(16).padStart(2, '0')).uppercase()
+                                }
+                                platformLog("FW_FLOW_PARSER", "RAW LOAD_NEW_FW packet = [$rawHex]")
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val lo = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                val hi = data.getOrNull(payloadIndex + 1)?.toInt()?.and(0xFF) ?: 0
+                                val writtenBytes = lo or (hi shl 8)
+                                // Вот эту строку точно должно увидеть в Logcat
+                                FirmwareInfoState.chunkWrittenFlow.tryEmit(deviceAddress to writtenBytes)
+                            }
+
 
                         }
                         platformLog("BLEParser", "TEST parser WRITE_FW_COMMAND")
@@ -268,6 +315,11 @@ class BLEParser(
         }
     }
 
+    fun Byte.toHex(): String =
+        (this.toInt() and 0xFF)
+            .toString(16)
+            .uppercase()
+            .padStart(2, '0')
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {

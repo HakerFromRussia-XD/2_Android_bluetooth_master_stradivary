@@ -6,4 +6,6 @@ import java.io.File
 data class FirmwareFileItem(
     val name: String,
     val file: File
-)
+) {
+    val data: ByteArray by lazy { file.readBytes() }
+}

@@ -259,25 +259,6 @@ public class BluetoothLeService extends Service {
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 //        @Override
-//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_CONNECTED, status: " + status);
-//                BLEState.INSTANCE.publishConnecting();
-//                broadcastUpdate(ACTION_GATT_CONNECTED);
-//                requestMTU();
-//            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-//                Log.d("BLE_DEBUG11", "onConnectionStateChange: STATE_DISCONNECTED, status: " + status);
-//                BLEState.INSTANCE.publishDisconnect();
-//                broadcastUpdate(ACTION_GATT_DISCONNECTED);
-//                // Вызываем close() с небольшой задержкой, чтобы убедиться, что разрыв завершён
-//                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//                    close();
-//                }, 500);
-//            }
-//        }
-
-
-
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.d("onConnectionStateChangeTAG", "onConnectionStateChange: status=" + status + ", newState=" + newState);
             String intentAction;

@@ -1,22 +1,18 @@
 package com.bailout.stickk.ubi4.ui.main
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RotateDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -51,7 +47,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
@@ -62,8 +57,8 @@ import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
-import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
@@ -177,49 +172,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-//            val dir = getExternalFilesDir(null)
-//            val items: MutableList<FirmwareFileItem> = dir
-//                ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
-//                ?.map { f ->
-//                    FirmwareFileItem(name = f.name, file = File(f.path))
-//                }
-//                ?.toMutableList()
-//                ?: mutableListOf()
-//
-//            // 2) Inflate диалога и RecyclerView
-//            val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
-//            val dialog = AlertDialog.Builder(this)
-//                .setView(view)
-//                .create()
-//
-//            val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
-//            val adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
-//                override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
-//                    items.removeAt(position)
-//                    // уведомляем RV
-//                    rv.adapter?.notifyItemRemoved(position)
-//                }
-//                override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
-//                    // запускаем реальный runCommand, передаём путь
-////                    startFirmwareUpload(fileItem.file)
-//                    onComplete()
-//                    dialog.dismiss()
-//                    showConfirmSendFirmwareFileDialog {
-//
-//                    }
-//                }
-//            })
-//
-//            rv.layoutManager = LinearLayoutManager(this)
-//            rv.adapter = adapter
-//
-//            view.findViewById<View>(R.id.dialogFirmwareFileCancelBtn)
-//                .setOnClickListener { dialog.dismiss() }
-//
-//            dialog.show()
-
-//
-
+            val testCommand = byteArrayOf(
+                0xA0.toByte(), 0x03.toByte(), 0x00.toByte(), 0x13.toByte(),
+                0x00.toByte(), 0x00.toByte(), 0x08.toByte(), 0x03.toByte(),
+                0x4D.toByte(), 0x75.toByte(), 0x6C.toByte(), 0x74.toByte(),
+                0x69.toByte(), 0x67.toByte(), 0x72.toByte(), 0x69.toByte(),
+                0x70.toByte(), 0x46.toByte(), 0x00.toByte(), 0x02.toByte(),
+                0x07.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
+                0x02.toByte(), 0x01.toByte()
+            )
+            bleCommandWithQueue(
+                testCommand,
+                MAIN_CHANNEL, WRITE
+            ) { }
         }
 
     }
@@ -443,7 +408,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0
         if (!isCpu || !uuidOk) return          // игнорируем саб-модули
-        val serial = "${info.deviceUUIDPrefix}${info.formattedDeviceUUID}"
+        val serial = "${info.deviceUUIDPrefix}${'-'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         runOnUiThread { binding.nameTv.text = serial }
     }
@@ -478,6 +443,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
 
         }
+    }
+
+    fun bleDisconnect() {
+        bluetoothLeService?.disconnect()
+    }
+
+    /** Подключиться по адресу */
+    fun bleConnect(address: String) {
+        bluetoothLeService?.connect(address)
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

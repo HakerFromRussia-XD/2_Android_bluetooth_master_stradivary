@@ -126,16 +126,18 @@ class DialogManager(
 
                     // 8) Всё готово — отправляем файл чанками
                     lastMaxChunkInfo?.let { info ->
-                        val fwBytes = fileItem.file.readBytes()
-                        Log.d("FW_FLOW_DIALOG_MANAGER", "→ sendFirmware(addr=$addr, fwSize=${fwBytes.size}, chunkSize=${info.chunkSize}, bytesInterval=${info.bytesInterval}, timeoutMs=${info.timeoutMs})")
-                        updater.sendFirmware(
-                            addr       = addr,
-                            fw         = fileItem.data,
-                            chunkSize  = info.chunkSize,
-                            bytesInterval = info.bytesInterval,
-                            timeoutMs  = info.timeoutMs
-                        )
+                        Log.d("FW_FLOW_DIALOG_MANAGER", "→ sendFirmware(addr=$addr, fwSize=${fileItem.file}, chunkSize=${info.chunkSize}, bytesInterval=${info.bytesInterval}, timeoutMs=${info.timeoutMs})")
+                        updater.sendFirmware(addr, fileItem.file, info)
                     }
+                    // 9) Проверка CRC и финализация
+                    val crcOk = updater.checkFirmwareCrcAndCompleteUpdate(addr)
+                    if (!crcOk) {
+                        main?.showToast("CRC mismatch! Обновление не удалось.")
+                        return@launch
+                    } else {
+                        main?.showToast("Обновление успешно завершено!")
+                    }
+
                     dlg.dismiss()
                     onConfirm(fileItem)
                 }

@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.bailout.stickk.dev",
+  "applicationId": "com.bailout.stickk",
   "variantName": "release",
   "elements": [
     {

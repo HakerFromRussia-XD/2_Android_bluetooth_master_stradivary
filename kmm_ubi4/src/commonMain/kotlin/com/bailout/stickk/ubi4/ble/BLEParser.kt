@@ -234,16 +234,28 @@ class BLEParser(
                                 FirmwareInfoState.preloadInfoFlow.tryEmit(status)
                             }
                             PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
-                                val rawHex = data.joinToString(" ") { byte ->
-                                    ((byte.toInt() and 0xFF).toString(16).padStart(2, '0')).uppercase()
-                                }
-                                platformLog("FW_FLOW_PARSER", "RAW LOAD_NEW_FW packet = [$rawHex]")
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
-                                val lo = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                // 2) читаем 2-байт little-endian ответ (сколько записано)
+                                val lo = data.getOrNull(payloadIndex    )?.toInt()?.and(0xFF) ?: 0
                                 val hi = data.getOrNull(payloadIndex + 1)?.toInt()?.and(0xFF) ?: 0
                                 val writtenBytes = lo or (hi shl 8)
-                                // Вот эту строку точно должно увидеть в Logcat
+
+                                platformLog("FW_FLOW_PARSER", "parsed writtenBytes=$writtenBytes")
                                 FirmwareInfoState.chunkWrittenFlow.tryEmit(deviceAddress to writtenBytes)
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC.number -> {
+                                platformLog("FW_FLOW_PARSER", "CALCULATE_CRC response received — расчёт запущен, ждём DONE_CRC")
+                            }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE.number -> {
+                                val idx = HEADER_BLE_OFFSET + 1
+                                val raw = data.getOrNull(idx)?.toInt()?.and(0xFF) ?: 0
+                                val result = PreferenceKeysUBI4.CrcResult.from(raw)
+                                val isGood = (result == PreferenceKeysUBI4.CrcResult.GOOD_CRC_FIRMWARE)
+                                platformLog("FW_FLOW_PARSER", "COMPLETE_UPDATE ← raw=0x${raw.toString(16)} result=$result good=$isGood")
+                                // эмитим именно сюда
+                                FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
+                                // по необходимости можно оставить updateCompleteFlow для других слушателей:
+                                FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
                             }
 
 

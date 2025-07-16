@@ -21,6 +21,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import java.io.File
+import java.io.FileInputStream
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 
 class BleFirmwareUpdater {
@@ -128,39 +133,86 @@ class BleFirmwareUpdater {
         return bootloaderStatusFlow
             .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
     }
-
     suspend fun sendFirmware(
         addr: Int,
-        fw: ByteArray,
-        chunkSize: Int,
-        bytesInterval: Int,
-        timeoutMs: Int
+        zipFile: File,
+        maxInfo: MaxChunkSizeInfo
     ) {
+        // 1) Открываем ZIP и извлекаем .bin
+        val fwBytes: ByteArray = ZipFile(zipFile).use { zip ->
+            val entry = zip.entries().toList()
+                .first { !it.isDirectory && it.name.endsWith(".bin", ignoreCase = true) }
+            zip.getInputStream(entry).use { it.readBytes() }
+        }
+        // 2) Отправка чанков
         var offset = 0
-        var sinceInterval = 0
-
-        while (offset < fw.size) {
-            val end = minOf(offset + chunkSize, fw.size)
-            val chunk = fw.copyOfRange(offset, end)
-
-            val packet = BLECommands.requestLoadNewFw(addr.toByte(), offset, chunk)
-            Log.d("FW_FLOW", "Transmit LOAD_NEW_FW offset=$offset")
-
-            main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {
-                chunkWrittenFlow.tryEmit(offset to chunk.size)
+        chunkWrittenFlow.resetReplayCache()
+        while (offset < fwBytes.size) {
+            // размер текущего чанк
+            val partSize = minOf(maxInfo.chunkSize, fwBytes.size - offset)
+            val chunk = fwBytes.copyOfRange(offset, offset + partSize)
+            // отправляем чистый payload: [CMD, offsetLo, offsetHi, ...chunk...]
+            val packet = BLECommands.sendLoadNewFw(addr.toByte(), offset, chunk)
+            main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
+            Log.d("FW_FLOW", "→ отправили LOAD_NEW_FW payload size=$partSize, offset=$offset")
+            // ждём, сколько реально записано (парсер эмитит именно количество байт)
+            val written = FirmwareInfoState.chunkWrittenFlow
+                .filter { it.first == addr }
+                .map { it.second }
+                .first()
+            if (written <= 0) {
+                throw IllegalStateException("При offset=$offset ничего не записалось")
             }
-
-
-            offset += chunk.size
-            sinceInterval += chunk.size
-
-            if (sinceInterval >= bytesInterval) {
-                Log.d("FW_FLOW", "pause $timeoutMs ms after $sinceInterval bytes")
-                delay(timeoutMs.toLong())
-                sinceInterval = 0
+            offset += written
+            // пауза каждые bytesInterval
+            if (offset % maxInfo.bytesInterval == 0) {
+                delay(maxInfo.timeoutMs.toLong())
             }
         }
 
-        Log.d("FW_FLOW", "■■■ sendFirmware complete")
+        Log.d("FW_FLOW", "Все $offset байт прошивки отправлены успешно")
     }
+    suspend fun checkFirmwareCrcAndCompleteUpdate(addr: Int): Boolean {
+        // 1) Запускаем расчёт CRC
+        Log.d("FW_FLOW", "TX CALCULATE_CRC → addr=$addr")
+        main?.bleCommandWithQueue(
+            BLECommands.requestCalculateCrc(addr.toByte()),
+            MAIN_CHANNEL, WRITE
+        ) {}
+
+        // 2) Сразу запрашиваем статус загрузчика для отслеживания DONE_CRC
+        Log.d("FW_FLOW", "TX GET_BOOTLOADER_STATUS for CRC → addr=$addr")
+        main?.bleCommandWithQueue(
+            BLECommands.requestBootloaderStatus(addr.toByte()),
+            MAIN_CHANNEL, WRITE
+        ) {}
+
+        // 3) Ждём в потоке bootloaderStatusFlow статус DONE_CRC,
+        //    переотправляя GET_BOOTLOADER_STATUS каждый раз, когда приходит не тот статус
+       bootloaderStatusFlow
+            .onEach { status ->
+                if (status != PreferenceKeysUBI4.BootloaderStatus.DONE_CRC) {
+                    Log.d("FW_FLOW", "RX $status — повтор TX GET_BOOTLOADER_STATUS → addr=$addr")
+                    main?.bleCommandWithQueue(
+                        BLECommands.requestBootloaderStatus(addr.toByte()),
+                        MAIN_CHANNEL, WRITE
+                    ) {}
+                }
+            }
+            .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CRC }
+            .also { Log.d("FW_FLOW", "RX DONE_CRC for addr=$addr") }
+
+        // 4) Шлём COMPLETE_UPDATE, чтобы плата вернула GOOD/BAD
+        Log.d("FW_FLOW", "TX COMPLETE_UPDATE → addr=$addr")
+        main?.bleCommandWithQueue(
+            BLECommands.requestCompleteUpdate(addr.toByte()),
+            MAIN_CHANNEL, WRITE
+        ) {}
+
+        // 5) Ждём финального результата в completeCrcFlow
+        val ok = FirmwareInfoState.completeCrcFlow.first()
+        Log.i("FW_FLOW", "CRC verification result for addr=$addr → $ok")
+        return ok
+    }
+
 }

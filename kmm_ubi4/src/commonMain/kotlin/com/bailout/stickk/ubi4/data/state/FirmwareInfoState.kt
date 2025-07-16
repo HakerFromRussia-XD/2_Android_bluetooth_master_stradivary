@@ -18,6 +18,8 @@ object FirmwareInfoState {
     val maxChunkSizeFlow = MutableSharedFlow<Pair<Int, MaxChunkSizeInfo>>(replay = 0, extraBufferCapacity = 1)
     val preloadInfoFlow = MutableSharedFlow<PreferenceKeysUBI4.BootloaderStatus>(extraBufferCapacity = 1)
     val chunkWrittenFlow = MutableSharedFlow<Pair<Int, Int>>(replay = 0, extraBufferCapacity = 1,)
+    val completeCrcFlow      = MutableSharedFlow<Boolean>(replay = 1)
+    val updateCompleteFlow   = MutableSharedFlow<Unit>(replay = 1)
 
 
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {

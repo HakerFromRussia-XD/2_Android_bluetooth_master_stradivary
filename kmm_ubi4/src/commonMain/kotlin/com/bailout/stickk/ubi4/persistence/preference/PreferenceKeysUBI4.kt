@@ -472,6 +472,12 @@ object PreferenceKeysUBI4 {
         }
     }
 
+    enum class CrcResult(val code: Int) {
+        BAD_CRC_FIRMWARE(0x1E),
+        GOOD_CRC_FIRMWARE(0x2E);
+        companion object { fun from(code: Int) = values().firstOrNull { it.code == code } }
+    }
+
     //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),

@@ -13,8 +13,9 @@ plugins {
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
     compileSdk = 35
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
+//    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//    sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     defaultConfig {
         minSdk = 24
@@ -69,48 +70,44 @@ kotlin {
             }
         }
 
-        val commonMain by getting {
-            dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material)
-                implementation(compose.components.resources)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-                implementation("io.ktor:ktor-client-core:2.3.2")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
-                implementation("dev.icerock.moko:resources:0.24.5")
-            }
-            kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            implementation(compose.components.resources)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            implementation("io.ktor:ktor-client-core:2.3.2")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
+            implementation("dev.icerock.moko:resources:0.24.5")
+
+//            kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
+        androidMain.dependencies {
+            api("androidx.activity:activity-compose:1.7.0")
+            api("androidx.appcompat:appcompat:1.7.0")
+            api("androidx.core:core-ktx:1.15.0")
+            implementation("com.google.android.material:material:1.12.0")
+            implementation("io.ktor:ktor-client-okhttp:2.3.2")
+            implementation("dev.icerock.moko:resources:0.24.5")
 
-        val androidMain by getting {
-            dependencies {
-                api("androidx.activity:activity-compose:1.7.0")
-                api("androidx.appcompat:appcompat:1.7.0")
-                api("androidx.core:core-ktx:1.15.0")
-                implementation("com.google.android.material:material:1.12.0")
-                implementation("io.ktor:ktor-client-okhttp:2.3.2")
-                implementation("dev.icerock.moko:resources:0.24.5")
+            implementation("io.reactivex.rxjava2:rxjava:2.2.17")
+            implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
+            implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
+            implementation("com.jakewharton.rxbinding2:rxbinding:2.2.0")
+            implementation("com.trello.rxlifecycle2:rxlifecycle:2.2.2")
+            implementation("com.trello.rxlifecycle2:rxlifecycle-android:2.2.2")
+            implementation("com.trello.rxlifecycle2:rxlifecycle-components:2.2.2")
 
-                implementation("io.reactivex.rxjava2:rxjava:2.2.17")
-                implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
-                implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
-                implementation("com.jakewharton.rxbinding2:rxbinding:2.2.0")
-                implementation("com.trello.rxlifecycle2:rxlifecycle:2.2.2")
-                implementation("com.trello.rxlifecycle2:rxlifecycle-android:2.2.2")
-                implementation("com.trello.rxlifecycle2:rxlifecycle-components:2.2.2")
-
-                implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-                implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-            }
-            kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
+            implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+            implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
         }
+//            kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
     }
 }
 
-multiplatformResources {
-    resourcesPackage.set("com.bailout.stickk.ubi4")
-    resourcesClassName.set("MR")
-}
+//multiplatformResources {
+//    resourcesPackage.set("com.bailout.stickk.ubi4")
+//    resourcesClassName.set("MR")
+//}

@@ -1,16 +1,20 @@
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.kotlin.plugin.compose")
+    kotlin("plugin.compose")
+    id("com.android.library")
     id("org.jetbrains.compose")
     kotlin("plugin.serialization")
-    id("com.android.library")
-    kotlin("plugin.parcelize")
+    id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources")
+//    kotlin("plugin.parcelize")
+//    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
-    namespace = "com.bailout.stickk.ubi4"
-    compileSdk = 34
+    namespace = "com.bailout.stickk.ubi4.shared"
+    compileSdk = 35
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     defaultConfig {
         minSdk = 24
@@ -36,16 +40,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    kotlin {
+        jvmToolchain(17)
+    }
 }
 
 kotlin {
-    val kotlinVersion = project.property("kotlin.version") as String
-//    androidTarget()
-    android{}
-    jvmToolchain(17)
-    compilerOptions {
-        freeCompilerArgs.addAll(listOf("-Xjvm-default=all"))
-    }
+    androidTarget()
 
     listOf(
         iosX64(),
@@ -74,13 +75,11 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.components.resources)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
                 implementation("io.ktor:ktor-client-core:2.3.2")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
                 implementation("dev.icerock.moko:resources:0.24.5")
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")

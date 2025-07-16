@@ -13,7 +13,8 @@ plugins {
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
     compileSdk = 35
-    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
 //    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //    sourceSets["main"].res.srcDirs("src/androidMain/res")
 
@@ -107,7 +108,7 @@ kotlin {
     }
 }
 
-//multiplatformResources {
-//    resourcesPackage.set("com.bailout.stickk.ubi4")
-//    resourcesClassName.set("MR")
-//}
+multiplatformResources {
+    resourcesPackage.set("com.bailout.stickk.ubi4")
+    resourcesClassName.set("MR")
+}

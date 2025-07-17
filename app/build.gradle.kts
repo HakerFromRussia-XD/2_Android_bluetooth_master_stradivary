@@ -93,12 +93,13 @@ android {
     }
 }
 
-
-//secrets {
-//    defaultPropertiesFileName = "default.local.properties"
-//    propertiesFileName = "local.properties"
-//}
-
+dependencies {
+    // custom views
+    implementation(files("libs/navigationtabbar-1.2.5.aar"))
+    implementation(files("libs/switchbutton.aar"))
+    // pin
+    implementation("online.devliving:passcodeview:1.0.3")
+}
 //dependencies {
 //    val kotlinVersion = project.property("kotlin.version") as String
 //    implementation(project(":bluetooth"))
@@ -204,5 +205,4 @@ android {
 //    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
 //    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 //    testImplementation("io.mockk:mockk:1.13.7")
-//
 //}

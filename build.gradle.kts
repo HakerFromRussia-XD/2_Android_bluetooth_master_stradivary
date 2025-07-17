@@ -10,6 +10,7 @@ plugins {
 allprojects {
     configurations.all {
         exclude(group = "com.android.support", module = "support-compat")
+        resolutionStrategy.force("com.google.guava:guava:33.1.0-android")
     }
     repositories {
         mavenCentral()
@@ -22,4 +23,7 @@ allprojects {
     }
 }
 
-tasks.register<Delete>("clean") { delete(rootProject.buildDir) }
+tasks.register<Delete>("clean") {
+    @Suppress("DEPRECATION")
+    delete(rootProject.buildDir)
+}

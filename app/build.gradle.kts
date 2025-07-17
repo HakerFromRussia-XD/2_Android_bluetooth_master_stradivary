@@ -1,3 +1,7 @@
+@file:Suppress("UNUSED_EXPRESSION")
+
+import com.android.build.api.dsl.Packaging
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -67,13 +71,13 @@ android {
             useLegacyPackaging = true
         }
     }
-    packagingOptions {
+    fun Packaging.() {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/INDEX.LIST"
-            merges   += "META-INF/LICENSE.md"
-            merges   += "classpath.index"
-            merges   += "META-INF/LICENSE-notice.md"
+            merges += "META-INF/LICENSE.md"
+            merges += "classpath.index"
+            merges += "META-INF/LICENSE-notice.md"
         }
     }
     sourceSets {
@@ -110,9 +114,15 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // dagger 2
-    implementation("com.google.dagger:dagger:2.55")
-    "kapt"("com.google.dagger:dagger-compiler:2.55")
-    "kapt"("com.google.dagger:dagger-android-processor:2.55")
+    implementation("com.google.dagger:dagger:2.56")
+    "kapt"("com.google.dagger:dagger-compiler:2.56"){
+        exclude(group = "com.google.guava", module = "guava")
+    }
+    "kapt"("com.google.dagger:dagger-android-processor:2.56"){
+        exclude(group = "com.google.guava", module = "guava")
+    }
+//    runtimeOnly("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
+//    implementation("com.google.guava:guava:33.1.0-android")
 
     // rxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")

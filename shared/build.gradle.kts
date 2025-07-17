@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources")
+    kotlin("kapt")
 //    kotlin("plugin.parcelize")
 //    id("org.jetbrains.kotlin.plugin.compose")
 }
@@ -84,9 +85,9 @@ kotlin {
 //            kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
         androidMain.dependencies {
-            api("androidx.activity:activity-compose:1.7.0")
-            api("androidx.appcompat:appcompat:1.7.0")
-            api("androidx.core:core-ktx:1.15.0")
+            api("androidx.activity:activity-compose:1.10.1")
+            api("androidx.appcompat:appcompat:1.7.1")
+            api("androidx.core:core-ktx:1.16.0")
             implementation("com.google.android.material:material:1.12.0")
             implementation("io.ktor:ktor-client-okhttp:2.3.2")
             implementation("dev.icerock.moko:resources:0.24.5")

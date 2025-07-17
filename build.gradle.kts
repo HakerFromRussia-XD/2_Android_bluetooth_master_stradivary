@@ -8,6 +8,9 @@ plugins {
 }
 
 allprojects {
+    configurations.all {
+        exclude(group = "com.android.support", module = "support-compat")
+    }
     repositories {
         mavenCentral()
         mavenLocal()

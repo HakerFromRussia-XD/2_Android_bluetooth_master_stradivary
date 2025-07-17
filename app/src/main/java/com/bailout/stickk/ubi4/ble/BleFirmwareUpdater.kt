@@ -4,8 +4,6 @@ import android.util.Log
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.chunkWrittenFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.maxChunkSizeFlow
@@ -13,9 +11,11 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.preloadInfoFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CheckNewFwStatus
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.StartSystemUpdateStatus
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -23,13 +23,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import java.io.File
-import java.io.FileInputStream
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 
 
 class BleFirmwareUpdater {
-
+    private var lastMaxChunkInfo: MaxChunkSizeInfo? = null
     suspend fun startSystemUpdate(): StartSystemUpdateStatus {
         Log.d("FW_FLOW", "TX START_SYSTEM_UPDATE")
         main?.bleCommandWithQueue(
@@ -189,7 +187,12 @@ class BleFirmwareUpdater {
 
         // 3) Ждём в потоке bootloaderStatusFlow статус DONE_CRC,
         //    переотправляя GET_BOOTLOADER_STATUS каждый раз, когда приходит не тот статус
-       bootloaderStatusFlow
+        // 1.1) Ждём столько же, сколько ждали после PRELOAD_INFO
+        val delayMs = lastMaxChunkInfo?.flashClearDelayMs?.toLong() ?: 0L
+        Log.d("FW_FLOW", "Waiting $delayMs ms for CRC calculation to settle")
+        delay(delayMs)
+
+        bootloaderStatusFlow
             .onEach { status ->
                 if (status != PreferenceKeysUBI4.BootloaderStatus.DONE_CRC) {
                     Log.d("FW_FLOW", "RX $status — повтор TX GET_BOOTLOADER_STATUS → addr=$addr")
@@ -213,6 +216,16 @@ class BleFirmwareUpdater {
         val ok = FirmwareInfoState.completeCrcFlow.first()
         Log.i("FW_FLOW", "CRC verification result for addr=$addr → $ok")
         return ok
+    }
+        //finish
+    suspend fun finishSystemUpdate(addr: Int) {
+        Log.d("FW_FLOW", "TX FINISH_SYSTEM_UPDATE → addr=$addr")
+        main?.bleCommandWithQueue(
+            BLECommands.requestFinishSystemUpdate(addr.toByte()),
+            MAIN_CHANNEL, WRITE
+        ) {}
+        FirmwareInfoState.finishSystemUpdateFlow.first()
+        Log.d("FW_FLOW", "SYSTEM UPDATE COMPLETE on addr=$addr")
     }
 
 }

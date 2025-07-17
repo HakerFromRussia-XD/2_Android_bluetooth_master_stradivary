@@ -20,6 +20,8 @@ object FirmwareInfoState {
     val chunkWrittenFlow = MutableSharedFlow<Pair<Int, Int>>(replay = 0, extraBufferCapacity = 1,)
     val completeCrcFlow      = MutableSharedFlow<Boolean>(replay = 1)
     val updateCompleteFlow   = MutableSharedFlow<Unit>(replay = 1)
+    val finishSystemUpdateFlow = MutableSharedFlow<Unit>(replay = 1)
+
 
 
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {

@@ -257,6 +257,10 @@ class BLEParser(
                                 // по необходимости можно оставить updateCompleteFlow для других слушателей:
                                 FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
                             }
+                            PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE.number -> {
+                                platformLog("FW_FLOW_PARSER", "FINISH_SYSTEM_UPDATE ← OK")
+                                FirmwareInfoState.finishSystemUpdateFlow.tryEmit(Unit)
+                            }
 
 
                         }

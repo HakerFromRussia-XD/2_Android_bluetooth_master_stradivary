@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Firmwar
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -378,7 +379,7 @@ object BLECommands {
         )
         val data = byteArrayOf(START_SYSTEM_UPDATE.number)
         header[3] = data.size.toByte()
-        header[4] = (data.size ushr 8).toByte()
+        header[4] = (data.size / 256).toByte()
         return header + data
     }
 
@@ -525,6 +526,25 @@ object BLECommands {
         val data = byteArrayOf(COMPLETE_UPDATE.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+    fun requestFinishSystemUpdate(deviceAddress: Byte = 0x00): ByteArray {
+        val header = byteArrayOf(
+            0x20.toByte(),
+            WRITE_FW_COMMAND.number,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            deviceAddress
+        )
+
+        val data = byteArrayOf(FINISH_SYSTEM_UPDATE.number)
+        // записываем длину payload в header[3..4]
+        header[3] = (data.size and 0xFF).toByte()
+        header[4] = ((data.size ushr 8) and 0xFF).toByte()
+
         return header + data
     }
 

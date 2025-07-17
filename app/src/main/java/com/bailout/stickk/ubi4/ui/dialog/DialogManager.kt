@@ -134,10 +134,10 @@ class DialogManager(
                     if (!crcOk) {
                         main?.showToast("CRC mismatch! Обновление не удалось.")
                         return@launch
-                    } else {
-                        main?.showToast("Обновление успешно завершено!")
                     }
-
+                    //10 finish
+                    updater.finishSystemUpdate(addr)
+                    main?.showToast("Обновление успешно завершено!")
                     dlg.dismiss()
                     onConfirm(fileItem)
                 }

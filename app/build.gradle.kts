@@ -21,6 +21,7 @@ kotlin {
 android {
     namespace = "com.bailout.stickk"
     compileSdk = 35
+    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
     defaultConfig {
         applicationId = "com.bailout.stickk"
         minSdk = 28

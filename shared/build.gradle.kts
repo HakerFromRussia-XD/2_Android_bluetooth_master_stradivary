@@ -13,7 +13,8 @@ plugins {
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
     compileSdk = 35
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
 
     defaultConfig {
         minSdk = 24

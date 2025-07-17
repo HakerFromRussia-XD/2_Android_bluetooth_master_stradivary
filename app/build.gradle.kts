@@ -115,6 +115,7 @@ dependencies {
 
     // dagger 2
     implementation("com.google.dagger:dagger:2.56")
+    implementation(project(":bluetooth"))
     "kapt"("com.google.dagger:dagger-compiler:2.56"){
         exclude(group = "com.google.guava", module = "guava")
     }

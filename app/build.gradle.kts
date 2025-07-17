@@ -205,11 +205,3 @@ android {
 //    testImplementation("io.mockk:mockk:1.13.7")
 //
 //}
-
-//tasks.withType<Test> {
-//    useJUnitPlatform()
-//    reports {
-//        junitXml.required.set(true)
-//        html.required.set(false)
-//    }
-//}

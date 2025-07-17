@@ -14,9 +14,6 @@ android {
     namespace = "com.bailout.stickk.ubi4.shared"
     compileSdk = 35
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-//    sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
-//    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-//    sourceSets["main"].res.srcDirs("src/androidMain/res")
 
     defaultConfig {
         minSdk = 24
@@ -97,12 +94,12 @@ kotlin {
             implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
             implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
             implementation("com.jakewharton.rxbinding2:rxbinding:2.2.0")
-            implementation("com.trello.rxlifecycle2:rxlifecycle:2.2.2")
-            implementation("com.trello.rxlifecycle2:rxlifecycle-android:2.2.2")
-            implementation("com.trello.rxlifecycle2:rxlifecycle-components:2.2.2")
+//            implementation("com.trello.rxlifecycle2:rxlifecycle:2.2.2")
+//            implementation("com.trello.rxlifecycle2:rxlifecycle-android:2.2.2")
+//            implementation("com.trello.rxlifecycle2:rxlifecycle-components:2.2.2")
 
-            implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-            implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+            implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
         }
 //            kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
     }

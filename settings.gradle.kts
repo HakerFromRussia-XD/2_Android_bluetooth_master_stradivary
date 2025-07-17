@@ -36,12 +36,10 @@ pluginManagement {
         id("com.android.application").version(agpVersion)
         id("com.android.library").version(agpVersion)
         id("org.jetbrains.compose").version(composeVersion)
-
-//        id("org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
-//        id("org.jetbrains.kotlin.kapt").version(kotlinVersion)
-//        id("kotlin-parcelize").version(kotlinVersion)
-//        id("org.jetbrains.kotlin.plugin.parcelize").version(kotlinVersion)
         id("dev.icerock.mobile.multiplatform-resources").version(mppResourcesVersion)
+
+
+        id("com.autonomousapps.dependency-analysis") version "1.27.0"
     }
 }
 

@@ -11,21 +11,6 @@ pluginManagement {
         google()
     }
 
-//    resolutionStrategy {
-//        eachPlugin {
-//            when (requested.id.id) {
-//                "org.jetbrains.kotlin.multiplatform" -> useVersion(kotlinVersion)
-//                "org.jetbrains.kotlin.plugin.compose" -> useVersion(kotlinVersion)
-//                "org.jetbrains.compose" -> useVersion(composeVersion)
-//                "org.jetbrains.kotlin.plugin.serialization" -> useVersion(kotlinVersion)
-//                "org.jetbrains.kotlin.kapt" -> useVersion(kotlinVersion)
-//                "kotlin-parcelize" -> useVersion(kotlinVersion)
-//                "org.jetbrains.kotlin.plugin.parcelize" -> useVersion(kotlinVersion)
-//                "dev.icerock.mobile.multiplatform-resources" -> useVersion(mppResourcesVersion)
-//            }
-//        }
-//    }
-
     plugins {
         kotlin("jvm").version(kotlinVersion)
         kotlin("multiplatform").version(kotlinVersion)
@@ -38,18 +23,9 @@ pluginManagement {
         id("org.jetbrains.compose").version(composeVersion)
         id("dev.icerock.mobile.multiplatform-resources").version(mppResourcesVersion)
 
-
         id("com.autonomousapps.dependency-analysis") version "1.27.0"
     }
 }
-
-//dependencyResolutionManagement {
-//    repositories {
-//        google()
-//        mavenCentral()
-//        maven(url = "https://jitpack.io")
-//    }
-//}
 
 rootProject.name = "2_Android_bluetooth_master_stradivary"
 

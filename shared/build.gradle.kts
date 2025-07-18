@@ -81,8 +81,6 @@ kotlin {
             implementation("io.ktor:ktor-client-core:2.3.2")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
             implementation("dev.icerock.moko:resources:0.24.5")
-
-//            kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
         androidMain.dependencies {
             api("androidx.activity:activity-compose:1.10.1")
@@ -103,7 +101,6 @@ kotlin {
             implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
             implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
         }
-//            kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
     }
 }
 

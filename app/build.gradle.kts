@@ -98,9 +98,15 @@ android {
 }
 
 dependencies {
+    val kotlinVersion: String = providers.gradleProperty("kotlin.version").get()
 
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
     implementation("androidx.core:core-ktx:1.16.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.12.0")
+    //noinspection GradleDependency
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

@@ -131,10 +131,12 @@ class BleFirmwareUpdater {
         return bootloaderStatusFlow
             .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
     }
-    suspend fun sendFirmware(
+
+    suspend fun sendFirmwareWithProgress(
         addr: Int,
         zipFile: File,
-        maxInfo: MaxChunkSizeInfo
+        maxInfo: MaxChunkSizeInfo,
+        onProgress: (offset: Int, total: Int) -> Unit
     ) {
         // 1) Открываем ZIP и извлекаем .bin
         val fwBytes: ByteArray = ZipFile(zipFile).use { zip ->
@@ -142,18 +144,19 @@ class BleFirmwareUpdater {
                 .first { !it.isDirectory && it.name.endsWith(".bin", ignoreCase = true) }
             zip.getInputStream(entry).use { it.readBytes() }
         }
-        // 2) Отправка чанков
+
+        // 2. Получаем размер прошивки из FirmwareUpdateUtils (read in buildFwInfoDescriptor)
+        val totalSize: Int = FirmwareUpdateUtils.lastFwSize.takeIf { it > 0 }?.toInt() ?: fwBytes.size
+
+        // 3) Отправка чанков с прогрессом
         var offset = 0
         chunkWrittenFlow.resetReplayCache()
         while (offset < fwBytes.size) {
-            // размер текущего чанк
             val partSize = minOf(maxInfo.chunkSize, fwBytes.size - offset)
             val chunk = fwBytes.copyOfRange(offset, offset + partSize)
-            // отправляем чистый payload: [CMD, offsetLo, offsetHi, ...chunk...]
             val packet = BLECommands.sendLoadNewFw(addr.toByte(), offset, chunk)
             main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
             Log.d("FW_FLOW", "→ отправили LOAD_NEW_FW payload size=$partSize, offset=$offset")
-            // ждём, сколько реально записано (парсер эмитит именно количество байт)
             val written = FirmwareInfoState.chunkWrittenFlow
                 .filter { it.first == addr }
                 .map { it.second }
@@ -162,14 +165,14 @@ class BleFirmwareUpdater {
                 throw IllegalStateException("При offset=$offset ничего не записалось")
             }
             offset += written
-            // пауза каждые bytesInterval
+            onProgress(offset.coerceAtMost(totalSize), totalSize)
             if (offset % maxInfo.bytesInterval == 0) {
                 delay(maxInfo.timeoutMs.toLong())
             }
         }
-
         Log.d("FW_FLOW", "Все $offset байт прошивки отправлены успешно")
     }
+
     suspend fun checkFirmwareCrcAndCompleteUpdate(addr: Int): Boolean {
         // 1) Запускаем расчёт CRC
         Log.d("FW_FLOW", "TX CALCULATE_CRC → addr=$addr")

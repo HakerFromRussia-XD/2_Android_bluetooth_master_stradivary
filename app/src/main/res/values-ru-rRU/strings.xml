@@ -586,6 +586,7 @@
     <string name="wait_until_the_model_file_is_created">Дождитесь завершения создания файла модели</string>
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">Файл модели сохраняется в память устройства, пожалуйста, подождите...</string>
     <string name="file_is_being_downloaded">Идет загрузка файла</string>
+    <string name="firmware_is_being_downloaded">Идет загрузка файла ПО</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
     <string name="are_you_sure_you_want_to_update_software_version">Вы уверены что хотите обновить версию ПО?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth соеденение отключенно</string>

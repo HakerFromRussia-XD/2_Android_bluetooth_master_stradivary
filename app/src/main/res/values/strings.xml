@@ -585,6 +585,7 @@
     <string name="wait_until_the_model_file_is_created">Wait until the model file is created</string>
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">The model file is saved to the device memory, please wait...</string>
     <string name="file_is_being_downloaded">File is being downloaded</string>
+    <string name="firmware_is_being_downloaded">Firmware is being downloaded</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth connection is disabled</string>
     <string name="there_is_no_bluetooth_connection_check_the_connection">There is no Bluetooth connection. Check the connection.</string>

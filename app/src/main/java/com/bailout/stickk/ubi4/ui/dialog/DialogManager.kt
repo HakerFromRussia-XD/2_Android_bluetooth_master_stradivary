@@ -8,31 +8,18 @@ import android.graphics.drawable.ColorDrawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
+import android.widget.ProgressBar
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BleFirmwareUpdater
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.preloadInfoFlow
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderBoardItemUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
 class DialogManager(
@@ -43,6 +30,10 @@ class DialogManager(
     ) {
     private val updater = BleFirmwareUpdater()
     private var lastMaxChunkInfo: MaxChunkSizeInfo? = null
+    private var currentDialog: Dialog? = null
+    private var progressDialog: Dialog? = null
+
+
     @SuppressLint("InflateParams")
     fun showDisconnectDialog() {
         val inflater = LayoutInflater.from(context)
@@ -63,6 +54,12 @@ class DialogManager(
             myDialog.dismiss()
         }
     }
+    private fun closeAllDialogs() {
+        currentDialog?.dismiss()
+        currentDialog = null
+        progressDialog?.dismiss()
+        progressDialog = null
+    }
 
     @SuppressLint("LogNotTimber")
     fun showConfirmSendFirmwareFileDialog(
@@ -73,7 +70,7 @@ class DialogManager(
         val view = layoutInflater.inflate(
             R.layout.ubi4_dialog_confirm_send_firmware_file, null
         )
-        val dlg = Dialog(context).apply {
+        currentDialog = Dialog(context).apply {
             setContentView(view)
             setCancelable(false)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -81,19 +78,22 @@ class DialogManager(
         }
 
         view.findViewById<View>(R.id.ubi4DialogSendFirmwareCancelBtn)
-            .setOnClickListener { dlg.dismiss() }
+            .setOnClickListener { currentDialog?.dismiss() }
 
         view.findViewById<View>(R.id.ubi4DialogConfirmSendFirmwareBtn)
             .setOnClickListener {
                 val addr = board.deviceAddress
                 Log.d("FW_FLOW", "CONFIRM addr=$addr (${board.boardName})")
+                closeAllDialogs()
+                val progressBar = showProgressBarDialog()
 
                 viewLifecycleOwner.lifecycleScope.launch {
                     // 1) START_SYSTEM_UPDATE
                     val startStatus = updater.startSystemUpdate()
                     if (startStatus != PreferenceKeysUBI4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
                         main?.showToast("Не удалось начать обновление (status=$startStatus)")
-                        dlg.dismiss()
+                        progressDialog?.dismiss()
+                        currentDialog?.dismiss()
                         return@launch
                     }
 
@@ -106,6 +106,7 @@ class DialogManager(
                     // 4) CHECK_NEW_FW
                     val checkStatus = updater.checkNewFirmware(addr, fileItem)
                     if (checkStatus != PreferenceKeysUBI4.CheckNewFwStatus.NEW_FW_ACCEPT) {
+                        progressDialog?.dismiss()
                         main?.showToast("Модуль не готов к записи (status=$checkStatus")
                         return@launch
                     }
@@ -126,23 +127,52 @@ class DialogManager(
 
                     // 8) Всё готово — отправляем файл чанками
                     lastMaxChunkInfo?.let { info ->
-                        Log.d("FW_FLOW_DIALOG_MANAGER", "→ sendFirmware(addr=$addr, fwSize=${fileItem.file}, chunkSize=${info.chunkSize}, bytesInterval=${info.bytesInterval}, timeoutMs=${info.timeoutMs})")
-                        updater.sendFirmware(addr, fileItem.file, info)
+                        updater.sendFirmwareWithProgress(addr, fileItem.file, info) { offset, total ->
+                            // считаем процент и обновляем прогресс-бар на главном потоке
+                            val percent = (offset * 100 / total).coerceIn(0, 100)
+                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                                progressBar.progress = percent
+                            }
+                        }
                     }
                     // 9) Проверка CRC и финализация
                     val crcOk = updater.checkFirmwareCrcAndCompleteUpdate(addr)
                     if (!crcOk) {
+                        progressDialog?.dismiss()
                         main?.showToast("CRC mismatch! Обновление не удалось.")
                         return@launch
                     }
                     //10 finish
                     updater.finishSystemUpdate(addr)
+                    progressDialog?.dismiss()
                     main?.showToast("Обновление успешно завершено!")
-                    dlg.dismiss()
+                    currentDialog?.dismiss()
                     onConfirm(fileItem)
                 }
             }
     }
-}
 
+    @SuppressLint("InflateParams", "MissingInflatedId")
+    private fun showProgressBarDialog(): ProgressBar {
+        // Гарантированно закрываем всё перед новым диалогом
+        closeAllDialogs()
+
+        // 1) Inflate правильный layout
+        val dialogView = layoutInflater.inflate(R.layout.ubi4_dialog_progressbar_firmware, null)
+
+        // 2) Создаём диалог
+        progressDialog = Dialog(context).apply {
+            setContentView(dialogView)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }
+
+        // 3) Находим ProgressBar внутри dialogView
+        val progressBar = dialogView.findViewById<ProgressBar>(R.id.loadingFirmwareProgressBar)
+            ?: throw IllegalStateException("В ubi4_dialog_progressbar.xml нет View с id loadingFirmwareProgressBar")
+
+        return progressBar
+    }
+}
 

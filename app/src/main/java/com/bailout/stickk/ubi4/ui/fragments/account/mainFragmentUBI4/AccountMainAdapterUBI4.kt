@@ -17,13 +17,16 @@ class AccountMainAdapterUBI4(
 
     object Diff : DiffUtil.ItemCallback<AccountMainUBI4Item>() {
         override fun areItemsTheSame(o: AccountMainUBI4Item, n: AccountMainUBI4Item) = true   // один элемент-хедер
+        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(o: AccountMainUBI4Item, n: AccountMainUBI4Item) = o == n
     }
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val customerServiceBtn: View = view.findViewById(R.id.customerServiceClick)
         val prosthesisInformationBtn: View = view.findViewById(R.id.prosthesisInfoClick)
         val fioTv: TextView = view.findViewById(R.id.ubi4_fio_tv) as TextView
+//        val applicationVersionNumTv: TextView = view.findViewById(R.id.ubi4_version_app_num_tv) as TextView
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountViewHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -36,6 +39,7 @@ class AccountMainAdapterUBI4(
         val item = getItem(position)
 
         holder.fioTv.text               = "${item.getName()} ${item.getSurname()}"
+//        holder.applicationVersionNumTv.text = BuildConfig.VERSION_NAME
 
         holder.customerServiceBtn.setOnClickListener {
             onAccountClickListener.onCustomerServiceClicked()
@@ -44,6 +48,7 @@ class AccountMainAdapterUBI4(
             onAccountClickListener.onProsthesisInformationClicked()
         }
     }
+
 
     fun submitProfile(item: AccountMainUBI4Item) = submitList(listOf(item))
 }

@@ -5,5 +5,6 @@ data class BootloaderBoardItemUBI4(
     val deviceCode: Int,
     val deviceAddress: Int,
     val canUpdate: Boolean,
-    val version: String? = null
+    val version: String? = null,
+    var isInBootLoader: Boolean = false
 )

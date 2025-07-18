@@ -168,6 +168,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         binding.accountBtn.setOnClickListener {
             sendFwInfoRequests()
+            sendRunProgramTypeRequests()
             showAccountScreen()
         }
 
@@ -408,7 +409,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0
         if (!isCpu || !uuidOk) return          // игнорируем саб-модули
-        val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
+        val serial = "${info.deviceUUIDPrefix}${'-'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         runOnUiThread { binding.nameTv.text = serial }
     }
@@ -421,6 +422,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         baseSubDevicesInfoStructSet.forEach { sub ->
             bleCommandWithQueue(
                 BLECommands.requestProductFWInfoType(sub.deviceAddress),
+                MAIN_CHANNEL, WRITE
+            ) {}
+        }
+    }
+
+    private fun sendRunProgramTypeRequests() {
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            bleCommandWithQueue(
+                BLECommands.requestRunProgramType(sub.deviceAddress.toByte()),
                 MAIN_CHANNEL, WRITE
             ) {}
         }

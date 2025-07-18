@@ -25,6 +25,7 @@ class BootloaderAdapterUBI4(
     inner class BoardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title     : TextView = view.findViewById(R.id.board_name_tv)
         val versionTv : TextView = view.findViewById(R.id.boardVerTv)
+        val bootStatus : TextView = view.findViewById(R.id.bootloderStatusTv)
         val updateBtn : TextView = view.findViewById(R.id.update_btn)   // ← было Button
     }
 
@@ -40,6 +41,7 @@ class BootloaderAdapterUBI4(
         holder.title.text    = item.boardName
         holder.versionTv.text = item.version
         holder.updateBtn.isEnabled = item.canUpdate
+        holder.bootStatus.visibility = if (item.isInBootLoader) View.VISIBLE else View.INVISIBLE
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
     }
     /** Передаём новый список плат в адаптер. */

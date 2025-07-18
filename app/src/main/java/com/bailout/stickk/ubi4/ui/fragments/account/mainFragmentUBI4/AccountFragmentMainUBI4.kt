@@ -90,6 +90,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private lateinit var bootloaderAdapter: BootloaderAdapterUBI4
     private lateinit var concatAdapter: ConcatAdapter
     private val boardNameByAddr = mutableMapOf<Int, String>()
+    private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
 
 
     private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
@@ -169,6 +170,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         initializeUI()
 //        showBoardsVersion()
         refreshBoards()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+             runProgramTypeFlow.collect { (addr, runType) ->
+                val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
+                if (idx != -1) {
+                    bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUBI4.RunProgramType.BOOTLOADER
+                    bootloaderAdapter.notifyItemChanged(idx)
+                }
+            }
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -502,6 +513,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
     private fun refreshBoards() {
+
         // старт
         Log.d("refreshBoards", ">>> called, fullInit=$fullInicializeConnectionStruct, subsSize=${baseSubDevicesInfoStructSet.size}, fwVersions=$fwVersions")
 
@@ -510,7 +522,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         Log.d("refreshBoards", ">>> name cache = $boardNameByAddr")
 
         // 2) Строим список
-        val boards = buildList {
+        val builtBoards = buildList {
             fullInicializeConnectionStruct?.let { cpu ->
                 val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
                 val nameCpu = boardNameByAddr[0] ?: "Unknown"
@@ -521,7 +533,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                         deviceCode    = cpu.deviceCode,
                         deviceAddress = 0,
                         canUpdate     = true,
-                        version       = versionCpu
+                        version       = versionCpu,
+                        isInBootLoader = false
                     )
                 )
             }
@@ -537,7 +550,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                         deviceCode    = sub.deviceCode,
                         deviceAddress = addr,
                         canUpdate     = true,
-                        version       = versionSub
+                        version       = versionSub,
+                        isInBootLoader = false
                     )
                 )
             }
@@ -545,8 +559,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             .distinctBy { it.deviceAddress }
 
         // финал
-        Log.d("refreshBoards", "<<< built boards (${boards.size}): $boards")
-        updateBootloaderSafe(boards)
+        Log.d("refreshBoards", "<<< built boards (${builtBoards.size}): $builtBoards")
+        bootloaderBoardsList.clear()
+        bootloaderBoardsList.addAll(builtBoards)
+        updateBootloaderSafe(builtBoards)
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
@@ -571,60 +587,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 rv.adapter?.notifyItemRemoved(position)
             }
                 override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
-//                try {
-//                    ZipFile(fileItem.file).use { zip ->
-//                        val entry = zip.entries().asSequence()
-//                            .firstOrNull { it.name.equals("FW_ini.ini", ignoreCase = true) }
-//
-//                        if (entry == null) {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "В архиве нет FW_ini.ini", Toast.LENGTH_SHORT
-//                            ).show()
-//                            return
-//                        }
-//
-//                        val props = Properties().apply {
-//                            zip.getInputStream(entry).use { load(it) }
-//                        }
-//                        val nameIniRaw = props.getProperty("BoardName") ?: ""
-//                        val codeIni = props.getProperty("BoardCode")?.toIntOrNull() ?: -1
-//
-//                        // 1) Сравниваем коды
-//                        if (codeIni != boardItem.deviceCode) {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "Неверный код модуля: в INI=$codeIni, ожидается=${boardItem.deviceCode}",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                            return
-//                        }
-//
-//                        // 2) Сравниваем названия без учёта регистра и подчёркиваний
-//                        fun String.norm() = replace('_', ' ')
-//                            .trim()
-//                            .lowercase()
-//                        if (nameIniRaw.norm() != boardItem.boardName.norm()) {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "Неверный модуль: INI='${nameIniRaw}', ожидается='${boardItem.boardName}'",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                            return
-//                        }
-//
-//                        // Всё совпало!
-//                        Log.d("FW_UPLOAD", "OK: ${boardItem.boardName}(${boardItem.deviceCode})")
-//                        onComplete()
-//                        dialog.dismiss()
+
                         main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, fileItem) {  }
-//                    }
-//                } catch (e: IOException) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        "Ошибка чтения ZIP: ${e.message}", Toast.LENGTH_SHORT
-//                    ).show()
-//                }
             }
         })
 

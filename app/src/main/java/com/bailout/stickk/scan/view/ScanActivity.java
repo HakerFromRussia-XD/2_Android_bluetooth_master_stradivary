@@ -50,7 +50,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
-import com.bailout.stickk.ubi4.ble.BleDevice;
+//import com.bailout.stickk.ubi4.ble.BleDevice;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
@@ -64,6 +64,7 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleDevice_fromTestProj;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -187,7 +188,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         // --- ПОДПИСКА НА ОБНОВЛЕНИЕ СПИСКА УСТРОЙСТВ ---
         scanner.getDevicesLiveData().observe(this, bleDevices -> {
             List<ScanItem> scanItems = new ArrayList<>();
-            for (BleDevice device : bleDevices) {
+            for (BleDevice_fromTestProj device : bleDevices) {
                 scanItems.add(new ScanItem(
                         "BLE",
                         device.getName(),
@@ -763,7 +764,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanDeviceList.setLayoutManager(new LinearLayoutManager(this));
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
     }
-    private boolean checkOurLEName (String deviceName){
+    private boolean checkOurLEName (String deviceName) {
         if (deviceName != null) {
             return deviceName.contains("HRSTM") ||
                     deviceName.contains("BLE_test_service") ||

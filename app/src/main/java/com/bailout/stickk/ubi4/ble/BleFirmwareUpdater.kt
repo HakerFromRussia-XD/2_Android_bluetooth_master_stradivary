@@ -17,17 +17,22 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.StartSy
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.util.zip.ZipFile
 
-
 class BleFirmwareUpdater {
+
     private var lastMaxChunkInfo: MaxChunkSizeInfo? = null
+    // Фиксированный таймаут ожидания подтверждения записи чанка (мс)
+    private val FIXED_WRITE_TIMEOUT_MS = 500L
+
     suspend fun startSystemUpdate(): StartSystemUpdateStatus {
         Log.d("FW_FLOW", "TX START_SYSTEM_UPDATE")
         main?.bleCommandWithQueue(
@@ -67,7 +72,7 @@ class BleFirmwareUpdater {
                 BLECommands.requestRunProgramType(addr.toByte()),
                 MAIN_CHANNEL, WRITE
             ) {}
-            readRunType()  // ждём BOOTLOADER
+            readRunType()
             Log.d("FW_FLOW", "BOOTLOADER готов")
         } else {
             Log.d("FW_FLOW", "Плата уже в bootloader — получаем инфо")
@@ -119,7 +124,9 @@ class BleFirmwareUpdater {
             BLECommands.requestPreloadInfo(addr.toByte()),
             MAIN_CHANNEL, WRITE
         ) {}
-        return preloadInfoFlow.first()
+        val status = preloadInfoFlow.first()
+        Log.d("FW_FLOW", "RX PRELOAD_INFO status=$status")
+        return status
     }
 
     suspend fun waitForDoneClear(addr: Int): PreferenceKeysUBI4.BootloaderStatus {
@@ -128,8 +135,9 @@ class BleFirmwareUpdater {
             BLECommands.requestBootloaderStatus(addr.toByte()),
             MAIN_CHANNEL, WRITE
         ) {}
-        return bootloaderStatusFlow
-            .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
+        val status = bootloaderStatusFlow.first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
+        Log.d("FW_FLOW", "RX DONE_CLEAR status=$status")
+        return status
     }
 
     suspend fun sendFirmwareWithProgress(
@@ -145,52 +153,70 @@ class BleFirmwareUpdater {
             zip.getInputStream(entry).use { it.readBytes() }
         }
 
-        // 2. Получаем размер прошивки из FirmwareUpdateUtils (read in buildFwInfoDescriptor)
-        val totalSize: Int = FirmwareUpdateUtils.lastFwSize.takeIf { it > 0 }?.toInt() ?: fwBytes.size
+        // 2) Размер прошивки
+        val totalSize = FirmwareUpdateUtils.lastFwSize.takeIf { it > 0 }?.toInt() ?: fwBytes.size
 
-        // 3) Отправка чанков с прогрессом
+        // Начинаем цикл отправки
         var offset = 0
         chunkWrittenFlow.resetReplayCache()
+
         while (offset < fwBytes.size) {
             val partSize = minOf(maxInfo.chunkSize, fwBytes.size - offset)
             val chunk = fwBytes.copyOfRange(offset, offset + partSize)
             val packet = BLECommands.sendLoadNewFw(addr.toByte(), offset, chunk)
+
+            // первая отправка
             main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
             Log.d("FW_FLOW", "→ отправили LOAD_NEW_FW payload size=$partSize, offset=$offset")
-            val written = FirmwareInfoState.chunkWrittenFlow
-                .filter { it.first == addr }
-                .map { it.second }
-                .first()
-            if (written <= 0) {
+
+            // ждём ответ в течение FIXED_WRITE_TIMEOUT_MS
+            val written: Int = try {
+                withTimeout(FIXED_WRITE_TIMEOUT_MS) {
+                    chunkWrittenFlow
+                        .filter { it.first == addr }
+                        .first()
+                        .second
+                }
+            } catch (e: TimeoutCancellationException) {
+                Log.e("FW_FLOW", "Timeout на offset=$offset, переотправляем chunk")
+                main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
+                // ждём без таймаута
+                chunkWrittenFlow
+                    .filter { it.first == addr }
+                    .first()
+                    .second
+            }
+
+            // ограничиваем до partSize
+            val actualWritten = written.coerceAtMost(partSize)
+            if (actualWritten <= 0) {
                 throw IllegalStateException("При offset=$offset ничего не записалось")
             }
-            offset += written
+
+            offset += actualWritten
             onProgress(offset.coerceAtMost(totalSize), totalSize)
+
+            // пауза каждые bytesInterval
             if (offset % maxInfo.bytesInterval == 0) {
                 delay(maxInfo.timeoutMs.toLong())
             }
         }
+
         Log.d("FW_FLOW", "Все $offset байт прошивки отправлены успешно")
     }
 
     suspend fun checkFirmwareCrcAndCompleteUpdate(addr: Int): Boolean {
-        // 1) Запускаем расчёт CRC
         Log.d("FW_FLOW", "TX CALCULATE_CRC → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestCalculateCrc(addr.toByte()),
             MAIN_CHANNEL, WRITE
         ) {}
-
-        // 2) Сразу запрашиваем статус загрузчика для отслеживания DONE_CRC
         Log.d("FW_FLOW", "TX GET_BOOTLOADER_STATUS for CRC → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestBootloaderStatus(addr.toByte()),
             MAIN_CHANNEL, WRITE
         ) {}
 
-        // 3) Ждём в потоке bootloaderStatusFlow статус DONE_CRC,
-        //    переотправляя GET_BOOTLOADER_STATUS каждый раз, когда приходит не тот статус
-        // 1.1) Ждём столько же, сколько ждали после PRELOAD_INFO
         val delayMs = lastMaxChunkInfo?.flashClearDelayMs?.toLong() ?: 0L
         Log.d("FW_FLOW", "Waiting $delayMs ms for CRC calculation to settle")
         delay(delayMs)
@@ -208,19 +234,16 @@ class BleFirmwareUpdater {
             .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CRC }
             .also { Log.d("FW_FLOW", "RX DONE_CRC for addr=$addr") }
 
-        // 4) Шлём COMPLETE_UPDATE, чтобы плата вернула GOOD/BAD
         Log.d("FW_FLOW", "TX COMPLETE_UPDATE → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestCompleteUpdate(addr.toByte()),
             MAIN_CHANNEL, WRITE
         ) {}
-
-        // 5) Ждём финального результата в completeCrcFlow
         val ok = FirmwareInfoState.completeCrcFlow.first()
         Log.i("FW_FLOW", "CRC verification result for addr=$addr → $ok")
         return ok
     }
-        //finish
+
     suspend fun finishSystemUpdate(addr: Int) {
         Log.d("FW_FLOW", "TX FINISH_SYSTEM_UPDATE → addr=$addr")
         main?.bleCommandWithQueue(
@@ -230,5 +253,4 @@ class BleFirmwareUpdater {
         FirmwareInfoState.finishSystemUpdateFlow.first()
         Log.d("FW_FLOW", "SYSTEM UPDATE COMPLETE on addr=$addr")
     }
-
 }

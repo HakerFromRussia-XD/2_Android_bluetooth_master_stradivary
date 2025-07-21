@@ -624,6 +624,7 @@
     <string name="remaining_gestures_count_placeholder">Осталось жестов: 0</string>
     <string name="loading_error">Ошибка загрузки</string>
     <string name="the_file_was_not_successfully_downloaded">Файл не был успешно загружен на протез. Повторите попытку.</string>
+    <string name="the_firmware_file_was_not_successfully_downloaded">Файл обновления не был успешно загружен на протез. Повторите попытку.</string>
     <string name="data_collection">Сбор данных</string>
     <string name="active_gesture_is" formatted="true">Активный жест: %1$s</string>
     <string name="pwle_unknow">unknow</string>

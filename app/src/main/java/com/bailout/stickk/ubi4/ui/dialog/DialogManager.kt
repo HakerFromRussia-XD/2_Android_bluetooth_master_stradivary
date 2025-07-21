@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderB
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class DialogManager(
@@ -89,6 +90,17 @@ class DialogManager(
 
                 viewLifecycleOwner.lifecycleScope.launch {
                     // 1) START_SYSTEM_UPDATE
+                    val timeoutJob = launch {
+                        var last = progressBar.progress
+                        while (isActive) {
+                            delay(12_000)
+                            if (progressBar.progress == last && progressBar.progress < 100) {
+                                showWarningLoadingDialog()
+                                break
+                            }
+                            last = progressBar.progress
+                        }
+                    }
                     val startStatus = updater.startSystemUpdate()
                     if (startStatus != PreferenceKeysUBI4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
                         main?.showToast("Не удалось начать обновление (status=$startStatus)")
@@ -127,6 +139,7 @@ class DialogManager(
 
                     // 8) Всё готово — отправляем файл чанками
                     lastMaxChunkInfo?.let { info ->
+
                         updater.sendFirmwareWithProgress(addr, fileItem.file, info) { offset, total ->
                             // считаем процент и обновляем прогресс-бар на главном потоке
                             val percent = (offset * 100 / total).coerceIn(0, 100)
@@ -148,6 +161,7 @@ class DialogManager(
                     main?.showToast("Обновление успешно завершено!")
                     currentDialog?.dismiss()
                     onConfirm(fileItem)
+                    timeoutJob.cancel()
                 }
             }
     }
@@ -173,6 +187,25 @@ class DialogManager(
             ?: throw IllegalStateException("В ubi4_dialog_progressbar.xml нет View с id loadingFirmwareProgressBar")
 
         return progressBar
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showWarningLoadingDialog() {
+        closeAllDialogs()
+        val dialogView = layoutInflater.inflate(
+            R.layout.ubi4_dialog_warning_load_firmware, null
+        )
+        Dialog(context).apply {
+            setContentView(dialogView)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }.also { dlg ->
+            dialogView.findViewById<View>(R.id.ubi4WarningLoadingFirmwareBtn)
+                .setOnClickListener {
+                    dlg.dismiss()
+                }
+        }
     }
 }
 

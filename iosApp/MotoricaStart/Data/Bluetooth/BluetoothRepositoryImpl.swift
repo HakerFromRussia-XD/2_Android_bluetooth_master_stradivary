@@ -77,8 +77,8 @@ extension BluetoothRepositoryImpl: CBCentralManagerDelegate {
         switch manager.state {
             case .poweredOn:
                 print("[BLE] Bluetooth включён, запускаем сканирование")
-                manager.scanForPeripherals(withServices: nil,
-                                           options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+//                manager.scanForPeripherals(withServices: nil,
+//                                           options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
             default:
                 print("[BLE] Bluetooth недоступен (не включён или нет прав)")
                 discovered.removeAll()

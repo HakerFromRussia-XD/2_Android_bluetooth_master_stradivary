@@ -15,6 +15,7 @@ final class BluetoothListViewModel {
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
     private let bleManager = BleManager_fromTestProj()
+    private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository
     private var cancellables = Set<AnyCancellable>()
@@ -24,17 +25,17 @@ final class BluetoothListViewModel {
         // При инициализации читаем сохранённый фильтр
         selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
         // Подписываемся на поток найденных устройств
-        repository.scannedDevicesPublisher
-            .receive(on: DispatchQueue.main)
-            .sink{ devices in
-                let info = devices
-                            .map { "\($0.name)(rssi:\($0.rssi))" }
-                            .joined(separator: ", ")
-                print("[BLE-VM] received devices: \(info)")
-                self.allDevices = devices
-                self.applyFilter(index: self.selectedFilterIndex)
-            }
-            .store(in: &cancellables)
+//        repository.scannedDevicesPublisher
+//            .receive(on: DispatchQueue.main)
+//            .sink{ devices in
+//                let info = devices
+//                            .map { "\($0.name)(rssi:\($0.rssi))" }
+//                            .joined(separator: ", ")
+//                print("[BLE-VM] received devices: \(info)")
+//                self.allDevices = devices
+//                self.applyFilter(index: self.selectedFilterIndex)
+//            }
+//            .store(in: &cancellables)
         
         // Подписываемся на поток подключённых устройств
         repository.connectionPublisher
@@ -47,15 +48,48 @@ final class BluetoothListViewModel {
     }
     
     func onAppear() {
-        repository.startScanning()
         print("test log from BLEViewModel")
-//        bleManager.startScan { BleDevice in
-//            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
-//        }
+        bleManager.startScan { [weak self] bleDevice in
+            guard let self = self else { return }
+            // Фильтруем устройства без имени или с "Unknown"
+            guard let name = bleDevice.name, !name.isEmpty, name != "Unknown" else {
+                print("[BLE] пропускаем устройство без имени или с 'Unknown'")
+                return
+            }
+            guard let uuid = UUID(uuidString: bleDevice.id) else { return }
+            
+            let device = BLEDevice(
+                id: uuid,
+                name: bleDevice.name ?? "Unknown",
+                uuid: uuid,
+                rssi: 0
+            )
+            
+            DispatchQueue.main.async {
+                // Проверяем, есть ли устройство с таким UUID в списке
+                if let index = self.allDevices.firstIndex(where: { $0.id == uuid }) {
+                    // Если устройство уже существует, обновляем его данные
+                    self.allDevices[index] = device
+                } else {
+                    // Если устройства с таким UUID нет, добавляем его в список
+                    self.allDevices.append(device)
+                }
+                
+                // Обновляем время последнего обнаружения для устройства
+//                self.lastSeenTimestamps[uuid] = Date()
+                                
+                // Выполняем очистку устаревших устройств
+//                self.cleanupExpiredDevices()
+                
+                
+                self.applyFilter(index: self.selectedFilterIndex)
+            }
+        }
     }
     
     func onDisappear() {
-        repository.stopScanning()
+//        repository.stopScanning()
+        bleManager.stopScan()
     }
     
     // метод для фильтрации списка по сегменту
@@ -79,4 +113,29 @@ final class BluetoothListViewModel {
         let device = devices[index]
         repository.connect(to: device)
     }
+    
+//    Удаляет устройства, которые не были обнаружены в течение последних 10 секунд
+//    private func cleanupExpiredDevices() {
+//        let now = Date()
+//        let expirationInterval: TimeInterval = 20.0
+//        var didRemove = false
+//
+//        for (uuid, lastSeen) in lastSeenTimestamps {
+//            if now.timeIntervalSince(lastSeen) > expirationInterval {
+//                // Удаляем устройство из allDevices и lastSeenTimestamps
+//                if let index = allDevices.firstIndex(where: { $0.id == uuid }) {
+//                    allDevices.remove(at: index)
+//                }
+//                lastSeenTimestamps.removeValue(forKey: uuid)
+//                didRemove = true
+//            }
+//        }
+//        
+//        // Если устройства были удалены, обновляем список
+//        if didRemove {
+//            DispatchQueue.main.async {
+//                self.devices = self.allDevices
+//            }
+//        }
+//    }
 }

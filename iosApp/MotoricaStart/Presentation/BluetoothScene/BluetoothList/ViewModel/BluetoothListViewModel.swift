@@ -47,7 +47,7 @@ final class BluetoothListViewModel {
     }
     
     func onAppear() {
-//        repository.startScanning()
+        repository.startScanning()
         print("test log from BLEViewModel")
 //        bleManager.startScan { BleDevice in
 //            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")

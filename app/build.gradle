@@ -29,7 +29,7 @@ android {
         minSdk 28
         targetSdk 33
         versionCode 11
-        versionName "3.2.1048"
+        versionName "3.2.1051"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release
@@ -207,5 +207,18 @@ dependencies {
     testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
     testImplementation 'io.mockk:mockk:1.13.7'
+
+    // Ktor core и движок для Android (OkHttp)
+    implementation "io.ktor:ktor-client-core:2.3.1"
+    implementation "io.ktor:ktor-client-okhttp:2.3.1"
+
+// Плагин ContentNegotiation и сериализация JSON
+    implementation "io.ktor:ktor-client-content-negotiation:2.3.1"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:2.3.1"
+
+// Плагин логирования запросов/ответов
+    implementation "io.ktor:ktor-client-logging:2.3.1"
+
+    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 
 }

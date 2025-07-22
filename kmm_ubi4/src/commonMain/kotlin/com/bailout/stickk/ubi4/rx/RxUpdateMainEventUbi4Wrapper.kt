@@ -8,4 +8,5 @@ expect object RxUpdateMainEventUbi4Wrapper {
     fun updateUiRotationGroup(parameterRef: ParameterRef)
     fun updateUiOpticTraining(parameterRef: ParameterRef)
     fun updateFingerAngle(parameters: FingerAngle)
+    fun updateUiAccountMain(isVisible: Boolean)
 }

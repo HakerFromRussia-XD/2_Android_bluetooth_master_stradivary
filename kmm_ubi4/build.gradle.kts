@@ -66,11 +66,16 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-                implementation("io.ktor:ktor-client-core:2.3.2")
+                implementation("io.ktor:ktor-client-core:2.3.1")
+                implementation("io.ktor:ktor-client-logging:2.3.1")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22")
                 implementation("dev.icerock.moko:resources:0.24.5")
+
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/commonMain/kotlin")
         }
@@ -80,7 +85,7 @@ kotlin {
                 implementation("androidx.core:core-ktx:1.15.0")
                 implementation("androidx.appcompat:appcompat:1.7.0")
                 implementation("com.google.android.material:material:1.12.0")
-                implementation("io.ktor:ktor-client-okhttp:2.3.2")
+                implementation("io.ktor:ktor-client-okhttp:2.3.1")
                 implementation("dev.icerock.moko:resources:0.24.5")
 
                 implementation("io.reactivex.rxjava2:rxjava:2.2.17")
@@ -93,6 +98,7 @@ kotlin {
 
                 implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
                 implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+                implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
             }
             kotlin.srcDir("$buildDir/generated/moko/resources/androidMain/kotlin")
         }
@@ -101,7 +107,7 @@ kotlin {
             dependsOn(commonMain)
             kotlin.srcDir("$buildDir/generated/moko/resources/iosMain/kotlin")
             dependencies {
-                implementation("io.ktor:ktor-client-darwin:2.3.2")
+                implementation("io.ktor:ktor-client-darwin:2.3.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
             }
         }

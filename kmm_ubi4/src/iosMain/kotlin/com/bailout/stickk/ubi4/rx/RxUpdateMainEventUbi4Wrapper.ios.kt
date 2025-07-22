@@ -19,4 +19,9 @@ actual object RxUpdateMainEventUbi4Wrapper {
     actual fun updateFingerAngle(parameters: FingerAngle) {
         println("iOS: updateFingerAngle: parameters=$parameters")
     }
+
+    actual fun updateUiAccountMain(isVisible: Boolean) {
+        println("iOS: updateUiAccountMain: isVisible=$isVisible")
+    }
+
 }

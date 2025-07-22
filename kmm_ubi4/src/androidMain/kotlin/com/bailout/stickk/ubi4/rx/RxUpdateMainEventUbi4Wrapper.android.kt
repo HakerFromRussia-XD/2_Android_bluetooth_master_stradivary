@@ -19,4 +19,8 @@ actual object RxUpdateMainEventUbi4Wrapper {
     actual fun updateFingerAngle(parameters: FingerAngle) {
         RxUpdateMainEventUbi4.getInstance().updateFingerAngle(parameters)
     }
+
+    actual fun updateUiAccountMain(isVisible: Boolean) {
+        RxUpdateMainEventUbi4.getInstance().updateUIAccountMain(isVisible)
+    }
 }

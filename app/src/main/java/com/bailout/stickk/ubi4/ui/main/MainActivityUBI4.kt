@@ -172,21 +172,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            val testCommand = byteArrayOf(
-                0xA0.toByte(), 0x03.toByte(), 0x00.toByte(), 0x13.toByte(),
-                0x00.toByte(), 0x00.toByte(), 0x08.toByte(), 0x03.toByte(),
-                0x4D.toByte(), 0x75.toByte(), 0x6C.toByte(), 0x74.toByte(),
-                0x69.toByte(), 0x67.toByte(), 0x72.toByte(), 0x69.toByte(),
-                0x70.toByte(), 0x46.toByte(), 0x00.toByte(), 0x02.toByte(),
-                0x07.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
-                0x02.toByte(), 0x01.toByte()
-            )
-            bleCommandWithQueue(
-                testCommand,
-                MAIN_CHANNEL, WRITE
-            ) { }
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//
+//        }
 
     }
 
@@ -409,7 +397,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0
         if (!isCpu || !uuidOk) return          // игнорируем саб-модули
-        val serial = "${info.deviceUUIDPrefix}${'-'}${info.formattedDeviceUUID}"
+        val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         runOnUiThread { binding.nameTv.text = serial }
     }

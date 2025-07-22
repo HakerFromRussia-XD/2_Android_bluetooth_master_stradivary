@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -22,21 +21,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
-import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
-import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
+import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
+import com.bailout.stickk.ubi4.models.device.DeviceInfo
+import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
+import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
@@ -49,15 +49,7 @@ import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
-import java.util.Properties
-import java.util.zip.ZipFile
 import kotlin.math.min
 import kotlin.properties.Delegates
 
@@ -76,11 +68,14 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private var encryptionResult: String? = null
     // Используйте реальный серийный номер, если он доступен
     private var serialNumber = "FEST-F-05670"
+//    private var serialNumber = "FEST-H-04921"
     private var myRequests: RequestsUBI4? = null
     private var fname: String = ""
     private var sname: String = ""
     private var locate: String = "en"
     private var attemptedRequest: Int = 1
+
+    private val api = Ubi4RequestsApi()
 
     private var driverVersion = "0.01"
     private var bmsVersion = "0.01"
@@ -109,13 +104,13 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
         mContext = context
         // Передаем серийный номер из активности, если нужно
-        val deviceName = main?.mDeviceName
+        val deviceName = main?.mDeviceName // <- раскоменитировать после теста
         //TODO после теста убрать фильтр по названию серийного номера
-//        serialNumber = deviceName
-//            .takeIf { !it.isNullOrBlank() && it.startsWith("FEST-") }
-//            ?: serialNumber
+        serialNumber = deviceName
+            .takeIf { !it.isNullOrBlank() && it.startsWith("FEST-") }
+            ?: serialNumber
 
-//        serialNumber = main?.mDeviceName ?: serialNumber
+        serialNumber = main?.mDeviceName ?: serialNumber
         serialNumber = deviceName ?: serialNumber
         System.err.println("TEST SERIAL NUMBER $serialNumber")
         return binding.root
@@ -187,7 +182,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         super.onResume()
         System.err.println("AccountFragmentMainUBI4: onResume")
         //TODO временно RxUpdateMainEvent от UBI3
-        RxUpdateMainEvent.getInstance().uiAccountMain
+        RxUpdateMainEventUbi4.getInstance().uiAccountMain
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
@@ -212,129 +207,218 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
     private val cleanSerialNumber = serialNumber.replace("\u0000", "").trim()
 
-
     private fun requestToken() {
-        CoroutineScope(Dispatchers.Main).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             encryptionResult = encryptionManager?.encrypt(serialNumber)
-            System.err.println("encryptionResult = ${encryptionResult} requestToken")
-            myRequests!!.getRequestToken(
-                { token ->
-                    this@AccountFragmentMainUBI4.token = token
+            when (val res = api.getToken("Aesserial $encryptionResult")) {
+                is NetworkResult.Success -> {
+                    token = res.value.token
                     binding.preloaderLav.visibility = View.GONE
                     requestUserData()
-                    System.err.println("requestToken processed")
-                },
-                { error ->
-                    System.err.println("requestToken error: $error")
-                    main?.runOnUiThread { binding.refreshLayout.setRefreshing(false) }
-                    when (error) {
-                        "500" -> {
-                            if (attemptedRequest != 4) {
-                                attemptedRequest++
-                                requestToken()
-                            } else {
-                                main?.runOnUiThread {
-                                    showInfoWithoutConnection()
-                                    Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        }
-                        else -> {
-                            main?.runOnUiThread {
-                                showInfoWithoutConnection()
-                                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                },
-                "Aesserial $encryptionResult"
-//                cleanSerialNumber
-            )
+                }
+                is NetworkResult.Error -> {
+                    binding.refreshLayout.setRefreshing(false)
+                    handleTokenError(res)
+                }
+            }
         }
     }
 
+    private fun handleTokenError(err: NetworkResult.Error) {
+        if (err.code == 500) retryOrShowNoData()
+        else {
+            showInfoWithoutConnection()
+            Toast.makeText(mContext, err.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun retryOrShowNoData() {
+        if (attemptedRequest++ < 4) requestToken()
+        else {
+            showInfoWithoutConnection()
+            Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
+        }
+    }
+
+//    private fun requestUserData() {
+//        CoroutineScope(Dispatchers.Main).launch {
+//            myRequests!!.getRequestUserV2(
+//                { user ->
+//                    fname = user.userInfo?.fname ?: ""
+//                    sname = user.userInfo?.sname ?: ""
+//                    binding.apply {
+//                        val item = AccountMainUBI4Item(
+//                            avatarUrl      = "avatarUrl",
+//                            name           = fname,
+//                            surname        = sname,
+//                            patronymic     = "Ivanovich",
+//                            versionDriver  = driverVersion,
+//                            versionBms     = bmsVersion,
+//                            versionSensors = sensorsVersion
+//                        )
+//                        updateAccountSafe(item)
+//                        binding.refreshLayout.setRefreshing(false)
+//                    }
+//                    clientId = user.userInfo?.clientId ?: 0
+//                    System.err.println("clientId: ${clientId}")
+//                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
+//                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
+//                    requestDeviceList()
+//                },
+//                { error ->
+//                    binding.refreshLayout.setRefreshing(false)
+//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
+//                },
+//                token = this@AccountFragmentMainUBI4.token,
+//                lang = locate
+//            )
+//        }
+//    }
     private fun requestUserData() {
-        CoroutineScope(Dispatchers.Main).launch {
-            myRequests!!.getRequestUserV2(
-                { user ->
-                    fname = user.userInfo?.fname ?: ""
-                    sname = user.userInfo?.sname ?: ""
-                    binding.apply {
-                        val item = AccountMainUBI4Item(
-                            avatarUrl      = "avatarUrl",
-                            name           = fname,
-                            surname        = sname,
-                            patronymic     = "Ivanovich",
-                            versionDriver  = driverVersion,
-                            versionBms     = bmsVersion,
-                            versionSensors = sensorsVersion
-                        )
-                        updateAccountSafe(item)
-                        binding.refreshLayout.setRefreshing(false)
-                    }
-                    clientId = user.userInfo?.clientId ?: 0
-                    System.err.println("clientId: ${clientId}")
-                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
-                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val res = api.getUserInfoV2(token, locate)) {
+                is NetworkResult.Success -> {
+                    val info = res.value.userInfo
+                    fname = info?.fname.orEmpty()
+                    sname = info?.sname.orEmpty()
+                    updateProfileUI()
+                    clientId = info?.clientId ?: 0
+                    saveManagerInfo(info?.manager)
                     requestDeviceList()
-                },
-                { error ->
+                }
+                is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-                },
-                token = this@AccountFragmentMainUBI4.token,
-                lang = locate
-            )
+                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
+    private fun saveManagerInfo(manager: Manager?) {
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, manager?.fio.orEmpty())
+        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, manager?.phone.orEmpty())
+    }
 
+
+//    private fun requestDeviceList() {
+//        CoroutineScope(Dispatchers.Main).launch {
+//            myRequests!!.getRequestUser(
+//                { user ->
+//                    System.err.println("Device list size: ${user.devices.size}")
+//                    for (device in user.devices) {
+//                        System.err.println("Device id = ${device.id} serialNumber = ${device.serialNumber}")
+//                        if (device.serialNumber == serialNumber) {
+//                            System.err.println("Found target device: ${device.id}")
+//                            device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
+//                        }
+//                    }
+//                },
+//                { error ->
+//                    binding.refreshLayout.setRefreshing(false)
+//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
+//                },
+//                token = this@AccountFragmentMainUBI4.token,
+//                lang = locate
+//            )
+//        }
+//    }
     private fun requestDeviceList() {
-        CoroutineScope(Dispatchers.Main).launch {
-            myRequests!!.getRequestUser(
-                { user ->
-                    System.err.println("Device list size: ${user.devices.size}")
-                    for (device in user.devices) {
-                        System.err.println("Device id = ${device.id} serialNumber = ${device.serialNumber}")
-                        if (device.serialNumber == serialNumber) {
-                            System.err.println("Found target device: ${device.id}")
-                            device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
-                        }
-                    }
-                },
-                { error ->
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val res = api.getDevicesList(clientId, token, locate)) {
+                is NetworkResult.Success -> {
+                    val devices: List<DeviceInList_DEV> = res.value
+                    devices
+                        .firstOrNull { it.serialNumber == serialNumber }
+                        ?.id
+                        ?.let { requestDeviceInfo(it) }
+                }
+                is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-                },
-                token = this@AccountFragmentMainUBI4.token,
-                lang = locate
-            )
+                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
-    private fun requestDeviceInfo(deviceId: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
-            myRequests!!.getRequestDeviceInfo(
-                { deviceInfo ->
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
-                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
-                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
-                    // ... (другие логи)
-                },
-                { error ->
-                    binding.refreshLayout.setRefreshing(false)
-                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-                },
-                token = this@AccountFragmentMainUBI4.token,
-                deviceId = deviceId,
-                lang = locate
+
+    private fun updateProfileUI() {
+        binding.apply {
+            updateAccountSafe(
+                AccountMainUBI4Item(
+                    avatarUrl = "avatarUrl",
+                    name = fname,
+                    surname = sname,
+                    patronymic = "Ivanovich",
+                    versionDriver = driverVersion,
+                    versionBms = bmsVersion,
+                    versionSensors = sensorsVersion
+                )
             )
+            refreshLayout.setRefreshing(false)
         }
+    }
+
+//    private fun requestDeviceInfo(deviceId: Int) {
+//        CoroutineScope(Dispatchers.Main).launch {
+//            myRequests!!.getRequestDeviceInfo(
+//                { deviceInfo ->
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
+//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
+//                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
+//                    // ... (другие логи)
+//                },
+//                { error ->
+//                    binding.refreshLayout.setRefreshing(false)
+//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
+//                },
+//                token = this@AccountFragmentMainUBI4.token,
+//                deviceId = deviceId,
+//                lang = locate
+//            )
+//        }
+//    }
+    private fun requestDeviceInfo(deviceId: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val res = api.getDeviceInfo(deviceId, token, locate)) {
+                is NetworkResult.Success -> saveDeviceInfo(res.value)
+                is NetworkResult.Error -> {
+                    binding.refreshLayout.setRefreshing(false)
+                    Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun saveDeviceInfo(info: DeviceInfo) {
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS,
+            simplificationName(info.model?.name.orEmpty())
+        )
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS,
+            info.size?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS,
+            info.side?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS,
+            info.status?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,
+            info.dateTransfer.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
+            info.guaranteePeriod.orEmpty()
+        )
     }
 
 

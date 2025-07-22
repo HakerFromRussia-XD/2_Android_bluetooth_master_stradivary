@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DeviceInfo (
     @SerialName("id") var id: Int? = null,
-    @SerialName("serial_number       ") var serialNumber: String? = null,
+    @SerialName("serial_number") var serialNumber: String? = null,
     @SerialName("model") var model: Model? = Model(),
     @SerialName("version") var version: Version? = Version(),
     @SerialName("status") var status: Status? = Status(),

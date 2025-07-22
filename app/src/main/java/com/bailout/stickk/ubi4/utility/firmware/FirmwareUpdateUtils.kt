@@ -1,8 +1,6 @@
 package com.bailout.stickk.ubi4.utility.firmware
 
 import android.util.Log
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
-import com.bailout.stickk.ubi4.utility.CrcCalc
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -11,7 +9,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.charset.Charset
 import java.util.Properties
-import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 object FirmwareUpdateUtils {

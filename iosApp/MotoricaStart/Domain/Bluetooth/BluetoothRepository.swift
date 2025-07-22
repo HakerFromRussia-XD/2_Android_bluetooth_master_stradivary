@@ -6,7 +6,6 @@
 //
 import Foundation
 import Combine
-import shared
 
 public protocol BluetoothRepository {
     /// Публикатор списка найденных устройств
@@ -14,7 +13,7 @@ public protocol BluetoothRepository {
     var connectionPublisher: AnyPublisher<UUID, Never> { get }
     
     /// Начать сканирование
-    func startScanning()
+//    func startScanning()
     /// Остановить сканирование
     func stopScanning()
     /// Подключение к устройству

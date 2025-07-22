@@ -15,7 +15,7 @@ expect class BleManager_fromTestProj() {
     fun stopScan()
 
     /**
-     * Отправить [data] в характеристику [characteristicUuid]
+     * Отправить [data] в xхарактеристику [characteristicUuid]
      * устройства [device] (или по его id).
      */
     fun sendBytes(

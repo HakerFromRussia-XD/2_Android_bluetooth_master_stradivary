@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import shared
 
 final class BluetoothListViewModel {
     private var allDevices: [BLEDevice] = [] // хранение полного списка устройств
@@ -13,6 +14,7 @@ final class BluetoothListViewModel {
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
+    private let bleManager = BleManager_fromTestProj()
     
     private let repository: BluetoothRepository
     private var cancellables = Set<AnyCancellable>()
@@ -45,7 +47,11 @@ final class BluetoothListViewModel {
     }
     
     func onAppear() {
-        repository.startScanning()
+//        repository.startScanning()
+        print("test log from BLEViewModel")
+//        bleManager.startScan { BleDevice in
+//            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
+//        }
     }
     
     func onDisappear() {

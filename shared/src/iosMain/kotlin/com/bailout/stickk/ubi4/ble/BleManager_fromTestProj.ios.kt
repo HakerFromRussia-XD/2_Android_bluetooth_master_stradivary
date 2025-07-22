@@ -21,6 +21,7 @@ import platform.darwin.NSObject
 
 
 /** Информация об обнаруженном устройстве */
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleDevice_fromTestProj
     actual constructor(id: String, name: String?) {
     actual val id: String get() = peripheral.identifier.UUIDString()
@@ -37,6 +38,7 @@ actual class BleDevice_fromTestProj
 }
 
 /** Менеджер для работы с Bluetooth LE */
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleManager_fromTestProj actual constructor() {
     private var onDeviceCallback: ((BleDevice_fromTestProj) -> Unit)? = null
     private val discovered = mutableMapOf<String, CBPeripheral>()
@@ -116,20 +118,22 @@ actual class BleManager_fromTestProj actual constructor() {
     }
     private val manager = CBCentralManager(delegate, queue = null)
 
+    @Suppress("unused")
     actual fun startScan(onDeviceFound: (BleDevice_fromTestProj) -> Unit) {
-        println("startScan from kmm")
+        println("startScan from kmm 3")
         onDeviceCallback = onDeviceFound
-//        manager.scanForPeripheralsWithServices(null, null)
         if (manager.state == CBManagerStatePoweredOn) {
             manager.scanForPeripheralsWithServices(null, null)
         }
     }
 
+    @Suppress("unused")
     actual fun stopScan() {
         onDeviceCallback = null
         manager.stopScan()
     }
 
+    @Suppress("unused")
     actual fun sendBytes(
         device: BleDevice_fromTestProj,
         serviceUuid: String,

@@ -44,14 +44,14 @@ public final class BluetoothRepositoryImpl: NSObject, BluetoothRepository {
     }
 
     public func startScanning() {
-        print("[BLE] startScanning() called, current state: \(centralManager.state)")
-        guard centralManager.state == .poweredOn else {
-            print("[BLE] Невозможно сканировать, т.к. Bluetooth не poweredOn")
-            return }
-        discovered.removeAll()
-        scannedDevicesSubject.send([])
-        centralManager.scanForPeripherals(withServices: nil, options: nil)
-        print("[BLE] Сканирование запущено")
+//        print("[BLE] startScanning() called, current state: \(centralManager.state)")
+//        guard centralManager.state == .poweredOn else {
+//            print("[BLE] Невозможно сканировать, т.к. Bluetooth не poweredOn")
+//            return }
+//        discovered.removeAll()
+//        scannedDevicesSubject.send([])
+//        centralManager.scanForPeripherals(withServices: nil, options: nil)
+//        print("[BLE] Сканирование запущено")
     }
 
     public func stopScanning() {

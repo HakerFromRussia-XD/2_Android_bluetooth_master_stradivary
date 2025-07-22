@@ -23,15 +23,17 @@ import platform.darwin.NSObject
 /** Информация об обнаруженном устройстве */
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleDevice_fromTestProj
-    actual constructor(id: String, name: String?) {
+    actual constructor(id: String, name: String?, rssi: Int) {
     actual val id: String get() = peripheral.identifier.UUIDString()
     actual val name: String? get() = peripheral.name
+    actual val rssi: Int = rssi
     internal lateinit var peripheral: CBPeripheral
 
-    internal constructor(peripheral: CBPeripheral) :
+    internal constructor(peripheral: CBPeripheral, rssi: Int) :
             this(
                 id = peripheral.identifier.UUIDString(),
-                name = peripheral.name
+                name = peripheral.name,
+                rssi = rssi
             ) {
         this.peripheral = peripheral
     }
@@ -70,7 +72,7 @@ actual class BleManager_fromTestProj actual constructor() {
             RSSI: NSNumber
         ) {
 //            onDeviceCallback?.invoke(BleDevice(didDiscoverPeripheral))
-            val device = BleDevice_fromTestProj(didDiscoverPeripheral)
+            val device = BleDevice_fromTestProj(didDiscoverPeripheral, RSSI.intValue)
             discovered[device.id] = didDiscoverPeripheral
             onDeviceCallback?.invoke(device)
         }

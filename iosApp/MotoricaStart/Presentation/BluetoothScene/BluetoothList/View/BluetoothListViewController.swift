@@ -47,10 +47,10 @@ final class BluetoothListViewController: UIViewController {
         segmentContainer.layer.shadowOpacity = 0.24
         segmentContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         segmentContainer.layer.shadowRadius = 3
-        segmentContainer.layer.cornerRadius = 20
+        segmentContainer.layer.cornerRadius = 22
         segmentContainer.layer.masksToBounds = false
         segmentContainer.addSubview(segmentedConrol)
-        segmentedConrol.translatesAutoresizingMaskIntoConstraints = false
+        segmentedConrol.translatesAutoresizingMaskIntoConstraints = true
         NSLayoutConstraint.activate([
            segmentContainer.heightAnchor.constraint(equalToConstant: 60),
            segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),

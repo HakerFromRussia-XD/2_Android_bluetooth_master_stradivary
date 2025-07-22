@@ -3,7 +3,8 @@ package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 /** Информация об обнаруженном устройстве */
 actual class BleDevice_fromTestProj actual constructor (
     actual val id: String,
-    actual val name: String?
+    actual val name: String?,
+    actual val rssi: Int
 )
 
 /** Менеджер для работы с Bluetooth LE */

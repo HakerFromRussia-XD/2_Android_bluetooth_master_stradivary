@@ -62,7 +62,8 @@ final class BluetoothListViewModel {
                 id: uuid,
                 name: bleDevice.name ?? "Unknown",
                 uuid: uuid,
-                rssi: 0
+                rssi: Int(bleDevice.rssi)
+
             )
             
             DispatchQueue.main.async {

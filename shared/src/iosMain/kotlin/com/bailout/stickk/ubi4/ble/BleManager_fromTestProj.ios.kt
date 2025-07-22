@@ -21,11 +21,19 @@ import platform.darwin.NSObject
 
 
 /** Информация об обнаруженном устройстве */
-actual class BleDevice_fromTestProj internal constructor(
-    val peripheral: CBPeripheral
-) {
+actual class BleDevice_fromTestProj
+    actual constructor(id: String, name: String?) {
     actual val id: String get() = peripheral.identifier.UUIDString()
     actual val name: String? get() = peripheral.name
+    internal lateinit var peripheral: CBPeripheral
+
+    internal constructor(peripheral: CBPeripheral) :
+            this(
+                id = peripheral.identifier.UUIDString(),
+                name = peripheral.name
+            ) {
+        this.peripheral = peripheral
+    }
 }
 
 /** Менеджер для работы с Bluetooth LE */

@@ -67,9 +67,9 @@ final class BluetoothListViewModel {
             
             DispatchQueue.main.async {
                 // Проверяем, есть ли устройство с таким UUID в списке
-                if let index = self.allDevices.firstIndex(where: { $0.id == uuid }) {
+                if let index = self.allDevices.firstIndex(where: { $0.name ==  bleDevice.name ?? "Unknown" }) {
                     // Если устройство уже существует, обновляем его данные
-                    self.allDevices[index] = device
+//                    self.allDevices[index] = device
                 } else {
                     // Если устройства с таким UUID нет, добавляем его в список
                     self.allDevices.append(device)

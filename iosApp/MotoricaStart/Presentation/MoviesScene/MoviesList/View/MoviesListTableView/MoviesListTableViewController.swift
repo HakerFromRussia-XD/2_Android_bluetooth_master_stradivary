@@ -53,10 +53,16 @@ final class MoviesListTableViewController: UITableViewController {
         tableView.estimatedRowHeight = MoviesListItemCell.height
         tableView.rowHeight = UITableView.automaticDimension
         
+        // Register a class for SliderViewCell because it is created from code
+        tableView.register(
+            SliderViewCell.self,
+            forCellReuseIdentifier: SliderViewCell.reuseIdentifier
+        )
+        
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
-            guard let self = self else { return nil }
+            guard let self = self else {return nil}
             switch item {
             case .movie(let vm):
                 let cell = tableView.dequeueReusableCell(
@@ -65,7 +71,7 @@ final class MoviesListTableViewController: UITableViewController {
                 ) as! MoviesListItemCell
                 cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
                 // подгрузка следующей страницы
-                if indexPath.row == self.viewModel.items.value.count - 1 {
+                if indexPath.row == (self.viewModel.items.value.count) - 1 {
                     self.viewModel.didLoadNextPage()
                 }
                 return cell

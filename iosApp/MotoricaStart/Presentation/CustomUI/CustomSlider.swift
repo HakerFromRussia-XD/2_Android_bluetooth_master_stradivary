@@ -34,8 +34,8 @@
 import SwiftUI
 
 struct CustomSlider: View {
-    @Binding var value: Double
-    let range: ClosedRange<Double>
+    @Binding var value: Float
+    let range: ClosedRange<Float>
     let trackHeight: CGFloat
     let cornerRadius: CGFloat
     let borderWidth: CGFloat
@@ -70,7 +70,7 @@ struct CustomSlider: View {
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                let newValue = min(max(range.lowerBound, Double(gesture.location.x / geometry.size.width) * (range.upperBound - range.lowerBound) + range.lowerBound), range.upperBound)
+                                let newValue = min(max(range.lowerBound, Float(Double(gesture.location.x / geometry.size.width)) * (range.upperBound - range.lowerBound) + range.lowerBound), range.upperBound)
                                 value = newValue
                             }
                     )
@@ -80,6 +80,3 @@ struct CustomSlider: View {
         .frame(height: trackHeight)
     }
 }
-
-
-

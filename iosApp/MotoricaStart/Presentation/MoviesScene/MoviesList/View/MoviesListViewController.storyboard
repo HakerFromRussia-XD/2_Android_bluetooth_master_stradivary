@@ -9,6 +9,11 @@
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="sf_pro_display_light.otf">
+            <string>SFProDisplay-Light</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Movies List View Controller-->
         <scene sceneID="0BI-7x-XJo">
@@ -146,6 +151,80 @@
                                     <outlet property="titleLabel" destination="we8-9y-ZfZ" id="JCo-dL-MCT"/>
                                 </connections>
                             </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SliderViewCell" id="Ga3-9R-4kz" customClass="SliderViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="190" width="375" height="140"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Ga3-9R-4kz" id="hiU-Uq-XML" colorLabel="IBBuiltInLabel-Yellow">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GO5-6T-giO">
+                                            <rect key="frame" x="16" y="4" width="343" height="132"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="widget slider description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vZi-V1-DEa">
+                                                    <rect key="frame" x="10" y="8" width="119" height="14.5"/>
+                                                    <fontDescription key="fontDescription" name="SFProDisplay-Light" family="SF Pro Display" pointSize="12"/>
+                                                    <color key="textColor" name="ubi4_white"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="123" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2KJ-30-AGB">
+                                                    <rect key="frame" x="314" y="8" width="19" height="14.5"/>
+                                                    <fontDescription key="fontDescription" name="SFProDisplay-Light" family="SF Pro Display" pointSize="12"/>
+                                                    <color key="textColor" name="ubi4_white"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="xme-s7-vb4">
+                                                    <rect key="frame" x="6" y="26.5" width="331" height="32.5"/>
+                                                </slider>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="widget slider description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="h1k-sr-2uQ">
+                                                    <rect key="frame" x="11" y="74" width="119" height="14.5"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" name="SFProDisplay-Light" family="SF Pro Display" pointSize="12"/>
+                                                    <color key="textColor" name="ubi4_white"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" id="cbi-4h-8CM">
+                                                    <rect key="frame" x="6" y="90" width="331" height="32.5"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                </slider>
+                                            </subviews>
+                                            <color key="backgroundColor" name="ubi4_gray"/>
+                                            <constraints>
+                                                <constraint firstItem="xme-s7-vb4" firstAttribute="leading" secondItem="GO5-6T-giO" secondAttribute="leading" constant="8" id="1De-Ih-qce"/>
+                                                <constraint firstItem="vZi-V1-DEa" firstAttribute="top" secondItem="GO5-6T-giO" secondAttribute="top" constant="8" id="3aG-w8-YEY"/>
+                                                <constraint firstAttribute="trailing" secondItem="xme-s7-vb4" secondAttribute="trailing" constant="8" id="Br6-yD-F5p"/>
+                                                <constraint firstAttribute="height" constant="132" id="VyY-Zf-jQI"/>
+                                                <constraint firstAttribute="trailing" secondItem="2KJ-30-AGB" secondAttribute="trailing" constant="10" id="bW8-uY-V1Q"/>
+                                                <constraint firstItem="h1k-sr-2uQ" firstAttribute="leading" secondItem="vZi-V1-DEa" secondAttribute="leading" id="crj-qj-qnZ"/>
+                                                <constraint firstItem="vZi-V1-DEa" firstAttribute="leading" secondItem="GO5-6T-giO" secondAttribute="leading" constant="10" id="gxA-Pv-BaH"/>
+                                                <constraint firstItem="h1k-sr-2uQ" firstAttribute="top" secondItem="xme-s7-vb4" secondAttribute="bottom" constant="16" id="nu4-Kk-WpX"/>
+                                                <constraint firstItem="cbi-4h-8CM" firstAttribute="leading" secondItem="xme-s7-vb4" secondAttribute="leading" id="qs1-hE-8bN"/>
+                                                <constraint firstItem="xme-s7-vb4" firstAttribute="top" secondItem="vZi-V1-DEa" secondAttribute="bottom" constant="4" id="swt-9i-cIg"/>
+                                                <constraint firstItem="2KJ-30-AGB" firstAttribute="centerY" secondItem="vZi-V1-DEa" secondAttribute="centerY" id="xT2-dd-Awb"/>
+                                            </constraints>
+                                            <edgeInsets key="layoutMargins" top="4" left="16" bottom="4" right="16"/>
+                                        </view>
+                                    </subviews>
+                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                    <color key="tintColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="GO5-6T-giO" secondAttribute="bottom" constant="4" id="1Ma-CF-sZX"/>
+                                        <constraint firstItem="GO5-6T-giO" firstAttribute="centerY" secondItem="hiU-Uq-XML" secondAttribute="centerY" id="3Me-d0-LeP"/>
+                                        <constraint firstAttribute="trailing" secondItem="GO5-6T-giO" secondAttribute="trailing" constant="16" id="PLi-O8-FeR"/>
+                                        <constraint firstItem="GO5-6T-giO" firstAttribute="top" secondItem="hiU-Uq-XML" secondAttribute="top" constant="4" id="PPh-kb-iGP"/>
+                                        <constraint firstItem="GO5-6T-giO" firstAttribute="centerX" secondItem="hiU-Uq-XML" secondAttribute="centerX" id="Zsw-K1-2ma"/>
+                                        <constraint firstItem="GO5-6T-giO" firstAttribute="leading" secondItem="hiU-Uq-XML" secondAttribute="leading" constant="16" id="ugj-e4-NO3"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                <connections>
+                                    <outlet property="containerView" destination="GO5-6T-giO" id="wZz-WK-7w4"/>
+                                    <outlet property="progressSlider" destination="xme-s7-vb4" id="4ch-bO-3px"/>
+                                    <outlet property="widgetSliderTitleLabel" destination="vZi-V1-DEa" id="tZN-T9-iq8"/>
+                                    <outlet property="widgetSliderTitleLabel_2" destination="h1k-sr-2uQ" id="wdu-o2-YH8"/>
+                                </connections>
+                            </tableViewCell>
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="dtm-sz-Zlw" id="tdc-fM-6vW"/>
@@ -161,6 +240,12 @@
     <resources>
         <namedColor name="ubi4_back">
             <color red="0.16470588235294117" green="0.16470588235294117" blue="0.16470588235294117" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="ubi4_gray">
+            <color red="0.21568627450980393" green="0.21568627450980393" blue="0.21568627450980393" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="ubi4_white">
+            <color red="0.9882352941176471" green="0.9882352941176471" blue="0.9882352941176471" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

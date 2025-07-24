@@ -70,12 +70,25 @@ struct CustomSlider: View {
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                let newValue = min(max(range.lowerBound, Float(Double(gesture.location.x / geometry.size.width)) * (range.upperBound - range.lowerBound) + range.lowerBound), range.upperBound)
-                                value = newValue
+                                let relativeX = gesture.location.x / geometry.size.width // Нормализуем значение от 0 до 1 (от левого до правого края)
+                                // Преобразуем нормализованное значение в значение слайдера
+                                let newValue = Float(relativeX) * Float(range.upperBound - range.lowerBound) + Float(range.lowerBound)
+                                // Ограничиваем значение слайдера в пределах диапазона
+                                value = min(max(newValue, Float(range.lowerBound)), Float(range.upperBound))
+                                print("========================================[test_slider]")
+                                print("[test_slider] relativeX = \(relativeX)")
+                                print("[test_slider] gesture.location.x = \(gesture.location.x)")
+                                print("[test_slider] geometry.size.width = \(geometry.size.width)")
+                                print("[test_slider] newValue = \(newValue)")
+                                print("[test_slider] range.upperBound = \(range.upperBound)")
+                                print("[test_slider] range.lowerBound = \(range.lowerBound)")
+                                print("[test_slider] value = \(value)")
                             }
                     )
             }
-            .padding(.horizontal, trackHeight / 2)
+            .padding(.top, 4)
+            .padding(.leading, trackHeight / 2 + 4)
+            .padding(.trailing, trackHeight / 2 + 4)
         }
         .frame(height: trackHeight)
     }

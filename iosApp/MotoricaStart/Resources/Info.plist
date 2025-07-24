@@ -60,9 +60,10 @@
 	<true/>
 	<key>UIAppFonts</key>
 	<array>
+		<string>OpenSans-wght.ttf</string>
 		<string>Assets/OpenSans-wght.ttf</string>
-		<string>Assets/inter.ttf</string>
-		<string>Assets/sf_pro_display_light.otf</string>
+		<string>Assets/Inter.ttf</string>
+		<string>Assets/SFProDisplay-Lightotf</string>
 		<string>Assets/sf_pro_text_bold.otf</string>
 	</array>
 </dict>

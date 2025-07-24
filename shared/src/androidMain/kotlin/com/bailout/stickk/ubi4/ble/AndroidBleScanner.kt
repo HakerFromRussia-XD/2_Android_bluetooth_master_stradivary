@@ -20,7 +20,8 @@ class AndroidBleScanner : BleScanner {
     fun onDeviceFound(device: BluetoothDevice) {
         val bleDevice = BleDevice_fromTestProj(
             id = device.address, // адрес как уникальный id
-            name = device.name ?: "Unknown"
+            name = device.name ?: "Unknown",
+            rssi = 0//TODO разобраться откуда здесь взять rssi
         )
         val updated = _devices.value.toMutableList()
         if (updated.none { it.id == bleDevice.id }) {

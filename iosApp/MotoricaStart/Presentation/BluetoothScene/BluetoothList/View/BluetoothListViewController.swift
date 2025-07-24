@@ -147,6 +147,14 @@ final class BluetoothListViewController: UIViewController {
             }
             .store(in: &cancellables)
         viewModel.onAppear()
+        
+        
+//        for family in UIFont.familyNames {
+//            print(family)
+//            for font in UIFont.fontNames(forFamilyName: family) {
+//                print("ШРИФТЫ:  \(font)")
+//            }
+//        }
     }
     @objc private func filterChange(_ sender: UISegmentedControl) {
         // применяем фильтр при смене сегмента

@@ -23,7 +23,6 @@ final class SliderViewCell: UITableViewCell {
     // Assistant: Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
     }
     
     required init?(coder: NSCoder) {
@@ -47,7 +46,7 @@ final class SliderViewCell: UITableViewCell {
         progressSlider.maximumValue = 100
 //         и визуальная настройка слайдера
         progressSlider.setThumbImage(UIImage(), for: .normal)
-        let trackHeight: CGFloat = 9  // Высота трека (dp)
+        let trackHeight: CGFloat = 30  // Высота трека (dp)
         let activeColor = UIColor(named: "ubi4_active") ?? UIColor.green
         let inactiveColor = UIColor(named: "ubi4_gray") ?? UIColor.gray
 //         Настройка кастомного изображения для трека
@@ -60,7 +59,7 @@ final class SliderViewCell: UITableViewCell {
         
         let slider = CustomSlider(value: .constant(100),
                      range: 0...100,
-                     trackHeight: 30,
+                     trackHeight: trackHeight,
                      cornerRadius: 10,
                      borderWidth: 1,
                      activeColor: Color(UIColor(named: "ubi4_active") ?? UIColor.green),
@@ -101,9 +100,13 @@ final class SliderViewCell: UITableViewCell {
         
         // 1. Создаём провайдер
         let provider = SliderRowProvider(
-            value: .zero,
+            value_1: .zero,
             title_1: viewModel.title,
-            numLabel: viewModel.title_2
+            numLabel_1: viewModel.title_2,
+            
+            value_2: .zero,
+            title_2: viewModel.title,
+            numLabel_2: viewModel.title_2,
         )
         self.provider = provider
         
@@ -114,11 +117,12 @@ final class SliderViewCell: UITableViewCell {
         numberCancellable?.cancel()
         
         // 3. Подписываемся на поток чисел и обновляем value
-        numberCancellable = NumberGenerator.shared.publisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak provider] value in
-                provider?.value = Float(value)
-            }
+//        numberCancellable = NumberGenerator.shared.publisher
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak provider] value in
+//                provider?.value_1 = Float(value.0)
+//                provider?.value_2 = Float(value.1)
+//            }
     }
     
     override func prepareForReuse() {
@@ -140,49 +144,49 @@ final class SliderViewCell: UITableViewCell {
     }
 }
 
-extension UIImage {
-    // Функция для создания изображения с заданным цветом, размером и скругленными углами
-    convenience init(color: UIColor, size: CGSize, lol: Int) {
-        let borderColor = UIColor(named: "ubi4_gray_border") ?? UIColor.gray
-        let activeColor = UIColor(named: "ubi4_active") ?? UIColor.green
-        let inactiveColor = UIColor(named: "ubi4_gray") ?? UIColor.gray
-        
-        let cornerRadius: CGFloat = 3 // Радиус скругления углов (dp)
-        let borderWidth: CGFloat = 1.0
-        
-        // Создаём контекст
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        
-        // Слой для рисования пути
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.frame = CGRect(origin: .zero, size: size)
-        
-        // Рисуем путь с заданными скругленными углами
-        let path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: cornerRadius)
-            
-        
-        // Заливка активным цветом
-        shapeLayer.fillColor = color.cgColor
-        shapeLayer.path = path.cgPath
-        
-        // Добавление обводки
-        if borderWidth > 0 {
-            shapeLayer.lineWidth = borderWidth
-            shapeLayer.strokeColor = borderColor.cgColor  // Цвет обводки
-            shapeLayer.lineJoin = .round  // Скругление углов обводки
-        }
-        
-        // Рисуем слой в контексте
-        shapeLayer.render(in: UIGraphicsGetCurrentContext()!)
-
-        
-        // Получаем изображение из контекста
-        let cgImage = UIGraphicsGetImageFromCurrentImageContext()!.cgImage!
-        UIGraphicsEndImageContext()
-        
-        self.init(cgImage: cgImage)
-    }
-}
+//extension UIImage {
+//    // Функция для создания изображения с заданным цветом, размером и скругленными углами
+//    convenience init(color: UIColor, size: CGSize, lol: Int) {
+//        let borderColor = UIColor(named: "ubi4_gray_border") ?? UIColor.gray
+//        let activeColor = UIColor(named: "ubi4_active") ?? UIColor.green
+//        let inactiveColor = UIColor(named: "ubi4_gray") ?? UIColor.gray
+//        
+//        let cornerRadius: CGFloat = 3 // Радиус скругления углов (dp)
+//        let borderWidth: CGFloat = 1.0
+//        
+//        // Создаём контекст
+//        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+//        
+//        // Слой для рисования пути
+//        let shapeLayer = CAShapeLayer()
+//        shapeLayer.frame = CGRect(origin: .zero, size: size)
+//        
+//        // Рисуем путь с заданными скругленными углами
+//        let path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: cornerRadius)
+//            
+//        
+//        // Заливка активным цветом
+//        shapeLayer.fillColor = color.cgColor
+//        shapeLayer.path = path.cgPath
+//        
+//        // Добавление обводки
+//        if borderWidth > 0 {
+//            shapeLayer.lineWidth = borderWidth
+//            shapeLayer.strokeColor = borderColor.cgColor  // Цвет обводки
+//            shapeLayer.lineJoin = .round  // Скругление углов обводки
+//        }
+//        
+//        // Рисуем слой в контексте
+//        shapeLayer.render(in: UIGraphicsGetCurrentContext()!)
+//
+//        
+//        // Получаем изображение из контекста
+//        let cgImage = UIGraphicsGetImageFromCurrentImageContext()!.cgImage!
+//        UIGraphicsEndImageContext()
+//        
+//        self.init(cgImage: cgImage)
+//    }
+//}
 extension UIView {
     var parentViewController: UIViewController? {
         var parentResponder: UIResponder? = self
@@ -212,24 +216,24 @@ extension UIView {
 //    }
 //}
 
-struct SliderViewCell_Previews: PreviewProvider {
-    static var previews: some View {
-        // Используем адаптер для UITableViewCell
-        SliderViewCellRepresentable(viewModel: AdListItemViewModel(movie: Movie(id: "", title: "", title_2: "", genre: Movie.Genre.adventure, posterPath: "", overview: "", isAd: true)))
-            .previewLayout(.sizeThatFits)
-            .padding()
-    }
-}
-struct SliderViewCellRepresentable: UIViewRepresentable {
-    let viewModel: AdListItemViewModel
-    
-    func makeUIView(context: Context) -> SliderViewCell {
-        let cell = SliderViewCell(style: .default, reuseIdentifier: SliderViewCell.reuseIdentifier)
-        cell.configure(with: viewModel) // передаем модель
-        return cell
-    }
-    
-    func updateUIView(_ uiView: SliderViewCell, context: Context) {
-        uiView.configure(with: viewModel) // обновляем ячейку при изменении
-    }
-}
+//struct SliderViewCell_Previews: PreviewProvider {
+//    static var previews: some View {
+//        // Используем адаптер для UITableViewCell
+//        SliderViewCellRepresentable(viewModel: AdListItemViewModel(movie: Movie(id: "", title: "", title_2: "", genre: Movie.Genre.adventure, posterPath: "", overview: "", isAd: true)))
+//            .previewLayout(.sizeThatFits)
+//            .padding()
+//    }
+//}
+//struct SliderViewCellRepresentable: UIViewRepresentable {
+//    let viewModel: AdListItemViewModel
+//    
+//    func makeUIView(context: Context) -> SliderViewCell {
+//        let cell = SliderViewCell(style: .default, reuseIdentifier: SliderViewCell.reuseIdentifier)
+//        cell.configure(with: viewModel) // передаем модель
+//        return cell
+//    }
+//    
+//    func updateUIView(_ uiView: SliderViewCell, context: Context) {
+//        uiView.configure(with: viewModel) // обновляем ячейку при изменении
+//    }
+//}

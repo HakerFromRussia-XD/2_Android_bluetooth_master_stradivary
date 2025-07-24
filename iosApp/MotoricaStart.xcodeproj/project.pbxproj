@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1124,7 +1124,6 @@
 			);
 			mainGroup = 1FA53380201E1FDE00747E55;
 			packageReferences = (
-				65509F532E2E8AB800ADE32A /* XCLocalSwiftPackageReference "../../../iOs/iOS-Clean-Architecture-MVVM/SharedPackage" */,
 			);
 			productRefGroup = 1FA5338A201E1FDE00747E55 /* Products */;
 			projectDirPath = "";
@@ -1384,11 +1383,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ExampleMVVMUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.solano.ExampleMVVMUITests;
@@ -1407,11 +1402,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ExampleMVVMUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.solano.ExampleMVVMUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1537,8 +1528,7 @@
 					SwiftUI,
 				);
 				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1558,10 +1548,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.0.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
@@ -1591,10 +1578,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.0.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -1618,11 +1602,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ExampleMVVMTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "Oleh-Kudinov.ExampleMVVMTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1642,11 +1622,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ExampleMVVMTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "Oleh-Kudinov.ExampleMVVMTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1696,13 +1672,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		65509F532E2E8AB800ADE32A /* XCLocalSwiftPackageReference "../../../iOs/iOS-Clean-Architecture-MVVM/SharedPackage" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../../iOs/iOS-Clean-Architecture-MVVM/SharedPackage";
-		};
-/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCVersionGroup section */
 		1FD03804239098650016D05F /* CoreDataStorage.xcdatamodeld */ = {

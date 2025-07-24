@@ -67,26 +67,15 @@ final class BluetoothListViewModel {
             
             DispatchQueue.main.async {
                 // Проверяем, есть ли устройство с таким UUID в списке
-                if let index = self.allDevices.firstIndex(where: { $0.name ==  bleDevice.name ?? "Unknown" }) {
-                    // Если устройство уже существует, обновляем его данные
-//                    self.allDevices[index] = device
-                } else {
+                if let index = self.allDevices.firstIndex(where: { $0.name ==  bleDevice.name ?? "Unknown" }) {}
+                else {
                     // Если устройства с таким UUID нет, добавляем его в список
                     self.allDevices.append(device)
                 }
-                
-                // Обновляем время последнего обнаружения для устройства
-//                self.lastSeenTimestamps[uuid] = Date()
-                                
-                // Выполняем очистку устаревших устройств
-//                self.cleanupExpiredDevices()
-                
-                
                 self.applyFilter(index: self.selectedFilterIndex)
             }
         }
     }
-    
     func onDisappear() {
 //        repository.stopScanning()
         bleManager.stopScan()
@@ -113,29 +102,4 @@ final class BluetoothListViewModel {
         let device = devices[index]
         repository.connect(to: device)
     }
-    
-//    Удаляет устройства, которые не были обнаружены в течение последних 10 секунд
-//    private func cleanupExpiredDevices() {
-//        let now = Date()
-//        let expirationInterval: TimeInterval = 20.0
-//        var didRemove = false
-//
-//        for (uuid, lastSeen) in lastSeenTimestamps {
-//            if now.timeIntervalSince(lastSeen) > expirationInterval {
-//                // Удаляем устройство из allDevices и lastSeenTimestamps
-//                if let index = allDevices.firstIndex(where: { $0.id == uuid }) {
-//                    allDevices.remove(at: index)
-//                }
-//                lastSeenTimestamps.removeValue(forKey: uuid)
-//                didRemove = true
-//            }
-//        }
-//        
-//        // Если устройства были удалены, обновляем список
-//        if didRemove {
-//            DispatchQueue.main.async {
-//                self.devices = self.allDevices
-//            }
-//        }
-//    }
 }

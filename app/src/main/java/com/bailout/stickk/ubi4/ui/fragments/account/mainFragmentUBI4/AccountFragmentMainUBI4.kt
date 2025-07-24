@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.NetworkResult
@@ -44,11 +43,10 @@ import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
+import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.properties.Delegates
@@ -64,7 +62,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private var token = ""
     private var clientId = 0
     private var gson: Gson? = null
-    private var encryptionManager: EncryptionManagerUtils? = null
+    private var encryptionManager: EncryptionManagerUtilsUbi4? = null
     private var encryptionResult: String? = null
     // Используйте реальный серийный номер, если он доступен
     private var serialNumber = "FEST-F-05670"
@@ -122,7 +120,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         mSettings = mContext?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
         myRequests = RequestsUBI4()
-        encryptionManager = EncryptionManagerUtils.instance
+        encryptionManager = EncryptionManagerUtilsUbi4.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
         viewLifecycleOwner.lifecycleScope.launch {

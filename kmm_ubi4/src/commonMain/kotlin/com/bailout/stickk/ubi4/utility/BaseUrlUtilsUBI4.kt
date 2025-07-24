@@ -8,5 +8,4 @@ object BaseUrlUtilsUBI4 {
 //  const val BASE = "https://cyberops.motorica.tech:8443/"
 //  const val API_KEY = "Yzl3q6N6DetwFm6fDCqHtu1PrliB8s8GtnSxtMDlLXQtImRoQkDM5crZpTt5GNcA7ewTegjnC510X5Od3835hcWo48Cv6zGYNLcrxB8wHglx3VpjOME9sv57PbiWW" //tech
 
-
 }

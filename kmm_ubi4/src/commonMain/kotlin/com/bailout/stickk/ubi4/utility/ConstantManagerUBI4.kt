@@ -20,5 +20,10 @@ interface ConstantManagerUBI4 {
 
         const val DEVICE_TYPE_FEST_X: String = "FEST-X"
         const val DEVICE_TYPE_FEST_F: String = "FEST-F"
+
+        const val EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+        const val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
+
+
     }
 }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class MoviesListTableViewController: UITableViewController {
+final class WidgetsListTableViewController: UITableViewController {
 
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -8,7 +8,7 @@ final class MoviesListTableViewController: UITableViewController {
     }
     private var dataSource: UITableViewDiffableDataSource<Section, ListItemType>!
     
-    var viewModel: MoviesListViewModel!
+    var viewModel: WidgetsListViewModel!
 
     var posterImagesRepository: PosterImagesRepository?
     var nextPageLoadingSpinner: UIActivityIndicatorView?
@@ -97,7 +97,7 @@ final class MoviesListTableViewController: UITableViewController {
 }
 
 // MARK: - UITableViewDataSource, UITableViewDelegate
-extension MoviesListTableViewController {
+extension WidgetsListTableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.items.value.count

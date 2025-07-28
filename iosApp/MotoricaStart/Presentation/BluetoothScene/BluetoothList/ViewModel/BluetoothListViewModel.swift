@@ -14,7 +14,7 @@ final class BluetoothListViewModel {
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
-    private let bleManager = BleManager_fromTestProj()
+    private let bleManager = BleManagerKmm()
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository
@@ -49,7 +49,7 @@ final class BluetoothListViewModel {
     
     func onAppear() {
         print("test log from BLEViewModel")
-        bleManager.startScan { [weak self] bleDevice in
+        bleManager.startScanKmm { [weak self] bleDevice in
             guard let self = self else { return }
             // Фильтруем устройства без имени или с "Unknown"
             guard let name = bleDevice.name, !name.isEmpty, name != "Unknown" else {
@@ -77,7 +77,7 @@ final class BluetoothListViewModel {
         }
     }
     func onDisappear() {
-        bleManager.stopScan()
+        bleManager.stopScanKmm()
     }
     
     // метод для фильтрации списка по сегменту

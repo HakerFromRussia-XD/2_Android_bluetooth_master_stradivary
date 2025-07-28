@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-final class CoreDataMoviesResponseStorage {
+final class CoreDataWidgetsResponseStorage {
 
     private let coreDataStorage: CoreDataStorage
 
@@ -37,11 +37,11 @@ final class CoreDataMoviesResponseStorage {
     }
 }
 
-extension CoreDataMoviesResponseStorage: MoviesResponseStorage {
+extension CoreDataWidgetsResponseStorage: MoviesResponseStorage {
 
     func getResponse(
         for requestDto: MoviesRequestDTO,
-        completion: @escaping (Result<MoviesResponseDTO?, Error>) -> Void
+        completion: @escaping (Result<WidgetsResponseDTO?, Error>) -> Void
     ) {
         coreDataStorage.performBackgroundTask { context in
             do {
@@ -56,7 +56,7 @@ extension CoreDataMoviesResponseStorage: MoviesResponseStorage {
     }
 
     func save(
-        response responseDto: MoviesResponseDTO,
+        response responseDto: WidgetsResponseDTO,
         for requestDto: MoviesRequestDTO
     ) {
         coreDataStorage.performBackgroundTask { context in
@@ -75,11 +75,11 @@ extension CoreDataMoviesResponseStorage: MoviesResponseStorage {
     }
 }
 
-extension CoreDataMoviesResponseStorage {
+extension CoreDataWidgetsResponseStorage {
     /// Сохраняет DTO и вызывает `completion` на главном потоке,
     /// когда `context.save()` завершён.
     func save(
-        response responseDto: MoviesResponseDTO,
+        response responseDto: WidgetsResponseDTO,
         for requestDto: MoviesRequestDTO,
         completion: @escaping () -> Void
     ) {

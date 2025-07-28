@@ -1,24 +1,24 @@
 import UIKit
 //import shared
 
-final class MoviesListViewController: UIViewController, StoryboardInstantiable, Alertable {
+final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var moviesListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
     
-    private var viewModel: MoviesListViewModel!
+    private var viewModel: WidgetsListViewModel!
     private var posterImagesRepository: PosterImagesRepository?
 //    private let bleManager = BleManager_fromTestProj()
 
-    private var moviesTableViewController: MoviesListTableViewController?
-    let storage = CoreDataMoviesResponseStorage() 
+    private var moviesTableViewController: WidgetsListTableViewController?
+    let storage = CoreDataWidgetsResponseStorage() 
 
     // MARK: - Lifecycle
 
-    static func create(with viewModel: MoviesListViewModel,posterImagesRepository: PosterImagesRepository?) -> MoviesListViewController {
-        let view = MoviesListViewController.instantiateViewController()
+    static func create(with viewModel: WidgetsListViewModel,posterImagesRepository: PosterImagesRepository?) -> WidgetsListViewController {
+        let view = WidgetsListViewController.instantiateViewController()
         view.viewModel = viewModel
         view.posterImagesRepository = posterImagesRepository
         return view
@@ -31,11 +31,11 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         bind(to: viewModel)
         viewModel.viewDidLoad()
         
-        let mockResponseDTO = MoviesResponseDTO(
+        let mockResponseDTO = WidgetsResponseDTO(
             page: 2,
             totalPages: 5,
-            movies: [
-                MoviesResponseDTO.MovieDTO(
+            widgets: [
+                WidgetsResponseDTO.WidgetDTO(
                     id: 1,
                     title: "Пример виджета 2",
                     genre: .adventure,
@@ -43,8 +43,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
                     overview: "Описание виджета 1...",
                     releaseDate: "2023-10-01"
                 ),
-                MoviesResponseDTO.MovieDTO(
-                    id: 2,
+                WidgetsResponseDTO.WidgetDTO(
+                    id: 1,
                     title: "isAd: true 1",
                     genre: .adventure,
                     posterPath: "/path/to/poster.jpg",
@@ -52,7 +52,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
                     releaseDate: "2023-10-01",
                     isAd: true
                 ),
-                MoviesResponseDTO.MovieDTO(
+                WidgetsResponseDTO.WidgetDTO(
                     id: 3,
                     title: "Пример виджета 3",
                     genre: .adventure,
@@ -60,7 +60,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
                     overview: "Описание виджета 3...",
                     releaseDate: "2023-10-01"
                 ),
-                MoviesResponseDTO.MovieDTO(
+                WidgetsResponseDTO.WidgetDTO(
                     id: 40,
                     title: "Пример виджета 4",
                     genre: .adventure,
@@ -90,7 +90,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
 
-    private func bind(to viewModel: MoviesListViewModel) {
+    private func bind(to viewModel: WidgetsListViewModel) {
         viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
@@ -101,8 +101,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == String(describing: MoviesListTableViewController.self),
-            let destinationVC = segue.destination as? MoviesListTableViewController {
+        if segue.identifier == String(describing: WidgetsListTableViewController.self),
+            let destinationVC = segue.destination as? WidgetsListTableViewController {
             moviesTableViewController = destinationVC
             moviesTableViewController?.viewModel = viewModel
             moviesTableViewController?.posterImagesRepository = posterImagesRepository

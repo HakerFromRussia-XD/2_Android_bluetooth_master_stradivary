@@ -1,26 +1,26 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 
 /** Информация об обнаруженном устройстве */
-expect class BleDevice_fromTestProj(id: String, name: String?, rssi: Int) {
+expect class BleDeviceKmm(id: String, name: String?, rssi: Int) {
     val id: String           // идентификатор устройства
     val name: String? // имя, может быть null
     val rssi: Int     // уровень сигнала
 }
 
 /** Менеджер для работы с Bluetooth LE */
-expect class BleManager_fromTestProj() {
+expect class BleManagerKmm() {
     /** Начать сканирование. Каждый найденный девайс передаётся в [onDeviceFound]. */
-    fun startScan(onDeviceFound: (BleDevice_fromTestProj) -> Unit)
+    fun startScanKmm(onDeviceFound: (BleDeviceKmm) -> Unit)
 
     /** Остановить сканирование. */
-    fun stopScan()
+    fun stopScanKmm()
 
     /**
-     * Отправить [data] в xхарактеристику [characteristicUuid]
+     * Отправить [data] в xарактеристику [characteristicUuid]
      * устройства [device] (или по его id).
      */
-    fun sendBytes(
-        device: BleDevice_fromTestProj,
+    fun sendBytesKmm(
+        device: BleDeviceKmm,
         serviceUuid: String,
         characteristicUuid: String,
         data: ByteArray

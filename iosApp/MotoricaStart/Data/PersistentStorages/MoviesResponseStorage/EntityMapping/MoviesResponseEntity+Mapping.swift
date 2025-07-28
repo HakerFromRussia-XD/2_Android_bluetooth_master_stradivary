@@ -2,12 +2,12 @@ import Foundation
 import CoreData
 
 extension MoviesResponseEntity {
-    func toDTO() -> MoviesResponseDTO {
+    func toDTO() -> WidgetsResponseDTO {
         return .init(
             page: Int(page),
             totalPages: Int(totalPages),
 
-            movies: (movies?.allObjects as? [MovieResponseEntity] ?? [])
+            widgets: (movies?.allObjects as? [MovieResponseEntity] ?? [])
                 .sorted { $0.id < $1.id }
                 .map { $0.toDTO() }
         )
@@ -15,11 +15,11 @@ extension MoviesResponseEntity {
 }
 
 extension MovieResponseEntity {
-    func toDTO() -> MoviesResponseDTO.MovieDTO {
+    func toDTO() -> WidgetsResponseDTO.WidgetDTO {
         return .init(
             id: Int(id),
             title: title,
-            genre: MoviesResponseDTO.MovieDTO.GenreDTO(rawValue: genre ?? ""),
+            genre: WidgetsResponseDTO.WidgetDTO.GenreDTO(rawValue: genre ?? ""),
             posterPath: posterPath,
             overview: overview,
             releaseDate: releaseDate,
@@ -37,19 +37,19 @@ extension MoviesRequestDTO {
     }
 }
 
-extension MoviesResponseDTO {
+extension WidgetsResponseDTO {
     func toEntity(in context: NSManagedObjectContext) -> MoviesResponseEntity {
         let entity: MoviesResponseEntity = .init(context: context)
         entity.page = Int32(page)
         entity.totalPages = Int32(totalPages)
-        movies.forEach {
+        widgets.forEach {
             entity.addToMovies($0.toEntity(in: context))
         }
         return entity
     }
 }
 
-extension MoviesResponseDTO.MovieDTO {
+extension WidgetsResponseDTO.WidgetDTO {
     func toEntity(in context: NSManagedObjectContext) -> MovieResponseEntity {
         let entity: MovieResponseEntity = .init(context: context)
         entity.id = Int64(id)

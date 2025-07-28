@@ -36,9 +36,9 @@ protocol MoviesListViewModelOutput {
     var searchBarPlaceholder: String { get }
 }
 
-typealias MoviesListViewModel = MoviesListViewModelInput & MoviesListViewModelOutput
+typealias WidgetsListViewModel = MoviesListViewModelInput & MoviesListViewModelOutput
 
-final class DefaultMoviesListViewModel: MoviesListViewModel {
+final class DefaultMoviesListViewModel: WidgetsListViewModel {
     
 //    @Published private(set) var movies: [MoviesResponseDTO.MovieDTO] = []
     @Published private(set) var movies: [Movie] = []

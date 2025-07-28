@@ -2,7 +2,7 @@ import Foundation
 
 struct APIEndpoints {
     
-    static func getMovies(with moviesRequestDTO: MoviesRequestDTO) -> Endpoint<MoviesResponseDTO> {
+    static func getMovies(with moviesRequestDTO: MoviesRequestDTO) -> Endpoint<WidgetsResponseDTO> {
 
         return Endpoint(
             path: "3/search/movie",

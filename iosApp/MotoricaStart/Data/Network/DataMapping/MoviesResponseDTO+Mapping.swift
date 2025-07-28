@@ -2,19 +2,19 @@ import Foundation
 
 // MARK: - Data Transfer Object
 
-struct MoviesResponseDTO: Decodable {
+struct WidgetsResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case page
         case totalPages = "total_pages"
-        case movies = "results"
+        case widgets = "results"
     }
     let page: Int
     let totalPages: Int
-    let movies: [MovieDTO]
+    let widgets: [WidgetDTO]
 }
 
-extension MoviesResponseDTO {
-    struct MovieDTO: Decodable {
+extension WidgetsResponseDTO {
+    struct WidgetDTO: Decodable {
         private enum CodingKeys: String, CodingKey {
             case id
             case title
@@ -59,15 +59,15 @@ extension MoviesResponseDTO {
 
 // MARK: - Mappings to Domain
 
-extension MoviesResponseDTO {
+extension WidgetsResponseDTO {
     func toDomain() -> MoviesPage {
         return .init(page: page,
                      totalPages: totalPages,
-                     movies: movies.map { $0.toDomain() })
+                     movies: widgets.map { $0.toDomain() })
     }
 }
 
-extension MoviesResponseDTO.MovieDTO {
+extension WidgetsResponseDTO.WidgetDTO {
     func toDomain() -> Movie {
         let movie = Movie(
                 id: Movie.Identifier(id),
@@ -83,7 +83,7 @@ extension MoviesResponseDTO.MovieDTO {
     }
 }
 
-extension MoviesResponseDTO.MovieDTO.GenreDTO {
+extension WidgetsResponseDTO.WidgetDTO.GenreDTO {
     func toDomain() -> Movie.Genre {
         switch self {
         case .adventure: return .adventure

@@ -3,7 +3,7 @@ import UIKit
 protocol MoviesSearchFlowCoordinatorDependencies  {
     func makeMoviesListViewController(
         actions: MoviesListViewModelActions
-    ) -> MoviesListViewController
+    ) -> WidgetsListViewController
     func makeMoviesDetailsViewController(movie: Movie) -> UIViewController
     func makeMoviesQueriesSuggestionsListViewController(
         didSelect: @escaping MoviesQueryListViewModelDidSelectAction
@@ -15,7 +15,7 @@ final class MoviesSearchFlowCoordinator {
     private weak var navigationController: UINavigationController?
     private let dependencies: MoviesSearchFlowCoordinatorDependencies
 
-    private weak var moviesListVC: MoviesListViewController?
+    private weak var moviesListVC: WidgetsListViewController?
     private weak var moviesQueriesSuggestionsVC: UIViewController?
 
     init(navigationController: UINavigationController,

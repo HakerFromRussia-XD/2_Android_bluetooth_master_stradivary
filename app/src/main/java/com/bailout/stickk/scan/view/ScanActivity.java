@@ -64,7 +64,7 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleDevice_fromTestProj;
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleDeviceKmm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -188,7 +188,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         // --- ПОДПИСКА НА ОБНОВЛЕНИЕ СПИСКА УСТРОЙСТВ ---
         scanner.getDevicesLiveData().observe(this, bleDevices -> {
             List<ScanItem> scanItems = new ArrayList<>();
-            for (BleDevice_fromTestProj device : bleDevices) {
+            for (BleDeviceKmm device : bleDevices) {
                 scanItems.add(new ScanItem(
                         "BLE",
                         device.getName(),

@@ -22,7 +22,7 @@ import platform.darwin.NSObject
 
 /** Информация об обнаруженном устройстве */
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-actual class BleDevice_fromTestProj
+actual class BleDeviceKmm
     actual constructor(id: String, name: String?, rssi: Int) {
     actual val id: String get() = peripheral.identifier.UUIDString()
     actual val name: String? get() = peripheral.name
@@ -41,8 +41,8 @@ actual class BleDevice_fromTestProj
 
 /** Менеджер для работы с Bluetooth LE */
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-actual class BleManager_fromTestProj actual constructor() {
-    private var onDeviceCallback: ((BleDevice_fromTestProj) -> Unit)? = null
+actual class BleManagerKmm actual constructor() {
+    private var onDeviceCallback: ((BleDeviceKmm) -> Unit)? = null
     private val discovered = mutableMapOf<String, CBPeripheral>()
 
     private data class PendingWrite(
@@ -72,7 +72,7 @@ actual class BleManager_fromTestProj actual constructor() {
             RSSI: NSNumber
         ) {
 //            onDeviceCallback?.invoke(BleDevice(didDiscoverPeripheral))
-            val device = BleDevice_fromTestProj(didDiscoverPeripheral, RSSI.intValue)
+            val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
             discovered[device.id] = didDiscoverPeripheral
             onDeviceCallback?.invoke(device)
         }
@@ -121,7 +121,7 @@ actual class BleManager_fromTestProj actual constructor() {
     private val manager = CBCentralManager(delegate, queue = null)
 
     @Suppress("unused")
-    actual fun startScan(onDeviceFound: (BleDevice_fromTestProj) -> Unit) {
+    actual fun startScanKmm(onDeviceFound: (BleDeviceKmm) -> Unit) {
         println("startScan from kmm 3")
         onDeviceCallback = onDeviceFound
         if (manager.state == CBManagerStatePoweredOn) {
@@ -130,14 +130,14 @@ actual class BleManager_fromTestProj actual constructor() {
     }
 
     @Suppress("unused")
-    actual fun stopScan() {
+    actual fun stopScanKmm() {
         onDeviceCallback = null
         manager.stopScan()
     }
 
     @Suppress("unused")
-    actual fun sendBytes(
-        device: BleDevice_fromTestProj,
+    actual fun sendBytesKmm(
+        device: BleDeviceKmm,
         serviceUuid: String,
         characteristicUuid: String,
         data: ByteArray

@@ -44,6 +44,8 @@ struct CustomSlider: View {
     let borderColor: Color
 
     var body: some View {
+        var leadingOffset: CGFloat = 0//trackHeight*3//trackHeight / 2 + 4
+        var trailingOffset: CGFloat = 0//trackHeight*3//trackHeight / 2 + 4
         GeometryReader { geometry in
             ZStack {
                 // Фон трека
@@ -54,6 +56,7 @@ struct CustomSlider: View {
                 // Заполненная часть трека
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(activeColor)
+                    .offset(x: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * (geometry.size.width / 2) - geometry.size.width / 2 + leadingOffset)
                     .frame(width: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width, height: trackHeight)
 
                 // Обводка
@@ -66,25 +69,21 @@ struct CustomSlider: View {
                     .fill(Color.white)
                     .shadow(radius: 2)
                     .frame(width: trackHeight, height: trackHeight)//это размеры пипки за которую тянем
-//                    .offset(x: CGFloat(value) - (geometry.size.width/2 - trackHeight / 2 - 4))
-                    .offset(x: -179)//0 - ((geometry.size.width/2) (CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * (geometry.size.width) - trackHeight / 2)) //- (geometry.size.width/2 - (trackHeight + 4)))
-                    //это положение пипки за которую тянем
+                    .offset(x: (CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                let relativeX = gesture.location.x / (geometry.size.width - trackHeight - 8) // Нормализуем значение от -1 до 1 (от левого до правого края)
-                                let normalizedX = (relativeX + 1) / 2 // Преобразуем значение от -1..1 в 0..1
-                                // Преобразуем нормализованное значение в значение слайдера
-                                let newValue = Float(normalizedX) * Float(range.upperBound - range.lowerBound) + Float(range.lowerBound)
-                                // Ограничиваем значение слайдера в пределах диапазона
-                                value = newValue//max(Float(range.lowerBound), min(newValue + Float(trackHeight * 2), Float(range.upperBound)))
+                                let availableWidth = (geometry.size.width-leadingOffset-trailingOffset-trackHeight/2) // (geometry.size.width/2-trackHeight/2)
+                                let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
+                                value = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
                                 print("========================================[test_slider]")
-                                print("[test_slider] relativeX = \(relativeX)")
                                 print("[test_slider] normalizedX = \(normalizedX)")
                                 print("[test_slider] gesture.location.x = \(gesture.location.x)")
+                                print("[test_slider] availableWidth = \(availableWidth)")
+                                print("[test_slider] / = \(gesture.location.x/availableWidth)")
+                                
                                 print("[test_slider] geometry.size.width = \(geometry.size.width)")
                                 print("[test_slider] trackHeight = \(trackHeight)")
-                                print("[test_slider] newValue = \(newValue)")
                                 print("[test_slider] range.upperBound = \(range.upperBound)")
                                 print("[test_slider] range.lowerBound = \(range.lowerBound)")
                                 print("[test_slider] value = \(value)")
@@ -92,8 +91,8 @@ struct CustomSlider: View {
                     )
             }
             .padding(.top, 4)
-//            .padding(.leading, trackHeight / 2 + 4)
-//            .padding(.trailing, trackHeight / 2 + 4)
+            .padding(.leading, leadingOffset)
+            .padding(.trailing, trailingOffset)
         }
         .frame(height: trackHeight)
     }

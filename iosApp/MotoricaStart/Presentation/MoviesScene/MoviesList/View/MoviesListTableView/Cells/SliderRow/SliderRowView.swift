@@ -110,12 +110,12 @@ struct SliderRowView: View {
                 .shadow(color: Color.black.opacity(0.24), radius: 2, x: 0, y: 2)
         )
     }
+    
+    private func decrement_1() {provider.value_1 = provider.value_1 - 1}
+    private func increment_1() {provider.value_1 = provider.value_1 + 1}
+    private func decrement_2() {provider.value_2 = provider.value_2 - 1}
+    private func increment_2() {provider.value_2 = provider.value_2 + 1}
 }
-
-private func decrement_1() {print("[test_slider] decrement 1")}
-private func increment_1() {print("[test_slider] increment 1")}
-private func decrement_2() {print("[test_slider] decrement 2")}
-private func increment_2() {print("[test_slider] increment 2")}
 
 
 struct StepButton: View {

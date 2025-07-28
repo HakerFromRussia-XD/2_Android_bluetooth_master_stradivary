@@ -77,7 +77,6 @@ final class BluetoothListViewModel {
         }
     }
     func onDisappear() {
-//        repository.stopScanning()
         bleManager.stopScan()
     }
     

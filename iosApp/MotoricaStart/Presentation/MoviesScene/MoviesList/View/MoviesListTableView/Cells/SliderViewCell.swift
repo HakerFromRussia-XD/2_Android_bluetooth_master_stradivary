@@ -41,25 +41,13 @@ final class SliderViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-//        // Вставляем SwiftUI представление в контейнер UIKit
-//        if let hostingController = sliderHostingController {
-//            // Мы добавляем контроллер к родительскому UIViewController
-//            guard let parentVC = self.parentViewController else {
-//                return
-//            }
-//            parentVC.addChild(hostingController)  // Добавляем дочерний контроллер
-//            containerView.addSubview(hostingController.view)
-//            
-//            hostingController.view.frame = containerView.bounds
-//            hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//            hostingController.didMove(toParent: parentVC)  // Уведомляем родителя, что дочерний контроллер был добавлен
-//        }
     }
     
     @available(iOS 16.0, *)
     func configure(with viewModel: AdListItemViewModel) {
         self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
         let provider = SliderRowProvider(
@@ -76,16 +64,18 @@ final class SliderViewCell: UITableViewCell {
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
             SliderRowView(provider: provider)
+                .background(Color.clear)
+//                .listRowBackground(Color.clear)
         }
         numberCancellable?.cancel()
         
-        // 3. Подписываемся на поток чисел и обновляем value
-//        numberCancellable = NumberGenerator.shared.publisher
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak provider] value in
-//                provider?.value_1 = Float(value.0)
-//                provider?.value_2 = Float(value.1)
-//            }
+//         3. Подписываемся на поток чисел и обновляем value
+        numberCancellable = NumberGenerator.shared.publisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak provider] value in
+                provider?.value_1 = Float(value.0)
+                provider?.value_2 = Float(value.1)
+            }
     }
     
     override func prepareForReuse() {

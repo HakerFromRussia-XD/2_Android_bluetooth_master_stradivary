@@ -21,6 +21,7 @@ final class MoviesListItemCell: UITableViewCell {
     ) {
         self.viewModel = viewModel
         self.posterImagesRepository = posterImagesRepository
+        selectionStyle = .none
 
         titleLabel.text = viewModel.title
         dateLabel.text = viewModel.releaseDate

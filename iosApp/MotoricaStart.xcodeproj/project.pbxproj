@@ -80,7 +80,7 @@
 		1FE49D86230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */; };
 		1FE49D87230AA7C200D1D42E /* MovieDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D6D230AA7C200D1D42E /* MovieDetailsViewController.swift */; };
 		1FE49D88230AA7C200D1D42E /* MovieDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */; };
-		1FE49D8A230AA7C200D1D42E /* MoviesListItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* MoviesListItemCell.swift */; };
+		1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */; };
 		1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */; };
 		1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */; };
 		1FE49D8E230AA7C200D1D42E /* MoviesQueryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D7A230AA7C200D1D42E /* MoviesQueryListView.swift */; };
@@ -110,9 +110,9 @@
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* AdListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* AdListItemViewModel.swift */; };
 		65267E8A2D8490EC005CB7A5 /* AdListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* AdListItemViewModel.swift */; };
-		654FEF792E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* MoviesListViewController.storyboard */; };
-		654FEF7A2E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* MoviesListViewController.storyboard */; };
-		654FEF7B2E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* MoviesListViewController.storyboard */; };
+		654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
+		654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
+		654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */; };
 		65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE82DF31E37006E985F /* sf_pro_display_light.otf */; };
 		65519BEC2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */; };
@@ -225,7 +225,7 @@
 		1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MoviesQueriesTableViewController.storyboard; sourceTree = "<group>"; };
 		1FE49D6D230AA7C200D1D42E /* MovieDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewController.swift; sourceTree = "<group>"; };
 		1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MovieDetailsViewController.storyboard; sourceTree = "<group>"; };
-		1FE49D73230AA7C200D1D42E /* MoviesListItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoviesListItemCell.swift; sourceTree = "<group>"; };
+		1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListItemCell.swift; sourceTree = "<group>"; };
 		1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListTableViewController.swift; sourceTree = "<group>"; };
 		1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewController.swift; sourceTree = "<group>"; };
 		1FE49D7A230AA7C200D1D42E /* MoviesQueryListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoviesQueryListView.swift; sourceTree = "<group>"; };
@@ -253,7 +253,7 @@
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* AdListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdListItemViewModel.swift; sourceTree = "<group>"; };
 		6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Shared.xcframework; path = SharedPackage/Shared.xcframework; sourceTree = "<group>"; };
-		654FEF782E37B39E0009E524 /* MoviesListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MoviesListViewController.storyboard; sourceTree = "<group>"; };
+		654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = WidgetsListViewController.storyboard; sourceTree = "<group>"; };
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
 		65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_text_bold.otf; sourceTree = "<group>"; };
 		655830312DBBAE8F00744D5C /* ScanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanItem.swift; sourceTree = "<group>"; };
@@ -688,7 +688,7 @@
 			isa = PBXGroup;
 			children = (
 				1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */,
-				654FEF782E37B39E0009E524 /* MoviesListViewController.storyboard */,
+				654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */,
 				1FE49D72230AA7C200D1D42E /* Cells */,
 			);
 			path = MoviesListTableView;
@@ -698,7 +698,7 @@
 			isa = PBXGroup;
 			children = (
 				652136F42DF82876006AB049 /* SliderRow */,
-				1FE49D73230AA7C200D1D42E /* MoviesListItemCell.swift */,
+				1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
 			);
 			path = Cells;
@@ -1143,7 +1143,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				654FEF7B2E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */,
+				654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 				65519BEE2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEF2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				1FF082B923944E7800876A22 /* Localizable.strings in Resources */,
@@ -1162,7 +1162,7 @@
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
-				654FEF7A2E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */,
+				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 				1FE49D88230AA7C200D1D42E /* MovieDetailsViewController.storyboard in Resources */,
 				1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */,
 				1FE49D86230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard in Resources */,
@@ -1175,7 +1175,7 @@
 			files = (
 				65519BEC2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BED2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
-				654FEF792E37B39E0009E524 /* MoviesListViewController.storyboard in Resources */,
+				654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1257,7 +1257,7 @@
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* MoviesQueriesStorage.swift in Sources */,
-				1FE49D8A230AA7C200D1D42E /* MoviesListItemCell.swift in Sources */,
+				1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultMoviesQueriesRepository.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,

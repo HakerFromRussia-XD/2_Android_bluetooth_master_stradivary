@@ -50,7 +50,7 @@ final class WidgetsListTableViewController: UITableViewController {
 
     // MARK: - Private
     private func setupViews() {
-        tableView.estimatedRowHeight = MoviesListItemCell.height
+        tableView.estimatedRowHeight = WidgetsListItemCell.height
         tableView.rowHeight = UITableView.automaticDimension
         
         // Register a class for SliderViewCell because it is created from code
@@ -66,9 +66,9 @@ final class WidgetsListTableViewController: UITableViewController {
             switch item {
             case .movie(let vm):
                 let cell = tableView.dequeueReusableCell(
-                    withIdentifier: MoviesListItemCell.reuseIdentifier,
+                    withIdentifier: WidgetsListItemCell.reuseIdentifier,
                     for: indexPath
-                ) as! MoviesListItemCell
+                ) as! WidgetsListItemCell
                 cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
                 // подгрузка следующей страницы
                 if indexPath.row == (self.viewModel.items.value.count) - 1 {
@@ -110,10 +110,10 @@ extension WidgetsListTableViewController {
         switch item {
             case .movie(let movieVM):
                 guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: MoviesListItemCell.reuseIdentifier,
+                    withIdentifier: WidgetsListItemCell.reuseIdentifier,
                     for: indexPath
-                ) as? MoviesListItemCell else {
-                    assertionFailure("Cannot dequeue reusable cell \(MoviesListItemCell.self) with reuseIdentifier: \(MoviesListItemCell.reuseIdentifier)")
+                ) as? WidgetsListItemCell else {
+                    assertionFailure("Cannot dequeue reusable cell \(WidgetsListItemCell.self) with reuseIdentifier: \(WidgetsListItemCell.reuseIdentifier)")
                     return UITableViewCell()
                 }
                 

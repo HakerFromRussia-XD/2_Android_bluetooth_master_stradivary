@@ -1,8 +1,8 @@
 import UIKit
 
-final class MoviesListItemCell: UITableViewCell {
+final class WidgetsListItemCell: UITableViewCell {
 
-    static let reuseIdentifier = String(describing: MoviesListItemCell.self)
+    static let reuseIdentifier = String(describing: WidgetsListItemCell.self)
     static let height = CGFloat(130)
 
     @IBOutlet private var titleLabel: UILabel!

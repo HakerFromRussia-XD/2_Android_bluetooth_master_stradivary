@@ -129,7 +129,7 @@ class BLEParser(
                     )
                 }
                 ParameterProvider.getParameter(deviceAddress, parameterID).data =
-                    receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)
+                    receiveDataString.substringSafe(HEADER_BLE_OFFSET * 2, receiveDataString.length)
                 ParameterProvider.getParameter(deviceAddress, parameterID).firstReceiveDataFlag = false
                 platformLog("CheckUpdateAllUI","data = ${receiveDataString.substring(HEADER_BLE_OFFSET * 2, receiveDataString.length)}")
                 updateAllUI(
@@ -294,13 +294,13 @@ class BLEParser(
                             while (dataLength > 0) {
                                 val dataHex = EncodeByteToHex.bytesToHexString(data)
                                 val deviceAddress = castUnsignedCharToInt(
-                                    receiveDataString.substring(
+                                    receiveDataString.substringSafe(
                                         (HEADER_BLE_OFFSET + (dataLengthMax - dataLength)) * 2,
                                         (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 1) * 2
                                     ).toInt(16).toByte()
                                 )
                                 val parameterID = castUnsignedCharToInt(
-                                    receiveDataString.substring(
+                                    receiveDataString.substringSafe(
                                         (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 1) * 2,
                                         (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2
                                     ).toInt(16).toByte()
@@ -309,7 +309,7 @@ class BLEParser(
                                 platformLog("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
                                 platformLog("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
 
-                                parameter.data = receiveDataString.substring(
+                                parameter.data = receiveDataString.substringSafe(
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2,
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2 + parameter.parameterDataSize) * 2
                                 )
@@ -348,15 +348,15 @@ class BLEParser(
                         ParameterDataCodeEnum.PDCE_GENERIC_2.number -> {
                             platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                             val newStatusExist = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte()
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(0, 2).toInt(16).toByte()
                             )
                             val errorStatus = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte()
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(8, 10).toInt(16).toByte()
                             )
                             val packIndex = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(6, 8).toInt(16).toByte()
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(6, 8).toInt(16).toByte()
                             ) * 256 + castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(4, 6).toInt(16).toByte()
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(4, 6).toInt(16).toByte()
                             )
                             if (errorStatus != 0 && errorStatus != 255) {
                                 countErrors++
@@ -595,7 +595,7 @@ class BLEParser(
 
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
-            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substringSafe(18, receiveDataString.length)}\"")
 
         platformLog("BLE_PARSER", "▶ parseInitializeInformation → $fullInicializeConnectionStruct")
         bleCommandExecutor.bleCommandWithQueue(
@@ -616,7 +616,7 @@ class BLEParser(
         for (i in 0 until fullInicializeConnectionStruct.parametrsNum) {
             listA.add(
                 Json.decodeFromString<BaseParameterInfoStruct>(
-                    "\"${receiveDataString.substring(20 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 20 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""
+                    "\"${receiveDataString.substringSafe(20 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 20 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""
                 )
             )
         }
@@ -663,10 +663,10 @@ class BLEParser(
         if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
             for (i in 0 until baseParametrInfoStructArray[ID].additionalInfoSize) {
                 val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>(
-                    "\"${receiveDataString.substring(offset + i * ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset + (i + 1) * ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\""
+                    "\"${receiveDataString.substringSafe(offset + i * ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset + (i + 1) * ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\""
                 )
                 platformLog("BLEParser", "testSignal 0 ")
-                val receiveDataStringForParse = receiveDataString.substring(
+                val receiveDataStringForParse = receiveDataString.substringSafe(
                     offset + baseParametrInfoStructArray[ID].additionalInfoSize * ADDITIONAL_INFO_SEG + dataOffset * 2,
                     offset + baseParametrInfoStructArray[ID].additionalInfoSize * ADDITIONAL_INFO_SEG + dataOffset * 2 + additionalInfoSizeStruct.infoSize * 2
                 )
@@ -704,7 +704,7 @@ class BLEParser(
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
         platformLog("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>(
-            "\"${receiveDataString.substring(16, receiveDataString.length)}\""
+            "\"${receiveDataString.substringSafe(16, receiveDataString.length)}\""
         )
 
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
@@ -783,9 +783,9 @@ class BLEParser(
             if (receiveDataString.isEmpty() || receiveDataString.length < 22) return
             _deviceAddress = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
             _parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
-            deviceAddress = castUnsignedCharToInt(receiveDataString.substring(16, 18).toInt(16).toByte())
-            startIndex = castUnsignedCharToInt(receiveDataString.substring(18, 20).toInt(16).toByte())
-            quantitiesReadParameters = castUnsignedCharToInt(receiveDataString.substring(20, 22).toInt(16).toByte())
+            deviceAddress = castUnsignedCharToInt(receiveDataString.substringSafe(16, 18).toInt(16).toByte())
+            startIndex = castUnsignedCharToInt(receiveDataString.substringSafe(18, 20).toInt(16).toByte())
+            quantitiesReadParameters = castUnsignedCharToInt(receiveDataString.substringSafe(20, 22).toInt(16).toByte())
             platformLog("SubDeviceAdditionalParameters", "$_deviceAddress $_parametrsNum $deviceAddress $startIndex $quantitiesReadParameters")
 
             if (subDeviceChankParametersCounter == (_parametrsNum / 10)) {
@@ -909,7 +909,7 @@ class BLEParser(
                         )
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>(
-                                "\"${receiveDataString.substring(offset + i * ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset + (i + 1) * ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\""
+                                "\"${receiveDataString.substringSafe(offset + i * ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset + (i + 1) * ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\""
                             )
                             platformLog("parseReadSubDeviceAdditionalParameters", "additionalInfoSizeStruct = $additionalInfoSizeStruct")
                             val start = offset + parametrSubDevice.additionalInfoSize * ADDITIONAL_INFO_SEG + dataOffset * 2
@@ -918,7 +918,7 @@ class BLEParser(
                             platformLog("parseReadSubDeviceAdditionalParameters", "start = $start    end = $end  receiveDataString.length = ${receiveDataString.length}")
                             var receiveDataStringForParse = ""
                             if (end <= receiveDataString.length) {
-                                receiveDataStringForParse = receiveDataString.substring(start, end)
+                                receiveDataStringForParse = receiveDataString.substringSafe(start, end)
                             }
                             dataOffset += additionalInfoSizeStruct.infoSize
                             platformLog("parseReadSubDeviceAdditionalParameters", "receiveDataStringForParse = $receiveDataStringForParse")
@@ -975,7 +975,7 @@ class BLEParser(
 
     private fun parseProductInfoType(receiveDataString: String) {
         val deviceInfoStructs = Json.decodeFromString<DeviceInfoStructs>(
-            "\"${receiveDataString.substring(16, receiveDataString.length)}\""
+            "\"${receiveDataString.substringSafe(16, receiveDataString.length)}\""
         )
         platformLog("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
         bleCommandExecutor.updateSerialNumber(deviceInfoStructs)
@@ -996,7 +996,7 @@ class BLEParser(
 //        bleCommandExecutor.updateFirmwareInfo(fwInfo)
 //    }
     private fun parseProductFwInfoType(hex: String) {
-        val deviceAddr = castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        val deviceAddr = castUnsignedCharToInt(hex.substringSafe(12, 14).toInt(16).toByte())
         val payload = hex.substring(16)
 
         val fw = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
@@ -1480,4 +1480,17 @@ class BLEParser(
     internal fun getStatusConnected(): Boolean {
         return mConnected
     }
+
+    private fun String.substringSafe(startIndex: Int, endIndex: Int): String =
+        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+            substring(startIndex, endIndex)
+        } else {
+            platformLog(
+
+                "substringSafe",
+                "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+            )
+            showToast("error: Widgets String Index of Bound Exception")
+            ""
+        }
 }

@@ -12,43 +12,56 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+private val contentType = "application/json".toMediaType()
+
 private fun provideHttpClient(): OkHttpClient {
-    val logging = HttpLoggingInterceptor().apply {
+    // Логгер тела (Body) — для одного единственного эндпоинта
+    val bodyLogger = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
+    // Логгер заголовков (Headers) — для всех остальных
+    val headerLogger = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.HEADERS
+    }
+
     return OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_1_1))
         .connectTimeout(15, TimeUnit.SECONDS)
         .writeTimeout(0, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
-        .addInterceptor(logging)
+        // Первый интерцептор: если это /ser_n_token/, применяем body-логгер
+        .addInterceptor { chain ->
+            val req = chain.request()
+            if (req.method == "POST" && req.url.encodedPath == "/ser_n_token/") {
+                // прокидываем запрос через body-логгер
+                return@addInterceptor bodyLogger.intercept(chain)
+            }
+            // иначе просто продолжаем
+            chain.proceed(req)
+        }
+        // Второй интерцептор: в любом случае логируем заголовки
+        .addInterceptor(headerLogger)
         .build()
 }
 
-private val json = Json { ignoreUnknownKeys = true; isLenient = true }
-private val contentType = "application/json".toMediaType()
-
-/** Для работы с пользовательским API (login, userInfo, devices…) */
 object UserRetrofitInstance {
     val api: ApiInterfaceUBI4 by lazy {
         Retrofit.Builder()
-            .baseUrl(BaseUrlUtilsUBI4.USER_BASE)   // ← используем USER_BASE
+            .baseUrl(BaseUrlUtilsUBI4.USER_BASE)
             .client(provideHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
-            .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType())
-            )
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(ApiInterfaceUBI4::class.java)
     }
 }
 
-/** Для работы с паспортом модели и обучением (serial-token, passports, training…) */
 object PassportRetrofitInstance {
     val api: ApiInterfaceUBI4 by lazy {
         Retrofit.Builder()
-            .baseUrl(BaseUrlUtilsUBI4.PASSPORT_BASE)   // ← используем PASSPORT_BASE
+            .baseUrl(BaseUrlUtilsUBI4.PASSPORT_BASE)
             .client(provideHttpClient())
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()

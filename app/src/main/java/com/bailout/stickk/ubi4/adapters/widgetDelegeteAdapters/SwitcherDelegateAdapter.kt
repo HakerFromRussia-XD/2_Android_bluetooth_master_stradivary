@@ -179,7 +179,7 @@ class SwitcherDelegateAdapter(
                     }
                 }
                 catch (e:Exception){
-                    main.showToast("error widgets SIOBE")
+                    Log.d("switchCollectTest", "${e.message}")
                 }
 
             }

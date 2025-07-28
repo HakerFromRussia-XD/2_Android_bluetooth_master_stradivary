@@ -85,7 +85,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
         }
 
-
         //настоящие виджеты
         widgetListUpdater()
         adapterWidgets.swapData(mDataFactory.prepareData(display))
@@ -254,7 +253,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
         // если пусто после холодного старта → берём дефолты
         if (token.isBlank() || serial.isBlank()) {
-            serial = SERIAL_DEFAULT
+            serial = main?.getCurrentSerial() ?: ""
             token  = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
 
             prefs.edit()
@@ -638,23 +637,16 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         return false // Не удалось дождаться флага после всех попыток
     }
 
-//    fun handleTrainingFinished() {
-//        val bearer = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "")!!
-//        val serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "")!!
-//        TrainingUploadManager.launch(requireContext(), repo, bearer, serial)
-//    }
-
-
     fun startAuthAndDownloadPassport(onSuccess:() -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val serial = SERIAL_DEFAULT
+                val serial =  main?.getCurrentSerial() ?: ""
                 val pass   = PASSWORD_DEFAULT
 
                 // авторизация
                 val token  = repo.fetchTokenBySerial(API_KEY, serial, pass)
                 prefs.edit()
-                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token.toString())
+                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
                     .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
                     .putString(PreferenceKeysUBI4.KEY_PASSWORD, pass)
                     .apply()
@@ -681,7 +673,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 arguments = Bundle().apply { putString(PreferenceKeysUBI4.ARG_LAST_EMG8, lastEmg8) }
             }
 
-        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<- Макс Емец
+//        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<- Макс Емец
 //        private const val SERIAL_DEFAULT = "CYBI-F-05663" //<- Тест
         private const val PASSWORD_DEFAULT = "123фыв6"
     }

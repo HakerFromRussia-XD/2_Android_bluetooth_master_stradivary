@@ -83,6 +83,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var activeFragment: Fragment? = null
     var dialogManager: DialogManager? = null
 
+    private var currentSerial: String? = null
 
 
     private var bluetoothLeService: BluetoothLeService? = null
@@ -194,11 +195,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
-//        bleCommandWithQueue(
-//            BLECommands.requestProductInfoType(0x00.toByte()),
-//            MAIN_CHANNEL,
-//            WRITE
-//        ) {}
     }
 
     override fun onDestroy() {
@@ -398,8 +394,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (!isCpu || !uuidOk) return          // игнорируем саб-модули
         val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
         mDeviceName = serial
+        currentSerial = mDeviceName
         runOnUiThread { binding.nameTv.text = serial }
     }
+
+    fun getCurrentSerial(): String? = currentSerial
 
 
     private fun sendFwInfoRequests() {
@@ -440,15 +439,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
 
         }
-    }
-
-    fun bleDisconnect() {
-        bluetoothLeService?.disconnect()
-    }
-
-    /** Подключиться по адресу */
-    fun bleConnect(address: String) {
-        bluetoothLeService?.connect(address)
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

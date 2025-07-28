@@ -110,6 +110,7 @@ class Ubi4TrainingRepository(
 
                 // 5.1. Если payload — число (процент) → передаём в onProgress
                 if (payload.matches(Regex("\\d+"))) {
+                    Log.d("Ubi4Repo", "Progress → $payload%")
                     onProgress(payload) // UI покажет проценты, например "37"
                     continue
                 }

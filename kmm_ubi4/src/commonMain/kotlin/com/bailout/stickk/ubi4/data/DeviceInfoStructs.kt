@@ -43,7 +43,7 @@ object DeviceInfoStructsSerializer : KSerializer<DeviceInfoStructs> {
         val deviceCode = paddedString.substring(102, 104).toInt(16)
         val deviceRole = paddedString.substring(104, 106).toInt(16)
         val deviceAddress = paddedString.substring(106, 108).toInt(16)
-        val deviceUUIDPrefix = paddedString.substring(108, 140).decodeHex()
+        val deviceUUIDPrefix = paddedString.substring(108, 140).decodeHex().trim('\u0000')
 
         val deviceUUIDHex = paddedString.substring(140, 148)
         // Переворачиваем байты, т.к. little-endian

@@ -137,6 +137,7 @@
 		659A45AF2DB92C81002BE2BC /* BluetoothSceneDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A45AE2DB92C7F002BE2BC /* BluetoothSceneDIContainer.swift */; };
 		659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A45B12DB92CE2002BE2BC /* BluetoothListCoordinator.swift */; };
 		659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */; };
+		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
@@ -1219,6 +1220,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */,
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
 				1F53E2B823125F71008D6A05 /* WidgetsQueryListItemViewModel.swift in Sources */,

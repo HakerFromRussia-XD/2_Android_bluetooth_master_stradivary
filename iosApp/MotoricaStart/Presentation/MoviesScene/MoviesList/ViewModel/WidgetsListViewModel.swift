@@ -19,7 +19,7 @@ protocol WidgetsListViewModelInput {
 }
 
 protocol WidgetsListViewModelOutput {
-    var items: Observable<[ListItemType]> { get } /// Also we can calculate view model items on demand:  https://github.com/kudoleh/iOS-Clean-Architecture-MVVM/pull/10/files
+    var items: Observable<[ListItemType]> { get } 
     var loading: Observable<WidgetsListViewModelLoading?> { get }
     var query: Observable<String> { get }
     var error: Observable<String> { get }

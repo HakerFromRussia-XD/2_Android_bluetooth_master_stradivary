@@ -78,7 +78,7 @@
 		1FE49D84230AA7C200D1D42E /* WidgetsQueriesItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D69230AA7C200D1D42E /* WidgetsQueriesItemCell.swift */; };
 		1FE49D85230AA7C200D1D42E /* WidgetsQueriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D6A230AA7C200D1D42E /* WidgetsQueriesTableViewController.swift */; };
 		1FE49D86230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */; };
-		1FE49D87230AA7C200D1D42E /* 		WidgetDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D6D230AA7C200D1D42E /* 		WidgetDetailsViewController.swift */; };
+		1FE49D87230AA7C200D1D42E /* WidgetDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D6D230AA7C200D1D42E /* WidgetDetailsViewController.swift */; };
 		1FE49D88230AA7C200D1D42E /* MovieDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */; };
 		1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */; };
 		1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */; };
@@ -224,7 +224,7 @@
 		1FE49D69230AA7C200D1D42E /* WidgetsQueriesItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsQueriesItemCell.swift; sourceTree = "<group>"; };
 		1FE49D6A230AA7C200D1D42E /* WidgetsQueriesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsQueriesTableViewController.swift; sourceTree = "<group>"; };
 		1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MoviesQueriesTableViewController.storyboard; sourceTree = "<group>"; };
-		1FE49D6D230AA7C200D1D42E /* 		WidgetDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "\t\tWidgetDetailsViewController.swift"; sourceTree = "<group>"; };
+		1FE49D6D230AA7C200D1D42E /* WidgetDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetDetailsViewController.swift; sourceTree = "<group>"; };
 		1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MovieDetailsViewController.storyboard; sourceTree = "<group>"; };
 		1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListItemCell.swift; sourceTree = "<group>"; };
 		1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListTableViewController.swift; sourceTree = "<group>"; };
@@ -793,7 +793,7 @@
 		1FE49D97230AEB2000D1D42E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				1FE49D6D230AA7C200D1D42E /* 		WidgetDetailsViewController.swift */,
+				1FE49D6D230AA7C200D1D42E /* WidgetDetailsViewController.swift */,
 				1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */,
 			);
 			path = View;
@@ -1265,7 +1265,7 @@
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
-				1FE49D87230AA7C200D1D42E /* 		WidgetDetailsViewController.swift in Sources */,
+				1FE49D87230AA7C200D1D42E /* WidgetDetailsViewController.swift in Sources */,
 				1FC5B7D0242634EB0086FA8C /* UIImageView+ImageSizeAfterAspectFit.swift in Sources */,
 				1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */,
 				659A45AF2DB92C81002BE2BC /* BluetoothSceneDIContainer.swift in Sources */,

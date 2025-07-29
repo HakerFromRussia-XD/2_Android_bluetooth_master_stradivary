@@ -58,14 +58,13 @@ final class SliderViewCell: UITableViewCell {
             value_2: .zero,
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
+            isSecondSliderHidden: viewModel.hideSecondSlider,
         )
         self.provider = provider
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
             SliderRowView(provider: provider)
-                .background(Color.clear)
-//                .listRowBackground(Color.clear)
         }
         numberCancellable?.cancel()
         

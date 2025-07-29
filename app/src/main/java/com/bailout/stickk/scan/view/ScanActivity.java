@@ -49,7 +49,7 @@ import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
-import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
+//import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
 //import com.bailout.stickk.ubi4.ble.BleDevice;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
@@ -111,7 +111,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private float scale = 0F;
     private int count = 0;
     private int ANIMATION_DURATION = 200;
-    private AndroidBleScanner androidBleScanner;
+//    private AndroidBleScanner androidBleScanner;
 
 
     private final boolean isAndoird12 = Build.VERSION.SDK_INT>=Build.VERSION_CODES.S;
@@ -164,7 +164,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private ArrayList<Integer> mRssisList  = new ArrayList<>();
     private ArrayList<BluetoothDevice> filteringLeDevices  = new ArrayList<>();
 
-    AndroidBleScanner scanner = new AndroidBleScanner();
+//    AndroidBleScanner scanner = new AndroidBleScanner();
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility", "ObsoleteSdkInt"})
     @Override
@@ -186,21 +186,21 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanDeviceList.setAdapter(mScanListAdapter);
 
         // --- ПОДПИСКА НА ОБНОВЛЕНИЕ СПИСКА УСТРОЙСТВ ---
-        scanner.getDevicesLiveData().observe(this, bleDevices -> {
-            List<ScanItem> scanItems = new ArrayList<>();
-            for (BleDeviceKmm device : bleDevices) {
-                scanItems.add(new ScanItem(
-                        "BLE",
-                        device.getName(),
-                        device.getId(),
-                        0,
-                        0
-                ));
-            }
-            scanList.clear();
-            scanList.addAll(scanItems);
-            mScanListAdapter.notifyDataSetChanged();
-        });
+//        scanner.getDevicesLiveData().observe(this, bleDevices -> {
+//            List<ScanItem> scanItems = new ArrayList<>();
+//            for (BleDeviceKmm device : bleDevices) {
+//                scanItems.add(new ScanItem(
+//                        "BLE",
+//                        device.getName(),
+//                        device.getId(),
+//                        0,
+//                        0
+//                ));
+//            }
+//            scanList.clear();
+//            scanList.addAll(scanItems);
+//            mScanListAdapter.notifyDataSetChanged();
+//        });
         //changing statusbar
         if (android.os.Build.VERSION.SDK_INT >= 21){
             Window window = this.getWindow();
@@ -246,20 +246,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         versionAppText.setText((this.getResources().getString(R.string.version_app)) + " " + versionName);
 
         devModeBtn.setOnClickListener(v -> {
-            if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED)) {
+            if (loadBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED))) {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
                     window.setStatusBarColor(this.getResources().getColor(R.color.blue_status_bar));
                 }
                 mainLayout.setBackgroundResource(R.drawable.gradient_background);
-                saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, false);
+                saveBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED), false);
             } else {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
                     window.setStatusBarColor(this.getResources().getColor(R.color.ubi4_back));
                 }
                 mainLayout.setBackgroundColor(this.getResources().getColor(R.color.ubi4_back));//setBackgroundColor(#404040);
-                saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, true);
+                saveBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED), true);
             }
         });
 
@@ -269,7 +269,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             animateScanList(0);
 //            showScanList(mLeDevices, mRssisList);
             scanLeDevice(true);
-            scanner.startScan();
+//            scanner.startScan();
 //            presenter.startScanning();
 
 
@@ -351,7 +351,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         super.onPause();
         presenter.setOnPauseActivity(true);
         scanLeDevice(false);
-        scanner.stopScan();
+//        scanner.stopScan();
     }
     @Override
     protected void onStop() {
@@ -491,20 +491,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION)));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
             }
-            if (device.getAddress().toString().equals(loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4))) {
+            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)))) {
                 navigateToLEChart("device", device);
             }
         }
-        if (loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION)) {
+        if (loadBool(String.valueOf(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION))) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
             }
-            if (device.getAddress().toString().equals(loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4))) {
+            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)))) {
                 navigateToLEChart("device", device);
             }
         }
@@ -794,7 +794,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);
         acteveteRssiShow = loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW);
-        if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED)) {
+        if (loadBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED))) {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 Window window = this.getWindow();
                 window.setStatusBarColor(this.getResources().getColor(R.color.color_primary));

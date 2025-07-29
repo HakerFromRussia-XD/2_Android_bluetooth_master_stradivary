@@ -1,20 +1,20 @@
-// **Note**: This item view model is to display data and does not contain any domain model to prevent views accessing it
-
 import Foundation
 
-struct AdListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
+struct AdListItemViewModel: Equatable, Hashable {
     let title: String
     let overview: String
     let title_2: String
-    let posterImagePath: String?
+    let posterImagePath: String?,
+    let hideSecondSlider: Bool
 }
 
 extension AdListItemViewModel {
-    init(movie: Movie) {
+    init(movie: Movie, hideSecondSlider: Bool = false) {
         self.title = movie.title ?? ""
         self.title_2 = movie.title_2 ?? ""
         self.posterImagePath = movie.posterPath
         self.overview = movie.overview ?? ""
+        self.hideSecondSlider = hideSecondSlider
     }
 }
 

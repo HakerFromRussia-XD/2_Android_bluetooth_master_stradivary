@@ -1,36 +1,3 @@
-//
-//  CustomSlider.swift
-//  MotoricaStart
-//
-//  Created by Motorica LLC on 09.06.2025.
-//
-//import UIKit
-//
-//class CustomSlider: UISlider {
-//    
-//    override func awakeFromNib() {
-//        super.awakeFromNib()
-//        
-//        // Скрыть кружок
-//        self.setThumbImage(nil, for: .normal)
-//        
-//        // Настройка минимального трека с нужной высотой и скругленными углами
-//        let trackHeight: CGFloat = 30 // Высота трека (dp)
-//        let cornerRadius: CGFloat = 10 // Радиус скругления углов (dp)
-//        
-//        // Цвет трека
-//        let activeColor = UIColor.green // Можно заменить на любой цвет из ассетов
-//        let inactiveColor = UIColor.lightGray // Также можно использовать цвет из ассетов
-//
-////        let minTrackImage = UIImage(color: activeColor, size: CGSize(width: 1, height: trackHeight), cornerRadius: cornerRadius)
-////        let maxTrackImage = UIImage(color: inactiveColor, size: CGSize(width: 1, height: trackHeight), cornerRadius: cornerRadius)
-//
-//        // Установим кастомные изображения для трека
-//        self.setMinimumTrackImage(minTrackImage, for: .normal)
-//        self.setMaximumTrackImage(maxTrackImage, for: .normal)
-//    }
-//}
-
 import SwiftUI
 
 struct CustomSlider: View {
@@ -44,8 +11,6 @@ struct CustomSlider: View {
     let borderColor: Color
 
     var body: some View {
-        var leadingOffset: CGFloat = 0//trackHeight*3//trackHeight / 2 + 4
-        var trailingOffset: CGFloat = 0//trackHeight*3//trackHeight / 2 + 4
         GeometryReader { geometry in
             ZStack {
                 // Фон трека
@@ -69,19 +34,17 @@ struct CustomSlider: View {
                     .fill(Color.white)
                     .shadow(radius: 2)
                     .frame(width: trackHeight, height: trackHeight)//это размеры пипки за которую тянем
-                    .offset(x: (CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))//
+                    .offset(x: (CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))//чтобы пипка двигалась под пальцем
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                let availableWidth = (geometry.size.width-leadingOffset-trailingOffset-trackHeight/2) // (geometry.size.width/2-trackHeight/2)
+                                let availableWidth = (geometry.size.width-trackHeight/2)
                                 let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
                                 value = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
                             }
                     )
             }
             .padding(.top, 4)
-            .padding(.leading, leadingOffset)
-            .padding(.trailing, trailingOffset)
         }
         .frame(height: trackHeight)
     }

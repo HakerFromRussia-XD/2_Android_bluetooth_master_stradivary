@@ -16,14 +16,24 @@ final class SliderRowProvider: ObservableObject {
     @Published var value_2: Float
     let title_2: String
     let numLabel_2: String
-    
-    init( value_1: Float = 0, title_1: String, numLabel_1: String, value_2: Float = 0, title_2: String, numLabel_2: String,) {
+    @Published var isSecondSliderHidden: Bool
+
+    init(
+        value_1: Float = 0,
+        title_1: String,
+        numLabel_1: String,
+        value_2: Float = 0,
+        title_2: String,
+        numLabel_2: String,
+        isSecondSliderHidden: Bool = true
+    ) {
         self.value_1 = value_1
         self.title_1 = title_1
         self.numLabel_1 = numLabel_1
         self.value_2 = value_2
         self.title_2 = title_2
         self.numLabel_2 = numLabel_2
+        self.isSecondSliderHidden = isSecondSliderHidden
     }
 }
 
@@ -56,7 +66,7 @@ struct SliderRowView: View {
                     cornerRadius: 10,
                     borderWidth: 1,
                     activeColor: Color("ubi4_active"),
-                    inactiveColor: Color("ubi4_inactive"),
+                    inactiveColor: Color("ubi4_gray"),
                     borderColor: Color("ubi4_gray_border")
                 )
                 .padding(.leading, 16)
@@ -65,40 +75,43 @@ struct SliderRowView: View {
                 StepButton(label: "+", action: increment_1)
                        .padding(.trailing, 8)
             }
-            HStack {
-                Text(provider.title_2)
-                    .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
-                    .padding(.top, 16) // отступ сверху
-                    .padding(.leading, 10) // отступ слева
-                Spacer()
-                Text("\(Int(provider.value_2))") // Преобразуем value в строку и отображаем
-                    .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
-                    .padding(.top, 16)
-                    .padding(.trailing, 10) // отступ справа
-            }
-            HStack {
-                StepButton(label: "-", action: decrement_2)
+            .padding(.bottom, 4)
+            if !provider.isSecondSliderHidden {
+                HStack {
+                    Text(provider.title_2)
+                        .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                        .padding(.top, 12) // отступ сверху
+                        .padding(.leading, 10) // отступ слева
+                    Spacer()
+                    Text("\(Int(provider.value_2))") // Преобразуем value в строку и отображаем
+                        .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                        .padding(.top, 12)
+                        .padding(.trailing, 10) // отступ справа
+                }
+                HStack {
+                    StepButton(label: "-", action: decrement_2)
                         .padding(.leading, 8)
-                CustomSlider(
-                    value: Binding(
-                        get: { provider.value_2 },
-                        set: { provider.value_2 = Float($0) }
-                    ),
-                    range: -100...200,
-                    trackHeight: 30,
-                    cornerRadius: 10,
-                    borderWidth: 1,
-                    activeColor: Color("ubi4_active"),
-                    inactiveColor: Color("ubi4_inactive"),
-                    borderColor: Color("ubi4_gray_border")
-                )
-                .padding(.leading, 16)
-                .padding(.trailing, 16)
+                    CustomSlider(
+                        value: Binding(
+                            get: { provider.value_2 },
+                            set: { provider.value_2 = Float($0) }
+                        ),
+                        range: -100...200,
+                        trackHeight: 30,
+                        cornerRadius: 10,
+                        borderWidth: 1,
+                        activeColor: Color("ubi4_active"),
+                        inactiveColor: Color("ubi4_gray"),
+                        borderColor: Color("ubi4_gray_border")
+                    )
+                    .padding(.leading, 16)
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 8)
+                    StepButton(label: "+", action: increment_2)
+                        .padding(.trailing, 8)
+                }
                 .padding(.bottom, 8)
-                StepButton(label: "+", action: increment_2)
-                       .padding(.trailing, 8)
             }
-            .padding(.bottom, 8)
         }
         .background(
             RoundedRectangle(cornerRadius: 10)

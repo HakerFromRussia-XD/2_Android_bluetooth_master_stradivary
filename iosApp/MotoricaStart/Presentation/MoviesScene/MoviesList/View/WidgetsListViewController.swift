@@ -36,7 +36,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             totalPages: 5,
             widgets: [
                 WidgetsResponseDTO.WidgetDTO(
-                    id: 1,
+                    id: 3,
                     title: "Пример виджета 2",
                     genre: .adventure,
                     posterPath: "/path/to/poster.jpg",
@@ -53,7 +53,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     isAd: true
                 ),
                 WidgetsResponseDTO.WidgetDTO(
-                    id: 3,
+                    id: 2,
                     title: "Пример виджета 3",
                     genre: .adventure,
                     posterPath: "/path/to/poster.jpg",

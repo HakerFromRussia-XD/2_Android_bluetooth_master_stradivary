@@ -1,6 +1,6 @@
 import Foundation
 
-struct Movie: Equatable, Identifiable {
+struct Widget: Equatable, Identifiable {
     typealias Identifier = String
     enum Genre {
         case adventure
@@ -15,8 +15,8 @@ struct Movie: Equatable, Identifiable {
     let isAd: Bool
 }
 
-struct MoviesPage: Equatable {
+struct WidgetsPage: Equatable {
     let page: Int
     let totalPages: Int
-    let movies: [Movie]
+    let widgets: [Widget]
 }

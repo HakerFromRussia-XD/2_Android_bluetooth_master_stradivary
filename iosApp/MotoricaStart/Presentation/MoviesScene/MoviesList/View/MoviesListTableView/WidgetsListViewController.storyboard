@@ -17,7 +17,7 @@
         <!--Widgets List View Controller-->
         <scene sceneID="0BI-7x-XJo">
             <objects>
-                <viewController storyboardIdentifier="MoviesListViewController" id="cGq-gd-62K" customClass="WidgetsListViewController" customModule="MotoricaStart" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WidgetsListViewController" id="cGq-gd-62K" customClass="WidgetsListViewController" customModule="MotoricaStart" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="AsL-Ew-d83">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -72,8 +72,8 @@
                     <connections>
                         <outlet property="contentView" destination="URz-eU-usl" id="uqN-yv-Ufo"/>
                         <outlet property="emptyDataLabel" destination="f6J-2l-iab" id="7eT-UL-qzF"/>
-                        <outlet property="moviesListContainer" destination="dgg-tT-8fn" id="RcZ-CD-wCq"/>
                         <outlet property="suggestionsListContainer" destination="xZl-fe-PlP" id="6hU-xB-rVM"/>
+                        <outlet property="widgetsListContainer" destination="dgg-tT-8fn" id="RcZ-CD-wCq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LnP-m0-WZt" userLabel="First Responder" sceneMemberID="firstResponder"/>

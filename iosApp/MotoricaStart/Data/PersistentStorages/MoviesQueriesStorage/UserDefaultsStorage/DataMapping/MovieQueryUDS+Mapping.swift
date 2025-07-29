@@ -1,21 +1,21 @@
 import Foundation
 
-struct MovieQueriesListUDS: Codable {
-    var list: [MovieQueryUDS]
+struct WidgetQueriesListUDS: Codable {
+    var list: [WidgetQueryUDS]
 }
 
-struct MovieQueryUDS: Codable {
+struct WidgetQueryUDS: Codable {
     let query: String
 }
 
-extension MovieQueryUDS {
-    init(movieQuery: MovieQuery) {
-        query = movieQuery.query
+extension WidgetQueryUDS {
+    init(widgetQuery: WidgetQuery) {
+        query = widgetQuery.query
     }
 }
 
-extension MovieQueryUDS {
-    func toDomain() -> MovieQuery {
+extension WidgetQueryUDS {
+    func toDomain() -> WidgetQuery {
         return .init(query: query)
     }
 }

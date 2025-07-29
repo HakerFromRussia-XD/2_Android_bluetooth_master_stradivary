@@ -2,16 +2,16 @@ import Foundation
 
 struct APIEndpoints {
     
-    static func getMovies(with moviesRequestDTO: MoviesRequestDTO) -> Endpoint<WidgetsResponseDTO> {
+    static func getWidgets(with widgetsRequestDTO: WidgetsRequestDTO) -> Endpoint<WidgetsResponseDTO> {
 
         return Endpoint(
-            path: "3/search/movie",
+            path: "3/search/widget",
             method: .get,
-            queryParametersEncodable: moviesRequestDTO
+            queryParametersEncodable: widgetsRequestDTO
         )
     }
 
-    static func getMoviePoster(path: String, width: Int) -> Endpoint<Data> {
+    static func getWidgetPoster(path: String, width: Int) -> Endpoint<Data> {
 
         let sizes = [92, 154, 185, 342, 500, 780]
         let closestWidth = sizes

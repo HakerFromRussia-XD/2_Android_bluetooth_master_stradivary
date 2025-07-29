@@ -16,7 +16,7 @@ final class SliderViewCell: UITableViewCell {
     private var sliderHostingController: UIHostingController<CustomSlider>?
     @IBOutlet weak var containerView: UIView!
     
-    private var viewModel: AdListItemViewModel!
+    private var viewModel: SliderListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var numberCancellable: AnyCancellable?
 
@@ -39,12 +39,10 @@ final class SliderViewCell: UITableViewCell {
     
     
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-    }
+    override func awakeFromNib() { super.awakeFromNib() }
     
     @available(iOS 16.0, *)
-    func configure(with viewModel: AdListItemViewModel) {
+    func configure(with viewModel: SliderListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
@@ -58,7 +56,7 @@ final class SliderViewCell: UITableViewCell {
             value_2: .zero,
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
-            isSecondSliderHidden: viewModel.hideSecondSlider,
+            isSecondSliderShow: viewModel.showSecondSlider,
         )
         self.provider = provider
         

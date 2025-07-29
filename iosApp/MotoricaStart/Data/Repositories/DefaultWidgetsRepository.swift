@@ -2,15 +2,15 @@
 
 import Foundation
 
-final class DefaultMoviesRepository {
+final class DefaultWidgetsRepository {
 
     private let dataTransferService: DataTransferService
-    private let cache: MoviesResponseStorage
+    private let cache: WidgetsResponseStorage
     private let backgroundQueue: DataTransferDispatchQueue
 
     init(
         dataTransferService: DataTransferService,
-        cache: MoviesResponseStorage,
+        cache: WidgetsResponseStorage,
         backgroundQueue: DataTransferDispatchQueue = DispatchQueue.global(qos: .userInitiated)
     ) {
         self.dataTransferService = dataTransferService
@@ -19,16 +19,16 @@ final class DefaultMoviesRepository {
     }
 }
 
-extension DefaultMoviesRepository: MoviesRepository {
+extension DefaultWidgetsRepository: WidgetsRepository {
     
-    func fetchMoviesList(
-        query: MovieQuery,
+    func fetchWidgetsList(
+        query: WidgetQuery,
         page: Int,
-        cached: @escaping (MoviesPage) -> Void,
-        completion: @escaping (Result<MoviesPage, Error>) -> Void
+        cached: @escaping (WidgetsPage) -> Void,
+        completion: @escaping (Result<WidgetsPage, Error>) -> Void
     ) -> Cancellable? {
 
-        let requestDTO = MoviesRequestDTO(query: query.query, page: page)
+        let requestDTO = WidgetsRequestDTO(query: query.query, page: page)
         let task = RepositoryTask()
 
         cache.getResponse(for: requestDTO) { [weak self, backgroundQueue] result in
@@ -43,7 +43,7 @@ extension DefaultMoviesRepository: MoviesRepository {
                 return
             }
 
-//            let endpoint = APIEndpoints.getMovies(with: requestDTO)
+//            let endpoint = APIEndpoints.getWidgets(with: requestDTO)
 //            task.networkTask = self?.dataTransferService.request(
 //                with: endpoint,
 //                on: backgroundQueue

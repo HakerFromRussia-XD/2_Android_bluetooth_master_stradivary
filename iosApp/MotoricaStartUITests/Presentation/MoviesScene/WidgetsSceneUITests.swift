@@ -1,6 +1,6 @@
 import XCTest
 
-class MoviesSceneUITests: XCTestCase {
+class WidgetsSceneUITests: XCTestCase {
 
     override func setUp() {
 
@@ -10,7 +10,7 @@ class MoviesSceneUITests: XCTestCase {
 
     // NOTE: for UI tests to work the keyboard of simulator must be on.
     // Keyboard shortcut COMMAND + SHIFT + K while simulator has focus
-    func testOpenMovieDetails_whenSearchBatmanAndTapOnFirstResultRow_thenMovieDetailsViewOpensWithTitleBatman() {
+    func testOpenWidgetDetails_whenSearchBatmanAndTapOnFirstResultRow_thenWidgetDetailsViewOpensWithTitleBatman() {
         
         let app = XCUIApplication()
         
@@ -27,8 +27,8 @@ class MoviesSceneUITests: XCTestCase {
         // Tap on first result row
         app.tables.cells.staticTexts[searchText].tap()
         
-        // Make sure movie details view
-        XCTAssertTrue(app.otherElements[AccessibilityIdentifier.movieDetailsView].waitForExistence(timeout: 5))
+        // Make sure widget details view
+        XCTAssertTrue(app.otherElements[AccessibilityIdentifier.widgetDetailsView].waitForExistence(timeout: 5))
         XCTAssertTrue(app.navigationBars[searchText].waitForExistence(timeout: 5))
     }
 }

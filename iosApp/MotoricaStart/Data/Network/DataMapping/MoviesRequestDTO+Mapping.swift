@@ -1,6 +1,6 @@
 import Foundation
 
-struct MoviesRequestDTO: Encodable {
+struct WidgetsRequestDTO: Encodable {
     let query: String
     let page: Int
 }

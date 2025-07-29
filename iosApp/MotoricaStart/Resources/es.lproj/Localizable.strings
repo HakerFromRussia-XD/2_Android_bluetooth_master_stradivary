@@ -6,11 +6,11 @@
   
 */
 
-"Movies" = "Películas";
+"Widgets" = "Películas";
 "Search results" = "Resultados de búsqueda";
 "Release Date" = "Fecha de lanzamiento";
 "To be announced" = "Para ser anunciado";
 "Error" = "Error";
 "No internet connection" = "Sin conexión a internet";
-"Failed loading movies" = "Error al descargar películas";
-"Search Movies" = "Buscar películas";
+"Failed loading widgets" = "Error al descargar películas";
+"Search Widgets" = "Buscar películas";

@@ -1,16 +1,16 @@
 import Foundation
 import CoreData
 
-extension MovieQueryEntity {
-    convenience init(movieQuery: MovieQuery, insertInto context: NSManagedObjectContext) {
+extension WidgetQueryEntity {
+    convenience init(widgetQuery: WidgetQuery, insertInto context: NSManagedObjectContext) {
         self.init(context: context)
-        query = movieQuery.query
+        query = widgetQuery.query
         createdAt = Date()
     }
 }
 
-extension MovieQueryEntity {
-    func toDomain() -> MovieQuery {
+extension WidgetQueryEntity {
+    func toDomain() -> WidgetQuery {
         return .init(query: query ?? "")
     }
 }

@@ -1,31 +1,31 @@
 import Foundation
 
 // This is another option to create Use Case using more generic way
-final class FetchRecentMovieQueriesUseCase: UseCase {
+final class FetchRecentWidgetQueriesUseCase: UseCase {
 
     struct RequestValue {
         let maxCount: Int
     }
-    typealias ResultValue = (Result<[MovieQuery], Error>)
+    typealias ResultValue = (Result<[WidgetQuery], Error>)
 
     private let requestValue: RequestValue
     private let completion: (ResultValue) -> Void
-    private let moviesQueriesRepository: MoviesQueriesRepository
+    private let widgetsQueriesRepository: WidgetsQueriesRepository
 
     init(
         requestValue: RequestValue,
         completion: @escaping (ResultValue) -> Void,
-        moviesQueriesRepository: MoviesQueriesRepository
+                    widgetsQueriesRepository: WidgetsQueriesRepository
     ) {
 
         self.requestValue = requestValue
         self.completion = completion
-        self.moviesQueriesRepository = moviesQueriesRepository
+        self.widgetsQueriesRepository =             widgetsQueriesRepository
     }
     
     func start() -> Cancellable? {
 
-        moviesQueriesRepository.fetchRecentsQueries(
+        widgetsQueriesRepository.fetchRecentsQueries(
             maxCount: requestValue.maxCount,
             completion: completion
         )

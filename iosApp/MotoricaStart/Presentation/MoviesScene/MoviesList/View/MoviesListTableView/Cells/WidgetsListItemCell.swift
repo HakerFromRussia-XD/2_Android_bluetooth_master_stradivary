@@ -10,13 +10,13 @@ final class WidgetsListItemCell: UITableViewCell {
     @IBOutlet private var overviewLabel: UILabel!
     @IBOutlet private var posterImageView: UIImageView!
 
-    private var viewModel: MoviesListItemViewModel!
+    private var viewModel: WidgetsListItemViewModel!
     private var posterImagesRepository: PosterImagesRepository?
     private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType = DispatchQueue.main
 
     func fill(
-        with viewModel: MoviesListItemViewModel,
+        with viewModel: WidgetsListItemViewModel,
         posterImagesRepository: PosterImagesRepository?
     ) {
         self.viewModel = viewModel

@@ -1,20 +1,20 @@
 import Foundation
 import CoreData
 
-extension MoviesResponseEntity {
+extension WidgetsResponseEntity {
     func toDTO() -> WidgetsResponseDTO {
         return .init(
             page: Int(page),
             totalPages: Int(totalPages),
 
-            widgets: (movies?.allObjects as? [MovieResponseEntity] ?? [])
+            widgets: (widgets?.allObjects as? [WidgetResponseEntity] ?? [])
                 .sorted { $0.id < $1.id }
                 .map { $0.toDTO() }
         )
     }
 }
 
-extension MovieResponseEntity {
+extension WidgetResponseEntity {
     func toDTO() -> WidgetsResponseDTO.WidgetDTO {
         return .init(
             id: Int(id),
@@ -28,9 +28,9 @@ extension MovieResponseEntity {
     }
 }
 
-extension MoviesRequestDTO {
-    func toEntity(in context: NSManagedObjectContext) -> MoviesRequestEntity {
-        let entity: MoviesRequestEntity = .init(context: context)
+extension WidgetsRequestDTO {
+    func toEntity(in context: NSManagedObjectContext) -> WidgetsRequestEntity {
+        let entity: WidgetsRequestEntity = .init(context: context)
         entity.query = query
         entity.page = Int32(page)
         return entity
@@ -38,20 +38,20 @@ extension MoviesRequestDTO {
 }
 
 extension WidgetsResponseDTO {
-    func toEntity(in context: NSManagedObjectContext) -> MoviesResponseEntity {
-        let entity: MoviesResponseEntity = .init(context: context)
+    func toEntity(in context: NSManagedObjectContext) -> WidgetsResponseEntity {
+        let entity: WidgetsResponseEntity = .init(context: context)
         entity.page = Int32(page)
         entity.totalPages = Int32(totalPages)
         widgets.forEach {
-            entity.addToMovies($0.toEntity(in: context))
+            entity.addToWidgets($0.toEntity(in: context))
         }
         return entity
     }
 }
 
 extension WidgetsResponseDTO.WidgetDTO {
-    func toEntity(in context: NSManagedObjectContext) -> MovieResponseEntity {
-        let entity: MovieResponseEntity = .init(context: context)
+    func toEntity(in context: NSManagedObjectContext) -> WidgetResponseEntity {
+        let entity: WidgetResponseEntity = .init(context: context)
         entity.id = Int64(id)
         entity.title = title
         entity.genre = genre?.rawValue

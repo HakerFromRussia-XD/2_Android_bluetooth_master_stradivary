@@ -12,17 +12,17 @@ final class CoreDataWidgetsResponseStorage {
     // MARK: - Private
 
     private func fetchRequest(
-        for requestDto: MoviesRequestDTO
-    ) -> NSFetchRequest<MoviesRequestEntity> {
-        let request: NSFetchRequest = MoviesRequestEntity.fetchRequest()
+        for requestDto: WidgetsRequestDTO
+    ) -> NSFetchRequest<WidgetsRequestEntity> {
+        let request: NSFetchRequest = WidgetsRequestEntity.fetchRequest()
         request.predicate = NSPredicate(format: "%K = %@ AND %K = %d",
-                                        #keyPath(MoviesRequestEntity.query), requestDto.query,
-                                        #keyPath(MoviesRequestEntity.page), requestDto.page)
+                                        #keyPath(WidgetsRequestEntity.query), requestDto.query,
+                                        #keyPath(WidgetsRequestEntity.page), requestDto.page)
         return request
     }
 
     private func deleteResponse(
-        for requestDto: MoviesRequestDTO,
+        for requestDto: WidgetsRequestDTO,
         in context: NSManagedObjectContext
     ) {
         let request = fetchRequest(for: requestDto)
@@ -37,10 +37,10 @@ final class CoreDataWidgetsResponseStorage {
     }
 }
 
-extension CoreDataWidgetsResponseStorage: MoviesResponseStorage {
+extension CoreDataWidgetsResponseStorage: WidgetsResponseStorage {
 
     func getResponse(
-        for requestDto: MoviesRequestDTO,
+        for requestDto: WidgetsRequestDTO,
         completion: @escaping (Result<WidgetsResponseDTO?, Error>) -> Void
     ) {
         coreDataStorage.performBackgroundTask { context in
@@ -57,7 +57,7 @@ extension CoreDataWidgetsResponseStorage: MoviesResponseStorage {
 
     func save(
         response responseDto: WidgetsResponseDTO,
-        for requestDto: MoviesRequestDTO
+        for requestDto: WidgetsRequestDTO
     ) {
         coreDataStorage.performBackgroundTask { context in
             do {
@@ -69,7 +69,7 @@ extension CoreDataWidgetsResponseStorage: MoviesResponseStorage {
                 try context.save()
             } catch {
                 // TODO: - Log to Crashlytics
-                debugPrint("CoreDataMoviesResponseStorage Unresolved error \(error), \((error as NSError).userInfo)")
+                debugPrint("CoreDataWidgetsResponseStorage Unresolved error \(error), \((error as NSError).userInfo)")
             }
         }
     }
@@ -80,7 +80,7 @@ extension CoreDataWidgetsResponseStorage {
     /// когда `context.save()` завершён.
     func save(
         response responseDto: WidgetsResponseDTO,
-        for requestDto: MoviesRequestDTO,
+        for requestDto: WidgetsRequestDTO,
         completion: @escaping () -> Void
     ) {
         coreDataStorage.performBackgroundTask { context in
@@ -93,7 +93,7 @@ extension CoreDataWidgetsResponseStorage {
                 try context.save()
             } catch {
                 // TODO: отправить в Crashlytics
-                debugPrint("CoreDataMoviesResponseStorage save error \(error)")
+                debugPrint("CoreDataWidgetsResponseStorage save error \(error)")
             }
             DispatchQueue.main.async { completion() }          // Assistant: уведомляем UI
         }

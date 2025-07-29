@@ -1,19 +1,19 @@
 import Foundation
 
-protocol MovieDetailsViewModelInput {
+protocol WidgetDetailsViewModelInput {
     func updatePosterImage(width: Int)
 }
 
-protocol MovieDetailsViewModelOutput {
+protocol WidgetDetailsViewModelOutput {
     var title: String { get }
     var posterImage: Observable<Data?> { get }
     var isPosterImageHidden: Bool { get }
     var overview: String { get }
 }
 
-protocol MovieDetailsViewModel: MovieDetailsViewModelInput, MovieDetailsViewModelOutput { }
+protocol WidgetDetailsViewModel: WidgetDetailsViewModelInput, WidgetDetailsViewModelOutput { }
 
-final class DefaultMovieDetailsViewModel: MovieDetailsViewModel {
+final class DefaultWidgetDetailsViewModel: WidgetDetailsViewModel {
     
     private let posterImagePath: String?
     private let posterImagesRepository: PosterImagesRepository
@@ -27,21 +27,21 @@ final class DefaultMovieDetailsViewModel: MovieDetailsViewModel {
     let overview: String
     
     init(
-        movie: Movie,
+        widget: Widget,
         posterImagesRepository: PosterImagesRepository,
         mainQueue: DispatchQueueType = DispatchQueue.main
     ) {
-        self.title = movie.title ?? ""
-        self.overview = movie.overview ?? ""
-        self.posterImagePath = movie.posterPath
-        self.isPosterImageHidden = movie.posterPath == nil
+        self.title = widget.title ?? ""
+        self.overview = widget.overview ?? ""
+        self.posterImagePath = widget.posterPath
+        self.isPosterImageHidden = widget.posterPath == nil
         self.posterImagesRepository = posterImagesRepository
         self.mainQueue = mainQueue
     }
 }
 
 // MARK: - INPUT. View event methods
-extension DefaultMovieDetailsViewModel {
+extension DefaultWidgetDetailsViewModel {
     
     func updatePosterImage(width: Int) {
         guard let posterImagePath = posterImagePath else { return }

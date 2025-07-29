@@ -26,12 +26,12 @@ final class AppDIContainer {
     }()
     
     // MARK: - DIContainers of scenes
-    func makeMoviesSceneDIContainer() -> MoviesSceneDIContainer {
-        let dependencies = MoviesSceneDIContainer.Dependencies(
+    func makeWidgetsSceneDIContainer() -> WidgetsSceneDIContainer {
+        let dependencies = WidgetsSceneDIContainer.Dependencies(
             apiDataTransferService: apiDataTransferService,
             imageDataTransferService: imageDataTransferService
         )
-        return MoviesSceneDIContainer(dependencies: dependencies)
+        return WidgetsSceneDIContainer(dependencies: dependencies)
     }
     
     // MARK: - Bluetooth

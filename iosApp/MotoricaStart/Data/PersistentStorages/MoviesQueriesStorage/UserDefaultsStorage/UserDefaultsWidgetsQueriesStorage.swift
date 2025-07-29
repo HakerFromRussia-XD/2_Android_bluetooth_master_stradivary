@@ -1,8 +1,8 @@
 import Foundation
 
-final class UserDefaultsMoviesQueriesStorage {
+final class UserDefaultsWidgetsQueriesStorage {
     private let maxStorageLimit: Int
-    private let recentsMoviesQueriesKey = "recentsMoviesQueries"
+    private let recentsWidgetsQueriesKey = "recentsWidgetsQueries"
     private var userDefaults: UserDefaults
     private let backgroundQueue: DispatchQueueType
     
@@ -16,50 +16,50 @@ final class UserDefaultsMoviesQueriesStorage {
         self.backgroundQueue = backgroundQueue
     }
 
-    private func fetchMoviesQueries() -> [MovieQuery] {
-        if let queriesData = userDefaults.object(forKey: recentsMoviesQueriesKey) as? Data {
-            if let movieQueryList = try? JSONDecoder().decode(MovieQueriesListUDS.self, from: queriesData) {
-                return movieQueryList.list.map { $0.toDomain() }
+    private func fetchWidgetsQueries() -> [WidgetQuery] {
+        if let queriesData = userDefaults.object(forKey: recentsWidgetsQueriesKey) as? Data {
+            if let widgetQueryList = try? JSONDecoder().decode(WidgetQueriesListUDS.self, from: queriesData) {
+                return widgetQueryList.list.map { $0.toDomain() }
             }
         }
         return []
     }
 
-    private func persist(moviesQueries: [MovieQuery]) {
+    private func persist(widgetsQueries: [WidgetQuery]) {
         let encoder = JSONEncoder()
-        let movieQueryUDSs = moviesQueries.map(MovieQueryUDS.init)
-        if let encoded = try? encoder.encode(MovieQueriesListUDS(list: movieQueryUDSs)) {
-            userDefaults.set(encoded, forKey: recentsMoviesQueriesKey)
+        let widgetQueryUDSs = widgetsQueries.map(WidgetQueryUDS.init)
+        if let encoded = try? encoder.encode(WidgetQueriesListUDS(list: widgetQueryUDSs)) {
+            userDefaults.set(encoded, forKey: recentsWidgetsQueriesKey)
         }
     }
 }
 
-extension UserDefaultsMoviesQueriesStorage: MoviesQueriesStorage {
+extension UserDefaultsWidgetsQueriesStorage: WidgetsQueriesStorage {
 
     func fetchRecentsQueries(
         maxCount: Int,
-        completion: @escaping (Result<[MovieQuery], Error>) -> Void
+        completion: @escaping (Result<[WidgetQuery], Error>) -> Void
     ) {
         backgroundQueue.async { [weak self] in
             guard let self = self else { return }
 
-            var queries = self.fetchMoviesQueries()
+            var queries = self.fetchWidgetsQueries()
             queries = queries.count < self.maxStorageLimit ? queries : Array(queries[0..<maxCount])
             completion(.success(queries))
         }
     }
 
     func saveRecentQuery(
-        query: MovieQuery,
-        completion: @escaping (Result<MovieQuery, Error>) -> Void
+        query: WidgetQuery,
+        completion: @escaping (Result<WidgetQuery, Error>) -> Void
     ) {
         backgroundQueue.async { [weak self] in
             guard let self = self else { return }
 
-            var queries = self.fetchMoviesQueries()
+            var queries = self.fetchWidgetsQueries()
             self.cleanUpQueries(for: query, in: &queries)
             queries.insert(query, at: 0)
-            self.persist(moviesQueries: queries)
+            self.persist(widgetsQueries: queries)
 
             completion(.success(query))
         }
@@ -68,18 +68,18 @@ extension UserDefaultsMoviesQueriesStorage: MoviesQueriesStorage {
 
 
 // MARK: - Private
-extension UserDefaultsMoviesQueriesStorage {
+extension UserDefaultsWidgetsQueriesStorage {
 
-    private func cleanUpQueries(for query: MovieQuery, in queries: inout [MovieQuery]) {
+    private func cleanUpQueries(for query: WidgetQuery, in queries: inout [WidgetQuery]) {
         removeDuplicates(for: query, in: &queries)
         removeQueries(limit: maxStorageLimit - 1, in: &queries)
     }
 
-    private func removeDuplicates(for query: MovieQuery, in queries: inout [MovieQuery]) {
+    private func removeDuplicates(for query: WidgetQuery, in queries: inout [WidgetQuery]) {
         queries = queries.filter { $0 != query }
     }
 
-    private func removeQueries(limit: Int, in queries: inout [MovieQuery]) {
+    private func removeQueries(limit: Int, in queries: inout [WidgetQuery]) {
         queries = queries.count <= limit ? queries : Array(queries[0..<limit])
     }
 }

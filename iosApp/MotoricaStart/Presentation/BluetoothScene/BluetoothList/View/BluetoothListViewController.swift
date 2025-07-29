@@ -255,26 +255,26 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         viewModel.connectToDevice(at: indexPath.row)
         tableViewDevices.reloadRows(at: [indexPath], with: .none)
         
-        // Запрос на открытие MoviesListViewController через координатор
-        openMoviesList()
+        // Запрос на открытие WidgetsListViewController через координатор
+        openWidgetsList()
     }
-    private func openMoviesList() {
-        // 1. DI‑контейнер Movies‑сцены
-        let moviesDI = MoviesSceneDIContainer(
-            dependencies: makeMoviesDependencies()
+    private func openWidgetsList() {
+        // 1. DI‑контейнер Widgets‑сцены
+        let widgetsDI = WidgetsSceneDIContainer(
+            dependencies: makeWidgetsDependencies()
         )
 
         // 2. Минимальный набор действий (допустимы заглушки)
-        let actions = MoviesListViewModelActions(
-            showMovieDetails: { _ in },
-            showMovieQueriesSuggestions: { _ in },
-            closeMovieQueriesSuggestions: { }
+        let actions = WidgetsListViewModelActions(
+            showWidgetDetails: { _ in },
+            showWidgetQueriesSuggestions: { _ in },
+            closeWidgetQueriesSuggestions: { }
         )
         
-        let moviesVC = moviesDI.makeMoviesListViewController(actions: actions)
-        navigationController?.pushViewController(moviesVC, animated: true)
+        let widgetsVC = widgetsDI.makeWidgetsListViewController(actions: actions)
+        navigationController?.pushViewController(widgetsVC, animated: true)
     }
-    private func makeMoviesDependencies() -> MoviesSceneDIContainer.Dependencies {                   // Assistant
+    private func makeWidgetsDependencies() -> WidgetsSceneDIContainer.Dependencies {                   // Assistant
         // -------- единый сетевой слой (можно разделить при желании) -------
         struct InlineConfig: NetworkConfigurable {
             let baseURL: URL
@@ -282,15 +282,15 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             let queryParameters: [String:String] = [:]
         }
         let cfg = InlineConfig(
-            baseURL: URL(string: "https://api.themoviedb.org/3")!,
+            baseURL: URL(string: "https://api.motorica.org/v1")!,
             headers: [:]
         )
         
         let network          = DefaultNetworkService(config: cfg)
         let dataTransfer     = DefaultDataTransferService(with: network)
         
-        // ---------- возвращаем Dependencies контейнеру MoviesScene -----------
-         return MoviesSceneDIContainer.Dependencies(
+        // ---------- возвращаем Dependencies контейнеру WidgetsScene -----------
+         return WidgetsSceneDIContainer.Dependencies(
             apiDataTransferService:   dataTransfer,
             imageDataTransferService: dataTransfer
          )

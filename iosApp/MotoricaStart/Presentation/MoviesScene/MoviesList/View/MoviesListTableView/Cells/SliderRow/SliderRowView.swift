@@ -16,7 +16,7 @@ final class SliderRowProvider: ObservableObject {
     @Published var value_2: Float
     let title_2: String
     let numLabel_2: String
-    @Published var isSecondSliderHidden: Bool
+    @Published var isSecondSliderShow: Bool
 
     init(
         value_1: Float = 0,
@@ -25,7 +25,7 @@ final class SliderRowProvider: ObservableObject {
         value_2: Float = 0,
         title_2: String,
         numLabel_2: String,
-        isSecondSliderHidden: Bool = true
+        isSecondSliderShow: Bool = true
     ) {
         self.value_1 = value_1
         self.title_1 = title_1
@@ -33,7 +33,7 @@ final class SliderRowProvider: ObservableObject {
         self.value_2 = value_2
         self.title_2 = title_2
         self.numLabel_2 = numLabel_2
-        self.isSecondSliderHidden = isSecondSliderHidden
+        self.isSecondSliderShow = isSecondSliderShow
     }
 }
 
@@ -76,7 +76,7 @@ struct SliderRowView: View {
                        .padding(.trailing, 8)
             }
             .padding(.bottom, 4)
-            if !provider.isSecondSliderHidden {
+            if provider.isSecondSliderShow {
                 HStack {
                     Text(provider.title_2)
                         .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов

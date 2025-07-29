@@ -1,16 +1,16 @@
 import UIKit
 
-final class MovieDetailsViewController: UIViewController, StoryboardInstantiable {
+final class         WidgetDetailsViewController: UIViewController, StoryboardInstantiable {
 
     @IBOutlet private var posterImageView: UIImageView!
     @IBOutlet private var overviewTextView: UITextView!
 
     // MARK: - Lifecycle
 
-    private var viewModel: MovieDetailsViewModel!
+    private var viewModel: WidgetDetailsViewModel!
     
-    static func create(with viewModel: MovieDetailsViewModel) -> MovieDetailsViewController {
-        let view = MovieDetailsViewController.instantiateViewController()
+    static func create(with viewModel: WidgetDetailsViewModel) ->         WidgetDetailsViewController {
+        let view =         WidgetDetailsViewController.instantiateViewController()
         view.viewModel = viewModel
         return view
     }
@@ -35,7 +35,7 @@ final class MovieDetailsViewController: UIViewController, StoryboardInstantiable
         }
     }
 
-    private func bind(to viewModel: MovieDetailsViewModel) {
+    private func bind(to viewModel: WidgetDetailsViewModel) {
         viewModel.posterImage.observe(on: self) { [weak self] in self?.posterImageView.image = $0.flatMap(UIImage.init) }
     }
     
@@ -49,7 +49,7 @@ final class MovieDetailsViewController: UIViewController, StoryboardInstantiable
         title = viewModel.title
         overviewTextView.text = viewModel.overview
         posterImageView.isHidden = viewModel.isPosterImageHidden
-        view.accessibilityIdentifier = AccessibilityIdentifier.movieDetailsView
+        view.accessibilityIdentifier = AccessibilityIdentifier.widgetDetailsView
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent

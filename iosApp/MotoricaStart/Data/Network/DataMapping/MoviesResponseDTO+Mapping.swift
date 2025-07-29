@@ -60,17 +60,17 @@ extension WidgetsResponseDTO {
 // MARK: - Mappings to Domain
 
 extension WidgetsResponseDTO {
-    func toDomain() -> MoviesPage {
+    func toDomain() -> WidgetsPage {
         return .init(page: page,
                      totalPages: totalPages,
-                     movies: widgets.map { $0.toDomain() })
+                     widgets: widgets.map { $0.toDomain() })
     }
 }
 
 extension WidgetsResponseDTO.WidgetDTO {
-    func toDomain() -> Movie {
-        let movie = Movie(
-                id: Movie.Identifier(id),
+    func toDomain() -> Widget {
+        let widget = Widget(
+                id: Widget.Identifier(id),
                 title: title,
                 title_2: title,
                 genre: genre?.toDomain(),
@@ -78,13 +78,13 @@ extension WidgetsResponseDTO.WidgetDTO {
                 overview: overview,
                 isAd: isAd ?? false
             )
-        print("Mapped Movie: \(movie)")
-        return movie
+        print("Mapped Widget: \(widget)")
+        return widget
     }
 }
 
 extension WidgetsResponseDTO.WidgetDTO.GenreDTO {
-    func toDomain() -> Movie.Genre {
+    func toDomain() -> Widget.Genre {
         switch self {
         case .adventure: return .adventure
         case .scienceFiction: return .scienceFiction

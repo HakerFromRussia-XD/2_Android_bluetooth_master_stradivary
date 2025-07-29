@@ -39,7 +39,7 @@ final class WidgetsListTableViewController: UITableViewController {
     }
 
 
-    func updateLoading(_ loading: MoviesListViewModelLoading?) {
+    func updateLoading(_ loading: WidgetsListViewModelLoading?) {
         switch loading {
         case .nextPage:
             nextPageLoadingSpinner?.removeFromSuperview()
@@ -66,7 +66,7 @@ final class WidgetsListTableViewController: UITableViewController {
         ) { [weak self] tableView, indexPath, item in
             guard let self = self else {return nil}
             switch item {
-            case .movie(let vm):
+            case .widget(let vm):
                 let cell = tableView.dequeueReusableCell(
                     withIdentifier: WidgetsListItemCell.reuseIdentifier,
                     for: indexPath
@@ -110,7 +110,7 @@ extension WidgetsListTableViewController {
         print("Item at \(indexPath.row): \(item)")
         
         switch item {
-            case .movie(let movieVM):
+            case .widget(let widgetVM):
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: WidgetsListItemCell.reuseIdentifier,
                     for: indexPath
@@ -119,7 +119,7 @@ extension WidgetsListTableViewController {
                     return UITableViewCell()
                 }
                 
-                cell.fill(with: movieVM, posterImagesRepository: posterImagesRepository)
+                cell.fill(with: widgetVM, posterImagesRepository: posterImagesRepository)
                 
                 if indexPath.row == viewModel.items.value.count - 1 {
                     viewModel.didLoadNextPage()

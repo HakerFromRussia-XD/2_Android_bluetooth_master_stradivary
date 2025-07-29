@@ -4,15 +4,14 @@ import UIKit
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     
     @IBOutlet private var contentView: UIView!
-    @IBOutlet private var moviesListContainer: UIView!
+    @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
     
     private var viewModel: WidgetsListViewModel!
     private var posterImagesRepository: PosterImagesRepository?
-//    private let bleManager = BleManager_fromTestProj()
 
-    private var moviesTableViewController: WidgetsListTableViewController?
+    private var widgetsTableViewController: WidgetsListTableViewController?
     let storage = CoreDataWidgetsResponseStorage() 
 
     // MARK: - Lifecycle
@@ -72,7 +71,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             ]
         )
 
-        let requestDTO = MoviesRequestDTO(query: MovieQuery(query: "My request").query, page: 1)
+        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
             self?.viewModel.didSearch(query: "My request")             // ← чтение идёт уже из свежего кэша
         }
@@ -103,9 +102,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == String(describing: WidgetsListTableViewController.self),
             let destinationVC = segue.destination as? WidgetsListTableViewController {
-            moviesTableViewController = destinationVC
-            moviesTableViewController?.viewModel = viewModel
-            moviesTableViewController?.posterImagesRepository = posterImagesRepository
+            widgetsTableViewController = destinationVC
+            widgetsTableViewController?.viewModel = viewModel
+            widgetsTableViewController?.posterImagesRepository = posterImagesRepository
         }
     }
 
@@ -122,24 +121,24 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
-        moviesTableViewController?.reload()
+        widgetsTableViewController?.reload()
     }
 
-    private func updateLoading(_ loading: MoviesListViewModelLoading?) {
+    private func updateLoading(_ loading: WidgetsListViewModelLoading?) {
         emptyDataLabel.isHidden = true
-        moviesListContainer.isHidden = true
+        widgetsListContainer.isHidden = true
         suggestionsListContainer.isHidden = true
         LoadingView.hide()
 
         switch loading {
         case .fullScreen: LoadingView.show()
-        case .nextPage: moviesListContainer.isHidden = false
+        case .nextPage: widgetsListContainer.isHidden = false
         case .none:
-            moviesListContainer.isHidden = viewModel.isEmpty
+            widgetsListContainer.isHidden = viewModel.isEmpty
             emptyDataLabel.isHidden = !viewModel.isEmpty
         }
 
-        moviesTableViewController?.updateLoading(loading)
+        widgetsTableViewController?.updateLoading(loading)
     }
 
     private func showError(_ error: String) {

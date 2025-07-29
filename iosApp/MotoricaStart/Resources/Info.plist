@@ -7,7 +7,7 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Приложение использует Bluetooth для сканирования и подключения к устройствам UBI4.</string>
 	<key>ApiBaseURL</key>
-	<string>https://api.themoviedb.org</string>
+	<string>https://api.motorica.org/v1</string>
 	<key>ApiKey</key>
 	<string>74cc1c513623db1fc9e2b4edf110bafa</string>
 	<key>CFBundleDevelopmentRegion</key>

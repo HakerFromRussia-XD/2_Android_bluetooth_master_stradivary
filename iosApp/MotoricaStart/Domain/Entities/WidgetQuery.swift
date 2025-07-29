@@ -1,5 +1,5 @@
 import Foundation
 
-struct MovieQuery: Equatable {
+struct WidgetQuery: Equatable {
     let query: String
 }

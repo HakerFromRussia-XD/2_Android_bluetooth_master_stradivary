@@ -95,6 +95,8 @@ android {
     }
 }
 
+def ktor = "3.2.3"
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
@@ -208,16 +210,22 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
     testImplementation 'io.mockk:mockk:1.13.7'
 
-    // Ktor core и движок для Android (OkHttp)
-    implementation "io.ktor:ktor-client-core:2.3.1"
-    implementation "io.ktor:ktor-client-okhttp:2.3.1"
-
-// Плагин ContentNegotiation и сериализация JSON
-    implementation "io.ktor:ktor-client-content-negotiation:2.3.1"
-    implementation "io.ktor:ktor-serialization-kotlinx-json:2.3.1"
-
-// Плагин логирования запросов/ответов
-    implementation "io.ktor:ktor-client-logging:2.3.1"
+//    // Ktor core и движок для Android (OkHttp)
+//    implementation "io.ktor:ktor-client-core:2.3.1"
+//    implementation "io.ktor:ktor-client-okhttp:2.3.1"
+//    implementation "io.ktor:ktor-client-sse:2.3.1"
+//// Плагин ContentNegotiation и сериализация JSON
+//    implementation "io.ktor:ktor-client-content-negotiation:2.3.1"
+//    implementation "io.ktor:ktor-serialization-kotlinx-json:2.3.1"
+//
+//// Плагин логирования запросов/ответов
+//    implementation "io.ktor:ktor-client-logging:2.3.1"
+    implementation "io.ktor:ktor-client-core:$ktor"
+    implementation "io.ktor:ktor-client-okhttp:$ktor"
+    implementation "io.ktor:ktor-sse:$ktor"            // вот оно теперь в Central!
+    implementation "io.ktor:ktor-client-content-negotiation:$ktor"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor"
+    implementation "io.ktor:ktor-client-logging:$ktor"
 
     implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 

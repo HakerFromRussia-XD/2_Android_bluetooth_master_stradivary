@@ -1,23 +1,35 @@
 package com.bailout.stickk.ubi4.data.repository
 
 import android.util.Log
-import com.bailout.stickk.ubi4.data.network.ApiInterfaceUBI4
-import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
-import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
+import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
+import com.bailout.stickk.ubi4.data.network.NetworkResult
+import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
+import com.bailout.stickk.ubi4.models.network.TakeDataRequest
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.util.InternalAPI
+import io.ktor.utils.io.readUTF8Line
+import io.ktor.utils.io.jvm.javaio.copyTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile
 
 class Ubi4TrainingRepository(
-    val api: ApiInterfaceUBI4
+    private val api: Ubi4RequestsApi
 ) {
 
+    /** 1) API Key + serial + password → JWT */
     suspend fun fetchTokenBySerial(
         apiKey: String,
         serial: String,
@@ -25,130 +37,135 @@ class Ubi4TrainingRepository(
     ): String {
         Log.d("Repo", "→ loginBySerial with serial='$serial'")
         val req = SerialTokenRequest(serialNumber = serial, password = password)
-        val resp = api.loginBySerial(apiKey, req)
-        if (!resp.isSuccessful) throw IOException("Login failed ${resp.code()}")
-        val body = resp.body()!!
-        val capitalizedType = body.tokenType.replaceFirstChar { it.uppercase() }  // "Bearer"
-        return "$capitalizedType ${body.accessToken}"
+        return when (val result = api.loginBySerial(apiKey, req)) {
+            is NetworkResult.Success -> {
+                val body = result.value
+                val type = body.tokenType.replaceFirstChar { it.uppercase() }
+                "$type ${body.accessToken}"
+            }
+            is NetworkResult.Error -> {
+                throw IOException("Login failed ${result.code}: ${result.message}")
+            }
+        }
     }
 
-//    suspend fun fetchAndSavePassport(
-//        token: String,
-//        serial: String,
-//        cacheDir: File
-//    ): File {
-//        val resp = api.getPassportData(auth = token, serial = serial)
-//        if (!resp.isSuccessful) throw IOException("Passport failed ${resp.code()}")
-//        val pr = resp.body()!!
-//        val out = File(cacheDir, pr.filename)
-//        out.writeText(pr.content)
-//        return out
-//    }
+    /** 2) token + serial → паспорт (YAML + filename) */
     suspend fun fetchAndSavePassport(
         token: String,
         serial: String,
         cacheDir: File
     ): File {
-        val resp = api.getPassportData(auth = token, serial = serial)
-        if (!resp.isSuccessful) {
-            val err = resp.errorBody()?.string().orEmpty()
-            Log.e("Ubi4Repo", "Passport failed ${resp.code()}: $err")
-            throw IOException("Passport failed ${resp.code()}: $err")
+        return when (val result = api.getPassportData(token, serial)) {
+            is NetworkResult.Success -> {
+                val pr = result.value
+                File(cacheDir, pr.filename).apply {
+                    writeText(pr.content)
+                }
+            }
+            is NetworkResult.Error -> {
+                Log.e("Ubi4Repo", "Passport failed ${result.code}: ${result.message}")
+                throw IOException("Passport failed ${result.code}: ${result.message}")
+            }
         }
-        val pr = resp.body()!!
-        val out = File(cacheDir, pr.filename)
-        out.writeText(pr.content)
-        return out
     }
 
+    /*** 3) serial + files → SSE-stream или JSON*/
     suspend fun uploadTrainingData(
         token: String,
         serial: String,
         pairs: List<Pair<File, File>>,
-        onProgress: (String) -> Unit  // сюда будем отдавать только проценты при новом обучении
+        onProgress: (String) -> Unit
     ): String {
-        // 1. Собираем MultipartBody.Part
-        val serialPart = MultipartBody.Part.createFormData("serial", serial)
-        val fileParts = pairs.flatMap { (data, passport) ->
-            listOf(
-                MultipartBody.Part.createFormData(
-                    "files", data.name,
-                    data.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-                ),
-                MultipartBody.Part.createFormData(
-                    "files", passport.name,
-                    passport.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-                )
-            )
-        }
-
-        // 2. Делаем запрос
-        val resp = api.uploadTrainingData(auth = token, serial = serialPart, files = fileParts)
-        if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code()}")
-
-        // 3. Смотрим заголовок Content-Type
-        val contentType = resp.headers()["Content-Type"] ?: ""
-        Log.d("Ubi4Repo", "uploadTrainingData: Content-Type = $contentType")
-
-        // 4. Если сервер возвращает JSON (duplicate), сразу разбираем тело как строку
-        if (contentType.contains("application/json")) {
-            val raw = resp.body()?.string()
-                ?: throw IOException("Empty JSON response")
-            val json = Json.parseToJsonElement(raw).jsonObject
-            val checkpoint = json["message"]!!.jsonPrimitive.content
-            Log.d("Ubi4Repo", "→ JSON-ответ, checkpoint = $checkpoint")
-            return checkpoint
-        }
-
-        // 5. Иначе — считаем, что это SSE (новое обучение). Читаем поток построчно:
-        var lastCheckpoint: String? = null
-        resp.body()?.source()?.use { src ->
-            while (!src.exhausted()) {
-                val line = src.readUtf8Line() ?: break
-                // line выглядит как "data: 37" или "data: {\"message\":\"checkpoint-...\"}"
-                val payload = line.removePrefix("data:").trim()
-
-                // 5.1. Если payload — число (процент) → передаём в onProgress
-                if (payload.matches(Regex("\\d+"))) {
-                    Log.d("Ubi4Repo", "Progress → $payload%")
-                    onProgress(payload) // UI покажет проценты, например "37"
-                    continue
+        // 1) Собираем multipart
+        val multipart = MultiPartFormDataContent(
+            formData {
+                append("serial", serial)
+                pairs.forEach { (dataFile, passportFile) ->
+                    listOf(dataFile, passportFile).forEach { file ->
+                        append(
+                            key = "files",
+                            value = file.readBytes(),
+                            headers = Headers.build {
+                                append(HttpHeaders.ContentDisposition, "form-data; name=\"files\"; filename=\"${file.name}\"")
+                                append(HttpHeaders.ContentType, ContentType.Application.OctetStream.toString())
+                            }
+                        )
+                    }
                 }
+            }
+        )
 
-                // 5.2. Если payload содержит JSON с "message" → парсим checkpoint и выходим
-                if (payload.startsWith("{") && payload.contains("\"message\"")) {
-                    val parsed = Json.parseToJsonElement(payload)
+        // 2) Отправляем и проверяем HTTP-код
+        val resp: HttpResponse = api.uploadTrainingData(token, multipart)
+        if (resp.status.value !in 200..299) {
+            throw IOException("Upload failed ${resp.status.value}")
+        }
+
+        // 3) Разбираем Content-Type
+        val contentType = resp.headers[HttpHeaders.ContentType].orEmpty()
+
+        // 4) JSON-ответ — сразу парсим checkpoint
+        if ("application/json" in contentType) {
+            val raw = resp.bodyAsText()
+            return Json
+                .parseToJsonElement(raw)
+                .jsonObject["message"]!!
+                .jsonPrimitive
+                .content
+        }
+
+        // 5) Иначе — SSE: читаем построчно
+        val progressRegex = Regex("\\d+%?")
+        var lastCheckpoint: String? = null
+        val channel = resp.bodyAsChannel()
+
+        while (!channel.isClosedForRead) {
+            val line = channel.readUTF8Line() ?: break
+            Log.d("SSE-RAW", "→ '$line'")
+            val payload = line.removePrefix("data:").trim()
+
+            when {
+                // прогресс вида "45" или "45%"
+                progressRegex.matches(payload) -> {
+                    // если нужно только число, убираем "%"
+                    val number = payload.removeSuffix("%")
+                    withContext(Dispatchers.Main) {
+                        onProgress(number)
+                    }
+                }
+                // JSON-блок с message
+                payload.startsWith("{") && "\"message\"" in payload -> {
+                    lastCheckpoint = Json
+                        .parseToJsonElement(payload)
                         .jsonObject["message"]!!
                         .jsonPrimitive
                         .content
-                    lastCheckpoint = parsed
-                    Log.d("Ubi4Repo", "→ SSE вернул checkpoint = $parsed")
                     break
                 }
-                // прочие случаи (например, пустые строки) игнорируем
             }
         }
 
-        return lastCheckpoint
-            ?: error("Не удалось получить checkpoint из SSE")
+        return lastCheckpoint ?: error("Не удалось получить checkpoint из SSE")
     }
 
+    /**
+     * 4) token + checkpoint-name → ZIP → распаковка
+     */
     suspend fun downloadAndUnpackCheckpoint(
         token: String,
         checkpoint: String,
         outputDir: File
     ): Pair<File, List<File>> {
-        val resp = api.downloadArchive(
-            auth = token,
-            request = TakeDataRequest(listOf(checkpoint))
-        )
-        if (!resp.isSuccessful) throw IOException("Download failed ${resp.code()}")
-
-        // сохраняем zip
-        val zipFile = File(outputDir, "$checkpoint.zip")
-        resp.body()!!.byteStream().use { input ->
-            zipFile.outputStream().use { output -> input.copyTo(output) }
+        val resp = api.downloadArchive(token, TakeDataRequest(listOf(checkpoint)))
+        if (resp.status.value !in 200..299) {
+            throw IOException("Download failed ${resp.status.value}")
         }
+
+        // сохраняем ZIP
+        val zipFile = File(outputDir, "$checkpoint.zip").apply {
+            resp.bodyAsChannel().copyTo(outputStream())
+        }
+
         // распаковываем
         val unpacked = mutableListOf<File>()
         ZipFile(zipFile).use { zip ->

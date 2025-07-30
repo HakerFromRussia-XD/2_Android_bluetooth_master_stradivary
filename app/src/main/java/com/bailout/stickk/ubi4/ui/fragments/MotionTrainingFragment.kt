@@ -22,8 +22,6 @@ import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
-import com.bailout.stickk.ubi4.data.network.PassportRetrofitInstance
-import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
@@ -48,7 +46,7 @@ class MotionTrainingFragment(
     private val onFinishTraining: () -> Unit
 ) : Fragment() {
 
-    private val repo = Ubi4TrainingRepository(PassportRetrofitInstance.api)
+//    private val repo = Ubi4TrainingRepository(PassportRetrofitInstance.api)
 
     // View Binding
     private var _binding: Ubi4FragmentMotionTrainingBinding? = null

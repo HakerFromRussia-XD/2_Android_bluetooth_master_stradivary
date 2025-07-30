@@ -385,15 +385,16 @@ class BLEParser(
                     platformLog("updateAllUITest", "data = $data")
                     try {
                         plotArray = arrayListOf(
-                            castUnsignedCharToInt(paddedData.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(paddedData.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(paddedData.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(paddedData.substring(6, 8).toInt(16).toByte()),
-                            castUnsignedCharToInt(paddedData.substring(8, 10).toInt(16).toByte()),
-                            castUnsignedCharToInt(paddedData.substring(10, 12).toInt(16).toByte())
+                            castUnsignedCharToInt(paddedData.substringSafe(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substringSafe(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substringSafe(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substringSafe(6, 8).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substringSafe(8, 10).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substringSafe(10, 12).toInt(16).toByte())
                         )
-                    } catch (e: Error) {
+                    } catch (e: Exception) {
                         showToast("Ошибка 113")
+                        plotArray = arrayListOf(0, 0, 0, 0, 0, 0)
                     }
                     coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray)) }
                 }
@@ -426,7 +427,7 @@ class BLEParser(
                             platformLog("GestureSettings‑RX", "raw=$raw")
 
                             if (raw.length >= 2) {
-                                val idHex = raw.substring(0, 2)
+                                val idHex = raw.substringSafe(0, 2)
                                 val idDec = idHex.toInt(16)
                                 platformLog(
                                     "GestureSettings‑RX",
@@ -439,7 +440,7 @@ class BLEParser(
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
-                            val idHex = paramData.substring(0, 2)
+                            val idHex = paramData.substringSafe(0, 2)
                             val idDec = idHex.toInt(16)
                             platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")

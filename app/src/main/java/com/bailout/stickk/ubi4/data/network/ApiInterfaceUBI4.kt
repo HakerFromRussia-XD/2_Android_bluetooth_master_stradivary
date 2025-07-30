@@ -3,18 +3,10 @@ package com.bailout.stickk.ubi4.data.network
 import AllOptions
 import TestModel
 import Token
-import com.bailout.stickk.ubi4.data.network.model.Client
-import com.bailout.stickk.ubi4.data.network.model.LoginResponse
-import com.bailout.stickk.ubi4.data.network.model.PassportResponse
-import com.bailout.stickk.ubi4.data.network.model.SerialTokenRequest
-import com.bailout.stickk.ubi4.data.network.model.TakeDataRequest
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
 import com.bailout.stickk.ubi4.models.user.User
 import com.bailout.stickk.ubi4.models.user.UserV2
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -22,14 +14,11 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
-import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import retrofit2.http.Streaming
 
 interface ApiInterfaceUBI4 {
 
@@ -102,45 +91,46 @@ interface ApiInterfaceUBI4 {
         @Path("id") id : Int
     ) : Response<User>
 
-    // 1) API Key + serial + password → JWT
-    @POST("/ser_n_token/")
-    suspend fun loginBySerial(
-        @Header("X-API-Key") apiKey: String,
-        @Body request: SerialTokenRequest
-    ): Response<LoginResponse>
-
-    // 2) token + serial → паспорт (YAML-контент + имя файла)
-    @FormUrlEncoded
-    @POST("/get_passports_data/")
-    suspend fun getPassportData(
-        @Header("Authorization") auth: String,
-        @Field("serial") serial: String
-    ): Response<PassportResponse>
-
-    // 3) serial + файлы (.emg8 + .data_passport) → обучение (SSE-прогресс)
-    @Multipart
-    @Streaming
-    @POST("/passport_data/")
-    suspend fun uploadTrainingData(
-        @Header("Authorization") auth: String,
-        @Part serial: MultipartBody.Part,
-        @Part files: List<MultipartBody.Part>
-    ): Response<ResponseBody>
-
-
-    // 4) token + checkpoint-name → ZIP с весами модели
-    @POST("/take_data/")
-    @Streaming
-    suspend fun downloadArchive(
-        @Header("Authorization") auth: String,
-        @Body request: TakeDataRequest
-    ): Response<ResponseBody>
-
-    // 5) token → список клиентов
-    @GET("/clients_table/clients/")
-    suspend fun getClients(
-        @Header("Authorization") auth: String
-    ): Response<List<Client>>
+//
+//    // 1) API Key + serial + password → JWT
+//    @POST("/ser_n_token/")
+//    suspend fun loginBySerial(
+//        @Header("X-API-Key") apiKey: String,
+//        @Body request: SerialTokenRequest
+//    ): Response<LoginResponse>
+//
+//    // 2) token + serial → паспорт (YAML-контент + имя файла)
+//    @FormUrlEncoded
+//    @POST("/get_passports_data/")
+//    suspend fun getPassportData(
+//        @Header("Authorization") auth: String,
+//        @Field("serial") serial: String
+//    ): Response<PassportResponse>
+//
+//    // 3) serial + файлы (.emg8 + .data_passport) → обучение (SSE-прогресс)
+//    @Multipart
+//    @Streaming
+//    @POST("/passport_data/")
+//    suspend fun uploadTrainingData(
+//        @Header("Authorization") auth: String,
+//        @Part serial: MultipartBody.Part,
+//        @Part files: List<MultipartBody.Part>
+//    ): Response<ResponseBody>
+//
+//
+//    // 4) token + checkpoint-name → ZIP с весами модели
+//    @POST("/take_data/")
+//    @Streaming
+//    suspend fun downloadArchive(
+//        @Header("Authorization") auth: String,
+//        @Body request: TakeDataRequest
+//    ): Response<ResponseBody>
+//
+//    // 5) token → список клиентов
+//    @GET("/clients_table/clients/")
+//    suspend fun getClients(
+//        @Header("Authorization") auth: String
+//    ): Response<List<Client>>
 
 
 }

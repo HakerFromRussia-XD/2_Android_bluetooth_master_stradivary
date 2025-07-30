@@ -54,7 +54,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         binding = Ubi4FragmentSpecialSettingsBinding.inflate(inflater, container, false)
 
         // Обработчики переключения режимов
-
         widgetListUpdater()
         return binding.root
     }

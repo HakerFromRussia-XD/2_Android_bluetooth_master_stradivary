@@ -24,7 +24,6 @@ import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.network.NetworkResult
-import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
@@ -67,7 +66,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     // Используйте реальный серийный номер, если он доступен
     private var serialNumber = "FEST-F-05670"
 //    private var serialNumber = "FEST-H-04921"
-    private var myRequests: RequestsUBI4? = null
+    private var myRequests: Ubi4RequestsApi? = null
     private var fname: String = ""
     private var sname: String = ""
     private var locate: String = "en"
@@ -119,7 +118,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         super.onViewCreated(view, savedInstanceState)
         mSettings = mContext?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
-        myRequests = RequestsUBI4()
+        myRequests = Ubi4RequestsApi()
         encryptionManager = EncryptionManagerUtilsUbi4.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }

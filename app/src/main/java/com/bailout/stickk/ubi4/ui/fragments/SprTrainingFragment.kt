@@ -24,7 +24,8 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.network.PassportRetrofitInstance
+import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.API_KEY
+import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.models.Emg8FileItem
@@ -35,7 +36,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ARG_LAS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.utility.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
 import com.simform.refresh.SSPullToRefreshLayout
@@ -69,7 +69,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private val display = 3
 
-    private val repo = Ubi4TrainingRepository(PassportRetrofitInstance.api)
+    private val repo = Ubi4TrainingRepository(Ubi4RequestsApi())
 
     private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
 
@@ -667,13 +667,14 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
+
     companion object {
         fun newInstance(lastEmg8: String): SprTrainingFragment =
             SprTrainingFragment().apply {
                 arguments = Bundle().apply { putString(PreferenceKeysUBI4.ARG_LAST_EMG8, lastEmg8) }
             }
 
-//        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<- Макс Емец
+//        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<-  Макс Емец
 //        private const val SERIAL_DEFAULT = "CYBI-F-05663" //<- Тест
         private const val PASSWORD_DEFAULT = "123фыв6"
     }

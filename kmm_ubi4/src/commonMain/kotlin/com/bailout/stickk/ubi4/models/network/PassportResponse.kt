@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.data.network.model
+package com.bailout.stickk.ubi4.models.network
 
 import kotlinx.serialization.Serializable
 

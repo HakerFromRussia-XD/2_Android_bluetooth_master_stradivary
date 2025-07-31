@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
@@ -35,7 +36,7 @@ class TrainingFragmentDelegateAdapter(
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
         // 1) сразу подписываемся на прогресс и состояние
-        main.lifecycleScope.launchWhenStarted {
+        main.lifecycleScope.launch {
             TrainingUploadManager.stateFlow.collect { state ->
                 when (state) {
                     TrainingUploadManager.State.RUNNING -> {
@@ -71,7 +72,7 @@ class TrainingFragmentDelegateAdapter(
                 }
             }
         }
-        main.lifecycleScope.launchWhenStarted {
+        main.lifecycleScope.launch {
             TrainingUploadManager.progressFlow.collect { pct ->
                 percentLearningTv.text = "$pct %"
             }

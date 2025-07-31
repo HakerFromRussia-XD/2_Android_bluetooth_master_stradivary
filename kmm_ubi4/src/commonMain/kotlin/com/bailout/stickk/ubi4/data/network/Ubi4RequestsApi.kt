@@ -122,7 +122,7 @@ class Ubi4RequestsApi(
     }
 
 //     3) serial + файлы → SSE-поток
-    suspend fun uploadTrainingData(
+    suspend fun uploadTrainingDataSseRaw(
         auth: String,
         content: MultiPartFormDataContent
     ): HttpResponse = passportClient.post {

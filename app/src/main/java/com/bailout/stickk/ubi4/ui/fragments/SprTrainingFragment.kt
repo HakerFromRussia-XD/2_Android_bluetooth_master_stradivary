@@ -26,7 +26,8 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
-import com.bailout.stickk.ubi4.data.repository.Ubi4TrainingRepository
+import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
+import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
@@ -244,45 +245,39 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     /** Отправка + единоразовый retry при 401 */
     private suspend fun uploadWithAuthRetry(selectedEmg8: List<File>) {
-
-        val prefs  = requireContext()
-            .getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE)
-
-        var token  = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
+        var token = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
         var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
 
-        // если пусто после холодного старта → берём дефолты
         if (token.isBlank() || serial.isBlank()) {
             serial = main?.getCurrentSerial() ?: ""
-            token  = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
-
+            token = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
             prefs.edit()
-                .putString(PreferenceKeysUBI4.KEY_TOKEN,  token)
+                .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
                 .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
                 .apply()
 
-            // паспорт качаем, как и раньше
-            repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
+            // паспорт
+            val cacheShared = sharedFile(requireContext().cacheDir.absolutePath)
+            repo.fetchAndSavePassport(token, serial, cacheShared)
         }
 
-        fun doUpload(bearer: String) {
+        suspend fun doUpload(bearer: String) {
             TrainingUploadManager.launch(
                 requireContext(), repo, bearer, serial, selectedEmg8
             )
         }
 
         try {
-            doUpload(token)                 // 🔹 первая попытка
-        } catch (e: retrofit2.HttpException) {
-            if (e.code() != 401) throw e    // не 401 → дальше
-
-            // 🔄 401 → берём новый токен теми же константами
-            val fresh = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
-            prefs.edit().putString(
-                PreferenceKeysUBI4.KEY_TOKEN, fresh
-            ).apply()
-
-            doUpload(fresh)                 // 🔹 вторая (успешная) попытка
+            doUpload(token)
+        } catch (e: Exception) {
+            // если 401 — нужно определить по сообщению/типу; примерно:
+            if (e.message?.contains("401") == true) {
+                val fresh = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
+                prefs.edit().putString(PreferenceKeysUBI4.KEY_TOKEN, fresh).apply()
+                doUpload(fresh)
+            } else {
+                throw e
+            }
         }
     }
 
@@ -652,10 +647,14 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     .apply()
 
                 // скачиваем паспорт
-                val raw = repo.fetchAndSavePassport(token, serial, requireContext().cacheDir)
-                val ts  = raw.name.removeSuffix(".emg8.data_passport")
+                val cacheShared = sharedFile(requireContext().cacheDir.absolutePath)
+                val rawShared = repo.fetchAndSavePassport(token, serial, cacheShared)
+                // requires that SharedFile has a toFile() to get underlying java.io.File
+                val rawFile = rawShared.toFile()
+
+                val ts = rawFile.name.removeSuffix(".emg8.data_passport")
                 val dst = File(requireContext().getExternalFilesDir(null), "$ts.emg8.data_passport")
-                raw.copyTo(dst, overwrite = true)
+                rawFile.copyTo(dst, overwrite = true)
                 File(dst.parentFile!!, "config.json").writeText(dst.readText())
                 withContext(Main) { onSuccess() }
 

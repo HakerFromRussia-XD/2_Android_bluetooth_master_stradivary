@@ -17,7 +17,7 @@ import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -114,7 +114,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 deviceAddress,
                 parameterID,
                 rotationGroup
-            ), MAIN_CHANNEL, WRITE
+            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ){}
     }
 

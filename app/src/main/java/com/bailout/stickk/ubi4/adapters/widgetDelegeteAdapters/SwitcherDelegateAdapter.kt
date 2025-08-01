@@ -11,7 +11,7 @@ import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
@@ -22,7 +22,6 @@ import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.RetryUtils
@@ -121,7 +120,7 @@ class SwitcherDelegateAdapter(
                     Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
                     main.bleCommandWithQueue(
                         BLECommands.requestSwitcher(addressDevice, parameterID),
-                        MAIN_CHANNEL,
+                        MAIN_CHANNEL_CHARACTERISTIC,
                         WRITE
                     ){}
                 },

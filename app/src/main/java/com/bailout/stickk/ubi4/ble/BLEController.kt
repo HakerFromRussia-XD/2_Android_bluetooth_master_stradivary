@@ -27,7 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -200,8 +200,8 @@ class BLEController() {
         System.err.println("BLE debug firstNotificationRequest")
         System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
 
-        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        bleCommand(null, MAIN_CHANNEL, NOTIFY)
+        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
         delay(1000)
 
         if (firstNotificationRequestFlag) {

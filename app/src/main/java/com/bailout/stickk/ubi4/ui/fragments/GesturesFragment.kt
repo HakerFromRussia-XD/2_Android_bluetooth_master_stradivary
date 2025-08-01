@@ -20,7 +20,7 @@ import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -81,7 +81,7 @@ class GesturesFragment : BaseWidgetsFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
                 Log.d("gestureStateWithEncodersObservable", "parameters = ${parameters.gesture.openPosition1}")
-                transmitter().bleCommand(BLECommands.sendGestureInfo (parameters), MAIN_CHANNEL, WRITE)
+                transmitter().bleCommand(BLECommands.sendGestureInfo (parameters), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
             }
         RxUpdateMainEventUbi4.getInstance().readCharacteristicBLE
             .compose(main?.bindToLifecycle())
@@ -125,7 +125,7 @@ class GesturesFragment : BaseWidgetsFragment() {
         // Проверяем результат
         Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
 
-        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {

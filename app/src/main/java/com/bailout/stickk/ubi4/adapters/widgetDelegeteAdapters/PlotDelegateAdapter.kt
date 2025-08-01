@@ -16,10 +16,9 @@ import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
-import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
@@ -27,12 +26,10 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -195,7 +192,7 @@ class PlotDelegateAdapter (
                                 ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
                                 parameterInfoSet
                             )
-                        ), MAIN_CHANNEL, WRITE
+                        ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
                     ) {}
 
                 },
@@ -251,7 +248,7 @@ class PlotDelegateAdapter (
                                 filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
                                 filteredSet.elementAt(0).parameterID,
                                 arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL, WRITE
+                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
                         ) {}
                     }
                 }
@@ -281,7 +278,7 @@ class PlotDelegateAdapter (
                                 filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
                                 filteredSet.elementAt(1).parameterID,
                                 arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL, WRITE
+                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
                         ) {}
                     }
                 }

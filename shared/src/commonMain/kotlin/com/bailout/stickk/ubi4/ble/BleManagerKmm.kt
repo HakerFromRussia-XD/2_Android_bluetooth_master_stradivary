@@ -20,9 +20,9 @@ expect class BleManagerKmm() {
      * устройства [device] (или по его id).
      */
     fun sendBytesKmm(
-        device: BleDeviceKmm,
-        serviceUuid: String,
-        characteristicUuid: String,
-        data: ByteArray
+        data: ByteArray,
+        command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
     )
 }

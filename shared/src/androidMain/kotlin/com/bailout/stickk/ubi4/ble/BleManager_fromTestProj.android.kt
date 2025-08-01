@@ -8,7 +8,13 @@ actual class BleDeviceKmm actual constructor (
 )
 
 /** Менеджер для работы с Bluetooth LE */
+import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 actual class BleManagerKmm actual constructor() {
+    private var bleCommandExecutor: BleCommandExecutor? = null
+
+    fun setBleCommandExecutor(executor: BleCommandExecutor) {
+        bleCommandExecutor = executor
+    }
     /** Начать сканирование. Каждый найденный девайс передаётся в [onDeviceFound]. */
     actual fun startScanKmm(onDeviceFound: (BleDeviceKmm) -> Unit) {}
 
@@ -20,10 +26,17 @@ actual class BleManagerKmm actual constructor() {
      * устройства [device] (или по его id).
      */
     actual fun sendBytesKmm(
-        device: BleDeviceKmm,
-        serviceUuid: String,
-        characteristicUuid: String,
         data: ByteArray,
-    ) {}
+        command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit,
+    ) {
+        bleCommandExecutor?.bleCommandWithQueue(
+            data,
+            command,
+            typeCommand,
+            onChunkSent
+        )
+    }
 
 }

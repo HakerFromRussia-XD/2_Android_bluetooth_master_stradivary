@@ -31,7 +31,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -45,6 +45,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -90,6 +91,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     var mDeviceAddress: String? = null
     var mDeviceType: String? = null
     var driverVersionS: String? = null
+
+    private val bleManager = BleManagerKmm()
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -151,7 +154,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //получение серийного номера
         val requestData = BLECommands.requestProductInfoType()
         Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
-        main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
 
         val dialogManager = DialogManager(this) {
             mBLEController.disconnect()
@@ -194,7 +197,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         bleCommandWithQueue(
             BLECommands.requestProductInfoType(),
-            MAIN_CHANNEL,
+            MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
     }
@@ -306,8 +309,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         canSendFlag = false
 //        activeGestureFragmentFilterFlow = MutableStateFlow(1)
 //        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
-        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
-
+//        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
+        bleManager.setBleCommandExecutor(this)
+        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
     }
 
     // сохранение и загрузка данных

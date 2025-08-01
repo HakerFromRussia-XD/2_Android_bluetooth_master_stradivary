@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_SERVICE
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
@@ -137,18 +139,18 @@ actual class BleManagerKmm actual constructor() {
 
     @Suppress("unused")
     actual fun sendBytesKmm(
-        device: BleDeviceKmm,
-        serviceUuid: String,
-        characteristicUuid: String,
-        data: ByteArray
+        data: ByteArray,
+        command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
     ) {
         val peripheral = device.peripheral
-        pendingWrite = PendingWrite(peripheral, serviceUuid, characteristicUuid, data)
+        pendingWrite = PendingWrite(peripheral, MAIN_CHANNEL_SERVICE, MAIN_CHANNEL_CHARACTERISTIC, data)
         if (peripheral.state != CBPeripheralStateConnected) {
             manager.connectPeripheral(peripheral, null)
         } else {
             peripheral.delegate = delegate
-            peripheral.discoverServices(listOf(CBUUID.UUIDWithString(serviceUuid)))
+            peripheral.discoverServices(listOf(CBUUID.UUIDWithString(MAIN_CHANNEL_SERVICE)))
         }
     }
 }

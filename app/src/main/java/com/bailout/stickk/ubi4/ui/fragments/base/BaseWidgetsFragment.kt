@@ -11,15 +11,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.adapters.dialog.Emg8FilesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
-import com.bailout.stickk.ubi4.adapters.dialog.OnCheckEmg8FileListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
@@ -32,7 +29,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -48,7 +45,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
-import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -218,11 +214,11 @@ abstract class BaseWidgetsFragment : Fragment() {
     //CallBacks
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
 
     }
@@ -310,7 +306,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     open fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE) {}
+        transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
     }
 
     open fun showCustomGesturesDialog(onSaveDotsClick: (Pair<Int, Int>) -> Unit, bindingItem: Pair<Int, Int>) {
@@ -399,19 +395,19 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     open fun sendBLEActiveGesture(deviceAddress: Int, parameterID: Int, activeGesture: Int) {
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}
-        transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     open fun sendBLEBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     open fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     @SuppressLint("MissingInflatedId")
     open fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
@@ -425,14 +421,14 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
-        transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
 
     }
     open fun refreshWidgetsList() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
         listWidgets.clear()
-        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 
     open fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
@@ -473,11 +469,11 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
         Log.d("sendSwitcherState", "addressDevice: $addressDevice, parameterID: $parameterID, switchState: $switchState")
-        transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
         Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
-        transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     open fun clearSwitcherCache() {
         Log.d("clearSwitcherCache", "clearSwitcherCache run")

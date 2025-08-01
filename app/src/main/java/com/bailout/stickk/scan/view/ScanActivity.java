@@ -789,8 +789,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
 
-
-
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);
         acteveteRssiShow = loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW);

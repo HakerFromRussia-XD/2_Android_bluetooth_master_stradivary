@@ -20,6 +20,7 @@ import platform.Foundation.NSError
 import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.darwin.NSObject
+import kotlin.native.internal.test.main
 
 
 /** Информация об обнаруженном устройстве */
@@ -44,6 +45,7 @@ actual class BleDeviceKmm
 /** Менеджер для работы с Bluetooth LE */
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleManagerKmm actual constructor() {
+    private var connectedDevice: BleDeviceKmm? = null
     private var onDeviceCallback: ((BleDeviceKmm) -> Unit)? = null
     private val discovered = mutableMapOf<String, CBPeripheral>()
 
@@ -75,6 +77,7 @@ actual class BleManagerKmm actual constructor() {
         ) {
 //            onDeviceCallback?.invoke(BleDevice(didDiscoverPeripheral))
             val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
+            connectedDevice = device
             discovered[device.id] = didDiscoverPeripheral
             onDeviceCallback?.invoke(device)
         }
@@ -144,13 +147,17 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
-        val peripheral = device.peripheral
-        pendingWrite = PendingWrite(peripheral, MAIN_CHANNEL_SERVICE, MAIN_CHANNEL_CHARACTERISTIC, data)
-        if (peripheral.state != CBPeripheralStateConnected) {
-            manager.connectPeripheral(peripheral, null)
-        } else {
-            peripheral.delegate = delegate
-            peripheral.discoverServices(listOf(CBUUID.UUIDWithString(MAIN_CHANNEL_SERVICE)))
+        val peripheral = connectedDevice?.peripheral
+        try {
+            pendingWrite = PendingWrite(peripheral!!, MAIN_CHANNEL_SERVICE, MAIN_CHANNEL_CHARACTERISTIC, data)
+            if (peripheral.state != CBPeripheralStateConnected) {
+                manager.connectPeripheral(peripheral, null)
+            } else {
+                peripheral.delegate = delegate
+                peripheral.discoverServices(listOf(CBUUID.UUIDWithString(MAIN_CHANNEL_SERVICE)))
+            }
+        } catch (e: Exception) {
+            print("peripheral оказался пустым в actual реализации функции sendBytesKmm для ios")
         }
     }
 }

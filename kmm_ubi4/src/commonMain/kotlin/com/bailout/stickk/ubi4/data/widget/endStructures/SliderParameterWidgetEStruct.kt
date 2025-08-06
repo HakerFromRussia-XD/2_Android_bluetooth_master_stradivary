@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.widget.endStructures
 
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -33,8 +34,10 @@ object SliderParameterWidgetESerializer : KSerializer<SliderParameterWidgetEStru
                 BaseParameterWidgetEStruct.serializer(),
                 "\"${string.substring(0, 18)}\""
             )
-            minProgress = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
+            minProgress = string.substring(18, 20).toInt(16)
             maxProgress = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+            platformLog("TestMinProgress", "minProgress -E = $minProgress")
+
         }
 
         return SliderParameterWidgetEStruct(

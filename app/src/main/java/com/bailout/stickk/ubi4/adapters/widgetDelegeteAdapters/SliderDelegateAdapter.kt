@@ -2,11 +2,13 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -18,11 +20,13 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSS
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterTypeEnum
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +43,8 @@ class SliderDelegateAdapter(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSlidersInfo: ArrayList<WidgetSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
+    private var timer: CountDownTimer? = null
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
@@ -145,23 +151,25 @@ class SliderDelegateAdapter(
         // Обработчик первого слайдера
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                widgetSliderNumTv.text = seekBar.progress.toString()
+                widgetSliderNumTv.text = (seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress).toString()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) { }
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[0] = seekBar.progress
-                onSetProgress(addressDevice, parameterID, widgetSlidersInfo[indexWidgetSlider].progress)
+                widgetSlidersInfo[indexWidgetSlider].progress[0]  = seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress
+                Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${widgetSlidersInfo[indexWidgetSlider].progress})")
+                onSetProgress(addressDevice, parameterID,  widgetSlidersInfo[indexWidgetSlider].progress )
             }
         })
 
         // Обработчик второго слайдера (если доступен)
         widgetSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                widgetSliderNum2Tv.text = seekBar.progress.toString()
+                widgetSliderNum2Tv.text = (seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress).toString()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) { }
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[1] = seekBar.progress
+                widgetSlidersInfo[indexWidgetSlider].progress[1]  = seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress
+                Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${widgetSlidersInfo[indexWidgetSlider].progress})")
                 onSetProgress(addressDevice, parameterID, widgetSlidersInfo[indexWidgetSlider].progress)
             }
         })
@@ -212,6 +220,8 @@ class SliderDelegateAdapter(
             return
         }
         val currentValue = sliderInfo.progress.getOrNull(sliderIndex)
+        platformLog("SliderDebug", "currentValue = $currentValue")
+
         if (currentValue == null) {
             Log.e("updateSliderProgress", "Нет значения progress для sliderIndex = $sliderIndex")
             return
@@ -221,11 +231,17 @@ class SliderDelegateAdapter(
         val effectiveMax = if (minProgress == sliderInfo.maxProgress) 100 else sliderInfo.maxProgress
         newValue = newValue.coerceIn(minProgress, effectiveMax)
         sliderInfo.progress[sliderIndex] = newValue
+        platformLog("SliderDebug", "newValue1 = ${sliderInfo.progress[sliderIndex]}")
         sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newValue - minProgress
-        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = newValue.toString()
+        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = (newValue).toString()
+        timer?.cancel()
+        timer = object : CountDownTimer(300, 300) {
+            override fun onTick(millisUntilFinished: Long) = Unit
+            override fun onFinish() {
+                onSetProgress(sliderInfo.addressDevice, sliderInfo.parameterID, sliderInfo.progress)
+            }
+        }.start()
 
-        // Используем одни и те же значения для addressDevice и parameterID
-        onSetProgress(sliderInfo.addressDevice, sliderInfo.parameterID, sliderInfo.progress)
     }
 
     private fun sliderCollect() {
@@ -242,7 +258,7 @@ class SliderDelegateAdapter(
         val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
         Log.d("setUITest", "ParameterRef = $parameterRef, parameter = $parameter")
         Log.d("parameter sliderCollect", "перед обновлением слайдера: addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, data=${parameter.data}")
-
+        Log.d("SliderBLE", "Raw data: '${parameter.data}', length=${parameter.data.length}")
         val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
@@ -251,18 +267,22 @@ class SliderDelegateAdapter(
                     Log.d("SliderDebug", "Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}")
                     if (parameter.data.isNotEmpty()) {
                         val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress
-                        val newValue = castUnsignedCharToInt(
+
+                        var newValue = castUnsignedCharToInt(
                             parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte()
                         )
+                        if (parameter.type == ParameterTypeEnum.PARTE_INT8_TYPE.number){
+                            newValue = parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte().toInt()
+                        }
                         widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
-                        animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue)
+                        animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue - widgetSlidersInfo[indexWidgetSlider].minProgress)
                         widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = newValue.toString()
+                        platformLog("SliderSend", "IncomeValue = $newValue, progress = ${widgetSlidersInfo[indexWidgetSlider].progress[index]}")
+
                     }
                     // Обновляем отображение
                     widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
-                        widgetSlidersInfo[indexWidgetSlider].progress[index]
-                    widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text =
-                        widgetSlidersInfo[indexWidgetSlider].progress[index].toString()
+                        widgetSlidersInfo[indexWidgetSlider].progress[index] - widgetSlidersInfo[indexWidgetSlider].minProgress
                 }
             } catch (e: Exception) {
                 Log.e("SliderDebug", "Ошибка при обработке данных: ${e.message}", e)

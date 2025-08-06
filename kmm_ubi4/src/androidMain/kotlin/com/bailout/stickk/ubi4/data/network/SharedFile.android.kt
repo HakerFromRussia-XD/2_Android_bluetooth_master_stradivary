@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.network
 
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -30,3 +31,15 @@ actual class SharedFile internal constructor(private val delegate: java.io.File)
 }
 
 actual fun sharedFile(path: String): SharedFile = SharedFile(java.io.File(path))
+
+actual suspend fun SharedFile.writeFromChannel(channel: io.ktor.utils.io.ByteReadChannel) {
+    withContext(Dispatchers.IO) {
+        val outFile = java.io.File(path)
+        outFile.parentFile?.mkdirs()
+        channel.toInputStream().use { input ->
+            outFile.outputStream().use { out ->
+                input.copyTo(out)
+            }
+        }
+    }
+}

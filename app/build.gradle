@@ -29,7 +29,7 @@ android {
         minSdk 28
         targetSdk 33
         versionCode 11
-        versionName "3.2.1053"
+        versionName "3.2.1058"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release

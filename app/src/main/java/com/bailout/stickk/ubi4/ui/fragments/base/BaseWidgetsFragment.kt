@@ -113,8 +113,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                     showCustomGesturesDialog(onSaveDotsClick, bindingItem)
                 },
                 onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
-                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
-                },
+                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
                 onRequestActiveGesture = { deviceAddress, parameterID ->
                     requestActiveGesture(deviceAddress, parameterID)
                 },

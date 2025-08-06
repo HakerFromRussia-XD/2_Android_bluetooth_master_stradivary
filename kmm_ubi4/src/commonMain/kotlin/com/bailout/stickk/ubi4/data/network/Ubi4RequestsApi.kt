@@ -131,16 +131,6 @@ class Ubi4RequestsApi(
         header(HttpHeaders.Accept, ContentType.Text.EventStream.toString())
         setBody(content)
     }
-//    suspend fun uploadTrainingData(
-//        auth: String,
-//        body: MultiPartFormDataContent
-//    ): HttpResponse = SseClientProvider.client.post {
-//        url("${BaseUrlUtilsUBI4.PASSPORT_BASE}passport_data/")
-//        header(HttpHeaders.Authorization, auth)
-//        header(HttpHeaders.Accept, ContentType.Text.EventStream.toString())
-//        header(HttpHeaders.AcceptEncoding, "identity")   // подстраховка
-//        setBody(body)
-//    }
 
 
     // 4) token + checkpoint-name → ZIP

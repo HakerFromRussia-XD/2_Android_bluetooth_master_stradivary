@@ -14,3 +14,6 @@ expect class SharedFile {
 
 // фабрика, удобная для создания
 expect fun sharedFile(path: String): SharedFile
+
+// нужен writeFromChannel для сохранения ByteReadChannel
+expect suspend fun SharedFile.writeFromChannel(channel: io.ktor.utils.io.ByteReadChannel)

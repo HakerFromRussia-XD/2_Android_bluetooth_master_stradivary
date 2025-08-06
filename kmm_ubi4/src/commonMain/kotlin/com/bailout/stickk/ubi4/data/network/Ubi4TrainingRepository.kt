@@ -1,26 +1,16 @@
 package com.bailout.stickk.ubi4.data.network
 
 // commonMain
-import collectSseEvents
 import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.errors.IOException
-import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 class Ubi4TrainingRepository(
     private val api: Ubi4RequestsApi
 ) {
-
     /** 1) API Key + serial + password → JWT */
     suspend fun fetchTokenBySerial(
         apiKey: String,
@@ -108,11 +98,4 @@ suspend fun writeResponseBodyToSharedFile(resp: HttpResponse, dest: SharedFile) 
     }
 }
 
-// объявляем ожидание unzip-а
-expect suspend fun unzipArchive(
-    zipFile: SharedFile,
-    outputDir: SharedFile
-): Pair<SharedFile, List<SharedFile>>
 
-// нужен writeFromChannel для сохранения ByteReadChannel
-expect suspend fun SharedFile.writeFromChannel(channel: io.ktor.utils.io.ByteReadChannel)

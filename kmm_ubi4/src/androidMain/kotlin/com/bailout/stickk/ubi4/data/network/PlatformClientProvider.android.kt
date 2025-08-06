@@ -13,42 +13,6 @@ import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
-//actual object PlatformClientProvider {
-//    // Логгер заголовков — в network-интерцепторе, чтобы не мешать телу
-//    private val headerNetworkLogger = HttpLoggingInterceptor { msg ->
-//        Log.d("OkHttp-HEAD", msg)
-//    }.apply {
-//        level = HttpLoggingInterceptor.Level.HEADERS
-//    }
-//
-//    // Обычный OkHttpClient без BODY-логгера
-//    private val okHttpClient: OkHttpClient by lazy {
-//        OkHttpClient.Builder()
-//            .protocols(listOf(Protocol.HTTP_1_1))
-//            .connectTimeout(15, TimeUnit.SECONDS)
-//            .writeTimeout(0, TimeUnit.SECONDS)
-//            .readTimeout(0, TimeUnit.SECONDS)
-//            .retryOnConnectionFailure(true)
-//            // networkInterceptor логирует только заголовки, тело не трогает
-//            .addNetworkInterceptor(headerNetworkLogger)
-//            .build()
-//    }
-//
-//    // Ktor-клиент на этом OkHttpClient
-//    private fun client(): HttpClient = HttpClient(OkHttp) {
-//        engine {
-//            preconfigured = okHttpClient
-//        }
-//        install(ContentNegotiation) {
-//            json(Json { ignoreUnknownKeys = true; isLenient = true })
-//        }
-//        // **Убираем** Ktor-Logging-плагин — он может буферизовать тело
-//    }
-//
-//    actual val userClient: HttpClient     get() = client()
-//    actual val passportClient: HttpClient get() = client()
-//}
-
 actual object PlatformClientProvider {
 
     // Подложенный OkHttpClient — для обычных запросов и SSE.

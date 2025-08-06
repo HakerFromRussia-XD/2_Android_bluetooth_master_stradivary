@@ -48,12 +48,12 @@ final class BluetoothListViewModel {
     }
     
     func onAppear() {
-        print("test log from BLEViewModel")
+        print("BLE-CONNECT onAppear")
         bleManager.startScanKmm { [weak self] bleDevice in
             guard let self = self else { return }
             // Фильтруем устройства без имени или с "Unknown"
             guard let name = bleDevice.name, !name.isEmpty, name != "Unknown" else {
-                print("[BLE] пропускаем устройство без имени или с 'Unknown'")
+                print("[BLE] пропускаем устройство без имени или с 'Unknown' 1")
                 return
             }
             guard let uuid = UUID(uuidString: bleDevice.id) else { return }
@@ -97,8 +97,9 @@ final class BluetoothListViewModel {
     
     // подключение к устройству и сохранение состояний
     func connectToDevice(at index: Int) {
-        print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(devices[index].name)")
         let device = devices[index]
-        repository.connect(to: device)
+        print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.name)")
+        print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.uuid )")
+        bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
 }

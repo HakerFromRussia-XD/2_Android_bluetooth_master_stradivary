@@ -1,4 +1,5 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
+import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 
 /** Информация об обнаруженном устройстве */
 actual class BleDeviceKmm actual constructor (
@@ -8,7 +9,6 @@ actual class BleDeviceKmm actual constructor (
 )
 
 /** Менеджер для работы с Bluetooth LE */
-import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 actual class BleManagerKmm actual constructor() {
     private var bleCommandExecutor: BleCommandExecutor? = null
 
@@ -20,6 +20,8 @@ actual class BleManagerKmm actual constructor() {
 
     /** Остановить сканирование. */
     actual fun stopScanKmm() {}
+
+    actual fun connectToDevice(uuid: String) {}
 
     /**
      * Отправить [data] в характеристику [characteristicUuid]
@@ -38,5 +40,4 @@ actual class BleManagerKmm actual constructor() {
             onChunkSent
         )
     }
-
 }

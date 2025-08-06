@@ -120,8 +120,9 @@ final class BluetoothListViewController: UIViewController {
         
         viewModel.$connectedDeviceID
             .receive(on: DispatchQueue.main)
+            .dropFirst()
             .sink { [weak self] uuid in
-                print("[BLE-CONNECT] reloadData")
+                print("[BLE-CONNECT] reloadData uuid: \(uuid)")
                 guard
                     let self = self,
                     let uuid = uuid,
@@ -129,6 +130,7 @@ final class BluetoothListViewController: UIViewController {
                 else { return }
                 self.tableViewDevices.reloadData() // перезагружаем строки, чтобы отобразить цвет подключения
                 self.showConnectionToast("Подключено: \(device.name)")
+                print("[BLE-CONNECT] Подключено: \(device.name)")
             }
             .store(in: &cancellables)
         
@@ -250,13 +252,13 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
         print("[BLE-CONNECT] selectDeviceToConnect indexPath: \(indexPath)")
+        tableView.deselectRow(at: indexPath, animated: true)
         viewModel.connectToDevice(at: indexPath.row)
-        tableViewDevices.reloadRows(at: [indexPath], with: .none)
+//        tableViewDevices.reloadRows(at: [indexPath], with: .none)
         
         // Запрос на открытие WidgetsListViewController через координатор
-        openWidgetsList()
+//        openWidgetsList()
     }
     private func openWidgetsList() {
         // 1. DI‑контейнер Widgets‑сцены

@@ -15,6 +15,8 @@ expect class BleManagerKmm() {
     /** Остановить сканирование. */
     fun stopScanKmm()
 
+    fun connectToDevice(uuid: String)
+
     /**
      * Отправить [data] в xарактеристику [characteristicUuid]
      * устройства [device] (или по его id).

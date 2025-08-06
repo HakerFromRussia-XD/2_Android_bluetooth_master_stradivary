@@ -99,7 +99,7 @@ extension BluetoothRepositoryImpl: CBCentralManagerDelegate {
     ) {
         // 1) Фильтруем устройства без имени
         guard let name = peripheral.name, !name.isEmpty, name != "Unknown" else {
-            print("[BLE] пропускаем устройство без имени или с 'Unknown'")
+            print("[BLE] пропускаем устройство без имени или с 'Unknown' 2")
             return
         }
         

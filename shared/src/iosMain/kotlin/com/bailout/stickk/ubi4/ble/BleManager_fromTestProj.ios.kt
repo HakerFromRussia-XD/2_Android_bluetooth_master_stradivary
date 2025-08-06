@@ -75,7 +75,7 @@ actual class BleManagerKmm actual constructor() {
             advertisementData: Map<Any?, *>,
             RSSI: NSNumber
         ) {
-//            onDeviceCallback?.invoke(BleDevice(didDiscoverPeripheral))
+            // вызывается каждый раз, когда находится новое устройство
             val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
             connectedDevice = device
             discovered[device.id] = didDiscoverPeripheral
@@ -96,6 +96,8 @@ actual class BleManagerKmm actual constructor() {
             peripheral: CBPeripheral,
             didDiscoverServices: NSError?
         ) {
+            //
+            print("BLE-CONNECT начало процесса поиска сервисов")
             val write = pendingWrite ?: return
             val service = peripheral.services?.firstOrNull {
                 (it as CBService).UUID.UUIDString() == write.serviceUuid
@@ -111,6 +113,8 @@ actual class BleManagerKmm actual constructor() {
             didDiscoverCharacteristicsForService: CBService,
             error: NSError?
         ) {
+            //
+            print("BLE-CONNECT начало процесса поиска характеристик")
             val write = pendingWrite ?: return
             val characteristic = didDiscoverCharacteristicsForService.characteristics?.firstOrNull {
                 (it as CBCharacteristic).UUID.UUIDString() == write.characteristicUuid
@@ -119,6 +123,7 @@ actual class BleManagerKmm actual constructor() {
             val nsData = bytes.usePinned {
                 NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong())
             }
+            print("BLE-CONNECT тестовая отправка команды")
             peripheral.writeValue(nsData, characteristic, CBCharacteristicWriteWithResponse)
             pendingWrite = null
         }
@@ -131,6 +136,17 @@ actual class BleManagerKmm actual constructor() {
         onDeviceCallback = onDeviceFound
         if (manager.state == CBManagerStatePoweredOn) {
             manager.scanForPeripheralsWithServices(null, null)
+        }
+    }
+
+    actual fun connectToDevice(uuid: String) {
+        var connectedDevice: CBPeripheral?
+        discovered.forEach {
+            if (it.value.identifier.UUIDString == uuid) {
+                print("BLE-CONNECT from kmm ALL DEVICES $it сравниваем с ${uuid}")
+                connectedDevice = it.value
+                manager.connectPeripheral(connectedDevice!!, options = null)
+            }
         }
     }
 

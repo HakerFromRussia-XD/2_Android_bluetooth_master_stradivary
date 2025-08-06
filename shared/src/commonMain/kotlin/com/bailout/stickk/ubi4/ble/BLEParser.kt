@@ -503,6 +503,11 @@ class BLEParser(
                     MAIN_CHANNEL_CHARACTERISTIC,
                     WRITE
                 ) {}
+                bleManager.sendBytesKmm(
+                    BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[0].ID.toByte()),
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
             } else {
                 val ID = getNextIDParameter(0)
                 if (ID != 0) {

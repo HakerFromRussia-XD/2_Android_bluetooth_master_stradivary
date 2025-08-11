@@ -100,6 +100,7 @@ final class BluetoothListViewModel {
         let device = devices[index]
         print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.name)")
         print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.uuid )")
+        bleManager.stopScanKmm()
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
 }

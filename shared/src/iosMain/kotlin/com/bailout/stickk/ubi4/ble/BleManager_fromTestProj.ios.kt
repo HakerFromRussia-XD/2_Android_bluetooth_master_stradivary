@@ -86,11 +86,38 @@ actual class BleManagerKmm actual constructor() {
             central: CBCentralManager,
             didConnectPeripheral: CBPeripheral
         ) {
+            print("BLE-CONNECT коннект состоялся!!!")
             pendingWrite?.let {
                 didConnectPeripheral.delegate = this
                 didConnectPeripheral.discoverServices(listOf(CBUUID.UUIDWithString(it.serviceUuid)))
             }
         }
+
+//        override fun centralManager(
+//            central: CBCentralManager,
+//            didDisconnectPeripheral: CBPeripheral,
+//            error: Error?
+//        ) {
+//            print("did DISConnect")
+////            self.dataState["state"] = "did DISConnect"
+////            NotificationCenter.default.post(name: .notificationCheckStateConnection, object: nil, userInfo: self.dataState)
+////            myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
+////                    print("did REConnect")
+////                self.centralManager.connect(peripheral, options: nil)
+////            }
+//        }
+
+//        override fun centralManager(
+//            central: CBCentralManager,
+//            didConnect : CBPeripheral
+//        ) {
+//            print("did Connect")
+//            self.dataState["state"] = "did Connect"
+//            NotificationCenter.default.post(name: .notificationCheckStateConnection, object: nil, userInfo: self.dataState)
+//            myTimer.invalidate()
+//            peripheral.delegate = self
+//            peripheral.discoverServices(nil)
+//        }
 
         override fun peripheral(
             peripheral: CBPeripheral,

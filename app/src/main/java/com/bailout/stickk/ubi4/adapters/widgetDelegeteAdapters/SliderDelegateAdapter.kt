@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
-import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -21,7 +20,6 @@ import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterTypeEnum
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -33,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SliderDelegateAdapter(
@@ -44,12 +43,14 @@ class SliderDelegateAdapter(
     private var widgetSlidersInfo: ArrayList<WidgetSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
     private var timer: CountDownTimer? = null
+    private var isAttached = false
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
         Log.d("SliderAdapterTest", "onBind RUN")
         onDestroyParent { onDestroy() }
+        isAttached = true
 
         var addressDevice = 0
         var parameterID = 0
@@ -148,6 +149,7 @@ class SliderDelegateAdapter(
 
 
 
+
         // Обработчик первого слайдера
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -162,17 +164,30 @@ class SliderDelegateAdapter(
         })
 
         // Обработчик второго слайдера (если доступен)
-        widgetSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                widgetSliderNum2Tv.text = (seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress).toString()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar) { }
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[1]  = seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress
-                Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${widgetSlidersInfo[indexWidgetSlider].progress})")
-                onSetProgress(addressDevice, parameterID, widgetSlidersInfo[indexWidgetSlider].progress)
-            }
-        })
+        if (paramCount > 1) {
+            widgetSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                @SuppressLint("SetTextI18n")
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    val idx = getIndexWidgetSlider(addressDevice, parameterID)
+                    if (idx != -1 && widgetSlidersInfo.getOrNull(idx)?.progress?.size ?: 0 > 1) {
+                        widgetSliderNum2Tv.text = (seekBar.progress + widgetSlidersInfo[idx].minProgress).toString()
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar) { }
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    val idx = getIndexWidgetSlider(addressDevice, parameterID)
+                    val info = widgetSlidersInfo.getOrNull(idx)
+                    if (info != null && info.progress.size > 1) {
+                        val min = info.minProgress
+                        info.progress[1] = seekBar.progress + min
+                        Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${info.progress})")
+                        onSetProgress(addressDevice, parameterID, info.progress)
+                    } else {
+                        Log.w("Slider", "Ignore second slider touch: paramCount <= 1 or missing info")
+                    }
+                }
+            })
+        }
 
         // Кнопки инкремента и декремента для каждого слайдера
         minusBtnRipple.setOnClickListener {
@@ -181,11 +196,16 @@ class SliderDelegateAdapter(
         plusBtnRipple.setOnClickListener {
             updateSliderProgress(widgetPosition, sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
         }
-        minusBtnRipple2.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
-        }
-        plusBtnRipple2.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+        if (paramCount > 1) {
+            minusBtnRipple2.setOnClickListener {
+                updateSliderProgress(widgetPosition, sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
+            }
+            plusBtnRipple2.setOnClickListener {
+                updateSliderProgress(widgetPosition, sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+            }
+        } else {
+            minusBtnRipple2.setOnClickListener(null)
+            plusBtnRipple2.setOnClickListener(null)
         }
 
         currentSliderInfo.responseReceived.set(false)
@@ -238,6 +258,7 @@ class SliderDelegateAdapter(
         timer = object : CountDownTimer(300, 300) {
             override fun onTick(millisUntilFinished: Long) = Unit
             override fun onFinish() {
+                if (!isAttached) return
                 onSetProgress(sliderInfo.addressDevice, sliderInfo.parameterID, sliderInfo.progress)
             }
         }.start()
@@ -321,6 +342,10 @@ class SliderDelegateAdapter(
 
     fun onDestroy() {
         Log.d("SliderAdapterTest", "onDestroy slider")
+        isAttached = false
+        timer?.cancel()
+        timer = null
+        scope.coroutineContext.cancelChildren()
     }
 }
 

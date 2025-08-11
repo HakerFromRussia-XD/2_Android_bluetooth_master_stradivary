@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ui.main
 
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
@@ -13,6 +15,7 @@ import android.graphics.drawable.RotateDrawable
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -53,6 +56,7 @@ import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.ui.fragments.ServiceFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
@@ -172,9 +176,30 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showAccountScreen()
         }
 
+
 //        binding.runCommandBtn.setOnClickListener {
 //
 //        }
+        val accountPb = binding.accountPb.apply {
+            max = 100
+            visibility = View.GONE
+        }
+        binding.accountBtn.setOnLongClickListener {
+            // запустить анимацию заполнения
+            accountPb.visibility = View.VISIBLE
+            ObjectAnimator.ofInt(accountPb, "progress", 0, 100).apply {
+                duration = 800L
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        accountPb.visibility = View.GONE
+                    }
+                })
+            }.start()
+            // показать или скрыть секретный пункт
+            bottomNavigationController.toggleSecretItem()
+            true
+        }
+
 
     }
 
@@ -231,6 +256,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAccountProsthesisInformationScreen() { launchFragmentWithStack(
         AccountFragmentProsthesisInformationUBI4()
     ) }
+
+    override fun showSecretScreen() {
+        launchFragmentWithStack(ServiceFragment())
+    }
 
     fun openScanActivity() {
         System.err.println("Check openScanActivity()")

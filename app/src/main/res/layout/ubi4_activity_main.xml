@@ -19,15 +19,47 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <View
-            android:id="@+id/account_btn"
+<!--        <View-->
+<!--            android:id="@+id/account_btn"-->
+<!--            android:layout_width="34dp"-->
+<!--            android:layout_height="34dp"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:background="@drawable/ubi4_account_background"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+
+        <FrameLayout
+            android:id="@+id/account_container"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:layout_marginStart="10dp"
-            android:background="@drawable/ubi4_account_background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- сама кнопка -->
+            <View
+                android:id="@+id/account_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ubi4_account_background"/>
+
+            <!-- прогресс вокруг -->
+            <ProgressBar
+                android:id="@+id/account_pb"
+                style="@android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="false"
+                android:indeterminateOnly="false"
+                android:max="100"
+                android:progress="0"
+                android:scaleX="-1"
+                android:progressDrawable="@drawable/circular_progress"
+                android:rotation="0"/>
+
+        </FrameLayout>
 
         <View
             android:id="@+id/help_view"
@@ -35,7 +67,7 @@
             android:layout_height="34dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/ubi4_help_background"
-            app:layout_constraintStart_toEndOf="@id/account_btn"
+            app:layout_constraintStart_toEndOf="@id/account_container"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 

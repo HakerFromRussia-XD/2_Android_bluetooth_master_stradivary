@@ -26,7 +26,6 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
                 }
 
                 R.id.page_2 -> {
-//                    main.showOpticGesturesScreen()
                     main.showSensorsScreen()
                     System.err.println("bottomNavigation item2")
                     return@setOnItemSelectedListener true
@@ -43,10 +42,20 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
                     System.err.println("bottomNavigation item4")
                     return@setOnItemSelectedListener true
                 }
+                R.id.page_secret -> {
+                    main.showSecretScreen()
+                    return@setOnItemSelectedListener true
+                }
             }
             false
         }
     }
+
+    fun toggleSecretItem() {
+        val item = bottomNavigation.menu.findItem(R.id.page_secret)
+        item.isVisible = !item.isVisible
+    }
+
     fun setNavigationEnabled(enabled: Boolean) {
         isNavigationEnabled = enabled
     }

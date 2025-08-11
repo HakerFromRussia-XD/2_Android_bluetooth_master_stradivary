@@ -142,6 +142,7 @@
     <string name="sensor_settings">настройки датчиков</string>
     <string name="sensor_settingss">Настройки датчиков</string>
     <string name="special_settings">Спецнастройки</string>
+    <string name="service_settings">Служебные настройки</string>
     <string name="driver_0_00v">драйвер: 0.00v</string>
     <string name="driver">"драйвер: "</string>
     <string name="bms_0_00v">бмс: 0.00v</string>

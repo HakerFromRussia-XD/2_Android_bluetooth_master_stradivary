@@ -137,22 +137,44 @@ object PreferenceKeysUBI4 {
     }
 
 
-    //TODO узнать стоит можно ли обойтись без ресурсов
-    enum class ParameterWidgetLabel(val number: Int, val labelKey: String) {
-        PWLE_UNKNOW                 (0x00, "pwle_unknow"),
-        PWLE_OPEN                   (0x01, "open"),
-        PWLE_CLOSE                  (0x02, "close"),
-        PWLE_CALIBRATE              (0x03, "pwle_calibrate"),
-        PWLE_RESET                  (0x04, "pwle_reset"),
-        PWLE_CONTROL_SETTINGS       (0x05, "pwle_control_settings"),
-        PWLE_OPEN_CLOSE_THRESHOLD   (0x06, "pwle_open_close_threshold"),
-        PWLE_SELECT_GESTURE         (0x07, "pwle_select_gesture"),
-        PWLE_SELECT_PROFILE         (0x08, "pwle_select_profile"),
-        PWLE_GLOBAL_FORCE           (0x09, "pwle_global_force"),
-        PWLE_PLOT                   (0x0a, "pwle_plot"),
-        PWLE_OMG_LEARNING           (0x0b, "pwle_omg_learning"),
+    val parameterWidgetLabel: Map<String, Map<String, String>> = mapOf(
+        "ru" to mapOf(
+            "0" to "Нет имени",
+            "1" to "Открыть",
+            "2" to "Закрыть",
+            "3" to "Калибровка моторов",
+            "4" to "Общая чувствительность",
+            "5" to "Общая сила",
+            "6" to "Чувствительность открытия",
+            "7" to "Чувствительность закрытия",
+            "8" to "Выключение дисплея",
+            "9" to "Время выключения дисплея (сек)",
+            "10" to "Ориентация дисплея",
+            "11" to "Управление ОМГ",
+            "12" to "Время входа в ОМГ (50мс)",
+            "13" to "Поменять сенсоры",
+            "14" to "Управление моторами с ЕМГ",
+            "custom_name" to "Кастомное имя"
+        ),
+        "en" to mapOf(
+            "0" to "Unknown",
+            "1" to "Open",
+            "2" to "Close",
+            "3" to "Motor calibration",
+            "4" to "Global sensitivity",
+            "5" to "Global force",
+            "6" to "Open sensitivity",
+            "7" to "Close sensitivity",
+            "8" to "Display off",
+            "9" to "Display off timeout (sec)",
+            "10" to "Display orientation",
+            "11" to "OMG control",
+            "12" to "OMG timeout (50ms)",
+            "13" to "Switch sensors",
+            "14" to "EMG motor control"
+        )
+    )
 
-    }
 
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {

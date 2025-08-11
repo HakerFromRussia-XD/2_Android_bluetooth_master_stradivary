@@ -94,6 +94,7 @@ class BLEParser(
 
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
+
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
 
@@ -749,20 +750,6 @@ class BLEParser(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),
                         MAIN_CHANNEL, WRITE) {}
                 }
-//                val test = subDeviceChankParametersCounter*10
-//                val test2 = numberCount
-//                val test3 = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
-//                platformLog("requestSubDeviceParametrs","")
-//                platformLog("requestSubDeviceParametrs", "startIndex = ${subDeviceChankParametersCounter*10}   numberCount = $numberCount  subDeviceCounter=$subDeviceCounter из $numberSubDevice  parametrsNum = ${parametrsNum}")
-//                val localSubDeviceChankParametersCounter = subDeviceChankParametersCounter
-//                if (parametrsNum > 10) {
-//                    subDeviceChankParametersCounter ++
-//                    platformLog("getNextSubDevice", "инкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter")
-//                } else {platformLog("getNextSubDevice", "не проинкрементировали subDeviceChankParametersCounter=$subDeviceChankParametersCounter")}
-//                if (parametrsNum <= 10 || (parametrsNum-localSubDeviceChankParametersCounter*10 <= 10)) {
-//                    platformLog("getNextSubDevice", "инкрементировали subDeviceCounter parametrsNum=${parametrsNum}  parametrsNum-subDeviceChankParametersCounter*10 = ${parametrsNum-subDeviceChankParametersCounter*10}")
-//                    this.subDeviceCounter ++
-//                } else {platformLog("getNextSubDevice", "не инкрементировали subDeviceCounter parametrsNum=${parametrsNum}  parametrsNum-subDeviceChankParametersCounter*10 = ${parametrsNum-subDeviceChankParametersCounter*10}")}
             } else {
                 showToast("Нет сабдевайсов с параметрами")
             }

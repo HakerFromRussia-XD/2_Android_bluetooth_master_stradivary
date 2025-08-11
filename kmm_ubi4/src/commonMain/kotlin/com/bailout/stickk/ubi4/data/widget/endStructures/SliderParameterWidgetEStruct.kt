@@ -34,7 +34,8 @@ object SliderParameterWidgetESerializer : KSerializer<SliderParameterWidgetEStru
                 BaseParameterWidgetEStruct.serializer(),
                 "\"${string.substring(0, 18)}\""
             )
-            minProgress = string.substring(18, 20).toInt(16)
+
+            minProgress = string.substring(18, 20).toInt(16).toByte().toInt()
             maxProgress = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
             platformLog("TestMinProgress", "minProgress -E = $minProgress")
 

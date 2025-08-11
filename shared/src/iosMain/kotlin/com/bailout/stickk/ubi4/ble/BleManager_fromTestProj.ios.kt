@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_SERVICE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.CoreBluetooth.CBCentralManager
@@ -92,6 +93,24 @@ actual class BleManagerKmm actual constructor() {
                 didConnectPeripheral.discoverServices(listOf(CBUUID.UUIDWithString(it.serviceUuid)))
             }
         }
+
+//        @ObjCSignatureOverride
+        override fun centralManager(
+            central: CBCentralManager,
+            peripheral: CBPeripheral,
+            error: NSError?
+        ) {
+            print("BLE-CONNECT подключение не удалось!!!")
+        }
+
+//        @ObjCSignatureOverride
+//        override fun centralManager(
+//            central: CBCentralManager,
+//            didDisconnectPeripheral peripheral: CBPeripheral,
+//            error: NSError?
+//        ) {
+//            print("BLE-CONNECT устройство отключено!!!")
+//        }
 
 //        override fun centralManager(
 //            central: CBCentralManager,

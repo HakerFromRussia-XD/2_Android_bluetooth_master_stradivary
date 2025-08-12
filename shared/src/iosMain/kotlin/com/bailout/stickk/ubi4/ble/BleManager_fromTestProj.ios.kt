@@ -1,29 +1,23 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_SERVICE
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
-import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.usePinned
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
-import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
-import platform.CoreBluetooth.CBPeripheralStateConnected
 import platform.CoreBluetooth.CBService
-import platform.CoreBluetooth.CBUUID
 import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
-import platform.Foundation.create
 import platform.darwin.NSObject
-import kotlin.native.internal.test.main
 
 
 /** Информация об обнаруженном устройстве */
@@ -34,7 +28,6 @@ actual class BleDeviceKmm
     actual val name: String? get() = peripheral.name
     actual val rssi: Int = rssi
     internal lateinit var peripheral: CBPeripheral
-//    private var selectedDevice: CBPeripheral?
 
     internal constructor(peripheral: CBPeripheral, rssi: Int) :
             this(
@@ -47,58 +40,29 @@ actual class BleDeviceKmm
 }
 
 /** Менеджер для работы с Bluetooth LE */
+@ExperimentalForeignApi
+@OptIn(ExperimentalForeignApi::class)
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleManagerKmm actual constructor() {
     private var connectedDevice: BleDeviceKmm? = null
     private var onDeviceCallback: ((BleDeviceKmm) -> Unit)? = null
     private val discovered = mutableMapOf<String, CBPeripheral>()
+    private val servicesMass = mutableListOf<CBService>()
+    private val characteristicsMass = mutableListOf<CBCharacteristic>()
+    private var selectedDevice: CBPeripheral? = null
 
-    private data class PendingWrite(
-        val peripheral: CBPeripheral,
-        val serviceUuid: String,
-        val characteristicUuid: String,
-        val data: ByteArray
-    )
-    private var pendingWrite: PendingWrite? = null
+//    private data class PendingWrite(
+//        val peripheral: CBPeripheral,
+//        val serviceUuid: String,
+//        val characteristicUuid: String,
+//        val data: ByteArray
+//    )
+//    private var pendingWrite: PendingWrite? = null
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
         CBCentralManagerDelegateProtocol,
         CBPeripheralDelegateProtocol {
-
-        override fun centralManagerDidUpdateState(central: CBCentralManager) {
-            // здесь можно отследить включение Bluetooth
-            if (central.state == CBManagerStatePoweredOn && onDeviceCallback != null) {
-                central.scanForPeripheralsWithServices(null, null)
-            }
-        }
-
-        override fun centralManager(
-            central: CBCentralManager,
-            didDiscoverPeripheral: CBPeripheral,
-            advertisementData: Map<Any?, *>,
-            RSSI: NSNumber
-        ) {
-            // вызывается каждый раз, когда находится новое устройство
-            val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
-            connectedDevice = device
-            discovered[device.id] = didDiscoverPeripheral
-            onDeviceCallback?.invoke(device)
-        }
-
-        override fun centralManager(
-            central: CBCentralManager,
-            didConnectPeripheral: CBPeripheral
-        ) {
-            print("BLE-CONNECT коннект состоялся!!!")
-            print("BLE-CONNECT ${pendingWrite?.peripheral}")
-            pendingWrite?.let {
-                didConnectPeripheral.delegate = this
-                print("BLE-CONNECT старт поиска сервисов ${it.serviceUuid}")
-                didConnectPeripheral.discoverServices(listOf(CBUUID.UUIDWithString(it.serviceUuid)))
-            }
-        }
-
         @ObjCSignatureOverride
         override fun centralManager(
             central: CBCentralManager,
@@ -117,21 +81,47 @@ actual class BleManagerKmm actual constructor() {
             print("BLE-CONNECT устройство отключено!!!")
         }
 
+        override fun centralManagerDidUpdateState(central: CBCentralManager) {
+            // здесь можно отследить включение Bluetooth
+            if (central.state == CBManagerStatePoweredOn && onDeviceCallback != null) {
+                central.scanForPeripheralsWithServices(null, null)
+            }
+        }
+
+        override fun centralManager(
+            central: CBCentralManager,
+            didDiscoverPeripheral: CBPeripheral,
+            advertisementData: Map<Any?, *>,
+            RSSI: NSNumber
+        ) {
+            // вызывается каждый раз, когда находится новое устройство
+            val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
+            discovered[device.id] = didDiscoverPeripheral
+            onDeviceCallback?.invoke(device)
+        }
+
+        override fun centralManager(
+            central: CBCentralManager,
+            didConnectPeripheral: CBPeripheral
+        ) {
+            print("BLE-CONNECT коннект состоялся!!!")
+            connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
+            selectedDevice = didConnectPeripheral
+            didConnectPeripheral.delegate = this
+            didConnectPeripheral.discoverServices(null)
+        }
+
 
         override fun peripheral(
             peripheral: CBPeripheral,
             didDiscoverServices: NSError?
         ) {
-            //
             print("BLE-CONNECT начало процесса поиска сервисов")
-            val write = pendingWrite ?: return
-            val service = peripheral.services?.firstOrNull {
-                (it as CBService).UUID.UUIDString() == write.serviceUuid
-            } as? CBService ?: return
-            peripheral.discoverCharacteristics(
-                listOf(CBUUID.UUIDWithString(write.characteristicUuid)),
-                service
-            )
+            (peripheral.services as? List<*>)?.forEach { any ->
+                val service = any as CBService
+                servicesMass.add(service)
+                peripheral.discoverCharacteristics(characteristicUUIDs = null, forService = service)
+            }
         }
 
         override fun peripheral(
@@ -139,20 +129,26 @@ actual class BleManagerKmm actual constructor() {
             didDiscoverCharacteristicsForService: CBService,
             error: NSError?
         ) {
-            //
             print("BLE-CONNECT начало процесса поиска характеристик")
-            val write = pendingWrite ?: return
-            val characteristic = didDiscoverCharacteristicsForService.characteristics?.firstOrNull {
-                (it as CBCharacteristic).UUID.UUIDString() == write.characteristicUuid
-            } as? CBCharacteristic ?: return
-            val bytes = write.data
-            val nsData = bytes.usePinned {
-                NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong())
+            (didDiscoverCharacteristicsForService.characteristics as? List<*>)?.forEach {
+                val c = it as CBCharacteristic
+                characteristicsMass.add(c); peripheral.setNotifyValue(true, forCharacteristic = c)
             }
-            print("BLE-CONNECT тестовая отправка команды")
-            peripheral.writeValue(nsData, characteristic, CBCharacteristicWriteWithResponse)
-            pendingWrite = null
         }
+
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didUpdateValueForCharacteristic: CBCharacteristic,
+            error: NSError?
+        ) {
+            print("BLE-CONNECT приём по идее")
+            var dataCount = 0
+            didUpdateValueForCharacteristic.value?.let { data: NSData ->
+                dataCount = data.length.toInt()
+                print("BLE-CONNECT приём dataCount = $dataCount")
+            }
+        }
+
     }
     private val manager = CBCentralManager(delegate, queue = null)
 
@@ -190,18 +186,34 @@ actual class BleManagerKmm actual constructor() {
         onChunkSent: () -> Unit
     ) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        platformLog("sendBytesKmm", "dataString = $receiveDataString")
-        val peripheral = connectedDevice?.peripheral
-        try {
-            pendingWrite = PendingWrite(peripheral!!, MAIN_CHANNEL_SERVICE, MAIN_CHANNEL_CHARACTERISTIC, data)
-            if (peripheral.state != CBPeripheralStateConnected) {
-                manager.connectPeripheral(peripheral, null)
-            } else {
-                peripheral.delegate = delegate
-                peripheral.discoverServices(listOf(CBUUID.UUIDWithString(MAIN_CHANNEL_SERVICE)))
+        val peripheral = selectedDevice
+
+        characteristicsMass.forEach { c ->
+            platformLog(
+                "sendBytesKmm",
+                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с $command"
+            )
+            if (c.UUID.UUIDString() == command) {
+                when (typeCommand) {
+                    READ -> {
+                        platformLog("sendBytesKmm", "читаем данные: $receiveDataString")
+                    }
+
+                    WRITE -> {
+//                        selectedDevice?.writeValue(data = data.toNSData(), forCharacteristic = c, type = CBCharacteristicWriteWithResponse)
+                        platformLog("sendBytesKmm", "отправляем данные: $receiveDataString")
+                    }
+
+                    NOTIFY -> {
+                        platformLog("sendBytesKmm", "запускаем нотификацию: $receiveDataString")
+                    }
+                }
             }
-        } catch (e: Exception) {
-            print("peripheral оказался пустым в actual реализации функции sendBytesKmm для ios")
         }
     }
+
+//    fun ByteArray.toNSData(): NSData =
+//        NSData.create(bytes = this.refTo(0), length = this.size.toULong())
 }
+
+

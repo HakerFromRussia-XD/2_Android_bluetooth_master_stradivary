@@ -110,8 +110,20 @@ final class BluetoothListViewModel {
 
         bleManager.sendBytesKmm(
             data: kb,
-            command: "43680201-4d74-1001-726b-526f64696f6e",
-            typeCommand: "WRITE",
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.READ,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.NOTIFY,
             onChunkSent: {}
         )
     }

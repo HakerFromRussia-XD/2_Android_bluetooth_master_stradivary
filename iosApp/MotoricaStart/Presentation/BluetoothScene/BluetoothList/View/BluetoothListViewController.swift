@@ -16,6 +16,13 @@ final class BluetoothListViewController: UIViewController {
         let control = CustomSegmentedControl(items: items)
         return control
     }()
+    private lazy var bottomButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Нажми меня", for: .normal)
+        button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 //    var segmentedConrol = CustomSegmentedControl(titles: ["Коллекция жестов", "Группа ротации"])
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var tableViewDevices: UITableView!
@@ -112,6 +119,11 @@ final class BluetoothListViewController: UIViewController {
             tableViewDevices.topAnchor.constraint(equalTo: tableContainer.topAnchor),
             tableViewDevices.bottomAnchor.constraint(equalTo: tableContainer.bottomAnchor)
         ])
+        view.addSubview(bottomButton)
+        NSLayoutConstraint.activate([
+            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
         
         let titleTextAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? UIColor.white]
         UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes, for: .normal)
@@ -161,6 +173,10 @@ final class BluetoothListViewController: UIViewController {
     @objc private func filterChange(_ sender: UISegmentedControl) {
         // применяем фильтр при смене сегмента
         viewModel.applyFilter(index: sender.selectedSegmentIndex)
+    }
+    @objc private func bottomButtonTapped() {
+        print("[BLE-CONNECT] Bottom button tapped")
+        viewModel.sendBytes()
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

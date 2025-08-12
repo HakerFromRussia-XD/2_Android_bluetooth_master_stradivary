@@ -2,6 +2,8 @@ package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_SERVICE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
@@ -32,6 +34,7 @@ actual class BleDeviceKmm
     actual val name: String? get() = peripheral.name
     actual val rssi: Int = rssi
     internal lateinit var peripheral: CBPeripheral
+//    private var selectedDevice: CBPeripheral?
 
     internal constructor(peripheral: CBPeripheral, rssi: Int) :
             this(
@@ -88,55 +91,32 @@ actual class BleManagerKmm actual constructor() {
             didConnectPeripheral: CBPeripheral
         ) {
             print("BLE-CONNECT коннект состоялся!!!")
+            print("BLE-CONNECT ${pendingWrite?.peripheral}")
             pendingWrite?.let {
                 didConnectPeripheral.delegate = this
+                print("BLE-CONNECT старт поиска сервисов ${it.serviceUuid}")
                 didConnectPeripheral.discoverServices(listOf(CBUUID.UUIDWithString(it.serviceUuid)))
             }
         }
 
-//        @ObjCSignatureOverride
+        @ObjCSignatureOverride
         override fun centralManager(
             central: CBCentralManager,
-            peripheral: CBPeripheral,
+            didFailToConnectPeripheral: CBPeripheral,
             error: NSError?
         ) {
             print("BLE-CONNECT подключение не удалось!!!")
         }
 
-//        @ObjCSignatureOverride
-//        override fun centralManager(
-//            central: CBCentralManager,
-//            didDisconnectPeripheral peripheral: CBPeripheral,
-//            error: NSError?
-//        ) {
-//            print("BLE-CONNECT устройство отключено!!!")
-//        }
+        @ObjCSignatureOverride
+        override fun centralManager(
+            central: CBCentralManager,
+            didDisconnectPeripheral: CBPeripheral,
+            error: NSError?
+        ) {
+            print("BLE-CONNECT устройство отключено!!!")
+        }
 
-//        override fun centralManager(
-//            central: CBCentralManager,
-//            didDisconnectPeripheral: CBPeripheral,
-//            error: Error?
-//        ) {
-//            print("did DISConnect")
-////            self.dataState["state"] = "did DISConnect"
-////            NotificationCenter.default.post(name: .notificationCheckStateConnection, object: nil, userInfo: self.dataState)
-////            myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-////                    print("did REConnect")
-////                self.centralManager.connect(peripheral, options: nil)
-////            }
-//        }
-
-//        override fun centralManager(
-//            central: CBCentralManager,
-//            didConnect : CBPeripheral
-//        ) {
-//            print("did Connect")
-//            self.dataState["state"] = "did Connect"
-//            NotificationCenter.default.post(name: .notificationCheckStateConnection, object: nil, userInfo: self.dataState)
-//            myTimer.invalidate()
-//            peripheral.delegate = self
-//            peripheral.discoverServices(nil)
-//        }
 
         override fun peripheral(
             peripheral: CBPeripheral,
@@ -209,6 +189,8 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
+        val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
+        platformLog("sendBytesKmm", "dataString = $receiveDataString")
         val peripheral = connectedDevice?.peripheral
         try {
             pendingWrite = PendingWrite(peripheral!!, MAIN_CHANNEL_SERVICE, MAIN_CHANNEL_CHARACTERISTIC, data)

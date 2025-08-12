@@ -103,4 +103,16 @@ final class BluetoothListViewModel {
         bleManager.stopScanKmm()
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
+    
+    func sendBytes() {
+        let u8: [UInt8] = [0x40, 0x88, 0x00, 0x01, 0x00, 0x00, 0x06, 0x03]
+        let kb = KotlinByteArray(u8)
+
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: "43680201-4d74-1001-726b-526f64696f6e",
+            typeCommand: "WRITE",
+            onChunkSent: {}
+        )
+    }
 }

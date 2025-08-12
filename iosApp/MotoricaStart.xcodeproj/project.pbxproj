@@ -139,6 +139,8 @@
 		659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
+		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
+		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -274,6 +276,8 @@
 		659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BluetoothList.storyboard; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
+		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
+		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
@@ -658,6 +662,7 @@
 		1FD2696524261A24005236FB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */,
 				1FB090392437651700DBE132 /* UIViewController+AddBehaviors.swift */,
 				1F53E2B523125896008D6A05 /* UIViewController+AddChild.swift */,
 				1FCBB8CD25237D4C007F23DC /* UIViewController+ActivityIndicator.swift */,
@@ -931,6 +936,7 @@
 		655830652DD4CA9100744D5C /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				65ED773D2E4B68ED00D64A61 /* Constants.swift */,
 				655830662DD4CAA000744D5C /* NumberGenerator.swift */,
 			);
 			path = Utils;
@@ -1237,6 +1243,7 @@
 				1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */,
 				1F77930F222C0DF2004E034C /* StoryboardInstantiable.swift in Sources */,
 				1FE49D84230AA7C200D1D42E /* WidgetsQueriesItemCell.swift in Sources */,
+				65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */,
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
@@ -1299,6 +1306,7 @@
 				1FFFC834221B0041007D99D2 /* PosterImagesRepository.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Movie.swift in Sources */,
+				65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

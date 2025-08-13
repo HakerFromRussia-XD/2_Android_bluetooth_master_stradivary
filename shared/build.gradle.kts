@@ -53,6 +53,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "shared"
             isStatic = true
+            freeCompilerArgs = listOf("-Xbinary=bundleId=com.example.shared")
         }
     }
 

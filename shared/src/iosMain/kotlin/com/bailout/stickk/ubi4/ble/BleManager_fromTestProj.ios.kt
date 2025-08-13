@@ -7,9 +7,11 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
+import kotlinx.cinterop.addressOf
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
+import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
@@ -17,6 +19,9 @@ import platform.CoreBluetooth.CBService
 import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
+import platform.Foundation.create
+import kotlinx.cinterop.refTo
+import kotlinx.cinterop.usePinned
 import platform.darwin.NSObject
 
 
@@ -200,7 +205,7 @@ actual class BleManagerKmm actual constructor() {
                     }
 
                     WRITE -> {
-//                        selectedDevice?.writeValue(data = data.toNSData(), forCharacteristic = c, type = CBCharacteristicWriteWithResponse)
+                        selectedDevice?.writeValue(data = data.toNSData(), forCharacteristic = c, type = CBCharacteristicWriteWithResponse)
                         platformLog("sendBytesKmm", "отправляем данные: $receiveDataString")
                     }
 
@@ -212,8 +217,13 @@ actual class BleManagerKmm actual constructor() {
         }
     }
 
-//    fun ByteArray.toNSData(): NSData =
-//        NSData.create(bytes = this.refTo(0), length = this.size.toULong())
+    fun ByteArray.toNSData(): NSData {
+        // Используем usePinned для создания указателя на массив байтов
+        return this.usePinned { pinned ->
+            // Печатаем CPointer<Byte> в качестве указателя на данные
+            NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
+        }
+    }
 }
 
 

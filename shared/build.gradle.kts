@@ -71,11 +71,11 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.components.resources)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-            implementation("io.ktor:ktor-client-core:2.3.2")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+            implementation("io.ktor:ktor-client-core:3.2.3")
+            implementation("io.ktor:ktor-client-content-negotiation:3.2.3")
             implementation("dev.icerock.moko:resources:0.25.0")
         }
         androidMain.dependencies {
@@ -83,16 +83,16 @@ kotlin {
             api("androidx.appcompat:appcompat:1.7.1")
             api("androidx.core:core-ktx:1.16.0")
             implementation("com.google.android.material:material:1.12.0")
-            implementation("io.ktor:ktor-client-okhttp:2.3.2")
+            implementation("io.ktor:ktor-client-okhttp:3.2.3")
             implementation("dev.icerock.moko:resources:0.25.0")
 
-            implementation("io.reactivex.rxjava2:rxjava:2.2.17")
+            implementation("io.reactivex.rxjava2:rxjava:2.2.21")
             implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
             implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
             implementation("com.jakewharton.rxbinding2:rxbinding:2.2.0")
 
-            implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
-            implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+            implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleDeviceKmm
+import com.bailout.stickk.ubi4.ble.BleDeviceKmm
 import kotlinx.coroutines.flow.StateFlow
 
 //data class BleDevice(val id: String, val name: String)

@@ -1,4 +1,4 @@
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleManagerKmm
+import com.bailout.stickk.ubi4.ble.BleDeviceKmm
 
 //package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 //

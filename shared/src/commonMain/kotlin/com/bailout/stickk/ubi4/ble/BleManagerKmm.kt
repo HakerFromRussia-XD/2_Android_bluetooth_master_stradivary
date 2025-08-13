@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
+package com.bailout.stickk.ubi4.ble
 
 /** Информация об обнаруженном устройстве */
 expect class BleDeviceKmm(id: String, name: String?, rssi: Int) {

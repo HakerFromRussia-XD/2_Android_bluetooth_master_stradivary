@@ -32,7 +32,6 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
-import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets

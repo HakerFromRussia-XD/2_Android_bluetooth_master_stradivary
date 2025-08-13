@@ -64,7 +64,7 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleDeviceKmm;
+import com.bailout.stickk.ubi4.ble.BleDeviceKmm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

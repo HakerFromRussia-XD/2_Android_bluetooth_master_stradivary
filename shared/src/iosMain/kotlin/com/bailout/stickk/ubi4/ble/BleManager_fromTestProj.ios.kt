@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
+package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ

@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.data.state
 
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import io.ktor.client.request.HttpRequestPipeline.Phases.State
+import com.bailout.stickk.ubi4.ble.BLEParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.properties.Delegates

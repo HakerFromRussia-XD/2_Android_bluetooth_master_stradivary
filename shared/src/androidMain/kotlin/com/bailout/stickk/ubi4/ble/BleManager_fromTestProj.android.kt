@@ -1,5 +1,4 @@
-package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble
-import com.bailout.stickk.ubi4.ble.BleCommandExecutor
+package com.bailout.stickk.ubi4.ble
 
 /** Информация об обнаруженном устройстве */
 actual class BleDeviceKmm actual constructor (

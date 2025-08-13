@@ -127,7 +127,7 @@ extension WidgetsListTableViewController {
                 
                 return cell
                 
-            case .slider(let slider):
+        case .slider(_):
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: SliderViewCell.reuseIdentifier,
                     for: indexPath

@@ -31,7 +31,9 @@ extension DefaultWidgetsRepository: WidgetsRepository {
         let requestDTO = WidgetsRequestDTO(query: query.query, page: page)
         let task = RepositoryTask()
 
-        cache.getResponse(for: requestDTO) { [weak self, backgroundQueue] result in
+        cache.getResponse(for: requestDTO) { [weak self] result in
+            
+            guard self != nil else { return } // Защищаем от слабой ссылки на self
 
             if case let .success(responseDTO?) = result {
                 cached(responseDTO.toDomain())

@@ -134,7 +134,7 @@ final class BluetoothListViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .dropFirst()
             .sink { [weak self] uuid in
-                print("[BLE-CONNECT] reloadData uuid: \(uuid)")
+                print("[BLE-CONNECT] reloadData uuid: \(String(describing: uuid))")
                 guard
                     let self = self,
                     let uuid = uuid,

@@ -6,9 +6,9 @@ extension UITableViewController {
         let style: UIActivityIndicatorView.Style
         if #available(iOS 12.0, *) {
             if self.traitCollection.userInterfaceStyle == .dark {
-                style = .white
+                style = .large
             } else {
-                style = .gray
+                style = .medium
             }
         } else {
             style = .gray

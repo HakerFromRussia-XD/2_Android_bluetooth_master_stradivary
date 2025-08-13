@@ -76,7 +76,7 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             implementation("io.ktor:ktor-client-core:2.3.2")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
-            implementation("dev.icerock.moko:resources:0.24.5")
+            implementation("dev.icerock.moko:resources:0.25.0")
         }
         androidMain.dependencies {
             api("androidx.activity:activity-compose:1.10.1")
@@ -84,7 +84,7 @@ kotlin {
             api("androidx.core:core-ktx:1.16.0")
             implementation("com.google.android.material:material:1.12.0")
             implementation("io.ktor:ktor-client-okhttp:2.3.2")
-            implementation("dev.icerock.moko:resources:0.24.5")
+            implementation("dev.icerock.moko:resources:0.25.0")
 
             implementation("io.reactivex.rxjava2:rxjava:2.2.17")
             implementation("io.reactivex.rxjava2:rxandroid:2.1.1")

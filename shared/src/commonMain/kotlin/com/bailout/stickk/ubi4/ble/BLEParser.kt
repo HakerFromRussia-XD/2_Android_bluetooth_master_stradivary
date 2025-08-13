@@ -41,12 +41,12 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
@@ -68,6 +68,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
+
 
 class BLEParser(
     private val coroutineScope: CoroutineScope,
@@ -265,7 +266,13 @@ class BLEParser(
                     } catch (e: Error) {
                         showToast("Ошибка 113")
                     }
-                    coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray)) }
+                    coroutineScope.launch { plotArrayFlow.emit(
+                        PlotParameterRef(
+                            deviceAddress,
+                            parameterID,
+                            plotArray
+                        )
+                    ) }
                 }
                 ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> {}
@@ -274,7 +281,13 @@ class BLEParser(
                 ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
                     platformLog("parameter sliderCollect PDCE_OPEN_CLOSE_THRESHOLD", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                    coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                    coroutineScope.launch { thresholdFlow.emit(
+                        ParameterRef(
+                            deviceAddress,
+                            parameterID,
+                            dataCode
+                        )
+                    ) }
                 }
                 ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> {}
@@ -889,7 +902,7 @@ class BLEParser(
         return baseParameterWidgetStruct1 == baseParameterWidgetStruct2
     }
 
-    private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int, dataCode: Int, deviceAddress: Int):BaseParameterWidgetStruct {
+    private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int, dataCode: Int, deviceAddress: Int): BaseParameterWidgetStruct {
         var baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
         baseParameterWidgetStruct.widgetId
         platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "0 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)} ")

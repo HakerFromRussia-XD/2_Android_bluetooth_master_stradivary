@@ -8,10 +8,4 @@ interface BleCommandExecutor {
     fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit)
     fun sendWidgetsArray()
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs)
-
-//    companion object {
-//        fun bleCommandWithQueue(dataForWrite: ByteArray, characteristic: String, type: String, function: () -> Unit) {
-//
-//        }
-//    }
 }

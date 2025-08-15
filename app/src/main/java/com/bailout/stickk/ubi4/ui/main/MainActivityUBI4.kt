@@ -78,7 +78,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-//    private lateinit var trainingPipeline: TrainingPipeline
     private var activeFragment: Fragment? = null
 
     private var bluetoothLeService: BluetoothLeService? = null
@@ -142,8 +141,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         showSensorsScreen()
 
-
-
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
@@ -162,7 +159,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.nameTv.setOnClickListener {
             dialogManager.showDisconnectDialog()
         }
-
         binding.accountBtn.setOnClickListener {
             showAccountScreen()
         }
@@ -176,7 +172,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                Log.e("MainActivityUBI4", "activeFragment не умеет onRunCommand()")
 //            }
 //        }
-
     }
 
     @SuppressLint("MissingPermission")
@@ -212,8 +207,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
-
-
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4)
             return
@@ -229,22 +222,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
         AccountFragmentCustomerServiceUBI4()
     ) }
-
     override fun showAccountProsthesisInformationScreen() { launchFragmentWithStack(
         AccountFragmentProsthesisInformationUBI4()
     ) }
-
-    fun openScanActivity() {
-        System.err.println("Check openScanActivity()")
-        resetLastMAC()
-        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-    private fun resetLastMAC() {
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
-    }
-
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
         val fragment = MotionTrainingFragment(onFinishTraining)
         supportFragmentManager.beginTransaction()
@@ -253,16 +233,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         activeFragment = fragment
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
-
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
-
-
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBackUbi4() { onBackPressed()}
-
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
@@ -275,7 +251,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             if (!supportFragmentManager.isDestroyed) transaction.commit()
         }
     }
-
     private fun launchFragmentWithStack(fragment: Fragment) {
         activeFragment = fragment
         supportFragmentManager.beginTransaction()
@@ -283,10 +258,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             .addToBackStack(null)
             .commit()
     }
+    fun openScanActivity() {
+        System.err.println("Check openScanActivity()")
+        resetLastMAC()
+        val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    private fun resetLastMAC() {
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+    }
 
     fun setPercentProgressLearningModel(p: Int) {
         percentProgressLearningModel.value = p.coerceIn(0, 100)
-        }
+    }
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
@@ -295,21 +280,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
-
-        //settings
     }
     override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
     private fun setStaticVariables() {
         canSendNextChunkFlagFlow = MutableSharedFlow()
-//        updateFlow = MutableSharedFlow()
-
-//        countBinding = 0
-//        graphThreadFlag = true
-
         canSendFlag = false
-//        activeGestureFragmentFilterFlow = MutableStateFlow(1)
-//        activeSettingsFragmentFilterFlow = MutableStateFlow(4)
-//        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this)
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
     }
@@ -323,6 +298,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getString(key: String) :String {
         return mSettings!!.getString(key, "NOT SET!").toString()
     }
+    fun loadText(key: String): String { return mSettings!!.getString(key, "null").toString() }
     internal fun saveInt(key: String, variable: Int) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putInt(key, variable)
@@ -371,8 +347,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    fun loadText(key: String): String { return mSettings!!.getString(key, "null").toString() }
-
 
     //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {
@@ -390,7 +364,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             binding.nameTv.text = serialNumber
         }
     }
-
 
     private fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
@@ -418,10 +391,5 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
-
-//        var bleParser by Delegates.notNull<BLEParser>()
-//        var canSendFlag by Delegates.notNull<Boolean>()
-//        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-
     }
 }

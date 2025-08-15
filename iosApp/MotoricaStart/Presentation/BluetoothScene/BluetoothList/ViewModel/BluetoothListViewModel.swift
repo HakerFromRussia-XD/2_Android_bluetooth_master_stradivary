@@ -111,7 +111,7 @@ final class BluetoothListViewModel {
         bleManager.sendBytesKmm(
             data: kb,
             command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.READ,
+            typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
         bleManager.sendBytesKmm(
@@ -123,7 +123,49 @@ final class BluetoothListViewModel {
         bleManager.sendBytesKmm(
             data: kb,
             command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.NOTIFY,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: kb,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
     }

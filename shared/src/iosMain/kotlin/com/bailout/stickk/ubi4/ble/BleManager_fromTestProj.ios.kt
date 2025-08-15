@@ -56,6 +56,7 @@ actual class BleManagerKmm actual constructor() {
     private val characteristicsMass = mutableListOf<CBCharacteristic>()
     private var selectedDevice: CBPeripheral? = null
 
+    private var onChunkSent: (() -> Unit)? = null
 //    private data class PendingWrite(
 //        val peripheral: CBPeripheral,
 //        val serviceUuid: String,
@@ -116,7 +117,6 @@ actual class BleManagerKmm actual constructor() {
             didConnectPeripheral.discoverServices(null)
         }
 
-
         override fun peripheral(
             peripheral: CBPeripheral,
             didDiscoverServices: NSError?
@@ -141,6 +141,7 @@ actual class BleManagerKmm actual constructor() {
             }
         }
 
+        @ObjCSignatureOverride
         override fun peripheral(
             peripheral: CBPeripheral,
             didUpdateValueForCharacteristic: CBCharacteristic,
@@ -154,6 +155,20 @@ actual class BleManagerKmm actual constructor() {
             }
         }
 
+        // Метод для обработки успешной записи или ошибки
+        @ObjCSignatureOverride
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didWriteValueForCharacteristic: CBCharacteristic,
+            error: NSError?
+        ) {
+            if (error != null) {
+                println("Ошибка записи: ${error.localizedDescription}")
+            } else {
+                println("sendBytesKmm Запись завершена успешно для характеристики: $didWriteValueForCharacteristic")
+                onChunkSent?.invoke()
+            }
+        }
     }
     private val manager = CBCentralManager(delegate, queue = null)
 
@@ -183,6 +198,11 @@ actual class BleManagerKmm actual constructor() {
         manager.stopScan()
     }
 
+
+    private val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
+        dispatchSendBytesKmm(byteArray, command, type, onChunkSent)
+    }
+
     @Suppress("unused")
     actual fun sendBytesKmm(
         data: ByteArray,
@@ -190,9 +210,17 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
-        val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        val peripheral = selectedDevice
+        this.onChunkSent = onChunkSent
+        bleCommandExecutor.bleCommandWithQueue(data, command, typeCommand, onChunkSent)
+    }
 
+    internal fun dispatchSendBytesKmm(
+        data: ByteArray,
+        command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ) {
+        val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         characteristicsMass.forEach { c ->
             platformLog(
                 "sendBytesKmm",

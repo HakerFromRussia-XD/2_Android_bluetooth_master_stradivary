@@ -274,7 +274,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
 //        tableViewDevices.reloadRows(at: [indexPath], with: .none)
         
         // Запрос на открытие WidgetsListViewController через координатор
-//        openWidgetsList()
+        openWidgetsList()
     }
     private func openWidgetsList() {
         // 1. DI‑контейнер Widgets‑сцены

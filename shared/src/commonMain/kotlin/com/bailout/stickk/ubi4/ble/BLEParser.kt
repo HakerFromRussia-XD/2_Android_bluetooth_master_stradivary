@@ -384,7 +384,6 @@ class BLEParser(
             }
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 parseInitializeInformation(receiveDataString)
-
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
                 try {

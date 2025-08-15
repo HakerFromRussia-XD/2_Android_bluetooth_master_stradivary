@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
@@ -25,6 +26,7 @@ import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedC
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.utility.logging.systemLang
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -144,7 +146,31 @@ class SliderDelegateAdapter(
 
         widgetSliderSb.progress = currentSliderInfo.progress[0]
         widgetSliderNumTv.text = currentSliderInfo.progress[0].toString()
-        widgetSliderTitleTv.text = item.title
+//        widgetSliderTitleTv.text = item.title
+        val sliderE = item.widget as? SliderParameterWidgetEStruct
+        if (sliderE != null) {
+            val b = sliderE.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            val labelKey = (b.deviceId shl 16) or (b.widgetId shl 8) or b.widgetCode
+            val labelsByOffset = UiState.labelCodesByOffset[labelKey]
+
+            val langKey = if (systemLang().startsWith("ru", true)) "ru" else "en"
+            val dict = PreferenceKeysUBI4.parameterWidgetLabel[langKey]
+                ?: PreferenceKeysUBI4.parameterWidgetLabel["en"].orEmpty()
+
+            fun resolve(off: Int?): String? =
+                off?.let { labelsByOffset?.get(it) }?.let { code -> dict[code.toString()] }
+
+            // Поддерживаем столько заголовков, сколько есть TextView
+            val titleViews = listOf(widgetSliderTitleTv, widgetSliderTitle2Tv)
+            titleViews.forEachIndexed { idx, tv ->
+                val text = resolve(dataOffset.getOrNull(idx))
+                    ?: if (idx == 0) item.title else tv.text
+                runCatching { tv.text = text }
+            }
+        } else {
+            // S‑структуры: берём заголовок как есть
+            widgetSliderTitleTv.text = item.title
+        }
 
 
 

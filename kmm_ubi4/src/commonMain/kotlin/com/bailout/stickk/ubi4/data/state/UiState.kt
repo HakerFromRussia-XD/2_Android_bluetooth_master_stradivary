@@ -10,6 +10,8 @@ object UiState {
     var activeSettingsFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
     var isMobileSettings by Delegates.notNull<Boolean>()
     var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+    val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
+
 
     init {
         listWidgets = mutableSetOf()

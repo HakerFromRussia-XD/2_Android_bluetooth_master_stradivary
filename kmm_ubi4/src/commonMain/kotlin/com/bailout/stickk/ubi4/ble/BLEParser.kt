@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -1278,12 +1279,22 @@ class BLEParser(
     }
 
     private fun addToListWidgets(widget: Any, baseParameterWidgetStruct: Any, parameterID: Int, dataCode: Int, deviceAddress: Int, dataOffset: Int) {
+
         platformLog("BLEParserTest", "▶️ addToListWidgets widgetCode=${baseParameterWidgetStruct} dataOffset=$dataOffset")
         var canAdd = true
         platformLog("addToListWidgets", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
         if (baseParameterWidgetStruct is BaseParameterWidgetEStruct) {
+            val widgetStruct = baseParameterWidgetStruct.baseParameterWidgetStruct
+            val labelKey = (widgetStruct.deviceId shl 16) or
+                    (widgetStruct.widgetId shl 8) or
+                    widgetStruct.widgetCode
+
+            UiState.labelCodesByOffset
+                .getOrPut(labelKey) { mutableMapOf() }[dataOffset] = baseParameterWidgetStruct.labelCode
+
             listWidgets.forEach {
                 when (it) {
+
                     is BaseParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
 //                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
@@ -1353,7 +1364,7 @@ class BLEParser(
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
                         }
                     }
@@ -1417,7 +1428,7 @@ class BLEParser(
                         if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
                             canAdd = false
                             it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
+                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
                         }
                         if (combineWidgetId == combineWidgetIdIterated) {

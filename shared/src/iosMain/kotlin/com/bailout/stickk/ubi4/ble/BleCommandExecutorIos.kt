@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import kotlinx.coroutines.Runnable
@@ -7,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * iOS implementation of [BleCommandExecutor] that sends commands through a blocking queue.

@@ -1480,16 +1480,29 @@ class BLEParser(
         return mConnected
     }
 
-    private fun String.substringSafe(startIndex: Int, endIndex: Int): String =
+//    private fun String.substringSafe(startIndex: Int, endIndex: Int): String =
+//        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+//            substring(startIndex, endIndex)
+//        } else {
+//            platformLog(
+//
+//                "substringSafe",
+//                "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+//            )
+//            showToast("error: Widgets String Index of Bound Exception")
+//            ""
+//        }
+    private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
+        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
         if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
-            substring(startIndex, endIndex)
-        } else {
-            platformLog(
-
-                "substringSafe",
-                "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
-            )
-            showToast("error: Widgets String Index of Bound Exception")
-            ""
+            val s = substring(startIndex, endIndex)
+            return if (s.length % 2 == 1) "0$s" else s
         }
+        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
+        platformLog(
+            "substringSafe",
+            "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+        )
+        return "00"
+    }
 }

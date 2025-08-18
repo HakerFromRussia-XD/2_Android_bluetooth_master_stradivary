@@ -45,6 +45,8 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import com.github.mikephil.charting.renderer.XAxisRenderer
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -595,11 +597,11 @@ class PlotDelegateAdapter (
         }
         count += 1
     }
+
     private fun initializedSensorGraph(emgChart: LineChart) {
-        emgChart.setHardwareAccelerationEnabled(true) // Включение аппаратного ускорения
+        emgChart.setHardwareAccelerationEnabled(true)
         emgChart.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        emgChart.setDragEnabled(false) // Отключение перемещения графика, если оно не нужно
-        emgChart.contentDescription
+        emgChart.setDragEnabled(false)
         emgChart.setTouchEnabled(false)
         emgChart.isDragEnabled = false
         emgChart.isDragDecelerationEnabled = false
@@ -608,27 +610,54 @@ class PlotDelegateAdapter (
         emgChart.setPinchZoom(false)
         emgChart.setBackgroundColor(Color.TRANSPARENT)
         emgChart.getHighlightByTouchPoint(1f, 1f)
-        val data = LineData()
-        val data2 = LineData()
-        emgChart.data = data
-        emgChart.data = data2
         emgChart.legend.isEnabled = false
         emgChart.description.textColor = Color.TRANSPARENT
         emgChart.animateX(0)
         emgChart.animateY(0)
-//        emgChart.animateY(2000)
 
-        val x: XAxis = emgChart.xAxis
+        val x = emgChart.xAxis
         x.textColor = Color.TRANSPARENT
         x.setDrawGridLines(false)
         x.setDrawLabels(false)
-        emgChart.axisLeft.setDrawGridLines(false)
-        emgChart.axisLeft.setDrawLabels(false)
-        x.axisMaximum = 4000000f
+        x.isGranularityEnabled = true
+        x.granularity = 1f
+        x.axisMaximum = 4_000_000f
         x.setAvoidFirstLastClipping(true)
         x.position = XAxis.XAxisPosition.BOTTOM
+        x.isEnabled = false // как у тебя — ось скрыта
 
-        val y: YAxis = emgChart.axisLeft
+        emgChart.axisLeft.setDrawGridLines(false)
+        emgChart.axisLeft.setDrawLabels(false)
+        emgChart.data = LineData()
+
+        // ====== ГЛУШИМ ВЫЧИСЛЕНИЯ ОСИ Х (no-op renderer) ======
+        val noopRenderer = object : XAxisRenderer(
+            emgChart.viewPortHandler,
+            x,
+            emgChart.getTransformer(YAxis.AxisDependency.LEFT)
+        ) {
+            override fun computeAxis(min: Float, max: Float, inverted: Boolean) { /* no-op */ }
+            override fun computeSize() { /* no-op */ }
+        }
+
+        // 1) Попробуем публичный сеттор (есть в некоторых версиях)
+        try {
+            val m = emgChart.javaClass.getMethod("setXAxisRenderer", XAxisRenderer::class.java)
+            m.invoke(emgChart, noopRenderer)
+        } catch (_: NoSuchMethodException) {
+            // 2) Если сеттора нет — ставим через рефлексию в mXAxisRenderer
+            try {
+                val clazz = emgChart.javaClass.superclass // BarLineChartBase
+                val field = clazz?.getDeclaredField("mXAxisRenderer")
+                field?.isAccessible = true
+                field?.set(emgChart, noopRenderer)
+            } catch (e: Exception) {
+                // Если здесь упадёт — сообщи стек, но обычно это работает на старых версиях
+            }
+        }
+        // =======================================================
+
+        val y = emgChart.axisLeft
         y.textColor = Color.WHITE
         y.mAxisMaximum = 255f
         y.mAxisMinimum = 255f
@@ -638,6 +667,7 @@ class PlotDelegateAdapter (
         y.setDrawAxisLine(false)
         y.setStartAtZero(true)
         y.gridColor = Color.WHITE
+
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
@@ -682,33 +712,25 @@ class PlotDelegateAdapter (
         }
     }
 
-    private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart, indexWidgetPlot: Int)  {
-//        Log.d("Plot view","startGraphEnteringDataCoroutine")
-//        dataSens1 += 1
-//        dataSens2 += 1
-//        dataSens3 += 1
-//        dataSens4 += 2
-//        dataSens5 += 2
-//        dataSens6 += 2
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens1 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens1 = 0 }
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens2 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens2 = 0 }
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens3 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens3 = 0 }
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens4 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens4 = 0 }
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens5 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens5 = 0 }
-        if (widgetPlotsInfo[indexWidgetPlot].dataSens6 > 255) { widgetPlotsInfo[indexWidgetPlot].dataSens6 = 0 }
+    private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart, indexWidgetPlot: Int) {
+        while (graphThreadFlag) {
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens1 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens1 = 0
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens2 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens2 = 0
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens3 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens3 = 0
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens4 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens4 = 0
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens5 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens5 = 0
+            if (widgetPlotsInfo[indexWidgetPlot].dataSens6 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens6 = 0
 
-        prepareAndAddEntry(
-            widgetPlotsInfo[indexWidgetPlot].dataSens1,
-            widgetPlotsInfo[indexWidgetPlot].dataSens2,
-            widgetPlotsInfo[indexWidgetPlot].dataSens3,
-            widgetPlotsInfo[indexWidgetPlot].dataSens4,
-            widgetPlotsInfo[indexWidgetPlot].dataSens5,
-            widgetPlotsInfo[indexWidgetPlot].dataSens6,
-            emgChart
-        )
-        delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
-        if (graphThreadFlag) {
-            startGraphEnteringDataCoroutine(emgChart, indexWidgetPlot)
+            prepareAndAddEntry(
+                widgetPlotsInfo[indexWidgetPlot].dataSens1,
+                widgetPlotsInfo[indexWidgetPlot].dataSens2,
+                widgetPlotsInfo[indexWidgetPlot].dataSens3,
+                widgetPlotsInfo[indexWidgetPlot].dataSens4,
+                widgetPlotsInfo[indexWidgetPlot].dataSens5,
+                widgetPlotsInfo[indexWidgetPlot].dataSens6,
+                emgChart
+            )
+            delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         }
     }
     fun onDestroy() {

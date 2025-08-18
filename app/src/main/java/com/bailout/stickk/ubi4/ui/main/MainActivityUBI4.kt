@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
 
 
@@ -82,6 +83,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
+    private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
@@ -321,14 +323,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             while (true) {
                 val task: Runnable = queue.get()
                 task.run()
+                remainingTasks.decrementAndGet()
             }
         }
         worker.start()
     }
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
+    override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
         if (byteArray != null) {
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
+            remainingTasks.incrementAndGet()
         }
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {

@@ -1,12 +1,14 @@
 package com.bailout.stickk.ubi4.ble
 
-import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import kotlinx.coroutines.Runnable
+import com.bailout.stickk.ubi4.utility.logging.platformLog
+import kotlinx.atomicfu.AtomicInt
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 
 /**
@@ -19,6 +21,7 @@ class BleCommandExecutorIos(
 ) : BleCommandExecutor {
 
     private val queue = BlockingQueueUbi4()
+    private val remainingTasks: AtomicInt = atomic(0) // Счётчик оставшихся задач
 
     init {
         // Start worker thread that executes tasks sequentially from the queue
@@ -26,8 +29,14 @@ class BleCommandExecutorIos(
             while (true) {
                 val task = queue.get()
                 task.run()
+                remainingTasks.decrementAndGet()
+                platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
             }
         }
+    }
+
+    override fun getRemainingTasksCount(): Int {
+        return remainingTasks.value // Возвращаем текущее количество оставшихся задач
     }
 
     override fun getQueueUBI4(): BlockingQueueUbi4 = queue
@@ -43,6 +52,8 @@ class BleCommandExecutorIos(
                 dispatcher(byteArray, command, typeCommand, onChunkSent)
             }
             queue.put(runnable, byteArray)
+            remainingTasks.incrementAndGet()
+            platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
         }
     }
 

@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 
 interface BleCommandExecutor {
     fun getQueueUBI4(): BlockingQueueUbi4
+    fun getRemainingTasksCount(): Int
     fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit)
     fun sendWidgetsArray()
     fun updateSerialNumber(deviceInfo: DeviceInfoStructs)

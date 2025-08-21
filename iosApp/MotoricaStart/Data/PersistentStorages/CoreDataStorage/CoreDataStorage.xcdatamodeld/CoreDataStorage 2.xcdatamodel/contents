@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="WidgetQueryEntity" representedClassName="WidgetQueryEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="query" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="WidgetResponseEntity" representedClassName="WidgetResponseEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="isAd" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="posterPath" optional="YES" attributeType="String"/>
+        <attribute name="releaseDate" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="widgetsResponse" maxCount="1" deletionRule="Nullify" destinationEntity="WidgetsResponseEntity" inverseName="widgets" inverseEntity="WidgetsResponseEntity"/>
+    </entity>
+    <entity name="WidgetsRequestEntity" representedClassName="WidgetsRequestEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="query" optional="YES" attributeType="String"/>
+        <relationship name="response" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WidgetsResponseEntity" inverseName="request" inverseEntity="WidgetsResponseEntity"/>
+    </entity>
+    <entity name="WidgetsResponseEntity" representedClassName="WidgetsResponseEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="totalPages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="request" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WidgetsRequestEntity" inverseName="response" inverseEntity="WidgetsRequestEntity"/>
+        <relationship name="widgets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="WidgetResponseEntity" inverseName="widgetsResponse" inverseEntity="WidgetResponseEntity"/>
+    </entity>
+</model>

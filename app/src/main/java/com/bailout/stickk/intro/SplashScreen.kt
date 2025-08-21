@@ -9,13 +9,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -26,7 +24,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-//import org.jetbrains.anko.backgroundColor
+
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {

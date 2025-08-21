@@ -12,6 +12,7 @@ import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
@@ -241,7 +242,7 @@ class SliderDelegateAdapter(
                     Log.d("SliderRequest", "addressDevice = $addressDevice, parameterID = $parameterID")
                     main.bleCommandWithQueue(
                         BLECommands.requestSlider(addressDevice, parameterID),
-                        MAIN_CHANNEL,
+                        MAIN_CHANNEL_CHARACTERISTIC,
                         SampleGattAttributes.WRITE
                     ) {}
                 },
@@ -266,8 +267,6 @@ class SliderDelegateAdapter(
             return
         }
         val currentValue = sliderInfo.progress.getOrNull(sliderIndex)
-        platformLog("SliderDebug", "currentValue = $currentValue")
-
         if (currentValue == null) {
             Log.e("updateSliderProgress", "Нет значения progress для sliderIndex = $sliderIndex")
             return
@@ -277,7 +276,6 @@ class SliderDelegateAdapter(
         val effectiveMax = if (minProgress == sliderInfo.maxProgress) 100 else sliderInfo.maxProgress
         newValue = newValue.coerceIn(minProgress, effectiveMax)
         sliderInfo.progress[sliderIndex] = newValue
-        platformLog("SliderDebug", "newValue1 = ${sliderInfo.progress[sliderIndex]}")
         sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newValue - minProgress
         sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = (newValue).toString()
         timer?.cancel()
@@ -305,7 +303,7 @@ class SliderDelegateAdapter(
         val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
         Log.d("setUITest", "ParameterRef = $parameterRef, parameter = $parameter")
         Log.d("parameter sliderCollect", "перед обновлением слайдера: addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, data=${parameter.data}")
-        Log.d("SliderBLE", "Raw data: '${parameter.data}', length=${parameter.data.length}")
+
         val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
@@ -324,8 +322,6 @@ class SliderDelegateAdapter(
                         widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
                         animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue - widgetSlidersInfo[indexWidgetSlider].minProgress)
                         widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = newValue.toString()
-                        platformLog("SliderSend", "IncomeValue = $newValue, progress = ${widgetSlidersInfo[indexWidgetSlider].progress[index]}")
-
                     }
                     // Обновляем отображение
                     widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =

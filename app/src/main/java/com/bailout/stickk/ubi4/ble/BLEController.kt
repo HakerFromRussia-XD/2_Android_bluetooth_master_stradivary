@@ -27,12 +27,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
-import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
@@ -149,6 +148,7 @@ class BLEController() {
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     if (mDisconnected) {
+                        Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
                         return
                     }
@@ -206,19 +206,7 @@ class BLEController() {
 
 
 
-//    private suspend fun firstNotificationRequest()  {
-//        System.err.println("BLE debug firstNotificationRequest")
-//        System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
-//
-//        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-//        bleCommand(null, MAIN_CHANNEL, NOTIFY)
-//        delay(1000)
-//
-//        if (firstNotificationRequestFlag) {
-//            firstNotificationRequest()
-//        }
-//    }
-// 1. BLEController.firstNotificationRequest
+
     private suspend fun firstNotificationRequest() {
         var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
@@ -230,16 +218,13 @@ class BLEController() {
         }
         if (firstNotificationRequestFlag) {
             Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
+            //TODO проверить  нужна ли следующая строку - конфликт при мердже
+            firstNotificationRequest()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
         }
     }
-//    private fun parseReceivedData (data: ByteArray?) {
-//        if (data != null) {
-//            firstNotificationRequestFlag = false
-//            mBLEParser?.parseReceivedData(data)
-//        }
-//    }
+
 private fun parseReceivedData(data: ByteArray?) {
     val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
     Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
@@ -351,8 +336,6 @@ private fun parseReceivedData(data: ByteArray?) {
             }
 
     }
-
-
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED)
@@ -392,8 +375,6 @@ private fun parseReceivedData(data: ByteArray?) {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        val hex = byteArray?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
-        Log.d("BLE_SEND", "▶ bleCommand type=$typeCommand, uuid=$uuid, data=$hex")
         Log.d("BLEController", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {

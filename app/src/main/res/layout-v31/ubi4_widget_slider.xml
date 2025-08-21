@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/ubi4_back">
+
+    <!-- Основной контейнер с фоном и скруглёнными углами -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ubi4_view_with_corners_back_inside"
+        android:elevation="4dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Внутренний ConstraintLayout для первого слайдера и второго -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Заголовок первого слайдера -->
+            <TextView
+                android:id="@+id/widgetSliderTitleTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="widget slider description"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Текущее значение первого слайдера -->
+            <TextView
+                android:id="@+id/widgetSliderNumTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="123"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/widgetSliderTitleTv" />
+
+            <!-- Кнопка "-" (первый слайдер) -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/minusBtnCl1"
+                android:layout_width="48dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/widgetSliderSb"
+                app:layout_constraintBottom_toBottomOf="@+id/widgetSliderSb">
+
+                <View
+                    android:id="@+id/minusBtnBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                    android:elevation="0dp" />
+
+                <TextView
+                    android:id="@+id/minusBtnTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="4dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="-"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <View
+                    android:id="@+id/minusBtnRipple"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_ripple_corners"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipToOutline="true"
+                    android:elevation="4dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- SeekBar первого слайдера -->
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/widgetSliderSb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:max="100"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:progress="30"
+                android:progressDrawable="@drawable/ubi4_track"
+                android:thumb="@drawable/thumb_le"
+                app:layout_constraintStart_toEndOf="@+id/minusBtnCl1"
+                app:layout_constraintTop_toBottomOf="@+id/widgetSliderTitleTv"
+                app:layout_constraintEnd_toStartOf="@+id/plusBtnCl1" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/plusBtnCl1"
+                android:layout_width="48dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toTopOf="@+id/widgetSliderSb"
+                app:layout_constraintBottom_toBottomOf="@+id/widgetSliderSb"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <View
+                    android:id="@+id/plusBtnBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                    android:elevation="0dp" />
+
+                <TextView
+                    android:id="@+id/plusBtnTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="4dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="+"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginBottom="3dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <View
+                    android:id="@+id/plusBtnRipple"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_ripple_corners"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipToOutline="true"
+                    android:elevation="4dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Второй слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/secondSliderCl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/widgetSliderSb">
+
+                <TextView
+                    android:id="@+id/widgetSliderTitle2Tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="close sensitivity"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/widgetSliderNum2Tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="123"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/widgetSliderTitle2Tv" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/minusBtnCl2"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/widgetSlider2Sb"
+                    app:layout_constraintBottom_toBottomOf="@+id/widgetSlider2Sb">
+
+                    <View
+                        android:id="@+id/minusBtnBackground2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/minusBtnTv2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/minusBtnRipple2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/widgetSlider2Sb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="100"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="30"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/minusBtnCl2"
+                    app:layout_constraintTop_toBottomOf="@+id/widgetSliderTitle2Tv"
+                    app:layout_constraintEnd_toStartOf="@+id/plusBtnCl2" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/plusBtnCl2"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/widgetSlider2Sb"
+                    app:layout_constraintBottom_toBottomOf="@+id/widgetSlider2Sb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/plusBtnBackground2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/plusBtnTv2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/plusBtnRipple2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintTop_toBottomOf="@+id/secondSliderCl"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

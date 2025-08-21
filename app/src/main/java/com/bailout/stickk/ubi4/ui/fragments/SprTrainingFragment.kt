@@ -21,7 +21,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckEmg8FileListener
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.API_KEY
@@ -49,7 +49,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -501,7 +500,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                             addressDevice,
                             parameterID,
                             1
-                        ), MAIN_CHANNEL, WRITE
+                        ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
                     ) {}
                 }
 
@@ -534,7 +533,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                             BLECommands.writeDataInCheckpointFileInSDCard(
                                 chunk.toByteArray(), addressDevice, parameterID, index + 2
                             ),
-                            MAIN_CHANNEL,
+                            MAIN_CHANNEL_CHARACTERISTIC,
                             WRITE
                         ) {}
                     }
@@ -564,7 +563,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                             parameterID,
                             indexPackage + 3
                         ),
-                        MAIN_CHANNEL, WRITE
+                        MAIN_CHANNEL_CHARACTERISTIC, WRITE
                     ) {}
                 }
 

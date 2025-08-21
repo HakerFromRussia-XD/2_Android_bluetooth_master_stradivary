@@ -96,9 +96,11 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/ubi4_ripple_corners"
                     android:clickable="true"
-                    android:focusable="true"
                     android:clipToOutline="true"
-                    android:elevation="4dp" />
+                    android:elevation="4dp"
+                    android:focusable="true"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                    tools:targetApi="s" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -157,9 +159,11 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/ubi4_ripple_corners"
                     android:clickable="true"
-                    android:focusable="true"
                     android:clipToOutline="true"
-                    android:elevation="4dp" />
+                    android:elevation="4dp"
+                    android:focusable="true"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                    tools:targetApi="s" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Второй слайдер -->
@@ -236,9 +240,11 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/ubi4_ripple_corners"
                         android:clickable="true"
-                        android:focusable="true"
                         android:clipToOutline="true"
-                        android:elevation="4dp" />
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.appcompat.widget.AppCompatSeekBar
@@ -294,9 +300,11 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/ubi4_ripple_corners"
                         android:clickable="true"
-                        android:focusable="true"
                         android:clipToOutline="true"
-                        android:elevation="4dp" />
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 

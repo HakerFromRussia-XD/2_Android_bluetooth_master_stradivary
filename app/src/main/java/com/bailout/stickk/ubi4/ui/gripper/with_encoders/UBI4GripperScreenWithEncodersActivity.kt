@@ -29,7 +29,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPrese
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
@@ -50,7 +50,6 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.data.state.BLEState
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 
 @Suppress("DEPRECATION")
@@ -689,11 +688,11 @@ class UBI4GripperScreenWithEncodersActivity
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0), gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     private fun compileBLERead () {
         Log.d("uiGestureSettingsObservable", "compileBLERead gesture id = $gestureID")
-        main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
 //        val _inputNumber = validationRange(inputNumber)

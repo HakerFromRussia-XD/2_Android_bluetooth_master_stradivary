@@ -56,7 +56,7 @@ final class SliderViewCell: UITableViewCell {
             value_2: .zero,
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
-            isSecondSliderShow: viewModel.showSecondSlider,
+            isSecondSliderShow: viewModel.showSecondSlider
         )
         self.provider = provider
         

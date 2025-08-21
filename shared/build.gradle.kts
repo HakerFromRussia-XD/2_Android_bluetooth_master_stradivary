@@ -78,6 +78,14 @@ kotlin {
             implementation("io.ktor:ktor-client-core:2.3.2")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
             implementation("dev.icerock.moko:resources:0.25.0")
+
+            implementation("io.ktor:ktor-client-core:2.3.12")
+            implementation("io.ktor:ktor-client-logging:2.3.12")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+
         }
         androidMain.dependencies {
             api("androidx.activity:activity-compose:1.10.1")
@@ -94,6 +102,10 @@ kotlin {
 
             implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
             implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
+
+            implementation("io.ktor:ktor-client-okhttp:2.3.12")
+            implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
+            implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
         }
     }
 }

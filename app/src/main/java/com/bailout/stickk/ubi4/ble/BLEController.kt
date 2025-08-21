@@ -32,10 +32,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -211,8 +211,8 @@ class BLEController() {
         var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
             Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
-            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-            bleCommand(null, MAIN_CHANNEL, NOTIFY)
+            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+            bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
             delay(1000)
             attempts++
         }

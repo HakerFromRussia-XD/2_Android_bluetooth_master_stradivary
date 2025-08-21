@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
 import android.util.Log
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
@@ -37,7 +37,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX START_SYSTEM_UPDATE")
         main?.bleCommandWithQueue(
             BLECommands.requestStartSystemUpdate(),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         FirmwareInfoState.checkNewFwFlow.resetReplayCache()
         val raw = startSystemUpdateFlow.first()
@@ -55,7 +55,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX GET_RUN_PROGRAM_TYPE")
         main?.bleCommandWithQueue(
             BLECommands.requestRunProgramType(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val initial = readRunType()
         Log.d("FW_FLOW", "RX initial status = $initial")
@@ -64,13 +64,13 @@ class BleFirmwareUpdater {
             Log.d("FW_FLOW", "TX JUMP_TO_BOOTLOADER")
             main?.bleCommandWithQueue(
                 BLECommands.jumpToBootloader(addr.toByte()),
-                MAIN_CHANNEL, WRITE
+                MAIN_CHANNEL_CHARACTERISTIC, WRITE
             ) {}
             delay(800)
             Log.d("FW_FLOW", "TX GET_RUN_PROGRAM_TYPE (после delay)")
             main?.bleCommandWithQueue(
                 BLECommands.requestRunProgramType(addr.toByte()),
-                MAIN_CHANNEL, WRITE
+                MAIN_CHANNEL_CHARACTERISTIC, WRITE
             ) {}
             readRunType()
             Log.d("FW_FLOW", "BOOTLOADER готов")
@@ -83,7 +83,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX GET_BOOTLOADER_INFO")
         main?.bleCommandWithQueue(
             BLECommands.getBootloaderInfo(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val payload = FirmwareInfoState.bootloaderInfoFlow.first()
         Log.d("FW_FLOW", "RX GET_BOOTLOADER_INFO payload=$payload")
@@ -96,7 +96,7 @@ class BleFirmwareUpdater {
         Log.d("FW_DESC", descriptor.joinToString(" ") { "%02X".format(it) })
         main?.bleCommandWithQueue(
             BLECommands.requestCheckNewFw(addr.toByte(), descriptor),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val raw = FirmwareInfoState.checkNewFwFlow.first()
         val status = CheckNewFwStatus.from(raw)
@@ -108,7 +108,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX GET_MAX_CHANK_SIZE")
         main?.bleCommandWithQueue(
             BLECommands.requestMaxChunkSize(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val (_, info) = maxChunkSizeFlow
             .filter { it.first == addr }
@@ -122,7 +122,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX PRELOAD_INFO")
         main?.bleCommandWithQueue(
             BLECommands.requestPreloadInfo(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val status = preloadInfoFlow.first()
         Log.d("FW_FLOW", "RX PRELOAD_INFO status=$status")
@@ -133,7 +133,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX GET_BOOTLOADER_STATUS")
         main?.bleCommandWithQueue(
             BLECommands.requestBootloaderStatus(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val status = bootloaderStatusFlow.first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
         Log.d("FW_FLOW", "RX DONE_CLEAR status=$status")
@@ -166,7 +166,7 @@ class BleFirmwareUpdater {
             val packet = BLECommands.sendLoadNewFw(addr.toByte(), offset, chunk)
 
             // первая отправка
-            main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
+            main?.bleCommandWithQueue(packet, MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
             Log.d("FW_FLOW", "→ отправили LOAD_NEW_FW payload size=$partSize, offset=$offset")
 
             // ждём ответ в течение FIXED_WRITE_TIMEOUT_MS
@@ -179,7 +179,7 @@ class BleFirmwareUpdater {
                 }
             } catch (e: TimeoutCancellationException) {
                 Log.e("FW_FLOW", "Timeout на offset=$offset, переотправляем chunk")
-                main?.bleCommandWithQueue(packet, MAIN_CHANNEL, WRITE) {}
+                main?.bleCommandWithQueue(packet, MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
                 // ждём без таймаута
                 chunkWrittenFlow
                     .filter { it.first == addr }
@@ -209,12 +209,12 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX CALCULATE_CRC → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestCalculateCrc(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         Log.d("FW_FLOW", "TX GET_BOOTLOADER_STATUS for CRC → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestBootloaderStatus(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
 
         val delayMs = lastMaxChunkInfo?.flashClearDelayMs?.toLong() ?: 0L
@@ -227,7 +227,7 @@ class BleFirmwareUpdater {
                     Log.d("FW_FLOW", "RX $status — повтор TX GET_BOOTLOADER_STATUS → addr=$addr")
                     main?.bleCommandWithQueue(
                         BLECommands.requestBootloaderStatus(addr.toByte()),
-                        MAIN_CHANNEL, WRITE
+                        MAIN_CHANNEL_CHARACTERISTIC, WRITE
                     ) {}
                 }
             }
@@ -237,7 +237,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX COMPLETE_UPDATE → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestCompleteUpdate(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         val ok = FirmwareInfoState.completeCrcFlow.first()
         Log.i("FW_FLOW", "CRC verification result for addr=$addr → $ok")
@@ -248,7 +248,7 @@ class BleFirmwareUpdater {
         Log.d("FW_FLOW", "TX FINISH_SYSTEM_UPDATE → addr=$addr")
         main?.bleCommandWithQueue(
             BLECommands.requestFinishSystemUpdate(addr.toByte()),
-            MAIN_CHANNEL, WRITE
+            MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
         FirmwareInfoState.finishSystemUpdateFlow.first()
         Log.d("FW_FLOW", "SYSTEM UPDATE COMPLETE on addr=$addr")

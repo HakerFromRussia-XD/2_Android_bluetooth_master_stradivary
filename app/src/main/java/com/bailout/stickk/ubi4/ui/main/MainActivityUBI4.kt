@@ -32,13 +32,14 @@ import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
+import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.ble.BLEParser
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -47,7 +48,6 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
-import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -261,10 +261,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         launchFragmentWithStack(ServiceFragment())
     }
 
-    private fun resetLastMAC() {
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
-    }
-
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
         val fragment = MotionTrainingFragment(onFinishTraining)
         supportFragmentManager.beginTransaction()
@@ -420,12 +416,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun sendFwInfoRequests() {
         // CPU
-        bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL, WRITE) {}
+        bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         // Sub-devices (если уже известны)
         baseSubDevicesInfoStructSet.forEach { sub ->
             bleCommandWithQueue(
                 BLECommands.requestProductFWInfoType(sub.deviceAddress),
-                MAIN_CHANNEL, WRITE
+                MAIN_CHANNEL_CHARACTERISTIC, WRITE
             ) {}
         }
     }
@@ -434,7 +430,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         baseSubDevicesInfoStructSet.forEach { sub ->
             bleCommandWithQueue(
                 BLECommands.requestRunProgramType(sub.deviceAddress.toByte()),
-                MAIN_CHANNEL, WRITE
+                MAIN_CHANNEL_CHARACTERISTIC, WRITE
             ) {}
         }
     }

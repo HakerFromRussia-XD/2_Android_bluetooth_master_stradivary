@@ -13,6 +13,8 @@ struct Widget: Equatable, Identifiable {
     let posterPath: String?
     let overview: String?
     let isAd: Bool
+    let deviceAddress: Int
+    let parameterID: Int
 }
 
 struct WidgetsPage: Equatable {

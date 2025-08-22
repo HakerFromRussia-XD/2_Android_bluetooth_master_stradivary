@@ -6,6 +6,8 @@ struct SliderListItemViewModel: Equatable, Hashable {
     let title_2: String
     let posterImagePath: String?
     let showSecondSlider: Bool
+    let deviceAddress: Int
+    let parameterID: Int
 }
 
 extension SliderListItemViewModel {
@@ -15,6 +17,8 @@ extension SliderListItemViewModel {
         self.posterImagePath = widget.posterPath
         self.overview = widget.overview ?? ""
         self.showSecondSlider = showSecondSlider
+        self.deviceAddress = widget.deviceAddress
+        self.parameterID = widget.parameterID
     }
 }
 

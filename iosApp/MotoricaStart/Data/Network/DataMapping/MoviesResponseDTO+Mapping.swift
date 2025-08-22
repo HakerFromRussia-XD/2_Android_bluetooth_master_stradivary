@@ -23,6 +23,8 @@ extension WidgetsResponseDTO {
             case overview
             case releaseDate = "release_date"
             case isAd
+            case deviceAddress
+            case parameterID
         }
         enum GenreDTO: String, Decodable {
             case adventure = "adventure"
@@ -36,6 +38,8 @@ extension WidgetsResponseDTO {
         let overview: String?
         let releaseDate: String?
         var isAd: Bool? = false
+        let deviceAddress: Int?
+        let parameterID: Int?
         
         init(
             id: Int,
@@ -44,7 +48,9 @@ extension WidgetsResponseDTO {
             posterPath: String?,
             overview: String?,
             releaseDate: String?,
-            isAd: Bool? = false
+            isAd: Bool? = false,
+            deviceAddress: Int? = nil,
+            parameterID: Int? = nil
         ) {
             self.id = id
             self.title = title
@@ -53,6 +59,8 @@ extension WidgetsResponseDTO {
             self.overview = overview
             self.releaseDate = releaseDate
             self.isAd = isAd
+            self.deviceAddress = deviceAddress
+            self.parameterID = parameterID
         }
     }
 }
@@ -76,7 +84,9 @@ extension WidgetsResponseDTO.WidgetDTO {
                 genre: genre?.toDomain(),
                 posterPath: posterPath,
                 overview: overview,
-                isAd: isAd ?? false
+                isAd: isAd ?? false,
+                deviceAddress: deviceAddress ?? 0,
+                parameterID: parameterID ?? 0
             )
         print("Mapped Widget: \(widget)")
         return widget

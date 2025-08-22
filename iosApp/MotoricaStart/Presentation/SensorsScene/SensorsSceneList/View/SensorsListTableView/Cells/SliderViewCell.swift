@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import Combine
+import shared
 
 final class SliderViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:SliderViewCell.self)
@@ -30,9 +31,9 @@ final class SliderViewCell: UITableViewCell {
     }
     
     
-    // новая попытка встроить SwiftUI
     private var cancellable: AnyCancellable?
     private var provider:   SliderRowProvider?
+    private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
     
     
     
@@ -73,12 +74,20 @@ final class SliderViewCell: UITableViewCell {
                 provider?.value_1 = Float(value.0)
                 provider?.value_2 = Float(value.1)
             }
+        
+        // Запускаем подписку на поток
+        job?.cancel()
+        job = WidgetStateBridge.shared.observeSliders { [weak self] paramRef in
+            self?.handle(paramRef, viewModel: viewModel)
+        }
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
+        job?.cancel()        // прекращаем наблюдение
+        job = nil
         provider    = nil
         contentConfiguration = nil
     }
@@ -91,5 +100,25 @@ final class SliderViewCell: UITableViewCell {
             widgetSliderTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             widgetSliderTitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
+    }
+    
+    private func handle(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
+        guard ref.addressDevice == viewModel.deviceAddress,
+              ref.parameterID   == viewModel.parameterID else { return }
+
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let sizeOf = PreferenceKeysUBI4ParameterTypeEnum()
+            .entries[Int(parameter.type)].sizeOf
+
+        let hex = parameter.data
+        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
+        let valueHex = String(hex[..<end])
+        let value = Int(valueHex, radix: 16) ?? 0
+
+        DispatchQueue.main.async { [weak self] in
+            self?.provider?.value_1 = Float(value)
+        }
     }
 }

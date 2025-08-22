@@ -57,7 +57,13 @@ class BleCommandExecutorIos(
         }
     }
 
-    override fun sendWidgetsArray() { /* Not required on iOS yet */ }
+    override fun sendWidgetsArray() {
+        // Обновляем хранилище/модель, затем…
+        WidgetStore.shared.setWidgets(widgets)
+
+        // …рассылаем сигнал
+        updateWidgets.send()
+    }
 
     override fun updateSerialNumber(deviceInfo: DeviceInfoStructs) { /* Not required on iOS yet */ }
 }

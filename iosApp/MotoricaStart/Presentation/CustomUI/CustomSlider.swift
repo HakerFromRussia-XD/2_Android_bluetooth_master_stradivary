@@ -49,3 +49,15 @@ struct CustomSlider: View {
         .frame(height: trackHeight)
     }
 }
+
+//
+//struct StepButton_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StepButton(label: "Test") {
+//            print("Button tapped")
+//        }
+//        .previewLayout(.sizeThatFits) // Чтобы не занимало весь экран
+//        .padding() // Чтобы кнопка не прилипала к краям
+//        .background(Color.black) // Фон для проверки цветов
+//    }
+//}

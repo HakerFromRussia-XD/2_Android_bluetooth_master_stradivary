@@ -137,6 +137,7 @@
 		659A45AF2DB92C81002BE2BC /* BluetoothSceneDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A45AE2DB92C7F002BE2BC /* BluetoothSceneDIContainer.swift */; };
 		659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A45B12DB92CE2002BE2BC /* BluetoothListCoordinator.swift */; };
 		659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */; };
+		65A053342E58A16A0057474E /* StepButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A053332E58A16A0057474E /* StepButton.swift */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
@@ -274,6 +275,7 @@
 		659A45AE2DB92C7F002BE2BC /* BluetoothSceneDIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSceneDIContainer.swift; sourceTree = "<group>"; };
 		659A45B12DB92CE2002BE2BC /* BluetoothListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothListCoordinator.swift; sourceTree = "<group>"; };
 		659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BluetoothList.storyboard; sourceTree = "<group>"; };
+		65A053332E58A16A0057474E /* StepButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepButton.swift; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
@@ -677,7 +679,7 @@
 			isa = PBXGroup;
 			children = (
 				659A45A52DB929A9002BE2BC /* BluetoothScene */,
-				1FE49D7C230AA7C200D1D42E /* MoviesScene */,
+				1FE49D7C230AA7C200D1D42E /* SensorsScene */,
 				1FC8B6E4230AF89A005DBF44 /* Utils */,
 				65B52B0D2DF704F100FE1430 /* CustomUI */,
 			);
@@ -692,14 +694,14 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
-		1FE49D71230AA7C200D1D42E /* MoviesListTableView */ = {
+		1FE49D71230AA7C200D1D42E /* SensorsListTableView */ = {
 			isa = PBXGroup;
 			children = (
 				1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */,
 				654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */,
 				1FE49D72230AA7C200D1D42E /* Cells */,
 			);
-			path = MoviesListTableView;
+			path = SensorsListTableView;
 			sourceTree = "<group>";
 		};
 		1FE49D72230AA7C200D1D42E /* Cells */ = {
@@ -720,16 +722,16 @@
 			path = SwiftUI;
 			sourceTree = "<group>";
 		};
-		1FE49D7C230AA7C200D1D42E /* MoviesScene */ = {
+		1FE49D7C230AA7C200D1D42E /* SensorsScene */ = {
 			isa = PBXGroup;
 			children = (
 				1F16031E2426922E00C173C6 /* Flows */,
-				1FE49D81230AA7C200D1D42E /* MoviesList */,
+				1FE49D81230AA7C200D1D42E /* SensorsSceneList */,
 				1FE49D7F230AA7C200D1D42E /* MovieDetails */,
 				1FE49D7D230AA7C200D1D42E /* MoviesQueriesList */,
 				1FB0903B2437660D00DBE132 /* Behaviors */,
 			);
-			path = MoviesScene;
+			path = SensorsScene;
 			sourceTree = "<group>";
 		};
 		1FE49D7D230AA7C200D1D42E /* MoviesQueriesList */ = {
@@ -750,13 +752,13 @@
 			path = MovieDetails;
 			sourceTree = "<group>";
 		};
-		1FE49D81230AA7C200D1D42E /* MoviesList */ = {
+		1FE49D81230AA7C200D1D42E /* SensorsSceneList */ = {
 			isa = PBXGroup;
 			children = (
 				1FE49D98230AEB2C00D1D42E /* ViewModel */,
 				1FE49D99230AEB4000D1D42E /* View */,
 			);
-			path = MoviesList;
+			path = SensorsSceneList;
 			sourceTree = "<group>";
 		};
 		1FE49D93230AEAB300D1D42E /* ViewModel */ = {
@@ -818,7 +820,7 @@
 			isa = PBXGroup;
 			children = (
 				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
-				1FE49D71230AA7C200D1D42E /* MoviesListTableView */,
+				1FE49D71230AA7C200D1D42E /* SensorsListTableView */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1017,6 +1019,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
 			path = CustomUI;
@@ -1238,6 +1241,7 @@
 				1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */,
 				1F4102F4240BEE6A00EC014A /* UseCase.swift in Sources */,
 				FC74081A2165574400FE52A5 /* WidgetQuery.swift in Sources */,
+				65A053342E58A16A0057474E /* StepButton.swift in Sources */,
 				1FFF12A72439FA9E00937EE4 /* CoreDataWidgetsResponseStorage.swift in Sources */,
 				1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */,
 				1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */,

@@ -76,20 +76,17 @@ final class SliderViewCell: UITableViewCell {
             }
         
         // Запускаем подписку на поток
-        job?.cancel()
-        WidgetStateBridge.shared.observeSliders{ [weak self] paramRef in
+        job?.cancel(cause: nil)
+        job = WidgetStateBridge.shared.observeSliders{ [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
         }
-//        job = WidgetStateBridge.shared.observeSliders { [weak self] paramRef in
-//            self?.updateUI(paramRef, viewModel: viewModel)
-//        }
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
-        job?.cancel()        // прекращаем наблюдение
+        job?.cancel(cause: nil)        // прекращаем наблюдение
         job = nil
         provider    = nil
         contentConfiguration = nil
@@ -106,22 +103,22 @@ final class SliderViewCell: UITableViewCell {
     }
     
     private func updateUI(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
-//        guard ref.addressDevice == viewModel.deviceAddress,
-//              ref.parameterID   == viewModel.parameterID else { return }
-//
-//        let parameter = ParameterProvider.Companion()
-//            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
-//
-//        let sizeOf = PreferenceKeysUBI4ParameterTypeEnum()
-//            .entries[Int(parameter.type)].sizeOf
-//
-//        let hex = parameter.data
-//        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
-//        let valueHex = String(hex[..<end])
-//        let value = Int(valueHex, radix: 16) ?? 0
-//
-//        DispatchQueue.main.async { [weak self] in
-//            self?.provider?.value_1 = Float(value)
-//        }
+        guard ref.addressDevice == viewModel.deviceAddress,
+              ref.parameterID   == viewModel.parameterID else { return }
+
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum. //PreferenceKeysUBI4ParameterTypeEnum()
+            //.entries[Int(parameter.type)].sizeOf
+
+        let hex = parameter.data
+        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
+        let valueHex = String(hex[..<end])
+        let value = Int(valueHex, radix: 16) ?? 0
+
+        DispatchQueue.main.async { [weak self] in
+            self?.provider?.value_1 = Float(value)
+        }
     }
 }

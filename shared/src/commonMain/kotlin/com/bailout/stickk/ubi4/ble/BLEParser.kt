@@ -52,14 +52,14 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.AdditionalParameterInfoType
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
@@ -175,40 +175,40 @@ class BLEParser(
 
                        platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
                         when (packageCodeRequest) {
-                            PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 startSystemUpdateFlow.tryEmit(statusCode)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 1) читаем первый payload-байт (или 0, если пришло меньше)
                                 val statusByte = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // 2) пробуем найти в enum, иначе дефолтим на MAIN_APP
-                                val runType = PreferenceKeysUBI4.RunProgramType.values()
+                                val runType = PreferenceKeysUbi4.RunProgramType.values()
                                     .firstOrNull { it.code == statusByte }
-                                    ?: PreferenceKeysUBI4.RunProgramType.MAIN_APP
+                                    ?: PreferenceKeysUbi4.RunProgramType.MAIN_APP
                                 platformLog("FW_FLOW", "GET_RUN_PROGRAM_TYPE ← addr=$deviceAddress  runType=$runType")
                                 runProgramTypeFlow.tryEmit(Pair(deviceAddress, runType))
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 2) Безопасно достаём байт (или 0, если данных меньше)
                                 val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // 3) Мапим в enum, дефолтим в IDLE
-                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                val status = PreferenceKeysUbi4.BootloaderStatus.values()
                                     .firstOrNull { it.code == statusCode }
-                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                    ?: PreferenceKeysUbi4.BootloaderStatus.IDLE
                                 bootloaderStatusFlow.tryEmit(status)
                             }
 
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
                                 val start = HEADER_BLE_OFFSET + 1
                                 val payload = data.drop(start).map { it.toInt().and(0xFF) }
 //                                platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
                                 bootloaderInfoFlow.tryEmit(payload)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
                                 val rawHex = data.joinToString(" ")
                                 platformLog("FW_FLOW", "CHECK_NEW_FW raw data = [$rawHex]")
                                     val payloadIndex = HEADER_BLE_OFFSET + 1
@@ -216,7 +216,7 @@ class BLEParser(
                                     platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
                                     FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val payload = data.copyOfRange(payloadIndex, data.size)
                                 val rawHex = data.joinToString(" ") { byte ->
@@ -227,17 +227,17 @@ class BLEParser(
                                 FirmwareInfoState.maxChunkSizeFlow.tryEmit(Pair(deviceAddress, info))
 
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.PRELOAD_INFO.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val code = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // мапим в enum BootloaderStatus
-                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                val status = PreferenceKeysUbi4.BootloaderStatus.values()
                                     .firstOrNull { it.code == code }
-                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                    ?: PreferenceKeysUbi4.BootloaderStatus.IDLE
                                 platformLog("FW_FLOW", "PRELOAD_INFO ← status=$status")
                                 FirmwareInfoState.preloadInfoFlow.tryEmit(status)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 2) читаем 2-байт little-endian ответ (сколько записано)
                                 val lo = data.getOrNull(payloadIndex    )?.toInt()?.and(0xFF) ?: 0
@@ -247,21 +247,21 @@ class BLEParser(
                                 platformLog("FW_FLOW_PARSER", "parsed writtenBytes=$writtenBytes")
                                 FirmwareInfoState.chunkWrittenFlow.tryEmit(deviceAddress to writtenBytes)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.CALCULATE_CRC.number -> {
                                 platformLog("FW_FLOW_PARSER", "CALCULATE_CRC response received — расчёт запущен, ждём DONE_CRC")
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.COMPLETE_UPDATE.number -> {
                                 val idx = HEADER_BLE_OFFSET + 1
                                 val raw = data.getOrNull(idx)?.toInt()?.and(0xFF) ?: 0
-                                val result = PreferenceKeysUBI4.CrcResult.from(raw)
-                                val isGood = (result == PreferenceKeysUBI4.CrcResult.GOOD_CRC_FIRMWARE)
+                                val result = PreferenceKeysUbi4.CrcResult.from(raw)
+                                val isGood = (result == PreferenceKeysUbi4.CrcResult.GOOD_CRC_FIRMWARE)
                                 platformLog("FW_FLOW_PARSER", "COMPLETE_UPDATE ← raw=0x${raw.toString(16)} result=$result good=$isGood")
                                 // эмитим именно сюда
                                 FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
                                 // по необходимости можно оставить updateCompleteFlow для других слушателей:
                                 FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE.number -> {
                                 platformLog("FW_FLOW_PARSER", "FINISH_SYSTEM_UPDATE ← OK")
                                 FirmwareInfoState.finishSystemUpdateFlow.tryEmit(Unit)
                             }

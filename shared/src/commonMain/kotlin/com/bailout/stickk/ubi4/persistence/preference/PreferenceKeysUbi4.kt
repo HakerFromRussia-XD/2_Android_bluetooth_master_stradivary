@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.persistence.preference
 
-object PreferenceKeysUBI4 {
+object PreferenceKeysUbi4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val NUM_GESTURES = 14
@@ -415,7 +415,7 @@ object PreferenceKeysUBI4 {
 
         val title: String get() = "$baseTitle version"
 
-        companion object {
+        companion object Companion {
             /** Быстрый поиск по `id`; если нет совпадения – `UNKNOWN` */
             fun from(id: Int) = values().firstOrNull { it.id == id } ?: UNKNOWN
         }
@@ -445,7 +445,7 @@ object PreferenceKeysUBI4 {
         //from(v: Int) берёт число v (байт, который прислала плата)
         // и ищет в списке констант RunProgramType ту одну, у которой поле code равно этому числу.
         // В итоге вы получаете не «сырое» число, а понятную константу MAIN_APP или BOOTLOADER.
-        companion object { fun from(code: Int) = values().first { it.code == code } }
+        companion object Companion { fun from(code: Int) = values().first { it.code == code } }
     }
 
     /** Ответ на GET_BOOTLOADER_STATUS */
@@ -458,7 +458,7 @@ object PreferenceKeysUBI4 {
         CHECK_INFO_FW          (0x06),
         PROCESSING_CRC         (0x07),
         DONE_CRC               (0x08);
-        companion object { fun from(code: Int) = values().first { it.code == code } }
+        companion object Companion { fun from(code: Int) = values().first { it.code == code } }
     }
 
 
@@ -472,7 +472,7 @@ object PreferenceKeysUBI4 {
         PART_NOT_WRITEN    (7),
         UNKNOW_ERROR       (8);
 
-        companion object {
+        companion object Companion {
             fun from(code: Int) = values().firstOrNull { it.code == code }
                 ?: UNKNOW_ERROR
         }
@@ -488,7 +488,7 @@ object PreferenceKeysUBI4 {
         PART_NOT_WRITTEN   (7),
         UNKNOWN_ERROR      (8);
 
-        companion object {
+        companion object Companion {
             fun from(code: Int) = values().firstOrNull { it.code == code }
                 ?: UNKNOWN_ERROR
         }
@@ -497,7 +497,7 @@ object PreferenceKeysUBI4 {
     enum class CrcResult(val code: Int) {
         BAD_CRC_FIRMWARE(0x1E),
         GOOD_CRC_FIRMWARE(0x2E);
-        companion object { fun from(code: Int) = values().firstOrNull { it.code == code } }
+        companion object Companion { fun from(code: Int) = values().firstOrNull { it.code == code } }
     }
 
     //Разделение на все мобильные строки

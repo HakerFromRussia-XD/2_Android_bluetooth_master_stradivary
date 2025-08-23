@@ -19,8 +19,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterTypeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterTypeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -153,8 +153,8 @@ class SliderDelegateAdapter(
             val labelsByOffset = UiState.labelCodesByOffset[labelKey]
 
             val langKey = if (systemLang().startsWith("ru", true)) "ru" else "en"
-            val dict = PreferenceKeysUBI4.parameterWidgetLabel[langKey]
-                ?: PreferenceKeysUBI4.parameterWidgetLabel["en"].orEmpty()
+            val dict = PreferenceKeysUbi4.parameterWidgetLabel[langKey]
+                ?: PreferenceKeysUbi4.parameterWidgetLabel["en"].orEmpty()
 
             fun resolve(off: Int?): String? =
                 off?.let { labelsByOffset?.get(it) }?.let { code -> dict[code.toString()] }
@@ -305,7 +305,7 @@ class SliderDelegateAdapter(
         val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
-                val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
+                val sizeOf = PreferenceKeysUbi4.ParameterTypeEnum.entries[parameter.type].sizeOf
                 widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
                     Log.d("SliderDebug", "Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}")
                     if (parameter.data.isNotEmpty()) {

@@ -28,8 +28,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -42,7 +42,6 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.renderer.XAxisRenderer
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
@@ -151,7 +150,7 @@ class PlotDelegateAdapter (
         Log.d("PlotDelegateAdapter", "deviceAddress = $addressDevice")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
-                if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                if (PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
                     ).type].sizeOf != 0
@@ -159,7 +158,7 @@ class PlotDelegateAdapter (
                     numberOfCharts = ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
-                    ).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                    ).parameterDataSize / PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
                     ).type].sizeOf

@@ -51,7 +51,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 //import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
 //import com.bailout.stickk.ubi4.ble.BleDevice;
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4;
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil;
@@ -64,7 +64,6 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
-import com.bailout.stickk.ubi4.ble.BleDeviceKmm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -246,20 +245,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         versionAppText.setText((this.getResources().getString(R.string.version_app)) + " " + versionName);
 
         devModeBtn.setOnClickListener(v -> {
-            if (loadBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED))) {
+            if (loadBool(String.valueOf(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED))) {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
                     window.setStatusBarColor(this.getResources().getColor(R.color.blue_status_bar));
                 }
                 mainLayout.setBackgroundResource(R.drawable.gradient_background);
-                saveBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED), false);
+                saveBool(String.valueOf(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED), false);
             } else {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
                     window.setStatusBarColor(this.getResources().getColor(R.color.ubi4_back));
                 }
                 mainLayout.setBackgroundColor(this.getResources().getColor(R.color.ubi4_back));//setBackgroundColor(#404040);
-                saveBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED), true);
+                saveBool(String.valueOf(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED), true);
             }
         });
 
@@ -491,20 +490,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION)));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
             }
-            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)))) {
+            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4)))) {
                 navigateToLEChart("device", device);
             }
         }
-        if (loadBool(String.valueOf(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION))) {
+        if (loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION))) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
             }
-            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)))) {
+            if (device.getAddress().toString().equals(loadString(String.valueOf(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4)))) {
                 navigateToLEChart("device", device);
             }
         }
@@ -792,7 +791,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);
         acteveteRssiShow = loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW);
-        if (loadBool(String.valueOf(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED))) {
+        if (loadBool(String.valueOf(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED))) {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 Window window = this.getWindow();
                 window.setStatusBarColor(this.getResources().getColor(R.color.color_primary));

@@ -33,10 +33,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.jakewharton.rxbinding2.view.RxView
@@ -147,8 +147,8 @@ class UBI4GripperScreenWithEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
-        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
-        gestureNumber = mSettings!!.getInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, 0)
+        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
 
 
         angleFinger1 = 0
@@ -210,10 +210,10 @@ class UBI4GripperScreenWithEncodersActivity
                     gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
 
 
-                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                     for (i in 0 until gestureNameList.size) {
-                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                        mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
                     editMode = false
 
@@ -271,10 +271,10 @@ class UBI4GripperScreenWithEncodersActivity
             .subscribe {
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
-                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                     for (i in 0 until gestureNameList.size) {
-                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                        mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
                 }
                 finish()
@@ -766,11 +766,11 @@ class UBI4GripperScreenWithEncodersActivity
     }
     private fun loadGestureNameList() {
         val text = "load not work"
-        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, text)
+        val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, text)
         gestureNameList.clear()
-        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
+        for (i in 0 until PreferenceKeysUbi4.NUM_GESTURES) {
             gestureNameList.add(
-                mSettings!!.getString((PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i), text).toString()
+                mSettings!!.getString((PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i), text).toString()
             )
         }
     }

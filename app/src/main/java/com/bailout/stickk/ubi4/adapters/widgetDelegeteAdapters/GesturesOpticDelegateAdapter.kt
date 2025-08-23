@@ -30,10 +30,9 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
@@ -52,7 +51,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import java.util.Locale
 import java.util.stream.Collectors
 
 @Suppress("DEPRECATION")
@@ -179,7 +177,7 @@ class GesturesOpticDelegateAdapter(
 
         collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(root.context))
 
-        val savedHideState = main.getInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
+        val savedHideState = main.getInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
         if (hideFactoryCollectionGestures) {
             hideCollectionBtn.rotation = 0F
@@ -217,7 +215,7 @@ class GesturesOpticDelegateAdapter(
         }
 
 
-        val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        val savedFilter = main.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
         if (savedFilter == 2) {
             activeGestureFragmentFilterFlow.value = 2
             requestRotationGroupWithRetry(
@@ -240,7 +238,7 @@ class GesturesOpticDelegateAdapter(
         }
 
         rotationGroupSelectBtn.setOnClickListener {
-            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 2)
+            main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 2)
             activeGestureFragmentFilterFlow.value = 2
             activeGestureNameCl.visibility = View.GONE
             onRequestRotationGroup(
@@ -252,13 +250,13 @@ class GesturesOpticDelegateAdapter(
             )
         }
         collectionOfGesturesSelectBtn.setOnClickListener {
-            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
+            main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
             activeGestureFragmentFilterFlow.value = 1
             activeGestureNameCl.visibility = View.VISIBLE
 
         }
         sprGesturesSelectBtn.setOnClickListener {
-            main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 3)
+            main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 3)
             activeGestureFragmentFilterFlow.value = 3
             activeGestureNameCl.visibility = View.GONE
             onRequestBindingGroup(
@@ -297,7 +295,7 @@ class GesturesOpticDelegateAdapter(
                         .setDuration(ANIMATION_DURATION.toLong())
                 }, ANIMATION_DURATION.toLong())
             }
-            main.saveInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, if (hideFactoryCollectionGestures) 1 else 0)
+            main.saveInt(PreferenceKeysUbi4.LAST_HIDE_COLLECTION_BTN_STATE, if (hideFactoryCollectionGestures) 1 else 0)
 
         }
 
@@ -360,7 +358,7 @@ class GesturesOpticDelegateAdapter(
                     63 + i
                 )
 
-                main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
+                main.saveInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
 
@@ -768,11 +766,11 @@ class GesturesOpticDelegateAdapter(
     override fun GesturesItem.getItemId(): Any = title
 
     private fun loadSavedGestureNames(context: Context) {
-        val sp = context.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
-        val macKey = sp.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "default") ?: "default"
+        val sp = context.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        val macKey = sp.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "default") ?: "default"
         gestureNameList.clear()
         for (i in 0 until 8) {
-            val key = PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i
+            val key = PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i
             val name = sp.getString(key, "Gesture ${i + 1}") ?: "Gesture ${i + 1}"
             gestureNameList.add(name)
         }
@@ -780,7 +778,7 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun updateGestureButtonsUI(binding: Ubi4WidgetGesturesOptic1Binding) {
-        for (i in 1..PreferenceKeysUBI4.NUM_GESTURES) {
+        for (i in 1..PreferenceKeysUbi4.NUM_GESTURES) {
             try {
                 // Получаем ссылку на TextView через рефлексию (как уже делается в onBind)
                 val field = binding::class.java.getDeclaredField("gesture${i}NameTv")

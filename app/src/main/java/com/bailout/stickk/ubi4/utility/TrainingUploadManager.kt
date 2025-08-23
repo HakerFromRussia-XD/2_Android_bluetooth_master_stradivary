@@ -6,7 +6,7 @@ import android.widget.Toast
 import com.bailout.stickk.ubi4.data.network.SharedFile
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -134,9 +134,9 @@ object TrainingUploadManager {
     }
 
     private fun getNextCheckpointNumber(ctx: Context): Int =
-        ctx.getSharedPreferences(PreferenceKeysUBI4.TRAINING_PREFS, Context.MODE_PRIVATE).run {
-            val cur = getInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, 1)
-            edit().putInt(PreferenceKeysUBI4.KEY_CHECKPOINT_NUMBER, cur + 1).apply()
+        ctx.getSharedPreferences(PreferenceKeysUbi4.TRAINING_PREFS, Context.MODE_PRIVATE).run {
+            val cur = getInt(PreferenceKeysUbi4.KEY_CHECKPOINT_NUMBER, 1)
+            edit().putInt(PreferenceKeysUbi4.KEY_CHECKPOINT_NUMBER, cur + 1).apply()
             cur
         }
 }

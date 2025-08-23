@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.BleFirmwareUpdater
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderBoardItemUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -102,7 +102,7 @@ class DialogManager(
                         }
                     }
                     val startStatus = updater.startSystemUpdate()
-                    if (startStatus != PreferenceKeysUBI4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
+                    if (startStatus != PreferenceKeysUbi4.StartSystemUpdateStatus.NEW_FW_ACCEPT) {
                         main?.showToast("Не удалось начать обновление (status=$startStatus)")
                         progressDialog?.dismiss()
                         currentDialog?.dismiss()
@@ -117,7 +117,7 @@ class DialogManager(
 
                     // 4) CHECK_NEW_FW
                     val checkStatus = updater.checkNewFirmware(addr, fileItem)
-                    if (checkStatus != PreferenceKeysUBI4.CheckNewFwStatus.NEW_FW_ACCEPT) {
+                    if (checkStatus != PreferenceKeysUbi4.CheckNewFwStatus.NEW_FW_ACCEPT) {
                         progressDialog?.dismiss()
                         main?.showToast("Модуль не готов к записи (status=$checkStatus")
                         return@launch

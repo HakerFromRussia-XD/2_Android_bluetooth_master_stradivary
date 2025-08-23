@@ -3,30 +3,30 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.WRITE_FW_COMMAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.INICIALIZE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DATA_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DATA_TRANSFER_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DEVICE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.WRITE_FW_COMMAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_DATA
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.PRELOAD_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.CALCULATE_CRC
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.COMPLETE_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -38,14 +38,14 @@ object BLECommands {
     fun requestSubDevices(): ByteArray {
         val header = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
             0x00,
             0x00
         )
-        val data = byteArrayOf(READ_SUB_DEVICE_INFO.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_SUB_DEVICE_INFO.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -54,14 +54,14 @@ object BLECommands {
     fun requestSubDevicesOld(): ByteArray {
         val header = byteArrayOf(
             0x00,
-            DATA_MANAGER.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DATA_MANAGER.number,
             0x00,
             0x00,
             0x00,
             0x00,
             0x00
         )
-        val data = byteArrayOf(READ_DATA.number, DTE_SYSTEM_DEVICES.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DATA.number, DTE_SYSTEM_DEVICES.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -74,7 +74,7 @@ object BLECommands {
     ): ByteArray {
         val header = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -82,7 +82,7 @@ object BLECommands {
             0x00
         )
         val data = byteArrayOf(
-            READ_SUB_DEVICE_PARAMETERS.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_SUB_DEVICE_PARAMETERS.number,
             subDeviceAddress.toByte(),
             startIndex.toByte(),
             quantitiesReadParameters.toByte()
@@ -96,7 +96,7 @@ object BLECommands {
     fun requestSubDeviceAdditionalParametrs(subDeviceAddress: Int, idParameter: Int): ByteArray {
         val header = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -104,7 +104,7 @@ object BLECommands {
             0x00
         )
         val data = byteArrayOf(
-            READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number,
             subDeviceAddress.toByte(),
             idParameter.toByte()
         )
@@ -116,7 +116,7 @@ object BLECommands {
     fun requestTransferFlow(startTransfer: Int): ByteArray {
         val result = byteArrayOf(
             0x20,
-            DATA_TRANSFER_SETTINGS.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DATA_TRANSFER_SETTINGS.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -132,7 +132,7 @@ object BLECommands {
     fun requestInicializeInformation(): ByteArray {
         val header = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -140,7 +140,7 @@ object BLECommands {
             0x00
         )
         val data = byteArrayOf(
-            INICIALIZE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.INICIALIZE_INFORMATION.number,
             0x02
         )
         header[3] = data.size.toByte()
@@ -151,13 +151,13 @@ object BLECommands {
     fun requestBaseParametrInfo(startParametrNum: Byte, countReadParameters: Byte): ByteArray {
         val result = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
             0x00,
             0x00,
-            READ_DEVICE_PARAMETRS.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DEVICE_PARAMETRS.number,
             startParametrNum,
             countReadParameters
         )
@@ -169,7 +169,7 @@ object BLECommands {
     fun requestAdditionalParametrInfo(idParameter: Byte): ByteArray {
         val header = byteArrayOf(
             0x20,
-            DEVICE_INFORMATION.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_INFORMATION.number,
             0x00,
             0x00, // здесь запишем длину
             0x00,
@@ -177,7 +177,7 @@ object BLECommands {
             0x00
         )
         val data = byteArrayOf(
-            READ_DEVICE_ADDITIONAL_PARAMETRS.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DEVICE_ADDITIONAL_PARAMETRS.number,
             idParameter
         )
         header[3] = data.size.toByte()
@@ -298,7 +298,7 @@ object BLECommands {
     fun requestProductInfoType(deviceAddress: Byte = 0x00): ByteArray {
         val header = byteArrayOf(
             0x20.toByte(),
-            DATA_MANAGER.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DATA_MANAGER.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -306,7 +306,7 @@ object BLECommands {
             deviceAddress
         )
         val data = byteArrayOf(
-            READ_DATA.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DATA.number,
             DTCE_DEVICE_INFO_TYPE.number
         )
         header[3] = data.size.toByte()
@@ -317,7 +317,7 @@ object BLECommands {
     fun requestProductFWInfoType(deviceAddress: Int): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            DATA_MANAGER.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DATA_MANAGER.number,
             0x00,
             0x00, // будет установлено ниже
             0x00,
@@ -325,7 +325,7 @@ object BLECommands {
             deviceAddress.toByte()
         )
         val data = byteArrayOf(
-            READ_DATA.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DATA.number,
             DTCE_FW_INFO_TYPE.number
         )
         header[3] = data.size.toByte()
@@ -338,14 +338,14 @@ object BLECommands {
     fun requestRunProgramType(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),                               // read-request
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,                         // длина → ниже
             0x00,
             0x00,
             deviceAddress                       // адрес саб-платы
         )
-        val data = byteArrayOf(GET_RUN_PROGRAM_TYPE.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GET_RUN_PROGRAM_TYPE.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -354,7 +354,7 @@ object BLECommands {
     fun jumpToBootloader(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),                               // write-request
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
@@ -370,14 +370,14 @@ object BLECommands {
     fun requestStartSystemUpdate(deviceAddress: Byte = 0x00): ByteArray {
         val header = byteArrayOf(
             0x20.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,                                     // длина → выставим ниже
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(START_SYSTEM_UPDATE.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.START_SYSTEM_UPDATE.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -386,14 +386,14 @@ object BLECommands {
     fun getBootloaderInfo(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),                               // write-request
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(GET_BOOTLOADER_INFO.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GET_BOOTLOADER_INFO.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -402,14 +402,14 @@ object BLECommands {
     fun requestMaxChunkSize(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(GET_MAX_CHANK_SIZE.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GET_MAX_CHANK_SIZE.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -422,7 +422,7 @@ object BLECommands {
 
         val header = byteArrayOf(
             0xA0.toByte(), // write-request
-            WRITE_FW_COMMAND.number,          // базовая команда 0x03
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,          // базовая команда 0x03
             0x00,
             0x00,
             0x00,
@@ -431,7 +431,7 @@ object BLECommands {
         )
 
         val data = byteArrayOf(
-            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number
+            PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number
         ) + fwDesc
 
         val len = data.size
@@ -444,14 +444,14 @@ object BLECommands {
     fun requestPreloadInfo(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(PRELOAD_INFO.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PRELOAD_INFO.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -459,14 +459,14 @@ object BLECommands {
     fun requestBootloaderStatus(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00, // длина payload
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number)
+        val data = byteArrayOf(PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -474,7 +474,7 @@ object BLECommands {
     fun sendLoadNewFw(deviceAddress: Byte, offset: Int, chunk: ByteArray): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
@@ -488,7 +488,7 @@ object BLECommands {
             ((offset shr 24) and 0xFF).toByte()
         )
         val data = byteArrayOf(
-            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number
+            PreferenceKeysUbi4.FirmwareManagerCommand.LOAD_NEW_FW.number
         ) + offsetBytes + chunk
         header[3] = ( data.size and 0xFF).toByte()
         header[4] = (( data.size / 256) and 0xFF).toByte()
@@ -499,14 +499,14 @@ object BLECommands {
     fun requestCalculateCrc(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x01,
             0x00,
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(CALCULATE_CRC.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CALCULATE_CRC.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -516,14 +516,14 @@ object BLECommands {
     fun requestCompleteUpdate(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x01,
             0x00,
             0x00, // длина=1
             deviceAddress
         )
-        val data = byteArrayOf(COMPLETE_UPDATE.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.COMPLETE_UPDATE.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
@@ -532,7 +532,7 @@ object BLECommands {
     fun requestFinishSystemUpdate(deviceAddress: Byte = 0x00): ByteArray {
         val header = byteArrayOf(
             0x20.toByte(),
-            WRITE_FW_COMMAND.number,
+            com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.WRITE_FW_COMMAND.number,
             0x00,
             0x00,
             0x00,
@@ -540,7 +540,7 @@ object BLECommands {
             deviceAddress
         )
 
-        val data = byteArrayOf(FINISH_SYSTEM_UPDATE.number)
+        val data = byteArrayOf(com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FINISH_SYSTEM_UPDATE.number)
         // записываем длину payload в header[3..4]
         header[3] = (data.size and 0xFF).toByte()
         header[4] = ((data.size ushr 8) and 0xFF).toByte()

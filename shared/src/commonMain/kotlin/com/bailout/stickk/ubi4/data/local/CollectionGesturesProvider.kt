@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.data.local
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GestureEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GestureEnum
 import com.bailout.stickk.ubi4.resources.ResourceDrawable
 import com.bailout.stickk.ubi4.resources.ResourceProvider
 import com.bailout.stickk.ubi4.resources.ResourceString

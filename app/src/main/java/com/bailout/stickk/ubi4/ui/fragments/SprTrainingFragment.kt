@@ -32,8 +32,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.models.Emg8FileItem
 import com.bailout.stickk.ubi4.models.widgets.FileItem
 import com.bailout.stickk.ubi4.models.widgets.PlatformFile
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ARG_LAST_EMG8
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ARG_LAST_EMG8
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -72,7 +72,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private val repo = Ubi4TrainingRepository(Ubi4RequestsApi())
 
-    private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
+    private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, MODE_PRIVATE) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -245,15 +245,15 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     /** Отправка + единоразовый retry при 401 */
     private suspend fun uploadWithAuthRetry(selectedEmg8: List<File>) {
-        var token = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
-        var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+        var token = prefs.getString(PreferenceKeysUbi4.KEY_TOKEN, "") ?: ""
+        var serial = prefs.getString(PreferenceKeysUbi4.KEY_SERIAL, "") ?: ""
 
         if (token.isBlank() || serial.isBlank()) {
             serial = main?.getCurrentSerial() ?: ""
             token = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
             prefs.edit()
-                .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
-                .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                .putString(PreferenceKeysUbi4.KEY_TOKEN, token)
+                .putString(PreferenceKeysUbi4.KEY_SERIAL, serial)
                 .apply()
 
             // паспорт
@@ -273,7 +273,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             // если 401 — нужно определить по сообщению/типу; примерно:
             if (e.message?.contains("401") == true) {
                 val fresh = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
-                prefs.edit().putString(PreferenceKeysUBI4.KEY_TOKEN, fresh).apply()
+                prefs.edit().putString(PreferenceKeysUbi4.KEY_TOKEN, fresh).apply()
                 doUpload(fresh)
             } else {
                 throw e
@@ -641,9 +641,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 // авторизация
                 val token  = repo.fetchTokenBySerial(API_KEY, serial, pass)
                 prefs.edit()
-                    .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
-                    .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
-                    .putString(PreferenceKeysUBI4.KEY_PASSWORD, pass)
+                    .putString(PreferenceKeysUbi4.KEY_TOKEN, token)
+                    .putString(PreferenceKeysUbi4.KEY_SERIAL, serial)
+                    .putString(PreferenceKeysUbi4.KEY_PASSWORD, pass)
                     .apply()
 
                 // скачиваем паспорт
@@ -670,7 +670,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     companion object {
         fun newInstance(lastEmg8: String): SprTrainingFragment =
             SprTrainingFragment().apply {
-                arguments = Bundle().apply { putString(PreferenceKeysUBI4.ARG_LAST_EMG8, lastEmg8) }
+                arguments = Bundle().apply { putString(PreferenceKeysUbi4.ARG_LAST_EMG8, lastEmg8) }
             }
 
 //        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<-  Макс Емец

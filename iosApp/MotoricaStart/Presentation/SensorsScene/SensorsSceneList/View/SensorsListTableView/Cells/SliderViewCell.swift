@@ -109,8 +109,12 @@ final class SliderViewCell: UITableViewCell {
 //        let sizeOf = ParameterTypeEnum.values()[Int(parameter.type)].sizeOf
 //        let sizeOf = ParameterTypeEnum.values()[Int(parameter.type)].allSatisfy({ $0.hashValue == Int(parameter.type).hashValue }) ? Int(parameter.type) : 1
 //        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum.values()[Int(parameter.type)].sizeOf //PreferenceKeysUbi4ParameterTypeEnum().entries[Int(parameter.type)].sizeOf
-        guard let typeEnum = ParameterTypeEnum(rawValue: Int32(parameter.type)) else { return }
-        let sizeOf = Int(typeEnum.sizeOf)
+//        guard let typeEnum = ParameterTypeEnum(rawValue: Int32(parameter.type)) else { return }
+//        let sizeOf = Int(typeEnum.sizeOf)
+        let ordinal = Int(parameter.type)
+        let entries = ParameterTypeEnum.values()
+        guard entries.indices.contains(ordinal) else { return }
+        let sizeOf = Int(entries[ordinal].sizeOf)
 
         let hex = parameter.data
         let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)

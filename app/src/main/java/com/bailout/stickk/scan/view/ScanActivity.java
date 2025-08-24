@@ -518,7 +518,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //        }
 //        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
 //            String lastMac1 = loadString(PreferenceKeys.LAST_CONNECTION_MAC);
-//            String lastMac2 = loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4);
+//            String lastMac2 = loadString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4);
 //            if (device.getAddress().equals(lastMac1) || device.getAddress().equals(lastMac2)) {
 //                Log.d("smartConnection", "Устройство совпадает со сохранённым MAC, выполняем переход: " + device.getAddress());
 //                navigateToLEChart("device", device);

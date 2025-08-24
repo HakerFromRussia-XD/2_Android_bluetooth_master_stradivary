@@ -5,7 +5,7 @@
 //import com.bailout.stickk.ubi4.ble.ParameterProvider
 //import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 //import com.bailout.stickk.ubi4.models.PlotParameterRef
-//import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+//import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 //import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 //import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 //import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.activeGestureFlow
@@ -115,7 +115,7 @@
 //        val bleParser = BLEParser()
 //        val param = BaseParameterInfoStruct(
 //            ID = 5,
-//            dataCode = PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number, // 8
+//            dataCode = PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number, // 8
 //            parameterDataSize = 6,
 //            data = ""
 //        )

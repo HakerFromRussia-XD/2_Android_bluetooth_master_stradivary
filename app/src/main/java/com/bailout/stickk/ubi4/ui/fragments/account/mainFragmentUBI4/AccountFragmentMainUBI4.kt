@@ -260,8 +260,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 //                    System.err.println("clientId: ${clientId}")
 //                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
 //                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
 //                    requestDeviceList()
 //                },
 //                { error ->
@@ -360,12 +360,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 //        CoroutineScope(Dispatchers.Main).launch {
 //            myRequests!!.getRequestDeviceInfo(
 //                { deviceInfo ->
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
 //                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
 //                    // ... (другие логи)
 //                },

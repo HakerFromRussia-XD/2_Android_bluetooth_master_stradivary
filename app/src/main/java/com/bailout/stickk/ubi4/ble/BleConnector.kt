@@ -10,7 +10,7 @@
 //import android.widget.ExpandableListView
 //import android.widget.SimpleExpandableListAdapter
 //import com.bailout.stickk.scan.view.ScanActivity
-//import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+//import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 //import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 //
 //class BleConnector(
@@ -46,7 +46,7 @@
 //     * Сбрасывает сохранённый MAC-адрес последнего подключения.
 //     */
 //    private fun resetLastMAC() {
-//        settings.edit().putString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null").apply()
+//        settings.edit().putString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "null").apply()
 //    }
 //
 //    /**

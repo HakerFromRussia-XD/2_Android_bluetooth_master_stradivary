@@ -33,7 +33,7 @@ class BleFirmwareUpdater {
     // Фиксированный таймаут ожидания подтверждения записи чанка (мс)
     private val FIXED_WRITE_TIMEOUT_MS = 500L
 
-    suspend fun startSystemUpdate(): com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.StartSystemUpdateStatus {
+    suspend fun startSystemUpdate(): StartSystemUpdateStatus {
         Log.d("FW_FLOW", "TX START_SYSTEM_UPDATE")
         main?.bleCommandWithQueue(
             BLECommands.requestStartSystemUpdate(),
@@ -90,7 +90,7 @@ class BleFirmwareUpdater {
         return payload
     }
 
-    suspend fun checkNewFirmware(addr: Int, fileItem: FirmwareFileItem): com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CheckNewFwStatus {
+    suspend fun checkNewFirmware(addr: Int, fileItem: FirmwareFileItem): CheckNewFwStatus {
         Log.d("FW_FLOW", "TX CHECK_NEW_FW")
         val descriptor = FirmwareUpdateUtils.buildFwInfoDescriptor(fileItem.file)
         Log.d("FW_DESC", descriptor.joinToString(" ") { "%02X".format(it) })

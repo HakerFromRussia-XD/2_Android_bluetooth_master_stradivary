@@ -35,10 +35,6 @@ final class SliderViewCell: UITableViewCell {
     private var provider:   SliderRowProvider?
     private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
     
-    
-    
-    
-    
 
     override func awakeFromNib() { super.awakeFromNib() }
     
@@ -109,8 +105,11 @@ final class SliderViewCell: UITableViewCell {
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
 
-        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum. //PreferenceKeysUBI4ParameterTypeEnum()
-            //.entries[Int(parameter.type)].sizeOf
+        let typeIndex = Int(parameter.type)
+        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum
+            .values()[typeIndex]
+            .sizeOf
+//        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum.values()[Int(parameter.type)].sizeOf //PreferenceKeysUbi4ParameterTypeEnum().entries[Int(parameter.type)].sizeOf
 
         let hex = parameter.data
         let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)

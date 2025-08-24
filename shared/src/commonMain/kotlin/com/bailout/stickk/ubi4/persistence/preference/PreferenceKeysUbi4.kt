@@ -3,7 +3,7 @@ import kotlin.experimental.ExperimentalObjCName
 import kotlin.native.ObjCName
 
 //@file:OptIn(kotlin.experimental.ExperimentalObjCName::class)
-//@ObjCName("PreferenceKeysUbi4", exact = true)
+@ObjCName("PreferenceKeysUbi4", exact = true)
 object PreferenceKeysUbi4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val APP_PREFERENCES = "APP_PREFERENCES"
@@ -203,7 +203,7 @@ object PreferenceKeysUbi4 {
         PLTE_LIMIT_NUM      (0x04)
     }
 
-    //@ObjCName("ParameterTypeEnum", exact = true)
+    @ObjCName("ParameterTypeEnum", exact = true)
     enum class ParameterTypeEnum (val number: Int, val sizeOf: Int) {
         PARTE_UNKNOW            (0,0),
         PARTE_BOOL_TYPE         (1,0),

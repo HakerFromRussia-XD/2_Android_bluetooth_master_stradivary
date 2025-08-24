@@ -106,7 +106,7 @@ final class SliderViewCell: UITableViewCell {
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
 
         let typeIndex = Int(parameter.type)
-        let sizeOf = PreferenceKeysUbi4.shared.ParameterTypeEnum.values()[Int(parameter.type)].sizeOf
+        let sizeOf = ParameterTypeEnum.values()[Int(parameter.type)].sizeOf
 //        let sizeOf = PreferenceKeysUbi4ParameterTypeEnum.values()[Int(parameter.type)].sizeOf //PreferenceKeysUbi4ParameterTypeEnum().entries[Int(parameter.type)].sizeOf
 
         let hex = parameter.data

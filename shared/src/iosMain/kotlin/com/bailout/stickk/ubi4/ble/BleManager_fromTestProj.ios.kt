@@ -75,7 +75,7 @@ actual class BleManagerKmm actual constructor() {
             didFailToConnectPeripheral: CBPeripheral,
             error: NSError?
         ) {
-            print("BLE-CONNECT подключение не удалось!!!")
+            platformLog("[BLE-CONNECT]","подключение не удалось!!!")
         }
 
         @ObjCSignatureOverride
@@ -84,7 +84,7 @@ actual class BleManagerKmm actual constructor() {
             didDisconnectPeripheral: CBPeripheral,
             error: NSError?
         ) {
-            print("BLE-CONNECT устройство отключено!!!")
+            platformLog("[BLE-CONNECT]","устройство отключено!!!")
         }
 
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
@@ -110,7 +110,7 @@ actual class BleManagerKmm actual constructor() {
             central: CBCentralManager,
             didConnectPeripheral: CBPeripheral
         ) {
-            print("BLE-CONNECT коннект состоялся!!!")
+            platformLog("[BLE-CONNECT]","коннект состоялся!!!")
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             didConnectPeripheral.delegate = this
@@ -121,7 +121,7 @@ actual class BleManagerKmm actual constructor() {
             peripheral: CBPeripheral,
             didDiscoverServices: NSError?
         ) {
-            print("BLE-CONNECT начало процесса поиска сервисов")
+            platformLog("[BLE-CONNECT]","начало процесса поиска сервисов")
             (peripheral.services as? List<*>)?.forEach { any ->
                 val service = any as CBService
                 servicesMass.add(service)
@@ -134,7 +134,7 @@ actual class BleManagerKmm actual constructor() {
             didDiscoverCharacteristicsForService: CBService,
             error: NSError?
         ) {
-            print("BLE-CONNECT начало процесса поиска характеристик")
+            platformLog("[BLE-CONNECT]","начало процесса поиска характеристик")
             (didDiscoverCharacteristicsForService.characteristics as? List<*>)?.forEach {
                 val c = it as CBCharacteristic
                 characteristicsMass.add(c); peripheral.setNotifyValue(true, forCharacteristic = c)
@@ -147,11 +147,11 @@ actual class BleManagerKmm actual constructor() {
             didUpdateValueForCharacteristic: CBCharacteristic,
             error: NSError?
         ) {
-            print("BLE-CONNECT приём по идее")
+            platformLog("[BLE-CONNECT]","приём по идее")
             var dataCount = 0
             didUpdateValueForCharacteristic.value?.let { data: NSData ->
                 dataCount = data.length.toInt()
-                print("BLE-CONNECT приём dataCount = $dataCount")
+                platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
             }
         }
 
@@ -185,7 +185,7 @@ actual class BleManagerKmm actual constructor() {
         var connectedDevice: CBPeripheral?
         discovered.forEach {
             if (it.value.identifier.UUIDString == uuid) {
-                print("BLE-CONNECT from kmm ALL DEVICES $it сравниваем с ${uuid}")
+                platformLog("[BLE-CONNECT]","from kmm ALL DEVICES $it сравниваем с ${uuid}")
                 connectedDevice = it.value
                 manager.connectPeripheral(connectedDevice!!, options = null)
             }

@@ -28,7 +28,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         view.posterImagesRepository = posterImagesRepository
         return view
     }
-
+//    init?(coder: NSCoder, viewModel: WidgetsListViewModel) {
+//        self.viewModel = viewModel
+//        super.init(coder: coder)
+//    }
+//    required init?(coder: NSCoder) { fatalError("Use init(coder:viewModel:)") }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -122,7 +127,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
-        print("[BLE-CONNECT] Bottom button tapped")
         viewModel.sendBytes()
     }
     

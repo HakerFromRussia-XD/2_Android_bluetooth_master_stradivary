@@ -16,6 +16,7 @@ protocol WidgetsListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
+    func sendBytes()
 }
 
 protocol WidgetsListViewModelOutput {
@@ -137,9 +138,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         load(widgetQuery: widgetQuery, loading: .fullScreen)
     }
     
-    func sendBytes() {
+    internal func sendBytes() {
         let command = BLECommands.shared.requestInicializeInformation()
-//        let kb = KotlinByteArray(command)
+        command.debugPrint()
+        print("[BLE-COMMUNICATION] send:  Constants.MAIN_CHANNEL_CHARACTERISTIC = \(Constants.MAIN_CHANNEL_CHARACTERISTIC) Constants.WRITE = \(Constants.WRITE)")
 
         bleManager.sendBytesKmm(
             data: command,
@@ -147,6 +149,23 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
+    }
+}
+
+extension KotlinByteArray {
+    func debugPrint() {
+        var result = Data(capacity: Int(self.size))
+        
+        for i in 0..<self.size {
+            let int8Value = self.get(index: i)
+            let uint8Value = UInt8(bitPattern: int8Value)
+            result.append(uint8Value)
+        }
+        
+        let uint8Array = [UInt8](result)
+        let hexString = uint8Array.map { String(format: "%02X", $0) }.joined(separator: " ")
+        
+        print("[BLE-COMMUNICATION] send: \(hexString)")
     }
 }
 

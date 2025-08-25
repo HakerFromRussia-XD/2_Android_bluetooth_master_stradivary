@@ -1,11 +1,13 @@
 import UIKit
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let appDIContainer = AppDIContainer()
     var appFlowCoordinator: AppFlowCoordinator?
     var window: UIWindow?
+    let bleManager = BleManagerKmm()
     
     func application(
         _ application: UIApplication,

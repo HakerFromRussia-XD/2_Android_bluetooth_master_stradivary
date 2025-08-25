@@ -1,4 +1,5 @@
 import Foundation
+import shared
 
 final class AppDIContainer {
     
@@ -35,9 +36,7 @@ final class AppDIContainer {
     }
     
     // MARK: - Bluetooth
-    lazy var bluetoothRepository: BluetoothRepository = {
-        BluetoothRepositoryImpl()
-    }()
+    lazy var bleManager = BleManagerKmm()
     func makeBluetoothSceneDIContainer() -> BluetoothSceneDIContainer {
         let deps = BluetoothSceneDIContainer.Dependencies(
             bluetoothRepository: bluetoothRepository

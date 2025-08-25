@@ -606,6 +606,7 @@ class BLEParser(
             WRITE
         ) {}
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
+        platformLog("[BLE-COMMUNICATION]", "[BLE-COMMUNICATION] ОТВЕТ НА ЗАПРОС!!! parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
     }
 
     private fun parseReadDeviceParameters(receiveDataString: String) {

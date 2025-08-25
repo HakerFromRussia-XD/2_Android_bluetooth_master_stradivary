@@ -114,59 +114,5 @@ final class BluetoothListViewModel {
             typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
     }
 }

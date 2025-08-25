@@ -7,6 +7,13 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
+    private lazy var bottomButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Нажми меня", for: .normal)
+        button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private var viewModel: WidgetsListViewModel!
     private var posterImagesRepository: PosterImagesRepository?
@@ -15,7 +22,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     let storage = CoreDataWidgetsResponseStorage() 
 
     // MARK: - Lifecycle
-
     static func create(with viewModel: WidgetsListViewModel,posterImagesRepository: PosterImagesRepository?) -> WidgetsListViewController {
         let view = WidgetsListViewController.instantiateViewController()
         view.viewModel = viewModel
@@ -76,6 +82,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             self?.viewModel.didSearch(query: "My request")             // ← чтение идёт уже из свежего кэша
         }
         
+        view.addSubview(bottomButton)
+        NSLayoutConstraint.activate([
+            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
 //        let rawBytes: [UInt8] = [0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A]
 //        bleManager.startScan { BleDevice in
 //            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
@@ -109,7 +121,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     // MARK: - Private
-
+    @objc private func bottomButtonTapped() {
+        print("[BLE-CONNECT] Bottom button tapped")
+        viewModel.sendBytes()
+    }
+    
     private func setupViews() {
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle

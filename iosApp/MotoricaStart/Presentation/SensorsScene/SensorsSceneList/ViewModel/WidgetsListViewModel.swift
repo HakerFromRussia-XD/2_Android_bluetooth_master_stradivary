@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-
+import shared
 
 
 enum WidgetsListViewModelLoading {
@@ -38,6 +38,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     @Published private(set) var widgets: [Widget] = []
     private let searchWidgetsUseCase: SearchWidgetsUseCase
     private let actions: WidgetsListViewModelActions?
+    private let bleManager = BleManagerKmm()
     
     var currentPage: Int = 0
     var totalPageCount: Int = 1
@@ -130,20 +131,22 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             NSLocalizedString("No internet connection", comment: "") :
             NSLocalizedString("Failed loading widgets", comment: "")
     }
-    
-//    private func handle(dto: WidgetsResponseDTO) {
-//        let page = WidgetsPage(page: dto.page,
-//                              totalPages: dto.totalPages,
-//                              widgets: dto.widgets)
-//        pages.append(page)
-//
-//        // объединяем все страницы и пушим в @Published-свойство
-//        widgets = pages.flatMap(\.widgets)          // widgets — это @Published var widgets …
-//    }
 
     private func update(widgetQuery: WidgetQuery) {
         resetPages()
         load(widgetQuery: widgetQuery, loading: .fullScreen)
+    }
+    
+    func sendBytes() {
+        let command = BLECommands.shared.requestInicializeInformation()
+//        let kb = KotlinByteArray(command)
+
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
     }
 }
 

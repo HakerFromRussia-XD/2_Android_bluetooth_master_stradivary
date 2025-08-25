@@ -5,10 +5,6 @@ import shared
 
 final class SliderViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:SliderViewCell.self)
-    /// Identifier used when registering and dequeuing the cell
-//    static var reuseIdentifier: String {
-//        String(describing: self)
-//    }
     static let height = CGFloat(130)
     
     @IBOutlet private var widgetSliderTitleLabel: UILabel!
@@ -21,7 +17,7 @@ final class SliderViewCell: UITableViewCell {
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var numberCancellable: AnyCancellable?
 
-    // Assistant: Реализуем обязательный инициализатор для создания ячейки из кода
+    // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
@@ -121,8 +117,10 @@ final class SliderViewCell: UITableViewCell {
         let entries = ParameterTypeEnum.values()
         let count = Int(entries.size)
         guard ordinal >= 0 && ordinal < count,
-              let entry = entries.get(index: Int32(ordinal)) else { return }
+        let entry = entries.get(index: Int32(ordinal)) else { return }
         let sizeOf = Int(entry.sizeOf)
+        print("[BLE-CONNECT] in updateUI sizeOf: \(sizeOf)")
+        
 
         let hex = parameter.data
         let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)

@@ -3,11 +3,14 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.convert
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -23,6 +26,7 @@ import platform.Foundation.create
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.usePinned
 import platform.darwin.NSObject
+import platform.posix.memcpy
 
 
 /** Информация об обнаруженном устройстве */
@@ -147,11 +151,12 @@ actual class BleManagerKmm actual constructor() {
             didUpdateValueForCharacteristic: CBCharacteristic,
             error: NSError?
         ) {
-            platformLog("[BLE-CONNECT]","приём по идее")
             var dataCount = 0
             didUpdateValueForCharacteristic.value?.let { data: NSData ->
                 dataCount = data.length.toInt()
                 platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
+                val bytes = data.toByteArray()
+                BLEState.bleParser.parseReceivedData(bytes)
             }
         }
 
@@ -250,6 +255,18 @@ actual class BleManagerKmm actual constructor() {
         return this.usePinned { pinned ->
             // Печатаем CPointer<Byte> в качестве указателя на данные
             NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
+        }
+    }
+
+
+    @OptIn(ExperimentalForeignApi::class)
+    fun NSData.toByteArray(): ByteArray {
+        val length = this.length.toInt()
+        val bytes = this.bytes ?: return ByteArray(0)
+        return ByteArray(length).also { array ->
+            array.usePinned { pinned ->
+                memcpy(pinned.addressOf(0), bytes, length.convert())
+            }
         }
     }
 }

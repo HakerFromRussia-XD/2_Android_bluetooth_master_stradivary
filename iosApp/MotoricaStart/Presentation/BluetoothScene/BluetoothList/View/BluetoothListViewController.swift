@@ -311,6 +311,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
          return WidgetsSceneDIContainer.Dependencies(
             apiDataTransferService:   dataTransfer,
             imageDataTransferService: dataTransfer,
+            bleManager: viewModel.bleManager
          )
     }
 }

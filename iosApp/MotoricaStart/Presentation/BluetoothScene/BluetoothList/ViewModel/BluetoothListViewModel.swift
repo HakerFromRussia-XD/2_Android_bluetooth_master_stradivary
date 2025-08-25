@@ -14,7 +14,7 @@ final class BluetoothListViewModel {
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
-    private let bleManager : BleManagerKmm
+    let bleManager : BleManagerKmm
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository

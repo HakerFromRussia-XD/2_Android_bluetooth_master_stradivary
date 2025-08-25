@@ -6,7 +6,7 @@
 //
 import Foundation
 import Combine
-//import shared
+import shared
 
 final class BluetoothListViewModel {
     private var allDevices: [BLEDevice] = [] // хранение полного списка устройств
@@ -14,13 +14,17 @@ final class BluetoothListViewModel {
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
-//    private let bleManager = BleManagerKmm()
+    private let bleManager : BleManagerKmm
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository
     private var cancellables = Set<AnyCancellable>()
     
-    init(repository: BluetoothRepository = BluetoothRepositoryImpl()) {
+    init(
+        bleManager: BleManagerKmm,
+        repository: BluetoothRepository = BluetoothRepositoryImpl()
+    ) {
+        self.bleManager = bleManager
         self.repository = repository
         // При инициализации читаем сохранённый фильтр
         selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)

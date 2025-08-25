@@ -1,11 +1,13 @@
 import UIKit
 import SwiftUI
+import shared
 
 final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
     
     struct Dependencies {
         let apiDataTransferService: DataTransferService
         let imageDataTransferService: DataTransferService
+        let bleManager: BleManagerKmm
     }
     
     private let dependencies: Dependencies
@@ -67,6 +69,7 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
     func makeWidgetsListViewModel(actions: WidgetsListViewModelActions) -> WidgetsListViewModel {
         DefaultWidgetsListViewModel(
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),
+            bleManager: dependencies.bleManager,
             actions: actions
         )
     }

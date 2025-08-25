@@ -39,7 +39,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     @Published private(set) var widgets: [Widget] = []
     private let searchWidgetsUseCase: SearchWidgetsUseCase
     private let actions: WidgetsListViewModelActions?
-    private let bleManager = BleManagerKmm()
+    private let bleManager: BleManagerKmm
     
     var currentPage: Int = 0
     var totalPageCount: Int = 1
@@ -66,10 +66,12 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     
     init(
         searchMWidgetsUseCase: SearchWidgetsUseCase,
+        bleManager: BleManagerKmm,
         actions: WidgetsListViewModelActions? = nil,
         mainQueue: DispatchQueueType = DispatchQueue.main
     ) {
         self.searchWidgetsUseCase = searchMWidgetsUseCase
+        self.bleManager = bleManager
         self.actions = actions
         self.mainQueue = mainQueue
     }

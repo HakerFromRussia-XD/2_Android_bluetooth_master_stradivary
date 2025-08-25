@@ -30,15 +30,18 @@ final class AppDIContainer {
     func makeWidgetsSceneDIContainer() -> WidgetsSceneDIContainer {
         let dependencies = WidgetsSceneDIContainer.Dependencies(
             apiDataTransferService: apiDataTransferService,
-            imageDataTransferService: imageDataTransferService
+            imageDataTransferService: imageDataTransferService,
+            bleManager: bleManager
         )
         return WidgetsSceneDIContainer(dependencies: dependencies)
     }
     
     // MARK: - Bluetooth
     lazy var bleManager = BleManagerKmm()
+    lazy var bluetoothRepository: BluetoothRepository = BluetoothRepositoryImpl()
     func makeBluetoothSceneDIContainer() -> BluetoothSceneDIContainer {
         let deps = BluetoothSceneDIContainer.Dependencies(
+            bleManager: bleManager,
             bluetoothRepository: bluetoothRepository
         )
         return BluetoothSceneDIContainer(dependencies: deps)

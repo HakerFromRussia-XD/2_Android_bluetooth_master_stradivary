@@ -3,14 +3,13 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.convert
+import kotlinx.cinterop.usePinned
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -23,10 +22,11 @@ import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
 import platform.Foundation.create
-import kotlinx.cinterop.refTo
-import kotlinx.cinterop.usePinned
 import platform.darwin.NSObject
 import platform.posix.memcpy
+import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.data.parser.BLEParser
+import kotlinx.coroutines.MainScope
 
 
 /** Информация об обнаруженном устройстве */
@@ -61,13 +61,6 @@ actual class BleManagerKmm actual constructor() {
     private var selectedDevice: CBPeripheral? = null
 
     private var onChunkSent: (() -> Unit)? = null
-//    private data class PendingWrite(
-//        val peripheral: CBPeripheral,
-//        val serviceUuid: String,
-//        val characteristicUuid: String,
-//        val data: ByteArray
-//    )
-//    private var pendingWrite: PendingWrite? = null
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -204,8 +197,12 @@ actual class BleManagerKmm actual constructor() {
     }
 
 
-    private val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
+    internal val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
         dispatchSendBytesKmm(byteArray, command, type, onChunkSent)
+    }
+    init {
+        BLEState.bleParser = BLEParser(MainScope(), bleCommandExecutor, this)
+        platformLog("[BLE-COMMUNICATION]","инициализация BLEParser для iOS")
     }
 
     @Suppress("unused")

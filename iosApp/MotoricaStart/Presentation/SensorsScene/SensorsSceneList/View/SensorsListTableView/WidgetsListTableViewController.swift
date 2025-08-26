@@ -14,14 +14,15 @@ final class WidgetsListTableViewController: UITableViewController {
     var nextPageLoadingSpinner: UIActivityIndicatorView?
 
     // MARK: - Lifecycle
-
+    override func viewDidAppear(_ animated: Bool) {
+        // отключаем переход на предыдущий экран свайпом влево
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         // Assistant: Применяем начальный снапшот данных
         applySnapshot(animatingDifferences: false)
-        // отключаем переход на предыдущий экран свайпом влево
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
     }
     
     // Assistant: Заменяем reload() на применение снапшота, чтобы сохранять состояния ячеек

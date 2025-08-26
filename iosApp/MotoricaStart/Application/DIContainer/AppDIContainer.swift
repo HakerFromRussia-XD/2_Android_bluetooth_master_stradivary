@@ -37,7 +37,7 @@ final class AppDIContainer {
     }
     
     // MARK: - Bluetooth
-    lazy var bleManager = BleManagerKmm()
+    lazy var bleManager = BLEComponents.shared.bleManager
     lazy var bluetoothRepository: BluetoothRepository = BluetoothRepositoryImpl()
     func makeBluetoothSceneDIContainer() -> BluetoothSceneDIContainer {
         let deps = BluetoothSceneDIContainer.Dependencies(

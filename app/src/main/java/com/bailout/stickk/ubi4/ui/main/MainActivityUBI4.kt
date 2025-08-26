@@ -68,6 +68,7 @@ import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -327,6 +328,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        platformLog("[BLE-COMMUNICATION]","инициализация BLEParser для Android")
     }
 
     // сохранение и загрузка данных

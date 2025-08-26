@@ -4,8 +4,8 @@ object SampleGattAttributes {
 
     private val attributes: MutableMap<String, String> = mutableMapOf()
 
-    const val MAIN_CHANNEL_SERVICE = "43686172-4d74-1001-726b-526f64696f6e"
-    const val MAIN_CHANNEL_CHARACTERISTIC = "43680201-4d74-1001-726b-526f64696f6e"
+    const val MAIN_CHANNEL_SERVICE = "43686172-4D74-1001-726B-526F64696F6E"
+    const val MAIN_CHANNEL_CHARACTERISTIC = "43680201-4D74-1001-726B-526F64696F6E"
 
     var showEveryoneReceiveByte: Boolean = false
 

@@ -381,7 +381,9 @@ class BLEParser(
                 }
                 ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
-                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } }
+                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                    platformLog("[BLE-COMMUNICATION]", "slider update")
+                }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                     val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data
@@ -506,7 +508,6 @@ class BLEParser(
             }
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 parseInitializeInformation(receiveDataString)
-
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
                 try {
@@ -606,10 +607,11 @@ class BLEParser(
             WRITE
         ) {}
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
-        platformLog("[BLE-COMMUNICATION]", "[BLE-COMMUNICATION] ОТВЕТ НА ЗАПРОС!!! parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
+        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
     }
 
     private fun parseReadDeviceParameters(receiveDataString: String) {
+        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 2")
         platformLog("BLEParserTest", "▶️ parseReadDeviceParameters start, raw=${receiveDataString.take(40)}…")
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
         platformLog("BLEParser", "TEST parser 2 READ_DEVICE_PARAMETRS $receiveDataString")

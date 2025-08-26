@@ -66,7 +66,6 @@ kotlin {
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
                 optIn("kotlin.experimental.ExperimentalObjCName")
             }
-//            languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
         }
 
         commonMain.dependencies {

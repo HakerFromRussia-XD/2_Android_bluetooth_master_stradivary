@@ -381,7 +381,9 @@ class BLEParser(
                 }
                 ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
-                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) } }
+                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                platformLog("updateAllUITestSlider", "slider update")
+                }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                     val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data

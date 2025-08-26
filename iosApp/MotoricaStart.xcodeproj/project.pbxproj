@@ -3,10 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D907A692E5C8B2700A55863 /* StepButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */; };
+		0D907A6D2E5C945E00A55863 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
+		0D907A6E2E5C949D00A55863 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
+		0D907A732E5DA55C00A55863 /* ButtonVIewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */; };
+		0D907A762E5DA74D00A55863 /* ButtonVIewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */; };
+		0DCEF90B2E58A4DE00D5F3F4 /* StepButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */; };
 		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
 		1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0CEFCE23436B67004141FA /* ConnectionError.swift */; };
@@ -61,8 +67,6 @@
 		1F9035412307758D00DEA4BD /* PosterImagesRepositoryMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9035402307758D00DEA4BD /* PosterImagesRepositoryMock.swift */; };
 		1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA2048F242F528E000C4B56 /* LoadingView.swift */; };
 		1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA5338C201E1FDE00747E55 /* AppDelegate.swift */; };
-		1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
-		1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */; };
 		1FA533B2201EE2A500747E55 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533B1201EE2A500747E55 /* Movie.swift */; };
 		1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533D6201EF2B500747E55 /* AppDIContainer.swift */; };
 		1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533E1201EF5F700747E55 /* APIEndpoints.swift */; };
@@ -167,6 +171,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0D907A592E5C88E300A55863 /* PreviewHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PreviewHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonVIewCell.swift; sourceTree = "<group>"; };
+		0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepButton.swift; sourceTree = "<group>"; };
 		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -285,7 +292,28 @@
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0D907A702E5C957600A55863 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				PreviewHostApp.swift,
+			);
+			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		0D907A5A2E5C88E300A55863 /* PreviewHost */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (0D907A702E5C957600A55863 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PreviewHost; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		0D907A562E5C88E300A55863 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1F02DE2F22F8507500E40C3A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -514,6 +542,7 @@
 				1FA5338B201E1FDE00747E55 /* MotoricaStart */,
 				1FA533A0201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3322F8507500E40C3A /* MotoricaStartUITests */,
+				0D907A5A2E5C88E300A55863 /* PreviewHost */,
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
@@ -526,6 +555,7 @@
 				1FA53389201E1FDE00747E55 /* MotoricaStart.app */,
 				1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */,
 				1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */,
+				0D907A592E5C88E300A55863 /* PreviewHost.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -705,6 +735,7 @@
 		1FE49D72230AA7C200D1D42E /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */,
 				652136F42DF82876006AB049 /* SliderRow */,
 				1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
@@ -1017,6 +1048,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
 			path = CustomUI;
@@ -1043,6 +1075,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0D907A582E5C88E300A55863 /* PreviewHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0D907A642E5C88E500A55863 /* Build configuration list for PBXNativeTarget "PreviewHost" */;
+			buildPhases = (
+				0D907A552E5C88E300A55863 /* Sources */,
+				0D907A562E5C88E300A55863 /* Frameworks */,
+				0D907A572E5C88E300A55863 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0D907A5A2E5C88E300A55863 /* PreviewHost */,
+			);
+			name = PreviewHost;
+			packageProductDependencies = (
+			);
+			productName = PreviewHost;
+			productReference = 0D907A592E5C88E300A55863 /* PreviewHost.app */;
+			productType = "com.apple.product-type.application";
+		};
 		1F02DE3122F8507500E40C3A /* MotoricaStartUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F02DE3922F8507500E40C3A /* Build configuration list for PBXNativeTarget "MotoricaStartUITests" */;
@@ -1103,9 +1157,13 @@
 		1FA53381201E1FDE00747E55 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1020;
-				LastUpgradeCheck = 0940;
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					0D907A582E5C88E300A55863 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					1F02DE3122F8507500E40C3A = {
 						CreatedOnToolsVersion = 10.2.1;
 						ProvisioningStyle = Automatic;
@@ -1143,11 +1201,20 @@
 				1FA53388201E1FDE00747E55 /* MotoricaStart */,
 				1FA5339C201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3122F8507500E40C3A /* MotoricaStartUITests */,
+				0D907A582E5C88E300A55863 /* PreviewHost */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0D907A572E5C88E300A55863 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D907A6E2E5C949D00A55863 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1F02DE3022F8507500E40C3A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1165,15 +1232,14 @@
 			files = (
 				655830362DBBAEB400744D5C /* DeviceCell.xib in Resources */,
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
+				0D907A6D2E5C945E00A55863 /* Assets.xcassets in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,
 				6558303B2DBBAF4100744D5C /* inter.ttf in Resources */,
 				65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
-				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 				1FE49D88230AA7C200D1D42E /* MovieDetailsViewController.storyboard in Resources */,
-				1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */,
 				1FE49D86230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1213,6 +1279,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0D907A552E5C88E300A55863 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D907A762E5DA74D00A55863 /* ButtonVIewCell.swift in Sources */,
+				0D907A692E5C8B2700A55863 /* StepButton.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1F02DE2E22F8507500E40C3A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1249,6 +1324,7 @@
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
 				659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */,
+				0D907A732E5DA55C00A55863 /* ButtonVIewCell.swift in Sources */,
 				1FF53EB423688893008D6CCC /* DataTransferError+ConnectionError.swift in Sources */,
 				1F53E2B623125896008D6A05 /* UIViewController+AddChild.swift in Sources */,
 				65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */,
@@ -1257,6 +1333,7 @@
 				1F2AB951242789B80010DEEE /* MoviesResponseDTO+Mapping.swift in Sources */,
 				1FFF1AD5243B966600937EE4 /* WidgetsListItemViewModel.swift in Sources */,
 				1FC2C9632301FEC0001AE47E /* MovieQueryUDS+Mapping.swift in Sources */,
+				0DCEF90B2E58A4DE00D5F3F4 /* StepButton.swift in Sources */,
 				1FE49D90230AA7C200D1D42E /* WidgetDetailsViewModel.swift in Sources */,
 				1F794921247D869700552CC3 /* BlackStyleNavigationBarBehavior.swift in Sources */,
 				1F1FC48A22E3693100BCBA8D /* DataTransferService.swift in Sources */,
@@ -1392,6 +1469,80 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0D907A652E5C88E500A55863 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PreviewHost/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = Motorica.PreviewHost;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0D907A662E5C88E500A55863 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PreviewHost/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = Motorica.PreviewHost;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		1F02DE3A22F8507500E40C3A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1463,6 +1614,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1474,6 +1626,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1527,6 +1680,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1538,6 +1692,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1573,7 +1728,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1606,7 +1761,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1628,7 +1783,6 @@
 		1FA533AA201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
@@ -1652,7 +1806,6 @@
 		1FA533AB201E1FDE00747E55 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
@@ -1675,6 +1828,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0D907A642E5C88E500A55863 /* Build configuration list for PBXNativeTarget "PreviewHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D907A652E5C88E500A55863 /* Debug */,
+				0D907A662E5C88E500A55863 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		1F02DE3922F8507500E40C3A /* Build configuration list for PBXNativeTarget "MotoricaStartUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

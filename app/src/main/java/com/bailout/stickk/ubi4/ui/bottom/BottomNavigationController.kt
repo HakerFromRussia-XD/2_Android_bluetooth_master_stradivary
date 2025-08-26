@@ -1,15 +1,26 @@
 package com.bailout.stickk.ubi4.ui.bottom
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.KEY_SECRET_ITEM_VISIBLE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.NAME
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomNavigationController(private val bottomNavigation: BottomNavigationView) {
     private var isNavigationEnabled  = true
-    init {
-        setupOnClickPages(bottomNavigation)
+
+    private val prefs: SharedPreferences by lazy {
+        bottomNavigation.context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
     }
 
+    init {
+        val isSecretVisible = prefs.getBoolean(KEY_SECRET_ITEM_VISIBLE, false)
+        bottomNavigation.menu.findItem(R.id.page_secret).isVisible = isSecretVisible
+        setupOnClickPages(bottomNavigation)
+    }
     private fun setupOnClickPages(bottomNavigation: BottomNavigationView) {
         bottomNavigation.selectedItemId = R.id.page_2
 
@@ -53,7 +64,14 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
 
     fun toggleSecretItem() {
         val item = bottomNavigation.menu.findItem(R.id.page_secret)
-        item.isVisible = !item.isVisible
+        val newVisible = !item.isVisible
+        item.isVisible = newVisible
+
+        prefs.edit().putBoolean(KEY_SECRET_ITEM_VISIBLE, newVisible).apply()
+
+        if (!newVisible && bottomNavigation.selectedItemId == R.id.page_secret) {
+            bottomNavigation.selectedItemId = R.id.page_2
+        }
     }
 
     fun setNavigationEnabled(enabled: Boolean) {

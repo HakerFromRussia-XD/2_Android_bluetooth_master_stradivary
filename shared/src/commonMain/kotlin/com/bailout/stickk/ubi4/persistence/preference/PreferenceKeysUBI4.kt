@@ -30,6 +30,8 @@ object PreferenceKeysUBI4 {
     const val KEY_CHECKPOINT_NUMBER = "checkpoint_number"
     const val ARG_LAST_EMG8 = "arg_last_emg8"
 
+    const val KEY_SECRET_ITEM_VISIBLE = "secret_item_visible"
+
 
 
 

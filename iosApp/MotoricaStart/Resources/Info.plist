@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Нужно для связи с устройствами UBI4.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Приложение использует Bluetooth для сканирования и подключения к устройствам UBI4.</string>
 	<key>ApiBaseURL</key>
 	<string>https://api.motorica.org/v1</string>
 	<key>ApiKey</key>
@@ -35,8 +31,20 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Приложение использует Bluetooth для сканирования и подключения к устройствам UBI4.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Нужно для связи с устройствами UBI4.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>OpenSans-wght.ttf</string>
+		<string>Assets/OpenSans-wght.ttf</string>
+		<string>Assets/Inter.ttf</string>
+		<string>Assets/SFProDisplay-Lightotf</string>
+		<string>Assets/sf_pro_text_bold.otf</string>
+	</array>
+	<key></key>
+	<string></string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -58,13 +66,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>UIAppFonts</key>
-	<array>
-		<string>OpenSans-wght.ttf</string>
-		<string>Assets/OpenSans-wght.ttf</string>
-		<string>Assets/Inter.ttf</string>
-		<string>Assets/SFProDisplay-Lightotf</string>
-		<string>Assets/sf_pro_text_bold.otf</string>
-	</array>
 </dict>
 </plist>

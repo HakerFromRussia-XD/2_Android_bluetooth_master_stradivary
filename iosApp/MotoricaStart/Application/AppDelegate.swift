@@ -5,7 +5,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let appDIContainer = AppDIContainer()
-    var appFlowCoordinator: AppFlowCoordinator?
+    private var appFlowCoordinator: AppFlowCoordinator?
     var window: UIWindow?
     
     func application(
@@ -17,14 +17,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         let navigationController = UINavigationController()
-
+//
         window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
-        window?.makeKeyAndVisible()
+        
+//        let tabBarController = MainTabBarController(appDIContainer: appDIContainer)
+//        window?.rootViewController = tabBarController
+        
     
         return true
     }

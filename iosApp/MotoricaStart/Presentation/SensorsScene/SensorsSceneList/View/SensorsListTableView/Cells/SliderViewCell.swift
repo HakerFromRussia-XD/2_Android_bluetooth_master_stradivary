@@ -50,6 +50,9 @@ final class SliderViewCell: UITableViewCell {
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
             isSecondSliderShow: viewModel.showSecondSlider,
+            
+//            deviceAddress: viewModel.deviceAddress,
+//            parameterID: viewModel.parameterID
         )
         self.provider = provider
         
@@ -59,13 +62,13 @@ final class SliderViewCell: UITableViewCell {
         }
         numberCancellable?.cancel()
         
-//         3. Подписываемся на поток чисел и обновляем value
-        numberCancellable = NumberGenerator.shared.publisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak provider] value in
-                provider?.value_1 = Float(value.0)
-                provider?.value_2 = Float(value.1)
-            }
+        // 3. Подписываемся на поток чисел и обновляем value
+//        numberCancellable = NumberGenerator.shared.publisher
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak provider] value in
+//                provider?.value_1 = Float(value.0)
+//                provider?.value_2 = Float(value.1)
+//            }
         
         // Запускаем подписку на поток
         job?.cancel(cause: nil)
@@ -95,18 +98,27 @@ final class SliderViewCell: UITableViewCell {
     }
     
     private func updateUI(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
-        guard ref.addressDevice == viewModel.deviceAddress,
-              ref.parameterID   == viewModel.parameterID else { return }
+        print("[BLE-COMMUNICATION] in updateUI")
+        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
+        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
+//        guard ref.addressDevice == viewModel.deviceAddress,
+//              ref.parameterID   == viewModel.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+        print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
         
         let ordinal = Int(parameter.type)
+        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
         let entries = ParameterTypeEnum.values()
+        print("[BLE-COMMUNICATION] in updateUI for entries = \(entries)")
         let count = Int(entries.size)
+        print("[BLE-COMMUNICATION] in updateUI for count = \(count)")
         guard ordinal >= 0 && ordinal < count,
         let entry = entries.get(index: Int32(ordinal)) else { return }
+        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
         let sizeOf = Int(entry.sizeOf)
-        print("[BLE-COMMUNICATION] in updateUI sizeOf: \(sizeOf)")
+        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
+        
         
 
         let hex = parameter.data

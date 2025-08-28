@@ -14,11 +14,12 @@ final class AppFlowCoordinator {
     }
 
     func start() {
-        // Теперь основной экран — список BLE-устройств
         let bleSceneDI = appDIContainer.makeBluetoothSceneDIContainer()
         let flow = bleSceneDI.makeBluetoothListCoordinator(
             navigationController: navigationController
         )
         flow.start()
+        let tabBarController = MainTabBarController(appDIContainer: appDIContainer)
+        navigationController.setViewControllers([tabBarController], animated: false)
     }
 }

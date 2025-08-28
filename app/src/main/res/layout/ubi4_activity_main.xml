@@ -77,13 +77,15 @@
             app:layout_constraintHorizontal_bias="0.5"
             tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
-<!--        <ImageView-->
-<!--            android:id="@+id/bleIndicator"-->
-<!--            android:layout_width="10dp"-->
-<!--            android:layout_height="10dp"-->
-<!--            android:layout_marginEnd="8dp"-->
-<!--            -->
-
+        <ImageView
+            android:id="@+id/bleIndicator"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:src="@drawable/circle_16_red"
+            android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/name_tv"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <FrameLayout
             android:id="@+id/batteryIndicator"

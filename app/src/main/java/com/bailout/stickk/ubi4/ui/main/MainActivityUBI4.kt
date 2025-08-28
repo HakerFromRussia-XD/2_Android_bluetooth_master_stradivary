@@ -206,6 +206,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             true
         }
 
+        val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
+        lifecycle.addObserver(bleStatusController)
+        ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
+
 
     }
 

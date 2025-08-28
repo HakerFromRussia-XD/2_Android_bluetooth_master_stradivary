@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
+import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.CoroutineScope
@@ -276,19 +277,21 @@ private fun parseReceivedData(data: ByteArray?) {
     }
     fun reconnectThread() {
         var j = 1
+        ControllerBleStatusConnection.UiBridges.bleStatusController?.isReconnecting = true
         bleScope.launch {
-            while (reconnectThreadFlag) {
-                if (j % 5 == 0) {
-                    reconnectThreadFlag = false
-                    scanLeDevice(true)
-                    System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
-                } else {
-                    reconnect()
-                    System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
+
+                while (reconnectThreadFlag) {
+                    if (j % 5 == 0) {
+                        reconnectThreadFlag = false
+                        scanLeDevice(true)
+                        System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
+                    } else {
+                        reconnect()
+                        System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
+                    }
+                    j++
+                    delay(RECONNECT_BLE_PERIOD.toLong())
                 }
-                j++
-                delay(RECONNECT_BLE_PERIOD.toLong())
-            }
         }
     }
 
@@ -323,17 +326,16 @@ private fun parseReceivedData(data: ByteArray?) {
         if (mDisconnected) return
         reconnectThreadFlag = false
         mDisconnected = true
-            println("--> дисконнектим всё к хуям и анбайндим")
-
-            bleScope.launch(Dispatchers.IO) {
-                mBluetoothLeService?.disconnect()
-                runCatching { mContext.unbindService(mServiceConnection) }
-                withContext(Dispatchers.Main){
-                    mConnected = false
-                    listWidgets.clear()
-                    main.openScanActivity()
-                }
+        println("--> дисконнектим всё к хуям и анбайндим")
+        bleScope.launch(Dispatchers.IO) {
+            mBluetoothLeService?.disconnect()
+            runCatching { mContext.unbindService(mServiceConnection) }
+            withContext(Dispatchers.Main) {
+                mConnected = false
+                listWidgets.clear()
+                main.openScanActivity()
             }
+        }
 
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {

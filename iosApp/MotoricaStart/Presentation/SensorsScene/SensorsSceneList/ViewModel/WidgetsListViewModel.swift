@@ -88,12 +88,15 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         + [widgetsPage]
         
         items.value = widgetsPage.widgets.map{ widget in
-            if widget.isAd { // ← Проверяем флаг
-                return ListItemType.slider(SliderListItemViewModel(widget: widget))
-            } else {
-                return ListItemType.widget(WidgetsListItemViewModel(widget: widget))
+            switch widget.widgetType {
+                case .sliderWidget:
+                    return ListItemType.slider(SliderListItemViewModel(widget: widget))
+                case .plotWidget:
+                    return ListItemType.widget(WidgetsListItemViewModel(widget: widget))
+                @unknown default:
+                fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
-        }//(WidgetsListItemViewModel.init)
+        }
         print("Updated items.value: \(items.value)")
     }
 

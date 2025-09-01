@@ -3,8 +3,15 @@ import Foundation
 struct Widget: Equatable, Identifiable {
     typealias Identifier = String
     enum WidgetType {
-        case adventure
-        case scienceFiction
+        case commandWidget
+        case gestureOpticWidget
+        case gestureWidget
+        case opticStartLearningWidget
+        case plotWidget
+        case sliderWidget
+        case spinnerWidget
+        case switchWidget
+        case thresholdWidget
     }
     let id: Identifier
     let title: String?

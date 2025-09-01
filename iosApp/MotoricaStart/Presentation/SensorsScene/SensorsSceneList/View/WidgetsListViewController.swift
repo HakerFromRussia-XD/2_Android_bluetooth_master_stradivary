@@ -55,12 +55,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 switch widget {
-                case is SliderParameterWidgetEStruct:
-                    isAd = true
-                    widgetType = .adventure
-                case is SliderParameterWidgetSStruct:
-                    isAd = true
-                    widgetType = .scienceFiction
+                case is BaseParameterWidgetEStruct:
+                    widgetType = .unknown
+                case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+                    widgetType = .sliderWidget
+                case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
+                    widgetType = .plotWidget
                 default:
                     widgetType = .unknown
                 }

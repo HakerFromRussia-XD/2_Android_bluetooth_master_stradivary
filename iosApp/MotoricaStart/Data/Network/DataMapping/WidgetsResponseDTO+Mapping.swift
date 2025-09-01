@@ -27,8 +27,15 @@ extension WidgetsResponseDTO {
             case parameterID
         }
         enum WidgetTypeDTO: String, Decodable {
-            case adventure = "adventure"
-            case scienceFiction = "science_fiction"
+            case commandWidget = "command_widget"
+            case gestureOpticWidget = "gesture_optic_widget"
+            case gestureWidget = "gesture_widget"
+            case opticStartLearningWidget = "optic_start_learning_widget"
+            case plotWidget = "plot_widget"
+            case sliderWidget = "slider_widget"
+            case spinnerWidget = "spinner_widget"
+            case switchWidget = "switch_widget"
+            case thresholdWidget = "threshold_widget"
             case unknown
         }
         let id: Int
@@ -96,9 +103,16 @@ extension WidgetsResponseDTO.WidgetDTO {
 extension WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO {
     func toDomain() -> Widget.WidgetType {
         switch self {
-        case .adventure: return .adventure
-        case .scienceFiction: return .scienceFiction
-        case .unknown: return .adventure
+        case .commandWidget: return .commandWidget
+        case .gestureOpticWidget: return .gestureOpticWidget
+        case .gestureWidget: return .gestureWidget
+        case .opticStartLearningWidget: return .opticStartLearningWidget
+        case .plotWidget: return .plotWidget
+        case .sliderWidget: return .sliderWidget
+        case .spinnerWidget: return .spinnerWidget
+        case .switchWidget: return .switchWidget
+        case .thresholdWidget: return .thresholdWidget
+        case .unknown: return .plotWidget
         }
     }
 }

@@ -1,5 +1,5 @@
 import UIKit
-//import shared
+import shared
 
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     
@@ -41,46 +41,53 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         bind(to: viewModel)
         viewModel.viewDidLoad()
         
+        let dataFactory = DataFactory()
+        // например, берём список виджетов для display = 1
+//        let kotlinWidgets = dataFactory.prepareData(display: 1)
+        let kotlinWidgets = dataFactory.fakeData()
+        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+        
         let mockResponseDTO = WidgetsResponseDTO(
             page: 2,
             totalPages: 5,
             widgets: [
-                WidgetsResponseDTO.WidgetDTO(
-                    id: 3,
-                    title: "Пример виджета 2",
-                    genre: .adventure,
-                    posterPath: "/path/to/poster.jpg",
-                    overview: "Описание виджета 1...",
-                    releaseDate: "2023-10-01"
-                ),
-                WidgetsResponseDTO.WidgetDTO(
-                    id: 1,
-                    title: "isAd: true 1",
-                    genre: .adventure,
-                    posterPath: "/path/to/poster.jpg",
-                    overview: "Описание виджета 2...",
-                    releaseDate: "2023-10-01",
-                    isAd: true
-                ),
-                WidgetsResponseDTO.WidgetDTO(
-                    id: 2,
-                    title: "Пример виджета 3",
-                    genre: .adventure,
-                    posterPath: "/path/to/poster.jpg",
-                    overview: "Описание виджета 3...",
-                    releaseDate: "2023-10-01"
-                ),
-                WidgetsResponseDTO.WidgetDTO(
-                    id: 40,
-                    title: "Пример виджета 4",
-                    genre: .adventure,
-                    posterPath: "/path/to/poster.jpg",
-                    overview: "Описание виджета 4...",
-                    releaseDate: "2023-10-01",
-                    isAd: true
-                ),
+//                WidgetsResponseDTO.WidgetDTO(
+//                    id: 3,
+//                    title: "Пример виджета 2",
+//                    genre: .adventure,
+//                    posterPath: "/path/to/poster.jpg",
+//                    overview: "Описание виджета 1...",
+//                    releaseDate: "2023-10-01"
+//                ),
+//                WidgetsResponseDTO.WidgetDTO(
+//                    id: 1,
+//                    title: "isAd: true 1",
+//                    genre: .adventure,
+//                    posterPath: "/path/to/poster.jpg",
+//                    overview: "Описание виджета 2...",
+//                    releaseDate: "2023-10-01",
+//                    isAd: true
+//                ),
+//                WidgetsResponseDTO.WidgetDTO(
+//                    id: 2,
+//                    title: "Пример виджета 3",
+//                    genre: .adventure,
+//                    posterPath: "/path/to/poster.jpg",
+//                    overview: "Описание виджета 3...",
+//                    releaseDate: "2023-10-01"
+//                ),
+//                WidgetsResponseDTO.WidgetDTO(
+//                    id: 40,
+//                    title: "Пример виджета 4",
+//                    genre: .adventure,
+//                    posterPath: "/path/to/poster.jpg",
+//                    overview: "Описание виджета 4...",
+//                    releaseDate: "2023-10-01",
+//                    isAd: true
+//                ),
             ]
         )
+        
 
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in

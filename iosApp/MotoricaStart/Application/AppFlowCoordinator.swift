@@ -4,6 +4,7 @@ final class AppFlowCoordinator {
 
     var navigationController: UINavigationController
     private let appDIContainer: AppDIContainer
+    private var bluetoothCoordinator: BluetoothListCoordinator?
     
     init(
         navigationController: UINavigationController,
@@ -14,12 +15,11 @@ final class AppFlowCoordinator {
     }
 
     func start() {
-        let bleSceneDI = appDIContainer.makeBluetoothSceneDIContainer()
-        let flow = bleSceneDI.makeBluetoothListCoordinator(
+        let bluetoothDI = appDIContainer.makeBluetoothSceneDIContainer()
+        let coordinator = bluetoothDI.makeBluetoothListCoordinator(
             navigationController: navigationController
         )
-        flow.start()
-        let tabBarController = MainTabBarController(appDIContainer: appDIContainer)
-        navigationController.setViewControllers([tabBarController], animated: false)
+        bluetoothCoordinator = coordinator
+        coordinator.start()
     }
 }

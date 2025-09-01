@@ -15,22 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AppAppearance.setupAppearance()
         
-        window = UIWindow(frame: UIScreen.main.bounds)
+        
         let navigationController = UINavigationController()
-//
+        window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
-        
-//        let tabBarController = MainTabBarController(appDIContainer: appDIContainer)
-//        window?.rootViewController = tabBarController
-        
-    
         return true
     }
 

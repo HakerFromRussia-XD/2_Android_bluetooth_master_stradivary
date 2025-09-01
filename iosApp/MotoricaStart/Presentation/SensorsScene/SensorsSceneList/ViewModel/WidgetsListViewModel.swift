@@ -57,7 +57,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
     var isEmpty: Bool { return items.value.isEmpty }
-    let screenTitle = NSLocalizedString("Widgets", comment: "")
+    let screenTitle = NSLocalizedString("Sensors", comment: "")
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
     let errorTitle = NSLocalizedString("Error", comment: "")
     let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")

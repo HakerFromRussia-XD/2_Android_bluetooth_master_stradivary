@@ -18,7 +18,7 @@ extension WidgetsResponseDTO {
         private enum CodingKeys: String, CodingKey {
             case id
             case title
-            case genre
+            case widgetType
             case posterPath = "poster_path"
             case overview
             case releaseDate = "release_date"
@@ -26,14 +26,14 @@ extension WidgetsResponseDTO {
             case deviceAddress
             case parameterID
         }
-        enum GenreDTO: String, Decodable {
+        enum WidgetTypeDTO: String, Decodable {
             case adventure = "adventure"
             case scienceFiction = "science_fiction"
             case unknown
         }
         let id: Int
         let title: String?
-        let genre: GenreDTO?
+        let widgetType: WidgetTypeDTO?
         let posterPath: String?
         let overview: String?
         let releaseDate: String?
@@ -44,7 +44,7 @@ extension WidgetsResponseDTO {
         init(
             id: Int,
             title: String?,
-            genre: GenreDTO?,
+            widgetType: WidgetTypeDTO?,
             posterPath: String?,
             overview: String?,
             releaseDate: String?,
@@ -54,7 +54,7 @@ extension WidgetsResponseDTO {
         ) {
             self.id = id
             self.title = title
-            self.genre = genre
+            self.widgetType = widgetType
             self.posterPath = posterPath
             self.overview = overview
             self.releaseDate = releaseDate
@@ -81,7 +81,7 @@ extension WidgetsResponseDTO.WidgetDTO {
                 id: Widget.Identifier(id),
                 title: title,
                 title_2: title,
-                genre: genre?.toDomain(),
+                widgetType: widgetType?.toDomain(),
                 posterPath: posterPath,
                 overview: overview,
                 isAd: isAd ?? false,
@@ -93,8 +93,8 @@ extension WidgetsResponseDTO.WidgetDTO {
     }
 }
 
-extension WidgetsResponseDTO.WidgetDTO.GenreDTO {
-    func toDomain() -> Widget.Genre {
+extension WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO {
+    func toDomain() -> Widget.WidgetType {
         switch self {
         case .adventure: return .adventure
         case .scienceFiction: return .scienceFiction

@@ -45,50 +45,45 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         // например, берём список виджетов для display = 1
 //        let kotlinWidgets = dataFactory.prepareData(display: 1)
         let kotlinWidgets = dataFactory.fakeData()
-        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+//        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+        
+        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
+        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = (kotlinWidgets as? [Any])?
+            .enumerated()
+            .map { index, widget in
+                var isAd = false
+                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
+                
+                switch widget {
+                case is SliderParameterWidgetEStruct:
+                    isAd = true
+                    widgetType = .adventure
+                case is SliderParameterWidgetSStruct:
+                    isAd = true
+                    widgetType = .scienceFiction
+                default:
+                    widgetType = .unknown
+                }
+                
+                return WidgetsResponseDTO.WidgetDTO(
+                    id: index,
+                    title: "Widget \(index)",
+                    widgetType: widgetType,
+                    posterPath: nil,
+                    overview: nil,
+                    releaseDate: nil,
+                    isAd: isAd
+                )
+            } ?? []
+        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
         
         let mockResponseDTO = WidgetsResponseDTO(
             page: 2,
             totalPages: 5,
-            widgets: [
-//                WidgetsResponseDTO.WidgetDTO(
-//                    id: 3,
-//                    title: "Пример виджета 2",
-//                    genre: .adventure,
-//                    posterPath: "/path/to/poster.jpg",
-//                    overview: "Описание виджета 1...",
-//                    releaseDate: "2023-10-01"
-//                ),
-//                WidgetsResponseDTO.WidgetDTO(
-//                    id: 1,
-//                    title: "isAd: true 1",
-//                    genre: .adventure,
-//                    posterPath: "/path/to/poster.jpg",
-//                    overview: "Описание виджета 2...",
-//                    releaseDate: "2023-10-01",
-//                    isAd: true
-//                ),
-//                WidgetsResponseDTO.WidgetDTO(
-//                    id: 2,
-//                    title: "Пример виджета 3",
-//                    genre: .adventure,
-//                    posterPath: "/path/to/poster.jpg",
-//                    overview: "Описание виджета 3...",
-//                    releaseDate: "2023-10-01"
-//                ),
-//                WidgetsResponseDTO.WidgetDTO(
-//                    id: 40,
-//                    title: "Пример виджета 4",
-//                    genre: .adventure,
-//                    posterPath: "/path/to/poster.jpg",
-//                    overview: "Описание виджета 4...",
-//                    releaseDate: "2023-10-01",
-//                    isAd: true
-//                ),
-            ]
+            widgets: widgetsDTO
         )
         
-
+        
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
             self?.viewModel.didSearch(query: "My request")             // ← чтение идёт уже из свежего кэша
@@ -100,16 +95,17 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
-//        let rawBytes: [UInt8] = [0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A]
-//        bleManager.startScan { BleDevice in
-//            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
-//        }
+        //        let rawBytes: [UInt8] = [0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A]
+        //        bleManager.startScan { BleDevice in
+        //            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
+        //        }
         
-//        let kotlinByteArray = KotlinByteArray(size: Int32(rawBytes.count))
-//        for (index, byte) in rawBytes.enumerated() {
-//            kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
-//        }
-//        parser.parseData(data: kotlinByteArray)
+        //        let kotlinByteArray = KotlinByteArray(size: Int32(rawBytes.count))
+        //        for (index, byte) in rawBytes.enumerated() {
+        //            kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
+        //        }
+        //        parser.parseData(data: kotlinByteArray)
+        //            } as! [WidgetsResponseDTO.WidgetDTO]
     }
 
 

@@ -19,7 +19,7 @@ extension WidgetResponseEntity {
         return .init(
             id: Int(id),
             title: title,
-            genre: WidgetsResponseDTO.WidgetDTO.GenreDTO(rawValue: genre ?? ""),
+            widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO(rawValue: widgetType ?? ""),
             posterPath: posterPath,
             overview: overview,
             releaseDate: releaseDate,
@@ -54,7 +54,7 @@ extension WidgetsResponseDTO.WidgetDTO {
         let entity: WidgetResponseEntity = .init(context: context)
         entity.id = Int64(id)
         entity.title = title
-        entity.genre = genre?.rawValue
+        entity.widgetType = widgetType?.rawValue
         entity.posterPath = posterPath
         entity.overview = overview
         entity.releaseDate = releaseDate

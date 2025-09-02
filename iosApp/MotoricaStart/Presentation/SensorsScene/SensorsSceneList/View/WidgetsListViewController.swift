@@ -51,7 +51,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = (kotlinWidgets as? [Any])?
             .enumerated()
             .map { index, widget in
-                var isAd = false
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 switch widget {
@@ -72,7 +71,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     posterPath: nil,
                     overview: nil,
                     releaseDate: nil,
-                    isAd: isAd
+                    isAd: false
                 )
             } ?? []
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")

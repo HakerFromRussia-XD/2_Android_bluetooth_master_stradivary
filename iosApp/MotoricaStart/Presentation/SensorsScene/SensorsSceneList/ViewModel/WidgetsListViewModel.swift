@@ -90,7 +90,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         items.value = widgetsPage.widgets.map{ widget in
             switch widget.widgetType {
                 case .commandWidget:
-                    return ListItemType.slider(SliderListItemViewModel(widget: widget))
+                    return ListItemType.command(CommandListItemViewModel(widget: widget))
                 case .sliderWidget:
                     return ListItemType.slider(SliderListItemViewModel(widget: widget))
                 case .plotWidget:

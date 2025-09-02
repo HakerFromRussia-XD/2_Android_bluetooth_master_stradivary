@@ -142,7 +142,7 @@ extension WidgetsListTableViewController {
                         assertionFailure("Cannot dequeue ad cell")
                         return UITableViewCell()
                     }
-                    cell.configure(with: commandVM)
+//                    cell.configure(with: commandVM)
                     return cell
             case .slider(_):
                     guard let cell = tableView.dequeueReusableCell(

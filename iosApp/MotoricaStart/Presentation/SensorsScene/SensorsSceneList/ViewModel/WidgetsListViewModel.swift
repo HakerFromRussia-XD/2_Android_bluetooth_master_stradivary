@@ -177,8 +177,8 @@ extension KotlinByteArray {
 }
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
-    case widget(WidgetsListItemViewModel)
     case command(CommandListItemViewModel)
+    case widget(WidgetsListItemViewModel)
     case slider(SliderListItemViewModel)
 }
 // MARK: - INPUT. View event methods

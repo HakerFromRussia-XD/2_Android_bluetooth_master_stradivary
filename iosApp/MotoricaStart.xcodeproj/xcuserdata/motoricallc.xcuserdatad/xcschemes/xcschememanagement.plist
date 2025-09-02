@@ -4,11 +4,6 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>MotoricaStartPreview.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
 		<key>MotoricaStrat.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -28,6 +23,21 @@
 			<true />
 		</dict>
 		<key>1FA5339C201E1FDE00747E55</key>
+		<dict>
+			<key>primary</key>
+			<true />
+		</dict>
+		<key>65F27E9D2E67075000AD5DFD</key>
+		<dict>
+			<key>primary</key>
+			<true />
+		</dict>
+		<key>65F27EB22E67075200AD5DFD</key>
+		<dict>
+			<key>primary</key>
+			<true />
+		</dict>
+		<key>65F27EBC2E67075200AD5DFD</key>
 		<dict>
 			<key>primary</key>
 			<true />

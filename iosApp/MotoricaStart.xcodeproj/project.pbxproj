@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -317,22 +317,6 @@
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		65F27EC52E67075200AD5DFD /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (65F27EC52E67075200AD5DFD /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreview; sourceTree = "<group>"; };
-		65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreviewTests; sourceTree = "<group>"; };
-		65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreviewUITests; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		1F02DE2F22F8507500E40C3A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -583,9 +567,6 @@
 				1FA5338B201E1FDE00747E55 /* MotoricaStart */,
 				1FA533A0201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3322F8507500E40C3A /* MotoricaStartUITests */,
-				65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */,
-				65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */,
-				65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */,
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
@@ -1189,9 +1170,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */,
-			);
 			name = MotoricaStartPreview;
 			packageProductDependencies = (
 			);
@@ -1212,9 +1190,6 @@
 			dependencies = (
 				65F27EB52E67075200AD5DFD /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */,
-			);
 			name = MotoricaStartPreviewTests;
 			packageProductDependencies = (
 			);
@@ -1234,9 +1209,6 @@
 			);
 			dependencies = (
 				65F27EBF2E67075200AD5DFD /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */,
 			);
 			name = MotoricaStartPreviewUITests;
 			packageProductDependencies = (
@@ -1853,7 +1825,6 @@
 		1FA533AA201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
@@ -1877,7 +1848,6 @@
 		1FA533AB201E1FDE00747E55 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";

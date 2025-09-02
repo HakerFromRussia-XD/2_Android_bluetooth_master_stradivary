@@ -89,6 +89,8 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         
         items.value = widgetsPage.widgets.map{ widget in
             switch widget.widgetType {
+                case .commandWidget:
+                    return ListItemType.slider(SliderListItemViewModel(widget: widget))
                 case .sliderWidget:
                     return ListItemType.slider(SliderListItemViewModel(widget: widget))
                 case .plotWidget:
@@ -176,6 +178,7 @@ extension KotlinByteArray {
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
     case widget(WidgetsListItemViewModel)
+    case command(CommandListItemViewModel)
     case slider(SliderListItemViewModel)
 }
 // MARK: - INPUT. View event methods

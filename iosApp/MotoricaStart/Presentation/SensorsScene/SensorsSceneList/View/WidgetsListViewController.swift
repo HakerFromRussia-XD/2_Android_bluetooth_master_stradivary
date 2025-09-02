@@ -56,7 +56,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 
                 switch widget {
                 case is BaseParameterWidgetEStruct:
-                    widgetType = .unknown
+                    widgetType = .commandWidget
                 case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
                     widgetType = .sliderWidget
                 case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:

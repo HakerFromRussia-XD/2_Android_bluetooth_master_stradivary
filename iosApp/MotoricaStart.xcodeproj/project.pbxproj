@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -143,6 +143,12 @@
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
+		65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */; };
+		65F27E992E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */; };
+		65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
+		65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
+		65F27ED22E6709E600AD5DFD /* ButtonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */; };
+		65F27ED32E6709FE00AD5DFD /* ButtonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -165,6 +171,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 1FA53388201E1FDE00747E55;
 			remoteInfo = CodeChallenge;
+		};
+		65F27EB42E67075200AD5DFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65F27E9D2E67075000AD5DFD;
+			remoteInfo = MotoricaStartPreview;
+		};
+		65F27EBE2E67075200AD5DFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65F27E9D2E67075000AD5DFD;
+			remoteInfo = MotoricaStartPreview;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -284,12 +304,34 @@
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		65F27E8F2E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		65F27E902E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		65F27E952E66046900AD5DFD /* CommandViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandViewCell.swift; sourceTree = "<group>"; };
+		65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandListItemViewModel.swift; sourceTree = "<group>"; };
+		65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStartPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonViewCell.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		65F27EC52E67075200AD5DFD /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (65F27EC52E67075200AD5DFD /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreview; sourceTree = "<group>"; };
+		65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreviewTests; sourceTree = "<group>"; };
+		65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MotoricaStartPreviewUITests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1F02DE2F22F8507500E40C3A /* Frameworks */ = {
@@ -307,6 +349,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1FA5339A201E1FDE00747E55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27E9B2E67075000AD5DFD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EB02E67075200AD5DFD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EBA2E67075200AD5DFD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -520,6 +583,9 @@
 				1FA5338B201E1FDE00747E55 /* MotoricaStart */,
 				1FA533A0201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3322F8507500E40C3A /* MotoricaStartUITests */,
+				65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */,
+				65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */,
+				65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */,
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
@@ -532,6 +598,9 @@
 				1FA53389201E1FDE00747E55 /* MotoricaStart.app */,
 				1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */,
 				1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */,
+				65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */,
+				65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */,
+				65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -715,6 +784,7 @@
 				652136F42DF82876006AB049 /* SliderRow */,
 				1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
+				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -817,6 +887,7 @@
 				1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */,
 				1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */,
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
+				65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1024,6 +1095,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
@@ -1105,13 +1177,81 @@
 			productReference = 1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65F27EC62E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreview" */;
+			buildPhases = (
+				65F27E9A2E67075000AD5DFD /* Sources */,
+				65F27E9B2E67075000AD5DFD /* Frameworks */,
+				65F27E9C2E67075000AD5DFD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				65F27E9F2E67075000AD5DFD /* MotoricaStartPreview */,
+			);
+			name = MotoricaStartPreview;
+			packageProductDependencies = (
+			);
+			productName = MotoricaStartPreview;
+			productReference = 65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		65F27EB22E67075200AD5DFD /* MotoricaStartPreviewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65F27EC92E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewTests" */;
+			buildPhases = (
+				65F27EAF2E67075200AD5DFD /* Sources */,
+				65F27EB02E67075200AD5DFD /* Frameworks */,
+				65F27EB12E67075200AD5DFD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65F27EB52E67075200AD5DFD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				65F27EB62E67075200AD5DFD /* MotoricaStartPreviewTests */,
+			);
+			name = MotoricaStartPreviewTests;
+			packageProductDependencies = (
+			);
+			productName = MotoricaStartPreviewTests;
+			productReference = 65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		65F27EBC2E67075200AD5DFD /* MotoricaStartPreviewUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65F27ECC2E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewUITests" */;
+			buildPhases = (
+				65F27EB92E67075200AD5DFD /* Sources */,
+				65F27EBA2E67075200AD5DFD /* Frameworks */,
+				65F27EBB2E67075200AD5DFD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65F27EBF2E67075200AD5DFD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				65F27EC02E67075200AD5DFD /* MotoricaStartPreviewUITests */,
+			);
+			name = MotoricaStartPreviewUITests;
+			packageProductDependencies = (
+			);
+			productName = MotoricaStartPreviewUITests;
+			productReference = 65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		1FA53381201E1FDE00747E55 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1020;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 0940;
 				TargetAttributes = {
 					1F02DE3122F8507500E40C3A = {
@@ -1129,6 +1269,17 @@
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 1FA53388201E1FDE00747E55;
+					};
+					65F27E9D2E67075000AD5DFD = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					65F27EB22E67075200AD5DFD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 65F27E9D2E67075000AD5DFD;
+					};
+					65F27EBC2E67075200AD5DFD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 65F27E9D2E67075000AD5DFD;
 					};
 				};
 			};
@@ -1152,6 +1303,9 @@
 				1FA53388201E1FDE00747E55 /* MotoricaStart */,
 				1FA5339C201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3122F8507500E40C3A /* MotoricaStartUITests */,
+				65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */,
+				65F27EB22E67075200AD5DFD /* MotoricaStartPreviewTests */,
+				65F27EBC2E67075200AD5DFD /* MotoricaStartPreviewUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -1194,6 +1348,27 @@
 				65519BEC2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BED2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27E9C2E67075000AD5DFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EB12E67075200AD5DFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EBB2E67075200AD5DFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1275,11 +1450,14 @@
 				1F57F8D223C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
+				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */,
+				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */,
+				65F27ED22E6709E600AD5DFD /* ButtonViewCell.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
@@ -1356,6 +1534,7 @@
 				1F9034D1230714B900DEA4BD /* NetworkConfigurableMock.swift in Sources */,
 				6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */,
 				1F9034DA2307238C00DEA4BD /* MoviesQueriesListViewModelTests.swift in Sources */,
+				65F27E992E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F474F2F22356C7F0092DB4B /* PosterImagesRepository.swift in Sources */,
 				1FE49D9D230AEC5D00D1D42E /* WidgetsQueryListViewModel.swift in Sources */,
 				1F474F2A22356C7F0092DB4B /* Widget.swift in Sources */,
@@ -1363,6 +1542,29 @@
 				1F474F2822356C7F0092DB4B /* Cancellable.swift in Sources */,
 				1F0CEFD023436B8B004141FA /* ConnectionError.swift in Sources */,
 				1FE49D9C230AEC5500D1D42E /* WidgetDetailsViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27E9A2E67075000AD5DFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */,
+				65F27ED32E6709FE00AD5DFD /* ButtonViewCell.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EAF2E67075200AD5DFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65F27EB92E67075200AD5DFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1378,6 +1580,16 @@
 			isa = PBXTargetDependency;
 			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
 			targetProxy = 1FA5339E201E1FDE00747E55 /* PBXContainerItemProxy */;
+		};
+		65F27EB52E67075200AD5DFD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
+			targetProxy = 65F27EB42E67075200AD5DFD /* PBXContainerItemProxy */;
+		};
+		65F27EBF2E67075200AD5DFD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
+			targetProxy = 65F27EBE2E67075200AD5DFD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1685,6 +1897,192 @@
 			};
 			name = Release;
 		};
+		65F27EC72E67075200AD5DFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MotoricaStartPreview/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		65F27EC82E67075200AD5DFD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MotoricaStartPreview/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		65F27ECA2E67075200AD5DFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStartPreview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStartPreview";
+			};
+			name = Debug;
+		};
+		65F27ECB2E67075200AD5DFD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStartPreview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStartPreview";
+			};
+			name = Release;
+		};
+		65F27ECD2E67075200AD5DFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStartPreview;
+			};
+			name = Debug;
+		};
+		65F27ECE2E67075200AD5DFD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStartPreview;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1720,6 +2118,33 @@
 			buildConfigurations = (
 				1FA533AA201E1FDE00747E55 /* Debug */,
 				1FA533AB201E1FDE00747E55 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		65F27EC62E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65F27EC72E67075200AD5DFD /* Debug */,
+				65F27EC82E67075200AD5DFD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		65F27EC92E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65F27ECA2E67075200AD5DFD /* Debug */,
+				65F27ECB2E67075200AD5DFD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		65F27ECC2E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65F27ECD2E67075200AD5DFD /* Debug */,
+				65F27ECE2E67075200AD5DFD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

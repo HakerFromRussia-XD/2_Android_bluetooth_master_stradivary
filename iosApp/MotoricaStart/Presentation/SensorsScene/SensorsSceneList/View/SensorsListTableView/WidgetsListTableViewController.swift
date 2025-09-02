@@ -67,25 +67,32 @@ final class WidgetsListTableViewController: UITableViewController {
         ) { [weak self] tableView, indexPath, item in
             guard let self = self else {return nil}
             switch item {
-            case .widget(let vm):
-                let cell = tableView.dequeueReusableCell(
-                    withIdentifier: WidgetsListItemCell.reuseIdentifier,
-                    for: indexPath
-                ) as! WidgetsListItemCell
-                cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
-                // подгрузка следующей страницы
-                if indexPath.row == (self.viewModel.items.value.count) - 1 {
-                    self.viewModel.didLoadNextPage()
-                }
-                return cell
+                case .command(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: CommandViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! CommandViewCell
+                    cell.configure(with: vm)
+                    return cell
+                case .widget(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: WidgetsListItemCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! WidgetsListItemCell
+                    cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
+                    // подгрузка следующей страницы
+                    if indexPath.row == (self.viewModel.items.value.count) - 1 {
+                        self.viewModel.didLoadNextPage()
+                    }
+                    return cell
 
-            case .slider(let vm):
-                let cell = tableView.dequeueReusableCell(
-                    withIdentifier: SliderViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as! SliderViewCell
-                cell.configure(with: vm)
-                return cell
+                case .slider(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SliderViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! SliderViewCell
+                    cell.configure(with: vm)
+                    return cell
             }
         }
     }
@@ -127,17 +134,26 @@ extension WidgetsListTableViewController {
                 }
                 
                 return cell
-                
-        case .slider(_):
-                guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: SliderViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as? SliderViewCell else {
-                    assertionFailure("Cannot dequeue ad cell")
-                    return UITableViewCell()
-                }
-//                cell.configure(with: adVM)
-                return cell
+            case .command(let commandVM):
+                    guard let cell = tableView.dequeueReusableCell(
+                        withIdentifier: CommandViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as? CommandViewCell else {
+                        assertionFailure("Cannot dequeue ad cell")
+                        return UITableViewCell()
+                    }
+                    cell.configure(with: commandVM)
+                    return cell
+            case .slider(_):
+                    guard let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SliderViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as? SliderViewCell else {
+                        assertionFailure("Cannot dequeue ad cell")
+                        return UITableViewCell()
+                    }
+    //                cell.configure(with: adVM)
+                    return cell
         }
     }
 

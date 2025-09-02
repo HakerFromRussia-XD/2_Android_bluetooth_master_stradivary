@@ -149,6 +149,10 @@
 		65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27ED32E6709FE00AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
+		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
+		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -310,6 +314,8 @@
 		65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
+		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
+		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
@@ -732,11 +738,11 @@
 		1FE49D63230AA7C200D1D42E /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				65F27F022E672EFD00AD5DFD /* Widgets */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				659A45A52DB929A9002BE2BC /* BluetoothScene */,
 				1FE49D7C230AA7C200D1D42E /* SensorsScene */,
 				1FC8B6E4230AF89A005DBF44 /* Utils */,
-				65B52B0D2DF704F100FE1430 /* CustomUI */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -752,9 +758,9 @@
 		1FE49D71230AA7C200D1D42E /* SensorsListTableView */ = {
 			isa = PBXGroup;
 			children = (
+				65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */,
 				1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */,
 				654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */,
-				1FE49D72230AA7C200D1D42E /* Cells */,
 			);
 			path = SensorsListTableView;
 			sourceTree = "<group>";
@@ -866,9 +872,6 @@
 			isa = PBXGroup;
 			children = (
 				1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */,
-				1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */,
-				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
-				65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1076,11 +1079,32 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				65F27F002E67294700AD5DFD /* CustomSwitcher.swift */,
 				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
 			path = CustomUI;
+			sourceTree = "<group>";
+		};
+		65F27F022E672EFD00AD5DFD /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				65F27F032E672F2B00AD5DFD /* ViewModel */,
+				1FE49D72230AA7C200D1D42E /* Cells */,
+				65B52B0D2DF704F100FE1430 /* CustomUI */,
+			);
+			path = Widgets;
+			sourceTree = "<group>";
+		};
+		65F27F032E672F2B00AD5DFD /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */,
+				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
+				65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		6C0F72E729CF14CD0005020A /* Stubs */ = {
@@ -1376,6 +1400,7 @@
 				655830342DBBAE8F00744D5C /* ScanItem.swift in Sources */,
 				1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */,
 				1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
+				65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1400,6 +1425,7 @@
 				1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */,
 				1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */,
 				1F77930F222C0DF2004E034C /* StoryboardInstantiable.swift in Sources */,
+				65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */,
 				1FE49D84230AA7C200D1D42E /* WidgetsQueriesItemCell.swift in Sources */,
 				65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */,
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
@@ -1457,6 +1483,7 @@
 				655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */,
 				1FCE68A1222C873A00CC3074 /* WidgetsSceneDIContainer.swift in Sources */,
 				1F2AB95324278CC20010DEEE /* WidgetsRequestDTO+Mapping.swift in Sources */,
+				65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 				1F903535230759AC00DEA4BD /* MovieQueryEntity+Mapping.swift in Sources */,
 				1FE49D8F230AA7C200D1D42E /* WidgetsQueryListViewModel.swift in Sources */,
 				652136F62DF82888006AB049 /* SliderRowView.swift in Sources */,
@@ -1492,6 +1519,7 @@
 				1F9034C72306FF2D00DEA4BD /* Endpoint.swift in Sources */,
 				659A45A12DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
 				1F9034CE230713FC00DEA4BD /* DataTransferServiceTests.swift in Sources */,
+				65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 				1FA53A3922F45CD9009A104C /* SearchMoviesUseCaseTests.swift in Sources */,
 				1F474F2B22356C7F0092DB4B /* WidgetQuery.swift in Sources */,
 				1F4102F5240BEE6A00EC014A /* UseCase.swift in Sources */,
@@ -1888,7 +1916,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1927,7 +1955,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

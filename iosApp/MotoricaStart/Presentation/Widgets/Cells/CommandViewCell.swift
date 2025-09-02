@@ -5,10 +5,6 @@ import shared
 
 final class CommandViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:CommandViewCell.self)
-    
-    //    private var sliderHostingController: UIHostingController<CustomSlider>?
-    //    @IBOutlet weak var containerView: UIView!
-    
     private var viewModel: CommandListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var numberCancellable: AnyCancellable?
@@ -24,12 +20,12 @@ final class CommandViewCell: UITableViewCell {
     
     private var cancellable: AnyCancellable?
     
-    
     override func awakeFromNib() { super.awakeFromNib() }
     
     @available(iOS 16.0, *)
     func configure(with viewModel: CommandListItemViewModel) {
         self.viewModel = viewModel
+        @State var isOn = true
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
         
@@ -44,6 +40,7 @@ final class CommandViewCell: UITableViewCell {
                     viewModel.didRelease()
                 }
             )
+//            CustomSwitcher(title: viewModel.title, isOn: $isOn)
         }
         numberCancellable?.cancel()
     }
@@ -52,8 +49,6 @@ final class CommandViewCell: UITableViewCell {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
-//        job?.cancel(cause: nil)        // прекращаем наблюдение
-//        job = nil
         contentConfiguration = nil
     }
     

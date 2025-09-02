@@ -54,12 +54,24 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 switch widget {
-                    case is BaseParameterWidgetEStruct:
+                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
                         widgetType = .commandWidget
-                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-                        widgetType = .sliderWidget
+                    case is GestureOpticParameterWidgetEStruct:
+                        widgetType = .commandWidget
+                    case is GestureParameterWidgetEStruct:
+                        widgetType = .commandWidget
+                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
+                        widgetType = .commandWidget
                     case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
                         widgetType = .plotWidget
+                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+                        widgetType = .sliderWidget
+                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
+                        widgetType = .commandWidget
                     default:
                         widgetType = .unknown
                 }

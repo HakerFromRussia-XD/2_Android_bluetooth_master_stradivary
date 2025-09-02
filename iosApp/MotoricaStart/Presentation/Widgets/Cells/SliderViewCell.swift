@@ -102,7 +102,7 @@ final class SliderViewCell: UITableViewCell {
         print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
         print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
 //        guard ref.addressDevice == viewModel.deviceAddress,
-//              ref.parameterID   == viewModel.parameterID else { return }
+        //              ref.parameterID   == viewModel.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")

@@ -19,6 +19,10 @@ final class WidgetsListTableViewController: UITableViewController {
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
     }
     override func viewDidLoad() {
+        // Use custom table view that allows scroll to cancel button touches
+        if !(tableView is WidgetsListTableView) {
+            tableView = WidgetsListTableView(frame: .zero, style: tableView.style)
+        }
         super.viewDidLoad()
         setupViews()
         // Assistant: Применяем начальный снапшот данных

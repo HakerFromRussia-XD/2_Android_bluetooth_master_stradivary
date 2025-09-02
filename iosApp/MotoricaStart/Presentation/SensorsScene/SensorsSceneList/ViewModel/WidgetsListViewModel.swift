@@ -89,14 +89,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         
         items.value = widgetsPage.widgets.map{ widget in
             switch widget.widgetType {
-                case .commandWidget:
-                    return ListItemType.command(CommandListItemViewModel(widget: widget))
-                case .sliderWidget:
-                    return ListItemType.slider(SliderListItemViewModel(widget: widget))
-                case .plotWidget:
-                    return ListItemType.widget(WidgetsListItemViewModel(widget: widget))
-                @unknown default:
-                fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
+            case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget))
+            case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget))
+            case .plotWidget: return ListItemType.widget(WidgetsListItemViewModel(widget: widget))
+            @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }
         print("Updated items.value: \(items.value)")

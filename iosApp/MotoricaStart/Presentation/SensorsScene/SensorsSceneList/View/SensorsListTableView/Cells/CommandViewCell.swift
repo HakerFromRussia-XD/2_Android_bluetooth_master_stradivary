@@ -35,10 +35,13 @@ final class CommandViewCell: UITableViewCell {
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
-            ButtonViewCell(
+            CustomButton(
                 title: viewModel.title,
-                action: {
-                    viewModel.didTapAction()
+                onPress: {
+                    viewModel.didPressDown()
+                },
+                onRelease: {
+                    viewModel.didRelease()
                 }
             )
         }

@@ -9,9 +9,13 @@ import SwiftUI
 
 
 
-struct ButtonViewCell: View {
+struct CustomButton: View {
     let title: String
-    var action: () -> Void
+    
+    /// Вызывается при нажатии (палец вниз)
+    var onPress: (() -> Void)? = nil
+    /// Вызывается при отпускании (палец вверх)
+    var onRelease: (() -> Void)? = nil
 
     // стили
     var height: CGFloat = 48
@@ -25,13 +29,11 @@ struct ButtonViewCell: View {
     @State private var isPressed = false
 
     var body: some View {
-           Button(action: action) {
-            Text(title)
-                .font(.system(size: 12, weight: .light))
-                .foregroundStyle(textColor)
-                .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
-                .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
-        }
+        Text(title)
+            .font(.system(size: 12, weight: .light))
+            .foregroundStyle(textColor)
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
         .buttonStyle(.plain)
         .background(
             RoundedRectangle(cornerRadius: cornerRadius)
@@ -40,28 +42,26 @@ struct ButtonViewCell: View {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(stroke, lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1) // ~elevation=3dp
+                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
         )
-        .overlay( // «ripple» подсветка при нажатии
+        .overlay(
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(Color.white.opacity(isPressed ? 0.12 : 0))
         )
         .scaleEffect(isPressed ? 0.98 : 1)
         .animation(.easeOut(duration: 0.12), value: isPressed)
-        .simultaneousGesture(
+        .gesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
+                .onChanged { _ in
+                    if !isPressed {
+                        isPressed = true
+                        onPress?()
+                    }
+                }
+                .onEnded { _ in
+                    isPressed = false
+                    onRelease?()
+                }
         )
     }
 }
-//
-//#Preview {
-//    ZStack {
-//        Color("ubi4_back").ignoresSafeArea()
-//        ButtonViewCell(title: "Gesture №1") { print("tap") }
-//            .padding(.horizontal, 16) // marginStart/End = 16dp
-//            .padding(.vertical, 4)    // marginTop/Bottom = 4dp
-//    }
-//    .preferredColorScheme(.dark)
-//}

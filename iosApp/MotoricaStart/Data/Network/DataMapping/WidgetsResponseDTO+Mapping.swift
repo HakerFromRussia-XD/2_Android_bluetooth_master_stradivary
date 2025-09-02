@@ -112,7 +112,7 @@ extension WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO {
         case .spinnerWidget: return .spinnerWidget
         case .switchWidget: return .switchWidget
         case .thresholdWidget: return .thresholdWidget
-        case .unknown: return .plotWidget
+        case .unknown: return .commandWidget
         }
     }
 }

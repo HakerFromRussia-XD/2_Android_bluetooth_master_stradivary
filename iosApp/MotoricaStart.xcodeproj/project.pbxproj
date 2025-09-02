@@ -147,8 +147,8 @@
 		65F27E992E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */; };
 		65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
 		65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
-		65F27ED22E6709E600AD5DFD /* ButtonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */; };
-		65F27ED32E6709FE00AD5DFD /* ButtonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */; };
+		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
+		65F27ED32E6709FE00AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -309,7 +309,7 @@
 		65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStartPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonViewCell.swift; sourceTree = "<group>"; };
+		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
@@ -1076,7 +1076,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
-				65F27ED12E6709D200AD5DFD /* ButtonViewCell.swift */,
+				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
@@ -1429,7 +1429,7 @@
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */,
-				65F27ED22E6709E600AD5DFD /* ButtonViewCell.swift in Sources */,
+				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
@@ -1522,7 +1522,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */,
-				65F27ED32E6709FE00AD5DFD /* ButtonViewCell.swift in Sources */,
+				65F27ED32E6709FE00AD5DFD /* CustomButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,7 +13,10 @@ extension CommandListItemViewModel {
         self.parameterID = widget.parameterID
     }
     
-    func didTapAction() {
-        
+    func didPressDown() {
+        print("didPressDown")
+    }
+    func didRelease() {
+        print("didRelease")
     }
 }

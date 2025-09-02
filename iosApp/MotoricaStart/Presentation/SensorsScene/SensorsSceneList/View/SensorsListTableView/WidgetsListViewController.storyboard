@@ -223,7 +223,7 @@
                                     <outlet property="widgetSliderTitleLabel_2" destination="h1k-sr-2uQ" id="wdu-o2-YH8"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommandViewCell" id="VYe-Uv-Dac" customClass="SliderViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommandViewCell" id="VYe-Uv-Dac" customClass="CommandViewCell" customModule="MotoricaStart" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="330" width="375" height="140"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="VYe-Uv-Dac" id="TXy-yj-u65" colorLabel="IBBuiltInLabel-Yellow">

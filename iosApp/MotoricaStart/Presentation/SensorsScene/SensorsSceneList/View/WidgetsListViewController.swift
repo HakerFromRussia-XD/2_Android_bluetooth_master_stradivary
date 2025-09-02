@@ -48,20 +48,20 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 //        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
-        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = (kotlinWidgets as? [Any])?
+        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
             .enumerated()
             .map { index, widget in
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 switch widget {
-                case is BaseParameterWidgetEStruct:
-                    widgetType = .commandWidget
-                case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-                    widgetType = .sliderWidget
-                case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-                    widgetType = .plotWidget
-                default:
-                    widgetType = .unknown
+                    case is BaseParameterWidgetEStruct:
+                        widgetType = .commandWidget
+                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+                        widgetType = .sliderWidget
+                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
+                        widgetType = .plotWidget
+                    default:
+                        widgetType = .unknown
                 }
                 
                 return WidgetsResponseDTO.WidgetDTO(
@@ -73,7 +73,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     releaseDate: nil,
                     isAd: false
                 )
-            } ?? []
+            }
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
         
         let mockResponseDTO = WidgetsResponseDTO(

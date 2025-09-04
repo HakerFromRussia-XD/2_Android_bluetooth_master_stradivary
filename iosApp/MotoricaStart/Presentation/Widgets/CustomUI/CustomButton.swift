@@ -50,7 +50,7 @@ struct CustomButton: View {
         )
         .scaleEffect(isPressed ? 0.98 : 1)
         .animation(.easeOut(duration: 0.12), value: isPressed)
-        .gesture(
+        .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
                     if !isPressed {

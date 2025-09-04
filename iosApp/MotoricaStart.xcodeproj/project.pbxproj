@@ -80,7 +80,7 @@
 		1FE49D86230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */; };
 		1FE49D87230AA7C200D1D42E /* WidgetDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D6D230AA7C200D1D42E /* WidgetDetailsViewController.swift */; };
 		1FE49D88230AA7C200D1D42E /* MovieDetailsViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */; };
-		1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */; };
+		1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */; };
 		1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */; };
 		1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */; };
 		1FE49D8E230AA7C200D1D42E /* WidgetsQueryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D7A230AA7C200D1D42E /* WidgetsQueryListView.swift */; };
@@ -145,17 +145,17 @@
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
 		65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */; };
 		65F27E992E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */; };
-		65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
 		65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E952E66046900AD5DFD /* CommandViewCell.swift */; };
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
-		65F27ED32E6709FE00AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		65F27F0A2E69B19400AD5DFD /* CustomChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F092E69B19400AD5DFD /* CustomChart.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
+		A2DFC75673C23CBE39811DC8 /* libPods-MotoricaStart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */; };
 		FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2B715B2156FF93002BD59E /* AppAppearance.swift */; };
 		FC740818216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */; };
 		FC74081A2165574400FE52A5 /* WidgetQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7408192165574400FE52A5 /* WidgetQuery.swift */; };
@@ -175,20 +175,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 1FA53388201E1FDE00747E55;
 			remoteInfo = CodeChallenge;
-		};
-		65F27EB42E67075200AD5DFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 65F27E9D2E67075000AD5DFD;
-			remoteInfo = MotoricaStartPreview;
-		};
-		65F27EBE2E67075200AD5DFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 65F27E9D2E67075000AD5DFD;
-			remoteInfo = MotoricaStartPreview;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -254,7 +240,7 @@
 		1FE49D6B230AA7C200D1D42E /* MoviesQueriesTableViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MoviesQueriesTableViewController.storyboard; sourceTree = "<group>"; };
 		1FE49D6D230AA7C200D1D42E /* WidgetDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetDetailsViewController.swift; sourceTree = "<group>"; };
 		1FE49D6E230AA7C200D1D42E /* MovieDetailsViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MovieDetailsViewController.storyboard; sourceTree = "<group>"; };
-		1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListItemCell.swift; sourceTree = "<group>"; };
+		1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlotViewCell.swift; sourceTree = "<group>"; };
 		1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListTableViewController.swift; sourceTree = "<group>"; };
 		1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewController.swift; sourceTree = "<group>"; };
 		1FE49D7A230AA7C200D1D42E /* WidgetsQueryListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsQueryListView.swift; sourceTree = "<group>"; };
@@ -278,6 +264,7 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ExampleMVVMTests/Info.plist; sourceTree = SOURCE_ROOT; };
+		53F56538C80B0BA6D9D37465 /* Pods-MotoricaStart.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.debug.xcconfig"; sourceTree = "<group>"; };
 		652136F52DF82884006AB049 /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
@@ -310,14 +297,14 @@
 		65F27E902E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		65F27E952E66046900AD5DFD /* CommandViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandViewCell.swift; sourceTree = "<group>"; };
 		65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandListItemViewModel.swift; sourceTree = "<group>"; };
-		65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStartPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartPreviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
+		65F27F092E69B19400AD5DFD /* CustomChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomChart.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
+		B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MotoricaStart.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EFF2F7584AB0FBB41687C7F7 /* Pods-MotoricaStart.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.release.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.release.xcconfig"; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
@@ -335,31 +322,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2DFC75673C23CBE39811DC8 /* libPods-MotoricaStart.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1FA5339A201E1FDE00747E55 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27E9B2E67075000AD5DFD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EB02E67075200AD5DFD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EBA2E67075200AD5DFD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -576,6 +543,7 @@
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
+				C056B6E2B97A83B8C666B159 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -585,9 +553,6 @@
 				1FA53389201E1FDE00747E55 /* MotoricaStart.app */,
 				1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */,
 				1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */,
-				65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */,
-				65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */,
-				65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -769,7 +734,7 @@
 			isa = PBXGroup;
 			children = (
 				652136F42DF82876006AB049 /* SliderRow */,
-				1FE49D73230AA7C200D1D42E /* WidgetsListItemCell.swift */,
+				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
 				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 			);
@@ -980,6 +945,7 @@
 			isa = PBXGroup;
 			children = (
 				6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */,
+				B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1080,6 +1046,7 @@
 			isa = PBXGroup;
 			children = (
 				65F27F002E67294700AD5DFD /* CustomSwitcher.swift */,
+				65F27F092E69B19400AD5DFD /* CustomChart.swift */,
 				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
@@ -1113,6 +1080,15 @@
 				1F7C1D17242117790014F011 /* Movie+Stub.swift */,
 			);
 			path = Stubs;
+			sourceTree = "<group>";
+		};
+		C056B6E2B97A83B8C666B159 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				53F56538C80B0BA6D9D37465 /* Pods-MotoricaStart.debug.xcconfig */,
+				EFF2F7584AB0FBB41687C7F7 /* Pods-MotoricaStart.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		FC7408122165557500FE52A5 /* PersistentStorages */ = {
@@ -1150,6 +1126,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1FA533A6201E1FDE00747E55 /* Build configuration list for PBXNativeTarget "MotoricaStart" */;
 			buildPhases = (
+				1709849DBFC6CE5F9BD7E395 /* [CP] Check Pods Manifest.lock */,
 				654FDC612E1FDDCA00CF72BD /* Compile kotlin */,
 				1FA53385201E1FDE00747E55 /* Sources */,
 				1FA53387201E1FDE00747E55 /* Resources */,
@@ -1182,65 +1159,6 @@
 			productReference = 1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 65F27EC62E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreview" */;
-			buildPhases = (
-				65F27E9A2E67075000AD5DFD /* Sources */,
-				65F27E9B2E67075000AD5DFD /* Frameworks */,
-				65F27E9C2E67075000AD5DFD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MotoricaStartPreview;
-			packageProductDependencies = (
-			);
-			productName = MotoricaStartPreview;
-			productReference = 65F27E9E2E67075000AD5DFD /* MotoricaStartPreview.app */;
-			productType = "com.apple.product-type.application";
-		};
-		65F27EB22E67075200AD5DFD /* MotoricaStartPreviewTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 65F27EC92E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewTests" */;
-			buildPhases = (
-				65F27EAF2E67075200AD5DFD /* Sources */,
-				65F27EB02E67075200AD5DFD /* Frameworks */,
-				65F27EB12E67075200AD5DFD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				65F27EB52E67075200AD5DFD /* PBXTargetDependency */,
-			);
-			name = MotoricaStartPreviewTests;
-			packageProductDependencies = (
-			);
-			productName = MotoricaStartPreviewTests;
-			productReference = 65F27EB32E67075200AD5DFD /* MotoricaStartPreviewTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		65F27EBC2E67075200AD5DFD /* MotoricaStartPreviewUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 65F27ECC2E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewUITests" */;
-			buildPhases = (
-				65F27EB92E67075200AD5DFD /* Sources */,
-				65F27EBA2E67075200AD5DFD /* Frameworks */,
-				65F27EBB2E67075200AD5DFD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				65F27EBF2E67075200AD5DFD /* PBXTargetDependency */,
-			);
-			name = MotoricaStartPreviewUITests;
-			packageProductDependencies = (
-			);
-			productName = MotoricaStartPreviewUITests;
-			productReference = 65F27EBD2E67075200AD5DFD /* MotoricaStartPreviewUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1266,17 +1184,6 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 1FA53388201E1FDE00747E55;
 					};
-					65F27E9D2E67075000AD5DFD = {
-						CreatedOnToolsVersion = 16.4;
-					};
-					65F27EB22E67075200AD5DFD = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 65F27E9D2E67075000AD5DFD;
-					};
-					65F27EBC2E67075200AD5DFD = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 65F27E9D2E67075000AD5DFD;
-					};
 				};
 			};
 			buildConfigurationList = 1FA53384201E1FDE00747E55 /* Build configuration list for PBXProject "MotoricaStart" */;
@@ -1290,8 +1197,6 @@
 				ru,
 			);
 			mainGroup = 1FA53380201E1FDE00747E55;
-			packageReferences = (
-			);
 			productRefGroup = 1FA5338A201E1FDE00747E55 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1299,9 +1204,6 @@
 				1FA53388201E1FDE00747E55 /* MotoricaStart */,
 				1FA5339C201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3122F8507500E40C3A /* MotoricaStartUITests */,
-				65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */,
-				65F27EB22E67075200AD5DFD /* MotoricaStartPreviewTests */,
-				65F27EBC2E67075200AD5DFD /* MotoricaStartPreviewUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -1347,30 +1249,31 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		65F27E9C2E67075000AD5DFD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EB12E67075200AD5DFD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EBB2E67075200AD5DFD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1709849DBFC6CE5F9BD7E395 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MotoricaStart-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -1412,6 +1315,7 @@
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
 				1F53E2B823125F71008D6A05 /* WidgetsQueryListItemViewModel.swift in Sources */,
+				65F27F0A2E69B19400AD5DFD /* CustomChart.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */,
 				1FFF12AA243A022300937EE4 /* WidgetsResponseEntity+Mapping.swift in Sources */,
@@ -1454,7 +1358,7 @@
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
-				1FE49D8A230AA7C200D1D42E /* WidgetsListItemCell.swift in Sources */,
+				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
@@ -1545,29 +1449,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		65F27E9A2E67075000AD5DFD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				65F27ECF2E67077500AD5DFD /* CommandViewCell.swift in Sources */,
-				65F27ED32E6709FE00AD5DFD /* CustomButton.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EAF2E67075200AD5DFD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		65F27EB92E67075200AD5DFD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1580,16 +1461,6 @@
 			isa = PBXTargetDependency;
 			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
 			targetProxy = 1FA5339E201E1FDE00747E55 /* PBXContainerItemProxy */;
-		};
-		65F27EB52E67075200AD5DFD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
-			targetProxy = 65F27EB42E67075200AD5DFD /* PBXContainerItemProxy */;
-		};
-		65F27EBF2E67075200AD5DFD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 65F27E9D2E67075000AD5DFD /* MotoricaStartPreview */;
-			targetProxy = 65F27EBE2E67075200AD5DFD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1717,6 +1588,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
+					"$(inherited)",
 					"-weak_framework",
 					SwiftUI,
 				);
@@ -1774,6 +1646,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
+					"$(inherited)",
 					"-weak_framework",
 					SwiftUI,
 				);
@@ -1786,6 +1659,7 @@
 		};
 		1FA533A7201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 53F56538C80B0BA6D9D37465 /* Pods-MotoricaStart.debug.xcconfig */;
 			buildSettings = {
 				API_BASE_URL = "http://api.themoviedb.org";
 				API_KEY = 2696829a81b1b5827d515ff121700838;
@@ -1819,6 +1693,7 @@
 		};
 		1FA533A8201E1FDE00747E55 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EFF2F7584AB0FBB41687C7F7 /* Pods-MotoricaStart.release.xcconfig */;
 			buildSettings = {
 				API_BASE_URL = "http://api.themoviedb.org";
 				API_KEY = 2696829a81b1b5827d515ff121700838;
@@ -1895,192 +1770,6 @@
 			};
 			name = Release;
 		};
-		65F27EC72E67075200AD5DFD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MotoricaStartPreview/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreview;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		65F27EC82E67075200AD5DFD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MotoricaStartPreview/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreview;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		65F27ECA2E67075200AD5DFD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStartPreview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStartPreview";
-			};
-			name = Debug;
-		};
-		65F27ECB2E67075200AD5DFD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStartPreview.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStartPreview";
-			};
-			name = Release;
-		};
-		65F27ECD2E67075200AD5DFD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MotoricaStartPreview;
-			};
-			name = Debug;
-		};
-		65F27ECE2E67075200AD5DFD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R7K637DW83;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.MotoricaStartPreviewUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MotoricaStartPreview;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2116,33 +1805,6 @@
 			buildConfigurations = (
 				1FA533AA201E1FDE00747E55 /* Debug */,
 				1FA533AB201E1FDE00747E55 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		65F27EC62E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreview" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				65F27EC72E67075200AD5DFD /* Debug */,
-				65F27EC82E67075200AD5DFD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		65F27EC92E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				65F27ECA2E67075200AD5DFD /* Debug */,
-				65F27ECB2E67075200AD5DFD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		65F27ECC2E67075200AD5DFD /* Build configuration list for PBXNativeTarget "MotoricaStartPreviewUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				65F27ECD2E67075200AD5DFD /* Debug */,
-				65F27ECE2E67075200AD5DFD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

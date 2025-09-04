@@ -23,6 +23,7 @@ final class WidgetsListTableViewController: UITableViewController {
         // Ensure our table view uses WidgetsListTableView without losing storyboard prototype cells
         if !(tableView is WidgetsListTableView) {
             object_setClass(tableView, WidgetsListTableView.self)
+            (tableView as? WidgetsListTableView)?.configure()
         }
         super.viewDidLoad()
         setupViews()
@@ -58,7 +59,7 @@ final class WidgetsListTableViewController: UITableViewController {
 
     // MARK: - Private
     private func setupViews() {
-        tableView.estimatedRowHeight = WidgetsListItemCell.height
+        tableView.estimatedRowHeight = PlotViewCell.height
         tableView.rowHeight = UITableView.automaticDimension
         
         // Register a class for SliderViewCell because it is created from code
@@ -81,9 +82,9 @@ final class WidgetsListTableViewController: UITableViewController {
                     return cell
                 case .widget(let vm):
                     let cell = tableView.dequeueReusableCell(
-                        withIdentifier: WidgetsListItemCell.reuseIdentifier,
+                        withIdentifier: PlotViewCell.reuseIdentifier,
                         for: indexPath
-                    ) as! WidgetsListItemCell
+                    ) as! PlotViewCell
                     cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
                     // подгрузка следующей страницы
                     if indexPath.row == (self.viewModel.items.value.count) - 1 {
@@ -125,10 +126,10 @@ extension WidgetsListTableViewController {
         switch item {
             case .widget(let widgetVM):
                 guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: WidgetsListItemCell.reuseIdentifier,
+                    withIdentifier: PlotViewCell.reuseIdentifier,
                     for: indexPath
-                ) as? WidgetsListItemCell else {
-                    assertionFailure("Cannot dequeue reusable cell \(WidgetsListItemCell.self) with reuseIdentifier: \(WidgetsListItemCell.reuseIdentifier)")
+                ) as? PlotViewCell else {
+                    assertionFailure("Cannot dequeue reusable cell \(PlotViewCell.self) with reuseIdentifier: \(PlotViewCell.reuseIdentifier)")
                     return UITableViewCell()
                 }
                 

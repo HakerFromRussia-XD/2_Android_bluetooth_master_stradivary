@@ -27,7 +27,11 @@ struct CustomButton: View {
     var textColor: Color = .white
 
     @State private var isPressed = false
+    @State private var didScroll = false
 
+    // эмпирический порог, когда считаем, что уже пошёл скролл
+    private let scrollThreshold: CGFloat = 6
+    
     var body: some View {
         Text(title)
             .font(.system(size: 12, weight: .light))
@@ -50,17 +54,31 @@ struct CustomButton: View {
         )
         .scaleEffect(isPressed ? 0.98 : 1)
         .animation(.easeOut(duration: 0.12), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity,
+            pressing: { pressing in
+                if pressing {
                     if !isPressed {
                         isPressed = true
                         onPress?()
                     }
+                } else {
+                    // палец ушёл/отпущен — даём release ТОЛЬКО если не было скролла
+                    if isPressed, !didScroll {
+                        onRelease?()
+                    }
+                    isPressed = false
+                }
+            }, perform: { })
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 1)
+                .onChanged { value in
+                    if abs(value.translation.width) > scrollThreshold ||
+                       abs(value.translation.height) > scrollThreshold {
+                        didScroll = true
+                    }
                 }
                 .onEnded { _ in
-                    isPressed = false
-                    onRelease?()
+                    didScroll = false
                 }
         )
     }

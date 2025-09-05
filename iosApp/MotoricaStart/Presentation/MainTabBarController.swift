@@ -9,6 +9,8 @@ import UIKit
 final class MainTabBarController: UITabBarController {
     private let appDIContainer: AppDIContainer
     private var didUpdateTabBarFonts = false
+    
+    private let tabItemTopPadding: CGFloat = 4
 
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
@@ -26,6 +28,9 @@ final class MainTabBarController: UITabBarController {
         tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")
         tabBar.tintColor = UIColor(named: "ubi4_white")
         tabBar.unselectedItemTintColor = UIColor(named: "ubi4_deactivate_text")
+        
+        applyTabBarContentInsets(topPadding: tabItemTopPadding)
+        
         selectedIndex = 1 // Sensors tab by default
     }
     
@@ -68,6 +73,43 @@ final class MainTabBarController: UITabBarController {
         for item in items {
             item.setTitleTextAttributes(attributes, for: .normal)
             item.setTitleTextAttributes(attributes, for: .selected)
+        }
+    }
+    
+    private func applyTabBarContentInsets(topPadding: CGFloat) {
+        guard let items = tabBar.items else { return }
+
+        // 1) Смещаем иконки вниз (появляется "воздух" сверху)
+        for item in items {
+            item.imageInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: -topPadding, right: 0)
+            item.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+        }
+
+        // 2) Полностью настраиваем Appearance, чтобы НЕ сломать цвета
+        let bg = tabBar.backgroundColor ?? .systemBackground
+        let selected = tabBar.tintColor ?? .label
+        let unselected = tabBar.unselectedItemTintColor ?? .secondaryLabel
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()         // без блюра
+        appearance.backgroundColor = bg
+
+        func tune(_ layout: inout UITabBarItemAppearance) {
+            layout.normal.iconColor = unselected
+            layout.selected.iconColor = selected
+            layout.normal.titleTextAttributes[.foregroundColor] = unselected
+            layout.selected.titleTextAttributes[.foregroundColor] = selected
+            layout.normal.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+            layout.selected.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+        }
+
+        tune(&appearance.stackedLayoutAppearance)      // iPhone, подпись под иконкой
+        tune(&appearance.inlineLayoutAppearance)       // iPad в сайдбаре/toolbar
+        tune(&appearance.compactInlineLayoutAppearance)
+
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
         }
     }
 }

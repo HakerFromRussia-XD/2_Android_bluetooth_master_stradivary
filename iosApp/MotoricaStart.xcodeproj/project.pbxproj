@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0AA7BE2A62957AD9AE4E0CF2 /* libPods-MotoricaStartTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 507432F5B0324C00E100EA5E /* libPods-MotoricaStartTests.a */; };
 		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
 		1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0CEFCE23436B67004141FA /* ConnectionError.swift */; };
@@ -156,6 +157,7 @@
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
 		A2DFC75673C23CBE39811DC8 /* libPods-MotoricaStart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */; };
+		C2BDF36531E60E30C2483CFF /* libPods-MotoricaStart-MotoricaStartUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E844F38E63AFE93EDD438530 /* libPods-MotoricaStart-MotoricaStartUITests.a */; };
 		FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2B715B2156FF93002BD59E /* AppAppearance.swift */; };
 		FC740818216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */; };
 		FC74081A2165574400FE52A5 /* WidgetQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7408192165574400FE52A5 /* WidgetQuery.swift */; };
@@ -264,6 +266,7 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ExampleMVVMTests/Info.plist; sourceTree = SOURCE_ROOT; };
+		507432F5B0324C00E100EA5E /* libPods-MotoricaStartTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MotoricaStartTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53F56538C80B0BA6D9D37465 /* Pods-MotoricaStart.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.debug.xcconfig"; sourceTree = "<group>"; };
 		652136F52DF82884006AB049 /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
@@ -303,8 +306,13 @@
 		65F27F092E69B19400AD5DFD /* CustomChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomChart.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
+		6F27FAF93365DB30671ED546 /* Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStart-MotoricaStartUITests/Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		75EC532C3B2B016CF419F135 /* Pods-MotoricaStart-MotoricaStartUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart-MotoricaStartUITests.release.xcconfig"; path = "Target Support Files/Pods-MotoricaStart-MotoricaStartUITests/Pods-MotoricaStart-MotoricaStartUITests.release.xcconfig"; sourceTree = "<group>"; };
 		B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MotoricaStart.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E844F38E63AFE93EDD438530 /* libPods-MotoricaStart-MotoricaStartUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MotoricaStart-MotoricaStartUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFF2F7584AB0FBB41687C7F7 /* Pods-MotoricaStart.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.release.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.release.xcconfig"; sourceTree = "<group>"; };
+		F615D29C1CBD5A9FD378E49B /* Pods-MotoricaStartTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStartTests.release.xcconfig"; path = "Target Support Files/Pods-MotoricaStartTests/Pods-MotoricaStartTests.release.xcconfig"; sourceTree = "<group>"; };
+		F907C8D2510BC80A5A1F322A /* Pods-MotoricaStartTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStartTests.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStartTests/Pods-MotoricaStartTests.debug.xcconfig"; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
@@ -315,6 +323,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2BDF36531E60E30C2483CFF /* libPods-MotoricaStart-MotoricaStartUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +339,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AA7BE2A62957AD9AE4E0CF2 /* libPods-MotoricaStartTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,6 +956,8 @@
 			children = (
 				6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */,
 				B8237660D05484DD32BA0964 /* libPods-MotoricaStart.a */,
+				E844F38E63AFE93EDD438530 /* libPods-MotoricaStart-MotoricaStartUITests.a */,
+				507432F5B0324C00E100EA5E /* libPods-MotoricaStartTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1087,6 +1099,10 @@
 			children = (
 				53F56538C80B0BA6D9D37465 /* Pods-MotoricaStart.debug.xcconfig */,
 				EFF2F7584AB0FBB41687C7F7 /* Pods-MotoricaStart.release.xcconfig */,
+				6F27FAF93365DB30671ED546 /* Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig */,
+				75EC532C3B2B016CF419F135 /* Pods-MotoricaStart-MotoricaStartUITests.release.xcconfig */,
+				F907C8D2510BC80A5A1F322A /* Pods-MotoricaStartTests.debug.xcconfig */,
+				F615D29C1CBD5A9FD378E49B /* Pods-MotoricaStartTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -1108,6 +1124,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F02DE3922F8507500E40C3A /* Build configuration list for PBXNativeTarget "MotoricaStartUITests" */;
 			buildPhases = (
+				76C2A4D2207BE523A955CE7C /* [CP] Check Pods Manifest.lock */,
 				1F02DE2E22F8507500E40C3A /* Sources */,
 				1F02DE2F22F8507500E40C3A /* Frameworks */,
 				1F02DE3022F8507500E40C3A /* Resources */,
@@ -1145,6 +1162,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1FA533A9201E1FDE00747E55 /* Build configuration list for PBXNativeTarget "MotoricaStartTests" */;
 			buildPhases = (
+				925C8853EC57462C6CE728A0 /* [CP] Check Pods Manifest.lock */,
 				1FA53399201E1FDE00747E55 /* Sources */,
 				1FA5339A201E1FDE00747E55 /* Frameworks */,
 				1FA5339B201E1FDE00747E55 /* Resources */,
@@ -1292,6 +1310,50 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+		};
+		76C2A4D2207BE523A955CE7C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MotoricaStart-MotoricaStartUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		925C8853EC57462C6CE728A0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MotoricaStartTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1490,6 +1552,7 @@
 /* Begin XCBuildConfiguration section */
 		1F02DE3A22F8507500E40C3A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6F27FAF93365DB30671ED546 /* Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1513,6 +1576,7 @@
 		};
 		1F02DE3B22F8507500E40C3A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 75EC532C3B2B016CF419F135 /* Pods-MotoricaStart-MotoricaStartUITests.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1727,6 +1791,7 @@
 		};
 		1FA533AA201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F907C8D2510BC80A5A1F322A /* Pods-MotoricaStartTests.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1750,6 +1815,7 @@
 		};
 		1FA533AB201E1FDE00747E55 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F615D29C1CBD5A9FD378E49B /* Pods-MotoricaStartTests.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;

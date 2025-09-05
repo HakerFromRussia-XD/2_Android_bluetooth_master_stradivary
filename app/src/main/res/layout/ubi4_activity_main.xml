@@ -77,12 +77,12 @@
             app:layout_constraintHorizontal_bias="0.5"
             tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
-        <ImageView
+        <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/bleIndicator"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/circle_16_red"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="16dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/name_tv"
             app:layout_constraintTop_toTopOf="parent" />

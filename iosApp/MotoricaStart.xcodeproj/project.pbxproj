@@ -12,6 +12,8 @@
 		0D907A6E2E5C949D00A55863 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
 		0D907A732E5DA55C00A55863 /* ButtonVIewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */; };
 		0D907A762E5DA74D00A55863 /* ButtonVIewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */; };
+		0D907A782E671B7F00A55863 /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A772E671B3200A55863 /* CustomSwitcher.swift */; };
+		0D907A792E671B7F00A55863 /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D907A772E671B3200A55863 /* CustomSwitcher.swift */; };
 		0DCEF90B2E58A4DE00D5F3F4 /* StepButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */; };
 		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
@@ -173,6 +175,7 @@
 /* Begin PBXFileReference section */
 		0D907A592E5C88E300A55863 /* PreviewHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PreviewHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D907A722E5DA53400A55863 /* ButtonVIewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonVIewCell.swift; sourceTree = "<group>"; };
+		0D907A772E671B3200A55863 /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepButton.swift; sourceTree = "<group>"; };
 		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
@@ -1048,6 +1051,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				0D907A772E671B3200A55863 /* CustomSwitcher.swift */,
 				0DCEF90A2E58A4A300D5F3F4 /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
@@ -1283,6 +1287,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0D907A782E671B7F00A55863 /* CustomSwitcher.swift in Sources */,
 				0D907A762E5DA74D00A55863 /* ButtonVIewCell.swift in Sources */,
 				0D907A692E5C8B2700A55863 /* StepButton.swift in Sources */,
 			);
@@ -1382,6 +1387,7 @@
 				1FB0903D243766C200DBE132 /* BackButtonEmptyTitleNavigationBarBehavior.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				1FFFC834221B0041007D99D2 /* PosterImagesRepository.swift in Sources */,
+				0D907A792E671B7F00A55863 /* CustomSwitcher.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Movie.swift in Sources */,
 				65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */,
@@ -1728,7 +1734,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1761,7 +1767,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -72,6 +72,9 @@ class BLEController() {
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
     private var mDisconnected = false
 
+    private var reconnectJob: Job? = null
+
+
     private var receiverRegistered = false
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -276,27 +279,29 @@ private fun parseReceivedData(data: ByteArray?) {
         if (mScanning) { scanLeDevice(false) }
     }
     fun reconnectThread() {
-        var j = 1
-        ControllerBleStatusConnection.UiBridges.bleStatusController?.isReconnecting = true
-        bleScope.launch {
+        if (reconnectJob?.isActive == true) return
 
+        reconnectJob = bleScope.launch {
+            var j = 1
+            try {
                 while (reconnectThreadFlag) {
                     if (j % 5 == 0) {
-                        reconnectThreadFlag = false
                         scanLeDevice(true)
-                        System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
                     } else {
                         reconnect()
-                        System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
                     }
                     j++
                     delay(RECONNECT_BLE_PERIOD.toLong())
                 }
+            } finally {
+                if (!mConnected) {
+                    ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
+                }
+            }
         }
     }
 
     private suspend fun reconnect() {
-        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
         withContext(Dispatchers.IO) {
             try {
                 mContext.unbindService(mServiceConnection)
@@ -310,21 +315,21 @@ private fun parseReceivedData(data: ByteArray?) {
             mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         }
 
-        // На главном потоке регистрируем ресивер (если требуется)
         withContext(Dispatchers.Main) {
             try {
-                // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
                 mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
             } catch (e: IllegalArgumentException) {
-                // Если уже зарегистрирован, игнорируем
                 Log.w("BLEController", "Ресивер уже зарегистрирован")
             }
             mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }
+
     fun disconnect() {
         if (mDisconnected) return
         reconnectThreadFlag = false
+        reconnectJob?.cancel()
+        ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
         mDisconnected = true
         println("--> дисконнектим всё к хуям и анбайндим")
         bleScope.launch(Dispatchers.IO) {

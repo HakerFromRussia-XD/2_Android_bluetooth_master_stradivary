@@ -46,6 +46,7 @@ import kotlin.math.abs
 import kotlin.properties.Delegates
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.data.state.BLEState
 import kotlinx.coroutines.flow.filter
@@ -103,6 +104,12 @@ class UBI4GripperScreenWithEncodersActivity
     private var fingerCloseStateDelay4 = 0
     private var fingerCloseStateDelay5 = 0
     private var fingerCloseStateDelay6 = 0
+
+
+    private val f56Handler = Handler(Looper.getMainLooper())
+    private var f56PendingSend: Runnable? = null
+    private val F56_TIMEOUT_MS = 12L
+
 
     private var timerCheckReceivingData: CountDownTimer? = null
 
@@ -257,12 +264,15 @@ class UBI4GripperScreenWithEncodersActivity
                 }
                 if (numberFinger == 5) {
                     changeStateFinger5 (88 - angleFinger)
-                    compileBLEMassage ()
+//                    compileBLEMassage ()
+                    scheduleF56Send()
                 }
                 if (numberFinger == 6) {
                     changeStateFinger6 (98 - angleFinger)
-                    compileBLEMassage ()
+//                    compileBLEMassage ()
+                    sendF56Now()
                 }
+
                 if (numberFinger == 55) { }
             }
 
@@ -830,5 +840,27 @@ private fun updateSelectorUI(isOpen: Boolean) {
         if (!isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
     ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
 }
+
+    private fun scheduleF56Send() {
+        // перезапускаем таймер на отправку
+        f56PendingSend?.let { f56Handler.removeCallbacks(it) }
+        f56PendingSend = Runnable {
+            compileBLEMassage()
+            f56PendingSend = null
+        }
+        f56Handler.postDelayed(f56PendingSend!!, F56_TIMEOUT_MS)
+    }
+
+    private fun sendF56Now() {
+        // если висел таймер — отменяем
+        f56PendingSend?.let { f56Handler.removeCallbacks(it); f56PendingSend = null }
+        compileBLEMassage()
+    }
+
+    override fun onDestroy() {
+        f56PendingSend?.let { f56Handler.removeCallbacks(it) }
+        f56PendingSend = null
+        super.onDestroy()
+    }
 
 }

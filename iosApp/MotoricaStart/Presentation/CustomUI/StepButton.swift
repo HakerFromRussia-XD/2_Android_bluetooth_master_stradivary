@@ -34,9 +34,9 @@ struct StepButton: View {
     }
 }
 
-#Preview {
-    StepButton(label: "+") { print("Button tapped") }
-        .previewLayout(.sizeThatFits)
-        .padding()
-        .background(Color.ubi4Back)
-}
+//#Preview {
+//    StepButton(label: "+") { print("Button tapped") }
+//        .previewLayout(.sizeThatFits)
+//        .padding()
+//        .background(Color("ubi4_back"))
+//}

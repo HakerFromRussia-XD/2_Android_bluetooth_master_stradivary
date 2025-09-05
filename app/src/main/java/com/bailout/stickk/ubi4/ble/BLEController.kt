@@ -380,7 +380,7 @@ private fun parseReceivedData(data: ByteArray?) {
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
                 Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid}")
-                if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
+                if(mGattCharacteristics[i][j].uuid.toString().equals(uuid, ignoreCase = true)){
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {

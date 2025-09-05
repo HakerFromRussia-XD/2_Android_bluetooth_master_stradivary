@@ -226,9 +226,9 @@ actual class BleManagerKmm actual constructor() {
         characteristicsMass.forEach { c ->
             platformLog(
                 "sendBytesKmm",
-                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с $command"
+                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с ${command.uppercase()}"
             )
-            if (c.UUID.UUIDString() == command) {
+            if (c.UUID.UUIDString() == command.uppercase()) {
                 when (typeCommand) {
                     READ -> {
                         platformLog("sendBytesKmm", "читаем данные: $receiveDataString")

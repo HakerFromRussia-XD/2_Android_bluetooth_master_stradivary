@@ -633,7 +633,7 @@ class BLEParser(
         if (baseParametrInfoStructArray.size != 0) {
             platformLog("getNextIDParameter", "запрос адшнл параметра")
             if (baseParametrInfoStructArray[0].additionalInfoSize != 0) {
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[0].ID.toByte()),
                     MAIN_CHANNEL_CHARACTERISTIC,
                     WRITE
@@ -642,14 +642,14 @@ class BLEParser(
                 val ID = getNextIDParameter(0)
                 if (ID != 0) {
                     platformLog("getNextIDParameter", "запроса адшнл параметра")
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[ID].ID.toByte()),
                         MAIN_CHANNEL_CHARACTERISTIC,
                         WRITE
                     ) {}
                 } else {
                     platformLog("getNextIDParameter", "конец запроса параметров")
-                    bleCommandExecutor.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+                    bleManager.sendBytesKmm(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
                 }
             }
         }
@@ -692,14 +692,14 @@ class BLEParser(
         ID = getNextIDParameter(ID)
         if (ID != 0) {
             platformLog("getNextIDParameter", "запроса адшнл параметра")
-            bleCommandExecutor.bleCommandWithQueue(
+            bleManager.sendBytesKmm(
                 BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[ID].ID.toByte()),
                 MAIN_CHANNEL_CHARACTERISTIC,
                 WRITE
             ) {}
         } else {
             platformLog("getNextIDParameter", "конец запроса адшнл параметров")
-            bleCommandExecutor.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            bleManager.sendBytesKmm(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         }
     }
 
@@ -729,7 +729,7 @@ class BLEParser(
                     numberCount = parametrsNum - subDeviceChankParametersCounter * 10
                 }
                 if (numberCount != 0) {
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestSubDeviceParametrs(
                             baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
                             subDeviceChankParametersCounter * 10,
@@ -741,12 +741,12 @@ class BLEParser(
                 }
 
 
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestProductInfoType(),
                     MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 
                 baseSubDevicesInfoStructSet.forEach { sub ->
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),
                         MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
                 }
@@ -844,7 +844,7 @@ class BLEParser(
             }
 
             if (numberCount != 0){
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestSubDeviceParametrs(_deviceAddress, subDeviceChankParametersCounter * 10, numberCount),
                     MAIN_CHANNEL_CHARACTERISTIC,
                     WRITE
@@ -869,7 +869,7 @@ class BLEParser(
                 subDeviceAdditionalCounter = 1
             } else {
                 platformLog("SubDeviceAdditionalParameterss", "запроса адишнл параметра")
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestSubDeviceAdditionalParametrs(
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
@@ -916,7 +916,7 @@ class BLEParser(
                                     val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
                                     if (widgetStruct.widgetCode == 16){
                                         platformLog("parsedWidget", "▶️ parsedWidget run")
-                                        bleCommandExecutor.bleCommandWithQueue(
+                                        bleManager.sendBytesKmm(
                                             BLECommands.requestBatteryStatus(7,0),
                                             MAIN_CHANNEL_CHARACTERISTIC,
                                             WRITE
@@ -937,7 +937,7 @@ class BLEParser(
 
         if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third != 0) {
             platformLog("parseReadSubDeviceAdditionalParameters", "запроса адишнл параметра")
-            bleCommandExecutor.bleCommandWithQueue(
+            bleManager.sendBytesKmm(
                 BLECommands.requestSubDeviceAdditionalParametrs(
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
@@ -947,7 +947,7 @@ class BLEParser(
             ) {}
             subDeviceAdditionalCounter++
         } else {
-            bleCommandExecutor.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
         }

@@ -94,7 +94,7 @@
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlotViewCell" id="uUP-Ga-BsY" customClass="PlotViewCell" customModule="MotoricaStart" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="50" width="375" height="140"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uUP-Ga-BsY" id="OzQ-03-uhC">
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uUP-Ga-BsY" id="OzQ-03-uhC" customClass="LineChartView" customModule="DGCharts">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <color key="backgroundColor" name="ubi4_active"/>
@@ -102,7 +102,7 @@
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
-                                    <outlet property="lineChartView" destination="OzQ-03-uhC" id="aT4-rJ-wKV"/>
+                                    <outlet property="lineChartView" destination="OzQ-03-uhC" id="JU0-Vr-vAM"/>
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SliderViewCell" id="Ga3-9R-4kz" customClass="SliderViewCell" customModule="MotoricaStart" customModuleProvider="target">

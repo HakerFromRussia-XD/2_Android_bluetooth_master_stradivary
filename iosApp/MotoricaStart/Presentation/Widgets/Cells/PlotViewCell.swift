@@ -29,6 +29,11 @@ final class PlotViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
+        
+        if lineChartView.data == nil {
+            lineChartView.data = LineChartData()
+        }
+//        let data = lineChartView.data!
         initChart()
     }
     
@@ -65,7 +70,7 @@ final class PlotViewCell: UITableViewCell {
         self.count += 1
     }
     func initChart() {
-        var data = self.lineChartView.data
+//        var data = self.lineChartView.data
 //        let set1 = LineChartDataSet(entries: [], label: "")
 //        data = LineChartData(dataSet: set1)
 //        var data2 = self.lineChartView.data

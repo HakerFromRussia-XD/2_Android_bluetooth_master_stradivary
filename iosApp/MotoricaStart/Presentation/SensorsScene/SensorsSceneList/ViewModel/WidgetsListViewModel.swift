@@ -91,7 +91,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             switch widget.widgetType {
             case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget))
             case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget))
-            case .plotWidget: return ListItemType.widget(WidgetsListItemViewModel(widget: widget))
+            case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget))
             @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }
@@ -174,7 +174,7 @@ extension KotlinByteArray {
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
     case command(CommandListItemViewModel)
-    case widget(WidgetsListItemViewModel)
+    case plot(PlotListItemViewModel)
     case slider(SliderListItemViewModel)
 }
 // MARK: - INPUT. View event methods
@@ -212,7 +212,6 @@ extension DefaultWidgetsListViewModel {
 }
 
 // MARK: - Private
-
 private extension Array where Element == WidgetsPage {
     var widgets: [Widget] { flatMap { $0.widgets } }
 }

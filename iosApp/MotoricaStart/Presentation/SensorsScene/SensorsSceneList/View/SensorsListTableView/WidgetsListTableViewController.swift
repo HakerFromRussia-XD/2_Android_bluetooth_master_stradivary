@@ -71,7 +71,7 @@ final class WidgetsListTableViewController: UITableViewController {
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
-            guard let self = self else {return nil}
+//            guard let self = self else {return nil}
             switch item {
                 case .command(let vm):
                     let cell = tableView.dequeueReusableCell(
@@ -80,16 +80,12 @@ final class WidgetsListTableViewController: UITableViewController {
                     ) as! CommandViewCell
                     cell.configure(with: vm)
                     return cell
-                case .widget(let vm):
+                case .plot(let vm):
                     let cell = tableView.dequeueReusableCell(
                         withIdentifier: PlotViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! PlotViewCell
-                    cell.fill(with: vm, posterImagesRepository: self.posterImagesRepository)
-                    // подгрузка следующей страницы
-                    if indexPath.row == (self.viewModel.items.value.count) - 1 {
-                        self.viewModel.didLoadNextPage()
-                    }
+                    cell.configure(with: vm)
                     return cell
 
                 case .slider(let vm):
@@ -124,17 +120,14 @@ extension WidgetsListTableViewController {
         print("Item at \(indexPath.row): \(item)")
         
         switch item {
-            case .widget(let widgetVM):
+            case .plot(let widgetVM):
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: PlotViewCell.reuseIdentifier,
                     for: indexPath
                 ) as? PlotViewCell else {
-                    assertionFailure("Cannot dequeue reusable cell \(PlotViewCell.self) with reuseIdentifier: \(PlotViewCell.reuseIdentifier)")
+                    assertionFailure("Cannot dequeue ad cell")
                     return UITableViewCell()
                 }
-                
-                cell.fill(with: widgetVM, posterImagesRepository: posterImagesRepository)
-                
                 if indexPath.row == viewModel.items.value.count - 1 {
                     viewModel.didLoadNextPage()
                 }

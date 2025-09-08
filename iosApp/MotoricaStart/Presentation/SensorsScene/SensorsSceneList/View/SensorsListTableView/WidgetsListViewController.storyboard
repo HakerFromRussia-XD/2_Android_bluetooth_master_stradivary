@@ -91,7 +91,7 @@
                         <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="sectionIndexBackgroundColor" name="ubi4_back"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlotViewCell" id="uUP-Ga-BsY" userLabel="WidgetsListItemCell" customClass="PlotViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlotViewCell" id="uUP-Ga-BsY" customClass="PlotViewCell" customModule="MotoricaStart" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="50" width="375" height="140"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uUP-Ga-BsY" id="OzQ-03-uhC">
@@ -143,12 +143,6 @@
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                <connections>
-                                    <outlet property="dateLabel" destination="4Z1-DO-pfb" id="gaN-gB-Pr8"/>
-                                    <outlet property="overviewLabel" destination="yeA-yy-sWx" id="jeg-Ff-0Tf"/>
-                                    <outlet property="posterImageView" destination="gc0-V9-HRA" id="5E2-QU-G7r"/>
-                                    <outlet property="titleLabel" destination="we8-9y-ZfZ" id="JCo-dL-MCT"/>
-                                </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SliderViewCell" id="Ga3-9R-4kz" customClass="SliderViewCell" customModule="MotoricaStart" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="190" width="375" height="140"/>

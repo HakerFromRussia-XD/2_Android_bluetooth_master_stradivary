@@ -99,8 +99,8 @@
 		1FFF12A42439F2E700937EE4 /* WidgetsResponseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF12A32439F2E700937EE4 /* WidgetsResponseStorage.swift */; };
 		1FFF12A72439FA9E00937EE4 /* CoreDataWidgetsResponseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF12A62439FA9E00937EE4 /* CoreDataWidgetsResponseStorage.swift */; };
 		1FFF12AA243A022300937EE4 /* WidgetsResponseEntity+Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF12A9243A022300937EE4 /* WidgetsResponseEntity+Mapping.swift */; };
-		1FFF1AD5243B966600937EE4 /* WidgetsListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */; };
-		1FFF1C10243B9ABB00937EE4 /* WidgetsListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */; };
+		1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */; };
+		1FFF1C10243B9ABB00937EE4 /* PlotListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */; };
 		1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC827221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift */; };
 		1FFFC832221B0041007D99D2 /* WidgetsQueriesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC828221B0041007D99D2 /* WidgetsQueriesRepository.swift */; };
 		1FFFC833221B0041007D99D2 /* DefaultPosterImagesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC82B221B0041007D99D2 /* DefaultPosterImagesRepository.swift */; };
@@ -152,7 +152,7 @@
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
-		65F27F0A2E69B19400AD5DFD /* CustomChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F092E69B19400AD5DFD /* CustomChart.swift */; };
+		65F27F0A2E69B19400AD5DFD /* CustomPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F092E69B19400AD5DFD /* CustomPlot.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -258,7 +258,7 @@
 		1FFF12A32439F2E700937EE4 /* WidgetsResponseStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsResponseStorage.swift; sourceTree = "<group>"; };
 		1FFF12A62439FA9E00937EE4 /* CoreDataWidgetsResponseStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataWidgetsResponseStorage.swift; sourceTree = "<group>"; };
 		1FFF12A9243A022300937EE4 /* WidgetsResponseEntity+Mapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetsResponseEntity+Mapping.swift"; sourceTree = "<group>"; };
-		1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListItemViewModel.swift; sourceTree = "<group>"; };
+		1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModel.swift; sourceTree = "<group>"; };
 		1FFFC827221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsQueriesRepository.swift; sourceTree = "<group>"; };
 		1FFFC828221B0041007D99D2 /* WidgetsQueriesRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsQueriesRepository.swift; sourceTree = "<group>"; };
 		1FFFC82B221B0041007D99D2 /* DefaultPosterImagesRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultPosterImagesRepository.swift; sourceTree = "<group>"; };
@@ -303,7 +303,7 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
-		65F27F092E69B19400AD5DFD /* CustomChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomChart.swift; sourceTree = "<group>"; };
+		65F27F092E69B19400AD5DFD /* CustomPlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPlot.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		6F27FAF93365DB30671ED546 /* Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStart-MotoricaStartUITests/Pods-MotoricaStart-MotoricaStartUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1058,7 +1058,7 @@
 			isa = PBXGroup;
 			children = (
 				65F27F002E67294700AD5DFD /* CustomSwitcher.swift */,
-				65F27F092E69B19400AD5DFD /* CustomChart.swift */,
+				65F27F092E69B19400AD5DFD /* CustomPlot.swift */,
 				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
@@ -1079,7 +1079,7 @@
 		65F27F032E672F2B00AD5DFD /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				1FFF1AD4243B966600937EE4 /* WidgetsListItemViewModel.swift */,
+				1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */,
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
 				65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */,
 			);
@@ -1377,7 +1377,7 @@
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
 				1F53E2B823125F71008D6A05 /* WidgetsQueryListItemViewModel.swift in Sources */,
-				65F27F0A2E69B19400AD5DFD /* CustomChart.swift in Sources */,
+				65F27F0A2E69B19400AD5DFD /* CustomPlot.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */,
 				1FFF12AA243A022300937EE4 /* WidgetsResponseEntity+Mapping.swift in Sources */,
@@ -1404,7 +1404,7 @@
 				1F84DED023006BDA00139F73 /* FetchRecentWidgetQueriesUseCase.swift in Sources */,
 				1FFF12A42439F2E700937EE4 /* WidgetsResponseStorage.swift in Sources */,
 				1F2AB951242789B80010DEEE /* WidgetsResponseDTO+Mapping.swift in Sources */,
-				1FFF1AD5243B966600937EE4 /* WidgetsListItemViewModel.swift in Sources */,
+				1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */,
 				1FC2C9632301FEC0001AE47E /* MovieQueryUDS+Mapping.swift in Sources */,
 				1FE49D90230AA7C200D1D42E /* WidgetDetailsViewModel.swift in Sources */,
 				1F794921247D869700552CC3 /* BlackStyleNavigationBarBehavior.swift in Sources */,
@@ -1493,7 +1493,7 @@
 				655830332DBBAE8F00744D5C /* ScanItem.swift in Sources */,
 				1F9034C52306FF2D00DEA4BD /* NetworkService.swift in Sources */,
 				1F9034D32307161D00DEA4BD /* NetworkSessionManagerMock.swift in Sources */,
-				1FFF1C10243B9ABB00937EE4 /* WidgetsListItemViewModel.swift in Sources */,
+				1FFF1C10243B9ABB00937EE4 /* PlotListItemViewModel.swift in Sources */,
 				659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */,
 				1F84DECE2300677B00139F73 /* Observable.swift in Sources */,
 				1F474F3022356C7F0092DB4B /* WidgetsQueriesRepository.swift in Sources */,

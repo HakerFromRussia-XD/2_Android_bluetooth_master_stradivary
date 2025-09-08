@@ -1,50 +1,32 @@
 import UIKit
+import SwiftUI
+import Combine
 
 final class PlotViewCell: UITableViewCell {
-
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(130)
+    private var viewModel: PlotListItemViewModel!
 
-    @IBOutlet private var titleLabel: UILabel!
-    @IBOutlet private var dateLabel: UILabel!
-    @IBOutlet private var overviewLabel: UILabel!
-    @IBOutlet private var posterImageView: UIImageView!
-
-    private var viewModel: WidgetsListItemViewModel!
-    private var posterImagesRepository: PosterImagesRepository?
-    private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
-    private let mainQueue: DispatchQueueType = DispatchQueue.main
-
-    func fill(
-        with viewModel: WidgetsListItemViewModel,
-        posterImagesRepository: PosterImagesRepository?
-    ) {
-        self.viewModel = viewModel
-        self.posterImagesRepository = posterImagesRepository
-        selectionStyle = .none
-
-        titleLabel.text = viewModel.title
-        dateLabel.text = viewModel.releaseDate
-        overviewLabel.text = viewModel.overview
-        updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
-//        contentView.backgroundColor = viewModel.isAd ? .systemOrange : .white
+    var data: [CustomPlot.DataPoint]
+    
+    // Реализуем обязательный инициализатор для создания ячейки из кода
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
-
-    private func updatePosterImage(width: Int) {
-        posterImageView.image = nil
-        guard let posterImagePath = viewModel.posterImagePath else { return }
-
-        imageLoadTask = posterImagesRepository?.fetchImage(
-            with: posterImagePath,
-            width: width
-        ) { [weak self] result in
-            self?.mainQueue.async {
-                guard self?.viewModel.posterImagePath == posterImagePath else { return }
-                if case let .success(data) = result {
-                    self?.posterImageView.image = UIImage(data: data)
-                }
-                self?.imageLoadTask = nil
-            }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    @available(iOS 16.0, *)
+    func configure(with viewModel: PlotListItemViewModel) {
+        self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
+        
+        // 2. Вклеиваем SwiftUI контент
+        contentConfiguration = UIHostingConfiguration {
+            CustomPlot(data: self.data)
         }
     }
 }

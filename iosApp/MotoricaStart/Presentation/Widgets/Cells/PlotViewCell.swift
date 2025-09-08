@@ -6,7 +6,7 @@ final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(130)
     private var viewModel: PlotListItemViewModel!
-    @IBOutlet weak var lineChartView: LineChartView!
+    @IBOutlet weak var lineChartView: LineChartView?
     
     // charts
     let values = (0..<1).map { (i) -> ChartDataEntry in
@@ -30,8 +30,8 @@ final class PlotViewCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
         
-        if lineChartView.data == nil {
-            lineChartView.data = LineChartData()
+        if lineChartView?.data == nil {
+            lineChartView?.data = LineChartData()
         }
 //        let data = lineChartView.data!
         initChart()
@@ -40,7 +40,7 @@ final class PlotViewCell: UITableViewCell {
     
     // MARK: - работа с графиком
     func addEntry (sens1: Int, sens2: Int) {
-        let data: ChartData = self.lineChartView.data!
+        let data: ChartData = (self.lineChartView?.data!)!
 
         var set1 : LineChartDataSet
         var set2 : LineChartDataSet
@@ -64,47 +64,47 @@ final class PlotViewCell: UITableViewCell {
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens2)), toDataSet: 2)
         
         data.notifyDataChanged()
-        self.lineChartView.notifyDataSetChanged()
-        self.lineChartView.setVisibleXRangeMaximum(300)
-        self.lineChartView.moveViewToX(Double(set2.count - 300))
+        self.lineChartView?.notifyDataSetChanged()
+        self.lineChartView?.setVisibleXRangeMaximum(300)
+        self.lineChartView?.moveViewToX(Double(set2.count - 300))
         self.count += 1
     }
     func initChart() {
-//        var data = self.lineChartView.data
-//        let set1 = LineChartDataSet(entries: [], label: "")
-//        data = LineChartData(dataSet: set1)
-//        var data2 = self.lineChartView.data
-//        let set2 = LineChartDataSet(entries: [], label: "")
-//        data2 = LineChartData(dataSet: set2)
-//        self.lineChartView.data = data
-//        self.lineChartView.data = data2
+        var data = self.lineChartView?.data
+        let set1 = LineChartDataSet(entries: [], label: "")
+        data = LineChartData(dataSet: set1)
+        var data2 = self.lineChartView?.data
+        let set2 = LineChartDataSet(entries: [], label: "")
+        data2 = LineChartData(dataSet: set2)
+        self.lineChartView?.data = data
+        self.lineChartView?.data = data2
         
-//        self.lineChartView.isExclusiveTouch = false
-//        self.lineChartView.isMultipleTouchEnabled = false
-//        self.lineChartView.dragEnabled = false
-//        self.lineChartView.dragDecelerationEnabled = false
-//        self.lineChartView.setScaleEnabled(false)
-//        self.lineChartView.drawGridBackgroundEnabled = false
-//        self.lineChartView.pinchZoomEnabled = false
-//        self.lineChartView.backgroundColor = UIColor(named: "transparent")
-//        self.lineChartView.legend.enabled = false
-//        self.lineChartView.animate(yAxisDuration: 0.7)
-//        
-//        let x: XAxis = self.lineChartView.xAxis
-//        x.labelTextColor = UIColor(named: "transparent")!
-//        x.drawGridLinesEnabled = false
-//        x.axisMaximum = 4000000
-//        x.avoidFirstLastClippingEnabled = true
-//        
-//        let y: YAxis = self.lineChartView.leftAxis
-//        y.axisMaximum = 255
-//        y.axisMinimum = 0
-//        y.labelTextColor = UIColor(named: "transparent")!
-//        y.drawGridLinesEnabled = true
-//        y.drawAxisLineEnabled = false
-//        y.gridColor = UIColor(named: "transparent")!
-//        self.lineChartView.rightAxis.axisLineColor = UIColor(named: "transparent")!
-//        self.lineChartView.rightAxis.labelTextColor = UIColor(named: "transparent")!
+        self.lineChartView?.isExclusiveTouch = false
+        self.lineChartView?.isMultipleTouchEnabled = false
+        self.lineChartView?.dragEnabled = false
+        self.lineChartView?.dragDecelerationEnabled = false
+        self.lineChartView?.setScaleEnabled(false)
+        self.lineChartView?.drawGridBackgroundEnabled = false
+        self.lineChartView?.pinchZoomEnabled = false
+        self.lineChartView?.backgroundColor = UIColor(named: "transparent")
+        self.lineChartView?.legend.enabled = false
+        self.lineChartView?.animate(yAxisDuration: 0.7)
+        
+        let x: XAxis = self.lineChartView!.xAxis
+        x.labelTextColor = UIColor(named: "transparent")!
+        x.drawGridLinesEnabled = false
+        x.axisMaximum = 4000000
+        x.avoidFirstLastClippingEnabled = true
+        
+        let y: YAxis = self.lineChartView!.leftAxis
+        y.axisMaximum = 255
+        y.axisMinimum = 0
+        y.labelTextColor = UIColor(named: "transparent")!
+        y.drawGridLinesEnabled = true
+        y.drawAxisLineEnabled = false
+        y.gridColor = UIColor(named: "transparent")!
+        self.lineChartView?.rightAxis.axisLineColor = UIColor(named: "transparent")!
+        self.lineChartView?.rightAxis.labelTextColor = UIColor(named: "transparent")!
     }
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")

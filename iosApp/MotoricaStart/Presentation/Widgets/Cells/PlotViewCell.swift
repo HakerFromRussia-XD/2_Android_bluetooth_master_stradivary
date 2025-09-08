@@ -11,10 +11,12 @@ final class PlotViewCell: UITableViewCell {
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.data = []
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
     
     required init?(coder: NSCoder) {
+        self.data = []
         super.init(coder: coder)
     }
     

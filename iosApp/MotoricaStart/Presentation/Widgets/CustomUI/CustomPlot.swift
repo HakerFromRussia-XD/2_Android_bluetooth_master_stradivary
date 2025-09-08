@@ -18,17 +18,17 @@ struct CustomPlot: View {
 
     var body: some View {
         GeometryReader { proxy in
-            LineChartContainer(data: data)
-            .frame(width: proxy.size.width, height: proxy.size.height)
-            .background(Color("ubi4_gray"))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onEnded { value in
-                        let relativeY = value.location.y / proxy.size.height
-                        let newValue = (1 - relativeY) * 1000 // sample scale
-                    }
-            )
+//            LineChartContainer(data: data)
+//            .frame(width: proxy.size.width, height: proxy.size.height)
+//            .background(Color("ubi4_gray"))
+//            .clipShape(RoundedRectangle(cornerRadius: 8))
+//            .gesture(
+//                DragGesture(minimumDistance: 0)
+//                    .onEnded { value in
+//                        let relativeY = value.location.y / proxy.size.height
+//                        let newValue = (1 - relativeY) * 1000 // sample scale
+//                    }
+//            )
         }
     }
 }

@@ -343,7 +343,6 @@ class BLEParser(
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
-
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
                 ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> {
@@ -968,7 +967,6 @@ class BLEParser(
         platformLog("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
         bleCommandExecutor.updateSerialNumber(deviceInfoStructs)
     }
-
 
     private fun parseProductFwInfoType(hex: String) {
         val deviceAddr = castUnsignedCharToInt(hex.substringSafe(12, 14).toInt(16).toByte())

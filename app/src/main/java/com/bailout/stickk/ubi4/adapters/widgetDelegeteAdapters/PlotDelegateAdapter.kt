@@ -98,6 +98,10 @@ class PlotDelegateAdapter (
                     widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
 //                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 //TODO должно быть так ↓    но пока работает только так ↑
+//                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
+//                    System.err.println("plotArrayFlowCollectttttt  addressDevice = ${it.deviceAddress}   parameterID = ${it.parameterID}  dataCode = ${it.dataCode}")
+//                }
+
                 addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
@@ -124,11 +128,6 @@ class PlotDelegateAdapter (
 
             }
         }
-        Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")
-        parameterInfoSet.forEach {
-            Log.d("PlotDelegateAdapter", "ParameterInfo: $it")
-        }
-        platformLog("sendWidgetsArray", "▶\uFE0F▶\uFE0F▶\uFE0F parameterInfoSet: $parameterInfoSet")
 
         widgetPlotsInfo.add(
             WidgetPlotInfo(
@@ -147,8 +146,11 @@ class PlotDelegateAdapter (
             )
         )
 
+        Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")
+        platformLog("sendWidgetsArray", "▶\uFE0F▶\uFE0F▶\uFE0F parameterInfoSet: $parameterInfoSet")
         Log.d("PlotDelegateAdapter", "deviceAddress = $addressDevice")
         parameterInfoSet.forEach {
+//            Log.d("plotArrayFlowCollectttttt", "ParameterInfo: $it")
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
                 if (PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
@@ -315,14 +317,13 @@ class PlotDelegateAdapter (
     private fun plotArrayFlowCollect() {
         scope?.launch(Dispatchers.IO) {
             try {
-                System.err.println("plotArrayFlowCollectttttt")
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
                         val indexWidgetPlot = getIndexWidgetPlot(
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
                         )
-
+//                        System.err.println("plotArrayFlowCollectttttt  plotParameterRef.addressDevice = ${plotParameterRef.addressDevice}   plotParameterRef.parameterID = ${plotParameterRef.parameterID}")
                         if (plotParameterRef.dataPlots.isNotEmpty()) {
                             System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} ")
                             if (plotParameterRef.dataPlots.size >= 1) {
@@ -670,6 +671,10 @@ class PlotDelegateAdapter (
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
+            Log.d("plotArrayFlowCollectttttt", "===================")
+            widgetPlotInfo.addressDeviceSet.forEachIndexed { index, it ->
+                Log.d("plotArrayFlowCollectttttt", "$index ParameterInfo: $it")
+            }
             widgetPlotInfo.addressDeviceSet.forEach {
                 if (it.deviceAddress == addressDevice && it.parameterID == parameterID) {
                     return index

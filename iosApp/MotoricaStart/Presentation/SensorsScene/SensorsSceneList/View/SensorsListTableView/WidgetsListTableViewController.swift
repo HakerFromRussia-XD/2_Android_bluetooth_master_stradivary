@@ -128,10 +128,6 @@ extension WidgetsListTableViewController {
                     assertionFailure("Cannot dequeue ad cell")
                     return UITableViewCell()
                 }
-                if indexPath.row == viewModel.items.value.count - 1 {
-                    viewModel.didLoadNextPage()
-                }
-                
                 return cell
             case .command(let commandVM):
                     guard let cell = tableView.dequeueReusableCell(
@@ -141,7 +137,6 @@ extension WidgetsListTableViewController {
                         assertionFailure("Cannot dequeue ad cell")
                         return UITableViewCell()
                     }
-//                    cell.configure(with: commandVM)
                     return cell
             case .slider(_):
                     guard let cell = tableView.dequeueReusableCell(
@@ -151,7 +146,6 @@ extension WidgetsListTableViewController {
                         assertionFailure("Cannot dequeue ad cell")
                         return UITableViewCell()
                     }
-    //                cell.configure(with: adVM)
                     return cell
         }
     }

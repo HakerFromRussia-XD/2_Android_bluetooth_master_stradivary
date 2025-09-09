@@ -6,7 +6,7 @@ final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(130)
     private var viewModel: PlotListItemViewModel!
-    @IBOutlet weak var lineChartView: LineChartView?
+    @IBOutlet weak var lineChartView: LineChartView!
     
     // charts
     let values = (0..<1).map { (i) -> ChartDataEntry in
@@ -24,17 +24,21 @@ final class PlotViewCell: UITableViewCell {
         super.init(coder: coder)
     }
     
+    override func awakeFromNib() {
+        super.awakeFromNib()
+//        if lineChartView?.data == nil {
+//            lineChartView?.data = LineChartData()
+//        }
+        initChart()
+    }
+    
     @available(iOS 16.0, *)
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
         
-        if lineChartView?.data == nil {
-            lineChartView?.data = LineChartData()
-        }
-//        let data = lineChartView.data!
-        initChart()
+        lineChartView.data = viewModel.chartData
     }
     
     
@@ -70,6 +74,8 @@ final class PlotViewCell: UITableViewCell {
         self.count += 1
     }
     func initChart() {
+        self.lineChartView?.noDataText = "Нет данных"
+        self.lineChartView?.data = LineChartData()
         var data = self.lineChartView?.data
         let set1 = LineChartDataSet(entries: [], label: "")
         data = LineChartData(dataSet: set1)

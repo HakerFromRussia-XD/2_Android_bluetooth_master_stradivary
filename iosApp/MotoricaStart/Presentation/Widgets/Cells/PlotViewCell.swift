@@ -4,7 +4,7 @@ import Combine
 
 final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
-    static let height = CGFloat(130)
+    static let height = CGFloat(330)
     private var viewModel: PlotListItemViewModel!
     @IBOutlet weak var lineChartView: LineChartView?
     
@@ -96,7 +96,7 @@ final class PlotViewCell: UITableViewCell {
         lineChartView.setScaleEnabled(false)
         lineChartView.drawGridBackgroundEnabled = false
         lineChartView.pinchZoomEnabled = false
-        lineChartView.backgroundColor = UIColor(named: "transparent") ?? .clear
+        lineChartView.backgroundColor = UIColor(named: "ubi4_active") ?? .clear
 
         lineChartView.legend.enabled = false
         lineChartView.animate(yAxisDuration: 0.7)

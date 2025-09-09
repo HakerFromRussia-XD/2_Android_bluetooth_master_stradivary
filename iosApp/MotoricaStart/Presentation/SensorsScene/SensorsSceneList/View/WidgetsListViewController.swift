@@ -1,8 +1,10 @@
 import UIKit
+import DGCharts
 import shared
 
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     
+    @IBOutlet weak var lineChartView: LineChartView!
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
@@ -28,11 +30,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         view.posterImagesRepository = posterImagesRepository
         return view
     }
-//    init?(coder: NSCoder, viewModel: WidgetsListViewModel) {
-//        self.viewModel = viewModel
-//        super.init(coder: coder)
-//    }
-//    required init?(coder: NSCoder) { fatalError("Use init(coder:viewModel:)") }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +38,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setupBehaviours()
         bind(to: viewModel)
         viewModel.viewDidLoad()
+        initChart()
         
         let dataFactory = DataFactory()
         // например, берём список виджетов для display = 1
@@ -179,5 +178,73 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
     }
+    
+    
+    
+    // MARK: - работа с графиком
+    func initChart() {
+        guard let lineChartView = lineChartView else { return }
+        lineChartView.noDataText = "Нет данных"
+        lineChartView.data = LineChartData()
+        var data = lineChartView.data
+        let set1 = LineChartDataSet(entries: [], label: "")
+        data = LineChartData(dataSet: set1)
+        var data2 = lineChartView.data
+        let set2 = LineChartDataSet(entries: [], label: "")
+        data2 = LineChartData(dataSet: set2)
+        lineChartView.data = data
+        lineChartView.data = data2
+        
+        lineChartView.isExclusiveTouch = false
+        lineChartView.isMultipleTouchEnabled = false
+        lineChartView.dragEnabled = false
+        lineChartView.dragDecelerationEnabled = false
+        lineChartView.setScaleEnabled(false)
+        lineChartView.drawGridBackgroundEnabled = false
+        lineChartView.pinchZoomEnabled = false
+        lineChartView.backgroundColor = UIColor(named: "ubi4_active") ?? .clear
+
+        lineChartView.legend.enabled = false
+        lineChartView.animate(yAxisDuration: 0.7)
+
+        let x: XAxis = lineChartView.xAxis
+        x.labelTextColor = UIColor(named: "transparent") ?? .clear
+        x.drawGridLinesEnabled = false
+        x.axisMaximum = 4000000
+        x.avoidFirstLastClippingEnabled = true
+        
+        let y: YAxis = lineChartView.leftAxis
+        y.axisMaximum = 255
+        y.axisMinimum = 0
+        y.labelTextColor = UIColor(named: "transparent") ?? .clear
+        y.drawGridLinesEnabled = true
+        y.drawAxisLineEnabled = false
+        y.gridColor = UIColor(named: "transparent") ?? .clear
+        lineChartView.rightAxis.axisLineColor = UIColor(named: "transparent") ?? .clear
+        lineChartView.rightAxis.labelTextColor = UIColor(named: "transparent") ?? .clear
+    }
+    func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
+        let set1 = LineChartDataSet(entries: [], label: "")
+        set1.axisDependency = YAxis.AxisDependency.left
+        set1.lineWidth = 2
+        set1.setColor(UIColor(named: "lineColor_open")!)
+        set1.mode = LineChartDataSet.Mode.linear
+        set1.drawCirclesEnabled = false
+        set1.drawValuesEnabled = false
+        
+        return set1
+    }
+    func createSet2(values: [ChartDataEntry]) -> LineChartDataSet {
+        let set2 = LineChartDataSet(entries: [], label: "")
+        set2.axisDependency = YAxis.AxisDependency.left
+        set2.lineWidth = 2
+        set2.setColor(UIColor(named: "lineColor_close")!)
+        set2.mode = LineChartDataSet.Mode.linear
+        set2.drawCirclesEnabled = false
+        set2.drawValuesEnabled = false
+        
+        return set2
+    }
+    private func zaglushka(bool1: Bool) {    }
 }
 

@@ -92,12 +92,13 @@ final class PlotViewCell: UITableViewCell {
         self.lineChartView?.setScaleEnabled(false)
         self.lineChartView?.drawGridBackgroundEnabled = false
         self.lineChartView?.pinchZoomEnabled = false
-        self.lineChartView?.backgroundColor = UIColor(named: "transparent")
+        self.lineChartView?.backgroundColor = UIColor(named: "transparent") ?? .clear
+
         self.lineChartView?.legend.enabled = false
         self.lineChartView?.animate(yAxisDuration: 0.7)
         
         let x: XAxis = self.lineChartView!.xAxis
-        x.labelTextColor = UIColor(named: "transparent")!
+        x.labelTextColor = UIColor(named: "transparent") ?? .clear
         x.drawGridLinesEnabled = false
         x.axisMaximum = 4000000
         x.avoidFirstLastClippingEnabled = true
@@ -105,12 +106,12 @@ final class PlotViewCell: UITableViewCell {
         let y: YAxis = self.lineChartView!.leftAxis
         y.axisMaximum = 255
         y.axisMinimum = 0
-        y.labelTextColor = UIColor(named: "transparent")!
+        y.labelTextColor = UIColor(named: "transparent") ?? .clear
         y.drawGridLinesEnabled = true
         y.drawAxisLineEnabled = false
-        y.gridColor = UIColor(named: "transparent")!
-        self.lineChartView?.rightAxis.axisLineColor = UIColor(named: "transparent")!
-        self.lineChartView?.rightAxis.labelTextColor = UIColor(named: "transparent")!
+        y.gridColor = UIColor(named: "transparent") ?? .clear
+        self.lineChartView?.rightAxis.axisLineColor = UIColor(named: "transparent") ?? .clear
+        self.lineChartView?.rightAxis.labelTextColor = UIColor(named: "transparent") ?? .clear
     }
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")

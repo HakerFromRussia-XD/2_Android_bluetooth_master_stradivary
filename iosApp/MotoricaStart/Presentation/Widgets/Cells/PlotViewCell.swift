@@ -6,7 +6,7 @@ final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(330)
     private var viewModel: PlotListItemViewModel!
-    @IBOutlet weak var lineChartView: LineChartView?
+    @IBOutlet private weak var lineChartView: LineChartView!
     
     // charts
     let values = (0..<1).map { (i) -> ChartDataEntry in
@@ -25,7 +25,7 @@ final class PlotViewCell: UITableViewCell {
     }
     
     override func awakeFromNib() {
-//        super.awakeFromNib()
+        super.awakeFromNib()
         initChart()
     }
     
@@ -34,7 +34,6 @@ final class PlotViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
-        
         lineChartView?.data = viewModel.chartData
     }
     
@@ -78,6 +77,7 @@ final class PlotViewCell: UITableViewCell {
     }
     func initChart() {
         guard let lineChartView = lineChartView else { return }
+        print("initChart 2    прошли первую проверку")
         lineChartView.noDataText = "Нет данных"
         lineChartView.data = LineChartData()
         var data = lineChartView.data
@@ -116,6 +116,7 @@ final class PlotViewCell: UITableViewCell {
         y.gridColor = UIColor(named: "transparent") ?? .clear
         lineChartView.rightAxis.axisLineColor = UIColor(named: "transparent") ?? .clear
         lineChartView.rightAxis.labelTextColor = UIColor(named: "transparent") ?? .clear
+        print("initChart 2    закончили настройку")
     }
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")

@@ -102,11 +102,11 @@
                         <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="sectionIndexBackgroundColor" name="ubi4_back"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlotViewCell" id="uUP-Ga-BsY" customClass="PlotViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="50" width="375" height="140"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="PlotViewCell" rowHeight="330" id="uUP-Ga-BsY" customClass="PlotViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="50" width="375" height="330"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uUP-Ga-BsY" id="OzQ-03-uhC" customClass="LineChartView" customModule="DGCharts">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="uUP-Ga-BsY" id="OzQ-03-uhC" customClass="LineChartView" customModule="DGCharts">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="330"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
@@ -116,7 +116,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SliderViewCell" id="Ga3-9R-4kz" customClass="SliderViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="190" width="375" height="140"/>
+                                <rect key="frame" x="0.0" y="380" width="375" height="140"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Ga3-9R-4kz" id="hiU-Uq-XML" colorLabel="IBBuiltInLabel-Yellow">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
@@ -189,7 +189,7 @@
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommandViewCell" id="VYe-Uv-Dac" customClass="CommandViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="330" width="375" height="140"/>
+                                <rect key="frame" x="0.0" y="520" width="375" height="140"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="VYe-Uv-Dac" id="TXy-yj-u65" colorLabel="IBBuiltInLabel-Yellow">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>

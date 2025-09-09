@@ -184,6 +184,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     // MARK: - работа с графиком
     func initChart() {
         guard let lineChartView = lineChartView else { return }
+        print("initChart 1    прошли первую проверку")
         lineChartView.noDataText = "Нет данных"
         lineChartView.data = LineChartData()
         var data = lineChartView.data
@@ -222,6 +223,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         y.gridColor = UIColor(named: "transparent") ?? .clear
         lineChartView.rightAxis.axisLineColor = UIColor(named: "transparent") ?? .clear
         lineChartView.rightAxis.labelTextColor = UIColor(named: "transparent") ?? .clear
+        print("initChart 1    закончили настройку")
     }
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")

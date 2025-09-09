@@ -33,7 +33,6 @@ final class PlotViewCell: UITableViewCell {
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
-        backgroundColor = UIColor(named: "ubi4_back")
         lineChartView?.data = viewModel.chartData
     }
     

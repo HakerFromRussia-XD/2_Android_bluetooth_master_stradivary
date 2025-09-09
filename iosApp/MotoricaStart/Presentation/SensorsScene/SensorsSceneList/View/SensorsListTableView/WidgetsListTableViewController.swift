@@ -59,7 +59,7 @@ final class WidgetsListTableViewController: UITableViewController {
 
     // MARK: - Private
     private func setupViews() {
-        tableView.estimatedRowHeight = PlotViewCell.height
+        tableView.estimatedRowHeight = 56
         tableView.rowHeight = UITableView.automaticDimension
         
         // Register a class for SliderViewCell because it is created from code

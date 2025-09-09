@@ -8,6 +8,7 @@ final class CommandViewCell: UITableViewCell {
     private var viewModel: CommandListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var numberCancellable: AnyCancellable?
+    static let height = CGFloat(56)
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

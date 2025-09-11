@@ -2,6 +2,7 @@
 
 import Foundation
 import DGCharts
+import UIKit
 
 struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
     let title: String

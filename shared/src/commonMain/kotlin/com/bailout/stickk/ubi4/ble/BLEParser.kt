@@ -488,13 +488,9 @@ class BLEParser(
                             coroutineScope.launch { bmsStatusFlow.emit(ParameterRef(deviceAddress,parameterID, dataCode))
                             }
                             coroutineScope.launch { batteryPercentFlow.emit(percent) }
-
                         }
-
                     }
-
                 }
-
             }
         }
     }

@@ -40,7 +40,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         // например, берём список виджетов для display = 1
 //        let kotlinWidgets = dataFactory.prepareData(display: 1)
         let kotlinWidgets = dataFactory.fakeData()
-//        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
         let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
@@ -92,7 +92,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
-            self?.viewModel.didSearch(query: "My request")             // ← чтение идёт уже из свежего кэша
+//            DispatchQueue.main.async {
+                self?.viewModel.didSearch(query: "My request")
+//            }
         }
         
         view.addSubview(bottomButton)
@@ -114,15 +116,83 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         //            } as! [WidgetsResponseDTO.WidgetDTO]
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Обновить данные графиков, подписаться на потоки, перезагрузить таблицу
+        // startSensorsStreaming()
+        print("[WIDGET_COORDINATOR] viewWillAppear")
+        let dataFactory = DataFactory()
+//        let kotlinWidgets = dataFactory.prepareData(display: 1)
+        let kotlinWidgets = dataFactory.fakeData2()
+        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+        
+        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
+        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
+            .enumerated()
+            .map { index, widget in
+                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
+                
+                switch widget {
+                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is GestureOpticParameterWidgetEStruct:
+                        widgetType = .commandWidget
+                    case is GestureParameterWidgetEStruct:
+                        widgetType = .commandWidget
+                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
+                        widgetType = .plotWidget
+                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+                        widgetType = .sliderWidget
+                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
+                        widgetType = .commandWidget
+                    default:
+                        widgetType = .unknown
+                }
+                
+                return WidgetsResponseDTO.WidgetDTO(
+                    id: index,
+                    title: "Widget \(index)",
+                    widgetType: widgetType,
+                    posterPath: nil,
+                    overview: nil,
+                    releaseDate: nil,
+                    isAd: false
+                )
+            }
+//        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
+        
+        let mockResponseDTO = WidgetsResponseDTO(
+            page: 2,
+            totalPages: 5,
+            widgets: widgetsDTO
+        )
+        
+        
+        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
+        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
+//            DispatchQueue.main.async {
+                self?.viewModel.didSearch(query: "My request")
+//            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Остановить таймеры, приостановить стримы, снять наблюдателей
+        // stopSensorsStreaming()
+        print("[WIDGET_COORDINATOR] viewWillDisappear")
+    }
 
     private func bind(to viewModel: WidgetsListViewModel) {
         viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

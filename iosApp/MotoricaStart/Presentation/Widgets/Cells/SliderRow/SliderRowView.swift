@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 /// Observable-обёртка, чтобы обновлять значение слайдера извне.
-final class SliderRowProvider: ObservableObject {
+final class SliderProvider: ObservableObject {
     @Published var value_1: Float
     let title_1: String
     let numLabel_1: String
@@ -38,7 +38,7 @@ final class SliderRowProvider: ObservableObject {
 }
 
 struct SliderRowView: View {
-    @ObservedObject var provider: SliderRowProvider
+    @ObservedObject var provider: SliderProvider
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

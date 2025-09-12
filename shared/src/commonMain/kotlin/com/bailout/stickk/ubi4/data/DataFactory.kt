@@ -44,6 +44,10 @@ class DataFactory {
         add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
         add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
     }
+    fun fakeData2(): List<Any> = buildList {
+        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+    }
 
     fun fakeDataClear(): List<Any> = emptyList()
 

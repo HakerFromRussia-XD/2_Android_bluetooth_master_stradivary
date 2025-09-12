@@ -1,6 +1,7 @@
 import UIKit
 import DGCharts
 import Combine
+import shared
 
 final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
@@ -32,6 +33,7 @@ final class PlotViewCell: UITableViewCell {
     private var closePanGesture: UIPanGestureRecognizer?
     private var openThreshold: Int = 0
     private var closeThreshold: Int = 0
+    private var job: Kotlinx_coroutines_coreJob?
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -56,8 +58,18 @@ final class PlotViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
 //        lineChartView?.data = PlotListItemViewModel.mock().chartData//viewModel.chartData
+        
+        job?.cancel(cause: nil)
+        job = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
+            self?.updatePlotData(ref, viewModel: viewModel)
+        }
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        job?.cancel(cause: nil)
+        job = nil
+    }
     
     // MARK: - работа с графиком
     func addEntry (sens1: Int, sens2: Int) {
@@ -249,5 +261,41 @@ final class PlotViewCell: UITableViewCell {
         
         thresholdLabel.text = String(value)
         return value
+    }
+    
+    
+    private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
+        guard ref.addressDevice == viewModel.deviceAddress,
+              ref.parameterID == viewModel.parameterID else { return }
+
+//        let size = Int(ref.dataPlots.size)
+//        if size > 0, let first = ref.dataPlots.get(index: 0) as? Int32 {
+//            reseve_sensor_1_data = Int(first)
+//        }
+//        if size > 1, let second = ref.dataPlots.get(index: 1) as? Int32 {
+//            reseve_sensor_2_data = Int(second)
+//        }
+        
+//        let arr = ref.dataPlots as NSArray
+//        if let v = intFromAny(arr.at(0)) { reseve_sensor_1_data = v }
+//        if let v = intFromAny(arr.at(1)) { reseve_sensor_2_data = v }
+        
+        let arr = ref.dataPlots as NSArray
+
+        if arr.count > 0 {
+            if let n1 = arr[0] as? NSNumber {
+                reseve_sensor_1_data = n1.intValue
+            } else if let k1 = arr[0] as? KotlinInt {
+                reseve_sensor_1_data = Int(k1.intValue)
+            }
+        }
+
+        if arr.count > 1 {
+            if let n2 = arr[1] as? NSNumber {
+                reseve_sensor_2_data = n2.intValue
+            } else if let k2 = arr[1] as? KotlinInt {
+                reseve_sensor_2_data = Int(k2.intValue)
+            }
+        }
     }
 }

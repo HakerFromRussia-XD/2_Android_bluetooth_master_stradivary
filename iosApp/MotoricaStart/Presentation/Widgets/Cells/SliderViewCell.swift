@@ -28,7 +28,7 @@ final class SliderViewCell: UITableViewCell {
     
     
     private var cancellable: AnyCancellable?
-    private var provider:   SliderRowProvider?
+    private var provider:   SliderProvider?
     private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
     
 
@@ -41,7 +41,7 @@ final class SliderViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
-        let provider = SliderRowProvider(
+        let provider = SliderProvider(
             value_1: .zero,
             title_1: viewModel.title,
             numLabel_1: viewModel.title_2,

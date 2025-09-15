@@ -34,10 +34,91 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setupViews()
         setupBehaviours()
         bind(to: viewModel)
-        viewModel.viewDidLoad()
         
+//        let dataFactory = DataFactory()
+//        // например, берём список виджетов для display = 1
+////        let kotlinWidgets = dataFactory.prepareData(display: 1)
+//        let kotlinWidgets = dataFactory.fakeData()
+//        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+//        
+//        // Преобразуем Kotlin-виджеты в DTO
+//        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
+//            .enumerated()
+//            .map { index, widget in
+//                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
+//                
+//                switch widget {
+//                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is GestureOpticParameterWidgetEStruct:
+//                        widgetType = .commandWidget
+//                    case is GestureParameterWidgetEStruct:
+//                        widgetType = .commandWidget
+//                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
+//                        widgetType = .plotWidget
+//                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+//                        widgetType = .sliderWidget
+//                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    default:
+//                        widgetType = .unknown
+//                }
+//                
+//                return WidgetsResponseDTO.WidgetDTO(
+//                    id: index,
+//                    title: "Widget \(index)",
+//                    widgetType: widgetType,
+//                    posterPath: nil,
+//                    overview: nil,
+//                    releaseDate: nil,
+//                    isAd: false
+//                )
+//            }
+//        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
+//        
+//        let mockResponseDTO = WidgetsResponseDTO(
+//            page: 2,
+//            totalPages: 5,
+//            widgets: widgetsDTO
+//        )
+//        
+//        
+//        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
+//        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
+//            self?.viewModel.update(with: responseDTO.toDomain())
+//        }
+        
+        view.addSubview(bottomButton)
+        NSLayoutConstraint.activate([
+            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
+        //        let rawBytes: [UInt8] = [0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A]
+        //        bleManager.startScan { BleDevice in
+        //            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
+        //        }
+        
+        //        let kotlinByteArray = KotlinByteArray(size: Int32(rawBytes.count))
+        //        for (index, byte) in rawBytes.enumerated() {
+        //            kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
+        //        }
+        //        parser.parseData(data: kotlinByteArray)
+        //            } as! [WidgetsResponseDTO.WidgetDTO]
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Обновить данные графиков, подписаться на потоки, перезагрузить таблицу
+        // startSensorsStreaming()
+        print("[WIDGET_COORDINATOR] viewWillAppear")
         let dataFactory = DataFactory()
-        // например, берём список виджетов для display = 1
 //        let kotlinWidgets = dataFactory.prepareData(display: 1)
         let kotlinWidgets = dataFactory.fakeData()
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
@@ -82,7 +163,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 )
             }
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
-        
+
         let mockResponseDTO = WidgetsResponseDTO(
             page: 2,
             totalPages: 5,
@@ -94,88 +175,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
             self?.viewModel.update(with: responseDTO.toDomain())
         }
-        
-        view.addSubview(bottomButton)
-        NSLayoutConstraint.activate([
-            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-        
-        //        let rawBytes: [UInt8] = [0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A, 0x40, 0xFF, 0x0A]
-        //        bleManager.startScan { BleDevice in
-        //            print("МЫ НАШЛИ УСТРОЙСТВО \(BleDevice.name)!!!")
-        //        }
-        
-        //        let kotlinByteArray = KotlinByteArray(size: Int32(rawBytes.count))
-        //        for (index, byte) in rawBytes.enumerated() {
-        //            kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
-        //        }
-        //        parser.parseData(data: kotlinByteArray)
-        //            } as! [WidgetsResponseDTO.WidgetDTO]
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // Обновить данные графиков, подписаться на потоки, перезагрузить таблицу
-        // startSensorsStreaming()
-        print("[WIDGET_COORDINATOR] viewWillAppear")
-//        let dataFactory = DataFactory()
-////        let kotlinWidgets = dataFactory.prepareData(display: 1)
-//        let kotlinWidgets = dataFactory.fakeData2()
-//        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
-//        
-//        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
-//        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
-//            .enumerated()
-//            .map { index, widget in
-//                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
-//                
-//                switch widget {
-//                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is GestureOpticParameterWidgetEStruct:
-//                        widgetType = .commandWidget
-//                    case is GestureParameterWidgetEStruct:
-//                        widgetType = .commandWidget
-//                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-//                        widgetType = .plotWidget
-//                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-//                        widgetType = .sliderWidget
-//                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    default:
-//                        widgetType = .unknown
-//                }
-//                
-//                return WidgetsResponseDTO.WidgetDTO(
-//                    id: index,
-//                    title: "Widget \(index)",
-//                    widgetType: widgetType,
-//                    posterPath: nil,
-//                    overview: nil,
-//                    releaseDate: nil,
-//                    isAd: false
-//                )
-//            }
-////        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
-//        
-//        let mockResponseDTO = WidgetsResponseDTO(
-//            page: 2,
-//            totalPages: 5,
-//            widgets: widgetsDTO
-//        )
-//        
-//        
-//        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
-//        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
-//            self?.viewModel.update(with: responseDTO.toDomain())
-//        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -197,6 +196,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             widgetsTableViewController = destinationVC
             widgetsTableViewController?.viewModel = viewModel
             widgetsTableViewController?.posterImagesRepository = posterImagesRepository
+            viewModel.viewDidLoad()
         }
     }
 

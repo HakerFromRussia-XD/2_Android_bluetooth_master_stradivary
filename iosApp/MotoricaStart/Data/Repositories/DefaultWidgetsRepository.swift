@@ -33,7 +33,6 @@ extension DefaultWidgetsRepository: WidgetsRepository {
         let task = RepositoryTask()
 
         cache.getResponse(for: requestDTO) { [weak self] result in
-            
             guard self != nil else { return } // Защищаем от слабой ссылки на self
             guard !task.isCancelled else { return }
 
@@ -47,20 +46,6 @@ extension DefaultWidgetsRepository: WidgetsRepository {
             case .success(nil):
                 break
             }
-
-//            let endpoint = APIEndpoints.getWidgets(with: requestDTO)
-//            task.networkTask = self?.dataTransferService.request(
-//                with: endpoint,
-//                on: backgroundQueue
-//            ) { result in
-//                switch result {
-//                case .success(let responseDTO):
-//                    self?.cache.save(response: responseDTO, for: requestDTO)
-//                    completion(requestID, .success(responseDTO.toDomain()))
-//                case .failure(let error):
-//                    completion(requestID, .failure(error))
-//                }
-//            }
         }
         return task
     }

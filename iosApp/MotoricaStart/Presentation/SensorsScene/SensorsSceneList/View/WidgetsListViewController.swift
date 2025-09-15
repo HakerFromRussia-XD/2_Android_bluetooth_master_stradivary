@@ -127,6 +127,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
             .enumerated()
             .map { index, widget in
+                print("[WIDGET_COORDINATOR] kotlinWidgets  index = \(index)   widget = \(widget)")
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 switch widget {
@@ -148,8 +149,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                         widgetType = .commandWidget
                     case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
                         widgetType = .commandWidget
+//                    case is CommandParameterWidgetEStruct, is CommandParameterWidgetSStruct:
+//                        widgetType = .commandWidget
                     default:
-                        widgetType = .unknown
+                        widgetType = .commandWidget
                 }
                 
                 return WidgetsResponseDTO.WidgetDTO(

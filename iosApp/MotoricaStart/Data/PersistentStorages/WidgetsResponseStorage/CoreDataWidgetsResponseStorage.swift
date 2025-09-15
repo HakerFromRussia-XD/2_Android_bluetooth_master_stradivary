@@ -81,7 +81,7 @@ extension CoreDataWidgetsResponseStorage {
     func save(
         response responseDto: WidgetsResponseDTO,
         for requestDto: WidgetsRequestDTO,
-        completion: @escaping () -> Void
+        completion: @escaping (WidgetsResponseDTO) -> Void
     ) {
         coreDataStorage.performBackgroundTask { context in
             do {
@@ -95,7 +95,7 @@ extension CoreDataWidgetsResponseStorage {
                 // TODO: отправить в Crashlytics
                 debugPrint("CoreDataWidgetsResponseStorage save error \(error)")
             }
-            DispatchQueue.main.async { completion() }          // Assistant: уведомляем UI
+            DispatchQueue.main.async { completion(responseDto) }          // Assistant: уведомляем UI с DTO
         }
     }
 }

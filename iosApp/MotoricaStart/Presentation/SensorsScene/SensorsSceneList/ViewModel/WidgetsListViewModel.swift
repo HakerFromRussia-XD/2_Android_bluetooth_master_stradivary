@@ -12,6 +12,7 @@ protocol WidgetsListViewModelInput {
     func viewDidLoad()
     func didLoadNextPage()
     func didSearch(query: String)
+    func update(with page: WidgetsPage)
     func didCancelSearch()
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
@@ -49,6 +50,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private var pages: [WidgetsPage] = []
     private var widgetsLoadTask: Cancellable? { willSet { widgetsLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType
+    private var latestRequestID: Int = 0
 
     // MARK: - OUTPUT
 
@@ -108,16 +110,23 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private func load(widgetQuery: WidgetQuery, loading: WidgetsListViewModelLoading) {
         self.loading.value = loading
         query.value = widgetQuery.query
-
+        
+        latestRequestID += 1
+        let requestID = latestRequestID
+        print("[Lifecycle]  latestRequestID = \(latestRequestID)")
+        
         widgetsLoadTask = searchWidgetsUseCase.execute(
             requestValue: .init(query: widgetQuery, page: nextPage),
-            cached: { [weak self] page in
+            requestID: requestID,
+            cached: { [weak self] id,page in
                 self?.mainQueue.async {
+                    guard id == self?.latestRequestID else { return }
                     self?.appendPage(page)
                 }
             },
-            completion: { [weak self] result in
+            completion: { [weak self] id, result in
                 self?.mainQueue.async {
+                    guard id == self?.latestRequestID else { return }
                     switch result {
                     case .success(let page):
                         self?.appendPage(page)
@@ -194,6 +203,12 @@ extension DefaultWidgetsListViewModel {
         update(widgetQuery: WidgetQuery(query: query))
     }
 
+    func update(with page: WidgetsPage) {
+        resetPages()
+        appendPage(page)
+    }
+
+    
     func didCancelSearch() {
         widgetsLoadTask?.cancel()
     }

@@ -5,7 +5,8 @@ protocol WidgetsRepository {
     func fetchWidgetsList(
         query: WidgetQuery,
         page: Int,
-        cached: @escaping (WidgetsPage) -> Void,
-        completion: @escaping (Result<WidgetsPage, Error>) -> Void
+        requestID: Int,
+        cached: @escaping (_ requestID: Int, _ page: WidgetsPage) -> Void,
+        completion: @escaping (_ requestID: Int, _ result: Result<WidgetsPage, Error>) -> Void
     ) -> Cancellable?
 }

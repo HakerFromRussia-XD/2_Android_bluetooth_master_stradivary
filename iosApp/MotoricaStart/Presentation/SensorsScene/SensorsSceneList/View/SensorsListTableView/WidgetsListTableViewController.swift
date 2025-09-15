@@ -2,7 +2,8 @@ import UIKit
 import ObjectiveC
 
 final class WidgetsListTableViewController: UITableViewController {
-
+    @IBOutlet weak var tableViewMy: UITableView!
+    
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
         case main
@@ -12,14 +13,15 @@ final class WidgetsListTableViewController: UITableViewController {
     var viewModel: WidgetsListViewModel!
 
     var posterImagesRepository: PosterImagesRepository?
-    var nextPageLoadingSpinner: UIActivityIndicatorView?
 
     // MARK: - Lifecycle
     override func viewDidAppear(_ animated: Bool) {
+        print("[Lifecycle]  viewDidAppear")
         // отключаем переход на предыдущий экран свайпом влево
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
     }
     override func viewDidLoad() {
+        print("[Lifecycle]  viewDidLoad")
         // Ensure our table view uses WidgetsListTableView without losing storyboard prototype cells
         if !(tableView is WidgetsListTableView) {
             object_setClass(tableView, WidgetsListTableView.self)
@@ -30,6 +32,13 @@ final class WidgetsListTableViewController: UITableViewController {
         // Assistant: Применяем начальный снапшот данных
         applySnapshot(animatingDifferences: false)
     }
+//    override func viewWillDisappear(_ animated: Bool) {
+//        print("[Lifecycle]  viewWillDisappear")
+//        super.viewWillDisappear(animated)
+//        tableViewMy.visibleCells
+//            .compactMap { $0 as? PlotViewCell }
+//            .forEach { $0.stopTimer() }
+//    }
     
     // Assistant: Заменяем reload() на применение снапшота, чтобы сохранять состояния ячеек
     func reload() {
@@ -47,14 +56,7 @@ final class WidgetsListTableViewController: UITableViewController {
 
 
     func updateLoading(_ loading: WidgetsListViewModelLoading?) {
-        switch loading {
-        case .nextPage:
-            nextPageLoadingSpinner?.removeFromSuperview()
-            nextPageLoadingSpinner = makeActivityIndicator(size: .init(width: tableView.frame.width, height: 44))
-            tableView.tableFooterView = nextPageLoadingSpinner
-        case .fullScreen, .none:
-            tableView.tableFooterView = nil
-        }
+        tableView.tableFooterView = nil
     }
 
     // MARK: - Private

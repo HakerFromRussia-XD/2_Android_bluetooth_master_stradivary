@@ -28,6 +28,7 @@ final class PlotViewCell: UITableViewCell {
     @IBOutlet private weak var closeCHV: UIView!
     @IBOutlet private weak var openThresholdTv: UILabel!
     @IBOutlet private weak var closeThresholdTv: UILabel!
+    private var timer: Timer?
     
     private var openPanGesture: UIPanGestureRecognizer?
     private var closePanGesture: UIPanGestureRecognizer?
@@ -45,11 +46,8 @@ final class PlotViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         initChart()
-        initCHView()
-        Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (_) in
-            self.addEntry (sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
-        }
-        
+        setupGestureRecognizers()
+        startTimer()
         backgroundPlot.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
     }
     
@@ -57,7 +55,6 @@ final class PlotViewCell: UITableViewCell {
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
-//        lineChartView?.data = PlotListItemViewModel.mock().chartData//viewModel.chartData
         
         job?.cancel(cause: nil)
         job = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
@@ -69,6 +66,13 @@ final class PlotViewCell: UITableViewCell {
         super.prepareForReuse()
         job?.cancel(cause: nil)
         job = nil
+        startTimer()
+    }
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil {
+            stopTimer()
+        }
     }
     
     // MARK: - работа с графиком
@@ -154,17 +158,6 @@ final class PlotViewCell: UITableViewCell {
         lineChartView.rightAxis.axisLineColor = UIColor(named: "transparent") ?? .clear
         lineChartView.rightAxis.labelTextColor = UIColor(named: "transparent") ?? .clear
         print("initChart 2    закончили настройку")
-    }
-    private func initCHView() {
-//        allCHRl.isUserInteractionEnabled = true
-//        contentView.bringSubviewToFront(allCHRl)
-//        allCHRl.bringSubviewToFront(openCHV)
-//        allCHRl.bringSubviewToFront(closeCHV)
-//        let openPan = UIPanGestureRecognizer(target: self, action: #selector(handleOpenPan(_:)))
-//        openCHV.addGestureRecognizer(openPan)
-//        let closePan = UIPanGestureRecognizer(target: self, action: #selector(handleClosePan(_:)))
-//        closeCHV.addGestureRecognizer(closePan)
-        setupGestureRecognizers()
     }
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")
@@ -267,19 +260,6 @@ final class PlotViewCell: UITableViewCell {
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
         guard ref.addressDevice == viewModel.deviceAddress,
               ref.parameterID == viewModel.parameterID else { return }
-
-//        let size = Int(ref.dataPlots.size)
-//        if size > 0, let first = ref.dataPlots.get(index: 0) as? Int32 {
-//            reseve_sensor_1_data = Int(first)
-//        }
-//        if size > 1, let second = ref.dataPlots.get(index: 1) as? Int32 {
-//            reseve_sensor_2_data = Int(second)
-//        }
-        
-//        let arr = ref.dataPlots as NSArray
-//        if let v = intFromAny(arr.at(0)) { reseve_sensor_1_data = v }
-//        if let v = intFromAny(arr.at(1)) { reseve_sensor_2_data = v }
-        
         let arr = ref.dataPlots as NSArray
 
         if arr.count > 0 {
@@ -297,5 +277,19 @@ final class PlotViewCell: UITableViewCell {
                 reseve_sensor_2_data = Int(k2.intValue)
             }
         }
+    }
+    private func startTimer() {
+        stopTimer()
+        let t = Timer(timeInterval: 0.01, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.addEntry(sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
+        }
+        RunLoop.main.add(t, forMode: .common) // явная привязка
+        timer = t
+    }
+    func stopTimer() {
+        print("[Lifecycle]  stopTimer")
+        timer?.invalidate()
+        timer = nil
     }
 }

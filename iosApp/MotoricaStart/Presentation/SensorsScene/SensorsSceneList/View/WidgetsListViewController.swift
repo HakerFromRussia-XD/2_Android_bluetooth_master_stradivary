@@ -91,10 +91,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
-        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
-//            DispatchQueue.main.async {
-                self?.viewModel.didSearch(query: "My request")
-//            }
+        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
+            self?.viewModel.update(with: responseDTO.toDomain())
         }
         
         view.addSubview(bottomButton)
@@ -121,65 +119,63 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         // Обновить данные графиков, подписаться на потоки, перезагрузить таблицу
         // startSensorsStreaming()
         print("[WIDGET_COORDINATOR] viewWillAppear")
-        let dataFactory = DataFactory()
-//        let kotlinWidgets = dataFactory.prepareData(display: 1)
-        let kotlinWidgets = dataFactory.fakeData2()
-        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
-        
-        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
-        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
-            .enumerated()
-            .map { index, widget in
-                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
-                
-                switch widget {
-                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is GestureOpticParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is GestureParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-                        widgetType = .plotWidget
-                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-                        widgetType = .sliderWidget
-                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    default:
-                        widgetType = .unknown
-                }
-                
-                return WidgetsResponseDTO.WidgetDTO(
-                    id: index,
-                    title: "Widget \(index)",
-                    widgetType: widgetType,
-                    posterPath: nil,
-                    overview: nil,
-                    releaseDate: nil,
-                    isAd: false
-                )
-            }
-//        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
-        
-        let mockResponseDTO = WidgetsResponseDTO(
-            page: 2,
-            totalPages: 5,
-            widgets: widgetsDTO
-        )
-        
-        
-        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
-        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] in
-//            DispatchQueue.main.async {
-                self?.viewModel.didSearch(query: "My request")
+//        let dataFactory = DataFactory()
+////        let kotlinWidgets = dataFactory.prepareData(display: 1)
+//        let kotlinWidgets = dataFactory.fakeData2()
+//        print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
+//        
+//        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
+//        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
+//            .enumerated()
+//            .map { index, widget in
+//                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
+//                
+//                switch widget {
+//                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is GestureOpticParameterWidgetEStruct:
+//                        widgetType = .commandWidget
+//                    case is GestureParameterWidgetEStruct:
+//                        widgetType = .commandWidget
+//                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
+//                        widgetType = .plotWidget
+//                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
+//                        widgetType = .sliderWidget
+//                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
+//                        widgetType = .commandWidget
+//                    default:
+//                        widgetType = .unknown
+//                }
+//                
+//                return WidgetsResponseDTO.WidgetDTO(
+//                    id: index,
+//                    title: "Widget \(index)",
+//                    widgetType: widgetType,
+//                    posterPath: nil,
+//                    overview: nil,
+//                    releaseDate: nil,
+//                    isAd: false
+//                )
 //            }
-        }
+////        print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
+//        
+//        let mockResponseDTO = WidgetsResponseDTO(
+//            page: 2,
+//            totalPages: 5,
+//            widgets: widgetsDTO
+//        )
+//        
+//        
+//        let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
+//        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
+//            self?.viewModel.update(with: responseDTO.toDomain())
+//        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {

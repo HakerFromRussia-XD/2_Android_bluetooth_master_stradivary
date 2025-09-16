@@ -19,7 +19,6 @@ extension WidgetsResponseDTO {
             case id
             case title
             case widgetType
-            case posterPath = "poster_path"
             case overview
             case releaseDate = "release_date"
             case isAd
@@ -41,7 +40,6 @@ extension WidgetsResponseDTO {
         let id: Int
         let title: String?
         let widgetType: WidgetTypeDTO?
-        let posterPath: String?
         let overview: String?
         let releaseDate: String?
         var isAd: Bool? = false
@@ -52,7 +50,6 @@ extension WidgetsResponseDTO {
             id: Int,
             title: String?,
             widgetType: WidgetTypeDTO?,
-            posterPath: String?,
             overview: String?,
             releaseDate: String?,
             isAd: Bool? = false,
@@ -62,7 +59,6 @@ extension WidgetsResponseDTO {
             self.id = id
             self.title = title
             self.widgetType = widgetType
-            self.posterPath = posterPath
             self.overview = overview
             self.releaseDate = releaseDate
             self.isAd = isAd
@@ -89,7 +85,6 @@ extension WidgetsResponseDTO.WidgetDTO {
                 title: title,
                 title_2: title,
                 widgetType: widgetType?.toDomain(),
-                posterPath: posterPath,
                 overview: overview,
                 isAd: isAd ?? false,
                 deviceAddress: deviceAddress ?? 0,

@@ -17,7 +17,6 @@ struct Widget: Equatable, Identifiable {
     let title: String?
     let title_2: String?
     let widgetType: WidgetType?
-    let posterPath: String?
     let overview: String?
     let isAd: Bool
     let deviceAddress: Int

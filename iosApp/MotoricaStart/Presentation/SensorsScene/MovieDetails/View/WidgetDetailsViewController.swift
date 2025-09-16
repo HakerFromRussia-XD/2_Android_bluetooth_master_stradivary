@@ -41,14 +41,12 @@ final class WidgetDetailsViewController: UIViewController, StoryboardInstantiabl
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        viewModel.updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
     }
 
     // MARK: - Private
     private func setupViews() {
         title = viewModel.title
         overviewTextView.text = viewModel.overview
-        posterImageView.isHidden = viewModel.isPosterImageHidden
         view.accessibilityIdentifier = AccessibilityIdentifier.widgetDetailsView
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {

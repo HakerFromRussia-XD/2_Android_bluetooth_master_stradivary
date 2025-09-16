@@ -81,7 +81,7 @@ final class WidgetsListTableViewController: UITableViewController {
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
-//            guard let self = self else {return nil}
+            guard let self = self else {return nil}
             print("[DEBUG] Dequeueing cell for \(indexPath): \(item)")
             switch item {
                 case .command(let vm):

@@ -258,8 +258,12 @@ final class PlotViewCell: UITableViewCell {
     
     
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
-        guard ref.addressDevice == viewModel.deviceAddress,
-              ref.parameterID == viewModel.parameterID else { return }
+        print("updatePlotData    ref.addressDevice = \(String(describing: ref.addressDevice))")
+        print("updatePlotData    viewModel.deviceAddress = \(String(describing: viewModel.deviceAddress))")
+        print("updatePlotData    ref.parameterID = \(String(describing: ref.parameterID))")
+        print("updatePlotData    viewModel.parameterID = \(String(describing: viewModel.parameterID))")
+//        guard ref.addressDevice == viewModel.deviceAddress,
+//              ref.parameterID == viewModel.parameterID else { return }
         let arr = ref.dataPlots as NSArray
 
         if arr.count > 0 {

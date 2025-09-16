@@ -17,7 +17,7 @@ protocol WidgetsListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
-    func sendBytes()
+    func requestInicializeInformation()
 }
 
 protocol WidgetsListViewModelOutput {
@@ -77,7 +77,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
 
     // MARK: - Private
-
     private func appendPage(_ widgetsPage: WidgetsPage) {
         print("WidgetsPage widgets: \(widgetsPage.widgets)")
         currentPage = widgetsPage.page
@@ -148,7 +147,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         load(widgetQuery: widgetQuery, loading: .fullScreen)
     }
     
-    internal func sendBytes() {
+    internal func requestInicializeInformation() {
         let command = BLECommands.shared.requestInicializeInformation()
         command.debugPrint()
         print("[BLE-COMMUNICATION] send:  Constants.MAIN_CHANNEL_CHARACTERISTIC = \(Constants.MAIN_CHANNEL_CHARACTERISTIC) Constants.WRITE = \(Constants.WRITE)")
@@ -206,7 +205,6 @@ extension DefaultWidgetsListViewModel {
         appendPage(page)
     }
 
-    
     func didCancelSearch() {
         widgetsLoadTask?.cancel()
     }

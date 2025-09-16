@@ -20,7 +20,6 @@ extension WidgetResponseEntity {
             id: Int(id),
             title: title,
             widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO(rawValue: widgetType ?? ""),
-            posterPath: posterPath,
             overview: overview,
             releaseDate: releaseDate,
             isAd: isAd
@@ -55,7 +54,6 @@ extension WidgetsResponseDTO.WidgetDTO {
         entity.id = Int64(id)
         entity.title = title
         entity.widgetType = widgetType?.rawValue
-        entity.posterPath = posterPath
         entity.overview = overview
         entity.releaseDate = releaseDate
         entity.isAd = isAd ?? false

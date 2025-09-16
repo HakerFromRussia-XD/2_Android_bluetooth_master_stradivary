@@ -5,7 +5,7 @@ import DGCharts
 import UIKit
 
 struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
-    let id: Widget.Identifier
+    private let uuid = UUID()
     let title: String
     let deviceAddress: Int
     let parameterID: Int
@@ -13,8 +13,7 @@ struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил
 }
 
 extension PlotListItemViewModel {
-    init(id: Widget.Identifier, widget: Widget, chartData: LineChartData = LineChartData(), showSecondSlider: Bool = false) {
-        self.id = id
+    init(widget: Widget, chartData: LineChartData = LineChartData(), showSecondSlider: Bool = false) {
         self.title = widget.title ?? ""
         self.deviceAddress = widget.deviceAddress
         self.parameterID = widget.parameterID
@@ -22,10 +21,10 @@ extension PlotListItemViewModel {
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(uuid)
     }
     
     static func == (lhs: PlotListItemViewModel, rhs: PlotListItemViewModel) -> Bool {
-        lhs.id == rhs.id
+        lhs.uuid == rhs.uuid
     }
 }

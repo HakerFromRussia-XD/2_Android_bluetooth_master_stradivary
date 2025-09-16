@@ -42,19 +42,19 @@ final class WidgetsQueriesTableViewController: UITableViewController, Storyboard
 
 extension WidgetsQueriesTableViewController {
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.items.value.count
-    }
+//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return viewModel.items.value.count
+//    }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: WidgetsQueriesItemCell.reuseIdentifier, for: indexPath) as? WidgetsQueriesItemCell else {
-            assertionFailure("Cannot dequeue reusable cell \(WidgetsQueriesItemCell.self) with reuseIdentifier: \(WidgetsQueriesItemCell.reuseIdentifier)")
-            return UITableViewCell()
-        }
-        cell.fill(with: viewModel.items.value[indexPath.row])
-
-        return cell
-    }
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: WidgetsQueriesItemCell.reuseIdentifier, for: indexPath) as? WidgetsQueriesItemCell else {
+//            assertionFailure("Cannot dequeue reusable cell \(WidgetsQueriesItemCell.self) with reuseIdentifier: \(WidgetsQueriesItemCell.reuseIdentifier)")
+//            return UITableViewCell()
+//        }
+//        cell.fill(with: viewModel.items.value[indexPath.row])
+//
+//        return cell
+//    }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)

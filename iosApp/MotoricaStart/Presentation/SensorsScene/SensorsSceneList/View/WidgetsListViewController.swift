@@ -219,6 +219,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
+        widgetsListContainer.isHidden = false
+        emptyDataLabel.isHidden = true
         widgetsTableViewController?.reload()
     }
 
@@ -232,9 +234,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         case .fullScreen: LoadingView.show()
         case .nextPage: widgetsListContainer.isHidden = false
         case .none:
-            widgetsListContainer.isHidden = viewModel.isEmpty
+            widgetsListContainer.isHidden = false
             emptyDataLabel.isHidden = !viewModel.isEmpty
         }
+        
 
         widgetsTableViewController?.updateLoading(loading)
     }

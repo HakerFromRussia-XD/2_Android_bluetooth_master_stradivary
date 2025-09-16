@@ -1,7 +1,7 @@
 import Foundation
 
 struct SliderListItemViewModel: Equatable, Hashable {
-    let id: Widget.Identifier
+    private let uuid = UUID()
     let title: String
     let overview: String
     let title_2: String
@@ -11,8 +11,7 @@ struct SliderListItemViewModel: Equatable, Hashable {
 }
 
 extension SliderListItemViewModel {
-    init(id: Widget.Identifier, widget: Widget, showSecondSlider: Bool = false) {
-        self.id = id
+    init(widget: Widget, showSecondSlider: Bool = false) {
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
         self.overview = widget.overview ?? ""
@@ -22,11 +21,11 @@ extension SliderListItemViewModel {
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(uuid)
     }
 
     static func == (lhs: SliderListItemViewModel, rhs: SliderListItemViewModel) -> Bool {
-        lhs.id == rhs.id
+        lhs.uuid == rhs.uuid
     }
 }
 

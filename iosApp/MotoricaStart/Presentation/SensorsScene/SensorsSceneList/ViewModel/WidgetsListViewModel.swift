@@ -91,9 +91,9 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         
         items.value = widgetsPage.widgets.map { widget in
             switch widget.widgetType {
-            case .commandWidget: return ListItemType.command(CommandListItemViewModel(id: widget.id, widget: widget))
-            case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(id: widget.id, widget: widget))
-            case .plotWidget: return ListItemType.plot(PlotListItemViewModel(id: widget.id, widget: widget))
+            case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget))
+            case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget))
+            case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget))
             @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }

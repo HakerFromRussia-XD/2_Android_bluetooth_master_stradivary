@@ -21,13 +21,13 @@ final class WidgetsListTableViewController: UITableViewController {
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
     }
     override func viewDidLoad() {
+        super.viewDidLoad()
         print("[Lifecycle]  viewDidLoad")
         // Ensure our table view uses WidgetsListTableView without losing storyboard prototype cells
         if !(tableView is WidgetsListTableView) {
             object_setClass(tableView, WidgetsListTableView.self)
             (tableView as? WidgetsListTableView)?.configure()
         }
-        super.viewDidLoad()
         setupViews()
         // Assistant: Применяем начальный снапшот данных
         applySnapshot(animatingDifferences: false)
@@ -48,10 +48,18 @@ final class WidgetsListTableViewController: UITableViewController {
     
     // Assistant: Общая функция для обновления таблицы через DiffableDataSource
     private func applySnapshot(animatingDifferences: Bool) {
+        print("[DEBUG] applySnapshot called")
+        print("[DEBUG] items count = \(viewModel.items.value.count)")
+        viewModel.items.value.forEach { print(" -> \($0)") }
+        
         var snapshot = NSDiffableDataSourceSnapshot<Section, ListItemType>()
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModel.items.value)
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+                print("[DEBUG] snapshot applied")
+            }
+        }
     }
 
 
@@ -74,6 +82,7 @@ final class WidgetsListTableViewController: UITableViewController {
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
 //            guard let self = self else {return nil}
+            print("[DEBUG] Dequeueing cell for \(indexPath): \(item)")
             switch item {
                 case .command(let vm):
                     let cell = tableView.dequeueReusableCell(
@@ -113,48 +122,48 @@ final class WidgetsListTableViewController: UITableViewController {
 // MARK: - UITableViewDataSource, UITableViewDelegate
 extension WidgetsListTableViewController {
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.items.value.count
-    }
+//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return viewModel.items.value.count
+//    }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = viewModel.items.value[indexPath.row]
-        print("Item at \(indexPath.row): \(item)")
-        
-        switch item {
-            case .plot(let widgetVM):
-                guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: PlotViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as? PlotViewCell else {
-                    assertionFailure("Cannot dequeue ad cell")
-                    return UITableViewCell()
-                }
-                return cell
-            case .command(let commandVM):
-                    guard let cell = tableView.dequeueReusableCell(
-                        withIdentifier: CommandViewCell.reuseIdentifier,
-                        for: indexPath
-                    ) as? CommandViewCell else {
-                        assertionFailure("Cannot dequeue ad cell")
-                        return UITableViewCell()
-                    }
-                    return cell
-            case .slider(_):
-                    guard let cell = tableView.dequeueReusableCell(
-                        withIdentifier: SliderViewCell.reuseIdentifier,
-                        for: indexPath
-                    ) as? SliderViewCell else {
-                        assertionFailure("Cannot dequeue ad cell")
-                        return UITableViewCell()
-                    }
-                    return cell
-        }
-    }
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let item = viewModel.items.value[indexPath.row]
+//        print("[DEBUG] UITableViewDelegate cellForRowAt item: \(item)")
+//        
+//        switch item {
+//            case .plot(let widgetVM):
+//                guard let cell = tableView.dequeueReusableCell(
+//                    withIdentifier: PlotViewCell.reuseIdentifier,
+//                    for: indexPath
+//                ) as? PlotViewCell else {
+//                    assertionFailure("Cannot dequeue ad cell")
+//                    return UITableViewCell()
+//                }
+//                return cell
+//            case .command(let commandVM):
+//                    guard let cell = tableView.dequeueReusableCell(
+//                        withIdentifier: CommandViewCell.reuseIdentifier,
+//                        for: indexPath
+//                    ) as? CommandViewCell else {
+//                        assertionFailure("Cannot dequeue ad cell")
+//                        return UITableViewCell()
+//                    }
+//                    return cell
+//            case .slider(_):
+//                    guard let cell = tableView.dequeueReusableCell(
+//                        withIdentifier: SliderViewCell.reuseIdentifier,
+//                        for: indexPath
+//                    ) as? SliderViewCell else {
+//                        assertionFailure("Cannot dequeue ad cell")
+//                        return UITableViewCell()
+//                    }
+//                    return cell
+//        }
+//    }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return viewModel.isEmpty ? tableView.frame.height : super.tableView(tableView, heightForRowAt: indexPath)
-    }
+//    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return viewModel.isEmpty ? tableView.frame.height : super.tableView(tableView, heightForRowAt: indexPath)
+//    }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.didSelectItem(at: indexPath.row)

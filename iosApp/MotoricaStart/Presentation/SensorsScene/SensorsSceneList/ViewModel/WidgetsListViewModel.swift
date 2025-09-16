@@ -53,7 +53,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private var latestRequestID: Int = 0
 
     // MARK: - OUTPUT
-
     let items: Observable<[ListItemType]> = Observable([])
     let loading: Observable<WidgetsListViewModelLoading?> = Observable(.none)
     let query: Observable<String> = Observable("")
@@ -65,7 +64,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")
 
     // MARK: - Init
-    
     init(
         searchMWidgetsUseCase: SearchWidgetsUseCase,
         bleManager: BleManagerKmm,

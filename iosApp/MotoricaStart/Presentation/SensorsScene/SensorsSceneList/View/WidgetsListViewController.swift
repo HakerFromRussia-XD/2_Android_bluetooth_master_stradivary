@@ -133,8 +133,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
 
         let mockResponseDTO = WidgetsResponseDTO(
-            page: 2,
-            totalPages: 5,
+            page: 1,
+            totalPages: 1,
             widgets: widgetsDTO
         )
         

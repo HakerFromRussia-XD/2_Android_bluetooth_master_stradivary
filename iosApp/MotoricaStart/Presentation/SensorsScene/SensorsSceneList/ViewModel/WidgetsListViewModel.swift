@@ -74,6 +74,11 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         self.bleManager = bleManager
         self.actions = actions
         self.mainQueue = mainQueue
+        
+        bleManager.setOnCharacteristicsReadyListener { [weak self] in
+            print("[WIDGET_COORDINATOR] setOnCharacteristicsReadyListener")
+            self?.requestInicializeInformation()
+        }
     }
 
     // MARK: - Private

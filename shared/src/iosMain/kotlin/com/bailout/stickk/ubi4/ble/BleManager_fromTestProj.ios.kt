@@ -61,6 +61,8 @@ actual class BleManagerKmm actual constructor() {
     private var selectedDevice: CBPeripheral? = null
 
     private var onChunkSent: (() -> Unit)? = null
+    private var onCharacteristicsReady: (() -> Unit)? = null
+    private var didNotifyCharacteristicsReady = false
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -111,6 +113,7 @@ actual class BleManagerKmm actual constructor() {
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             didConnectPeripheral.delegate = this
+            didNotifyCharacteristicsReady = false
             didConnectPeripheral.discoverServices(null)
         }
 
@@ -135,6 +138,11 @@ actual class BleManagerKmm actual constructor() {
             (didDiscoverCharacteristicsForService.characteristics as? List<*>)?.forEach {
                 val c = it as CBCharacteristic
                 characteristicsMass.add(c); peripheral.setNotifyValue(true, forCharacteristic = c)
+            }
+
+            if (!didNotifyCharacteristicsReady) {
+                didNotifyCharacteristicsReady = true
+                onCharacteristicsReady?.invoke()
             }
         }
 
@@ -188,6 +196,11 @@ actual class BleManagerKmm actual constructor() {
                 manager.connectPeripheral(connectedDevice!!, options = null)
             }
         }
+    }
+
+    actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
+        onCharacteristicsReady = onReady
+        didNotifyCharacteristicsReady = false
     }
 
     @Suppress("unused")

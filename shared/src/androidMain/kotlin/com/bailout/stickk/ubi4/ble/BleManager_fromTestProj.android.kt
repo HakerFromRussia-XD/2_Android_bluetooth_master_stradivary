@@ -10,6 +10,7 @@ actual class BleDeviceKmm actual constructor (
 /** Менеджер для работы с Bluetooth LE */
 actual class BleManagerKmm actual constructor() {
     private var bleCommandExecutor: BleCommandExecutor? = null
+    private var onCharacteristicsReady: (() -> Unit)? = null
 
     fun setBleCommandExecutor(executor: BleCommandExecutor) {
         bleCommandExecutor = executor
@@ -21,6 +22,11 @@ actual class BleManagerKmm actual constructor() {
     actual fun stopScanKmm() {}
 
     actual fun connectToDevice(uuid: String) {}
+
+    actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
+        onCharacteristicsReady = onReady
+        onCharacteristicsReady?.invoke()
+    }
 
     /**
      * Отправить [data] в характеристику [characteristicUuid]

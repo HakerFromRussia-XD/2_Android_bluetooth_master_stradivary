@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -94,7 +95,6 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
-
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
 
@@ -677,7 +677,7 @@ class BLEParser(
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             platformLog("sendWidgetsArray", "▶️ sendWidgetsArray()  called, total widgets=${listWidgets.size}")
-                            bleCommandExecutor.sendWidgetsArray()
+                            updateFlow.emit(1)
                         }
                     }
                 }
@@ -920,7 +920,7 @@ class BLEParser(
                                     parametrSubDevice.additionalInfoRefSet.add(widgetStruct)
                                     coroutineScope.launch {
                                         platformLog("sendWidgetsArray", "▶\uFE0F sendWidgetsArray() called, total widgets=${listWidgets.size}")
-                                        bleCommandExecutor.sendWidgetsArray()
+                                        updateFlow.emit(1)
                                     }
                                 }
                             }

@@ -62,6 +62,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func startObservingWidgetUpdates() {
+        print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
         widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] _ in
             self?.reloadWidgetsFromShared()
@@ -69,6 +70,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func stopObservingWidgetUpdates() {
+        print("[WIDGET_COORDINATOR] stopObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
         widgetsUpdateJob = nil
     }

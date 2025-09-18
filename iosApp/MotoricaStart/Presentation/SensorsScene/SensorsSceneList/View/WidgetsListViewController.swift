@@ -91,8 +91,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 
                 var title: String?
                 var overview: String?
-                var deviceAddress: Int?
-                var parameterID: Int?
+//                var deviceAddress: Int?
+//                var parameterID: Int?
+                var widgetObject: Any?
                 
                 switch widget {
                     case let plotItem as PlotItem:

@@ -262,6 +262,7 @@ final class PlotViewCell: UITableViewCell {
         print("updatePlotData    viewModel.deviceAddress = \(String(describing: viewModel.deviceAddress))")
         print("updatePlotData    ref.parameterID = \(String(describing: ref.parameterID))")
         print("updatePlotData    viewModel.parameterID = \(String(describing: viewModel.parameterID))")
+        print("updatePlotData    viewModel.widget = \(String(describing: viewModel.widget))")
 //        guard ref.addressDevice == viewModel.deviceAddress,
 //              ref.parameterID == viewModel.parameterID else { return }
         let arr = ref.dataPlots as NSArray

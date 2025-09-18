@@ -199,7 +199,7 @@ enum WidgetMetadataExtractor {
         }
     }
 
-    private func firstParameterInfo(in set: Any?) -> NSObject? {
+    private static func firstParameterInfo(in set: Any?) -> NSObject? {
         if let kotlinSet = set as? KotlinMutableSet<AnyObject> {
             for element in kotlinSet {
                 if let parameterInfo = element as? NSObject {

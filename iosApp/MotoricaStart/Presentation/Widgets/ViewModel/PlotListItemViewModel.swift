@@ -10,6 +10,7 @@ struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил
     let deviceAddress: Int
     let parameterID: Int
     let chartData: LineChartData
+    let widget: AnyCodable?
 }
 
 extension PlotListItemViewModel {
@@ -18,6 +19,7 @@ extension PlotListItemViewModel {
         self.deviceAddress = widget.deviceAddress
         self.parameterID = widget.parameterID
         self.chartData = chartData
+        self.widget = widget.widget
     }
     
     func hash(into hasher: inout Hasher) {

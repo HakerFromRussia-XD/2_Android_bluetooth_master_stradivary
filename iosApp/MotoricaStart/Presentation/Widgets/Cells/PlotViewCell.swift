@@ -56,6 +56,30 @@ final class PlotViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         
+        if let plotWidget = viewModel.widget?.value as? AnyObject {
+            let parameterInfoSet: Any?
+            
+            if let plotStruct = plotWidget as? PlotParameterWidgetEStruct {
+                parameterInfoSet = plotStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+            } else if let plotStruct = plotWidget as? PlotParameterWidgetSStruct {
+                parameterInfoSet = plotStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+            } else {
+                return
+            }
+            
+            guard let parameterSet = parameterInfoSet as? Set<ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject>> else { return }
+
+            let infos = parameterSet.compactMap { (info) -> ParameterInfoData? in
+                guard let paramID = (info.parameterID as? KotlinInt)?.intValue,
+                          let dataCode = (info.dataCode as? KotlinInt)?.intValue,
+                          let deviceAddress = (info.deviceAddress as? KotlinInt)?.intValue,
+                          let dataOffset = (info.dataOffset as? KotlinInt)?.intValue else { return nil }
+                
+                return ParameterInfoData(parameterID: paramID, dataCode: dataCode, deviceAddress: deviceAddress, dataOffset: dataOffset)
+            }
+        }
+        
+        
         job?.cancel(cause: nil)
         job = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
             self?.updatePlotData(ref, viewModel: viewModel)
@@ -297,4 +321,11 @@ final class PlotViewCell: UITableViewCell {
         timer?.invalidate()
         timer = nil
     }
+}
+
+struct ParameterInfoData {
+    let parameterID: Int
+    let dataCode: Int
+    let deviceAddress: Int
+    let dataOffset: Int
 }

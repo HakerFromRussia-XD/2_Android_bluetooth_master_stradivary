@@ -1,7 +1,138 @@
 import Foundation
+import shared
+
+struct AnyCodable: Codable, Equatable {
+    let value: Any
+
+    init(_ value: Any?) {
+        switch value {
+        case let codable as AnyCodable:
+            self.value = codable.value
+        case let dictionary as [String: Any]:
+            self.value = dictionary.mapValues { AnyCodable($0) }
+        case let array as [Any]:
+            self.value = array.map { AnyCodable($0) }
+        case .none:
+            self.value = NSNull()
+        default:
+            self.value = value ?? NSNull()
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if container.decodeNil() {
+            self.value = NSNull()
+        } else if let bool = try? container.decode(Bool.self) {
+            self.value = bool
+        } else if let int = try? container.decode(Int.self) {
+            self.value = int
+        } else if let double = try? container.decode(Double.self) {
+            self.value = double
+        } else if let string = try? container.decode(String.self) {
+            self.value = string
+        } else if let array = try? container.decode([AnyCodable].self) {
+            self.value = array
+        } else if let dictionary = try? container.decode([String: AnyCodable].self) {
+            self.value = dictionary
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported value")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        switch value {
+        case is NSNull:
+            try container.encodeNil()
+        case let bool as Bool:
+            try container.encode(bool)
+        case let int as Int:
+            try container.encode(int)
+        case let int as Int8:
+            try container.encode(int)
+        case let int as Int16:
+            try container.encode(int)
+        case let int as Int32:
+            try container.encode(int)
+        case let int as Int64:
+            try container.encode(int)
+        case let uint as UInt:
+            try container.encode(uint)
+        case let uint as UInt8:
+            try container.encode(uint)
+        case let uint as UInt16:
+            try container.encode(uint)
+        case let uint as UInt32:
+            try container.encode(uint)
+        case let uint as UInt64:
+            try container.encode(uint)
+        case let double as Double:
+            try container.encode(double)
+        case let float as Float:
+            try container.encode(float)
+        case let string as String:
+            try container.encode(string)
+        case let array as [AnyCodable]:
+            try container.encode(array)
+        case let dictionary as [String: AnyCodable]:
+            try container.encode(dictionary)
+        case let number as NSNumber:
+            try container.encode(number.intValue)
+        default:
+            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: container.codingPath, debugDescription: "Unsupported value"))
+        }
+    }
+
+    static func == (lhs: AnyCodable, rhs: AnyCodable) -> Bool {
+        switch (lhs.value, rhs.value) {
+        case (is NSNull, is NSNull):
+            return true
+        case let (l as Bool, r as Bool):
+            return l == r
+        case let (l as Int, r as Int):
+            return l == r
+        case let (l as Int8, r as Int8):
+            return l == r
+        case let (l as Int16, r as Int16):
+            return l == r
+        case let (l as Int32, r as Int32):
+            return l == r
+        case let (l as Int64, r as Int64):
+            return l == r
+        case let (l as UInt, r as UInt):
+            return l == r
+        case let (l as UInt8, r as UInt8):
+            return l == r
+        case let (l as UInt16, r as UInt16):
+            return l == r
+        case let (l as UInt32, r as UInt32):
+            return l == r
+        case let (l as UInt64, r as UInt64):
+            return l == r
+        case let (l as Double, r as Double):
+            return l == r
+        case let (l as Float, r as Float):
+            return l == r
+        case let (l as String, r as String):
+            return l == r
+        case let (l as NSNumber, r as NSNumber):
+            return l == r
+        case let (l as [AnyCodable], r as [AnyCodable]):
+            return l == r
+        case let (l as [String: AnyCodable], r as [String: AnyCodable]):
+            return l == r
+        case let (l as NSObject, r as NSObject):
+            return l == r
+        default:
+            return false
+        }
+    }
+}
 
 // MARK: - Data Transfer Object
-
 struct WidgetsResponseDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case page
@@ -22,8 +153,7 @@ extension WidgetsResponseDTO {
             case overview
             case releaseDate = "release_date"
             case isAd
-            case deviceAddress
-            case parameterID
+            case widget
         }
         enum WidgetTypeDTO: String, Decodable {
             case commandWidget = "command_widget"
@@ -43,8 +173,7 @@ extension WidgetsResponseDTO {
         let overview: String?
         let releaseDate: String?
         var isAd: Bool? = false
-        let deviceAddress: Int?
-        let parameterID: Int?
+        let widget: AnyCodable?
         
         init(
             id: Int,
@@ -53,8 +182,7 @@ extension WidgetsResponseDTO {
             overview: String?,
             releaseDate: String?,
             isAd: Bool? = false,
-            deviceAddress: Int? = nil,
-            parameterID: Int? = nil
+            widget: AnyCodable? = nil
         ) {
             self.id = id
             self.title = title
@@ -62,8 +190,7 @@ extension WidgetsResponseDTO {
             self.overview = overview
             self.releaseDate = releaseDate
             self.isAd = isAd
-            self.deviceAddress = deviceAddress
-            self.parameterID = parameterID
+            self.widget = widget
         }
     }
 }
@@ -80,6 +207,7 @@ extension WidgetsResponseDTO {
 
 extension WidgetsResponseDTO.WidgetDTO {
     func toDomain() -> Widget {
+        let metadata = WidgetMetadataExtractor.metadata(from: widget)
         let widget = Widget(
                 id: Widget.Identifier(id),
                 title: title,
@@ -87,8 +215,9 @@ extension WidgetsResponseDTO.WidgetDTO {
                 widgetType: widgetType?.toDomain(),
                 overview: overview,
                 isAd: isAd ?? false,
-                deviceAddress: deviceAddress ?? 0,
-                parameterID: parameterID ?? 0
+                deviceAddress: metadata.deviceAddress ?? 0,
+                parameterID: metadata.parameterID ?? 0,
+                widget: widget
             )
         print("Mapped Widget: \(widget)")
         return widget

@@ -95,61 +95,20 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 var parameterID: Int?
                 
                 switch widget {
-//                    case is PlotItem:
-//                        widgetType = .plotWidget
-//                    case is SliderItem:
-//                        widgetType = .sliderWidget
-//                    case is OneButtonItem:
-//                        widgetType = .commandWidget
-//                    
-//                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is GestureOpticParameterWidgetEStruct:
-//                        widgetType = .commandWidget
-//                    case is GestureParameterWidgetEStruct:
-//                        widgetType = .commandWidget
-//                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-//                        widgetType = .plotWidget
-//                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-//                        widgetType = .sliderWidget
-//                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-//                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
-//                        widgetType = .commandWidget
-////                    case is CommandParameterWidgetEStruct, is CommandParameterWidgetSStruct:
-////                        widgetType = .commandWidget
-//                    default:
-//                        widgetType = .commandWidget
                     case let plotItem as PlotItem:
                         widgetType = .plotWidget
                         title = plotItem.title
-                        let metadata = extractMetadata(from: plotItem.widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
+                        widgetObject = plotItem.widget
                     case let sliderItem as SliderItem:
                         widgetType = .sliderWidget
                         title = sliderItem.title
-                        let metadata = extractMetadata(from: sliderItem.widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
+                        widgetObject = sliderItem.widget
                     case let oneButtonItem as OneButtonItem:
                         widgetType = .commandWidget
                         title = oneButtonItem.title
-                        if let descriptionValue = oneButtonItem.component2() as? String {
-                            overview = descriptionValue
-                        }
-                        let metadata = extractMetadata(from: oneButtonItem.widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
+                        widgetObject = oneButtonItem.widget
                     case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
                         widgetType = .commandWidget
-                        let metadata = extractMetadata(from: widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
                     case is GestureOpticParameterWidgetEStruct:
                         widgetType = .commandWidget
                     case is GestureParameterWidgetEStruct:
@@ -158,14 +117,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                         widgetType = .commandWidget
                     case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
                         widgetType = .plotWidget
-                        let metadata = extractMetadata(from: widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
+                        widgetObject = widget
                     case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
                         widgetType = .sliderWidget
-                        let metadata = extractMetadata(from: widget)
-                        deviceAddress = metadata.deviceAddress
-                        parameterID = metadata.parameterID
+                        widgetObject = widget
                     case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
                         widgetType = .commandWidget
                     case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
@@ -180,13 +135,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                         title = extractTitle(from: widget) ?? "Widget \(index)"
                 }
                 
-                
-                if deviceAddress == nil || parameterID == nil {
-                    let metadata = extractMetadata(from: widget)
-                    if deviceAddress == nil { deviceAddress = metadata.deviceAddress }
-                    if parameterID == nil { parameterID = metadata.parameterID }
-                }
-                
                 return WidgetsResponseDTO.WidgetDTO(
                     id: index,
                     title: title,
@@ -194,8 +142,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     overview: overview,
                     releaseDate: nil,
                     isAd: false,
-                    deviceAddress: deviceAddress,
-                    parameterID: parameterID
+                    widget: AnyCodable(widgetObject)
                 )
             }
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
@@ -239,86 +186,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 return nil
             }
         }
-
-    private func extractMetadata(from widget: Any?) -> (deviceAddress: Int?, parameterID: Int?) {
-        guard let baseStruct = extractBaseStruct(from: widget) else {
-            return (nil, nil)
-        }
-
-        var deviceAddress: Int? = Int(baseStruct.deviceId)
-        var parameterID: Int?
-
-        if let parameterInfo = firstParameterInfo(in: baseStruct.parameterInfoSet) {
-            if let parameterIdValue = parameterInfo.value(forKey: "parameterID") as? KotlinInt {
-                parameterID = Int(parameterIdValue.intValue)
-            } else if let parameterIdNumber = parameterInfo.value(forKey: "parameterID") as? NSNumber {
-                parameterID = parameterIdNumber.intValue
-            }
-
-            if let deviceAddressValue = parameterInfo.value(forKey: "deviceAddress") as? KotlinInt {
-                deviceAddress = Int(deviceAddressValue.intValue)
-            } else if let deviceAddressNumber = parameterInfo.value(forKey: "deviceAddress") as? NSNumber {
-                deviceAddress = deviceAddressNumber.intValue
-            }
-        }
-
-        return (deviceAddress, parameterID)
-    }
-
-    private func extractBaseStruct(from widget: Any?) -> BaseParameterWidgetStruct? {
-        switch widget {
-        case let baseStruct as BaseParameterWidgetStruct:
-            return baseStruct
-        case let baseEStruct as BaseParameterWidgetEStruct:
-            return baseEStruct.baseParameterWidgetStruct
-        case let baseSStruct as BaseParameterWidgetSStruct:
-            return baseSStruct.baseParameterWidgetStruct
-        case let commandEStruct as CommandParameterWidgetEStruct:
-            return commandEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let commandSStruct as CommandParameterWidgetSStruct:
-            return commandSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let plotEStruct as PlotParameterWidgetEStruct:
-            return plotEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let plotSStruct as PlotParameterWidgetSStruct:
-            return plotSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let sliderEStruct as SliderParameterWidgetEStruct:
-            return sliderEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let sliderSStruct as SliderParameterWidgetSStruct:
-            return sliderSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let spinnerEStruct as SpinnerParameterWidgetEStruct:
-            return spinnerEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let spinnerSStruct as SpinnerParameterWidgetSStruct:
-            return spinnerSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let switchEStruct as SwitchParameterWidgetEStruct:
-            return switchEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let switchSStruct as SwitchParameterWidgetSStruct:
-            return switchSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let opticStruct as OpticStartLearningWidgetEStruct:
-            return opticStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let opticSStruct as OpticStartLearningWidgetSStruct:
-            return opticSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        case let gestureOpticStruct as GestureOpticParameterWidgetEStruct:
-            return gestureOpticStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let gestureStruct as GestureParameterWidgetEStruct:
-            return gestureStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let thresholdStruct as ThresholdParameterWidgetEStruct:
-            return thresholdStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
-        case let thresholdSStruct as ThresholdParameterWidgetSStruct:
-            return thresholdSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
-        default:
-            return nil
-        }
-    }
-
-    private func firstParameterInfo(in set: Any?) -> NSObject? {
-        guard let kotlinSet = set as? KotlinMutableSet else { return nil }
-        let iterator = kotlinSet.iterator()
-        while iterator.hasNext() {
-            if let parameterInfo = iterator.next() as? NSObject { return parameterInfo }
-        }
-        return nil
-    }
-
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == String(describing: WidgetsListTableViewController.self),

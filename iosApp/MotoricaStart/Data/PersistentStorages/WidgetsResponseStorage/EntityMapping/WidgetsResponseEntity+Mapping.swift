@@ -22,7 +22,10 @@ extension WidgetResponseEntity {
             widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO(rawValue: widgetType ?? ""),
             overview: overview,
             releaseDate: releaseDate,
-            isAd: isAd
+            isAd: isAd,
+            widget: (value(forKey: "widgetData") as? Data).flatMap { data in
+                try? JSONDecoder().decode(AnyCodable.self, from: data)
+            }
         )
     }
 }
@@ -57,6 +60,12 @@ extension WidgetsResponseDTO.WidgetDTO {
         entity.overview = overview
         entity.releaseDate = releaseDate
         entity.isAd = isAd ?? false
+        if let widget,
+           let widgetData = try? JSONEncoder().encode(widget) {
+            entity.setValue(widgetData, forKey: "widgetData")
+        } else {
+            entity.setValue(nil, forKey: "widgetData")
+        }
         return entity
     }
 }

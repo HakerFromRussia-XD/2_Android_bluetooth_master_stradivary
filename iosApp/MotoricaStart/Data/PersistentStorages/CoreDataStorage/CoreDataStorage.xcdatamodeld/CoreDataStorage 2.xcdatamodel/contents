@@ -10,6 +10,7 @@
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="widgetData" optional="YES" attributeType="Binary"/>
         <attribute name="widgetType" optional="YES" attributeType="String"/>
         <relationship name="widgetsResponse" maxCount="1" deletionRule="Nullify" destinationEntity="WidgetsResponseEntity" inverseName="widgets" inverseEntity="WidgetsResponseEntity"/>
     </entity>

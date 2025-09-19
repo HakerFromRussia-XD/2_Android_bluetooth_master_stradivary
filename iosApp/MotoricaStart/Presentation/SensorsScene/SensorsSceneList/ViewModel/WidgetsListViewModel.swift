@@ -95,7 +95,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             switch widget.widgetType {
             case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget))
             case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget))
-            case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget))
+            case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
             @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }

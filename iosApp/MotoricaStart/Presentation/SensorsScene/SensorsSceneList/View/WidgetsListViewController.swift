@@ -90,7 +90,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
                 
                 var title: String?
-                var overview: String?
                 var widgetObject: Any? = widget
                 
                 switch widget {
@@ -138,7 +137,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     id: index,
                     title: title,
                     widgetType: widgetType,
-                    overview: overview,
+                    overview: nil,
                     releaseDate: nil,
                     isAd: false,
                     widget: AnyCodable(widgetObject)

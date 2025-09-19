@@ -3,6 +3,7 @@
 import Foundation
 import DGCharts
 import UIKit
+import shared
 
 struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
     private let uuid = UUID()
@@ -11,15 +12,24 @@ struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил
     let parameterID: Int
     let chartData: LineChartData
     let widget: AnyCodable?
+    let bleManager: BleManagerKmm
 }
 
 extension PlotListItemViewModel {
-    init(widget: Widget, chartData: LineChartData = LineChartData(), showSecondSlider: Bool = false) {
+    init(widget: Widget,
+         chartData: LineChartData = LineChartData(),
+         showSecondSlider: Bool = false,
+         bleManager: BleManagerKmm
+    ) {
         self.title = widget.title ?? ""
         self.deviceAddress = widget.deviceAddress
         self.parameterID = widget.parameterID
         self.chartData = chartData
         self.widget = widget.widget
+        self.bleManager = bleManager
+        
+        var thresholds: [Int]? = nil   // [open, close, t3, t4, t5, t6]
+        var thresholdsLoaded: Bool = false
     }
     
     func hash(into hasher: inout Hasher) {

@@ -28,4 +28,13 @@ object WidgetStateBridge {
     coroutineScope.launch {
         WidgetState.plotArrayFlow.collect { callback(it) }
     }
+
+    /**
+     * Подписка на thresholdFlow.
+     * @param callback вызывается с каждым новым значением графика.
+     */
+    fun observeThresholdFlow (callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.thresholdFlow.collect { callback(it) }
+        }
 }

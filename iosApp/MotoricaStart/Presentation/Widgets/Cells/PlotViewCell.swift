@@ -7,6 +7,7 @@ final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(330)
     private var viewModel: PlotListItemViewModel!
+    private var widgetPlotInfo: WidgetPlotInfo?
 
     // charts
     var firstInit: Bool = true
@@ -34,8 +35,8 @@ final class PlotViewCell: UITableViewCell {
     private var closePanGesture: UIPanGestureRecognizer?
     private var openThreshold: Int = 0
     private var closeThreshold: Int = 0
-    private var job: Kotlinx_coroutines_coreJob?
-    
+    private var plotDateEntryJob: Kotlinx_coroutines_coreJob?
+    private var thresholdJob: Kotlinx_coroutines_coreJob?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -56,6 +57,7 @@ final class PlotViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         
+        requestThresholds(for: viewModel)
         if let plotWidget = viewModel.widget?.value as? AnyObject {
             let parameterInfoSet: Any?
             
@@ -77,19 +79,47 @@ final class PlotViewCell: UITableViewCell {
                 
                 return ParameterInfoData(parameterID: paramID, dataCode: dataCode, deviceAddress: deviceAddress, dataOffset: dataOffset)
             }
+            
+            widgetPlotInfo = WidgetPlotInfo(
+                addressDeviceSet: Set(infos),
+                openThreshold: openThreshold,
+                closeThreshold: closeThreshold,
+                threshold3: 0,
+                threshold4: 0,
+                threshold5: 0,
+                threshold6: 0,
+                limitCH1: limitCH1,
+                limitCH2: limitCH2,
+                closeThresholdLabel: closeThresholdTv,
+                openThresholdLabel: openThresholdTv,
+                allCHRl: allCHRl,
+                dataSens1: reseve_sensor_1_data,
+                dataSens2: reseve_sensor_2_data,
+                dataSens3: 0,
+                dataSens4: 0,
+                dataSens5: 0,
+                dataSens6: 0
+            )
         }
         
         
-        job?.cancel(cause: nil)
-        job = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
+        plotDateEntryJob?.cancel(cause: nil)
+        plotDateEntryJob = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
             self?.updatePlotData(ref, viewModel: viewModel)
+        }
+        thresholdJob?.cancel(cause: nil)
+        thresholdJob = WidgetStateBridge.shared.observeThresholdFlow { [weak self] ref in
+            self?.updateThresholdData(ref, viewModel: viewModel)
         }
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        job?.cancel(cause: nil)
-        job = nil
+        plotDateEntryJob?.cancel(cause: nil)
+        plotDateEntryJob = nil
+        thresholdJob?.cancel(cause: nil)
+        thresholdJob = nil
+        widgetPlotInfo = nil
         startTimer()
     }
     override func didMoveToWindow() {
@@ -98,6 +128,7 @@ final class PlotViewCell: UITableViewCell {
             stopTimer()
         }
     }
+    
     
     // MARK: - работа с графиком
     func addEntry (sens1: Int, sens2: Int) {
@@ -232,7 +263,9 @@ final class PlotViewCell: UITableViewCell {
         let loc = gesture.location(in: allCHRl)
         switch gesture.state {
         case .began, .changed:
-            openThreshold = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
+            let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
+            openThreshold = value
+            widgetPlotInfo?.openThreshold = value
         case .ended:
             // TODO: отправить openThreshold
             break
@@ -243,7 +276,9 @@ final class PlotViewCell: UITableViewCell {
         let loc = gesture.location(in: allCHRl)
         switch gesture.state {
         case .began, .changed:
-            closeThreshold = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
+            let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
+            closeThreshold = value
+            widgetPlotInfo?.closeThreshold = value
         case .ended:
             // TODO: отправить openThreshold
             break
@@ -253,14 +288,27 @@ final class PlotViewCell: UITableViewCell {
     @objc private func handleOpenTap(_ gesture: UITapGestureRecognizer) {
         print("gestureRecognizer   handleOpenTap")
         let loc = gesture.location(in: allCHRl)
-        openThreshold = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
+        let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
+        openThreshold = value
+        widgetPlotInfo?.openThreshold = value
     }
     @objc private func handleCloseTap(_ gesture: UITapGestureRecognizer) {
         print("gestureRecognizer   handleCloseTap")
         let loc = gesture.location(in: allCHRl)
-        closeThreshold = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
+        let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
+        closeThreshold = value
+        widgetPlotInfo?.closeThreshold = value
     }
 
+    private func getIndexWidgetPlot(addressDevice: Int, parameterID: Int) -> Int {
+        guard let widgetPlotInfo = widgetPlotInfo else { return -1 }
+        for (index, widgetPlot) in widgetPlotInfo.addressDeviceSet.enumerated() {
+            if widgetPlot.deviceAddress == addressDevice && widgetPlot.parameterID == parameterID {
+                return index
+            }
+        }
+        return -1
+    }
     private func setLimitPosition(limit_CH: UIView, thresholdLabel: UILabel, in container: UIView, touchY: CGFloat) -> Int {
         // Конвертируем dp в реальные точки (pt)
         let topOffset = CGFloat(12)
@@ -279,16 +327,32 @@ final class PlotViewCell: UITableViewCell {
         thresholdLabel.text = String(value)
         return value
     }
-    
+    private func setLimitPosition(limit_CH: UIView, thresholdLabel: UILabel, in container: UIView, thresholdValue: Int) {
+        let topOffset = CGFloat(12)
+        let bottomOffset = CGFloat(10)
+
+        let clampedValue = max(0, min(thresholdValue, 255))
+
+        container.layoutIfNeeded()
+        let total = container.bounds.height
+        guard total > 0 else { return }
+
+        let minY = topOffset
+        let maxY = total - bottomOffset
+        let avail = total - topOffset - bottomOffset
+        guard avail > 0 else { return }
+
+        let y = max(min(maxY - (CGFloat(clampedValue) / 255.0) * avail, maxY), minY)
+        limit_CH.frame.origin.y = y - limit_CH.bounds.height / 2
+        thresholdLabel.text = String(clampedValue)
+    }
     
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
-        print("updatePlotData    ref.addressDevice = \(String(describing: ref.addressDevice))")
-        print("updatePlotData    viewModel.deviceAddress = \(String(describing: viewModel.deviceAddress))")
-        print("updatePlotData    ref.parameterID = \(String(describing: ref.parameterID))")
-        print("updatePlotData    viewModel.parameterID = \(String(describing: viewModel.parameterID))")
-        print("updatePlotData    viewModel.widget = \(String(describing: viewModel.widget))")
-//        guard ref.addressDevice == viewModel.deviceAddress,
-//              ref.parameterID == viewModel.parameterID else { return }
+//        print("updatePlotData    ref.addressDevice = \(String(describing: ref.addressDevice))")
+//        print("updatePlotData    viewModel.deviceAddress = \(String(describing: viewModel.deviceAddress))")
+//        print("updatePlotData    ref.parameterID = \(String(describing: ref.parameterID))")
+//        print("updatePlotData    viewModel.parameterID = \(String(describing: viewModel.parameterID))")
+        guard getIndexWidgetPlot(addressDevice: Int(ref.addressDevice), parameterID: Int(ref.parameterID)) != -1 else { return }
         let arr = ref.dataPlots as NSArray
 
         if arr.count > 0 {
@@ -297,6 +361,7 @@ final class PlotViewCell: UITableViewCell {
             } else if let k1 = arr[0] as? KotlinInt {
                 reseve_sensor_1_data = Int(k1.intValue)
             }
+            widgetPlotInfo?.dataSens1 = reseve_sensor_1_data
         }
 
         if arr.count > 1 {
@@ -305,7 +370,72 @@ final class PlotViewCell: UITableViewCell {
             } else if let k2 = arr[1] as? KotlinInt {
                 reseve_sensor_2_data = Int(k2.intValue)
             }
+            widgetPlotInfo?.dataSens2 = reseve_sensor_2_data
         }
+    }
+    private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
+//        let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
+//        openThreshold = value
+//        widgetPlotInfo?.openThreshold = value
+//        let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
+//        closeThreshold = value
+//        widgetPlotInfo?.closeThreshold = value
+        guard ref.addressDevice == viewModel.deviceAddress,
+              ref.parameterID == viewModel.parameterID else { return }
+
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let hex = parameter.data
+        guard !hex.isEmpty else { return }
+
+        let thresholds = decodeThresholds(from: hex)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if thresholds.indices.contains(0) {
+                let openValue = thresholds[0]
+                self.openThreshold = openValue
+                self.setLimitPosition(limit_CH: self.limitCH2, thresholdLabel: self.openThresholdTv, in: self.allCHRl, thresholdValue: openValue)
+            }
+            if thresholds.indices.contains(1) {
+                let closeValue = thresholds[1]
+                self.closeThreshold = closeValue
+                self.setLimitPosition(limit_CH: self.limitCH1, thresholdLabel: self.closeThresholdTv, in: self.allCHRl, thresholdValue: closeValue)
+            }
+        }
+    }
+    private func decodeThresholds(from hex: String) -> [Int] {
+        var padded = hex
+        if padded.count < 22 {
+            padded.append(String(repeating: "0", count: 22 - padded.count))
+        }
+
+        let ranges: [(Int, Int)] = [(0, 2), (4, 6), (8, 10), (12, 14), (16, 18), (20, 22)]
+
+        return ranges.map { start, end in
+            guard end <= padded.count,
+                  start < end else { return 0 }
+
+            let startIndex = padded.index(padded.startIndex, offsetBy: start)
+            let endIndex = padded.index(padded.startIndex, offsetBy: end)
+            let substring = padded[startIndex..<endIndex]
+            return Int(substring, radix: 16) ?? 0
+        }
+    }
+    private func requestThresholds(for viewModel: PlotListItemViewModel) {
+        let bytes = BLECommands.shared.requestThresholds(
+            addressDevice: Int32(viewModel.deviceAddress),
+            parameterID: Int32(viewModel.parameterID)
+        )
+        
+        
+        let gatt = SampleGattAttributes()
+        viewModel.bleManager.sendBytesKmm(
+            data: bytes,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {})
     }
     private func startTimer() {
         stopTimer()
@@ -323,9 +453,70 @@ final class PlotViewCell: UITableViewCell {
     }
 }
 
-struct ParameterInfoData {
+struct ParameterInfoData: Hashable {
     let parameterID: Int
     let dataCode: Int
     let deviceAddress: Int
     let dataOffset: Int
+}
+
+final class WidgetPlotInfo {
+    var addressDeviceSet: Set<ParameterInfoData>
+    var openThreshold: Int
+    var closeThreshold: Int
+    var threshold3: Int
+    var threshold4: Int
+    var threshold5: Int
+    var threshold6: Int
+    weak var limitCH1: UIView?
+    weak var limitCH2: UIView?
+    weak var closeThresholdLabel: UILabel?
+    weak var openThresholdLabel: UILabel?
+    weak var allCHRl: UIView?
+    var dataSens1: Int
+    var dataSens2: Int
+    var dataSens3: Int
+    var dataSens4: Int
+    var dataSens5: Int
+    var dataSens6: Int
+
+    init(
+        addressDeviceSet: Set<ParameterInfoData>,
+        openThreshold: Int,
+        closeThreshold: Int,
+        threshold3: Int,
+        threshold4: Int,
+        threshold5: Int,
+        threshold6: Int,
+        limitCH1: UIView?,
+        limitCH2: UIView?,
+        closeThresholdLabel: UILabel?,
+        openThresholdLabel: UILabel?,
+        allCHRl: UIView?,
+        dataSens1: Int,
+        dataSens2: Int,
+        dataSens3: Int,
+        dataSens4: Int,
+        dataSens5: Int,
+        dataSens6: Int
+    ) {
+        self.addressDeviceSet = addressDeviceSet
+        self.openThreshold = openThreshold
+        self.closeThreshold = closeThreshold
+        self.threshold3 = threshold3
+        self.threshold4 = threshold4
+        self.threshold5 = threshold5
+        self.threshold6 = threshold6
+        self.limitCH1 = limitCH1
+        self.limitCH2 = limitCH2
+        self.closeThresholdLabel = closeThresholdLabel
+        self.openThresholdLabel = openThresholdLabel
+        self.allCHRl = allCHRl
+        self.dataSens1 = dataSens1
+        self.dataSens2 = dataSens2
+        self.dataSens3 = dataSens3
+        self.dataSens4 = dataSens4
+        self.dataSens5 = dataSens5
+        self.dataSens6 = dataSens6
+    }
 }

@@ -397,7 +397,6 @@ class PlotDelegateAdapter (
         )
         openThreshold = widgetPlotsInfo[0].openThreshold
         closeThreshold = widgetPlotsInfo[0].closeThreshold
-
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -671,14 +670,8 @@ class PlotDelegateAdapter (
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
-            Log.d("plotArrayFlowCollectttttt", "===================")
-            widgetPlotInfo.addressDeviceSet.forEachIndexed { index, it ->
-                Log.d("plotArrayFlowCollectttttt", "$index ParameterInfo: $it")
-            }
-            widgetPlotInfo.addressDeviceSet.forEach {
-                if (it.deviceAddress == addressDevice && it.parameterID == parameterID) {
-                    return index
-                }
+            if (widgetPlotInfo.parameterInfoSet.any { it.deviceAddress == addressDevice && it.parameterID == parameterID }) {
+                return index
             }
         }
         return -1
@@ -693,9 +686,6 @@ class PlotDelegateAdapter (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-
-
-
     private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int, duration: Long = DURATION_ANIMATION) {
         // Выполняем вычисления после того, как layout уже измерен
         allCHRl.post {
@@ -743,10 +733,8 @@ class PlotDelegateAdapter (
     }
 }
 
-
-
 data class WidgetPlotInfo (
-    var addressDeviceSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),
+    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),
     var openThreshold: Int = 0,
     var closeThreshold: Int = 0,
     var threshold3: Int = 0,

@@ -56,8 +56,8 @@ final class PlotViewCell: UITableViewCell {
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
-        
         requestThresholds(for: viewModel)
+        
         if let plotWidget = viewModel.widget?.value as? AnyObject {
             let parameterInfoSet: Any?
             

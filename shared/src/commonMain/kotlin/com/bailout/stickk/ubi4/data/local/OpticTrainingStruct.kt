@@ -56,7 +56,10 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
                 }
 
                 val byteArrayData = byteList.toByteArray()
-                data = (arrayListOf(numberOfFrame) + CastBytesToFloat.castBytesToFloatArray(byteArrayData)) as ArrayList<Float>
+//                data = (arrayListOf(numberOfFrame) + CastBytesToFloat.castBytesToFloatArray(byteArrayData)) as ArrayList<Float>
+                data = (arrayListOf(numberOfFrame.toFloat()) +
+                        CastBytesToFloat.castBytesToFloatArray(byteArrayData).toList()
+                        ).toCollection(ArrayList())
 
                 platformLog("OpticTrainingSerializer", "data :$data")
                 platformLog("OpticTrainingSerializer", "numberOfFrame :$numberOfFrame")

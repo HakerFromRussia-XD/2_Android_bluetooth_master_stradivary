@@ -29,9 +29,9 @@ class ControllerBleStatusConnection(
 
     // ---- Mapping ----
     private fun animRes(state: UiState) = when (state) {
-        UiState.Connected     -> R.raw.test_animation1
-        UiState.Reconnecting  -> R.raw.test_animation2
-        UiState.Disconnected  -> R.raw.tets_animation4
+        UiState.Connected     -> R.raw.loader_spinner
+        UiState.Reconnecting  -> R.raw.loader_spinner
+        UiState.Disconnected  -> R.raw.loader_spinner
     }
     private fun isLooping(state: UiState) = state == UiState.Reconnecting || state == UiState.Disconnected
 

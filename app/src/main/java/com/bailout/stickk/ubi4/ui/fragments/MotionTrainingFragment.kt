@@ -161,10 +161,16 @@ class MotionTrainingFragment(
 
         if (!file.exists()) {
             file.createNewFile()
+//            file.writeText(
+//                "ts td omg0 omg1 omg2 omg3 omg4 omg5 omg6 omg7 omg8 omg9 omg10 omg11 omg12 omg13 omg14 omg15 " +
+//                        "emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno0 bno1 bno2 prb0 prb1 prb2 prb3 prb4 prb5 " +
+//                        "prb6 prb7 argmax denoize prot state id now\n"
+//            )
             file.writeText(
-                "ts td omg0 omg1 omg2 omg3 omg4 omg5 omg6 omg7 omg8 omg9 omg10 omg11 omg12 omg13 omg14 omg15 " +
-                        "emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno0 bno1 bno2 prb0 prb1 prb2 prb3 prb4 prb5 " +
-                        "prb6 prb7 argmax denoize prot state id now\n"
+                "ts td omg0 omg1 omg2 omg3 omg4 omg5 omg6 omg7 omg8 omg9 omg10 omg11 omg12 " +
+                        "omg13 omg14 omg15 emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno_rpy0 bno_rpy1" +
+                        " bno_rpy2 bno_acc0 bno_acc1 bno_acc2 prb0 prb1 prb2 prb3 prb4 prb5 prb6 prb7" +
+                        " prb8 prb9 prb10 argmax denoize prot state id now\n"
             )
             Log.d("SprTrainingFragment", "Created log file: ${file.absolutePath}")
         }

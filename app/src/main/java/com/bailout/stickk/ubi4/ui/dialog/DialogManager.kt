@@ -93,7 +93,7 @@ class DialogManager(
                     val timeoutJob = launch {
                         var last = progressBar.progress
                         while (isActive) {
-                            delay(12_000)
+                            delay(30_000)
                             if (progressBar.progress == last && progressBar.progress < 100) {
                                 showWarningLoadingDialog()
                                 break

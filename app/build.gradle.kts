@@ -31,7 +31,7 @@ android {
         minSdk = 28
         targetSdk = 33
         versionCode = 11
-        versionName = "3.2.1145"
+        versionName = "3.2.1146"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 //        signingConfig = signingConfigs.getByName("release")

@@ -647,15 +647,23 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
-        // 1) Собираем список ZIP-файлов
-        val dir = requireActivity().getExternalFilesDir(null)
-        val items: MutableList<FirmwareFileItem> = dir
-            ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
-            ?.map { f -> FirmwareFileItem(name = f.name, file = f) }
-            ?.toMutableList()
-            ?: mutableListOf()
+        // 1) Собираем список ZIP-файлов из пакета, там же где и чекпоинты
+//        val dir = requireActivity().getExternalFilesDir(null)
+//        val items: MutableList<FirmwareFileItem> = dir
+//            ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+//            ?.map { f -> FirmwareFileItem(name = f.name, file = f) }
+//            ?.toMutableList()
+//            ?: mutableListOf()
+        // 1) Собираем список ZIP-файлов из ассетов
+        val items: MutableList<FirmwareFileItem> =
+            FirmwareAssets.collectAssetZips(requireContext(), dir = "")
+                .map { (displayName, assetPath) ->
+                    val file = FirmwareAssets.copyToCache(requireContext(), assetPath) // делаем реальный File
+                    FirmwareFileItem(name = displayName, file = file)
+                }
+                .toMutableList()
 
-        // 2) Inflate диалога и RecyclerView
+        // 4) Inflate диалога и RecyclerView
         val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(view)

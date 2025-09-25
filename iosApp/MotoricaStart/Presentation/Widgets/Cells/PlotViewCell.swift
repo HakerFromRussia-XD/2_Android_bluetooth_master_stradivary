@@ -350,10 +350,6 @@ final class PlotViewCell: UITableViewCell {
     }
     
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
-//        print("updatePlotData    ref.addressDevice = \(String(describing: ref.addressDevice))")
-//        print("updatePlotData    viewModel.deviceAddress = \(String(describing: viewModel.deviceAddress))")
-//        print("updatePlotData    ref.parameterID = \(String(describing: ref.parameterID))")
-//        print("updatePlotData    viewModel.parameterID = \(String(describing: viewModel.parameterID))")
         guard getIndexWidgetPlot(addressDevice: Int(ref.addressDevice), parameterID: Int(ref.parameterID)) != -1 else { return }
         let arr = ref.dataPlots as NSArray
 
@@ -376,12 +372,6 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
-//        let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
-//        openThreshold = value
-//        widgetPlotInfo?.openThreshold = value
-//        let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
-//        closeThreshold = value
-//        widgetPlotInfo?.closeThreshold = value
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID == viewModel.widget.parameterID else { return }
 

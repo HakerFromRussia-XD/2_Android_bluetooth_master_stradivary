@@ -39,6 +39,18 @@ final class SliderProvider: ObservableObject {
 
 struct SliderRowView: View {
     @ObservedObject var provider: SliderProvider
+    let onFirstSliderEditingEnded: ((Float) -> Void)?
+    let onSecondSliderEditingEnded: ((Float) -> Void)?
+
+    init(
+        provider: SliderProvider,
+        onFirstSliderEditingEnded: ((Float) -> Void)? = nil,
+        onSecondSliderEditingEnded: ((Float) -> Void)? = nil
+    ) {
+        self._provider = ObservedObject(wrappedValue: provider)
+        self.onFirstSliderEditingEnded = onFirstSliderEditingEnded
+        self.onSecondSliderEditingEnded = onSecondSliderEditingEnded
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -67,7 +79,10 @@ struct SliderRowView: View {
                     borderWidth: 1,
                     activeColor: Color("ubi4_active"),
                     inactiveColor: Color("ubi4_gray"),
-                    borderColor: Color("ubi4_gray_border")
+                    borderColor: Color("ubi4_gray_border"),
+                    editingDidEnd: { value in
+                        onFirstSliderEditingEnded?(value)
+                    }
                 )
                 .padding(.leading, 16)
                 .padding(.trailing, 16)
@@ -102,7 +117,10 @@ struct SliderRowView: View {
                         borderWidth: 1,
                         activeColor: Color("ubi4_active"),
                         inactiveColor: Color("ubi4_gray"),
-                        borderColor: Color("ubi4_gray_border")
+                        borderColor: Color("ubi4_gray_border"),
+                        editingDidEnd: { value in
+                            onSecondSliderEditingEnded?(value)
+                        }
                     )
                     .padding(.leading, 16)
                     .padding(.trailing, 16)

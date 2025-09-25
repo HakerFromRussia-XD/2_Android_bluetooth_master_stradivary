@@ -24,24 +24,18 @@ extension SliderListItemViewModel {
     }
     
     func requestSlider() {
-        let data = BLECommands.shared.requestThresholds(
+        let data = BLECommands.shared.requestSlider(
             addressDevice: Int32(deviceAddress),
             parameterID: Int32(parameterID)
         )
         
         sendBytes(data)
     }
-    func sendThresholds(openThreshold: Int, closeThreshold: Int) {
-        print("sendThresholds openThreshold=\(openThreshold)   closeThreshold=\(closeThreshold)")
-        let data = BLECommands.shared.sendThresholdsCommand(
+    func sendSliderProgress(progress: [KotlinInt]) {
+        let data = BLECommands.shared.sendSliderCommand(
             addressDevice: Int32(deviceAddress),
             parameterID: Int32(parameterID),
-            thresholds: [
-                KotlinInt(integerLiteral: openThreshold),
-                0,
-                KotlinInt(integerLiteral: closeThreshold),
-                0
-            ]
+            progress: progress
         )
 
         sendBytes(data)

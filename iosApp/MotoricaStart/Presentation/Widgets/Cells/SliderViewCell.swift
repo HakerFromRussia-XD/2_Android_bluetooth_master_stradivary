@@ -39,6 +39,7 @@ final class SliderViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
+        viewModel.requestSlider()
         
         // 1. Создаём провайдер
         let provider = SliderProvider(
@@ -55,7 +56,15 @@ final class SliderViewCell: UITableViewCell {
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
-            SliderRowView(provider: provider)
+            SliderRowView(
+                provider: provider,
+                onFirstSliderEditingEnded: { [weak self] _ in
+                    self?.sliderEditingDidEnd()
+                },
+                onSecondSliderEditingEnded: { [weak self] _ in
+                    self?.sliderEditingDidEnd()
+                }
+            )
         }
         numberCancellable?.cancel()
         
@@ -126,5 +135,18 @@ final class SliderViewCell: UITableViewCell {
         DispatchQueue.main.async { [weak self] in
             self?.provider?.value_1 = Float(value)
         }
+    }
+    
+    private func sliderEditingDidEnd() {
+        guard let provider else { return }
+        let data: [KotlinInt] = [
+            KotlinInt(int: Int32(provider.value_1)),
+            KotlinInt(int: Int32(provider.value_2)),
+            KotlinInt(int: 0),
+            KotlinInt(int: 0),
+            KotlinInt(int: 0),
+            KotlinInt(int: 0)
+        ]
+        viewModel.sendSliderProgress(progress: data)
     }
 }

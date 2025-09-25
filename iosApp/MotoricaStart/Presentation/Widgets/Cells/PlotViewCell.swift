@@ -56,7 +56,7 @@ final class PlotViewCell: UITableViewCell {
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
-        requestThresholds(for: viewModel)
+        viewModel.requestThresholds()
         
         if let plotWidget = viewModel.widget?.value as? AnyObject {
             let parameterInfoSet: Any?
@@ -267,7 +267,7 @@ final class PlotViewCell: UITableViewCell {
             openThreshold = value
             widgetPlotInfo?.openThreshold = value
         case .ended:
-            // TODO: отправить openThreshold
+            viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
             break
         default: break
         }
@@ -280,7 +280,7 @@ final class PlotViewCell: UITableViewCell {
             closeThreshold = value
             widgetPlotInfo?.closeThreshold = value
         case .ended:
-            // TODO: отправить openThreshold
+            viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
             break
         default: break
         }
@@ -291,6 +291,7 @@ final class PlotViewCell: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH2, thresholdLabel: openThresholdTv, in: allCHRl, touchY: loc.y)
         openThreshold = value
         widgetPlotInfo?.openThreshold = value
+        viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
     }
     @objc private func handleCloseTap(_ gesture: UITapGestureRecognizer) {
         print("gestureRecognizer   handleCloseTap")
@@ -298,6 +299,7 @@ final class PlotViewCell: UITableViewCell {
         let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
         closeThreshold = value
         widgetPlotInfo?.closeThreshold = value
+        viewModel.sendThresholds(openThreshold: openThreshold, closeThreshold: closeThreshold)
     }
 
     private func getIndexWidgetPlot(addressDevice: Int, parameterID: Int) -> Int {
@@ -422,20 +424,6 @@ final class PlotViewCell: UITableViewCell {
             let substring = padded[startIndex..<endIndex]
             return Int(substring, radix: 16) ?? 0
         }
-    }
-    private func requestThresholds(for viewModel: PlotListItemViewModel) {
-        let bytes = BLECommands.shared.requestThresholds(
-            addressDevice: Int32(viewModel.deviceAddress),
-            parameterID: Int32(viewModel.parameterID)
-        )
-        
-        
-        let gatt = SampleGattAttributes()
-        viewModel.bleManager.sendBytesKmm(
-            data: bytes,
-            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {})
     }
     private func startTimer() {
         stopTimer()

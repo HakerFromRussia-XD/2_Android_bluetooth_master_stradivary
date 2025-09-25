@@ -23,10 +23,41 @@ extension SliderListItemViewModel {
         self.bleManager = bleManager
     }
     
+    func requestSlider() {
+        let data = BLECommands.shared.requestThresholds(
+            addressDevice: Int32(deviceAddress),
+            parameterID: Int32(parameterID)
+        )
+        
+        sendBytes(data)
+    }
+    func sendThresholds(openThreshold: Int, closeThreshold: Int) {
+        print("sendThresholds openThreshold=\(openThreshold)   closeThreshold=\(closeThreshold)")
+        let data = BLECommands.shared.sendThresholdsCommand(
+            addressDevice: Int32(deviceAddress),
+            parameterID: Int32(parameterID),
+            thresholds: [
+                KotlinInt(integerLiteral: openThreshold),
+                0,
+                KotlinInt(integerLiteral: closeThreshold),
+                0
+            ]
+        )
+
+        sendBytes(data)
+    }
+    private func sendBytes (_ data: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {})
+    }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
     }
-
     static func == (lhs: SliderListItemViewModel, rhs: SliderListItemViewModel) -> Bool {
         lhs.uuid == rhs.uuid
     }

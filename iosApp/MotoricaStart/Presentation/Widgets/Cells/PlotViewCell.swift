@@ -58,7 +58,7 @@ final class PlotViewCell: UITableViewCell {
         selectionStyle = .none
         viewModel.requestThresholds()
         
-        if let plotWidget = viewModel.widget?.value as? AnyObject {
+        if let plotWidget = viewModel.widget.widget?.value as? AnyObject {
             let parameterInfoSet: Any?
             
             if let plotStruct = plotWidget as? PlotParameterWidgetEStruct {
@@ -382,8 +382,8 @@ final class PlotViewCell: UITableViewCell {
 //        let value = setLimitPosition(limit_CH: limitCH1, thresholdLabel: closeThresholdTv, in: allCHRl, touchY: loc.y)
 //        closeThreshold = value
 //        widgetPlotInfo?.closeThreshold = value
-        guard ref.addressDevice == viewModel.deviceAddress,
-              ref.parameterID == viewModel.parameterID else { return }
+        guard ref.addressDevice == viewModel.widget.deviceAddress,
+              ref.parameterID == viewModel.widget.parameterID else { return }
 
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)

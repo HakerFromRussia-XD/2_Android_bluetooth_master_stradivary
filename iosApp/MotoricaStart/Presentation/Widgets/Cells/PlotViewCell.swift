@@ -73,9 +73,9 @@ final class PlotViewCell: UITableViewCell {
 
             let infos = parameterSet.compactMap { (info) -> ParameterInfoData? in
                 guard let paramID = (info.parameterID as? KotlinInt)?.intValue,
-                          let dataCode = (info.dataCode as? KotlinInt)?.intValue,
-                          let deviceAddress = (info.deviceAddress as? KotlinInt)?.intValue,
-                          let dataOffset = (info.dataOffset as? KotlinInt)?.intValue else { return nil }
+                      let dataCode = (info.dataCode as? KotlinInt)?.intValue,
+                      let deviceAddress = (info.deviceAddress as? KotlinInt)?.intValue,
+                      let dataOffset = (info.dataOffset as? KotlinInt)?.intValue else { return nil }
                 
                 return ParameterInfoData(parameterID: paramID, dataCode: dataCode, deviceAddress: deviceAddress, dataOffset: dataOffset)
             }
@@ -101,7 +101,6 @@ final class PlotViewCell: UITableViewCell {
                 dataSens6: 0
             )
         }
-        
         
         plotDateEntryJob?.cancel(cause: nil)
         plotDateEntryJob = WidgetStateBridge.shared.observePlotArray { [weak self] ref in
@@ -350,6 +349,7 @@ final class PlotViewCell: UITableViewCell {
     }
     
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
+        //если в сете виджета ещё нет графиков, то getIndexWidgetPlot будет -1
         guard getIndexWidgetPlot(addressDevice: Int(ref.addressDevice), parameterID: Int(ref.parameterID)) != -1 else { return }
         let arr = ref.dataPlots as NSArray
 
@@ -372,6 +372,7 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
+        
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID == viewModel.widget.parameterID else { return }
 

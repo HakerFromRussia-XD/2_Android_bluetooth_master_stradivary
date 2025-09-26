@@ -14,7 +14,6 @@ struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил
 
 extension PlotListItemViewModel {
     init(widget: Widget,
-         showSecondSlider: Bool = false,
          bleManager: BleManagerKmm
     ) {
         self.title = widget.title ?? ""

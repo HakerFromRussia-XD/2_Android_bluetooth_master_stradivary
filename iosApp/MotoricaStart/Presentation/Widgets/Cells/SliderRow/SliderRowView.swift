@@ -142,9 +142,21 @@ struct SliderRowView: View {
         )
     }
     
-    private func decrement_1() {provider.value_1 = provider.value_1 - 1}
-    private func increment_1() {provider.value_1 = provider.value_1 + 1}
-    private func decrement_2() {provider.value_2 = provider.value_2 - 1}
-    private func increment_2() {provider.value_2 = provider.value_2 + 1}
+    private func decrement_1() {
+        provider.value_1 = provider.value_1 - 1
+        onFirstSliderEditingEnded?(provider.value_1)
+    }
+    private func increment_1() {
+        provider.value_1 = provider.value_1 + 1
+        onFirstSliderEditingEnded?(provider.value_1)
+    }
+    private func decrement_2() {
+        provider.value_2 = provider.value_2 - 1
+        onSecondSliderEditingEnded?(provider.value_2)
+    }
+    private func increment_2() {
+        provider.value_2 = provider.value_2 + 1
+        onSecondSliderEditingEnded?(provider.value_2)
+    }
 }
 

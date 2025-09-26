@@ -9,7 +9,7 @@ struct CustomSlider: View {
     let activeColor: Color
     let inactiveColor: Color
     let borderColor: Color
-    let editingDidEnd: ((Float) -> Void)? = nil
+    let editingDidEnd: ((Float) -> Void)
 
     var body: some View {
         GeometryReader { geometry in
@@ -44,7 +44,7 @@ struct CustomSlider: View {
                                 value = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
                             }
                             .onEnded { _ in
-                                editingDidEnd?(value)
+                                editingDidEnd(value)
                             }
                     )
             }

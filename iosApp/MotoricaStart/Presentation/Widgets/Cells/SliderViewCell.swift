@@ -6,6 +6,7 @@ import shared
 final class SliderViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:SliderViewCell.self)
     static let height = CGFloat(130)
+    private var widgetSliderInfo: WidgetSliderInfo?
     
     @IBOutlet private var widgetSliderTitleLabel: UILabel!
     @IBOutlet private var widgetSliderTitleLabel_2: UILabel!
@@ -104,26 +105,26 @@ final class SliderViewCell: UITableViewCell {
     }
     
     private func updateUI(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
-        print("[BLE-COMMUNICATION] in updateUI")
-        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
-        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
+//        print("[BLE-COMMUNICATION] in updateUI")
+//        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
+//        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
 //        guard ref.addressDevice == viewModel.deviceAddress,
         //              ref.parameterID   == viewModel.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
-        print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
+//        print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
         
         let ordinal = Int(parameter.type)
-        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
+//        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
         let entries = ParameterTypeEnum.values()
-        print("[BLE-COMMUNICATION] in updateUI for entries = \(entries)")
+//        print("[BLE-COMMUNICATION] in updateUI for entries = \(entries)")
         let count = Int(entries.size)
-        print("[BLE-COMMUNICATION] in updateUI for count = \(count)")
+//        print("[BLE-COMMUNICATION] in updateUI for count = \(count)")
         guard ordinal >= 0 && ordinal < count,
         let entry = entries.get(index: Int32(ordinal)) else { return }
-        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
+//        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
         let sizeOf = Int(entry.sizeOf)
-        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
+//        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
         
         
 
@@ -148,5 +149,48 @@ final class SliderViewCell: UITableViewCell {
             KotlinInt(int: 0)
         ]
         viewModel.sendSliderProgress(progress: data)
+    }
+}
+
+
+final class WidgetSliderInfo {
+    var addressDevice: Int = 0
+    var parameterID: Int = 0
+    var dataOffset: [Int] = []
+    var minProgress: Int = 0
+    var maxProgress: Int = 0
+    var progress: [Int] = []
+    var widgetSlidersSb: [UIProgressView] = []
+    var widgetSliderNumTv: [UILabel] = []
+    var widgetPosition: Int = 0
+    var instanceId: Int = 0
+    var responseReceived: Bool = false
+    var loadingAnimators: [UIViewPropertyAnimator?] = []
+    
+    init(addressDevice: Int,
+         parameterID: Int,
+         dataOffset: [Int],
+         minProgress: Int,
+         maxProgress: Int,
+         progress: [Int],
+         widgetSlidersSb: [UIProgressView],
+         widgetSliderNumTv: [UILabel],
+         widgetPosition: Int,
+         instanceId: Int,
+         responseReceived: Bool,
+         loadingAnimators: [UIViewPropertyAnimator?]
+    ) {
+        self.addressDevice = addressDevice
+        self.parameterID = parameterID
+        self.dataOffset = dataOffset
+        self.minProgress = minProgress
+        self.maxProgress = maxProgress
+        self.progress = progress
+        self.widgetSlidersSb = widgetSlidersSb
+        self.widgetSliderNumTv = widgetSliderNumTv
+        self.widgetPosition = widgetPosition
+        self.instanceId = instanceId
+        self.responseReceived = responseReceived
+        self.loadingAnimators = loadingAnimators
     }
 }

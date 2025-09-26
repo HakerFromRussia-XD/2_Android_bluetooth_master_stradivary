@@ -32,13 +32,6 @@ final class WidgetsListTableViewController: UITableViewController {
         // Assistant: Применяем начальный снапшот данных
         applySnapshot(animatingDifferences: false)
     }
-//    override func viewWillDisappear(_ animated: Bool) {
-//        print("[Lifecycle]  viewWillDisappear")
-//        super.viewWillDisappear(animated)
-//        tableViewMy.visibleCells
-//            .compactMap { $0 as? PlotViewCell }
-//            .forEach { $0.stopTimer() }
-//    }
     
     // Assistant: Заменяем reload() на применение снапшота, чтобы сохранять состояния ячеек
     func reload() {

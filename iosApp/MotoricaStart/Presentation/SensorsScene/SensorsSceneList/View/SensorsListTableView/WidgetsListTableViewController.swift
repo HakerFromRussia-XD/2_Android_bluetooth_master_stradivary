@@ -12,8 +12,6 @@ final class WidgetsListTableViewController: UITableViewController {
     
     var viewModel: WidgetsListViewModel!
 
-    var posterImagesRepository: PosterImagesRepository?
-
     // MARK: - Lifecycle
     override func viewDidAppear(_ animated: Bool) {
         print("[Lifecycle]  viewDidAppear")

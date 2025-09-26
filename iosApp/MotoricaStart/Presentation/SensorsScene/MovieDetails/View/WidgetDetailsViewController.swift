@@ -2,8 +2,6 @@ import UIKit
 
 final class WidgetDetailsViewController: UIViewController, StoryboardInstantiable {
 
-    @IBOutlet private var posterImageView: UIImageView!
-
     // MARK: - Lifecycle
 
     private var viewModel: WidgetDetailsViewModel!
@@ -34,9 +32,7 @@ final class WidgetDetailsViewController: UIViewController, StoryboardInstantiabl
         }
     }
     
-    private func bind(to  viewModel: WidgetDetailsViewModel) {
-        viewModel.posterImage.observe(on: self) { [weak self] in self?.posterImageView.image = $0.flatMap(UIImage.init) }
-    }
+    private func bind(to  viewModel: WidgetDetailsViewModel) {}
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

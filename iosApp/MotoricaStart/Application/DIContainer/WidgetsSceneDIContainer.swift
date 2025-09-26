@@ -52,17 +52,11 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
             widgetsQueriesPersistentStorage: widgetsQueriesStorage
         )
     }
-    func makePosterImagesRepository() -> PosterImagesRepository {
-        DefaultPosterImagesRepository(
-            dataTransferService: dependencies.imageDataTransferService
-        )
-    }
     
     // MARK: - Widgets List
     func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> WidgetsListViewController {
         WidgetsListViewController.create(
-            with: makeWidgetsListViewModel(actions: actions),
-            posterImagesRepository: makePosterImagesRepository()
+            with: makeWidgetsListViewModel(actions: actions)
         )
     }
     
@@ -83,8 +77,7 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
     
     func makeWidgetsDetailsViewModel(widget: Widget) -> WidgetDetailsViewModel {
         DefaultWidgetDetailsViewModel(
-            widget: widget,
-            posterImagesRepository: makePosterImagesRepository()
+            widget: widget
         )
     }
     

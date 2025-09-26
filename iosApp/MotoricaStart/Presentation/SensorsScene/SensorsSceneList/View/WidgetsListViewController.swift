@@ -16,7 +16,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }()
     
     private var viewModel: WidgetsListViewModel!
-    private var posterImagesRepository: PosterImagesRepository?
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
@@ -24,10 +23,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     let storage = CoreDataWidgetsResponseStorage()
 
     // MARK: - Lifecycle
-    static func create(with viewModel: WidgetsListViewModel,posterImagesRepository: PosterImagesRepository?) -> WidgetsListViewController {
+    static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
         let view = WidgetsListViewController.instantiateViewController()
         view.viewModel = viewModel
-        view.posterImagesRepository = posterImagesRepository
         return view
     }
 
@@ -187,7 +185,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             let destinationVC = segue.destination as? WidgetsListTableViewController {
             widgetsTableViewController = destinationVC
             widgetsTableViewController?.viewModel = viewModel
-            widgetsTableViewController?.posterImagesRepository = posterImagesRepository
             viewModel.viewDidLoad()
         }
     }

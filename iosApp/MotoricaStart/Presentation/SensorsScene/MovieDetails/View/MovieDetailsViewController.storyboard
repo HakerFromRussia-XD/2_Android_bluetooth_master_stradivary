@@ -83,10 +83,6 @@
                     </view>
                     <navigationItem key="navigationItem" id="fO7-ju-87H"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
-                    <connections>
-                        <outlet property="overviewTextView" destination="5TO-D8-T2j" id="c1E-Is-CuP"/>
-                        <outlet property="posterImageView" destination="eZX-So-dqC" id="qxP-6W-0I2"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SPs-1e-mb8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

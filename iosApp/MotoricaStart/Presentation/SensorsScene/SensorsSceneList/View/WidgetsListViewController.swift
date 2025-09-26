@@ -137,9 +137,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     id: index,
                     title: title,
                     widgetType: widgetType,
-                    overview: nil,
-                    releaseDate: nil,
-                    isAd: false,
                     widget: AnyCodable(widgetObject)
                 )
             }

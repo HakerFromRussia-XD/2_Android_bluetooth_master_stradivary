@@ -5,7 +5,6 @@ protocol WidgetDetailsViewModelInput {}
 protocol WidgetDetailsViewModelOutput {
     var title: String { get }
     var posterImage: Observable<Data?> { get }
-    var overview: String { get }
 }
 
 protocol WidgetDetailsViewModel: WidgetDetailsViewModelInput, WidgetDetailsViewModelOutput { }
@@ -18,7 +17,6 @@ final class DefaultWidgetDetailsViewModel: WidgetDetailsViewModel {
     // MARK: - OUTPUT
     let title: String
     let posterImage: Observable<Data?> = Observable(nil)
-    let overview: String
     
     init(
         widget: Widget,
@@ -26,7 +24,6 @@ final class DefaultWidgetDetailsViewModel: WidgetDetailsViewModel {
         mainQueue: DispatchQueueType = DispatchQueue.main
     ) {
         self.title = widget.title ?? ""
-        self.overview = widget.overview ?? ""
         self.posterImagesRepository = posterImagesRepository
         self.mainQueue = mainQueue
     }

@@ -150,9 +150,6 @@ extension WidgetsResponseDTO {
             case id
             case title
             case widgetType
-            case overview
-            case releaseDate = "release_date"
-            case isAd
             case widget
         }
         enum WidgetTypeDTO: String, Decodable {
@@ -170,26 +167,17 @@ extension WidgetsResponseDTO {
         let id: Int
         let title: String?
         let widgetType: WidgetTypeDTO?
-        let overview: String?
-        let releaseDate: String?
-        var isAd: Bool? = false
         let widget: AnyCodable?
         
         init(
             id: Int,
             title: String?,
             widgetType: WidgetTypeDTO?,
-            overview: String?,
-            releaseDate: String?,
-            isAd: Bool? = false,
             widget: AnyCodable? = nil
         ) {
             self.id = id
             self.title = title
             self.widgetType = widgetType
-            self.overview = overview
-            self.releaseDate = releaseDate
-            self.isAd = isAd
             self.widget = widget
         }
     }
@@ -213,8 +201,6 @@ extension WidgetsResponseDTO.WidgetDTO {
                 title: title,
                 title_2: title,
                 widgetType: widgetType?.toDomain(),
-                overview: overview,
-                isAd: isAd ?? false,
                 deviceAddress: metadata.deviceAddress ?? 0,
                 parameterID: metadata.parameterID ?? 0,
                 widget: widget

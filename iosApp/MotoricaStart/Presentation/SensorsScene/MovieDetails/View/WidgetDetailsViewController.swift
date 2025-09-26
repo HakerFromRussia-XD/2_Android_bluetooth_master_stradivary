@@ -3,7 +3,6 @@ import UIKit
 final class WidgetDetailsViewController: UIViewController, StoryboardInstantiable {
 
     @IBOutlet private var posterImageView: UIImageView!
-    @IBOutlet private var overviewTextView: UITextView!
 
     // MARK: - Lifecycle
 
@@ -46,7 +45,6 @@ final class WidgetDetailsViewController: UIViewController, StoryboardInstantiabl
     // MARK: - Private
     private func setupViews() {
         title = viewModel.title
-        overviewTextView.text = viewModel.overview
         view.accessibilityIdentifier = AccessibilityIdentifier.widgetDetailsView
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {

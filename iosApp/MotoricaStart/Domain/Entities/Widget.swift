@@ -18,8 +18,6 @@ struct Widget: Equatable, Identifiable {
     let title: String?
     let title_2: String?
     let widgetType: WidgetType?
-    let overview: String?
-    let isAd: Bool
     let deviceAddress: Int
     let parameterID: Int
     let widget: AnyCodable?
@@ -29,8 +27,6 @@ struct Widget: Equatable, Identifiable {
         lhs.title == rhs.title &&
         lhs.title_2 == rhs.title_2 &&
         lhs.widgetType == rhs.widgetType &&
-        lhs.overview == rhs.overview &&
-        lhs.isAd == rhs.isAd &&
         lhs.deviceAddress == rhs.deviceAddress &&
         lhs.parameterID == rhs.parameterID
     }

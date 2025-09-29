@@ -32,7 +32,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        setupBehaviours()
         bind(to: viewModel)
         
         view.addSubview(bottomButton)
@@ -197,11 +196,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func setupViews() {
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
-    }
-
-    private func setupBehaviours() {
-        addBehaviors([BackButtonEmptyTitleNavigationBarBehavior(),
-                      BlackStyleNavigationBarBehavior()])
     }
 
     private func updateItems() {

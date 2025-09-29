@@ -74,8 +74,10 @@ class BLEController() {
 
     private var reconnectJob: Job? = null
 
-
     private var receiverRegistered = false
+
+    @Volatile
+    private var needReRequestTransferFlow = false
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -162,6 +164,9 @@ class BLEController() {
                     progressDialog?.dismiss()
                     progressDialog = null
 
+                    firstNotificationRequestFlag = true
+                    needReRequestTransferFlow = true
+
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(mContext,
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
@@ -226,6 +231,16 @@ class BLEController() {
             firstNotificationRequest()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
+
+            if (needReRequestTransferFlow) {
+                Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
+                bleCommand(
+                    BLECommands.requestTransferFlow(1),
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                )
+                needReRequestTransferFlow = false
+            }
         }
     }
 

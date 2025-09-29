@@ -65,6 +65,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
+import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -105,6 +106,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     var driverVersionS: String? = null
 
     private val bleManager = BleManagerKmm()
+
+    private var testAnimator: BorderAnimator? = null
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -183,9 +186,37 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-//        binding.runCommandBtn.setOnClickListener {
+        binding.runCommandBtn.setOnClickListener {
+            // пытаемся найти ту самую вью из айтема адаптера
+//            val target: View? = activeFragment?.view?.findViewById(R.id.activeGestureNameCl)
 //
-//        }
+//            if (target == null) {
+//                Log.w("TEST_ANIM", "activeGestureNameCl не найден. Убедись, что экран с виджетом открыт и элемент виден.")
+//                return@setOnClickListener
+//            }
+//
+//            // гарантируем GradientDrawable в background (как в адаптере)
+//            val bg = (target.background as? GradientDrawable) ?: GradientDrawable().apply {
+//                shape = GradientDrawable.RECTANGLE
+//                setColor(0x00000000) // прозрачный фон
+//                cornerRadius = 16f
+//                setStroke(1, ContextCompat.getColor(this@MainActivityUBI4, R.color.ubi4_gray_border))
+//                target.background = this
+//            }
+//
+//            if (testAnimator == null) {
+//                testAnimator = BorderAnimator(
+//                    view = target,
+//                    strokeWidth = 3,
+//                    activeColor = ContextCompat.getColor(this, R.color.ubi4_active),
+//                    animationDuration = 1000L
+//                )
+//            }
+//
+//            // Запуск текущей реализации (с CountDownTimer и двумя ValueAnimator)
+//            testAnimator?.startGestureSelectionAnimation()
+        }
+
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE

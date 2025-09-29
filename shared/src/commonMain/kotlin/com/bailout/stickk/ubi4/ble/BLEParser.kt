@@ -1456,6 +1456,10 @@ class BLEParser(
         if (canAdd) {
             listWidgets.add(widget)
         }
+        listWidgets.forEachIndexed { index, widget ->
+           platformLog("WIDGET_LIST", "#$index → ${widget::class.simpleName}: $widget")
+        }
+        platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
     }
 
     internal fun getStatusConnected(): Boolean {

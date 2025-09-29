@@ -54,8 +54,8 @@ final class WidgetsSceneDIContainer {
     }
     
     // MARK: - Widgets List
-    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> SensorWidgetsListViewController {
-        SensorWidgetsListViewController.create(
+    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> WidgetsListViewController {
+        WidgetsListViewController.create(
             with: makeWidgetsListViewModel(actions: actions)
         )
     }

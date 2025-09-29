@@ -2,7 +2,7 @@ import UIKit
 import DGCharts
 import shared
 
-final class SensorWidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
+final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
@@ -25,8 +25,8 @@ final class SensorWidgetsListViewController: UIViewController, StoryboardInstant
     let storage = CoreDataWidgetsResponseStorage()
 
     // MARK: - Lifecycle
-    static func create(with viewModel: WidgetsListViewModel) -> SensorWidgetsListViewController {
-        let view = SensorWidgetsListViewController.instantiateViewController()
+    static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
+        let view = WidgetsListViewController.instantiateViewController()
         view.viewModel = viewModel
         return view
     }

@@ -71,7 +71,7 @@
 		1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1FD03804239098650016D05F /* CoreDataStorage.xcdatamodeld */; };
 		1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */; };
 		1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */; };
-		1FE49D8C230AA7C200D1D42E /* SensorWidgetsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D75230AA7C200D1D42E /* SensorWidgetsListViewController.swift */; };
+		1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */; };
 		1FE49D92230AA7C200D1D42E /* WidgetsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */; };
 		1FE49D9B230AEC4F00D1D42E /* WidgetsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */; };
 		1FEE31622218B17E00C160B9 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
@@ -229,7 +229,7 @@
 		1FD03806239098650016D05F /* CoreDataStorage.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataStorage.xcdatamodel; sourceTree = "<group>"; };
 		1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlotViewCell.swift; sourceTree = "<group>"; };
 		1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListTableViewController.swift; sourceTree = "<group>"; };
-		1FE49D75230AA7C200D1D42E /* SensorWidgetsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorWidgetsListViewController.swift; sourceTree = "<group>"; };
+		1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewController.swift; sourceTree = "<group>"; };
 		1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModel.swift; sourceTree = "<group>"; };
 		1FEE31612218B17E00C160B9 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		1FEED0EF2023576A000F4EAA /* Alertable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertable.swift; sourceTree = "<group>"; };
@@ -698,7 +698,7 @@
 		1FE49D99230AEB4000D1D42E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				1FE49D75230AA7C200D1D42E /* SensorWidgetsListViewController.swift */,
+				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1209,7 +1209,7 @@
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
 				1FC5B7D0242634EB0086FA8C /* UIImageView+ImageSizeAfterAspectFit.swift in Sources */,
-				1FE49D8C230AA7C200D1D42E /* SensorWidgetsListViewController.swift in Sources */,
+				1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */,
 				659A45AF2DB92C81002BE2BC /* BluetoothSceneDIContainer.swift in Sources */,
 				1FC5B7D2242635CC0086FA8C /* CGSize+ScaledSize.swift in Sources */,
 				1FFFC832221B0041007D99D2 /* WidgetsQueriesRepository.swift in Sources */,

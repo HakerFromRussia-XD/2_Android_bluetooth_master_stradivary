@@ -80,6 +80,7 @@ final class WidgetsListTableViewController: UITableViewController {
                         withIdentifier: CommandViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! CommandViewCell
+                
                     cell.configure(with: vm)
                     return cell
                 case .plot(let vm):
@@ -95,6 +96,7 @@ final class WidgetsListTableViewController: UITableViewController {
                         withIdentifier: SliderViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! SliderViewCell
+                    print("requestSlider  внешний configure title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
             }

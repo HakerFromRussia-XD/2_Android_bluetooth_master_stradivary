@@ -3,7 +3,6 @@ import SwiftUI
 import shared
 
 final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
-    
     struct Dependencies {
         let apiDataTransferService: DataTransferService
         let imageDataTransferService: DataTransferService
@@ -47,6 +46,7 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
             cache: widgetsResponseCache
         )
     }
+    
     func makeWidgetsQueriesRepository() -> WidgetsQueriesRepository {
         DefaultWidgetsQueriesRepository(
             widgetsQueriesPersistentStorage: widgetsQueriesStorage
@@ -65,50 +65,6 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),
             bleManager: dependencies.bleManager,
             actions: actions
-        )
-    }
-    
-    // MARK: - Widget Details
-    func makeWidgetsDetailsViewController(widget: Widget) -> UIViewController {
-            WidgetDetailsViewController.create(
-            with: makeWidgetsDetailsViewModel(widget: widget)
-        )
-    }
-    
-    func makeWidgetsDetailsViewModel(widget: Widget) -> WidgetDetailsViewModel {
-        DefaultWidgetDetailsViewModel(
-            widget: widget
-        )
-    }
-    
-    // MARK: - Widgets Queries Suggestions List
-    func makeWidgetsQueriesSuggestionsListViewController(didSelect: @escaping WidgetsQueryListViewModelDidSelectAction) -> UIViewController {
-        if #available(iOS 13.0, *) { // SwiftUI
-            let view = WidgetsQueryListView(
-                viewModelWrapper: makeWidgetsQueryListViewModelWrapper(didSelect: didSelect)
-            )
-            return UIHostingController(rootView: view)
-        } else { // UIKit
-            return WidgetsQueriesTableViewController.create(
-                with: makeWidgetsQueryListViewModel(didSelect: didSelect)
-            )
-        }
-    }
-    
-    func makeWidgetsQueryListViewModel(didSelect: @escaping WidgetsQueryListViewModelDidSelectAction) -> WidgetsQueryListViewModel {
-        DefaultWidgetsQueryListViewModel(
-            numberOfQueriesToShow: 10,
-            fetchRecentWidgetQueriesUseCaseFactory: makeFetchRecentWidgetQueriesUseCase,
-            didSelect: didSelect
-        )
-    }
-
-    @available(iOS 13.0, *)
-    func makeWidgetsQueryListViewModelWrapper(
-        didSelect: @escaping WidgetsQueryListViewModelDidSelectAction
-    ) -> WidgetsQueryListViewModelWrapper {
-        WidgetsQueryListViewModelWrapper(
-            viewModel: makeWidgetsQueryListViewModel(didSelect: didSelect)
         )
     }
 

@@ -6,7 +6,7 @@ import UIKit
 import shared
 
 struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
-    private let uuid = UUID()
+    private let identifier: String
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
@@ -16,6 +16,7 @@ extension PlotListItemViewModel {
     init(widget: Widget,
          bleManager: BleManagerKmm
     ) {
+        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
@@ -54,9 +55,11 @@ extension PlotListItemViewModel {
     
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
+        hasher.combine(identifier)
+        hasher.combine(title)
     }
     static func == (lhs: PlotListItemViewModel, rhs: PlotListItemViewModel) -> Bool {
-        lhs.uuid == rhs.uuid
+        lhs.identifier == rhs.identifier
+        && lhs.title == rhs.title
     }
 }

@@ -2,7 +2,7 @@ import Foundation
 import shared
 
 struct SliderListItemViewModel: Equatable, Hashable {
-    private let uuid = UUID()
+    private let identifier: String
     let title: String
     let title_2: String
     let showSecondSlider: Bool
@@ -12,6 +12,7 @@ struct SliderListItemViewModel: Equatable, Hashable {
 
 extension SliderListItemViewModel {
     init(widget: Widget, showSecondSlider: Bool = false, bleManager: BleManagerKmm) {
+        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
         self.showSecondSlider = showSecondSlider
@@ -46,9 +47,11 @@ extension SliderListItemViewModel {
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
+        hasher.combine(identifier)
+        hasher.combine(title)
     }
     static func == (lhs: SliderListItemViewModel, rhs: SliderListItemViewModel) -> Bool {
-        lhs.uuid == rhs.uuid
+        lhs.identifier == rhs.identifier
+        && lhs.title == rhs.title
     }
 }

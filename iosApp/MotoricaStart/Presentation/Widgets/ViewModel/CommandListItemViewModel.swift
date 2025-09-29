@@ -1,7 +1,7 @@
 import Foundation
 
 struct CommandListItemViewModel: Equatable, Hashable {
-    private let uuid = UUID()
+    private let identifier: String
     let title: String
     let deviceAddress: Int
     let parameterID: Int
@@ -9,6 +9,7 @@ struct CommandListItemViewModel: Equatable, Hashable {
 
 extension CommandListItemViewModel {
     init(widget: Widget) {
+        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.deviceAddress = widget.deviceAddress
         self.parameterID = widget.parameterID
@@ -22,10 +23,12 @@ extension CommandListItemViewModel {
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
+        hasher.combine(identifier)
+        hasher.combine(title)
     }
 
     static func == (lhs: CommandListItemViewModel, rhs: CommandListItemViewModel) -> Bool {
-        lhs.uuid == rhs.uuid
+        lhs.identifier == rhs.identifier
+        && lhs.title == rhs.title
     }
 }

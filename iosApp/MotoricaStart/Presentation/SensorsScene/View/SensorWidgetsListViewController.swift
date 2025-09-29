@@ -2,7 +2,7 @@ import UIKit
 import DGCharts
 import shared
 
-final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
+final class SensorWidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
@@ -19,12 +19,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
-    private let defaultDisplay: Int32 = 1
+//    private let defaultDisplay: Int32 = 1
+    var display: Int32 = 1
+    var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
 
     // MARK: - Lifecycle
-    static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
-        let view = WidgetsListViewController.instantiateViewController()
+    static func create(with viewModel: WidgetsListViewModel) -> SensorWidgetsListViewController {
+        let view = SensorWidgetsListViewController.instantiateViewController()
         view.viewModel = viewModel
         return view
     }
@@ -75,7 +77,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func reloadWidgetsFromShared() {
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
-        let kotlinWidgets = dataFactory.prepareData(display: 1)
+        let kotlinWidgets = dataFactory.prepareData(display: display)
 //        let kotlinWidgets = dataFactory.fakeData()
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         

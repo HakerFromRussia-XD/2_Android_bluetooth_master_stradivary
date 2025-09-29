@@ -2,7 +2,7 @@ import UIKit
 import SwiftUI
 import shared
 
-final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
+final class WidgetsSceneDIContainer {
     struct Dependencies {
         let apiDataTransferService: DataTransferService
         let imageDataTransferService: DataTransferService
@@ -54,8 +54,8 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
     }
     
     // MARK: - Widgets List
-    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> WidgetsListViewController {
-        WidgetsListViewController.create(
+    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> SensorWidgetsListViewController {
+        SensorWidgetsListViewController.create(
             with: makeWidgetsListViewModel(actions: actions)
         )
     }
@@ -65,14 +65,6 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),
             bleManager: dependencies.bleManager,
             actions: actions
-        )
-    }
-
-    // MARK: - Flow Coordinators
-    func makeWidgetsSearchFlowCoordinator(navigationController: UINavigationController) -> WidgetsSearchFlowCoordinator {
-        WidgetsSearchFlowCoordinator(
-            navigationController: navigationController,
-            dependencies: self
         )
     }
 }

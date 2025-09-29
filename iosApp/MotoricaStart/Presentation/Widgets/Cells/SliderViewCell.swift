@@ -40,6 +40,7 @@ final class SliderViewCell: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
+        print("requestSlider  title = \(viewModel.title)")
         viewModel.requestSlider()
         
         // 1. Создаём провайдер
@@ -108,8 +109,8 @@ final class SliderViewCell: UITableViewCell {
 //        print("[BLE-COMMUNICATION] in updateUI")
 //        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
 //        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
-//        guard ref.addressDevice == viewModel.deviceAddress,
-        //              ref.parameterID   == viewModel.parameterID else { return }
+        guard ref.addressDevice == viewModel.widget.deviceAddress,
+              ref.parameterID   == viewModel.widget.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
 //        print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")

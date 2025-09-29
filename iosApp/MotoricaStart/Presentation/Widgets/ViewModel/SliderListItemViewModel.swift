@@ -6,8 +6,7 @@ struct SliderListItemViewModel: Equatable, Hashable {
     let title: String
     let title_2: String
     let showSecondSlider: Bool
-    let deviceAddress: Int
-    let parameterID: Int
+    let widget: Widget
     let bleManager: BleManagerKmm
 }
 
@@ -16,23 +15,22 @@ extension SliderListItemViewModel {
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
         self.showSecondSlider = showSecondSlider
-        self.deviceAddress = widget.deviceAddress
-        self.parameterID = widget.parameterID
+        self.widget = widget
         self.bleManager = bleManager
     }
     
     func requestSlider() {
         let data = BLECommands.shared.requestSlider(
-            addressDevice: Int32(deviceAddress),
-            parameterID: Int32(parameterID)
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID)
         )
         
         sendBytes(data)
     }
     func sendSliderProgress (progress: [KotlinInt]) {
         let data = BLECommands.shared.sendSliderCommand(
-            addressDevice: Int32(deviceAddress),
-            parameterID: Int32(parameterID),
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID),
             progress: progress
         )
 

@@ -655,13 +655,39 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 //            ?.toMutableList()
 //            ?: mutableListOf()
         // 1) Собираем список ZIP-файлов из ассетов
-        val items: MutableList<FirmwareFileItem> =
+//        val items: MutableList<FirmwareFileItem> =
+//            FirmwareAssets.collectAssetZips(requireContext(), dir = "")
+//                .map { (displayName, assetPath) ->
+//                    val file = FirmwareAssets.copyToCache(requireContext(), assetPath) // делаем реальный File
+//                    FirmwareFileItem(name = displayName, file = file)
+//                }
+//                .toMutableList()
+
+//)
+
+
+
+
+        // 1) Берём ZIP’ы из приватной директории приложения
+        val fromDir: List<FirmwareFileItem> = requireActivity()
+            .getExternalFilesDir(null)
+            ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+            ?.map { f -> FirmwareFileItem(name = f.name, file = f) }
+            ?: emptyList()
+//
+//        // 2) Берём ZIP’ы из ассетов (копируем во временный файл, чтобы был реальный File)
+        val fromAssets: List<FirmwareFileItem> =
             FirmwareAssets.collectAssetZips(requireContext(), dir = "")
                 .map { (displayName, assetPath) ->
-                    val file = FirmwareAssets.copyToCache(requireContext(), assetPath) // делаем реальный File
+                    val file = FirmwareAssets.copyToCache(requireContext(), assetPath)
                     FirmwareFileItem(name = displayName, file = file)
                 }
-                .toMutableList()
+
+        // 3) Объединяем, убираем дубли по имени (или по абсолютному пути), сортируем
+        val items: MutableList<FirmwareFileItem> = (fromDir + fromAssets)
+            .distinctBy { it.name.lowercase() }          // можно сменить ключ на it.file.length() или CRC
+            .sortedBy { it.name.lowercase() }
+            .toMutableList()
 
         // 4) Inflate диалога и RecyclerView
         val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)

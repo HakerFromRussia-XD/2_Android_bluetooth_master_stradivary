@@ -18,6 +18,8 @@ object FirmwareUpdateUtils {
     var lastFwCrc : Long = 0
         private set
 
+    var lastLocalVersionString: String? = null
+        private set
 
     fun buildFwInfoDescriptor(zipFile: File): ByteArray {
         val ini = Properties().apply {
@@ -65,6 +67,7 @@ object FirmwareUpdateUtils {
 
         val fwAddInfoType     = ini.getProperty("FWAdditionalInfoType",    "0").toInt()
         val fwAddInfo         = ini.getProperty("FWAdditionalInfo",        "0").toLong()
+        lastLocalVersionString = "$fwMajorVersion.$fwMinorVersion.$fwQuickFixVersion.$fwSinceLastTag"
 
         Log.e("FW_NAME", "boardName = $boardName")
         Log.e("FW_NAME", "boardVersion = $boardVersion")

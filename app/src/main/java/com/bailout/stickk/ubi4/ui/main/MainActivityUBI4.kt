@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -45,6 +46,8 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
@@ -69,6 +72,7 @@ import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -187,34 +191,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         binding.runCommandBtn.setOnClickListener {
-            // пытаемся найти ту самую вью из айтема адаптера
-//            val target: View? = activeFragment?.view?.findViewById(R.id.activeGestureNameCl)
-//
-//            if (target == null) {
-//                Log.w("TEST_ANIM", "activeGestureNameCl не найден. Убедись, что экран с виджетом открыт и элемент виден.")
-//                return@setOnClickListener
-//            }
-//
-//            // гарантируем GradientDrawable в background (как в адаптере)
-//            val bg = (target.background as? GradientDrawable) ?: GradientDrawable().apply {
-//                shape = GradientDrawable.RECTANGLE
-//                setColor(0x00000000) // прозрачный фон
-//                cornerRadius = 16f
-//                setStroke(1, ContextCompat.getColor(this@MainActivityUBI4, R.color.ubi4_gray_border))
-//                target.background = this
-//            }
-//
-//            if (testAnimator == null) {
-//                testAnimator = BorderAnimator(
-//                    view = target,
-//                    strokeWidth = 3,
-//                    activeColor = ContextCompat.getColor(this, R.color.ubi4_active),
-//                    animationDuration = 1000L
-//                )
-//            }
-//
-//            // Запуск текущей реализации (с CountDownTimer и двумя ValueAnimator)
-//            testAnimator?.startGestureSelectionAnimation()
+//            toggleGestureModeLocal()
         }
 
         val accountPb = binding.accountPb.apply {
@@ -493,6 +470,45 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
+
+
+    private var isSelectGestureModeOn = false
+
+
+//    private fun toggleGestureModeLocal() {
+//        isSelectGestureModeOn = !isSelectGestureModeOn
+//        val modeHex = if (isSelectGestureModeOn) "01" else "00"
+//        val dataCode = PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number
+//
+//        val addrId = ParameterProvider.findAddressAndIdByDataCode(dataCode)
+//        if (addrId == null) {
+//            Log.e("GestureModeToggle", "Не найден параметр selectGestureMode по dataCode=$dataCode")
+//            showToast("selectGestureMode не найден")
+//            return
+//        }
+//
+//        val (addressDevice, parameterID) = addrId
+//        val ok = ParameterProvider.setParameterData(addressDevice, parameterID, modeHex)
+//        if (!ok) {
+//            Log.e("GestureModeToggle", "Не удалось записать data для address=$addressDevice id=$parameterID")
+//            showToast("Ошибка записи selectGestureMode")
+//            return
+//        }
+//
+//        // Эмитим ссылку на ТОТ ЖЕ параметр, который мы только что обновили
+//        lifecycleScope.launch {
+//            selectGestureModeFlow.emit(
+//                ParameterRef(
+//                    addressDevice = addressDevice,
+//                    parameterID = parameterID,
+//                    dataCode = dataCode
+//                )
+//            )
+//        }
+//
+//        Log.e("BorderAnimator", "Parameter =$modeHex") // для сравнения с твоим логом
+//        Log.d("GestureModeToggle", "Local _selectGestureMode=${if (isSelectGestureModeOn) 1 else 0}, addr=$addressDevice id=$parameterID")
+//    }
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()

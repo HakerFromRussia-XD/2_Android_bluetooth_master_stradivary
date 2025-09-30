@@ -92,7 +92,7 @@
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
 		65267E8A2D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
-		652E6AB52E8AB54B007E84EE /* GestureWidgetsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB32E8AB54B007E84EE /* GestureWidgetsListViewController.swift */; };
+		652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */; };
 		654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
@@ -249,7 +249,7 @@
 		652136F52DF82884006AB049 /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
-		652E6AB32E8AB54B007E84EE /* GestureWidgetsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureWidgetsListViewController.swift; sourceTree = "<group>"; };
+		652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsTabContainerViewController.swift; sourceTree = "<group>"; };
 		6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Shared.xcframework; path = SharedPackage/Shared.xcframework; sourceTree = "<group>"; };
 		654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = WidgetsListViewController.storyboard; sourceTree = "<group>"; };
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
@@ -666,11 +666,11 @@
 		1FE49D63230AA7C200D1D42E /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
+				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65F27F022E672EFD00AD5DFD /* Widgets */,
 				659A45A52DB929A9002BE2BC /* BluetoothScene */,
-				1FE49D7C230AA7C200D1D42E /* SensorsScene */,
-				652E6AB22E8AA24F007E84EE /* GesturesScene */,
 				1FC8B6E4230AF89A005DBF44 /* Utils */,
 			);
 			path = Presentation;
@@ -685,22 +685,6 @@
 				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 			);
 			path = Cells;
-			sourceTree = "<group>";
-		};
-		1FE49D7C230AA7C200D1D42E /* SensorsScene */ = {
-			isa = PBXGroup;
-			children = (
-				1FE49D99230AEB4000D1D42E /* View */,
-			);
-			path = SensorsScene;
-			sourceTree = "<group>";
-		};
-		1FE49D99230AEB4000D1D42E /* View */ = {
-			isa = PBXGroup;
-			children = (
-				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		1FEED0D320231D93000F4EAA /* Infrastructure */ = {
@@ -791,22 +775,6 @@
 				652136F52DF82884006AB049 /* SliderRowView.swift */,
 			);
 			path = SliderRow;
-			sourceTree = "<group>";
-		};
-		652E6AB22E8AA24F007E84EE /* GesturesScene */ = {
-			isa = PBXGroup;
-			children = (
-				652E6AB42E8AB54B007E84EE /* View */,
-			);
-			path = GesturesScene;
-			sourceTree = "<group>";
-		};
-		652E6AB42E8AB54B007E84EE /* View */ = {
-			isa = PBXGroup;
-			children = (
-				652E6AB32E8AB54B007E84EE /* GestureWidgetsListViewController.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		6547845D2DEDA4B0005AF8A3 /* Frameworks */ = {
@@ -1197,6 +1165,7 @@
 				1F57F8D223C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
+				652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */,
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */,
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
@@ -1220,7 +1189,6 @@
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
 				655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */,
-				652E6AB52E8AB54B007E84EE /* GestureWidgetsListViewController.swift in Sources */,
 				1F1CD656222368CA00B0143C /* AppConfigurations.swift in Sources */,
 				1F474F2222356B1E0092DB4B /* Cancellable.swift in Sources */,
 				6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */,

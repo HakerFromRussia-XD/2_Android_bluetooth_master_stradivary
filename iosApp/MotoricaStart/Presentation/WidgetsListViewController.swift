@@ -3,6 +3,7 @@ import DGCharts
 import shared
 
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
+    static var defaultFileName: String { "WidgetsListViewController" }
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
@@ -19,7 +20,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
-//    private let defaultDisplay: Int32 = 1
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -197,6 +197,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     
     private func setupViews() {
         title = viewModel.screenTitle
+        title = screenTitleOverride ?? viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
     }
 

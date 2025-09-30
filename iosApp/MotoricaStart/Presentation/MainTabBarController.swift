@@ -66,24 +66,16 @@ final class MainTabBarController: UITabBarController {
             closeWidgetQueriesSuggestions: {}
         )
         
-        let gesturesVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        gesturesVC.display = 0
-        gesturesVC.screenTitleOverride = NSLocalizedString("Gestures", comment: "")
+        let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
         gesturesVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Gestures", comment: ""), image: UIImage(named: "ic_gestures"), tag: 0)
 
-        let sensorsVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        sensorsVC.display = 1
-        sensorsVC.screenTitleOverride = NSLocalizedString("Sensors", comment: "")
+        let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions)
         sensorsVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Sensors", comment: ""), image: UIImage(named: "ic_sensors"), tag: 1)
 
-        let trainingVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        trainingVC.display = 3
-        trainingVC.screenTitleOverride = NSLocalizedString("Training", comment: "")
+        let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
         trainingVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Training", comment: ""), image: UIImage(named: "ic_trophy"), tag: 2)
 
-        let specialVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        specialVC.display = 2
-        specialVC.screenTitleOverride = NSLocalizedString("Special settings", comment: "")
+        let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
         specialVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Special settings", comment: ""), image: UIImage(named: "ic_mechanics"), tag: 3)
 
         viewControllers = [gesturesVC, sensorsVC, trainingVC, specialVC]
@@ -139,27 +131,3 @@ final class MainTabBarController: UITabBarController {
         }
     }
 }
-
-//final class Scene0ViewController: UIViewController {
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.backgroundColor = .systemBackground
-//        title = NSLocalizedString("Gestures", comment: "")
-//    }
-//}
-//
-//final class Scene1ViewController: UIViewController {
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.backgroundColor = .systemBackground
-//        title = NSLocalizedString("Training", comment: "")
-//    }
-//}
-//
-//final class Scene2ViewController: UIViewController {
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.backgroundColor = .systemBackground
-//        title = NSLocalizedString("Special settings", comment: "")
-//    }
-//}

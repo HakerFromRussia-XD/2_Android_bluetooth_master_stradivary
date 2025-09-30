@@ -60,6 +60,34 @@ final class WidgetsSceneDIContainer {
         )
     }
     
+    func makeGesturesTabViewController(actions: WidgetsListViewModelActions) -> GesturesTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 0
+        controller.screenTitleOverride = NSLocalizedString("Gestures", comment: "")
+        return GesturesTabViewController(contentViewController: controller)
+    }
+
+    func makeSensorsTabViewController(actions: WidgetsListViewModelActions) -> SensorsTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 1
+        controller.screenTitleOverride = NSLocalizedString("Sensors", comment: "")
+        return SensorsTabViewController(contentViewController: controller)
+    }
+
+    func makeTrainingTabViewController(actions: WidgetsListViewModelActions) -> TrainingTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 3
+        controller.screenTitleOverride = NSLocalizedString("Training", comment: "")
+        return TrainingTabViewController(contentViewController: controller)
+    }
+
+    func makeSpecialSettingsTabViewController(actions: WidgetsListViewModelActions) -> SpecialSettingsTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 2
+        controller.screenTitleOverride = NSLocalizedString("Special settings", comment: "")
+        return SpecialSettingsTabViewController(contentViewController: controller)
+    }
+    
     func makeWidgetsListViewModel(actions: WidgetsListViewModelActions) -> WidgetsListViewModel {
         DefaultWidgetsListViewModel(
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),

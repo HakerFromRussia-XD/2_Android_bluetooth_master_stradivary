@@ -691,8 +691,6 @@ object BLECommands {
         return header + data
     }
 
-
-
     fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
         val code: Byte = (128 + gestureWithAddress.parameterID).toByte()
         val header = byteArrayOf(

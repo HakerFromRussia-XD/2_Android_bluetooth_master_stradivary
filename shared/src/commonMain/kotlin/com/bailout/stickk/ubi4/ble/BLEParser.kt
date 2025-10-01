@@ -582,9 +582,14 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 WRITE_SLOT")
             }
             DataManagerCommand.READ_DATA.number -> {
-                platformLog("BLEParser", "TEST parser 2 READ_DATA")
-                parseProductInfoType(receiveDataString)
-                parseProductFwInfoType(receiveDataString)
+                platformLog("receiveDataString", "${receiveDataString.length}")
+                if (receiveDataString.length == 174){
+                    parseProductInfoType(receiveDataString)
+
+                }
+                else if (receiveDataString.length == 166){
+                    parseProductFwInfoType(receiveDataString)
+                }
             }
             DataManagerCommand.WRITE_DATA.number -> {
                 platformLog("BLEParser", "TEST parser 2 WRITE_DATA")
@@ -744,17 +749,24 @@ class BLEParser(
                     BLECommands.requestProductInfoType(),
                     MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 
+
                 baseSubDevicesInfoStructSet.forEach { sub ->
                     bleCommandExecutor.bleCommandWithQueue(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),
                         MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+
                 }
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestProductFWInfoType(0),
+                    MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+
             } else {
                 showToast("Нет сабдевайсов с параметрами")
             }
         } else {
             showToast("Сабдевайсов нет")
         }
+
     }
 
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
@@ -976,6 +988,7 @@ class BLEParser(
         val fw = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
             .copy(deviceAddress = deviceAddr)
 
+    platformLog("PAYLOAD_FW", "payload = ${fw.fwName}")
     platformLog("parseProductInfoTypefw", "fw = $fw")
     platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
         FirmwareInfoState.emitFirmwareInfo(fw)

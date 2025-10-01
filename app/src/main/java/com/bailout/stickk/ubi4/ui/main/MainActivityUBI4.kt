@@ -428,7 +428,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun sendFwInfoRequests() {
         // CPU
-        bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         // Sub-devices (если уже известны)
         baseSubDevicesInfoStructSet.forEach { sub ->
             bleCommandWithQueue(

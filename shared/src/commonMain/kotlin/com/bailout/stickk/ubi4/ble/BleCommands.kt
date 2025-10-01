@@ -315,8 +315,13 @@ object BLECommands {
     }
 
     fun requestProductFWInfoType(deviceAddress: Int): ByteArray {
+        val firstByte = if (deviceAddress == 0) {
+            0x20.toByte()
+        } else {
+            0xA0.toByte()
+        }
         val header = byteArrayOf(
-            0xA0.toByte(),
+            firstByte,
             DATA_MANAGER.number,
             0x00,
             0x00, // будет установлено ниже
@@ -330,6 +335,7 @@ object BLECommands {
         )
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
+
         return header + data
     }
 

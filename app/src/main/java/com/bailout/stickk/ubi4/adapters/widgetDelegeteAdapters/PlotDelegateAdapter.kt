@@ -23,6 +23,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
@@ -42,7 +43,6 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.renderer.XAxisRenderer
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
@@ -69,6 +69,8 @@ class PlotDelegateAdapter (
     private var numberOfCharts = 2
     private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
 
+    private val requestedThresholdRefs = mutableSetOf<Pair<Int, Int>>()
+
 
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
     private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
@@ -85,24 +87,13 @@ class PlotDelegateAdapter (
         onDestroyParent { onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
-        Log.d("PlotDelegateAdapter", "parameterInfoSet: $parameterInfoSet")
 
-
-        var addressDevice = 0
-        var parameterID = 0
         var dataCode = 0
-
 
         when (val widget = plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
                 parameterInfoSet =
                     widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-//                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                //TODO должно быть так ↓    но пока работает только так ↑
-                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).deviceAddress
-                parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).parameterID
                 dataCode =
                     widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
                         0
@@ -112,12 +103,6 @@ class PlotDelegateAdapter (
             is PlotParameterWidgetSStruct -> {
                 parameterInfoSet =
                     widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-//                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                //TODO должно быть так ↓    но пока работает только так ↑
-                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).deviceAddress
-                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).parameterID
                 dataCode =
                     widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
                         0
@@ -148,9 +133,13 @@ class PlotDelegateAdapter (
             )
         )
 
-        Log.d("PlotDelegateAdapter", "deviceAddress = $addressDevice")
+//        Log.d("PlotDelegateAdapter", "deviceAddress = $addressDeviceThreshold")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
+                Log.d("PlotDelegateAdapter", "type = ${PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                    it.deviceAddress,
+                    it.parameterID
+                ).type]}")
                 if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
@@ -168,64 +157,19 @@ class PlotDelegateAdapter (
                         "Количество графиков: $numberOfCharts ${it.parameterID}"
                     )
                 } else {
+                    Log.d("PlotDelegateAdapter", "else Количество графиков: $numberOfCharts")
+
                     numberOfCharts = 0
-                    Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
                 }
             }
+
         }
+        Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
+
 
         countBinding += 1
 
         responseReceived.set(false)
-        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)) {
-            RetryUtils.sendRequestWithRetry(
-                request = {
-                    Log.d(
-                        "PlotRequest",
-                        "addressDevice = $addressDevice parameterID = $parameterID"
-                    )
-                    main.bleCommandWithQueue(
-                        BLECommands.requestThresholds(
-                            ParameterInfoProvider.getDeviceAddressByDataCode(
-                                ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
-                                parameterInfoSet
-                            ),
-                            ParameterInfoProvider.getParameterIDByCode(
-                                ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
-                                parameterInfoSet
-                            )
-                        ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                    ) {}
-
-                },
-                isResponseReceived = {
-                    responseReceived.get()
-                },
-                maxRetries = 5,
-                delayMillis = 1000L
-            )
-            Log.d(
-                "RequestUtilsPlot",
-                "IF Запрос выполнен: firstReceiveDataFlag true! parameterData = ${
-                    ParameterProvider.getParameter(
-                        addressDevice,
-                        parameterID
-                    ).data
-                } deviceAddress = $addressDevice, parameterId = $parameterID"
-            )
-
-        } else {
-            setUI(ParameterRef(addressDevice, parameterID, dataCode))
-            Log.d(
-                "RequestUtilsPlot",
-                "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${
-                    ParameterProvider.getParameter(
-                        addressDevice,
-                        parameterID
-                    ).data
-                } deviceAddress = $addressDevice, parameterId = $parameterID"
-            )
-        }
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
         // Порог открытия — слушаем openCHV
@@ -301,6 +245,7 @@ class PlotDelegateAdapter (
             plotArrayFlowCollect()
         }
         graphThreadFlag = true
+        requestThresholdsOnce()
         scope?.launch {
             //TODO indexWidgetPlot должен вычисляться в этом месте взависимости от того с каким посчету графиком мы работаем в этой функции
             startGraphEnteringDataCoroutine(EMGChartLc, 0)
@@ -314,6 +259,7 @@ class PlotDelegateAdapter (
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
     private fun plotArrayFlowCollect() {
+        platformLog("Test_PLOT", "plotArrayFlowCollect Run")
         scope?.launch(Dispatchers.IO) {
             try {
                 System.err.println("plotArrayFlowCollectttttt")
@@ -328,9 +274,11 @@ class PlotDelegateAdapter (
                             System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} ")
                             if (plotParameterRef.dataPlots.size >= 1) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens1 = plotParameterRef.dataPlots[0]
+                                platformLog("Test_PLOT", " sencse 1 =${plotParameterRef.dataPlots[0]}")
                             } // нулевой всегда датчик открытия
                             if (plotParameterRef.dataPlots.size >= 2) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens2 = plotParameterRef.dataPlots[1]
+                                platformLog("Test_PLOT", " sencse 2 =${plotParameterRef.dataPlots[1]}")
                             } // первый всегда датчик закрытия
                             if (plotParameterRef.dataPlots.size >= 3) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens3 = plotParameterRef.dataPlots[2]
@@ -348,7 +296,42 @@ class PlotDelegateAdapter (
                     },
                     thresholdFlow.map { parameterRef ->
                         setUI(parameterRef)
+                        platformLog("Test_PLOT", "thresholdFlowCollect Run")
+                    },
+                    // 3) (опционально) если хочешь реагировать на событие мерджа виджетов
+                    widgetsMergeEventFlow.map { parameterRef ->
+                        // фильтруем только наш виджет
+                        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+                        if (idx == -1) return@map
+                        // на случай, если после мерджа появился новый threshold-параметр
+                        val firstThresholdRef = firstThresholdRefFrom(widgetPlotsInfo[idx].addressDeviceSet)
+                        if (firstThresholdRef != null && requestedThresholdRefs.add(firstThresholdRef)) {
+                            val (addr, pid) = firstThresholdRef
+                            responseReceived.set(false)
+                            if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
+                                RetryUtils.sendRequestWithRetry(
+                                    request = {
+                                        main.bleCommandWithQueue(
+                                            BLECommands.requestThresholds(addr, pid),
+                                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                                        ) {}
+                                    },
+                                    isResponseReceived = { responseReceived.get() },
+                                    maxRetries = 5,
+                                    delayMillis = 1000L
+                                )
+                            } else {
+                                setUI(
+                                    ParameterRef(
+                                        addr,
+                                        pid,
+                                        PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                                    )
+                                )
+                            }
+                        }
                     }
+
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -363,41 +346,34 @@ class PlotDelegateAdapter (
     }
 
     private fun setUI(parameterRef: ParameterRef) {
-        val parameter = ParameterProvider.getParameter(
-            parameterRef.addressDevice,
-            parameterRef.parameterID
-        )
+        responseReceived.set(true) // чтобы RetryUtils понимал, что ответ получен
+
+        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+        if (idx == -1) return
+        val info = widgetPlotsInfo[idx]
+
+        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+        if (parameter.data.isBlank()) return
+
         val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
-        if (parameter.data != "") {
-            widgetPlotsInfo[0].apply {
-                openThreshold   = plotThresholds.threshold1
-                closeThreshold  = plotThresholds.threshold2
-                threshold3      = plotThresholds.threshold3
-                threshold4      = plotThresholds.threshold4
-                threshold5      = plotThresholds.threshold5
-                threshold6      = plotThresholds.threshold6
-            }
+
+        info.apply {
+            openThreshold   = plotThresholds.threshold1
+            closeThreshold  = plotThresholds.threshold2
+            threshold3      = plotThresholds.threshold3
+            threshold4      = plotThresholds.threshold4
+            threshold5      = plotThresholds.threshold5
+            threshold6      = plotThresholds.threshold6
         }
 
+        info.openThresholdTv.text  = info.openThreshold.toString()
+        info.closeThresholdTv.text = info.closeThreshold.toString()
 
-        //изменение UI в соответствии с новыми порогами
-        widgetPlotsInfo[0].openThresholdTv.text =
-            widgetPlotsInfo[0].openThreshold.toString()
-        widgetPlotsInfo[0].closeThresholdTv.text =
-            widgetPlotsInfo[0].closeThreshold.toString()
-        setLimitPosition2(
-            widgetPlotsInfo[0].limitCH2,
-            widgetPlotsInfo[0].allCHRl,
-            widgetPlotsInfo[0].openThreshold
-        )
-        setLimitPosition2(
-            widgetPlotsInfo[0].limitCH1,
-            widgetPlotsInfo[0].allCHRl,
-            widgetPlotsInfo[0].closeThreshold
-        )
-        openThreshold = widgetPlotsInfo[0].openThreshold
-        closeThreshold = widgetPlotsInfo[0].closeThreshold
+        setLimitPosition2(info.limitCH2, info.allCHRl, info.openThreshold)
+        setLimitPosition2(info.limitCH1, info.allCHRl, info.closeThreshold)
 
+        openThreshold  = info.openThreshold
+        closeThreshold = info.closeThreshold
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -730,12 +706,53 @@ class PlotDelegateAdapter (
             delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         }
     }
+
+    private fun firstThresholdRefFrom(set: Set<ParameterInfo<Int, Int, Int, Int>>): Pair<Int, Int>? {
+        return set.firstOrNull { it.dataCode == PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
+            ?.let { it.deviceAddress to it.parameterID }
+    }
+
     fun onDestroy() {
         graphThreadFlag = false
         setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
         setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
+    }
+
+    private fun requestThresholdsOnce() {
+        val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
+            PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+            parameterInfoSet
+        )
+        val pid = ParameterInfoProvider.getParameterIDByCode(
+            PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+            parameterInfoSet
+        )
+
+        responseReceived.set(false)
+        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    main.bleCommandWithQueue(
+                        BLECommands.requestThresholds(addr, pid),
+                        MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                    ) {}
+                },
+                isResponseReceived = { responseReceived.get() },
+                maxRetries = 5,
+                delayMillis = 1000L
+            )
+        } else {
+            // если данные уже есть в ParameterProvider — сразу применим
+            setUI(
+                ParameterRef(
+                    addr,
+                    pid,
+                    PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                )
+            )
+        }
     }
 }
 

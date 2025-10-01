@@ -25,6 +25,7 @@ object WidgetState {
     var plotArray by Delegates.notNull<ArrayList<Int>>()
     var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
+    var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
     var countBinding by Delegates.notNull<Int>()
@@ -36,6 +37,7 @@ object WidgetState {
         plotArray = arrayListOf()
         slidersFlow = MutableSharedFlow()
         thresholdFlow = MutableSharedFlow()
+        widgetsMergeEventFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow()
         activeGestureFlow = MutableSharedFlow(replay = 1)

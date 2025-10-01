@@ -201,49 +201,50 @@ object PreferenceKeysUBI4 {
         PLTE_LIMIT_NUM      (0x04)
     }
 
+    //type = PARTE_STRUCT_TYPE
     enum class ParameterTypeEnum (val number: Int, val sizeOf: Int) {
         PARTE_UNKNOW            (0,0),
-        PARTE_BOOL_TYPE         (1,0),
-        PARTE_BOOL_ARRAY_TYPE   (2,0),
-        PARTE_BOOL_MAP_TYPE     (3,0),
+        PARTE_BOOL_TYPE         (1,1),
+        PARTE_BOOL_ARRAY_TYPE   (2,1),
+        PARTE_BOOL_MAP_TYPE     (3,1),
 
         // INTEGER TYPE
         PARTE_INT32_TYPE        (4,4),
-        PARTE_INT32_ARRAY_TYPE  (5,0),
-        PARTE_INT32_MAP_TYPE    (6,0),
+        PARTE_INT32_ARRAY_TYPE  (5,4),
+        PARTE_INT32_MAP_TYPE    (6,4),
 
         PARTE_INT16_TYPE        (7,2),
-        PARTE_INT16_ARRAY_TYPE  (8,0),
-        PARTE_INT16_MAP_TYPE    (9,0),
+        PARTE_INT16_ARRAY_TYPE  (8,2),
+        PARTE_INT16_MAP_TYPE    (9,2),
 
         PARTE_INT8_TYPE         (10,1),
-        PARTE_INT8_ARRAY_TYPE   (11,0),
-        PARTE_INT8_MAP_TYPE     (12,0),
+        PARTE_INT8_ARRAY_TYPE   (11,1),
+        PARTE_INT8_MAP_TYPE     (12,1),
 
         // UNSIGNED INTEGER TYPE
         PARTE_UINT32_TYPE       (13,4),
-        PARTE_UINT32_ARRAY_TYPE (14,0),
-        PARTE_UINT32_MAP_TYPE   (15,0),
+        PARTE_UINT32_ARRAY_TYPE (14,4),
+        PARTE_UINT32_MAP_TYPE   (15,4),
 
         PARTE_UINT16_TYPE       (16,2),
-        PARTE_UINT16_ARRAY_TYPE (17,0),
-        PARTE_UINT16_MAP_TYPE   (18,0),
+        PARTE_UINT16_ARRAY_TYPE (17,2),
+        PARTE_UINT16_MAP_TYPE   (18,2),
 
         PARTE_UINT8_TYPE        (19,1),
-        PARTE_UINT8_ARRAY_TYPE  (20,0),
-        PARTE_UINT8_MAP_TYPE    (21,0),
+        PARTE_UINT8_ARRAY_TYPE  (20,1),
+        PARTE_UINT8_MAP_TYPE    (21,1),
 
         // FLOAT TYPE
         PARTE_FLOAT_TYPE        (22,4),
-        PARTE_FLOAT_ARRAY_TYPE  (23,0),
-        PARTE_FLOAT_MAP_TYPE    (24,0),
+        PARTE_FLOAT_ARRAY_TYPE  (23,4),
+        PARTE_FLOAT_MAP_TYPE    (24,4),
 
         // STRUCT TYPE
         PARTE_STRUCT_TYPE       (25,0),
         PARTE_STRUCT_ARRAY_TYPE (26,0),
         PARTE_STRUCT_MAP_TYPE   (27,0),
 
-        PARTE_CHAR_TYPE         (28,0),
+        PARTE_CHAR_TYPE         (28,1),
         PARTE_NUM               (29,0)
     }
 

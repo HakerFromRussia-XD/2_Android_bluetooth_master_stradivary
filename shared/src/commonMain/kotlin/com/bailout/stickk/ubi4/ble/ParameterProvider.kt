@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 class ParameterProvider {
     companion object {

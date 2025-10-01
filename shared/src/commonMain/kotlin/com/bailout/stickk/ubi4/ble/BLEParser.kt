@@ -30,6 +30,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoDataStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -682,7 +683,7 @@ class BLEParser(
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                         val parsedWidget = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
                         platformLog("parsedWidget", "▶️widgetcode - ${parsedWidget.widgetCode}")
-
+                        baseParametrInfoStructArray[ID].additionalInfoRefSet.add(parsedWidget)
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             platformLog("sendWidgetsArray", "▶️ sendWidgetsArray()  called, total widgets=${listWidgets.size}")
@@ -1296,10 +1297,16 @@ class BLEParser(
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it)) {
                             canAdd = false
                             it.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetStruct.dataOffset))
+                            platformLog("addToListWidgetsTest", "run 1")
+                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                         if (combineWidgetId == it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetStruct.dataOffset))
+                            platformLog("addToListWidgetsTest", "run 2")
+                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                     }
                     is CommandParameterWidgetEStruct -> {
@@ -1311,15 +1318,18 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                     }
                     is PlotParameterWidgetEStruct -> {
+                        platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
 //                        if (deviceAddress == 34 && parameterID == 3) {
@@ -1338,6 +1348,8 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
@@ -1345,6 +1357,8 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                     }
                     is SliderParameterWidgetEStruct -> {
@@ -1355,12 +1369,15 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                     }
                     is SwitchParameterWidgetEStruct -> {
@@ -1370,6 +1387,7 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         platformLog("SwitchParameterWidgetEStruct_addToListWidgets", "combineWidgetId = $combineWidgetId")
                     }
@@ -1472,24 +1490,24 @@ class BLEParser(
         listWidgets.forEachIndexed { index, widget ->
            platformLog("WIDGET_LIST", "#$index → ${widget::class.simpleName}: $widget")
         }
-        platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
-    }
+platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
+}
 
-    internal fun getStatusConnected(): Boolean {
-        return mConnected
-    }
+internal fun getStatusConnected(): Boolean {
+    return mConnected
+}
 
-    private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
-        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
-        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
-            val s = substring(startIndex, endIndex)
-            return if (s.length % 2 == 1) "0$s" else s
-        }
-        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
-        platformLog(
-            "substringSafe",
-            "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
-        )
-        return "00"
+private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
+    // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
+    if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+        val s = substring(startIndex, endIndex)
+        return if (s.length % 2 == 1) "0$s" else s
     }
+    // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
+    platformLog(
+        "substringSafe",
+        "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+    )
+    return "00"
+}
 }

@@ -55,35 +55,13 @@ final class CommandViewCell: UITableViewCell {
     
     private func updateUI(_ ref: ParameterRef, viewModel: CommandListItemViewModel) {
         print("[BLE-COMMUNICATION] in updateUI")
-        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
-        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
-        //        guard ref.addressDevice == viewModel.deviceAddress,
-        //              ref.parameterID   == viewModel.parameterID else { return }
+        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.widget.deviceAddress)")
+        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.widget.parameterID)")
+        guard ref.addressDevice == viewModel.widget.deviceAddress,
+              ref.parameterID   == viewModel.widget.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
-        
-        let ordinal = Int(parameter.type)
-        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
-        let entries = ParameterTypeEnum.values()
-        print("[BLE-COMMUNICATION] in updateUI for entries = \(entries)")
-        let count = Int(entries.size)
-        print("[BLE-COMMUNICATION] in updateUI for count = \(count)")
-        guard ordinal >= 0 && ordinal < count,
-              let entry = entries.get(index: Int32(ordinal)) else { return }
-        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
-        let sizeOf = Int(entry.sizeOf)
-        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
-        
-        
-        
-        let hex = parameter.data
-        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
-        let valueHex = String(hex[..<end])
-        let value = Int(valueHex, radix: 16) ?? 0
-        
-//        DispatchQueue.main.async { [weak self] in
-//            self?.provider?.value_1 = Float(value)
-//        }
+
     }
 }

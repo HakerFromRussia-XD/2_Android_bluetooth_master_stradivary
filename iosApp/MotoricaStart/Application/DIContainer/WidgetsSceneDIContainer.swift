@@ -54,7 +54,10 @@ final class WidgetsSceneDIContainer {
     }
     
     // MARK: - Widgets List
-    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> WidgetsListViewController {
+    func makeWidgetsListViewController(
+        actions: WidgetsListViewModelActions,
+        screenTitle: String? = nil
+    ) -> WidgetsListViewController {
         WidgetsListViewController.create(
             with: makeWidgetsListViewModel(actions: actions)
         )

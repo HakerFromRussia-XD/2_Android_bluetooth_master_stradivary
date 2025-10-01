@@ -22,6 +22,7 @@ final class SliderViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
@@ -41,6 +42,9 @@ final class SliderViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "ubi4_back")
         print("requestSlider  title = \(viewModel.title)")
         viewModel.requestSlider()
+        
+        let metadata = viewModel.extractMetadata()
+        metadata?.maxProgress
         
         // 1. Создаём провайдер
         let provider = SliderProvider(

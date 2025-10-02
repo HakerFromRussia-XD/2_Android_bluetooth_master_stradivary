@@ -17,6 +17,8 @@ final class SliderProvider: ObservableObject {
     let title_2: String
     let numLabel_2: String
     @Published var isSecondSliderShow: Bool
+    var maxProgress: Float
+    var minProgress: Float
 
     init(
         value_1: Float = 0,
@@ -25,7 +27,9 @@ final class SliderProvider: ObservableObject {
         value_2: Float = 0,
         title_2: String,
         numLabel_2: String,
-        isSecondSliderShow: Bool = true
+        isSecondSliderShow: Bool = true,
+        maxProgress: Float = 100,
+        minProgress: Float = 0
     ) {
         self.value_1 = value_1
         self.title_1 = title_1
@@ -34,6 +38,8 @@ final class SliderProvider: ObservableObject {
         self.title_2 = title_2
         self.numLabel_2 = numLabel_2
         self.isSecondSliderShow = isSecondSliderShow
+        self.maxProgress = maxProgress
+        self.minProgress = minProgress
     }
 }
 
@@ -50,8 +56,14 @@ struct SliderRowView: View {
         self._provider = ObservedObject(wrappedValue: provider)
         self.onFirstSliderEditingEnded = onFirstSliderEditingEnded
         self.onSecondSliderEditingEnded = onSecondSliderEditingEnded
+        
+        // если не установлены на стороне стека, то устанавливаем по дефолту
+        if (provider.maxProgress == provider.minProgress ) {
+            provider.minProgress = 0
+            provider.maxProgress = 100
+        }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -73,7 +85,7 @@ struct SliderRowView: View {
                         get: { provider.value_1 },
                         set: { provider.value_1 = Float($0) }
                     ),
-                    range: 0...100,
+                    range: provider.minProgress...provider.maxProgress,
                     trackHeight: 30,
                     cornerRadius: 10,
                     borderWidth: 1,
@@ -143,20 +155,28 @@ struct SliderRowView: View {
     }
     
     private func decrement_1() {
-        provider.value_1 = provider.value_1 - 1
-        onFirstSliderEditingEnded?(provider.value_1)
+        if (provider.value_1 != provider.minProgress) {
+            provider.value_1 = provider.value_1 - 1
+            onFirstSliderEditingEnded?(provider.value_1)
+        }
     }
     private func increment_1() {
-        provider.value_1 = provider.value_1 + 1
-        onFirstSliderEditingEnded?(provider.value_1)
+        if (provider.value_1 != provider.maxProgress) {
+            provider.value_1 = provider.value_1 + 1
+            onFirstSliderEditingEnded?(provider.value_1)
+        }
     }
     private func decrement_2() {
-        provider.value_2 = provider.value_2 - 1
-        onSecondSliderEditingEnded?(provider.value_2)
+        if (provider.value_2 != provider.minProgress) {
+            provider.value_2 = provider.value_2 - 1
+            onSecondSliderEditingEnded?(provider.value_2)
+        }
     }
     private func increment_2() {
-        provider.value_2 = provider.value_2 + 1
-        onSecondSliderEditingEnded?(provider.value_2)
+        if (provider.value_2 != provider.maxProgress) {
+            provider.value_2 = provider.value_2 + 1
+            onSecondSliderEditingEnded?(provider.value_2)
+        }
     }
 }
 

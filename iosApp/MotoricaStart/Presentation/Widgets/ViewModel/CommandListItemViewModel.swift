@@ -16,12 +16,8 @@ extension CommandListItemViewModel {
         self.bleManager = bleManager
     }
     
-//    if (extractMetadata()?.clickCommand == 0) {}
     func didPressDown() {
-        // тут нужно доставать из commandEStruct или commandSStruct pressedCommand
-        let commandE = widget.commandEStruct
-        let commandS = widget.commandSStruct
-        let command = ((commandE?.pressedCommand) ?? (commandS?.pressedCommand)) ?? 0
+        let command = widget.commandUnified?.pressedCommand ?? 0
         
         let data = BLECommands.shared.sendOneButtonCommand(
             addressDevice: Int32(widget.deviceAddress),
@@ -32,14 +28,8 @@ extension CommandListItemViewModel {
         sendBytes(data)
     }
     func didRelease() {
-        // тут нужно доставать из commandEStruct или commandSStruct pressedCommand
-        let commandE = widget.commandEStruct
-        let commandS = widget.commandSStruct
-        let command = ((
-            (commandE?.clickCommand == 0) ? commandE?.releasedCommand : commandE?.clickCommand
-        ) ?? (
-            (commandS?.clickCommand == 0) ? commandS?.releasedCommand : commandS?.clickCommand
-        )) ?? 0
+        let commandUnified = widget.commandUnified
+        var command = ((commandUnified?.clickCommand == 0) ? commandUnified?.releasedCommand : commandUnified?.clickCommand) ?? 0
         
         let data = BLECommands.shared.sendOneButtonCommand(
             addressDevice: Int32(widget.deviceAddress),

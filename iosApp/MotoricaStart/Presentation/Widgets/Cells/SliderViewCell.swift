@@ -53,6 +53,9 @@ final class SliderViewCell: UITableViewCell {
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
             isSecondSliderShow: viewModel.showSecondSlider,
+            
+            maxProgress: Float(viewModel.widget.sliderUnified?.maxProgress ?? 100),
+            minProgress: Float(viewModel.widget.sliderUnified?.minProgress ?? 0)
         )
         self.provider = provider
         

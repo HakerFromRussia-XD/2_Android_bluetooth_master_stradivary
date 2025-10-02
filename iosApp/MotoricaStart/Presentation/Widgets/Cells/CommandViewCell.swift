@@ -62,6 +62,9 @@ final class CommandViewCell: UITableViewCell {
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
+        
+        
+        viewModel.widget.commandUnified?.clickCommand
 
     }
 }

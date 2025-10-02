@@ -95,6 +95,7 @@
 		652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */; };
 		652E6ABC2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
 		652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
+		652E6ABF2E8EC8CE007E84EE /* SwitchViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */; };
 		654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
@@ -253,6 +254,7 @@
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
 		652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsTabContainerViewController.swift; sourceTree = "<group>"; };
 		652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchListItemViewModel.swift; sourceTree = "<group>"; };
+		652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchViewCell.swift; sourceTree = "<group>"; };
 		6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Shared.xcframework; path = SharedPackage/Shared.xcframework; sourceTree = "<group>"; };
 		654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = WidgetsListViewController.storyboard; sourceTree = "<group>"; };
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
@@ -683,9 +685,10 @@
 			isa = PBXGroup;
 			children = (
 				652136F42DF82876006AB049 /* SliderRow */,
+				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
-				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
+				652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -1181,6 +1184,7 @@
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
+				652E6ABF2E8EC8CE007E84EE /* SwitchViewCell.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
 				1FC5B7D0242634EB0086FA8C /* UIImageView+ImageSizeAfterAspectFit.swift in Sources */,
 				1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */,

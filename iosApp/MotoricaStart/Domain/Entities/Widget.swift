@@ -235,16 +235,16 @@ extension Widget {
     }
 
     /// Удобные computed-свойства под самые частые типы
-    var sliderEStruct: SliderParameterWidgetEStruct? { decode() }
-    var sliderSStruct: SliderParameterWidgetSStruct? { decode() }
+    private var sliderEStruct: SliderParameterWidgetEStruct? { decode() }
+    private var sliderSStruct: SliderParameterWidgetSStruct? { decode() }
     var sliderUnified: SliderProtocol? { SliderEProtocol(sliderEStruct) ?? SliderSProtocol(sliderSStruct) }
     
-    var plotEStruct: PlotParameterWidgetEStruct? { decode() }
-    var plotSStruct: PlotParameterWidgetSStruct? { decode() }
+    private var plotEStruct: PlotParameterWidgetEStruct? { decode() }
+    private var plotSStruct: PlotParameterWidgetSStruct? { decode() }
     var plotUnified: PlotProtocol? { PlotEProtocol(plotEStruct) ?? PlotSProtocol(plotSStruct) }
     
-    var commandEStruct: CommandParameterWidgetEStruct? { decode() }
-    var commandSStruct: CommandParameterWidgetSStruct? { decode() }
+    private var commandEStruct: CommandParameterWidgetEStruct? { decode() }
+    private var commandSStruct: CommandParameterWidgetSStruct? { decode() }
     var commandUnified: CommandProtocol? { CommandEProtocol(commandEStruct) ?? CommandSProtocol(commandSStruct) }
 }
 
@@ -270,25 +270,6 @@ struct CommandSProtocol: CommandProtocol {
     var releasedCommand: Int32 { src.releasedCommand }
 }
 
-protocol SliderProtocol {
-    var minProgress: Int32 { get }
-    var maxProgress: Int32 { get }
-}
-struct SliderEProtocol: SliderProtocol {
-    private let src: SliderParameterWidgetEStruct
-    init?(_ src: SliderParameterWidgetEStruct?) { guard let src else { return nil }; self.src = src }
-    
-    var minProgress: Int32 { src.minProgress }
-    var maxProgress: Int32 { src.maxProgress }
-}
-struct SliderSProtocol: SliderProtocol {
-    private let src: SliderParameterWidgetSStruct
-    init?(_ src: SliderParameterWidgetSStruct?) { guard let src else { return nil }; self.src = src }
-    
-    var minProgress: Int32 { src.minProgress }
-    var maxProgress: Int32 { src.maxProgress }
-}
-
 protocol PlotProtocol {
     var color: Int32 { get }
     var maxSize: Int32 { get }
@@ -309,4 +290,23 @@ struct PlotSProtocol: PlotProtocol {
     var color: Int32 { src.color }
     var maxSize: Int32 { src.maxSize }
     var minSize: Int32 { src.minSize }
+}
+
+protocol SliderProtocol {
+    var minProgress: Int32 { get }
+    var maxProgress: Int32 { get }
+}
+struct SliderEProtocol: SliderProtocol {
+    private let src: SliderParameterWidgetEStruct
+    init?(_ src: SliderParameterWidgetEStruct?) { guard let src else { return nil }; self.src = src }
+    
+    var minProgress: Int32 { src.minProgress }
+    var maxProgress: Int32 { src.maxProgress }
+}
+struct SliderSProtocol: SliderProtocol {
+    private let src: SliderParameterWidgetSStruct
+    init?(_ src: SliderParameterWidgetSStruct?) { guard let src else { return nil }; self.src = src }
+    
+    var minProgress: Int32 { src.minProgress }
+    var maxProgress: Int32 { src.maxProgress }
 }

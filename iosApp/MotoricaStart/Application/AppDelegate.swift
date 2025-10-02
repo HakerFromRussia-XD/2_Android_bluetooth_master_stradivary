@@ -23,6 +23,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.backgroundColor = ubi4BackgroundColor
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
+        if #available(iOS 13.0, *) {
+            if let statusBarFrame = window?.windowScene?.statusBarManager?.statusBarFrame {
+                let statusBarView = UIView(frame: statusBarFrame)
+                statusBarView.backgroundColor = ubi4BackgroundColor
+                statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+                window?.addSubview(statusBarView)
+            }
+        } else {
+            let statusBarView = UIView(frame: UIApplication.shared.statusBarFrame)
+            statusBarView.backgroundColor = ubi4BackgroundColor
+            statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+            window?.addSubview(statusBarView)
+        }
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer

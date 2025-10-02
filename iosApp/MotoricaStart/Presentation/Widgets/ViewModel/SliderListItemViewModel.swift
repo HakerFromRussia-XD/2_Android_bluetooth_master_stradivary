@@ -5,7 +5,7 @@ struct SliderListItemViewModel: Equatable, Hashable {
     private let identifier: String
     let title: String
     let title_2: String
-    let showSecondSlider: Bool
+    var paramCount: Int
     let widget: Widget
     let bleManager: BleManagerKmm
 }
@@ -15,11 +15,16 @@ extension SliderListItemViewModel {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
-        self.showSecondSlider = showSecondSlider
+        self.paramCount = 0
         self.widget = widget
         self.bleManager = bleManager
+        
+        self.paramCount = 100
+        
     }
-    
+    func setParamCount() {
+        widget.sliderUnified?.maxProgress
+    }
     func requestSlider() {
         let data = BLECommands.shared.requestSlider(
             addressDevice: Int32(widget.deviceAddress),

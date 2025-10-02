@@ -123,7 +123,7 @@ struct SliderRowView: View {
                             get: { provider.value_2 },
                             set: { provider.value_2 = Float($0) }
                         ),
-                        range: -100...200,
+                        range: provider.minProgress...provider.maxProgress,
                         trackHeight: 30,
                         cornerRadius: 10,
                         borderWidth: 1,

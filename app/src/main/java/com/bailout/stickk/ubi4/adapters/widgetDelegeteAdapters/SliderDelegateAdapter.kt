@@ -74,7 +74,6 @@ class SliderDelegateAdapter(
                 // Собираем данные для всех параметров (например, dataOffset и dataCode)
                 widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     dataOffset.add(it.dataOffset)
-
                 }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress

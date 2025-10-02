@@ -43,9 +43,6 @@ final class SliderViewCell: UITableViewCell {
         print("requestSlider  title = \(viewModel.title)")
         viewModel.requestSlider()
         
-        let metadata = viewModel.extractMetadata()
-        metadata?.maxProgress
-        
         // 1. Создаём провайдер
         let provider = SliderProvider(
             value_1: .zero,

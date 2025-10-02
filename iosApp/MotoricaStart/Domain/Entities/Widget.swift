@@ -150,7 +150,7 @@ enum WidgetMetadataExtractor {
         return (deviceAddress, parameterID)
     }
 
-    private static func extractBaseStruct(from widget: Any?) -> BaseParameterWidgetStruct? {
+    static func extractBaseStruct(from widget: Any?) -> BaseParameterWidgetStruct? {
         switch widget {
         case let baseStruct as BaseParameterWidgetStruct:
             return baseStruct
@@ -195,7 +195,7 @@ enum WidgetMetadataExtractor {
         }
     }
 
-    private static func firstParameterInfo(in set: Any?) -> NSObject? {
+    static func firstParameterInfo(in set: Any?) -> NSObject? {
         if let kotlinSet = set as? KotlinMutableSet<AnyObject> {
             for element in kotlinSet {
                 if let parameterInfo = element as? NSObject {
@@ -209,7 +209,7 @@ enum WidgetMetadataExtractor {
         }
         return nil
     }
-
+    
     private static func intValue(from value: Any?) -> Int? {
         switch value {
         case let number as NSNumber:
@@ -227,3 +227,22 @@ enum WidgetMetadataExtractor {
         }
     }
 }
+
+extension Widget {
+    /// Универсальный generic-декодер
+    func decode<T>() -> T? {
+        widget?.value as? T
+    }
+
+    /// Удобные computed-свойства под самые частые типы
+    var sliderEStruct: SliderParameterWidgetEStruct? { decode() }
+    var sliderSStruct: SliderParameterWidgetSStruct? { decode() }
+    
+    var plotEStruct: PlotParameterWidgetEStruct? { decode() }
+    var plotSStruct: PlotParameterWidgetSStruct? { decode() }
+    
+    var commandEStruct: CommandParameterWidgetEStruct? { decode() }
+    var commandSStruct: CommandParameterWidgetSStruct? { decode() }
+}
+
+

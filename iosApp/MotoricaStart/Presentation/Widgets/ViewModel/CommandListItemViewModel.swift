@@ -19,21 +19,32 @@ extension CommandListItemViewModel {
 //    if (extractMetadata()?.clickCommand == 0) {}
     func didPressDown() {
         // тут нужно доставать из commandEStruct или commandSStruct pressedCommand
+        let commandE = widget.commandEStruct
+        let commandS = widget.commandSStruct
+        let command = ((commandE?.pressedCommand) ?? (commandS?.pressedCommand)) ?? 0
+        
         let data = BLECommands.shared.sendOneButtonCommand(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(widget.parameterID),
-            command: Int32(extractMetadata()?.pressedCommand ?? 0)
+            command: command
         )
 
         sendBytes(data)
     }
     func didRelease() {
         // тут нужно доставать из commandEStruct или commandSStruct pressedCommand
-        if let commandE = widget.commandEStruct { commandE.pressedCommand }
+        let commandE = widget.commandEStruct
+        let commandS = widget.commandSStruct
+        let command = ((
+            (commandE?.clickCommand == 0) ? commandE?.releasedCommand : commandE?.clickCommand
+        ) ?? (
+            (commandS?.clickCommand == 0) ? commandS?.releasedCommand : commandS?.clickCommand
+        )) ?? 0
+        
         let data = BLECommands.shared.sendOneButtonCommand(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(widget.parameterID),
-            command: Int32(extractMetadata()?.releasedCommand ?? 0)
+            command: command
         )
 
         sendBytes(data)

@@ -712,6 +712,7 @@ class PlotDelegateAdapter (
             ?.let { it.deviceAddress to it.parameterID }
     }
 
+
     fun onDestroy() {
         graphThreadFlag = false
         setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)

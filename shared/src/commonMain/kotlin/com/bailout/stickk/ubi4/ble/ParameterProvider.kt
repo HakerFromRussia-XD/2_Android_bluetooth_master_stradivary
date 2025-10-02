@@ -8,9 +8,9 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 class ParameterProvider {
     companion object {
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
-            if (baseParametrInfoStructArray.size != 0){
+            if (baseParametrInfoStructArray.size != 0) {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
-                if (deviceAddress == 0 ) {
+                if (deviceAddress == 0) {
                     // значит мы ищем параметр на мастере
                     baseParametrInfoStructArray.forEach {
                         if (it.ID == parameterID) return it
@@ -40,50 +40,32 @@ class ParameterProvider {
                     if (parameter.dataCode == dataCode) return parameter
                 }
             }
-            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, mutableSetOf(),"")
+            return BaseParameterInfoStruct(
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                mutableSetOf(),
+                ""
+            )
         }
 
 
-
-
-
-
-
-
-
-
-
-        //TODO удалить внизу две фунеции они для теста
-//        fun findAddressAndIdByDataCode(dataCode: Int): Pair<Int, Int>? {
-//            // master (deviceAddress = 0)
-//            baseParametrInfoStructArray.firstOrNull { it.dataCode == dataCode }?.let { p ->
-//                return 0 to p.ID
-//            }
-//            // sub-devices
-//            baseSubDevicesInfoStructSet.forEach { sub ->
-//                sub.parametersList.firstOrNull { it.dataCode == dataCode }?.let { p ->
-//                    return sub.deviceAddress to p.ID
-//                }
-//            }
-//            return null
-//        }
-//
-//        /** Записать hex-данные в точный параметр по address+ID. */
-//        fun setParameterData(deviceAddress: Int, parameterID: Int, hexData: String): Boolean {
-//            if (deviceAddress == 0) {
-//                baseParametrInfoStructArray.firstOrNull { it.ID == parameterID }?.let {
-//                    it.data = hexData
-//                    return true
-//                }
-//            } else {
-//                baseSubDevicesInfoStructSet.firstOrNull { it.deviceAddress == deviceAddress }?.let { sub ->
-//                    sub.parametersList.firstOrNull { it.ID == parameterID }?.let {
-//                        it.data = hexData
-//                        return true
-//                    }
-//                }
-//            }
-//            return false
-//        }
     }
-    }
+}

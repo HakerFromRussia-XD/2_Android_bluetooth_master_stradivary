@@ -52,6 +52,7 @@ final class SliderViewCell: UITableViewCell {
             value_2: .zero,
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
+            isSecondSliderShow: viewModel.paramCount > 1,
             
             maxProgress: Float(viewModel.widget.sliderUnified?.maxProgress ?? 100),
             minProgress: Float(viewModel.widget.sliderUnified?.minProgress ?? 0)
@@ -131,17 +132,15 @@ final class SliderViewCell: UITableViewCell {
         
         
 
-        let hex = parameter.data
-        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
-        let valueHex = String(hex[..<end])
-        let value = Int(valueHex, radix: 16) ?? 0
+        let value = Int(String(parameter.data.prefix(sizeOf * 2)), radix: 16) ?? 0
+        let value2 = Int(String(parameter.data.dropFirst(sizeOf * 2).prefix(sizeOf * 2)), radix: 16) ?? 0
 //        let end2 = hex.index(2, offsetBy: sizeOf * 2)
 //        let value2Hex = String(hex[..<end2])
 //        let value2 = Int(value2Hex, redix: 16) ?? 0
 
         DispatchQueue.main.async { [weak self] in
             self?.provider?.value_1 = Float(value)
-//            self?.provider?.value_2 = Float(value2)
+            self?.provider?.value_2 = Float(value2)
         }
     }
     

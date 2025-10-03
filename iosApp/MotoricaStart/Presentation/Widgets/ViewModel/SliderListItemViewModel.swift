@@ -15,15 +15,9 @@ extension SliderListItemViewModel {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
-        self.paramCount = 0
+        self.paramCount = widget.sliderUnified?.baseParameterWidgetStruct?.parameterInfoSet.count ?? 0
         self.widget = widget
         self.bleManager = bleManager
-        
-        self.paramCount = 100
-        
-    }
-    func setParamCount() {
-        widget.sliderUnified?.maxProgress
     }
     func requestSlider() {
         let data = BLECommands.shared.requestSlider(

@@ -295,6 +295,7 @@ struct PlotSProtocol: PlotProtocol {
 protocol SliderProtocol {
     var minProgress: Int32 { get }
     var maxProgress: Int32 { get }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { get }
 }
 struct SliderEProtocol: SliderProtocol {
     private let src: SliderParameterWidgetEStruct
@@ -302,6 +303,7 @@ struct SliderEProtocol: SliderProtocol {
     
     var minProgress: Int32 { src.minProgress }
     var maxProgress: Int32 { src.maxProgress }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetEStruct.baseParameterWidgetStruct }
 }
 struct SliderSProtocol: SliderProtocol {
     private let src: SliderParameterWidgetSStruct
@@ -309,4 +311,5 @@ struct SliderSProtocol: SliderProtocol {
     
     var minProgress: Int32 { src.minProgress }
     var maxProgress: Int32 { src.maxProgress }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetSStruct.baseParameterWidgetStruct }
 }

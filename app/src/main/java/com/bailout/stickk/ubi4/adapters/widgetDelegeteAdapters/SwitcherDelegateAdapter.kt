@@ -129,7 +129,8 @@ class SwitcherDelegateAdapter(
                     responseReceived.get()
                 },
                 maxRetries = 5,
-                delayMillis = 1000L
+                delayMillis = 1000L,
+                scope = scope
             )
             Log.d("RequestUtilsSwitch",  "IF Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
 

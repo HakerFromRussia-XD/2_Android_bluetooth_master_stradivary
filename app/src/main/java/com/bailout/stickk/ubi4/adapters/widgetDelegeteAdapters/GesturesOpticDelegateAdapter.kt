@@ -119,6 +119,7 @@ class GesturesOpticDelegateAdapter(
 
     private var isBindingGroupResponseReceived = false
     private var isRotationGroupResponseReceived = false
+    private lateinit var scope: CoroutineScope
 
 
     private var borderAnimator: BorderAnimator? = null
@@ -709,7 +710,8 @@ class GesturesOpticDelegateAdapter(
                 isBindingGroupResponseReceived
             },
             maxRetries = 5,
-            delayMillis = 400L
+            delayMillis = 400L,
+            scope = scope
         )
     }
     private fun requestRotationGroupWithRetry(deviceAddress: Int, parameterID: Int){
@@ -722,7 +724,8 @@ class GesturesOpticDelegateAdapter(
             },
             isResponseReceived = { isRotationGroupResponseReceived },
             maxRetries = 5,
-            delayMillis = 400L
+            delayMillis = 400,
+            scope = scope
         )
     }
 

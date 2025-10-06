@@ -18,7 +18,7 @@ object RetryUtils {
         isResponseReceived: () -> Boolean,
         maxRetries: Int = 5,
         delayMillis: Long = 1000L,
-        scope: CoroutineScope = GlobalScope // Можно заменить на более конкретный скоуп
+        scope: CoroutineScope
     ) {
         scope.launch(Dispatchers.Main) {
             var attempts = 0

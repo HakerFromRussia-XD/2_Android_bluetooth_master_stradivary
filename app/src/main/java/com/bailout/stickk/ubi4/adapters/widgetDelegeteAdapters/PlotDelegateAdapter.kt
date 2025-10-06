@@ -48,6 +48,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -78,6 +79,8 @@ class PlotDelegateAdapter (
     private var firstInit = true
     private var openThreshold = 0
     private var closeThreshold = 0
+
+
 
     private val responseReceived = AtomicBoolean(false)
 
@@ -318,7 +321,8 @@ class PlotDelegateAdapter (
                                     },
                                     isResponseReceived = { responseReceived.get() },
                                     maxRetries = 5,
-                                    delayMillis = 1000L
+                                    delayMillis = 1000L,
+                                    scope = GlobalScope
                                 )
                             } else {
                                 setUI(
@@ -742,7 +746,8 @@ class PlotDelegateAdapter (
                 },
                 isResponseReceived = { responseReceived.get() },
                 maxRetries = 5,
-                delayMillis = 1000L
+                delayMillis = 1000L,
+                scope = GlobalScope
             )
         } else {
             // если данные уже есть в ParameterProvider — сразу применим

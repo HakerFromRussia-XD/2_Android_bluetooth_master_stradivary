@@ -30,7 +30,7 @@ class BleCommandExecutorIos(
                 val task = queue.get()
                 task.run()
                 remainingTasks.decrementAndGet()
-                platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
+                platformLog("sendBytesKmm", "1 ЗАГРУЗКА_КОМАНДЫ команд в очереди: $remainingTasks")
             }
         }
     }
@@ -53,7 +53,7 @@ class BleCommandExecutorIos(
             }
             queue.put(runnable, byteArray)
             remainingTasks.incrementAndGet()
-            platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
+            platformLog("sendBytesKmm", "1 ЗАГРУЗКА_КОМАНДЫ команд в очереди: $remainingTasks")
         }
     }
 

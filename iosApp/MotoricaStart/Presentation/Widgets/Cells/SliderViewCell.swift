@@ -109,14 +109,10 @@ final class SliderViewCell: UITableViewCell {
     }
     
     private func updateUI(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
-//        print("[BLE-COMMUNICATION] in updateUI")
-//        print("[BLE-COMMUNICATION] in updateUI viewModel.deviceAddress = \(viewModel.deviceAddress)")
-//        print("[BLE-COMMUNICATION] in updateUI viewModel.parameterID = \(viewModel.parameterID)")
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
-//        print("[BLE-COMMUNICATION] in updateUI for ref = \(ref)")
         
         let ordinal = Int(parameter.type)
 //        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
@@ -129,18 +125,29 @@ final class SliderViewCell: UITableViewCell {
 //        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
         let sizeOf = Int(entry.sizeOf)
 //        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
-        
-        
-
         let value = Int(String(parameter.data.prefix(sizeOf * 2)), radix: 16) ?? 0
-        let value2 = Int(String(parameter.data.dropFirst(sizeOf * 2).prefix(sizeOf * 2)), radix: 16) ?? 0
-//        let end2 = hex.index(2, offsetBy: sizeOf * 2)
-//        let value2Hex = String(hex[..<end2])
-//        let value2 = Int(value2Hex, redix: 16) ?? 0
+//        let hex = parameter.data
+//        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
+//        let valueHex = String(hex[..<end])
+//        let value = Int(valueHex, radix: 16) ?? 0
+        
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI deviceAddress = \(ref.addressDevice)   parameterID = \(ref.parameterID)")
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI ref.addressDevice = \(ref.addressDevice)")
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI parameterID = \(viewModel.widget.parameterID)")
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI ref.parameterID = \(ref.parameterID)")
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI value = \(value)")
+//        let value2 = Int(String(parameter.data.dropFirst(sizeOf * 2).prefix(sizeOf * 2)), radix: 16) ?? 0
+
+//        viewModel.widget.sliderUnified?.baseParameterWidgetStruct?.parameterInfoSet dataOffset.enumerated().forEach {}
+//        viewModel.widget.sliderUnified?.baseParameterWidgetStruct?.dataOffset.enumerated().forEach { (index, it) in
+//            let newValue = Int(parameter.data[(sizeOf * it) * 2..<(sizeOf * (it + 1) * 2)], radix: 16) ?? 0
+//            let newByteValue = Int8(bitPattern: UInt8(newValue))
+//        }
+        
 
         DispatchQueue.main.async { [weak self] in
             self?.provider?.value_1 = Float(value)
-            self?.provider?.value_2 = Float(value2)
+//            self?.provider?.value_2 = Float(value2)
         }
     }
     

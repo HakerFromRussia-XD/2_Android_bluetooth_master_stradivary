@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.utility
 
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Runnable
 
 
@@ -47,8 +48,9 @@ class BlockingQueueUbi4 {
         }
     }
 
-    fun allowNext() {
+    fun allowNext(deviceAddress: Int, parameterID: Int,  receiveDataString: String) {
         synchronized(this) {
+            platformLog("sendBytesKmm", "А тут разрешаем протолкнуть следующую команду allowNext  deviceAddress = $deviceAddress   parameterID = $parameterID   data = $receiveDataString")
             canTake = true
             lastAllowTime = currentTimeMillis() // Фиксируем время события
         }

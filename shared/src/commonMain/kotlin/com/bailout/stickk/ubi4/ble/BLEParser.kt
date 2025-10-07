@@ -331,7 +331,7 @@ class BLEParser(
             }
 
             if (requestType == 1 || codeRequest != BaseCommands.COMPLEX_PARAMETER_TRANSFER.number)
-                bleCommandExecutor.getQueueUBI4().allowNext()
+                bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = deviceAddress,   parameterID = codeRequest.toInt(), receiveDataString = receiveDataString)
         }
     }
 

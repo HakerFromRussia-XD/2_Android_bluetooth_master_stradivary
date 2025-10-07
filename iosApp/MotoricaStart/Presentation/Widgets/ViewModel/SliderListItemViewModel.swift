@@ -34,7 +34,7 @@ extension SliderListItemViewModel {
             progress: progress
         )
         
-        sendBytes(data)
+//        sendBytes(data)
     }
     private func sendBytes (_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()

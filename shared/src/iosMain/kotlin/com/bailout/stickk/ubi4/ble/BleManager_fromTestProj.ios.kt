@@ -146,21 +146,6 @@ actual class BleManagerKmm actual constructor() {
             }
         }
 
-        @ObjCSignatureOverride
-        override fun peripheral(
-            peripheral: CBPeripheral,
-            didUpdateValueForCharacteristic: CBCharacteristic,
-            error: NSError?
-        ) {
-            var dataCount = 0
-            didUpdateValueForCharacteristic.value?.let { data: NSData ->
-                dataCount = data.length.toInt()
-                platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
-                val bytes = data.toByteArray()
-                BLEState.bleParser.parseReceivedData(bytes)
-            }
-        }
-
         // Метод для обработки успешной записи или ошибки
         @ObjCSignatureOverride
         override fun peripheral(
@@ -171,8 +156,26 @@ actual class BleManagerKmm actual constructor() {
             if (error != null) {
                 println("Ошибка записи: ${error.localizedDescription}")
             } else {
-                println("sendBytesKmm Запись завершена успешно для характеристики: $didWriteValueForCharacteristic")
+                didWriteValueForCharacteristic.value?.let { data: NSData ->
+                    platformLog("sendBytesKmm", "Тут запись завершена успешно: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
+                }
                 onChunkSent?.invoke()
+            }
+        }
+
+        @ObjCSignatureOverride
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didUpdateValueForCharacteristic: CBCharacteristic,
+            error: NSError?
+        ) {
+            var dataCount = 0
+            didUpdateValueForCharacteristic.value?.let { data: NSData ->
+                dataCount = data.length.toInt()
+                platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
+                platformLog("sendBytesKmm", "А тут мы обрабатываем принятые данные: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
+                val bytes = data.toByteArray()
+                BLEState.bleParser.parseReceivedData(bytes)
             }
         }
     }
@@ -237,10 +240,10 @@ actual class BleManagerKmm actual constructor() {
     ) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         characteristicsMass.forEach { c ->
-            platformLog(
-                "sendBytesKmm",
-                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с ${command.uppercase()}"
-            )
+//            platformLog(
+//                "sendBytesKmm",
+//                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с ${command.uppercase()}"
+//            )
             if (c.UUID.UUIDString() == command.uppercase()) {
                 when (typeCommand) {
                     READ -> {

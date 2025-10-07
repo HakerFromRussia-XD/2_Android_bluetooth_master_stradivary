@@ -193,6 +193,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     // MARK: - Private
     @objc private func bottomButtonTapped() {
         viewModel.requestInicializeInformation()
+//        let data = BLECommands.shared.requestSlider(
+//            addressDevice: Int32(widget.deviceAddress),
+//            parameterID: Int32(widget.parameterID)
+//        )
     }
     
     private func setupViews() {

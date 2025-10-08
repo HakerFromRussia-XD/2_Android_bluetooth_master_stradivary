@@ -108,6 +108,11 @@ kotlin {
             implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
             implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
         }
+        androidUnitTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(kotlin("test-junit"))
+            implementation("junit:junit:4.13.2")
+        }
     }
 }
 

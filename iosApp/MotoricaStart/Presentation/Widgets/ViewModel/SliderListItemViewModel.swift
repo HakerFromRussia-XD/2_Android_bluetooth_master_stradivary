@@ -38,6 +38,7 @@ extension SliderListItemViewModel {
     }
     private func sendBytes (_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()
+        print("sendBytesKmm  iOS  отправляем данные: \(data.hexString)  из SliderListItemViewModel")
         bleManager.sendBytesKmm(
             data: data,
             command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
@@ -54,4 +55,18 @@ extension SliderListItemViewModel {
         && lhs.title == rhs.title
     }
     
+}
+
+extension KotlinByteArray {
+    /// Тот же результат, что и Kotlin bytesToHexString(ByteArray)
+    var hexString: String {
+        var s = String()
+        s.reserveCapacity(Int(self.size) * 2)
+        for i in 0..<Int(self.size) {
+            // ВАЖНО: UInt8(bitPattern:) убирает знак (аналог 0xFF and ...)
+            let b = UInt8(bitPattern: self.get(index: Int32(i)))
+            s.append(String(format: "%02x", b))
+        }
+        return s
+    }
 }

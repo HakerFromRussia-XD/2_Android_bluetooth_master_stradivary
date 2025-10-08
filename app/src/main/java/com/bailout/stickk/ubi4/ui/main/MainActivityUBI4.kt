@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -327,7 +328,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             writeLock.notifyAll()
         }
         bleManager.setBleCommandExecutor(this)
-        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+//        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        val parser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        bleParser = parser
+        BleEnvironment.register(bleManager, this, parser)
         platformLog("[BLE-COMMUNICATION]","инициализация BLEParser для Android")
     }
 

@@ -183,7 +183,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             myDialog.dismiss()
             closeCurrentDialog()
             confirmClick()
-
         }
     }
 

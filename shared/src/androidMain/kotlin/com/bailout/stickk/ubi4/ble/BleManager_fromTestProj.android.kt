@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
+
 /** Информация об обнаруженном устройстве */
 actual class BleDeviceKmm actual constructor (
     actual val id: String,
@@ -38,7 +40,8 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit,
     ) {
-        bleCommandExecutor?.bleCommandWithQueue(
+        val executor = bleCommandExecutor ?: BleEnvironment.getBleCommandExecutor()
+        executor.bleCommandWithQueue(
             data,
             command,
             typeCommand,

@@ -46,6 +46,7 @@ extension PlotListItemViewModel {
     }
     private func sendBytes (_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()
+        print("sendBytesKmm  iOS  отправляем данные: \(data.hexString)  из PlotListItemViewModel")
         bleManager.sendBytesKmm(
             data: data,
             command: gatt.MAIN_CHANNEL_CHARACTERISTIC,

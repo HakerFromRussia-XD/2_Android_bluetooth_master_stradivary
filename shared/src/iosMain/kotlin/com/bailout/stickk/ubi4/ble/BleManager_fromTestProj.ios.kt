@@ -25,8 +25,8 @@ import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
 import com.bailout.stickk.ubi4.data.state.BLEState
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import kotlinx.coroutines.MainScope
+import com.bailout.stickk.ubi4.utility.synchronized
+import kotlin.collections.ArrayDeque
 
 
 /** Информация об обнаруженном устройстве */
@@ -60,7 +60,8 @@ actual class BleManagerKmm actual constructor() {
     private val characteristicsMass = mutableListOf<CBCharacteristic>()
     private var selectedDevice: CBPeripheral? = null
 
-    private var onChunkSent: (() -> Unit)? = null
+    private val chunkCallbackLock = Any()
+    private val onChunkSentQueue = ArrayDeque<() -> Unit>()
     private var onCharacteristicsReady: (() -> Unit)? = null
     private var didNotifyCharacteristicsReady = false
 
@@ -159,7 +160,11 @@ actual class BleManagerKmm actual constructor() {
                 didWriteValueForCharacteristic.value?.let { data: NSData ->
                     platformLog("sendBytesKmm", "Тут запись завершена успешно: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
                 }
-                onChunkSent?.invoke()
+//                onChunkSent?.invoke()
+                val callback = synchronized(chunkCallbackLock) {
+                    if (onChunkSentQueue.isNotEmpty()) onChunkSentQueue.removeFirst() else null
+                }
+                callback?.invoke()
             }
         }
 
@@ -216,10 +221,6 @@ actual class BleManagerKmm actual constructor() {
     internal val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
         dispatchSendBytesKmm(byteArray, command, type, onChunkSent)
     }
-    init {
-        BLEState.bleParser = BLEParser(MainScope(), bleCommandExecutor, this)
-        platformLog("[BLE-COMMUNICATION]","инициализация BLEParser для iOS")
-    }
 
     @Suppress("unused")
     actual fun sendBytesKmm(
@@ -228,7 +229,10 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
-        this.onChunkSent = onChunkSent
+//        this.onChunkSent = onChunkSent
+        synchronized(chunkCallbackLock) {
+            onChunkSentQueue.addLast(onChunkSent)
+        }
         bleCommandExecutor.bleCommandWithQueue(data, command, typeCommand, onChunkSent)
     }
 

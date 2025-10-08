@@ -139,7 +139,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                             }
                         }
                     }
-
                 },
                 onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
                 onShowEmg8Files = {

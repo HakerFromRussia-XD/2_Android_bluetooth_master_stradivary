@@ -18,6 +18,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
+    func queueHardTest()
 }
 
 protocol WidgetsListViewModelOutput {
@@ -159,6 +160,77 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
         bleManager.sendBytesKmm(
             data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+    }
+    internal func queueHardTest() {
+        let command = BLECommands.shared.requestSlider(
+            addressDevice: 6,
+            parameterID: 3
+        )
+        let command2 = BLECommands.shared.requestSlider(
+            addressDevice: 6,
+            parameterID: 1
+        )
+        
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command2,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command2,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command2,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command2,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command,
+            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+        bleManager.sendBytesKmm(
+            data: command2,
             command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
             typeCommand: Constants.WRITE,
             onChunkSent: {}

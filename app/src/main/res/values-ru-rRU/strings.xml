@@ -632,6 +632,8 @@
     <string name="prosthetic_settings">Hастройки протеза</string>
     <string name="mobile_settings">Мобильные настройки</string>
     <string name="auto_login">Автоматический вход</string>
+    <string name="engineer_mode">Режим инженера</string>
+    <string name="data_passport_settings">Настройка паспорта данных</string>
 
 
     <string-array name="numbers">

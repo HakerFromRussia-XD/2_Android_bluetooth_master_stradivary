@@ -1,4 +1,7 @@
 *.iml
+.idea/
+.gradle/
+.kotlin/
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store

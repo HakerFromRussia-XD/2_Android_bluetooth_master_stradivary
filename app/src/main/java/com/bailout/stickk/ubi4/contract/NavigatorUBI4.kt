@@ -15,6 +15,7 @@ interface NavigatorUBI4 {
     fun showOpticGesturesScreen()
     fun showOpticTrainingGesturesScreen()
     fun showMotionTrainingScreen(onFinish:()->Unit)
+    fun showEngineerModeScreen()
 //    fun manageTrainingLifecycle()
 //    fun getPercentProgressLearningModel() : Int
     fun showSpecialScreen()

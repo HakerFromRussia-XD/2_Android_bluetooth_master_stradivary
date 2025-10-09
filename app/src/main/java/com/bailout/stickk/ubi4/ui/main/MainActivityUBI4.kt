@@ -57,6 +57,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Glob
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
+import com.bailout.stickk.ubi4.ui.fragments.EngineerModeFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -281,6 +282,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         activeFragment = fragment
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
+    override fun showEngineerModeScreen() { launchFragmentWithoutStack(EngineerModeFragment()) }
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()

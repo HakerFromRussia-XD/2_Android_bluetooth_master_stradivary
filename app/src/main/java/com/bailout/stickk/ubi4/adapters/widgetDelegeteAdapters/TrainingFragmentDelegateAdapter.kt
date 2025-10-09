@@ -25,6 +25,7 @@ class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
     var onShowFileClick: (addressDevice: Int, parameterId: Int) -> Unit,
     var onShowEmg8Files:() -> Unit,
+    var onEngineerModeClick: () -> Unit,
     var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(
@@ -111,6 +112,10 @@ class TrainingFragmentDelegateAdapter(
         showFileModelBtn.setOnClickListener {
             onShowEmg8Files()
         }
+
+        engineerModeBtn.setOnClickListener {
+            onEngineerModeClick()
+        }
     }
 
 
@@ -123,6 +128,7 @@ class TrainingFragmentDelegateAdapter(
     private fun onDestroy() {
         onConfirmClick = {}
         onShowFileClick = { i: Int, i1: Int -> }
+        onEngineerModeClick = {}
         onDestroyParent = {}
         scope.cancel()
     }

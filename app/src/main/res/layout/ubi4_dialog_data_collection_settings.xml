@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:viewBindingIgnore="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/dialogBindingCV"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="14dp"
+        android:backgroundTint="@color/ubi4_back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainDialogCl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
+
+            <TextView
+                android:id="@+id/dataCollectionSettingsTitleTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/data_passport_settings"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- N_CYCLES слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/nCyclesDialogCl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/dataCollectionSettingsTitleTv">
+
+                <!-- Заголовок слайдера -->
+                <TextView
+                    android:id="@+id/nCyclesSliderTitleTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="N_CYCLES"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Текущее значение слайдера -->
+                <TextView
+                    android:id="@+id/nCyclesSliderNumTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="3"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/nCyclesSliderTitleTv" />
+
+                <!-- Кнопка "-" -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/nCyclesMinusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/nCyclesSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/nCyclesSliderSb">
+
+                    <View
+                        android:id="@+id/nCyclesMinusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/nCyclesMinusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/nCyclesMinusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- SeekBar слайдера -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/nCyclesSliderSb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="10"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="3"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/nCyclesMinusBtnCl"
+                    app:layout_constraintTop_toBottomOf="@+id/nCyclesSliderTitleTv"
+                    app:layout_constraintEnd_toStartOf="@+id/nCyclesPlusBtnCl" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/nCyclesPlusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/nCyclesSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/nCyclesSliderSb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/nCyclesPlusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/nCyclesPlusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/nCyclesPlusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- BASELINE_DURATION слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/baselineDurationDialogCl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/nCyclesDialogCl">
+
+                <!-- Заголовок слайдера -->
+                <TextView
+                    android:id="@+id/baselineDurationSliderTitleTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="BASELINE_DURATION"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Текущее значение слайдера -->
+                <TextView
+                    android:id="@+id/baselineDurationSliderNumTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="5"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/baselineDurationSliderTitleTv" />
+
+                <!-- Кнопка "-" -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/baselineDurationMinusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/baselineDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/baselineDurationSliderSb">
+
+                    <View
+                        android:id="@+id/baselineDurationMinusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/baselineDurationMinusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/baselineDurationMinusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- SeekBar слайдера -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/baselineDurationSliderSb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="10"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="5"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/baselineDurationMinusBtnCl"
+                    app:layout_constraintTop_toBottomOf="@+id/baselineDurationSliderTitleTv"
+                    app:layout_constraintEnd_toStartOf="@+id/baselineDurationPlusBtnCl" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/baselineDurationPlusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/baselineDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/baselineDurationSliderSb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/baselineDurationPlusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/baselineDurationPlusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/baselineDurationPlusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- PRE_GEST_DURATION слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/preGestDurationDialogCl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/baselineDurationDialogCl">
+
+                <!-- Заголовок слайдера -->
+                <TextView
+                    android:id="@+id/preGestDurationSliderTitleTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="PRE_GEST_DURATION"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Текущее значение слайдера -->
+                <TextView
+                    android:id="@+id/preGestDurationSliderNumTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="2"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/preGestDurationSliderTitleTv" />
+
+                <!-- Кнопка "-" -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/preGestDurationMinusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/preGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/preGestDurationSliderSb">
+
+                    <View
+                        android:id="@+id/preGestDurationMinusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/preGestDurationMinusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/preGestDurationMinusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- SeekBar слайдера -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/preGestDurationSliderSb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="5"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="2"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/preGestDurationMinusBtnCl"
+                    app:layout_constraintTop_toBottomOf="@+id/preGestDurationSliderTitleTv"
+                    app:layout_constraintEnd_toStartOf="@+id/preGestDurationPlusBtnCl" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/preGestDurationPlusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/preGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/preGestDurationSliderSb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/preGestDurationPlusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/preGestDurationPlusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/preGestDurationPlusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- AT_GEST_DURATION слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/atGestDurationDialogCl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/preGestDurationDialogCl">
+
+                <!-- Заголовок слайдера -->
+                <TextView
+                    android:id="@+id/atGestDurationSliderTitleTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="AT_GEST_DURATION"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Текущее значение слайдера -->
+                <TextView
+                    android:id="@+id/atGestDurationSliderNumTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="2"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/atGestDurationSliderTitleTv" />
+
+                <!-- Кнопка "-" -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/atGestDurationMinusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/atGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/atGestDurationSliderSb">
+
+                    <View
+                        android:id="@+id/atGestDurationMinusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/atGestDurationMinusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/atGestDurationMinusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- SeekBar слайдера -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/atGestDurationSliderSb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="5"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="2"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/atGestDurationMinusBtnCl"
+                    app:layout_constraintTop_toBottomOf="@+id/atGestDurationSliderTitleTv"
+                    app:layout_constraintEnd_toStartOf="@+id/atGestDurationPlusBtnCl" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/atGestDurationPlusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/atGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/atGestDurationSliderSb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/atGestDurationPlusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/atGestDurationPlusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/atGestDurationPlusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- POST_GEST_DURATION слайдер -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/postGestDurationDialogCl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/atGestDurationDialogCl">
+
+                <!-- Заголовок слайдера -->
+                <TextView
+                    android:id="@+id/postGestDurationSliderTitleTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="POST_GEST_DURATION"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Текущее значение слайдера -->
+                <TextView
+                    android:id="@+id/postGestDurationSliderNumTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="2"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/postGestDurationSliderTitleTv" />
+
+                <!-- Кнопка "-" -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/postGestDurationMinusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/postGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/postGestDurationSliderSb">
+
+                    <View
+                        android:id="@+id/postGestDurationMinusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/postGestDurationMinusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/postGestDurationMinusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- SeekBar слайдера -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/postGestDurationSliderSb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="5"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="2"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@+id/postGestDurationMinusBtnCl"
+                    app:layout_constraintTop_toBottomOf="@+id/postGestDurationSliderTitleTv"
+                    app:layout_constraintEnd_toStartOf="@+id/postGestDurationPlusBtnCl" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/postGestDurationPlusBtnCl"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintTop_toTopOf="@+id/postGestDurationSliderSb"
+                    app:layout_constraintBottom_toBottomOf="@+id/postGestDurationSliderSb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:id="@+id/postGestDurationPlusBtnBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                        android:elevation="0dp" />
+
+                    <TextView
+                        android:id="@+id/postGestDurationPlusBtnTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/postGestDurationPlusBtnRipple"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        android:focusable="true"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_save_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:text="@string/save_gripper_settings"
+                android:textColor="@color/ubi4_yes_system_blue"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/dialogDataCollectionSettingsSaveBtn"
+                app:layout_constraintEnd_toEndOf="@+id/dialogDataCollectionSettingsSaveBtn"
+                app:layout_constraintStart_toStartOf="@+id/dialogDataCollectionSettingsSaveBtn"
+                app:layout_constraintTop_toTopOf="@+id/dialogDataCollectionSettingsSaveBtn" />
+
+            <View
+                android:id="@+id/view3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/postGestDurationDialogCl" />
+
+            <View
+                android:id="@+id/dialogDataCollectionSettingsSaveBtn"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view3"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <View
+                android:id="@+id/view11"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialogDataCollectionSettingsSaveBtn" />
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_cancel_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/cancel_gripper_settings"
+                android:textColor="@color/ubi4_yes_system_blue"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@+id/dialogDataCollectionSettingsCancelBtn"
+                app:layout_constraintEnd_toEndOf="@+id/dialogDataCollectionSettingsCancelBtn"
+                app:layout_constraintStart_toStartOf="@+id/dialogDataCollectionSettingsCancelBtn"
+                app:layout_constraintTop_toTopOf="@+id/dialogDataCollectionSettingsCancelBtn" />
+
+            <View
+                android:id="@+id/dialogDataCollectionSettingsCancelBtn"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view11" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -625,6 +625,8 @@
     <string name="prosthetic_settings">Prosthetic settings</string>
     <string name="mobile_settings">Mobile Settings</string>
     <string name="auto_login">Auto login</string>
+    <string name="engineer_mode">Engineer Mode</string>
+    <string name="data_passport_settings">Data Passport Settings</string>
 
 
     <string-array name="numbers">

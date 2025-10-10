@@ -190,9 +190,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-        binding.runCommandBtn.setOnClickListener {
-//            toggleGestureModeLocal()
-        }
+//        binding.runCommandBtn.setOnClickListener {
+////            toggleGestureModeLocal()
+//        }
 
         val accountPb = binding.accountPb.apply {
             max = 100

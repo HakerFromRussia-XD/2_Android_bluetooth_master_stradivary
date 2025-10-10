@@ -1364,13 +1364,13 @@ class BLEParser(
                     is SliderParameterWidgetEStruct -> {
 //                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
-                            )
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-                        }
+//                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
+//                            canAdd = false
+//                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
+//                            )
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+//                        }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
@@ -1438,12 +1438,12 @@ class BLEParser(
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
                         platformLog("parseWidgets SLIDER", "Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)}  $combineWidgetId = $combineWidgetIdIterated")
-                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
-                        }
+//                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
+//                            canAdd = false
+//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+//                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
+//                            )
+//                        }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
                             it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(

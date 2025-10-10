@@ -234,6 +234,9 @@ class PlotDelegateAdapter (
             }
             true
         }
+
+        setLimitPosition2(limitCH2, allCHRl, openThreshold)
+        setLimitPosition2(limitCH1, allCHRl, closeThreshold)
     }
 
 

@@ -417,6 +417,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun refreshWidgetsList() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
+        adapterWidgets.swapData(emptyList())
         listWidgets.clear()
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }

@@ -135,6 +135,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     main?.runOnUiThread {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        main?.refreshBottomNavVisibility()
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }

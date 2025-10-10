@@ -275,6 +275,7 @@ class PlotDelegateAdapter (
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
                         )
+                        if (indexWidgetPlot == -1) return@map
 
                         if (plotParameterRef.dataPlots.isNotEmpty()) {
                             System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} ")

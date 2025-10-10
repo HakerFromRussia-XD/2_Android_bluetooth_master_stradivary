@@ -132,6 +132,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        setContentView(view)
         initAllVariables()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        refreshBottomNavVisibility()
         observeBattery()
         // инициализация блютуз
         mBLEController = BLEController()
@@ -474,41 +476,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private var isSelectGestureModeOn = false
 
-
-//    private fun toggleGestureModeLocal() {
-//        isSelectGestureModeOn = !isSelectGestureModeOn
-//        val modeHex = if (isSelectGestureModeOn) "01" else "00"
-//        val dataCode = PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number
-//
-//        val addrId = ParameterProvider.findAddressAndIdByDataCode(dataCode)
-//        if (addrId == null) {
-//            Log.e("GestureModeToggle", "Не найден параметр selectGestureMode по dataCode=$dataCode")
-//            showToast("selectGestureMode не найден")
-//            return
-//        }
-//
-//        val (addressDevice, parameterID) = addrId
-//        val ok = ParameterProvider.setParameterData(addressDevice, parameterID, modeHex)
-//        if (!ok) {
-//            Log.e("GestureModeToggle", "Не удалось записать data для address=$addressDevice id=$parameterID")
-//            showToast("Ошибка записи selectGestureMode")
-//            return
-//        }
-//
-//        // Эмитим ссылку на ТОТ ЖЕ параметр, который мы только что обновили
-//        lifecycleScope.launch {
-//            selectGestureModeFlow.emit(
-//                ParameterRef(
-//                    addressDevice = addressDevice,
-//                    parameterID = parameterID,
-//                    dataCode = dataCode
-//                )
-//            )
-//        }
-//
-//        Log.e("BorderAnimator", "Parameter =$modeHex") // для сравнения с твоим логом
-//        Log.d("GestureModeToggle", "Local _selectGestureMode=${if (isSelectGestureModeOn) 1 else 0}, addr=$addressDevice id=$parameterID")
-//    }
+    private fun computeVisibleDisplays(): Set<Int> {
+        val factory = com.bailout.stickk.ubi4.data.DataFactory()
+        return (1..4)
+            .filter { display -> factory.prepareData(display).isNotEmpty() }
+            .toSet()
+    }
+    fun refreshBottomNavVisibility() {
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+    }
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()

@@ -217,6 +217,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
                 binding.sprGesturesRv.post {
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
+                    main?.refreshBottomNavVisibility()
                 }
                 binding.refreshLayout.setRefreshing(false)
             }

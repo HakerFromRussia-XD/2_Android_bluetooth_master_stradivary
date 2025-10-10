@@ -30,7 +30,19 @@ final class SwitchViewCell: UITableViewCell {
     func configure(with viewModel: SwitchListItemViewModel) {
         self.viewModel = viewModel
         
-        // Запускаем подписку на поток
+        // 1. Создаём провайдер
+//        let provider = SliderProvider(
+//
+//        )
+//        self.provider = provider
+        
+        // 2. Вклеиваем SwiftUI контент
+        contentConfiguration = UIHostingConfiguration {
+
+        }
+        numberCancellable?.cancel()
+        
+        // 3. Запускаем подписку на поток
         job?.cancel(cause: nil)
         job = WidgetStateBridge.shared.observeSliders{ [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)

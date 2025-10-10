@@ -192,8 +192,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
-//        viewModel.requestInicializeInformation()
-        viewModel.queueHardTest()
+        viewModel.requestInicializeInformation()
+//        viewModel.queueHardTest()
     }
     
     private func setupViews() {

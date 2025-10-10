@@ -415,6 +415,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
         listWidgets.clear()
+        adapterWidgets.swapData(emptyList())
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 

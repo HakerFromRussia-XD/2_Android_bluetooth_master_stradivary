@@ -299,6 +299,81 @@ extension DefaultWidgetsListViewModel {
     }
 }
 
+
+// MARK: - ParameterInfoData helpers
+extension ParameterInfoData {
+    static func makeSet(from parameterInfoSet: Any?) -> Set<ParameterInfoData> {
+        guard let parameterInfoSet else { return [] }
+
+        func makeData(from info: ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject>) -> ParameterInfoData? {
+            guard
+                let parameterID = intValue(from: info.parameterID),
+                let dataCode = intValue(from: info.dataCode),
+                let deviceAddress = intValue(from: info.deviceAddress),
+                let dataOffset = intValue(from: info.dataOffset)
+            else {
+                return nil
+            }
+
+            return ParameterInfoData(
+                parameterID: parameterID,
+                dataCode: dataCode,
+                deviceAddress: deviceAddress,
+                dataOffset: dataOffset
+            )
+        }
+
+        if let swiftSet = parameterInfoSet as? Set<ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject>> {
+            return Set(swiftSet.compactMap(makeData))
+        }
+
+        if let kotlinSet = parameterInfoSet as? KotlinMutableSet<AnyObject> {
+            // KotlinMutableSet автоматически наследует NSSet в Swift
+            let nsSet = kotlinSet as NSSet
+
+            let mapped: [ParameterInfoData] = nsSet.compactMap { element in
+                guard let info = element as? ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject> else {
+                    return nil
+                }
+                return makeData(from: info)
+            }
+            return Set(mapped)
+        }
+
+        if let nsSet = parameterInfoSet as? NSSet {
+            let mapped: [ParameterInfoData] = nsSet.compactMap { element in
+                guard let info = element as? ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject> else {
+                    return nil
+                }
+                return makeData(from: info)
+            }
+            return Set(mapped)
+        }
+
+        if let array = parameterInfoSet as? [ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject>] {
+            return Set(array.compactMap(makeData))
+        }
+
+        return []
+    }
+
+    private static func intValue(from value: Any?) -> Int? {
+        switch value {
+        case let kotlinInt as KotlinInt:
+            return Int(kotlinInt.intValue)
+        case let kotlinLong as KotlinLong:
+            return Int(kotlinLong.intValue)
+        case let kotlinUInt as KotlinUInt:
+            return Int(kotlinUInt.intValue)
+        case let number as NSNumber:
+            return number.intValue
+        default:
+            return nil
+        }
+    }
+}
+
+
 // MARK: - Private
 private extension Array where Element == WidgetsPage {
     var widgets: [Widget] { flatMap { $0.widgets } }

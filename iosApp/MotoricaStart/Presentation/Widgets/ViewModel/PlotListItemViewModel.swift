@@ -64,3 +64,4 @@ extension PlotListItemViewModel {
         && lhs.title == rhs.title
     }
 }
+

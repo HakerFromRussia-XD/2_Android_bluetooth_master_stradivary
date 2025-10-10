@@ -41,7 +41,6 @@ final class SliderViewCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
         print("requestSlider  title = \(viewModel.title)")
-        viewModel.requestSlider()
         
         // 1. Создаём провайдер
         let provider = SliderProvider(
@@ -59,6 +58,15 @@ final class SliderViewCell: UITableViewCell {
         )
         self.provider = provider
         
+        if let cachedValues = viewModel.cachedSliderValues() {
+            if let first = cachedValues.first {
+                provider.value_1 = first
+            }
+            if cachedValues.count > 1 {
+                provider.value_2 = cachedValues[1]
+            }
+        }
+        
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
             SliderRowView(
@@ -73,19 +81,13 @@ final class SliderViewCell: UITableViewCell {
         }
         numberCancellable?.cancel()
         
-        // 3. Подписываемся на поток чисел и обновляем value
-//        numberCancellable = NumberGenerator.shared.publisher
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak provider] value in
-//                provider?.value_1 = Float(value.0)
-//                provider?.value_2 = Float(value.1)
-//            }
-        
-        // Запускаем подписку на поток
+        // 3. Запускаем подписку на поток
         job?.cancel(cause: nil)
         job = WidgetStateBridge.shared.observeSliders{ [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
         }
+        
+        viewModel.requestSlider()
     }
     
     override func prepareForReuse() {
@@ -113,41 +115,17 @@ final class SliderViewCell: UITableViewCell {
               ref.parameterID   == viewModel.widget.parameterID else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
-        
-        let ordinal = Int(parameter.type)
-//        print("[BLE-COMMUNICATION] in updateUI for ordinal = \(ordinal)")
-        let entries = ParameterTypeEnum.values()
-//        print("[BLE-COMMUNICATION] in updateUI for entries = \(entries)")
-        let count = Int(entries.size)
-//        print("[BLE-COMMUNICATION] in updateUI for count = \(count)")
-        guard ordinal >= 0 && ordinal < count,
-        let entry = entries.get(index: Int32(ordinal)) else { return }
-//        print("[BLE-COMMUNICATION] in updateUI for entry = \(entry)")
-        let sizeOf = Int(entry.sizeOf)
-//        print("[BLE-COMMUNICATION] in updateUI for sizeOf = \(sizeOf)")
-        let value = Int(String(parameter.data.prefix(sizeOf * 2)), radix: 16) ?? 0
-//        let hex = parameter.data
-//        let end = hex.index(hex.startIndex, offsetBy: sizeOf * 2)
-//        let valueHex = String(hex[..<end])
-//        let value = Int(valueHex, radix: 16) ?? 0
-        
-        print("[BLE-COMMUNICATION] SliderViewCell in updateUI deviceAddress = \(ref.addressDevice)   parameterID = \(ref.parameterID)")
-        print("[BLE-COMMUNICATION] SliderViewCell in updateUI ref.addressDevice = \(ref.addressDevice)")
-        print("[BLE-COMMUNICATION] SliderViewCell in updateUI parameterID = \(viewModel.widget.parameterID)")
-        print("[BLE-COMMUNICATION] SliderViewCell in updateUI ref.parameterID = \(ref.parameterID)")
-        print("[BLE-COMMUNICATION] SliderViewCell in updateUI value = \(value)")
-//        let value2 = Int(String(parameter.data.dropFirst(sizeOf * 2).prefix(sizeOf * 2)), radix: 16) ?? 0
-
-//        viewModel.widget.sliderUnified?.baseParameterWidgetStruct?.parameterInfoSet dataOffset.enumerated().forEach {}
-//        viewModel.widget.sliderUnified?.baseParameterWidgetStruct?.dataOffset.enumerated().forEach { (index, it) in
-//            let newValue = Int(parameter.data[(sizeOf * it) * 2..<(sizeOf * (it + 1) * 2)], radix: 16) ?? 0
-//            let newByteValue = Int8(bitPattern: UInt8(newValue))
-//        }
+        guard let values = viewModel.sliderValues(from: parameter) else { return }
+        print("[BLE-COMMUNICATION] SliderViewCell in updateUI values = \(values)")
         
 
         DispatchQueue.main.async { [weak self] in
-            self?.provider?.value_1 = Float(value)
-//            self?.provider?.value_2 = Float(value2)
+            if let first = values.first {
+                self?.provider?.value_1 = Float(first)
+            }
+            if values.count > 1 {
+                self?.provider?.value_2 = Float(values[1])
+            }
         }
     }
     

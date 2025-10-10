@@ -69,19 +69,10 @@ final class PlotViewCell: UITableViewCell {
                 return
             }
             
-            guard let parameterSet = parameterInfoSet as? Set<ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject>> else { return }
-
-            let infos = parameterSet.compactMap { (info) -> ParameterInfoData? in
-                guard let paramID = (info.parameterID as? KotlinInt)?.intValue,
-                      let dataCode = (info.dataCode as? KotlinInt)?.intValue,
-                      let deviceAddress = (info.deviceAddress as? KotlinInt)?.intValue,
-                      let dataOffset = (info.dataOffset as? KotlinInt)?.intValue else { return nil }
-                
-                return ParameterInfoData(parameterID: paramID, dataCode: dataCode, deviceAddress: deviceAddress, dataOffset: dataOffset)
-            }
+            let infos = ParameterInfoData.makeSet(from: parameterInfoSet)
             
             widgetPlotInfo = WidgetPlotInfo(
-                addressDeviceSet: Set(infos),
+                addressDeviceSet: infos,
                 openThreshold: openThreshold,
                 closeThreshold: closeThreshold,
                 threshold3: 0,

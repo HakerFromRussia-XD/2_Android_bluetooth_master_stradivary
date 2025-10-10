@@ -305,16 +305,16 @@ class SliderDelegateAdapter(
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
                 val sizeOf = PreferenceKeysUbi4.ParameterTypeEnum.entries[parameter.type].sizeOf
-                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
+                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, dataOffset ->
                     Log.d("SliderDebug", "Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}")
                     if (parameter.data.isNotEmpty()) {
                         val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress
 
                         var newValue = castUnsignedCharToInt(
-                            parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte()
+                            parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte()
                         )
                         if (parameter.type == ParameterTypeEnum.PARTE_INT8_TYPE.number){
-                            newValue = parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte().toInt()
+                            newValue = parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte().toInt()
                         }
                         widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
                         animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue - widgetSlidersInfo[indexWidgetSlider].minProgress)

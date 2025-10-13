@@ -97,6 +97,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
                 case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
                 case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
+                case .switchWidget: return ListItemType.switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
                 @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }
@@ -259,6 +260,7 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case command(CommandListItemViewModel)
     case plot(PlotListItemViewModel)
     case slider(SliderListItemViewModel)
+    case `switch`(SwitchListItemViewModel)
 }
 // MARK: - INPUT. View event methods
 

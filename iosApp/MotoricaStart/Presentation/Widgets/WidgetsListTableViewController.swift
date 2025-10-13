@@ -99,6 +99,14 @@ final class WidgetsListTableViewController: UITableViewController {
                     print("requestSlider  внешний configure title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
+
+                case .switch(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SwitchViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! SwitchViewCell
+                    cell.configure(with: vm)
+                    return cell
             }
         }
     }

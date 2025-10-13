@@ -111,7 +111,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private val bleManager = BleManagerKmm()
 
-    private var testAnimator: BorderAnimator? = null
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()

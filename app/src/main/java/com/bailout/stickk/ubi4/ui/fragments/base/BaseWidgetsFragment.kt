@@ -132,13 +132,11 @@ abstract class BaseWidgetsFragment : Fragment() {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
                     // Получаем ссылку на текущий SprTrainingFragment
                     val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
-                    spr.startAuthAndDownloadPassport{
-                        showConfirmTrainingDialog {
-                            navigator().showMotionTrainingScreen {
-                                parentFragmentManager.beginTransaction()
-                                    .replace(R.id.fragmentContainer, spr)
-                                    .commit()
-                            }
+                    spr.showConfirmTrainingDialogWithLoader {
+                        navigator().showMotionTrainingScreen {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragmentContainer, spr)
+                                .commit()
                         }
                     }
 

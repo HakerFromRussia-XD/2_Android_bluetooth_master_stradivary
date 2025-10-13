@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
 object WidgetState {
+
+
     var plotArrayFlow: MutableStateFlow<PlotParameterRef> by Delegates.notNull()
     var rotationGroupFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var slidersFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
@@ -28,6 +30,10 @@ object WidgetState {
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
     var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
+    val activeGestureState = MutableStateFlow<Int?>(null)
+    val selectGestureModeState = MutableStateFlow(false)
+
+
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()
@@ -41,8 +47,8 @@ object WidgetState {
         widgetsMergeEventFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow()
-        activeGestureFlow = MutableSharedFlow(replay = 1)
-        selectGestureModeFlow = MutableSharedFlow(replay = 1)
+        activeGestureFlow = MutableSharedFlow()
+        selectGestureModeFlow = MutableSharedFlow()
         spinnerFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         rotationGroupGestures = arrayListOf()

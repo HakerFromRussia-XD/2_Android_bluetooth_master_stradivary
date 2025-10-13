@@ -22,6 +22,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.data.state.UiState.activeGestureFragmentFilterFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
@@ -576,54 +577,26 @@ class GesturesOpticDelegateAdapter(
         return null
     }
 
-//    private var isActiveGestureResponseReceived = false
-//
-//    private fun requestActiveGestureWithRetry(deviceAddress: Int, parameterID: Int) {
-//        isActiveGestureResponseReceived = false
-//        try {
-//            RetryUtils.sendRequestWithRetry(
-//                request = {
-//                    onRequestActiveGesture(deviceAddress, parameterID)
-//                    Log.d("SprGestureFragment", "Отправил запрос активного жеста")
-//                },
-//                isResponseReceived = { isActiveGestureResponseReceived },
-//                maxRetries = 5,
-//                delayMillis = 400L
-//            )
-//        } catch (e: Exception) {
-//            Log.e("SprGestureFragment", "Ошибка запроса активного жеста: ${e.message}")
-//        }
-//    }
-
     private fun collectActiveFlows() {
         Log.d("BorderAnimator", "collectActiveFlows() started")
         collectJob?.cancel()
         collectJob = coroutineScope?.launch {
             try {
                 merge(
-                    activeGestureFlow.map { activeGestureParameterRef ->
-                        val parameter = ParameterProvider.getParameter(
-                            deviceAddress,
-                            activeGestureParameterRef.parameterID
-                        )
-                        val activeGestureIdHex = parameter.data.takeLast(2)
-                        val activeGestureId = activeGestureIdHex.toIntOrNull(16)
+                    // заменили activeGestureFlow → activeGestureState
+                    WidgetState.activeGestureState.map { activeGestureId ->
                         withContext(Dispatchers.Main) {
-                            // Обновляем визуальный индикатор активного жеста
                             setActiveGesture(getGestureViewById(activeGestureId))
-
-                            // Определяем имя жеста по его идентификатору
-                            val gestureName = activeGestureId?.let { id ->
-                                if (id < 63) {
-                                    // Для коллекционных жестов: индекс = id - 1
-                                    collectionGesturesProvider.getCollectionGestures().getOrNull(id - 1)?.gestureName ?: "Unknown"
-                                } else {
-                                    gestureNameList.getOrNull(id - 64) ?: "Unknown"
-                                }
-                            } ?: "Unknown"
-
-                            _activeGestureNameTv.text = main.getString(R.string.active_gesture_is, gestureName)
-
+                            val gestureName = when {
+                                activeGestureId == null -> "Unknown"
+                                activeGestureId < 63 -> collectionGesturesProvider
+                                    .getCollectionGestures()
+                                    .getOrNull(activeGestureId - 1)
+                                    ?.gestureName ?: "Unknown"
+                                else -> gestureNameList.getOrNull(activeGestureId - 64) ?: "Unknown"
+                            }
+                            _activeGestureNameTv.text =
+                                main.getString(R.string.active_gesture_is, gestureName)
                         }
                     },
                     bindingGroupFlow.map { bindingGroupParameterRef ->
@@ -666,7 +639,6 @@ class GesturesOpticDelegateAdapter(
                     },
                     activeGestureFragmentFilterFlow.map { newFilter ->
                         withContext(Dispatchers.Main) {
-                            // При любом изменении фильтра - рендерим UI
                             renderFilterUI(newFilter)
                         }
                     }
@@ -680,7 +652,15 @@ class GesturesOpticDelegateAdapter(
                 }
             }
         }
+        coroutineScope?.launch(Dispatchers.Main.immediate) {
+            WidgetState.selectGestureModeState.collect { isSelectMode ->
+                Log.d("BorderAnimator", "Mode changed = $isSelectMode")
+                borderAnimator?.toggle(isSelectMode)
+            }
+        }
     }
+
+
 
     private fun calculatingShowAddButton() {
         if (rotationGroupGestures.size >= 8) {

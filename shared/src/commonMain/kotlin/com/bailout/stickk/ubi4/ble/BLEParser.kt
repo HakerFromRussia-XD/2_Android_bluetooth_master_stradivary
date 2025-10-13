@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlo
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bmsStatusFlow
@@ -27,6 +28,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
@@ -451,6 +453,7 @@ class BLEParser(
                             val idDec = idHex.toInt(16)
                             platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            activeGestureState.value = idDec
                             coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
@@ -459,7 +462,9 @@ class BLEParser(
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            val mode = (paramData.takeLast(2).toIntOrNull(16) == 1)
                             platformLog("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            selectGestureModeState.value = mode
                             coroutineScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                     }

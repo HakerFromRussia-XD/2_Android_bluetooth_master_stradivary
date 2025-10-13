@@ -22,6 +22,43 @@ extension SwitchListItemViewModel {
         self.bleManager = bleManager
     }
     
+    func requestSwitch() {
+        let data = BLECommands.shared.requestSwitcher(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID)
+        )
+
+        sendBytes(data)
+    }
+    func sendSwitchState(isOn: Bool) {
+        let data = BLECommands.shared.sendSwitcherCommand(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID),
+            switchState: isOn
+        )
+
+        sendBytes(data)
+    }
+
+    func cachedSwitchValue() -> Bool? {
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: Int32(widget.deviceAddress), parameterID: Int32(widget.parameterID))
+
+        guard parameter.firstReceiveDataFlag == false else { return nil }
+
+        return switchValue(from: parameter)
+    }
+
+    func switchValue(from parameter: BaseParameterInfoStruct) -> Bool? {
+        let data = parameter.data
+        guard data.count >= 2 else { return nil }
+
+        let prefix = data.prefix(2)
+        let value = Int(prefix, radix: 16) ?? 0
+
+        return value != 0
+    }
+
     
     private func sendBytes (_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()

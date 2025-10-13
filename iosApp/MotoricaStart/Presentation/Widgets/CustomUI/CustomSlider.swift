@@ -10,6 +10,7 @@ struct CustomSlider: View {
     let inactiveColor: Color
     let borderColor: Color
     let editingDidEnd: ((Float) -> Void)
+    @State private var isDragging: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -39,16 +40,19 @@ struct CustomSlider: View {
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
+                                isDragging = true
                                 let availableWidth = (geometry.size.width-trackHeight/2)
                                 let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
                                 value = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
                             }
                             .onEnded { _ in
+                                isDragging = false
                                 editingDidEnd(value)
                             }
                     )
             }
             .padding(.top, 4)
+            .animation(isDragging ? nil : .easeInOut(duration: 0.3), value: value)
         }
         .frame(height: trackHeight)
     }

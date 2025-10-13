@@ -239,6 +239,10 @@ extension Widget {
     private var sliderSStruct: SliderParameterWidgetSStruct? { decode() }
     var sliderUnified: SliderProtocol? { SliderEProtocol(sliderEStruct) ?? SliderSProtocol(sliderSStruct) }
     
+    private var switchEStruct: SwitchParameterWidgetEStruct? { decode() }
+    private var switchSStruct: SwitchParameterWidgetSStruct? { decode() }
+    var switchUnified: SwitchProtocol? { SwitchEProtocol(switchEStruct) ?? SwitchSProtocol(switchSStruct) }
+    
     private var plotEStruct: PlotParameterWidgetEStruct? { decode() }
     private var plotSStruct: PlotParameterWidgetSStruct? { decode() }
     var plotUnified: PlotProtocol? { PlotEProtocol(plotEStruct) ?? PlotSProtocol(plotSStruct) }
@@ -311,5 +315,23 @@ struct SliderSProtocol: SliderProtocol {
     
     var minProgress: Int32 { src.minProgress }
     var maxProgress: Int32 { src.maxProgress }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetSStruct.baseParameterWidgetStruct }
+}
+
+protocol SwitchProtocol {
+    var isChecked: Bool { get }
+}
+struct SwitchEProtocol: SwitchProtocol {
+    private let src: SwitchParameterWidgetEStruct
+    init?(_ src: SwitchParameterWidgetEStruct?) { guard let src else { return nil }; self.src = src }
+
+    var isChecked: Bool { src.switchChecked }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetEStruct.baseParameterWidgetStruct }
+}
+struct SwitchSProtocol: SwitchProtocol {
+    private let src: SwitchParameterWidgetSStruct
+    init?(_ src: SwitchParameterWidgetSStruct?) { guard let src else { return nil }; self.src = src }
+
+    var isChecked: Bool { src.switchChecked }
     var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetSStruct.baseParameterWidgetStruct }
 }

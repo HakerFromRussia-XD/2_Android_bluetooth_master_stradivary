@@ -113,6 +113,7 @@
 		6558303B2DBBAF4100744D5C /* inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* inter.ttf */; };
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
+		65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchRowView.swift */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -266,6 +267,7 @@
 		6558303C2DBBAFE300744D5C /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
 		655830712DD61F7000744D5C /* GreetingKMMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingKMMTests.swift; sourceTree = "<group>"; };
+		65588F922E9CF31A005CF5BA /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -778,6 +780,7 @@
 		652136F42DF82876006AB049 /* SliderRow */ = {
 			isa = PBXGroup;
 			children = (
+				65588F922E9CF31A005CF5BA /* SwitchRowView.swift */,
 				652136F52DF82884006AB049 /* SliderRowView.swift */,
 			);
 			path = SliderRow;
@@ -1179,6 +1182,7 @@
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
+				65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,

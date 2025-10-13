@@ -16,18 +16,28 @@ object WidgetStateBridge {
      * @param callback вызывается с каждым новым параметром.
      */
     fun observeSliders(callback: (ParameterRef) -> Unit): Job =
-    coroutineScope.launch {
-        WidgetState.slidersFlow.collect { callback(it) }
-    }
+        coroutineScope.launch {
+            WidgetState.slidersFlow.collect { callback(it) }
+        }
+
+    /**
+     * Подписка на switcherFlow.
+     * @param callback вызывается с каждым новым параметром.
+     */
+    fun observeSwitchers(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.switcherFlow.collect { callback(it) }
+        }
+
 
     /**
      * Подписка на plotArrayFlow.
      * @param callback вызывается с каждым новым значением графика.
      */
     fun observePlotArray(callback: (PlotParameterRef) -> Unit): Job =
-    coroutineScope.launch {
-        WidgetState.plotArrayFlow.collect { callback(it) }
-    }
+        coroutineScope.launch {
+            WidgetState.plotArrayFlow.collect { callback(it) }
+        }
 
     /**
      * Подписка на thresholdFlow.

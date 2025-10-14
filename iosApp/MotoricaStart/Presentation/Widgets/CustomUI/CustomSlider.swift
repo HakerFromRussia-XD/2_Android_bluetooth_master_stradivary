@@ -12,9 +12,10 @@ struct CustomSlider: View {
     let editingDidEnd: ((Float) -> Void)
     @State private var isDragging: Bool = false
     @State private var displayedValue: Float
-    @State private var isAnimationLocked: Bool = false
+    @State private var isAnimatingValue: Bool = false
     @State private var pendingValue: Float?
-    private let animationDuration: Double = 3.0
+
+    private let animationDuration: Double = 0.3
 
     init(
         value: Binding<Float>,
@@ -67,49 +68,56 @@ struct CustomSlider: View {
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                isDragging = true
+                                self.isDragging = true
+                                self.isAnimatingValue = false
+                                self.pendingValue = nil
                                 let availableWidth = (geometry.size.width-trackHeight/2)
                                 let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
-                                let newValue = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
-                                displayedValue = newValue
-                                value = newValue
+                                let clampedValue = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
+                                self.value = clampedValue
+                                self.displayedValue = clampedValue
                             }
                             .onEnded { _ in
-                                isDragging = false
-                                displayedValue = value
-                                editingDidEnd(value)
+                                self.isDragging = false
+                                self.editingDidEnd(self.value)
                             }
                     )
-            }
-            .padding(.top, 4)
-            .onChange(of: value) { newValue in
-                guard !isDragging else { return }
-                handleProgrammaticUpdate(newValue)
+                }
+                .padding(.top, 4)
+                .onAppear {
+                    self.displayedValue = clamp(self.value)
+                }
+                .onChange(of: value) { newValue in
+                    guard !self.isDragging else { return }
+                    self.animate(to: newValue)
+                }
             }
             .frame(height: trackHeight)
         }
     }
         
-    private func handleProgrammaticUpdate(_ newValue: Float) {
-        if isAnimationLocked {
-            pendingValue = newValue
+    private func clamp(_ newValue: Float) -> Float {
+        max(range.lowerBound, min(newValue, range.upperBound))
+    }
+
+    private func animate(to newValue: Float) {
+        let clampedValue = clamp(newValue)
+        guard clampedValue != self.displayedValue else { return }
+        if self.isAnimatingValue {
+            self.pendingValue = clampedValue
             return
         }
-        
-        animate(to: newValue)
-    }
-        
-    private func animate(to target: Float) {
-        isAnimationLocked = true
+        self.isAnimatingValue = true
         withAnimation(.easeInOut(duration: animationDuration)) {
-            self.displayedValue = target
+            self.displayedValue = clampedValue
         }
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-            self.isAnimationLocked = false
-            if let pendingValue {
-                self.pendingValue = nil
-                self.animate(to: pendingValue)
+            if self.isAnimatingValue {
+                self.isAnimatingValue = false
+                if let pendingValue = self.pendingValue {
+                    self.pendingValue = nil
+                    self.animate(to: pendingValue)
+                }
             }
         }
     }

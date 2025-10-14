@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -195,6 +196,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     override fun onDestroy() {
         super.onDestroy()
+        UiState.resetWidgetRequests()
         onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
@@ -415,6 +417,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
         listWidgets.clear()
+        UiState.resetWidgetRequests()
         adapterWidgets.swapData(emptyList())
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }

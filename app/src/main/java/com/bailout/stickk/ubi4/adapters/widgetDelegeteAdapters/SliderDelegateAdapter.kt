@@ -248,7 +248,6 @@ class SliderDelegateAdapter(
                 delayMillis = 400L
             )
             Log.d("RequestUtils", "ВЕТКА IF Запрос выполнен: firstReceiveDataFlag true parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
-
         }
         else {
             setUI(ParameterRef(addressDevice,parameterID, dataCode))

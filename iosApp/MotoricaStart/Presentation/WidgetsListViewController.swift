@@ -100,6 +100,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                         widgetType = .sliderWidget
                         title = sliderItem.title
                         widgetObject = sliderItem.widget
+                    case let switchItem as SwitchItem:
+                        widgetType = .switchWidget
+                        title = switchItem.title
+                        widgetObject = switchItem.widget
                     case let oneButtonItem as OneButtonItem:
                         widgetType = .commandWidget
                         title = oneButtonItem.title
@@ -121,7 +125,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
                         widgetType = .commandWidget
                     case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-                        widgetType = .commandWidget
+                        widgetType = .switchWidget
+                        widgetObject = widget
                     case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
                         widgetType = .commandWidget
                     default:

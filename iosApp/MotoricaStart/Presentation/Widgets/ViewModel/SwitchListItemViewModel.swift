@@ -29,6 +29,7 @@ extension SwitchListItemViewModel {
         )
 
         sendBytes(data)
+        print("[request] requestSwitch")
     }
     func sendSwitchState(isOn: Bool) {
         let data = BLECommands.shared.sendSwitcherCommand(

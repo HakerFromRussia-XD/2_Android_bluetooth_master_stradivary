@@ -11,6 +11,7 @@ object UiState {
     var isMobileSettings by Delegates.notNull<Boolean>()
     var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
+    private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
 
 
     init {
@@ -21,4 +22,17 @@ object UiState {
         updateFlow = MutableSharedFlow()
     }
 
+    private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {
+        val high = deviceAddress.toLong() and 0xFFFF_FFFFL
+        val low = parameterID.toLong() and 0xFFFF_FFFFL
+        return (high shl 32) or low
+    }
+
+    fun shouldRequestParameter(deviceAddress: Int, parameterID: Int): Boolean {
+        return requestedWidgetParameters.add(createRequestKey(deviceAddress, parameterID))
+    }
+
+    fun resetWidgetRequests() {
+        requestedWidgetParameters.clear()
+    }
 }

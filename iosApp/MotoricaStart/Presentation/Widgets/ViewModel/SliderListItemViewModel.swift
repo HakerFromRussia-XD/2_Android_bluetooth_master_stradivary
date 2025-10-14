@@ -31,6 +31,7 @@ extension SliderListItemViewModel {
         )
         
         sendBytes(data)
+        print("[request] requestSlider")
     }
     func sendSliderProgress (progress: [KotlinInt]) {
         let data = BLECommands.shared.sendSliderCommand(

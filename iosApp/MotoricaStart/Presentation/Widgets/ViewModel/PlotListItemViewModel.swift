@@ -28,6 +28,7 @@ extension PlotListItemViewModel {
         )
         
         sendBytes(data)
+        print("[request] requestThresholds")
     }
     func sendThresholds(openThreshold: Int, closeThreshold: Int) {
         print("sendThresholds openThreshold=\(openThreshold)   closeThreshold=\(closeThreshold)")

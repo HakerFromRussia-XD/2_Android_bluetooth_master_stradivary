@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -323,18 +324,18 @@ private fun parseReceivedData(data: ByteArray?) {
         if (mDisconnected) return
         reconnectThreadFlag = false
         mDisconnected = true
-            println("--> дисконнектим всё к хуям и анбайндим")
+        println("--> дисконнектим всё к хуям и анбайндим")
 
-            bleScope.launch(Dispatchers.IO) {
-                mBluetoothLeService?.disconnect()
-                runCatching { mContext.unbindService(mServiceConnection) }
-                withContext(Dispatchers.Main){
-                    mConnected = false
-                    listWidgets.clear()
-                    main.openScanActivity()
-                }
+        bleScope.launch(Dispatchers.IO) {
+            mBluetoothLeService?.disconnect()
+            runCatching { mContext.unbindService(mServiceConnection) }
+            withContext(Dispatchers.Main){
+                mConnected = false
+                listWidgets.clear()
+                UiState.resetWidgetRequests()
+                main.openScanActivity()
             }
-
+        }
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()

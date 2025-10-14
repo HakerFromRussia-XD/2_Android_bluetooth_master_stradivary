@@ -319,7 +319,13 @@ final class PlotViewCell: UITableViewCell {
         thresholdLabel.text = String(value)
         return value
     }
-    private func setLimitPosition(limit_CH: UIView, thresholdLabel: UILabel, in container: UIView, thresholdValue: Int) {
+    private func setLimitPosition(
+        limit_CH: UIView,
+        thresholdLabel: UILabel,
+        in container: UIView,
+        thresholdValue: Int,
+        animated: Bool = false
+    ) {
         let topOffset = CGFloat(12)
         let bottomOffset = CGFloat(10)
 
@@ -335,8 +341,18 @@ final class PlotViewCell: UITableViewCell {
         guard avail > 0 else { return }
 
         let y = max(min(maxY - (CGFloat(clampedValue) / 255.0) * avail, maxY), minY)
-        limit_CH.frame.origin.y = y - limit_CH.bounds.height / 2
-        thresholdLabel.text = String(clampedValue)
+        let newOriginY = y - limit_CH.bounds.height / 2
+
+        let applyChanges = {
+            limit_CH.frame.origin.y = newOriginY
+            thresholdLabel.text = String(clampedValue)
+        }
+
+        if animated, abs(limit_CH.frame.origin.y - newOriginY) > .ulpOfOne {
+            UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseInOut], animations: applyChanges)
+        } else {
+            applyChanges()
+        }
     }
     
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
@@ -380,12 +396,24 @@ final class PlotViewCell: UITableViewCell {
             if thresholds.indices.contains(0) {
                 let openValue = thresholds[0]
                 self.openThreshold = openValue
-                self.setLimitPosition(limit_CH: self.limitCH2, thresholdLabel: self.openThresholdTv, in: self.allCHRl, thresholdValue: openValue)
+                self.setLimitPosition(
+                    limit_CH: self.limitCH2,
+                    thresholdLabel: self.openThresholdTv,
+                    in: self.allCHRl,
+                    thresholdValue: openValue,
+                    animated: true
+                )
             }
             if thresholds.indices.contains(1) {
                 let closeValue = thresholds[1]
                 self.closeThreshold = closeValue
-                self.setLimitPosition(limit_CH: self.limitCH1, thresholdLabel: self.closeThresholdTv, in: self.allCHRl, thresholdValue: closeValue)
+                self.setLimitPosition(
+                    limit_CH: self.limitCH1,
+                    thresholdLabel: self.closeThresholdTv,
+                    in: self.allCHRl,
+                    thresholdValue: closeValue,
+                    animated: true
+                )
             }
         }
     }

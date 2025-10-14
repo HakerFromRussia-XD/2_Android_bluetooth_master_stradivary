@@ -105,6 +105,7 @@ final class WidgetsListTableViewController: UITableViewController {
                         withIdentifier: SwitchViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! SwitchViewCell
+                    print("requestSwitch title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
             }

@@ -6,6 +6,7 @@ import UIKit
 import shared
 
 struct PlotListItemViewModel: Equatable, Hashable { // Assistant: добавил Hashable
+    private static let requestTracker = RequestTracker()
     private let identifier: String
     let title: String
     let widget: Widget
@@ -22,6 +23,7 @@ extension PlotListItemViewModel {
         self.bleManager = bleManager
     }
     func requestThresholds() {
+        guard Self.requestTracker.shouldRequest(for: identifier) else { return }
         let data = BLECommands.shared.requestThresholds(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(widget.parameterID)
@@ -63,6 +65,34 @@ extension PlotListItemViewModel {
     static func == (lhs: PlotListItemViewModel, rhs: PlotListItemViewModel) -> Bool {
         lhs.identifier == rhs.identifier
         && lhs.title == rhs.title
+    }
+    
+    static func resetRequestCache() {
+        requestTracker.reset()
+    }
+}
+
+private extension PlotListItemViewModel {
+    final class RequestTracker {
+        private var requestedIdentifiers: Set<String> = []
+        private let lock = NSLock()
+
+        func shouldRequest(for identifier: String) -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+
+            let isNew = !requestedIdentifiers.contains(identifier)
+            if isNew {
+                requestedIdentifiers.insert(identifier)
+            }
+            return isNew
+        }
+
+        func reset() {
+            lock.lock()
+            requestedIdentifiers.removeAll()
+            lock.unlock()
+        }
     }
 }
 

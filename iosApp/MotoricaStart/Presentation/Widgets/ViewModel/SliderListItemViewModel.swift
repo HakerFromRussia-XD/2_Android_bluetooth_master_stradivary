@@ -2,6 +2,7 @@ import Foundation
 import shared
 
 struct SliderListItemViewModel: Equatable, Hashable {
+    private static let requestTracker = RequestTracker()
     private let identifier: String
     let title: String
     let title_2: String
@@ -25,6 +26,7 @@ extension SliderListItemViewModel {
         self.bleManager = bleManager
     }
     func requestSlider() {
+        guard Self.requestTracker.shouldRequest(for: identifier) else { return }
         let data = BLECommands.shared.requestSlider(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(widget.parameterID)
@@ -61,6 +63,10 @@ extension SliderListItemViewModel {
         && lhs.title == rhs.title
     }
     
+    static func resetRequestCache() {
+        requestTracker.reset()
+    }
+
     func cachedSliderValues() -> [Float]? {
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: Int32(widget.deviceAddress), parameterID: Int32(widget.parameterID))
@@ -101,6 +107,30 @@ extension SliderListItemViewModel {
         }
 
         return values
+    }
+}
+
+private extension SliderListItemViewModel {
+    final class RequestTracker {
+        private var requestedIdentifiers: Set<String> = []
+        private let lock = NSLock()
+
+        func shouldRequest(for identifier: String) -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+
+            let isNew = !requestedIdentifiers.contains(identifier)
+            if isNew {
+                requestedIdentifiers.insert(identifier)
+            }
+            return isNew
+        }
+
+        func reset() {
+            lock.lock()
+            requestedIdentifiers.removeAll()
+            lock.unlock()
+        }
     }
 }
 

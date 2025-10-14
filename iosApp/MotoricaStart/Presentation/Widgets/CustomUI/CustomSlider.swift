@@ -13,9 +13,10 @@ struct CustomSlider: View {
     @State private var isDragging: Bool = false
     @State private var displayedValue: Float
     @State private var isAnimatingValue: Bool = false
-    @State private var pendingValue: Float?
+    @State private var pendingValues: [Float] = []
+    
 
-    private let animationDuration: Double = 0.3
+    private let animationDuration: Double = 3.0//0.3
 
     init(
         value: Binding<Float>,
@@ -70,7 +71,7 @@ struct CustomSlider: View {
                             .onChanged { gesture in
                                 self.isDragging = true
                                 self.isAnimatingValue = false
-                                self.pendingValue = nil
+                                self.pendingValues.removeAll()
                                 let availableWidth = (geometry.size.width-trackHeight/2)
                                 let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
                                 let clampedValue = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
@@ -103,21 +104,21 @@ struct CustomSlider: View {
     private func animate(to newValue: Float) {
         let clampedValue = clamp(newValue)
         guard clampedValue != self.displayedValue else { return }
-        if self.isAnimatingValue {
-            self.pendingValue = clampedValue
-            return
-        }
+        self.pendingValues.append(clampedValue)
+        startNextAnimationIfNeeded()
+    }
+
+    private func startNextAnimationIfNeeded() {
+        guard !self.isAnimatingValue, !self.pendingValues.isEmpty else { return }
+        let nextValue = self.pendingValues.removeFirst()
         self.isAnimatingValue = true
         withAnimation(.easeInOut(duration: animationDuration)) {
-            self.displayedValue = clampedValue
+            self.displayedValue = nextValue
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             if self.isAnimatingValue {
                 self.isAnimatingValue = false
-                if let pendingValue = self.pendingValue {
-                    self.pendingValue = nil
-                    self.animate(to: pendingValue)
-                }
+                self.startNextAnimationIfNeeded()
             }
         }
     }

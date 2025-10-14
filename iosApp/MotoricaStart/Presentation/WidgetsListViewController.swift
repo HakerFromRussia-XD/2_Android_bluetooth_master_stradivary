@@ -20,6 +20,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
+    private var widgetsLoadingCompletionJob: Kotlinx_coroutines_coreJob?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -63,8 +64,16 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func startObservingWidgetUpdates() {
         print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
-        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] _ in
-            self?.reloadWidgetsFromShared()
+        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
+            guard let self = self, self.display == Int32(updatedDisplay) else { return }
+            self.reloadWidgetsFromShared()
+        }
+        
+        widgetsLoadingCompletionJob?.cancel(cause: nil)
+        widgetsLoadingCompletionJob = UiStateBridge.shared.observeWidgetsLoadCompletion { [weak self] in
+            DispatchQueue.main.async {
+                self?.handleWidgetsLoadingCompletion()
+            }
         }
     }
 
@@ -72,6 +81,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] stopObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
         widgetsUpdateJob = nil
+        widgetsLoadingCompletionJob?.cancel(cause: nil)
+        widgetsLoadingCompletionJob = nil
     }
 
     private func reloadWidgetsFromShared() {
@@ -234,6 +245,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func showError(_ error: String) {
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
+    }
+    
+    private func handleWidgetsLoadingCompletion() {
+        viewModel.loading.value = .none
+        print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
     }
 }
 

@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlo
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -670,14 +671,15 @@ class BLEParser(
                 dataOffset = additionalInfoSizeStruct.infoSize
 
                 when (additionalInfoSizeStruct.infoType) {
-                    AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                        val parsedWidget = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
-                        platformLog("parsedWidget", "▶️widgetcode - ${parsedWidget.widgetCode}")
+                    AdditionalParameterInfoType.WIDGET.number -> {
+                        val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
+                        val widgetDisplay = widgetStruct.display
+                        platformLog("widgetStruct", "▶️widgetcode - ${widgetStruct.widgetCode}")
 
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             platformLog("sendWidgetsArray", "▶️ sendWidgetsArray()  called, total widgets=${listWidgets.size}")
-                            updateFlow.emit(1)
+                            updateFlow.emit(widgetDisplay)
                         }
                     }
                 }
@@ -909,6 +911,7 @@ class BLEParser(
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number -> {
                                     val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
+                                    val widgetDisplay = widgetStruct.display
                                     if (widgetStruct.widgetCode == 16){
                                         platformLog("parsedWidget", "▶️ parsedWidget run")
                                         bleManager.sendBytesKmm(
@@ -920,7 +923,7 @@ class BLEParser(
                                     parametrSubDevice.additionalInfoRefSet.add(widgetStruct)
                                     coroutineScope.launch {
                                         platformLog("sendWidgetsArray", "▶\uFE0F sendWidgetsArray() called, total widgets=${listWidgets.size}")
-                                        updateFlow.emit(1)
+                                        updateFlow.emit(widgetDisplay)
                                     }
                                 }
                             }
@@ -943,6 +946,7 @@ class BLEParser(
             subDeviceAdditionalCounter++
         } else {
             bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
         }

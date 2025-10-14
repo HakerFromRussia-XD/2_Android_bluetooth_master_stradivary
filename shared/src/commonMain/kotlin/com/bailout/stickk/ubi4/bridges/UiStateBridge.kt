@@ -11,10 +11,19 @@ object UiStateBridge {
 
     /**
      * Observe update events from [UiState.updateFlow].
+     * The emitted value corresponds to the display index of the widget that triggered the update.
      * The callback is invoked on the main dispatcher for each emission.
      */
     fun observeUpdates(callback: (Int) -> Unit): Job =
         coroutineScope.launch {
             UiState.updateFlow.collect { callback(it) }
+        }
+
+    /**
+     * Observe completion events for widgets loading.
+     */
+    fun observeWidgetsLoadCompletion(callback: () -> Unit): Job =
+        coroutineScope.launch {
+            UiState.widgetsLoadingFlow.collect { callback() }
         }
 }

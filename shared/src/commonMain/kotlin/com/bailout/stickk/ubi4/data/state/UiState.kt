@@ -10,6 +10,7 @@ object UiState {
     var activeSettingsFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
     var isMobileSettings by Delegates.notNull<Boolean>()
     var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+    var widgetsLoadingFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
 
@@ -20,6 +21,7 @@ object UiState {
         activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         isMobileSettings = false
         updateFlow = MutableSharedFlow()
+        widgetsLoadingFlow = MutableSharedFlow()
     }
 
     private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {

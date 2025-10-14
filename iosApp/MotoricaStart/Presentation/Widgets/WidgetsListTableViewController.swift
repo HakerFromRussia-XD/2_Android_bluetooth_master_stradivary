@@ -3,6 +3,7 @@ import ObjectiveC
 
 final class WidgetsListTableViewController: UITableViewController {
     @IBOutlet weak var tableViewMy: UITableView!
+//    private var hasAppliedInitialSnapshot = false
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -34,6 +35,7 @@ final class WidgetsListTableViewController: UITableViewController {
     // Assistant: Заменяем reload() на применение снапшота, чтобы сохранять состояния ячеек
     func reload() {
         applySnapshot(animatingDifferences: false)
+//        applySnapshot(animatingDifferences: hasAppliedInitialSnapshot)
     }
 
     
@@ -49,8 +51,12 @@ final class WidgetsListTableViewController: UITableViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
+//                self.hasAppliedInitialSnapshot = true
             }
         }
+//        if !hasAppliedInitialSnapshot {
+//            hasAppliedInitialSnapshot = true
+//        }
     }
 
 

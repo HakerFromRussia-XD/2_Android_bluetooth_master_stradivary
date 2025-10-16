@@ -21,6 +21,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
     private var widgetsLoadingCompletionJob: Kotlinx_coroutines_coreJob?
+    private var isSynchronizationCompleted = false
+    private var needsReloadAfterSynchronization = false
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -36,6 +38,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         super.viewDidLoad()
         setupViews()
         bind(to: viewModel)
+        hideWidgetsContentForSynchronization()
         
         view.addSubview(bottomButton)
         NSLayoutConstraint.activate([
@@ -47,6 +50,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("[WIDGET_COORDINATOR] viewWillAppear")
+        beginSynchronization()
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
     }
@@ -208,6 +212,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
+//        beginSynchronization()
+        beginSynchronization(resetState: true)
         viewModel.requestInicializeInformation()
 //        viewModel.queueHardTest()
     }
@@ -219,23 +225,40 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
-        widgetsListContainer.isHidden = false
-        emptyDataLabel.isHidden = true
-        widgetsTableViewController?.reload()
+//        widgetsListContainer.isHidden = false
+//        emptyDataLabel.isHidden = true
+        if isSynchronizationCompleted {
+            widgetsTableViewController?.reload()
+            showWidgetsContent()
+        } else {
+            needsReloadAfterSynchronization = true
+        }
     }
 
     private func updateLoading(_ loading: WidgetsListViewModelLoading?) {
-        emptyDataLabel.isHidden = true
-        widgetsListContainer.isHidden = true
-        suggestionsListContainer.isHidden = true
-        LoadingView.hide()
+//        emptyDataLabel.isHidden = true
+//        widgetsListContainer.isHidden = true
+//        suggestionsListContainer.isHidden = true
+//        LoadingView.hide()
 
         switch loading {
-        case .fullScreen: LoadingView.show()
-        case .nextPage: widgetsListContainer.isHidden = false
+//        case .fullScreen: LoadingView.show()
+//        case .nextPage: widgetsListContainer.isHidden = false
+        case .some(.fullScreen): beginSynchronization(resetState: true)
+        case .some(.nextPage):
+            if isSynchronizationCompleted {
+                widgetsListContainer.isHidden = false
+            }
         case .none:
-            widgetsListContainer.isHidden = false
-            emptyDataLabel.isHidden = !viewModel.isEmpty
+//            widgetsListContainer.isHidden = false
+//            emptyDataLabel.isHidden = !viewModel.isEmpty
+            if isSynchronizationCompleted {
+                showWidgetsContent()
+            }
+        case .some:
+            if !isSynchronizationCompleted {
+                beginSynchronization()
+            }
         }
         
 
@@ -248,8 +271,36 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func handleWidgetsLoadingCompletion() {
-        viewModel.loading.value = .none
+        isSynchronizationCompleted = true
+        LoadingView.hide()
+        if needsReloadAfterSynchronization {
+            widgetsTableViewController?.reload()
+            needsReloadAfterSynchronization = false
+        }
+        showWidgetsContent()
         print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
+    }
+    
+    private func beginSynchronization(resetState: Bool = false) {
+        if resetState {
+            isSynchronizationCompleted = false
+            needsReloadAfterSynchronization = false
+        }
+        guard !isSynchronizationCompleted else { return }
+        hideWidgetsContentForSynchronization()
+        LoadingView.show()
+    }
+
+    private func hideWidgetsContentForSynchronization() {
+        emptyDataLabel.isHidden = true
+        widgetsListContainer.isHidden = true
+        suggestionsListContainer.isHidden = true
+    }
+
+    private func showWidgetsContent() {
+        widgetsListContainer.isHidden = false
+        emptyDataLabel.isHidden = !viewModel.isEmpty
+        suggestionsListContainer.isHidden = true
     }
 }
 

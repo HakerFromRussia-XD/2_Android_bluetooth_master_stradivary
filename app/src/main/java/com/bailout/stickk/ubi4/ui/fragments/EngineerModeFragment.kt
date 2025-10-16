@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +26,9 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesDragAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesSelectionAdapter
 import com.bailout.stickk.ubi4.models.DataCollectionSettings
 import com.bailout.stickk.ubi4.models.GestureItem
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import androidx.core.content.edit
 
 class EngineerModeFragment : BaseWidgetsFragment() {
     private var dataCollectionDialog: Dialog? = null
@@ -254,16 +258,12 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.saveGesturesBtn)
         val cancelBtn = dialogBinding.findViewById<View>(R.id.cancelGesturesBtn)
 
-        // Создаем адаптер
-        gesturesAdapter = GesturesDragAdapter(selectedGestures) { gesture ->
-            val index = selectedGestures.indexOf(gesture)
-            selectedGestures.remove(gesture)
-            gesturesAdapter.notifyItemRemoved(index)
-        }
+        // СНАЧАЛА загружаем сохраненные жесты
+        loadGesturesOrder()
 
-        dragListView.setAdapter(gesturesAdapter, true)
+        // ПОТОМ создаем адаптер с загруженными данными
+        setupGesturesAdapter()
 
-        // Настройка перетаскивания для DragListView
         dragListView.setDragListListener(object : DragListView.DragListListener {
             override fun onItemDragStarted(position: Int) {
                 // Начало перетаскивания
@@ -280,12 +280,10 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             }
         })
 
-        // Кнопка добавления жеста
         addBtn.setOnClickListener {
             showAddGestureDialog()
         }
 
-        // Кнопка сохранения порядка
         saveBtn.setOnClickListener {
             saveGesturesOrder()
             dialog.dismiss()
@@ -294,9 +292,6 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         cancelBtn.setOnClickListener {
             dialog.dismiss()
         }
-
-        // Загружаем текущий порядок жестов
-        loadGesturesOrder()
     }
 
     private fun moveGestureItem(fromPosition: Int, toPosition: Int) {
@@ -310,12 +305,33 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     }
 
     private fun loadGesturesOrder() {
-        // selectedGestures = loadFromPreferences()
-        updateGesturesList()
+        val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
+        val gesturesCount = prefs.getInt("gestures_count", 0)
+
+        selectedGestures.clear()
+        for (i in 0 until gesturesCount) {
+            val id = prefs.getInt("gesture_${i}_id", -1)
+            val name = prefs.getString("gesture_${i}_name", "")
+            if (id != -1 && !name.isNullOrEmpty()) {
+                selectedGestures.add(GestureItem(id, name))
+            }
+        }
+
+        Log.d("LoadGestures", "Loaded ${selectedGestures.size} gestures: ${selectedGestures.map { it.name }}")
     }
 
     private fun saveGesturesOrder() {
-        // saveToPreferences(selectedGestures)
+        val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+
+        editor.putInt("gestures_count", selectedGestures.size)
+        selectedGestures.forEachIndexed { index, gesture ->
+            editor.putInt("gesture_${index}_id", gesture.id)
+            editor.putString("gesture_${index}_name", gesture.name)
+        }
+        editor.apply()
+
+        Log.d("SaveGestures", "Saved ${selectedGestures.size} gestures: ${selectedGestures.map { it.name }}")
     }
 
     private fun showAddGestureDialog() {
@@ -364,15 +380,17 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     }
 
     private fun setupGesturesAdapter() {
-        gesturesAdapter = GesturesDragAdapter(selectedGestures) { gesture ->
-            val index = selectedGestures.indexOf(gesture)
-            selectedGestures.remove(gesture)
-            setupGesturesAdapter()
-        }
+        gesturesAdapter = GesturesDragAdapter(selectedGestures, ::onGestureDelete)
         val dragListView = gesturesDialog?.findViewById<DragListView>(R.id.gesturesDragLv)
         dragListView?.setLayoutManager(LinearLayoutManager(requireContext()))
         dragListView?.setAdapter(gesturesAdapter, true)
         dragListView?.setCanDragHorizontally(false)
         dragListView?.setCanDragVertically(true)
+    }
+
+    private fun onGestureDelete(gesture: GestureItem) {
+        val index = selectedGestures.indexOf(gesture)
+        selectedGestures.remove(gesture)
+        setupGesturesAdapter()
     }
 }

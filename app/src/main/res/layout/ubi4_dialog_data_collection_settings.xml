@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="N_CYCLES"
                     android:textColor="@color/white"
@@ -85,6 +85,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/nCyclesSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/nCyclesSliderSb">
@@ -147,6 +148,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@+id/nCyclesSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/nCyclesSliderSb"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -201,7 +203,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="BASELINE_DURATION"
                     android:textColor="@color/white"
@@ -229,6 +231,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/baselineDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/baselineDurationSliderSb">
@@ -291,6 +294,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@+id/baselineDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/baselineDurationSliderSb"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -345,7 +349,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="PRE_GEST_DURATION"
                     android:textColor="@color/white"
@@ -373,6 +377,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/preGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/preGestDurationSliderSb">
@@ -435,6 +440,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@+id/preGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/preGestDurationSliderSb"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -489,7 +495,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="AT_GEST_DURATION"
                     android:textColor="@color/white"
@@ -517,6 +523,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/atGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/atGestDurationSliderSb">
@@ -579,6 +586,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@+id/atGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/atGestDurationSliderSb"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -633,7 +641,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="POST_GEST_DURATION"
                     android:textColor="@color/white"
@@ -661,6 +669,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/postGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/postGestDurationSliderSb">
@@ -723,6 +732,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@+id/postGestDurationSliderSb"
                     app:layout_constraintBottom_toBottomOf="@+id/postGestDurationSliderSb"
                     app:layout_constraintEnd_toEndOf="parent">
@@ -764,6 +774,50 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:id="@+id/view3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/postGestDurationDialogCl" />
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_gestures_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/title_home"
+                android:textColor="@color/ubi4_white"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@+id/dialogDataCollectionSettingsGesturesBtn"
+                app:layout_constraintEnd_toEndOf="@+id/dialogDataCollectionSettingsGesturesBtn"
+                app:layout_constraintStart_toStartOf="@+id/dialogDataCollectionSettingsGesturesBtn"
+                app:layout_constraintTop_toTopOf="@+id/dialogDataCollectionSettingsGesturesBtn" />
+
+            <View
+                android:id="@+id/dialogDataCollectionSettingsGesturesBtn"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view3"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <View
+                android:id="@+id/view11_0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialogDataCollectionSettingsGesturesBtn" />
+
             <TextView
                 android:id="@+id/tv_andex_alert_dialog_save_text"
                 android:layout_width="wrap_content"
@@ -779,16 +833,6 @@
                 app:layout_constraintTop_toTopOf="@+id/dialogDataCollectionSettingsSaveBtn" />
 
             <View
-                android:id="@+id/view3"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/ubi4_gray_border"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postGestDurationDialogCl" />
-
-            <View
                 android:id="@+id/dialogDataCollectionSettingsSaveBtn"
                 android:layout_width="0dp"
                 android:layout_height="44dp"
@@ -797,7 +841,7 @@
                 android:focusable="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/view3"
+                app:layout_constraintTop_toBottomOf="@+id/view11_0"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <View

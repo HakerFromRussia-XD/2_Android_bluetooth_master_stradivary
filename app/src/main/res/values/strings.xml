@@ -632,6 +632,9 @@
     <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
     <string name="engineer_mode">Engineer Mode</string>
     <string name="data_passport_settings">Data Passport Settings</string>
+    <string name="add">Add</string>
+    <string name="organize_the_gestures">Organize the gestures</string>
+    <string name="select_gesture_from_big_letter">Select gesture</string>
 
 
     <string-array name="numbers">

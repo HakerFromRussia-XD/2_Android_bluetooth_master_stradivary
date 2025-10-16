@@ -16,7 +16,7 @@ struct CustomSlider: View {
     @State private var pendingValues: [Float] = []
     
 
-    private let animationDuration: Double = 3.0//0.3
+    private let animationDuration: Double = 0.3//3.0//
 
     init(
         value: Binding<Float>,

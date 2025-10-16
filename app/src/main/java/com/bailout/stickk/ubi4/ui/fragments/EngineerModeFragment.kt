@@ -21,22 +21,10 @@ import com.bailout.stickk.databinding.Ubi4ItemGestureCardBinding
 import com.bailout.stickk.databinding.Ubi4ItemGestureEmptyCardBinding
 import com.woxthebox.draglistview.DragItemAdapter
 import com.woxthebox.draglistview.DragListView
-
-data class DataCollectionSettings(
-    val nCycles: Int,
-    val baselineDuration: Int,
-    val preGestDuration: Int,
-    val atGestDuration: Int,
-    val postGestDuration: Int
-)
-
-data class GestureItem(
-    val id: Int,
-    val name: String,
-    val isSelected: Boolean = false
-) {
-    fun getItemId(): Any = id
-}
+import com.bailout.stickk.ubi4.adapters.dialog.GesturesDragAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.GesturesSelectionAdapter
+import com.bailout.stickk.ubi4.models.DataCollectionSettings
+import com.bailout.stickk.ubi4.models.GestureItem
 
 class EngineerModeFragment : BaseWidgetsFragment() {
     private var dataCollectionDialog: Dialog? = null
@@ -44,7 +32,8 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     private var gesturesListDialog: Dialog? = null
     private val selectedGestures = mutableListOf<GestureItem>()
     private val onDestroyParentCallbacks = mutableListOf<() -> Unit>()
-    private lateinit var gesturesAdapter: DragItemAdapter<GestureItem, GestureViewHolder>
+    private lateinit var gesturesAdapter: GesturesDragAdapter
+    private lateinit var gesturesSelectionAdapter: GesturesSelectionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -265,36 +254,14 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.saveGesturesBtn)
         val cancelBtn = dialogBinding.findViewById<View>(R.id.cancelGesturesBtn)
 
-        // Настройка DragListView с DragItemAdapter
-        val adapter = object : DragItemAdapter<GestureItem, GestureViewHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GestureViewHolder {
-                val binding = Ubi4ItemGestureCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return GestureViewHolder(binding)
-            }
-
-            override fun onBindViewHolder(holder: GestureViewHolder, position: Int) {
-                super.onBindViewHolder(holder, position)
-                val item = selectedGestures[position]
-                Log.d("DragItemAdapter", "Binding item at position $position: ${item.name}")
-                Log.d("DragItemAdapter", "Total items: ${selectedGestures.size}")
-                holder.bind(item) { gesture ->
-                    val index = selectedGestures.indexOf(gesture)
-                    Log.d("DragItemAdapter", "Removing gesture: ${gesture.name} at index: $index")
-                    selectedGestures.remove(gesture)
-                    notifyItemRemoved(index)
-                    Log.d("DragItemAdapter", "After removal - Total items: ${selectedGestures.size}")
-                }
-            }
-
-            override fun getItemCount(): Int = selectedGestures.size
-
-            override fun getUniqueItemId(position: Int): Long {
-                return selectedGestures[position].id.toLong()
-            }
+        // Создаем адаптер
+        gesturesAdapter = GesturesDragAdapter(selectedGestures) { gesture ->
+            val index = selectedGestures.indexOf(gesture)
+            selectedGestures.remove(gesture)
+            gesturesAdapter.notifyItemRemoved(index)
         }
 
-        dragListView.setAdapter(adapter, true)
-        gesturesAdapter = adapter
+        dragListView.setAdapter(gesturesAdapter, true)
 
         // Настройка перетаскивания для DragListView
         dragListView.setDragListListener(object : DragListView.DragListListener {
@@ -303,7 +270,6 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             }
 
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
-                // Конец перетаскивания - обновляем порядок элементов
                 if (fromPosition != toPosition) {
                     moveGestureItem(fromPosition, toPosition)
                 }
@@ -383,33 +349,30 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             GestureItem(7, "Wrist_Extend")
         )
 
-        val adapter = object : RecyclerView.Adapter<GestureCardViewHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GestureCardViewHolder {
-                val binding = Ubi4ItemGestureEmptyCardBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-                return GestureCardViewHolder(binding)
-            }
-
-            override fun onBindViewHolder(holder: GestureCardViewHolder, position: Int) {
-                val gesture = gestures[position]
-                holder.bind(gesture) { selectedGesture ->
-                    selectedGestures.add(selectedGesture)
-                    gesturesAdapter.notifyItemInserted(selectedGestures.size - 1)
-                    dialog.dismiss()
-                }
-            }
-
-            override fun getItemCount(): Int = gestures.size
+        gesturesSelectionAdapter = GesturesSelectionAdapter(gestures) { selectedGesture ->
+            selectedGestures.add(selectedGesture)
+            setupGesturesAdapter()
+            dialog.dismiss()
         }
 
-        recyclerView.adapter = adapter
+        recyclerView.adapter = gesturesSelectionAdapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         cancelBtn.setOnClickListener {
             dialog.dismiss()
         }
+    }
+
+    private fun setupGesturesAdapter() {
+        gesturesAdapter = GesturesDragAdapter(selectedGestures) { gesture ->
+            val index = selectedGestures.indexOf(gesture)
+            selectedGestures.remove(gesture)
+            setupGesturesAdapter()
+        }
+        val dragListView = gesturesDialog?.findViewById<DragListView>(R.id.gesturesDragLv)
+        dragListView?.setLayoutManager(LinearLayoutManager(requireContext()))
+        dragListView?.setAdapter(gesturesAdapter, true)
+        dragListView?.setCanDragHorizontally(false)
+        dragListView?.setCanDragVertically(true)
     }
 }

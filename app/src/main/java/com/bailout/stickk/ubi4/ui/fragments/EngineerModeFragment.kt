@@ -60,8 +60,8 @@ class EngineerModeFragment : BaseWidgetsFragment() {
 
     private class GestureViewHolder(private val binding: Ubi4ItemGestureCardBinding) : DragItemAdapter.ViewHolder(
         binding.root,
-        R.id.swapIv, // handleResId - ID элемента для перетаскивания
-        true // dragOnLongPress - перетаскивание по долгому нажатию
+        R.id.swapIv,
+        false
     ) {
         fun bind(item: GestureItem, onDeleteClick: (GestureItem) -> Unit) {
             binding.gestureCardTv.text = item.name
@@ -380,17 +380,14 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     }
 
     private fun setupGesturesAdapter() {
-        gesturesAdapter = GesturesDragAdapter(selectedGestures, ::onGestureDelete)
+        gesturesAdapter = GesturesDragAdapter(selectedGestures) { position ->
+            selectedGestures.removeAt(position) // ← Удаляем по позиции
+            setupGesturesAdapter()
+        }
         val dragListView = gesturesDialog?.findViewById<DragListView>(R.id.gesturesDragLv)
         dragListView?.setLayoutManager(LinearLayoutManager(requireContext()))
         dragListView?.setAdapter(gesturesAdapter, true)
         dragListView?.setCanDragHorizontally(false)
         dragListView?.setCanDragVertically(true)
-    }
-
-    private fun onGestureDelete(gesture: GestureItem) {
-        val index = selectedGestures.indexOf(gesture)
-        selectedGestures.remove(gesture)
-        setupGesturesAdapter()
     }
 }

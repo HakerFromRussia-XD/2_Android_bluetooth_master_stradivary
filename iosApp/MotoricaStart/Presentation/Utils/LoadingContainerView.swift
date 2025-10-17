@@ -10,18 +10,30 @@ import Lottie
 
 final class LoadingContainerView: UIView {
 
+    private enum AnimationAsset {
+        case json(name: String)
+        case dotLottie(name: String)
+    }
+    
     private let contentView = UIView()
     private let stackView = UIStackView()
     private let animationView: LottieAnimationView
     private let messageLabel = UILabel()
     private let progressView = UIProgressView(progressViewStyle: .default)
-    private let animationName: String
+    private let animationAsset: AnimationAsset
+    private var shouldPlayAfterLoading = false
+    private var isLoadingAnimation = false
 
     init(frame: CGRect, animationName: String) {
-        self.animationName = animationName
-        animationView = LottieAnimationView(name: animationName)
+        if Bundle.main.url(forResource: animationName, withExtension: "lottie") != nil {
+            animationAsset = .dotLottie(name: animationName)
+        } else {
+            animationAsset = .json(name: animationName)
+        }
+        animationView = LottieAnimationView(configuration: .shared)
         super.init(frame: frame)
         setupView()
+        loadAnimationIfNeeded()
     }
 
     @available(*, unavailable)
@@ -37,16 +49,20 @@ final class LoadingContainerView: UIView {
     }
 
     func startAnimation() {
-        if animationView.animation == nil {
-            animationView.animation = LottieAnimation.named(animationName)
-        }
-        guard animationView.animation != nil else { return }
         guard animationView.isAnimationPlaying == false else { return }
+        
+        if animationView.animation == nil {
+            shouldPlayAfterLoading = true
+            loadAnimationIfNeeded()
+            return
+        }
         animationView.loopMode = .loop
         animationView.play()
+        shouldPlayAfterLoading = false
     }
 
     func stopAnimation() {
+        shouldPlayAfterLoading = false
         animationView.stop()
     }
 
@@ -121,5 +137,62 @@ final class LoadingContainerView: UIView {
         progressView.progressTintColor = UIColor.systemBlue
         progressView.accessibilityIdentifier = "loading.progress"
         stackView.addArrangedSubview(progressView)
+    }
+    
+    private func loadAnimationIfNeeded() {
+        switch animationAsset {
+        case .json(let name):
+            loadAnimationFromJSON(named: name)
+        case .dotLottie(let name):
+            loadAnimationFromDotLottie(named: name)
+        }
+    }
+
+    private func loadAnimationFromJSON(named name: String) {
+        guard animationView.animation == nil else { return }
+
+        if let animation = LottieAnimation.named(name) {
+            animationView.animation = animation
+            animationView.imageProvider = BundleImageProvider(bundle: .main, searchPath: nil)
+            if shouldPlayAfterLoading {
+                startAnimation()
+            }
+        }
+    }
+
+    private func loadAnimationFromDotLottie(named name: String) {
+        guard animationView.animation == nil, isLoadingAnimation == false else {
+            return
+        }
+
+        isLoadingAnimation = true
+
+        DotLottieFile.named(name, bundle: .main) { [weak self] result in
+            guard let self else { return }
+
+            self.isLoadingAnimation = false
+
+            switch result {
+            case .success(let dotLottieFile):
+                guard let animationContainer = dotLottieFile.animations.first else {
+                    self.loadAnimationFromJSON(named: name)
+                    return
+                }
+
+                self.animationView.animation = animationContainer.animation
+                if let provider = animationContainer.configuration.imageProvider {
+                    self.animationView.imageProvider = provider
+                }
+                self.animationView.loopMode = animationContainer.configuration.loopMode
+                self.animationView.animationSpeed = CGFloat(animationContainer.configuration.speed)
+
+            case .failure:
+                self.loadAnimationFromJSON(named: name)
+            }
+
+            if self.shouldPlayAfterLoading {
+                self.startAnimation()
+            }
+        }
     }
 }

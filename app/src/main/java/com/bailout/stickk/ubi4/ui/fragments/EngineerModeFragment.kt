@@ -58,29 +58,6 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         }
     }
 
-    private class GestureViewHolder(private val binding: Ubi4ItemGestureCardBinding) : DragItemAdapter.ViewHolder(
-        binding.root,
-        R.id.swapIv,
-        false
-    ) {
-        fun bind(item: GestureItem, onDeleteClick: (GestureItem) -> Unit) {
-            binding.gestureCardTv.text = item.name
-
-            binding.deleteIv.setOnClickListener {
-                onDeleteClick(item)
-            }
-        }
-    }
-
-    private class GestureCardViewHolder(private val binding: Ubi4ItemGestureEmptyCardBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(gesture: GestureItem, onGestureClick: (GestureItem) -> Unit) {
-            binding.gestureTv.text = gesture.name
-            binding.gestureBtn.setOnClickListener {
-                onGestureClick(gesture)
-            }
-        }
-    }
-
     private fun showDataCollectionDialog() {
         if (dataCollectionDialog?.isShowing == true)
             return
@@ -258,15 +235,12 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.saveGesturesBtn)
         val cancelBtn = dialogBinding.findViewById<View>(R.id.cancelGesturesBtn)
 
-        // СНАЧАЛА загружаем сохраненные жесты
         loadGesturesOrder()
-
-        // ПОТОМ создаем адаптер с загруженными данными
         setupGesturesAdapter()
 
         dragListView.setDragListListener(object : DragListView.DragListListener {
             override fun onItemDragStarted(position: Int) {
-                // Начало перетаскивания
+                dragListView.setScrollingEnabled(true)
             }
 
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
@@ -276,7 +250,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             }
 
             override fun onItemDragging(itemPosition: Int, x: Float, y: Float) {
-                // Процесс перетаскивания
+
             }
         })
 
@@ -298,10 +272,6 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         val item = selectedGestures.removeAt(fromPosition)
         selectedGestures.add(toPosition, item)
         gesturesAdapter.notifyItemMoved(fromPosition, toPosition)
-    }
-
-    private fun updateGesturesList() {
-        gesturesAdapter.notifyDataSetChanged()
     }
 
     private fun loadGesturesOrder() {
@@ -381,7 +351,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
 
     private fun setupGesturesAdapter() {
         gesturesAdapter = GesturesDragAdapter(selectedGestures) { position ->
-            selectedGestures.removeAt(position) // ← Удаляем по позиции
+            selectedGestures.removeAt(position)
             setupGesturesAdapter()
         }
         val dragListView = gesturesDialog?.findViewById<DragListView>(R.id.gesturesDragLv)
@@ -389,5 +359,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         dragListView?.setAdapter(gesturesAdapter, true)
         dragListView?.setCanDragHorizontally(false)
         dragListView?.setCanDragVertically(true)
+        dragListView?.setScrollingEnabled(true)
+        dragListView?.isDragEnabled = true
     }
 }

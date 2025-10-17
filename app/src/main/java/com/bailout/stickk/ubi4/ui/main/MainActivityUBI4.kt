@@ -39,6 +39,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
+import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
@@ -168,6 +169,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+
+
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
@@ -192,8 +195,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
 //        binding.runCommandBtn.setOnClickListener {
-////            toggleGestureModeLocal()
+//            toggleGestureModeLocal()
 //        }
+
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -218,7 +222,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
         lifecycle.addObserver(bleStatusController)
         ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
-
 
     }
 
@@ -291,6 +294,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
+
     fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
@@ -473,11 +477,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
 
-    private var isSelectGestureModeOn = false
-
     private fun computeVisibleDisplays(): Set<Int> {
-        val factory = com.bailout.stickk.ubi4.data.DataFactory()
-        return (1..4)
+        val factory = DataFactory()
+        return (0..4)
             .filter { display -> factory.prepareData(display).isNotEmpty() }
             .toSet()
     }

@@ -7,6 +7,7 @@ plugins {
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources")
     kotlin("kapt")
+    id("app.cash.sqldelight") version "2.1.0"
 }
 
 android {
@@ -67,6 +68,8 @@ kotlin {
             }
         }
 
+        val iosMain by getting
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -85,6 +88,10 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+
+            // SQLDelight (общая часть)
+            implementation("app.cash.sqldelight:runtime:2.1.0")
+            implementation("app.cash.sqldelight:coroutines-extensions:2.1.0")
 
         }
         androidMain.dependencies {
@@ -106,6 +113,23 @@ kotlin {
             implementation("io.ktor:ktor-client-okhttp:2.3.12")
             implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
             implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
+            implementation("app.cash.sqldelight:android-driver:2.1.0")
+
+        }
+        iosMain.dependencies {
+            // SQLDelight iOS (native) driver
+            implementation("app.cash.sqldelight:native-driver:2.1.0")
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("Ubi4Db") {
+            packageName.set("com.bailout.stickk.ubi4.db")
+            srcDirs.from("src/commonMain/sqldelight")
+            // schemaOutputDirectory / migrationOutputDirectory можно добавить позже при необходимости
         }
     }
 }

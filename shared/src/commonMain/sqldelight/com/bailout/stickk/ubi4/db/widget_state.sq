@@ -1,0 +1,35 @@
+CREATE TABLE widget_state (
+  device_addr  INTEGER NOT NULL,
+  widget_id    INTEGER NOT NULL,
+  widget_code  INTEGER NOT NULL,
+  parameter_id INTEGER NOT NULL,
+  data_code    INTEGER NOT NULL,
+  data_offset  INTEGER NOT NULL,
+  ts_ms        INTEGER NOT NULL,
+
+  value_text TEXT,
+  value_i1   INTEGER,
+  value_i2   INTEGER,
+  value_i3   INTEGER,
+
+  PRIMARY KEY (device_addr, widget_id, widget_code, parameter_id, data_code, data_offset)
+);
+
+-- UPSERT (обновить если есть, иначе вставить)
+upsertState:
+INSERT OR REPLACE INTO widget_state(
+  device_addr, widget_id, widget_code, parameter_id, data_code, data_offset,
+  ts_ms, value_text, value_i1, value_i2, value_i3
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Примеры выборок (удобно для UI/отладки)
+selectAllState:
+SELECT * FROM widget_state;
+
+selectByWidget:
+SELECT * FROM widget_state
+WHERE device_addr = ? AND widget_id = ? AND widget_code = ?;
+
+selectByParam:
+SELECT * FROM widget_state
+WHERE device_addr = ? AND parameter_id = ? AND data_code = ?;

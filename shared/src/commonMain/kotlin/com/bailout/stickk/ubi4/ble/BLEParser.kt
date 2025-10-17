@@ -1367,23 +1367,17 @@ class BLEParser(
                         }
                     }
                     is SliderParameterWidgetEStruct -> {
-//                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
-//                            canAdd = false
-//                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-//                        }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-
+                            val set = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
                         }
+                        coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                     }
                     is SwitchParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId

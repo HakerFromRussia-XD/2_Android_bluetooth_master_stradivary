@@ -112,7 +112,18 @@ class SliderDelegateAdapter(
                     "S struct: addressDevice = $addressDevice   ${widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
+
         }
+        val widgetType = when (item.widget) {
+            is SliderParameterWidgetEStruct -> "E"
+            is SliderParameterWidgetSStruct -> "S"
+            else -> "?"
+        }
+        Log.d(
+            "SliderProbe",
+            "bind type=$widgetType addr=$addressDevice pid=$parameterID pos=$widgetPosition " +
+                    "params=${dataOffset.size} offsets=${dataOffset.joinToString()} title='${item.title}'"
+        )
 
         // Количество параметров определяем количеством dataOffset
         val paramCount = dataOffset.size
@@ -317,32 +328,27 @@ class SliderDelegateAdapter(
 
     }
 
-//    private fun sliderCollect() {
-//        scope.launch(Dispatchers.IO) {
-//            withContext(Dispatchers.Main) {
-//                slidersFlow.collect { parameterRef ->
-//                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-//                    Log.d("SliderDebugTest!", "2 - addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID} parameterData = ${parameter.data}")
-//
-//                    setUI(parameterRef)
-//                }
-//            }
-//        }
-//    }
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
             slidersFlow.collect { parameterRef ->
                 val idx = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
                 val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+
+
+                val info = widgetSlidersInfo.getOrNull(idx)
+                Log.d(
+                    "SliderProbe",
+                    "flow addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID} idx=$idx " +
+                            "params=${info?.dataOffset?.size ?: -1} offsets=${info?.dataOffset}"
+                )
+
                 Log.d("SliderDebugTest!", "2 - addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID} parameterData = ${parameter.data}")
                 Log.d("SliderFlow", "addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}, data=${parameter.data}, hasIdx=${idx != -1}")
                 if (idx != -1) setUI(parameterRef) else Log.d("SliderFlow", "skip update: adapter doesn't have widget for addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}")
             }
         }
     }
-
-
 
     private fun setUI(parameterRef: ParameterRef) {
         val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)

@@ -126,6 +126,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private func load(widgetQuery: WidgetQuery, loading: WidgetsListViewModelLoading) {
         self.loading.value = loading
         query.value = widgetQuery.query
+        publishFullScreenProgress(0.1)
         
         latestRequestID += 1
         let requestID = latestRequestID

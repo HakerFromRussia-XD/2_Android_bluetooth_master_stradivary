@@ -24,6 +24,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private static var globalSynchronizationCompleted = false
     private static var globalSynchronizationInProgress = false
     private var needsReloadAfterSynchronization = false
+    private let defaultLoadingState = LoadingView.State(
+        message: NSLocalizedString("Synchronizing widgets...", comment: ""),
+        progress: 0
+    )
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -55,7 +59,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("[WIDGET_COORDINATOR] viewWillAppear")
-        beginSynchronization()
+        beginSynchronization(state: defaultLoadingState)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
         if isSynchronizationCompleted {
@@ -220,7 +224,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
-        beginSynchronization(resetState: true)
+        beginSynchronization(resetState: true, state: defaultLoadingState)
         viewModel.requestInicializeInformation()
         print("[handleWidgetsLoadingCompletion] bottomButtonTapped")
     }
@@ -244,7 +248,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private func updateLoading(_ loading: WidgetsListViewModelLoading?) {
         switch loading {
-        case .some(.fullScreen): beginSynchronization()
+        case .some(.fullScreen(let state)): beginSynchronization(state: state)
         case .some(.nextPage):
             if isSynchronizationCompleted {
                 widgetsListContainer.isHidden = false
@@ -255,7 +259,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             }
         case .some:
             if !isSynchronizationCompleted {
-                beginSynchronization()
+                beginSynchronization(state: defaultLoadingState)
             }
         }
         widgetsTableViewController?.updateLoading(loading)
@@ -278,7 +282,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
     }
     
-    private func beginSynchronization(resetState: Bool = false) {
+    private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
         if resetState {
             isSynchronizationCompleted = false
             isSynchronizationInProgress = false
@@ -294,9 +298,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
         
         hideWidgetsContentForSynchronization()
-        guard !isSynchronizationInProgress else { return }
-        isSynchronizationInProgress = true
-        LoadingView.show()
+        let loadingState = state ?? defaultLoadingState
+        if !isSynchronizationInProgress {
+            isSynchronizationInProgress = true
+        }
+        LoadingView.show(state: loadingState)
     }
 
     private func hideWidgetsContentForSynchronization() {

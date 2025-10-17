@@ -114,6 +114,12 @@
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
 		65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchRowView.swift */; };
+		65588F992EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
+		65588F9A2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
+		65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
+		65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 65588F9D2EA0E499005CF5BA /* Lottie */; };
+		65588FA32EA120A3005CF5BA /* cup_achievement.json in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA22EA120A3005CF5BA /* cup_achievement.json */; };
+		65588FA52EA124F2005CF5BA /* wrist_extend.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA42EA124F2005CF5BA /* wrist_extend.lottie */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -268,6 +274,9 @@
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
 		655830712DD61F7000744D5C /* GreetingKMMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingKMMTests.swift; sourceTree = "<group>"; };
 		65588F922E9CF31A005CF5BA /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
+		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
+		65588FA22EA120A3005CF5BA /* cup_achievement.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = cup_achievement.json; sourceTree = "<group>"; };
+		65588FA42EA124F2005CF5BA /* wrist_extend.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_extend.lottie; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -311,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */,
+				65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,6 +577,7 @@
 		1FA533AD201E205000747E55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65588FA12EA1206D005CF5BA /* Animations */,
 				655830392DBBAF4100744D5C /* Fontes */,
 				1FF082B5239438DC00876A22 /* Localizable.strings */,
 				1FA53393201E1FDE00747E55 /* Assets.xcassets */,
@@ -652,6 +663,7 @@
 				1FEE31612218B17E00C160B9 /* Observable.swift */,
 				1F57F8D123C656F600981E09 /* AccessibilityIdentifier.swift */,
 				1FA2048F242F528E000C4B56 /* LoadingView.swift */,
+				65588F982EA0E343005CF5BA /* LoadingContainerView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -813,6 +825,15 @@
 				655830662DD4CAA000744D5C /* NumberGenerator.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		65588FA12EA1206D005CF5BA /* Animations */ = {
+			isa = PBXGroup;
+			children = (
+				65588FA22EA120A3005CF5BA /* cup_achievement.json */,
+				65588FA42EA124F2005CF5BA /* wrist_extend.lottie */,
+			);
+			path = Animations;
 			sourceTree = "<group>";
 		};
 		659A459A2DB9282E002BE2BC /* Bluetooth */ = {
@@ -1047,6 +1068,7 @@
 			mainGroup = 1FA53380201E1FDE00747E55;
 			packageReferences = (
 				65A2A0CF2E6F1E2F00D57E7C /* XCRemoteSwiftPackageReference "Charts" */,
+				65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 1FA5338A201E1FDE00747E55 /* Products */;
 			projectDirPath = "";
@@ -1081,9 +1103,11 @@
 				6558303B2DBBAF4100744D5C /* inter.ttf in Resources */,
 				65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
+				65588FA52EA124F2005CF5BA /* wrist_extend.lottie in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
+				65588FA32EA120A3005CF5BA /* cup_achievement.json in Resources */,
 				1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1129,6 +1153,7 @@
 			files = (
 				655830342DBBAE8F00744D5C /* ScanItem.swift in Sources */,
 				1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */,
+				65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */,
 				1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 			);
@@ -1189,6 +1214,7 @@
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
 				652E6ABF2E8EC8CE007E84EE /* SwitchViewCell.swift in Sources */,
+				65588F992EA0E344005CF5BA /* LoadingContainerView.swift in Sources */,
 				1FD03807239098650016D05F /* CoreDataStorage.xcdatamodeld in Sources */,
 				1FC5B7D0242634EB0086FA8C /* UIImageView+ImageSizeAfterAspectFit.swift in Sources */,
 				1FE49D8C230AA7C200D1D42E /* WidgetsListViewController.swift in Sources */,
@@ -1244,6 +1270,7 @@
 				1F9034CE230713FC00DEA4BD /* DataTransferServiceTests.swift in Sources */,
 				65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 				1FA53A3922F45CD9009A104C /* SearchMoviesUseCaseTests.swift in Sources */,
+				65588F9A2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */,
 				1F474F2B22356C7F0092DB4B /* WidgetQuery.swift in Sources */,
 				1F4102F5240BEE6A00EC014A /* UseCase.swift in Sources */,
 				1F474F2D22356C7F0092DB4B /* SearchWidgetsUseCase.swift in Sources */,
@@ -1626,6 +1653,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 		65A2A0CF2E6F1E2F00D57E7C /* XCRemoteSwiftPackageReference "Charts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ChartsOrg/Charts";
@@ -1637,6 +1672,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		65588F9D2EA0E499005CF5BA /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		65A2A0D02E6F1E2F00D57E7C /* DGCharts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 65A2A0CF2E6F1E2F00D57E7C /* XCRemoteSwiftPackageReference "Charts" */;

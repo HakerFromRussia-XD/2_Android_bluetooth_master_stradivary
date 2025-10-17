@@ -3,9 +3,20 @@ import Combine
 import shared
 
 
-enum WidgetsListViewModelLoading {
-    case fullScreen
+enum WidgetsListViewModelLoading: Equatable {
+    case fullScreen(state: LoadingView.State)
     case nextPage
+    
+    static func == (lhs: WidgetsListViewModelLoading, rhs: WidgetsListViewModelLoading) -> Bool {
+        switch (lhs, rhs) {
+        case (.nextPage, .nextPage):
+            return true
+        case (.fullScreen, .fullScreen):
+            return true // сравниваем только по типу, без state
+        default:
+            return false
+        }
+    }
 }
 
 protocol WidgetsListViewModelInput {
@@ -63,6 +74,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
     let errorTitle = NSLocalizedString("Error", comment: "")
     let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")
+    private let fullScreenLoadingMessage = NSLocalizedString("Synchronizing widgets...", comment: "")
 
     // MARK: - Init
     init(
@@ -126,6 +138,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 self?.mainQueue.async {
                     guard id == self?.latestRequestID else { return }
                     self?.appendPage(page)
+                    self?.publishFullScreenProgress(0.5)
                 }
             },
             completion: { [weak self] id, result in
@@ -134,6 +147,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                     switch result {
                     case .success(let page):
                         self?.appendPage(page)
+                        self?.publishFullScreenProgress(1)
                     case .failure(let error):
                         self?.handle(error: error)
                     }
@@ -141,6 +155,15 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 }
             }
         )
+    }
+    
+    private func publishFullScreenProgress(_ progress: Float) {
+        guard case .some(.fullScreen(state: _)) = loading.value else { return }
+        loading.value = .fullScreen(state: makeFullScreenState(progress: progress))
+    }
+
+    private func makeFullScreenState(progress: Float) -> LoadingView.State {
+        LoadingView.State(message: fullScreenLoadingMessage, progress: progress)
     }
 
     private func handle(error: Error) {
@@ -151,7 +174,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
     private func update(widgetQuery: WidgetQuery) {
         resetPages()
-        load(widgetQuery: widgetQuery, loading: .fullScreen)
+        load(widgetQuery: widgetQuery, loading: .fullScreen(state: makeFullScreenState(progress: 0)))
     }
     
     internal func requestInicializeInformation() {

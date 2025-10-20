@@ -18,6 +18,8 @@ import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
 import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.db.Ubi4Db
+import com.bailout.stickk.ubi4.db.createDb
+import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.persistence.WidgetStateRepository
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
@@ -39,6 +41,12 @@ class WDApplication : MultiDexApplication() {
         .build()
     bluetoothModule = BluetoothModule(this)
     AndroidContextProvider.init(applicationContext)
+
+    db = createDb(this)
+    widgetRepo = WidgetStateRepository(db)
+
+    // Глобально доступно для shared-кода (в т.ч. BLEParser)
+    WidgetRepoProvider.init(widgetRepo)
   }
 
   companion object {

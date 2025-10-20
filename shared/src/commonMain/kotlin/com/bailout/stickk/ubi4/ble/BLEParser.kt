@@ -55,6 +55,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
@@ -79,6 +80,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DE
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
+import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -504,6 +506,7 @@ class BLEParser(
 
             }
         }
+        persistParam(deviceAddress, parameterID, dataCode)
     }
 
 
@@ -1492,21 +1495,68 @@ class BLEParser(
 platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
 }
 
-internal fun getStatusConnected(): Boolean {
-    return mConnected
-}
+    private fun persistParam(deviceAddr: Int, parameterId: Int, dataCode: Int) {
+        val p = ParameterProvider.getParameter(deviceAddr, parameterId)
+        val raw = p.data                      // hex без заголовка
+        val ts = getTimeMillis()
 
-private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
-    // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
-    if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
-        val s = substring(startIndex, endIndex)
-        return if (s.length % 2 == 1) "0$s" else s
+        // пробегаем ВСЕ виджеты и их привязки (ParameterInfoSet)
+        listWidgets.forEach { w ->
+            val base = when (w) {
+                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
+                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
+                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                else -> null
+            } ?: return@forEach
+
+            base.parameterInfoSet
+                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
+                .forEach { info ->
+                    val b = hexByteAt(raw, info.dataOffset) ?: 0
+                    WidgetRepoProvider.get().upsertState(
+                        deviceAddr = deviceAddr,
+                        widgetId = base.widgetId,
+                        widgetCode = base.widgetCode,
+                        parameterId = parameterId,
+                        dataCode = dataCode,
+                        dataOffset = info.dataOffset,
+                        tsMs = ts,
+                        valueText = raw,       // кладём сырой hex для дебага
+                        valueI1 = b.toLong(),// быстрый байт по офсету
+                        valueI2 = null,
+                        valueI3 = null
+                    )
+                }
+        }
     }
-    // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
-    platformLog(
-        "substringSafe",
-        "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
-    )
-    return "00"
-}
+
+    private fun hexByteAt(hex: String, byteOffset: Int): Int? {
+        val i = byteOffset * 2
+        return if (i + 2 <= hex.length) hex.substring(i, i + 2).toInt(16) else null
+    }
+
+    internal fun getStatusConnected(): Boolean {
+        return mConnected
+    }
+
+    private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
+        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
+        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+            val s = substring(startIndex, endIndex)
+            return if (s.length % 2 == 1) "0$s" else s
+        }
+        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
+        platformLog(
+            "substringSafe",
+            "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+        )
+        return "00"
+    }
 }

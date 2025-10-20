@@ -704,6 +704,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             } catch (e: IOException) {
                 withContext(Main) {
                     Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+                    closeCurrentDialog()
                 }
             }
         }

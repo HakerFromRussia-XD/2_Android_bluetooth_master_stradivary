@@ -1,19 +1,14 @@
 package com.bailout.stickk.ubi4.persistence
 
 import com.bailout.stickk.ubi4.db.Ubi4Db
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
+import com.bailout.stickk.ubi4.utility.logging.platformLog
+
 import kotlinx.datetime.Clock
 
 
 class WidgetStateRepository(private val db: Ubi4Db) {
 
-    /**
-     * Сохраняет текущее значение для уникального ключа.
-     * Старое перезапишется (INSERT OR REPLACE).
-     */
-    suspend fun save(
+    fun upsertState(
         deviceAddr: Int,
         widgetId: Int,
         widgetCode: Int,
@@ -21,23 +16,64 @@ class WidgetStateRepository(private val db: Ubi4Db) {
         dataCode: Int,
         dataOffset: Int,
         valueText: String?,
-        v1: Int? = null,
-        v2: Int? = null,
-        v3: Int? = null
-    ) = withContext(Dispatchers.IO) {
-        val now = Clock.System.now().toEpochMilliseconds()
+        valueI1: Long?, // используем Long, SQL INTEGER = 64-bit
+        valueI2: Long?,
+        valueI3: Long?,
+        tsMs: Long = Clock.System.now().toEpochMilliseconds()
+    ) {
         db.widget_stateQueries.upsertState(
-            device_addr  = deviceAddr.toLong(),
-            widget_id    = widgetId.toLong(),
-            widget_code  = widgetCode.toLong(),
+            device_addr = deviceAddr.toLong(),
+            widget_id = widgetId.toLong(),
+            widget_code = widgetCode.toLong(),
             parameter_id = parameterId.toLong(),
-            data_code    = dataCode.toLong(),
-            data_offset  = dataOffset.toLong(),
-            ts_ms        = now,
-            value_text   = valueText,
-            value_i1     = v1?.toLong(),
-            value_i2     = v2?.toLong(),
-            value_i3     = v3?.toLong()
+            data_code = dataCode.toLong(),
+            data_offset = dataOffset.toLong(),
+            ts_ms = tsMs,
+            value_text = valueText,
+            value_i1 = valueI1,
+            value_i2 = valueI2,
+            value_i3 = valueI3
         )
+        platformLog("WidgetRepo", "inserted/updated state for widget=$widgetId param=$parameterId")
+        val row = db.widget_stateQueries.selectByKey(
+            device_addr = deviceAddr.toLong(),
+            widget_id = widgetId.toLong(),
+            widget_code = widgetCode.toLong(),
+            parameter_id = parameterId.toLong(),
+            data_code = dataCode.toLong(),
+            data_offset = dataOffset.toLong()
+        ).executeAsOneOrNull()
+
+        platformLog(
+            "WidgetRepo",
+            buildString {
+                append("ROW: key=(")
+                append("$deviceAddr,$widgetId,$widgetCode,$parameterId,$dataCode,$dataOffset) ")
+                append("i1=${row?.value_i1} i2=${row?.value_i2} i3=${row?.value_i3} ")
+                append("text=${row?.value_text?.take(24)}...")
+            }
+        )
+    }
+
+    fun getState(
+        deviceAddr: Int,
+        widgetId: Int,
+        widgetCode: Int,
+        parameterId: Int,
+        dataCode: Int,
+        dataOffset: Int
+    ) = db.widget_stateQueries.selectByKey(
+        device_addr = deviceAddr.toLong(),
+        widget_id = widgetId.toLong(),
+        widget_code = widgetCode.toLong(),
+        parameter_id = parameterId.toLong(),
+        data_code = dataCode.toLong(),
+        data_offset = dataOffset.toLong()
+    ).executeAsOneOrNull()
+
+
+    fun debugCount() {
+        val count = db.widget_stateQueries.countAll().executeAsOne()
+        platformLog("WidgetRepo", "DB has $count rows in widget_state")
     }
 }

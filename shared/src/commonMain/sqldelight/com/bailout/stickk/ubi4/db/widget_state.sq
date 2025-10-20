@@ -26,6 +26,17 @@ INSERT OR REPLACE INTO widget_state(
 selectAllState:
 SELECT * FROM widget_state;
 
+selectByKey:
+SELECT *
+FROM widget_state
+WHERE
+  device_addr  = ? AND
+  widget_id    = ? AND
+  widget_code  = ? AND
+  parameter_id = ? AND
+  data_code    = ? AND
+  data_offset  = ?;
+
 selectByWidget:
 SELECT * FROM widget_state
 WHERE device_addr = ? AND widget_id = ? AND widget_code = ?;
@@ -33,3 +44,6 @@ WHERE device_addr = ? AND widget_id = ? AND widget_code = ?;
 selectByParam:
 SELECT * FROM widget_state
 WHERE device_addr = ? AND parameter_id = ? AND data_code = ?;
+
+countAll:
+SELECT COUNT(*) FROM widget_state;

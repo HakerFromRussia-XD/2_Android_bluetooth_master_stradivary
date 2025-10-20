@@ -49,6 +49,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
@@ -242,6 +243,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
+        WidgetRepoProvider.get().debugCount()
     }
 
     override fun onDestroy() {

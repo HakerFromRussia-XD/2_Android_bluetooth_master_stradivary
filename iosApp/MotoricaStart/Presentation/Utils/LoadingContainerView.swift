@@ -124,8 +124,6 @@ final class LoadingContainerView: UIView {
 
     private func setupMessageLabel() {
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
-//        messageLabel.font = .preferredFont(forTextStyle: .body)
-//        messageLabel.font = UIFont(name: "OpenSans-wght", size: 8)
         messageLabel.font = UIFont(name: "SFProDisplay-Light", size: 16)
         messageLabel.textAlignment = .center
         messageLabel.textColor = .label
@@ -137,7 +135,6 @@ final class LoadingContainerView: UIView {
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progress = 0
         progressView.trackTintColor = UIColor.secondarySystemFill
-//        progressView.progressTintColor = UIColor.systemBlue
         progressView.progressTintColor = UIColor(named: "ubi4_active") ?? UIColor.systemBlue
         progressView.accessibilityIdentifier = "loading.progress"
         stackView.addArrangedSubview(progressView)

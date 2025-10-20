@@ -124,7 +124,9 @@ final class LoadingContainerView: UIView {
 
     private func setupMessageLabel() {
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.font = .preferredFont(forTextStyle: .body)
+//        messageLabel.font = .preferredFont(forTextStyle: .body)
+//        messageLabel.font = UIFont(name: "OpenSans-wght", size: 8)
+        messageLabel.font = UIFont(name: "SFProDisplay-Light", size: 16)
         messageLabel.textAlignment = .center
         messageLabel.textColor = .label
         messageLabel.numberOfLines = 0

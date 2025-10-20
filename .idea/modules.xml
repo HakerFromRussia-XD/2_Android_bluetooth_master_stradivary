@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/delegateadapter/2_Android_bluetooth_master_stradivary.delegateadapter.iml" filepath="$PROJECT_DIR$/.idea/modules/delegateadapter/2_Android_bluetooth_master_stradivary.delegateadapter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shared/2_Android_bluetooth_master_stradivary.shared.iml" filepath="$PROJECT_DIR$/.idea/modules/shared/2_Android_bluetooth_master_stradivary.shared.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/2_Android_bluetooth_master_stradivaryXcode.iml" filepath="$PROJECT_DIR$/.idea/2_Android_bluetooth_master_stradivaryXcode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iosApp/.idea/iosApp.2_Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/iosApp/.idea/iosApp.2_Android_bluetooth_master_stradivary.iml" />
     </modules>
   </component>
 </project>

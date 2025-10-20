@@ -31,7 +31,6 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
@@ -84,7 +83,6 @@ class PlotDelegateAdapter (
 
     private val responseReceived = AtomicBoolean(false)
 
-
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
         onDestroyParent { onDestroy() }
@@ -113,6 +111,7 @@ class PlotDelegateAdapter (
 
             }
         }
+
         Log.d("PlotDelegateAdapter", "parameterInfoSet size: ${parameterInfoSet.size}")
         parameterInfoSet.forEach {
             Log.d("PlotDelegateAdapter", "ParameterInfo: $it")

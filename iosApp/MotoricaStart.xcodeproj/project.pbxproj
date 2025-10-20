@@ -118,8 +118,7 @@
 		65588F9A2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
 		65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
 		65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 65588F9D2EA0E499005CF5BA /* Lottie */; };
-		65588FA32EA120A3005CF5BA /* cup_achievement.json in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA22EA120A3005CF5BA /* cup_achievement.json */; };
-		65588FA52EA124F2005CF5BA /* wrist_extend.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA42EA124F2005CF5BA /* wrist_extend.lottie */; };
+		65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA62EA6557C005CF5BA /* sinchronization.lottie */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -275,8 +274,7 @@
 		655830712DD61F7000744D5C /* GreetingKMMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingKMMTests.swift; sourceTree = "<group>"; };
 		65588F922E9CF31A005CF5BA /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
 		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
-		65588FA22EA120A3005CF5BA /* cup_achievement.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = cup_achievement.json; sourceTree = "<group>"; };
-		65588FA42EA124F2005CF5BA /* wrist_extend.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_extend.lottie; sourceTree = "<group>"; };
+		65588FA62EA6557C005CF5BA /* sinchronization.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = sinchronization.lottie; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -830,8 +828,7 @@
 		65588FA12EA1206D005CF5BA /* Animations */ = {
 			isa = PBXGroup;
 			children = (
-				65588FA22EA120A3005CF5BA /* cup_achievement.json */,
-				65588FA42EA124F2005CF5BA /* wrist_extend.lottie */,
+				65588FA62EA6557C005CF5BA /* sinchronization.lottie */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -1103,11 +1100,10 @@
 				6558303B2DBBAF4100744D5C /* inter.ttf in Resources */,
 				65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
-				65588FA52EA124F2005CF5BA /* wrist_extend.lottie in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
+				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
-				65588FA32EA120A3005CF5BA /* cup_achievement.json in Resources */,
 				1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

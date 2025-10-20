@@ -74,7 +74,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("[WIDGET_COORDINATOR] viewWillDisappear")
-        stopObservingWidgetUpdates()
+        if isSynchronizationCompleted {
+            stopObservingWidgetUpdates()
+        }
     }
     
     deinit {
@@ -83,30 +85,50 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private func startObservingWidgetUpdates() {
         print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
-        widgetsUpdateJob?.cancel(cause: nil)
-        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
-            guard let self = self, self.display == Int32(updatedDisplay) else { return }
-            self.reloadWidgetsFromShared()
-        }
-        
-        widgetsLoadingCompletionJob?.cancel(cause: nil)
-        widgetsLoadingCompletionJob = UiStateBridge.shared.observeWidgetsLoadCompletion { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleWidgetsLoadingCompletion()
+//        widgetsUpdateJob?.cancel(cause: nil)
+//        widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
+//            guard let self = self, self.display == Int32(updatedDisplay) else { return }
+//            self.reloadWidgetsFromShared()
+        if widgetsUpdateJob == nil {
+            widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
+                guard let self = self, self.display == Int32(updatedDisplay) else { return }
+                self.reloadWidgetsFromShared()
             }
         }
         
-        widgetsInitializationInfoJob?.cancel(cause: nil)
-        widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo { [weak self] info in
-            DispatchQueue.main.async {
-                self?.handleInitializationInfo(info)
+//        widgetsLoadingCompletionJob?.cancel(cause: nil)
+//        widgetsLoadingCompletionJob = UiStateBridge.shared.observeWidgetsLoadCompletion { [weak self] in
+//            DispatchQueue.main.async {
+//                self?.handleWidgetsLoadingCompletion()
+        if widgetsLoadingCompletionJob == nil {
+            widgetsLoadingCompletionJob = UiStateBridge.shared.observeWidgetsLoadCompletion { [weak self] in
+                DispatchQueue.main.async {
+                    self?.handleWidgetsLoadingCompletion()
+                }
+            }
+        }
+        
+//        widgetsInitializationInfoJob?.cancel(cause: nil)
+//        widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo { [weak self] info in
+//            DispatchQueue.main.async {
+//                self?.handleInitializationInfo(info)
+        if widgetsInitializationInfoJob == nil {
+            widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo { [weak self] info in
+                DispatchQueue.main.async {
+                    self?.handleInitializationInfo(info)
+                }
             }
         }
 
-        widgetsLoadingProgressJob?.cancel(cause: nil)
-        widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress { [weak self] progress in
-            DispatchQueue.main.async {
-                self?.handleWidgetsLoadingProgress(progress)
+//        widgetsLoadingProgressJob?.cancel(cause: nil)
+//        widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress { [weak self] progress in
+//            DispatchQueue.main.async {
+//                self?.handleWidgetsLoadingProgress(progress)
+        if widgetsLoadingProgressJob == nil {
+            widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress { [weak self] progress in
+                DispatchQueue.main.async {
+                    self?.handleWidgetsLoadingProgress(progress)
+                }
             }
         }
     }

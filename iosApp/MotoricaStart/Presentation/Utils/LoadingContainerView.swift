@@ -118,7 +118,7 @@ final class LoadingContainerView: UIView {
         stackView.addArrangedSubview(animationView)
 
         NSLayoutConstraint.activate([
-            animationView.heightAnchor.constraint(equalToConstant: 120)
+            animationView.heightAnchor.constraint(equalToConstant: 240)
         ])
     }
 

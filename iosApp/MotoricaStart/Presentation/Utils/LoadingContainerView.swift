@@ -67,7 +67,8 @@ final class LoadingContainerView: UIView {
     }
 
     private func setupView() {
-        backgroundColor = UIColor.black.withAlphaComponent(0.4)
+//        backgroundColor = UIColor.black.withAlphaComponent(0.0)
+        backgroundColor = UIColor(named: "ubi4_back") ?? UIColor(red: 42.0/255.0, green: 42.0/255.0, blue: 42.0/255.0, alpha: 1.0)
         translatesAutoresizingMaskIntoConstraints = true
         autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
@@ -80,7 +81,7 @@ final class LoadingContainerView: UIView {
 
     private func setupContentView() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.92)
+        contentView.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.0)
         contentView.layer.cornerRadius = 16
         contentView.layer.masksToBounds = true
         addSubview(contentView)
@@ -134,7 +135,8 @@ final class LoadingContainerView: UIView {
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progress = 0
         progressView.trackTintColor = UIColor.secondarySystemFill
-        progressView.progressTintColor = UIColor.systemBlue
+//        progressView.progressTintColor = UIColor.systemBlue
+        progressView.progressTintColor = UIColor(named: "ubi4_active") ?? UIColor.systemBlue
         progressView.accessibilityIdentifier = "loading.progress"
         stackView.addArrangedSubview(progressView)
     }

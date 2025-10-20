@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
+import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.WidgetsLoadingProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -25,5 +27,15 @@ object UiStateBridge {
     fun observeWidgetsLoadCompletion(callback: () -> Unit): Job =
         coroutineScope.launch {
             UiState.widgetsLoadingFlow.collect { callback() }
+        }
+
+    fun observeInitializationInfo(callback: (FullInicializeConnectionStruct) -> Unit): Job =
+        coroutineScope.launch {
+            UiState.initializationInfoFlow.collect { callback(it) }
+        }
+
+    fun observeWidgetsLoadingProgress(callback: (WidgetsLoadingProgress) -> Unit): Job =
+        coroutineScope.launch {
+            UiState.widgetsLoadingProgressFlow.collect { callback(it) }
         }
 }

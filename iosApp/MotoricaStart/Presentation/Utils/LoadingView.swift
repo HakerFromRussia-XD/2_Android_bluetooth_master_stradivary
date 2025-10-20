@@ -37,6 +37,7 @@ final class LoadingView {
             }
             
             container.frame = window.bounds
+            container.alpha = 1
             container.apply(state: state)
             container.startAnimation()
         }
@@ -46,10 +47,15 @@ final class LoadingView {
         DispatchQueue.main.async {
             guard let container = containerView else { return }
             container.stopAnimation()
-            container.removeFromSuperview()
-            containerView = nil
-            currentState = nil
-            stopObservingOrientationChanges()
+            UIView.animate(withDuration: 0.3, animations: {
+                container.alpha = 0
+            }, completion: { _ in
+                container.removeFromSuperview()
+                container.alpha = 1
+                containerView = nil
+                currentState = nil
+                stopObservingOrientationChanges()
+            })
         }
     }
 

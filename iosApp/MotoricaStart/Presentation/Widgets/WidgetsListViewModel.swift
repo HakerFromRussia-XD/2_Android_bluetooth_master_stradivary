@@ -74,7 +74,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
     let errorTitle = NSLocalizedString("Error", comment: "")
     let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")
-    private let fullScreenLoadingMessage = NSLocalizedString("Synchronizing widgets...", comment: "")
 
     // MARK: - Init
     init(
@@ -160,11 +159,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     
     private func publishFullScreenProgress(_ progress: Float) {
         guard case .some(.fullScreen(state: _)) = loading.value else { return }
-        loading.value = .fullScreen(state: makeFullScreenState(progress: progress))
-    }
-
-    private func makeFullScreenState(progress: Float) -> LoadingView.State {
-        LoadingView.State(message: fullScreenLoadingMessage, progress: progress)
     }
 
     private func handle(error: Error) {
@@ -175,7 +169,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
     private func update(widgetQuery: WidgetQuery) {
         resetPages()
-        load(widgetQuery: widgetQuery, loading: .fullScreen(state: makeFullScreenState(progress: 0)))
     }
     
     internal func requestInicializeInformation() {

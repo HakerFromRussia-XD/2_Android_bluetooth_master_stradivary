@@ -21,13 +21,17 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
     private var widgetsLoadingCompletionJob: Kotlinx_coroutines_coreJob?
+    private var widgetsInitializationInfoJob: Kotlinx_coroutines_coreJob?
+    private var widgetsLoadingProgressJob: Kotlinx_coroutines_coreJob?
     private static var globalSynchronizationCompleted = false
     private static var globalSynchronizationInProgress = false
     private var needsReloadAfterSynchronization = false
     private let defaultLoadingState = LoadingView.State(
-        message: NSLocalizedString("Synchronizing widgets...", comment: ""),
+        message: NSLocalizedString("Синхронизация данных...", comment: ""),
         progress: 0
     )
+    private var widgetsLoadingMax: Float = 0
+    private var currentLoadingMessage: String?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -91,6 +95,20 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 self?.handleWidgetsLoadingCompletion()
             }
         }
+        
+        widgetsInitializationInfoJob?.cancel(cause: nil)
+        widgetsInitializationInfoJob = UiStateBridge.shared.observeInitializationInfo { [weak self] info in
+            DispatchQueue.main.async {
+                self?.handleInitializationInfo(info)
+            }
+        }
+
+        widgetsLoadingProgressJob?.cancel(cause: nil)
+        widgetsLoadingProgressJob = UiStateBridge.shared.observeWidgetsLoadingProgress { [weak self] progress in
+            DispatchQueue.main.async {
+                self?.handleWidgetsLoadingProgress(progress)
+            }
+        }
     }
 
     private func stopObservingWidgetUpdates() {
@@ -99,6 +117,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         widgetsUpdateJob = nil
         widgetsLoadingCompletionJob?.cancel(cause: nil)
         widgetsLoadingCompletionJob = nil
+        widgetsInitializationInfoJob?.cancel(cause: nil)
+        widgetsInitializationInfoJob = nil
+        widgetsLoadingProgressJob?.cancel(cause: nil)
+        widgetsLoadingProgressJob = nil
     }
 
     private func reloadWidgetsFromShared() {
@@ -273,6 +295,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func handleWidgetsLoadingCompletion() {
         isSynchronizationCompleted = true
         isSynchronizationInProgress = false
+        widgetsLoadingMax = 0
+        currentLoadingMessage = nil
         LoadingView.hide()
         if needsReloadAfterSynchronization {
             widgetsTableViewController?.reload()
@@ -280,6 +304,27 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
         showWidgetsContent()
         print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
+    }
+    
+    
+    private func handleInitializationInfo(_ info: FullInicializeConnectionStruct) {
+        let totalSteps = info.parametrsNum * info.subDeviceNum
+        widgetsLoadingMax = totalSteps > 0 ? Float(totalSteps) : 0
+    }
+
+    private func handleWidgetsLoadingProgress(_ progress: WidgetsLoadingProgress) {
+        print("[BLE-PROGRESS] total = \(Int(progress.total)) current = \(Int(progress.current))")
+        let totalValue = Int(progress.total)
+        if totalValue > 0 {
+            widgetsLoadingMax = Float(totalValue)
+        }
+        guard widgetsLoadingMax > 0 else { return }
+
+        let currentValue = Int(progress.current)
+        let normalized = min(max(Float(currentValue) / widgetsLoadingMax, 0), 1)
+        let message = currentLoadingMessage ?? defaultLoadingState.message
+        currentLoadingMessage = message
+        LoadingView.show(state: LoadingView.State(message: message, progress: normalized))
     }
     
     private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
@@ -302,6 +347,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         if !isSynchronizationInProgress {
             isSynchronizationInProgress = true
         }
+        widgetsLoadingMax = 0
+        currentLoadingMessage = loadingState.message
         LoadingView.show(state: loadingState)
     }
 

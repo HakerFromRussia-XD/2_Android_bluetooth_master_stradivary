@@ -18,9 +18,12 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -66,6 +69,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMa
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -596,6 +600,10 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+        val progressTotal =
+            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
+        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
         bleManager.sendBytesKmm(
             BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
@@ -1453,7 +1461,17 @@ class BLEParser(
             }
         }
         if (canAdd) {
-            listWidgets.add(widget)
+//            listWidgets.add(widget)
+            val added = listWidgets.add(widget)
+            if (added) {
+                val total = widgetsLoadingProgressTotal
+                if (total > 0) {
+                    val current = listWidgets.size
+                    coroutineScope.launch {
+                        widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
+                    }
+                }
+            }
         }
     }
 

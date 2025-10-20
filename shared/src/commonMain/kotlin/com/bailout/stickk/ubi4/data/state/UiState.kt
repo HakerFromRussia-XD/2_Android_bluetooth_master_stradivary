@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.data.state
 
+import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.WidgetsLoadingProgress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
@@ -11,6 +13,9 @@ object UiState {
     var isMobileSettings by Delegates.notNull<Boolean>()
     var updateFlow by Delegates.notNull<MutableSharedFlow<Int>>()
     var widgetsLoadingFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
+    var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
+    var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
+    var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
 
@@ -22,6 +27,8 @@ object UiState {
         isMobileSettings = false
         updateFlow = MutableSharedFlow()
         widgetsLoadingFlow = MutableSharedFlow()
+        initializationInfoFlow = MutableSharedFlow(replay = 1)
+        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 1)
     }
 
     private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {

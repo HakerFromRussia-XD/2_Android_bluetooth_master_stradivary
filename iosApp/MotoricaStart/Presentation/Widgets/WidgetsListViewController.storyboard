@@ -416,15 +416,15 @@
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SwitchViewCell" id="xfd-98-2ll" customClass="SwitchViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="650" width="375" height="140"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SwitchViewCell" rowHeight="821" id="xfd-98-2ll" customClass="SwitchViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="650" width="375" height="821"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="xfd-98-2ll" translatesAutoresizingMaskIntoConstraints="NO" id="zqb-32-i9n" colorLabel="IBBuiltInLabel-Yellow">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="821"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CyI-NZ-UFg">
-                                            <rect key="frame" x="16" y="0.0" width="343" height="48"/>
+                                            <rect key="frame" x="16" y="0.0" width="343" height="729"/>
                                             <color key="backgroundColor" name="ubi4_gray"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="48" id="jqv-uf-kc2"/>
@@ -481,7 +481,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemPinkColor">
-            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.17647058823529413" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sync_dialog_container_cl"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Центровка контента -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        android:layout_gravity="center">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/sync_dialog_lottie_av"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/sinchronization"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/sync_dialog_message_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="Синхронизация данных..."
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/sync_dialog_lottie_av"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/sync_dialog_progress_pb"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="6dp"
+            android:layout_marginTop="16dp"
+            android:max="100"
+            android:progress="0"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:progressDrawable="@drawable/ubi4_progress_bar"
+            app:layout_constraintTop_toBottomOf="@id/sync_dialog_message_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

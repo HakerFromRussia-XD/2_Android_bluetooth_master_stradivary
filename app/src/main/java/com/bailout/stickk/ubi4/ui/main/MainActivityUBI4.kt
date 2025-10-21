@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -58,6 +59,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
+import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
@@ -113,6 +115,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private val bleManager = BleManagerKmm()
 
+    private lateinit var syncDialog: SyncProgressDialog
+    private var chromeHidden = false
+
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -122,6 +127,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        syncDialog = SyncProgressDialog(this, layoutInflater, this)
+        observeSyncProgress()
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
@@ -195,6 +202,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
+
 //        binding.runCommandBtn.setOnClickListener {
 //            toggleGestureModeLocal()
 //        }
@@ -248,6 +256,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun onDestroy() {
         super.onDestroy()
+        if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
     }
 
@@ -473,6 +482,35 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    private fun observeSyncProgress() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow.collect { p ->
+                    val total   = p.total.coerceAtLeast(1)
+                    val current = p.current.coerceAtMost(total)
+                    val percent = (current * 100 / total).coerceIn(0, 100)
+
+                    if (!syncDialog.isShowing && percent < 100) {
+                        syncDialog.show()
+                        if (!chromeHidden) {
+                            setChromeVisible(false)
+                            chromeHidden = true
+                        }
+                    }
+
+                    if (percent >= 100 && syncDialog.isShowing) {
+                        syncDialog.dismiss()
+                    }
+
+                    if (chromeHidden && percent >= 100) {
+                        setChromeVisible(true)
+                        chromeHidden = false
+                    }
+                }
+            }
+        }
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -487,6 +525,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     fun refreshBottomNavVisibility() {
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
+    }
+
+    private fun setChromeVisible(visible: Boolean) {
+        val v = if (visible) View.VISIBLE else View.GONE
+        binding.statusBar.visibility = v
+        binding.bottomNavigation.visibility = v
+        binding.dividerV.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     companion object {

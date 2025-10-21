@@ -284,9 +284,19 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
+        resetWidgetsStateForResynchronization()
         beginSynchronization(resetState: true, state: defaultLoadingState)
         viewModel.requestInicializeInformation()
         print("[handleWidgetsLoadingCompletion] bottomButtonTapped")
+    }
+    
+    
+    private func resetWidgetsStateForResynchronization() {
+        UiStateBridge.shared.resetWidgetsState()
+        PlotListItemViewModel.resetRequestCache()
+        SliderListItemViewModel.resetRequestCache()
+        viewModel.items.value = []
+        widgetsTableViewController?.reload()
     }
     
     private func setupViews() {

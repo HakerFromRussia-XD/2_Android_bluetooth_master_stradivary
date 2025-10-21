@@ -38,4 +38,11 @@ object UiStateBridge {
         coroutineScope.launch {
             UiState.widgetsLoadingProgressFlow.collect { callback(it) }
         }
+
+    fun resetWidgetsState() {
+        UiState.listWidgets.clear()
+        UiState.resetWidgetRequests()
+        UiState.widgetsLoadingProgressTotal = 0
+        UiState.labelCodesByOffset.clear()
+    }
 }

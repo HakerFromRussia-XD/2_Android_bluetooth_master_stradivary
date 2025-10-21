@@ -345,13 +345,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[handleWidgetsLoadingCompletion] COMPLETED!!!!")
     }
     
-    
     private func handleInitializationInfo(_ info: FullInicializeConnectionStruct) {
         let totalSteps = info.parametrsNum * info.subDeviceNum
         widgetsLoadingMax = totalSteps > 0 ? Float(totalSteps) : 0
     }
 
     private func handleWidgetsLoadingProgress(_ progress: WidgetsLoadingProgress) {
+        guard !isSynchronizationCompleted else { return }
+        guard isSynchronizationInProgress else { return }
         print("[BLE-PROGRESS] total = \(Int(progress.total)) current = \(Int(progress.current))")
         let totalValue = Int(progress.total)
         if totalValue > 0 {

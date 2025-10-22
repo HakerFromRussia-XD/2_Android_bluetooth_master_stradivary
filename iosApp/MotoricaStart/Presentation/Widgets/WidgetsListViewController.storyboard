@@ -383,15 +383,15 @@
                                     <outlet property="widgetSliderTitleLabel_2" destination="h1k-sr-2uQ" id="wdu-o2-YH8"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommandViewCell" id="VYe-Uv-Dac" customClass="CommandViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="510" width="375" height="140"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CommandViewCell" rowHeight="55" id="VYe-Uv-Dac" customClass="CommandViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="510" width="375" height="55"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="VYe-Uv-Dac" id="TXy-yj-u65" colorLabel="IBBuiltInLabel-Yellow">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="140"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="55"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5pv-CC-NOi">
-                                            <rect key="frame" x="16" y="0.0" width="343" height="140"/>
+                                        <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5pv-CC-NOi">
+                                            <rect key="frame" x="16" y="0.0" width="343" height="48"/>
                                             <color key="backgroundColor" name="ubi4_gray"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="48" id="nxK-Eb-x94"/>
@@ -416,18 +416,18 @@
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SwitchViewCell" rowHeight="821" id="xfd-98-2ll" customClass="SwitchViewCell" customModule="MotoricaStart" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="650" width="375" height="821"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SwitchViewCell" rowHeight="55" id="5vC-ag-lKI" customClass="SwitchViewCell" customModule="MotoricaStart" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="565" width="375" height="55"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="xfd-98-2ll" translatesAutoresizingMaskIntoConstraints="NO" id="zqb-32-i9n" colorLabel="IBBuiltInLabel-Yellow">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="821"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="5vC-ag-lKI" id="RWv-ZO-xBD" colorLabel="IBBuiltInLabel-Yellow">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="55"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CyI-NZ-UFg">
-                                            <rect key="frame" x="16" y="0.0" width="343" height="729"/>
+                                        <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gpc-jq-fPd">
+                                            <rect key="frame" x="16" y="0.0" width="343" height="48"/>
                                             <color key="backgroundColor" name="ubi4_gray"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="48" id="jqv-uf-kc2"/>
+                                                <constraint firstAttribute="height" constant="48" id="2KX-Fy-8U6"/>
                                             </constraints>
                                             <directionalEdgeInsets key="directionalLayoutMargins" top="8" leading="8" bottom="8" trailing="8"/>
                                             <state key="normal" title="Button"/>
@@ -442,10 +442,43 @@
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="gpc-jq-fPd" secondAttribute="trailing" constant="16" id="0p2-7G-MVj"/>
+                                    <constraint firstItem="gpc-jq-fPd" firstAttribute="top" secondItem="5vC-ag-lKI" secondAttribute="top" id="TMH-HP-RJX"/>
+                                    <constraint firstItem="gpc-jq-fPd" firstAttribute="leading" secondItem="5vC-ag-lKI" secondAttribute="leading" constant="16" id="Z8X-Lk-p6o"/>
+                                    <constraint firstAttribute="bottom" secondItem="gpc-jq-fPd" secondAttribute="bottom" id="pW4-KL-9xb"/>
+                                </constraints>
+                                <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="GesturesOpticViewCell" rowHeight="558" id="xfd-98-2ll" customClass="GesturesOpticViewCell">
+                                <rect key="frame" x="0.0" y="620" width="375" height="558"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="xfd-98-2ll" translatesAutoresizingMaskIntoConstraints="NO" id="zqb-32-i9n" colorLabel="IBBuiltInLabel-Yellow">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CyI-NZ-UFg">
+                                            <rect key="frame" x="16" y="0.0" width="343" height="539"/>
+                                            <color key="backgroundColor" name="ubi4_gray"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="320" id="5XZ-l0-0TU"/>
+                                            </constraints>
+                                            <directionalEdgeInsets key="directionalLayoutMargins" top="8" leading="8" bottom="8" trailing="8"/>
+                                            <state key="normal" title="Button"/>
+                                            <buttonConfiguration key="configuration" style="plain" title="GesturesOptic">
+                                                <fontDescription key="titleFontDescription" type="system" pointSize="29"/>
+                                                <color key="baseForegroundColor" red="0.096770918920000004" green="0.31838897109999997" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            </buttonConfiguration>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                <constraints>
                                     <constraint firstItem="CyI-NZ-UFg" firstAttribute="leading" secondItem="xfd-98-2ll" secondAttribute="leading" constant="16" id="FH4-Ka-B7c"/>
+                                    <constraint firstAttribute="bottom" secondItem="CyI-NZ-UFg" secondAttribute="bottom" id="Fzm-J0-P0v"/>
                                     <constraint firstItem="CyI-NZ-UFg" firstAttribute="top" secondItem="xfd-98-2ll" secondAttribute="top" id="cWC-Xe-5bV"/>
                                     <constraint firstAttribute="trailing" secondItem="CyI-NZ-UFg" secondAttribute="trailing" constant="16" id="gd6-vj-8NO"/>
-                                    <constraint firstAttribute="bottom" secondItem="CyI-NZ-UFg" secondAttribute="bottom" constant="92" id="lJb-tg-jNg"/>
                                 </constraints>
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                             </tableViewCell>

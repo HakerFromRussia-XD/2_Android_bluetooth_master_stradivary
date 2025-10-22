@@ -133,6 +133,9 @@
 		65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 65A2A0D02E6F1E2F00D57E7C /* DGCharts */; settings = {ATTRIBUTES = (Required, ); }; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
+		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
+		65BDBADB2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */; };
+		65BDBADC2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
@@ -287,6 +290,8 @@
 		65A069312E6EFD9500990F76 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
+		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
+		65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -701,6 +706,7 @@
 				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
 				652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */,
+				65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -938,6 +944,7 @@
 				1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */,
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
 				652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */,
+				65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1162,6 +1169,7 @@
 				65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */,
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
+				65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */,
 				65F27F0A2E69B19400AD5DFD /* CustomPlot.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */,
@@ -1203,6 +1211,7 @@
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
+				65BDBADB2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */,
 				65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
@@ -1271,6 +1280,7 @@
 				1F4102F5240BEE6A00EC014A /* UseCase.swift in Sources */,
 				1F474F2D22356C7F0092DB4B /* SearchWidgetsUseCase.swift in Sources */,
 				655830332DBBAE8F00744D5C /* ScanItem.swift in Sources */,
+				65BDBADC2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */,
 				1F9034C52306FF2D00DEA4BD /* NetworkService.swift in Sources */,
 				1F9034D32307161D00DEA4BD /* NetworkSessionManagerMock.swift in Sources */,
 				1FFF1C10243B9ABB00937EE4 /* PlotListItemViewModel.swift in Sources */,

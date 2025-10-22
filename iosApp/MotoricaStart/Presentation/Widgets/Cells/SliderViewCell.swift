@@ -6,7 +6,6 @@ import shared
 final class SliderViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:SliderViewCell.self)
     static let height = CGFloat(130)
-    private var widgetSliderInfo: WidgetSliderInfo?
     
     @IBOutlet private var widgetSliderTitleLabel: UILabel!
     @IBOutlet private var widgetSliderTitleLabel_2: UILabel!
@@ -140,48 +139,5 @@ final class SliderViewCell: UITableViewCell {
             KotlinInt(int: 0)
         ]
         viewModel.sendSliderProgress(progress: data)
-    }
-}
-
-
-final class WidgetSliderInfo {
-    var addressDevice: Int = 0
-    var parameterID: Int = 0
-    var dataOffset: [Int] = []
-    var minProgress: Int = 0
-    var maxProgress: Int = 0
-    var progress: [Int] = []
-    var widgetSlidersSb: [UIProgressView] = []
-    var widgetSliderNumTv: [UILabel] = []
-    var widgetPosition: Int = 0
-    var instanceId: Int = 0
-    var responseReceived: Bool = false
-    var loadingAnimators: [UIViewPropertyAnimator?] = []
-    
-    init(addressDevice: Int,
-         parameterID: Int,
-         dataOffset: [Int],
-         minProgress: Int,
-         maxProgress: Int,
-         progress: [Int],
-         widgetSlidersSb: [UIProgressView],
-         widgetSliderNumTv: [UILabel],
-         widgetPosition: Int,
-         instanceId: Int,
-         responseReceived: Bool,
-         loadingAnimators: [UIViewPropertyAnimator?]
-    ) {
-        self.addressDevice = addressDevice
-        self.parameterID = parameterID
-        self.dataOffset = dataOffset
-        self.minProgress = minProgress
-        self.maxProgress = maxProgress
-        self.progress = progress
-        self.widgetSlidersSb = widgetSlidersSb
-        self.widgetSliderNumTv = widgetSliderNumTv
-        self.widgetPosition = widgetPosition
-        self.instanceId = instanceId
-        self.responseReceived = responseReceived
-        self.loadingAnimators = loadingAnimators
     }
 }

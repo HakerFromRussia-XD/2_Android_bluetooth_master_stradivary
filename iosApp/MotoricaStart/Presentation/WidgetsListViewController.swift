@@ -275,6 +275,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         UiStateBridge.shared.resetWidgetsState()
         PlotListItemViewModel.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()
+        SwitchListItemViewModel.resetRequestCache()
         viewModel.items.value = []
         widgetsTableViewController?.reload()
     }

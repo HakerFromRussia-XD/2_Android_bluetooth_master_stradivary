@@ -8,6 +8,7 @@ import Foundation
 import shared
 
 struct SwitchListItemViewModel: Equatable, Hashable {
+    private static let requestTracker = RequestTracker()
     private let identifier: String
     let title: String
     let widget: Widget
@@ -23,6 +24,7 @@ extension SwitchListItemViewModel {
     }
     
     func requestSwitch() {
+        guard Self.requestTracker.shouldRequest(for: identifier) else { return }
         let data = BLECommands.shared.requestSwitcher(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(widget.parameterID)
@@ -76,5 +78,32 @@ extension SwitchListItemViewModel {
     static func == (lhs: SwitchListItemViewModel, rhs: SwitchListItemViewModel) -> Bool {
         lhs.identifier == rhs.identifier
         && lhs.title == rhs.title
+    }
+    static func resetRequestCache() {
+        requestTracker.reset()
+    }
+}
+
+private extension SwitchListItemViewModel {
+    final class RequestTracker {
+        private var requestedIdentifiers: Set<String> = []
+        private let lock = NSLock()
+
+        func shouldRequest(for identifier: String) -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+
+            let isNew = !requestedIdentifiers.contains(identifier)
+            if isNew {
+                requestedIdentifiers.insert(identifier)
+            }
+            return isNew
+        }
+
+        func reset() {
+            lock.lock()
+            requestedIdentifiers.removeAll()
+            lock.unlock()
+        }
     }
 }

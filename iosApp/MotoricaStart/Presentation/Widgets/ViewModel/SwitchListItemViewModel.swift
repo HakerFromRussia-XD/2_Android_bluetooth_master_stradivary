@@ -31,7 +31,7 @@ extension SwitchListItemViewModel {
         )
 
         sendBytes(data)
-        print("[request] requestSwitch")
+        print("[request] requestSwitch deviceAddress = \(Int32(widget.deviceAddress))   parameterID = \(Int32(widget.parameterID))")
     }
     func sendSwitchState(isOn: Bool) {
         let data = BLECommands.shared.sendSwitcherCommand(
@@ -59,6 +59,7 @@ extension SwitchListItemViewModel {
         let prefix = data.prefix(2)
         let value = Int(prefix, radix: 16) ?? 0
 
+        print("[request] requestSwitch value = \(value != 0)")
         return value != 0
     }
 

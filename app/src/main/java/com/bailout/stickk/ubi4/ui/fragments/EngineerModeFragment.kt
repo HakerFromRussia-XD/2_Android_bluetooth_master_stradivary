@@ -29,6 +29,10 @@ import com.bailout.stickk.ubi4.models.GestureItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import org.json.JSONObject
+import java.io.File
 
 class EngineerModeFragment : BaseWidgetsFragment() {
     private var dataCollectionDialog: Dialog? = null
@@ -36,6 +40,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     private var gesturesListDialog: Dialog? = null
     private val selectedGestures = mutableListOf<GestureItem>()
     private val onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+    private var configFile: File? = null
     private lateinit var gesturesAdapter: GesturesDragAdapter
     private lateinit var gesturesSelectionAdapter: GesturesSelectionAdapter
 
@@ -58,9 +63,36 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         }
     }
 
+    private fun startAuthAndDownloadPassport(onSuccess: () -> Unit) {
+        val sprFragment = SprTrainingFragment()
+
+        parentFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, sprFragment)
+            .hide(sprFragment)
+            .commit()
+
+        parentFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentViewCreated(fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?) {
+                if (f == sprFragment) {
+                    sprFragment.startAuthAndDownloadPassport {
+                        parentFragmentManager.beginTransaction()
+                            .remove(sprFragment)
+                            .commit()
+                        onSuccess()
+                    }
+                    parentFragmentManager.unregisterFragmentLifecycleCallbacks(this)
+                }
+            }
+        }, false)
+    }
+
     private fun showDataCollectionDialog() {
         if (dataCollectionDialog?.isShowing == true)
             return
+
+        startAuthAndDownloadPassport {
+            configFile = File(requireContext().getExternalFilesDir(null), "config.json")
+        }
 
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_data_collection_settings, null)
         val dialog = Dialog(requireContext())
@@ -188,13 +220,30 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogDataCollectionSettingsSaveBtn)
         saveBtn.setOnClickListener {
             val settings = collectDialogSettings(dialogBinding)
-//            saveDataCollectionSettings(settings)
+            saveDataCollectionSettings(settings)
             dialog.dismiss()
         }
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogDataCollectionSettingsCancelBtn)
         cancelBtn.setOnClickListener {
             dialog.dismiss()
+        }
+    }
+
+    private fun saveDataCollectionSettings(settings: DataCollectionSettings) {
+        if (configFile?.exists() == true) {
+            val json = JSONObject(configFile!!.readText())
+            json.put("N_CYCLES", settings.nCycles)
+            json.put("BASELINE_DURATION", settings.baselineDuration)
+            json.put("PRE_GEST_DURATION", settings.preGestDuration)
+            json.put("AT_GEST_DURATION", settings.atGestDuration)
+            json.put("POST_GEST_DURATION", settings.postGestDuration)
+            val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
+            val count = prefs.getInt("gestures_count", 0)
+            val gestures = (0 until count)
+                .mapNotNull { prefs.getString("gesture_${it}_name", null) }
+            json.put("gesture_sequence", org.json.JSONArray(gestures))
+            configFile!!.writeText(json.toString())
         }
     }
 

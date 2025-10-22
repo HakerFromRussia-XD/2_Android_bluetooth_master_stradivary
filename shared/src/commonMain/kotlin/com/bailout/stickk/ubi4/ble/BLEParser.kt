@@ -18,8 +18,11 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -618,9 +621,15 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+        listWidgets.clear()
         val progressTotal =
             fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
-        UiState.widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+        widgetsLoadingProgressFlow.tryEmit(
+            WidgetsLoadingProgress(widgetsLoadingProgressTotal, 0)
+        )
+//        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
 
 
@@ -1501,19 +1510,13 @@ class BLEParser(
                 }
             }
         }
-
         if (canAdd) {
             val added = listWidgets.add(widget)
             if (added) {
-                val total = UiState.widgetsLoadingProgressTotal
-                if (total > 0) {
-                    val current = listWidgets.size
-                    coroutineScope.launch {
-                        UiState.widgetsLoadingProgressFlow.emit(
-                            WidgetsLoadingProgress(total, current)
-                        )
-                    }
-                }
+                // мгновенный апдейт прогресса по формуле коллеги
+                val total = widgetsLoadingProgressTotal.coerceAtLeast(1)
+                val current = listWidgets.size.coerceAtMost(total)
+                widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(total, current))
             }
         }
         listWidgets.forEachIndexed { index, widget ->

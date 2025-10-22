@@ -138,6 +138,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         //TODO проверить
 //        setContentView(view)
+//        binding.bottomNavigation.post { binding.bottomNavigation.selectedItemId = R.id.page_2 }
         initAllVariables()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
@@ -482,6 +483,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+
     private fun observeSyncProgress() {
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
@@ -528,10 +530,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun setChromeVisible(visible: Boolean) {
-        val v = if (visible) View.VISIBLE else View.GONE
+        val v = if (visible) View.VISIBLE else View.INVISIBLE
         binding.statusBar.visibility = v
         binding.bottomNavigation.visibility = v
-        binding.dividerV.visibility = if (visible) View.VISIBLE else View.GONE
+        binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
     companion object {

@@ -21,17 +21,19 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
     private var pendingReturnItemId: Int? = null
     private var autoRedirectedToFallback = false
 
+
     private val prefs: SharedPreferences by lazy {
         bottomNavigation.context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
     }
 
     init {
+        bottomNavigation.isSaveEnabled = false
         val isSecretVisible = prefs.getBoolean(KEY_SECRET_ITEM_VISIBLE, false)
         bottomNavigation.menu.findItem(R.id.page_secret).isVisible = isSecretVisible
         setupOnClickPages(bottomNavigation)
         bottomNavigation.labelVisibilityMode = LABEL_VISIBILITY_LABELED
         // Стартовая вкладка:
-        safeSelect(R.id.page_2)
+        bottomNavigation.post { safeSelect(R.id.page_2) }
     }
 
     private fun setupOnClickPages(bottomNavigation: BottomNavigationView) {
@@ -87,6 +89,7 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
                 autoRedirectedToFallback = false
             }
         }
+
     }
 
     fun refresh(computeVisibleDisplays: () -> Set<Int>) {

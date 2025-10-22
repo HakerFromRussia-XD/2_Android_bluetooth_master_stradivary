@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -100,7 +101,6 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
-    private var totalParams = 0
 
 
 
@@ -618,11 +618,11 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+        val progressTotal =
+            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
+        UiState.widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
 
-        listWidgets.clear()
-        totalParams = 0
-        emitParamProgress()
 
         bleManager.sendBytesKmm(
             BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
@@ -744,10 +744,6 @@ class BLEParser(
         val parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
 
 
-        totalParams = baseSubDevicesInfoStructSet.sumOf { it.parametrsNum }
-        platformLog("SubDeviceInfoTest", "Суммарное количество параметров по всем сабдевайсам = $totalParams")
-        emitParamProgress()
-
         if (baseSubDevicesInfoStructSet.size != 0) {
             platformLog("getNextSubDevice", "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet")
             if (getNextSubDevice(subDeviceCounter) != -1) {
@@ -787,20 +783,18 @@ class BLEParser(
                 showToast("Нет сабдевайсов с параметрами")
             }
         } else {
-            totalParams = listWidgets.size
-            emitParamProgress()
             showToast("Сабдевайсов нет")
         }
 
     }
 
-    private fun emitParamProgress() {
-        coroutineScope.launch {
-            val total = totalParams.coerceAtLeast(1)
-            val current = listWidgets.size.coerceAtMost(total)
-            UiState.widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
-        }
-    }
+//    private fun emitParamProgress() {
+//        coroutineScope.launch {
+//            val total = totalParams.coerceAtLeast(1)
+//            val current = listWidgets.size.coerceAtMost(total)
+//            UiState.widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
+//        }
+//    }
 
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
         var _deviceAddress = 0
@@ -903,8 +897,6 @@ class BLEParser(
                 platformLog("SubDeviceAdditionalParameterss", "у сабдевайсов нет ни одного виджета")
                 platformLog("SubDeviceAdditionalParameterss", "конец запроса параметров сабдевайса")
                 subDeviceAdditionalCounter = 1
-                totalParams = listWidgets.size
-                emitParamProgress()
             } else {
                 platformLog("SubDeviceAdditionalParameterss", "запроса адишнл параметра")
                 bleCommandExecutor.bleCommandWithQueue(
@@ -988,9 +980,9 @@ class BLEParser(
             subDeviceAdditionalCounter++
         }
         else {
-            totalParams = listWidgets.size
-            emitParamProgress()
+
             bleCommandExecutor.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
         }
@@ -1509,9 +1501,20 @@ class BLEParser(
                 }
             }
         }
+
         if (canAdd) {
-            listWidgets.add(widget)
-            emitParamProgress()
+            val added = listWidgets.add(widget)
+            if (added) {
+                val total = UiState.widgetsLoadingProgressTotal
+                if (total > 0) {
+                    val current = listWidgets.size
+                    coroutineScope.launch {
+                        UiState.widgetsLoadingProgressFlow.emit(
+                            WidgetsLoadingProgress(total, current)
+                        )
+                    }
+                }
+            }
         }
         listWidgets.forEachIndexed { index, widget ->
            platformLog("WIDGET_LIST", "#$index → ${widget::class.simpleName}: $widget")

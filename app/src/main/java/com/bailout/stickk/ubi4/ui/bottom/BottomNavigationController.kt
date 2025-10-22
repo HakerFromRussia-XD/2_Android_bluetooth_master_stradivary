@@ -43,13 +43,13 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
             autoRedirectedToFallback = false
 
             when (item.itemId) {
-                R.id.page_1      -> { main.showOpticGesturesScreen();            true }
-                R.id.page_2      -> { main.showSensorsScreen();                   true }
-                R.id.page_3      -> { main.showOpticTrainingGesturesScreen();     true }
-                R.id.page_4      -> { main.showSpecialScreen();                   true }
-                R.id.page_secret -> { main.showSecretScreen();                    true }
-                else             -> false
+                R.id.page_1 -> { main.showOpticGesturesScreen(); return@setOnItemSelectedListener true }
+                R.id.page_2 -> { main.showSensorsScreen();         return@setOnItemSelectedListener true }
+                R.id.page_3 -> { main.showOpticTrainingGesturesScreen(); return@setOnItemSelectedListener true }
+                R.id.page_4 -> { main.showSpecialScreen();         return@setOnItemSelectedListener true }
+                R.id.page_secret -> { main.showSecretScreen();     return@setOnItemSelectedListener true }
             }
+            false
         }
     }
 

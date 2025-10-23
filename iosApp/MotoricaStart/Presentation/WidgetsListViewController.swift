@@ -264,9 +264,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
-        resetWidgetsStateForResynchronization()
-        beginSynchronization(resetState: true, state: defaultLoadingState)
-        viewModel.requestInicializeInformation()
+//        resetWidgetsStateForResynchronization()
+//        beginSynchronization(resetState: true, state: defaultLoadingState)
+//        viewModel.requestInicializeInformation()
+        viewModel.tetsRequest()
         print("[handleWidgetsLoadingCompletion] bottomButtonTapped")
     }
     

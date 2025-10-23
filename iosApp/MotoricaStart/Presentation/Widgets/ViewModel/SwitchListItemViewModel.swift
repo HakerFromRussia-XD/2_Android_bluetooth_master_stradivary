@@ -24,6 +24,7 @@ extension SwitchListItemViewModel {
     }
     
     func requestSwitch() {
+        guard cachedSwitchValue() == nil else { return }
         guard Self.requestTracker.shouldRequest(for: identifier) else { return }
         let data = BLECommands.shared.requestSwitcher(
             addressDevice: Int32(widget.deviceAddress),
@@ -39,7 +40,8 @@ extension SwitchListItemViewModel {
             parameterID: Int32(widget.parameterID),
             switchState: isOn
         )
-
+        
+        print("[request] SEND!!! requestSwitch deviceAddress = \(Int32(widget.deviceAddress))   parameterID = \(Int32(widget.parameterID))")
         sendBytes(data)
     }
 

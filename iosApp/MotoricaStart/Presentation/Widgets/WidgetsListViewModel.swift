@@ -29,6 +29,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
+    func tetsRequest()
     func queueHardTest()
 }
 
@@ -171,6 +172,19 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         resetPages()
     }
     
+    internal func tetsRequest() {
+        let data = BLECommands.shared.requestSwitcher(
+            addressDevice: 10,
+            parameterID: 0
+        )
+        
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {})
+    }
     internal func requestInicializeInformation() {
         let command = BLECommands.shared.requestInicializeInformation()
         command.debugPrint()

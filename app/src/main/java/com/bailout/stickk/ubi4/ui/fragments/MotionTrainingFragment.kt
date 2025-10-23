@@ -21,12 +21,11 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.config.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -243,7 +242,7 @@ class MotionTrainingFragment(
         learningStepTimer = Chronometer(requireContext())
 
         // Инициализация поставщика жестов
-        sprGestureItemsProvider = SprGestureItemsProvider(AndroidResourceProvider(requireContext()))
+        sprGestureItemsProvider = SprGestureItemsProvider(requireContext())
 
         // Обработка данных тренировки
         lineData = trainingDataProcessing()

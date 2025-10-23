@@ -17,10 +17,8 @@ import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.data.state.UiState.activeGestureFragmentFilterFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
@@ -37,8 +35,10 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
@@ -125,7 +125,6 @@ class GesturesOpticDelegateAdapter(
 
     private var borderAnimator: BorderAnimator? = null
 
-    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
 
 
@@ -418,6 +417,7 @@ class GesturesOpticDelegateAdapter(
         val gridLayoutManager = GridLayoutManager(root.context, 2)
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
+        sprGestureItemsProvider = SprGestureItemsProvider(root.context)
         selectedSprGesturesRv.adapter = adapter
         onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet))
 
@@ -587,8 +587,7 @@ class GesturesOpticDelegateAdapter(
                             setActiveGesture(getGestureViewById(activeGestureId))
                             val gestureName = when {
                                 activeGestureId == null -> "Unknown"
-                                activeGestureId < 63 -> collectionGesturesProvider
-                                    .getCollectionGestures()
+                                activeGestureId < 63 -> getCollectionGestures()
                                     .getOrNull(activeGestureId - 1)
                                     ?.gestureName ?: "Unknown"
                                 else -> gestureNameList.getOrNull(activeGestureId - 64) ?: "Unknown"
@@ -624,7 +623,7 @@ class GesturesOpticDelegateAdapter(
                         rotationGroupGestures.clear()
                         rotationGroupList.forEach { item ->
                             if (item.first != 0) {
-                                rotationGroupGestures.add(collectionGesturesProvider.getGesture(item.first))
+                                rotationGroupGestures.add(getGesture(item.first))
                             }
                         }
                         isRotationGroupResponseReceived = true
@@ -673,7 +672,7 @@ class GesturesOpticDelegateAdapter(
     private fun synchronizeRotationGroup() {
         rotationGroupGestures.clear()
         itemsGesturesRotationArray?.forEach {
-            rotationGroupGestures.add(collectionGesturesProvider.getGesture(it.second.split("™")[1].toInt()))
+            rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
         }
     }
 

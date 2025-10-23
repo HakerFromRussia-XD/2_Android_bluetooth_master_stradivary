@@ -33,10 +33,10 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.BorderAnimator
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
@@ -179,7 +179,6 @@ class GesturesOpticDelegateAdapter(
         _activeGestureNameCl = activeGestureNameCl
         _activeGestureNameTv = activeGestureNameTv
 
-        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(root.context))
 
         val savedHideState = main.getInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
         hideFactoryCollectionGestures = savedHideState == 1
@@ -315,8 +314,8 @@ class GesturesOpticDelegateAdapter(
 
             if (i <= 10) {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 1)) }
-                gestureCollectionTitle?.text = collectionGesturesProvider.getCollectionGestures()[i].gestureName
-                gestureCollectionImage?.setImageResource(collectionGesturesProvider.getCollectionGestures()[i].gestureImage)
+                gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
 
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
@@ -325,8 +324,8 @@ class GesturesOpticDelegateAdapter(
                 }
             } else {
                 gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i + 2)) }
-                gestureCollectionTitle?.text = collectionGesturesProvider.getCollectionGestures()[i + 1].gestureName
-                gestureCollectionImage?.setImageResource(collectionGesturesProvider.getCollectionGestures()[i + 1].gestureImage)
+                gestureCollectionTitle?.text = getCollectionGestures()[i + 1].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i + 1].gestureImage)
 
                 gestureCollectionBtn?.setOnClickListener {
                     setActiveGesture(gestureCollectionBtn)
@@ -420,7 +419,6 @@ class GesturesOpticDelegateAdapter(
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
         selectedSprGesturesRv.adapter = adapter
-        sprGestureItemsProvider = SprGestureItemsProvider(AndroidResourceProvider(root.context))
         onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet))
 
         mRotationGroupExplanationTv = rotationGroupExplanationTv

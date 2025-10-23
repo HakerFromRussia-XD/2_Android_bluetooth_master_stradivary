@@ -43,11 +43,11 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import java.io.File
 
@@ -58,9 +58,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
-    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
-        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
-    }
+
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
@@ -227,7 +225,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
         val sprGestureDialogList: ArrayList<SprDialogCollectionGestureItem> =
             ArrayList(
-                SprGestureItemsProvider(AndroidResourceProvider(requireContext())).getSprGestureItemList()
+                SprGestureItemsProvider(requireContext()).getSprGestureItemList()
                     .map { SprDialogCollectionGestureItem(it) })
 
         for (sprDialogCollectionGestureItem in sprGestureDialogList) {
@@ -312,7 +310,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         titleText.setText(R.string.assign_gesture)
 
         val collectionGestureDialogList: ArrayList<DialogCollectionGestureItem> = ArrayList(
-            collectionGesturesProvider.getCollectionGestures().map { gesture ->
+            getCollectionGestures().map { gesture ->
                 DialogCollectionGestureItem(
                     gesture = gesture,
                     check = (gesture.gestureId == bindingItem.second)

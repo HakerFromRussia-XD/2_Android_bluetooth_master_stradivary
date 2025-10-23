@@ -625,11 +625,12 @@ class BLEParser(
         val progressTotal =
             fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
         widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+
         widgetsLoadingProgressFlow.tryEmit(
             WidgetsLoadingProgress(widgetsLoadingProgressTotal, 0)
         )
-//        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
         coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
+        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
 
 
@@ -989,7 +990,6 @@ class BLEParser(
             subDeviceAdditionalCounter++
         }
         else {
-
             bleCommandExecutor.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
             coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1

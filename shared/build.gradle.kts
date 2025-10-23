@@ -10,6 +10,7 @@ plugins {
     id("app.cash.sqldelight") version "2.1.0"
 }
 
+
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
     compileSdk = 35

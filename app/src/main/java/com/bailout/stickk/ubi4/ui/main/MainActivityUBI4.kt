@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bailout.stickk.R
@@ -46,6 +47,7 @@ import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
@@ -79,6 +81,7 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -100,6 +103,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private var currentSerial: String? = null
 
+    private var syncShownOnce = false
+
 
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
@@ -118,6 +123,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var syncDialog: SyncProgressDialog
     private var chromeHidden = false
 
+    private var job: Job? = null
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -128,7 +134,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
-        observeSyncProgress()
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
@@ -140,6 +145,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        setContentView(view)
 //        binding.bottomNavigation.post { binding.bottomNavigation.selectedItemId = R.id.page_2 }
         initAllVariables()
+        observeSyncProgress()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
         refreshBottomNavVisibility()
@@ -171,12 +177,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 bluetoothLeService = null
             }
         }
-        showSensorsScreen()
-
 
 
         if (savedInstanceState == null) {
-//            showOpticGesturesScreen()
+            binding.bottomNavigation.selectedItemId = R.id.page_2
+            showSensorsScreen()
         }
 
 
@@ -201,7 +206,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             sendRunProgramTypeRequests()
             showAccountScreen()
         }
-
 
 
 //        binding.runCommandBtn.setOnClickListener {
@@ -257,6 +261,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun onDestroy() {
         super.onDestroy()
+        job?.cancel()
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
     }
@@ -395,6 +400,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
+
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
@@ -483,33 +489,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-
     private fun observeSyncProgress() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow.collect { p ->
-                    val total   = p.total.coerceAtLeast(1)
-                    val current = p.current.coerceAtMost(total)
-                    val percent = (current * 100 / total).coerceIn(0, 100)
-
-                    if (!syncDialog.isShowing && percent < 100) {
-                        syncDialog.show()
-                        if (!chromeHidden) {
-                            setChromeVisible(false)
-                            chromeHidden = true
-                        }
-                    }
-
-                    if (percent >= 100 && syncDialog.isShowing) {
-                        syncDialog.dismiss()
-                    }
-
-                    if (chromeHidden && percent >= 100) {
-                        setChromeVisible(true)
-                        chromeHidden = false
-                    }
-                }
-            }
+        syncDialog.observeSyncProgress { visible ->
+            setChromeVisible(visible)
         }
     }
 
@@ -518,13 +500,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
 
-
     private fun computeVisibleDisplays(): Set<Int> {
         val factory = DataFactory()
         return (0..4)
             .filter { display -> factory.prepareData(display).isNotEmpty() }
             .toSet()
     }
+
     fun refreshBottomNavVisibility() {
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
     }

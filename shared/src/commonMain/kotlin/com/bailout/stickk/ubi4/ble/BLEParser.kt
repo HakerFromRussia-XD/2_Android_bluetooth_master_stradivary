@@ -59,7 +59,6 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
@@ -512,7 +511,7 @@ class BLEParser(
 
             }
         }
-        persistParam(deviceAddress, parameterID, dataCode)
+//        persistParam(deviceAddress, parameterID, dataCode)
     }
 
 
@@ -1525,47 +1524,47 @@ class BLEParser(
 platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
 }
 
-    private fun persistParam(deviceAddr: Int, parameterId: Int, dataCode: Int) {
-        val p = ParameterProvider.getParameter(deviceAddr, parameterId)
-        val raw = p.data                      // hex без заголовка
-        val ts = getTimeMillis()
-
-        // пробегаем ВСЕ виджеты и их привязки (ParameterInfoSet)
-        listWidgets.forEach { w ->
-            val base = when (w) {
-                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
-                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
-                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                else -> null
-            } ?: return@forEach
-
-            base.parameterInfoSet
-                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
-                .forEach { info ->
-                    val b = hexByteAt(raw, info.dataOffset) ?: 0
-                    WidgetRepoProvider.get().upsertState(
-                        deviceAddr = deviceAddr,
-                        widgetId = base.widgetId,
-                        widgetCode = base.widgetCode,
-                        parameterId = parameterId,
-                        dataCode = dataCode,
-                        dataOffset = info.dataOffset,
-                        tsMs = ts,
-                        valueText = raw,       // кладём сырой hex для дебага
-                        valueI1 = b.toLong(),// быстрый байт по офсету
-                        valueI2 = null,
-                        valueI3 = null
-                    )
-                }
-        }
-    }
+//    private fun persistParam(deviceAddr: Int, parameterId: Int, dataCode: Int) {
+//        val p = ParameterProvider.getParameter(deviceAddr, parameterId)
+//        val raw = p.data                      // hex без заголовка
+//        val ts = getTimeMillis()
+//
+//        // пробегаем ВСЕ виджеты и их привязки (ParameterInfoSet)
+//        listWidgets.forEach { w ->
+//            val base = when (w) {
+//                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
+//                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
+//                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                else -> null
+//            } ?: return@forEach
+//
+//            base.parameterInfoSet
+//                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
+//                .forEach { info ->
+//                    val b = hexByteAt(raw, info.dataOffset) ?: 0
+//                    WidgetRepoProvider.get().upsertState(
+//                        deviceAddr = deviceAddr,
+//                        widgetId = base.widgetId,
+//                        widgetCode = base.widgetCode,
+//                        parameterId = parameterId,
+//                        dataCode = dataCode,
+//                        dataOffset = info.dataOffset,
+//                        tsMs = ts,
+//                        valueText = raw,       // кладём сырой hex для дебага
+//                        valueI1 = b.toLong(),// быстрый байт по офсету
+//                        valueI2 = null,
+//                        valueI3 = null
+//                    )
+//                }
+//        }
+//    }
 
     private fun hexByteAt(hex: String, byteOffset: Int): Int? {
         val i = byteOffset * 2

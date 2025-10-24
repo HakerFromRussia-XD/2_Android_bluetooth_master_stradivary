@@ -1,5 +1,5 @@
 import UIKit
-//import shared
+import shared
 
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     
@@ -14,6 +14,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var widgetsTableViewController: WidgetsListTableViewController?
     let storage = CoreDataWidgetsResponseStorage() 
 
+//    let text = SharedRes.strings().delay_state
     // MARK: - Lifecycle
 
     static func create(with viewModel: WidgetsListViewModel,posterImagesRepository: PosterImagesRepository?) -> WidgetsListViewController {

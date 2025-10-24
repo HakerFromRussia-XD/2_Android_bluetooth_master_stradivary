@@ -39,6 +39,7 @@ class SelectedGesturesAdapter(
         return selectedGesturesList.size
     }
 
+
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
         //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)

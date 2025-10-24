@@ -34,6 +34,8 @@ class TrainingFragmentDelegateAdapter(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
         // 1) сразу подписываемся на прогресс и состояние

@@ -17,46 +17,37 @@ import androidx.multidex.MultiDexApplication
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
 import com.bailout.stickk.ubi4.AndroidContextProvider
-import com.bailout.stickk.ubi4.db.Ubi4Db
-import com.bailout.stickk.ubi4.db.createDb
-import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
-import com.bailout.stickk.ubi4.persistence.WidgetStateRepository
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
 
 class WDApplication : MultiDexApplication() {
   private var bluetoothModule: BluetoothModule? = null
-  lateinit var db: Ubi4Db
-    private set
-  lateinit var widgetRepo: WidgetStateRepository
-    private set
+
 
   override fun onCreate() {
     super.onCreate()
     app = this
     instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()
-        .applicationModule(ApplicationModule1(this))
-        .build()
+      .applicationModule(ApplicationModule1(this))
+      .build()
     bluetoothModule = BluetoothModule(this)
     AndroidContextProvider.init(applicationContext)
-
-    db = createDb(this)
-    widgetRepo = WidgetStateRepository(db)
-
-    // Глобально доступно для shared-кода (в т.ч. BLEParser)
-    WidgetRepoProvider.init(widgetRepo)
   }
 
   companion object {
     var app: WDApplication? = null
     lateinit var component: ApplicationComponent
+
     @JvmStatic
     lateinit var instance: WDApplication
     fun applicationContext() = instance.applicationContext!!
+
     @JvmStatic
-    fun app(): WDApplication? { return app }
+    fun app(): WDApplication? {
+      return app
+    }
   }
 
   @Singleton

@@ -1653,6 +1653,7 @@
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
+					"-lsqlite3",
 				);
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1712,6 +1713,7 @@
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
+					"-lsqlite3",
 				);
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

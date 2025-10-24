@@ -74,7 +74,7 @@ final class SwitchViewCell: UITableViewCell {
     private func updateUI(_ ref: ParameterRef, viewModel: SwitchListItemViewModel) {
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
-        print("[request] requestSwitch deviceAddress = \(ref.addressDevice) parameterID = \(ref.parameterID )")
+//        print("[request] requestSwitch deviceAddress = \(ref.addressDevice) parameterID = \(ref.parameterID )")
         
         let parameter = ParameterProvider.Companion().getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         

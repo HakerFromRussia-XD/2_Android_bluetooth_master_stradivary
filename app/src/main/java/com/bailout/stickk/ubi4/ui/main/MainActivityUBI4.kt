@@ -129,6 +129,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var bottomNavigationController: BottomNavigationController
 
 
+
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -95,7 +95,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
-                
+
                 // ---- MOKO resources ----
                 api("dev.icerock.moko:resources:0.25.1")
                 api("dev.icerock.moko:graphics:0.9.0")

@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 
+
 class SliderDelegateAdapter(
     val onSetProgress: (addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
@@ -51,7 +52,7 @@ class SliderDelegateAdapter(
 
     private var collectJob: kotlinx.coroutines.Job? = null
 
-    val s = SharedRes.strings.gesture_ok
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {

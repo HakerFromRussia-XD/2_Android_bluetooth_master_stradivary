@@ -37,6 +37,7 @@ final class SwitchViewCell: UITableViewCell {
         )
         self.provider = provider
         cancellable?.cancel()
+        isProgrammaticUpdate = true
         cancellable = provider.$isOn
             .dropFirst()
             .removeDuplicates()
@@ -84,15 +85,17 @@ final class SwitchViewCell: UITableViewCell {
             guard let self else { return }
             guard self.provider?.isOn != isOn else { return }
             self.isProgrammaticUpdate = true
+            defer { self.isProgrammaticUpdate = false }
             self.provider?.isOn = isOn
-            self.isProgrammaticUpdate = false
         }
     }
 }
     
 private extension SwitchViewCell {
     func handleSwitchChange(isOn: Bool) {
-        guard !isProgrammaticUpdate else { return }
+        let isProgrammatic = isProgrammaticUpdate
+        isProgrammaticUpdate = false
+        guard !isProgrammatic else { return }
         viewModel.sendSwitchState(isOn: isOn)
     }
 }

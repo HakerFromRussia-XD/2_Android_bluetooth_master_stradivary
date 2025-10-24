@@ -25,8 +25,6 @@ extension SwitchListItemViewModel {
     }
     
     func requestSwitch() {
-//        guard cachedSwitchValue() == nil else { return }
-//        guard Self.requestTracker.shouldRequest(for: identifier) else { return }
         let cachedValue = cachedSwitchValue()
         print("[SWITCH][request] identifier=\(identifier) cachedValue=\(String(describing: cachedValue))")
         guard cachedValue == nil else {
@@ -65,14 +63,11 @@ extension SwitchListItemViewModel {
         
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: Int32(widget.deviceAddress), parameterID: Int32(widget.parameterID))
-
-//        guard parameter.firstReceiveDataFlag == false else { return nil }
         guard parameter.firstReceiveDataFlag == false else {
             print("[SWITCH][cache] identifier=\(identifier) firstReceiveDataFlag still true, no cached data")
             return nil
         }
 
-//        return switchValue(from: parameter)
         let value = switchValue(from: parameter)
         if let value {
             cacheSwitchValue(value)

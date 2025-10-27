@@ -53,6 +53,7 @@ class SliderDelegateAdapter(
     private var collectJob: kotlinx.coroutines.Job? = null
 
 
+    val text = SharedRes.strings.helloWorld
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {

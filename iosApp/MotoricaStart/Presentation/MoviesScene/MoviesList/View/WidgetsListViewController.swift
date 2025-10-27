@@ -14,7 +14,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var widgetsTableViewController: WidgetsListTableViewController?
     let storage = CoreDataWidgetsResponseStorage() 
 
-//    let text = SharedRes.strings().delay_state
+    let text = SharedRes.strings().delay_state
+    let images = SharedRes.images().collection_ok
     // MARK: - Lifecycle
 
     static func create(with viewModel: WidgetsListViewModel,posterImagesRepository: PosterImagesRepository?) -> WidgetsListViewController {

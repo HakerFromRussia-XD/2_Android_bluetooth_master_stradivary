@@ -20,9 +20,13 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
-    android.sourceSets.named("main") {
+    sourceSets.named("main") {
         java.srcDirs("src/androidMain/java")
-
+        res.srcDirs(
+            "src/androidMain/res",
+            "build/generated/moko/androidMain/res",
+            "build/generated/moko-resources/androidMain/res"
+        )
     }
 
     buildTypes {
@@ -43,6 +47,9 @@ android {
         jvmToolchain(17)
     }
 }
+tasks.named("preBuild").configure {
+    dependsOn("generateMRandroidMain")
+}
 
 kotlin {
     androidTarget()
@@ -54,7 +61,6 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "shared"
-            isStatic = true
             freeCompilerArgs = listOf("-Xbinary=bundleId=com.example.shared")
             export("dev.icerock.moko:resources:0.25.1")
 //            export("dev.icerock.moko:graphics:0.9.0")

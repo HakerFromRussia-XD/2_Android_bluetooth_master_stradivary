@@ -107,7 +107,7 @@ final class WidgetSwitchInfo {
 
     
     init(addressDevice: Int,
-         parameterID: Int,
+         parameterID: Int
     ) {
         self.addressDevice = addressDevice
         self.parameterID = parameterID

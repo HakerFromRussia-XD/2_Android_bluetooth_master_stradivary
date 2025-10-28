@@ -12,9 +12,6 @@ final class WidgetDetailsViewController: UIViewController, StoryboardInstantiabl
         return view
     }
     
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()

@@ -7,7 +7,6 @@
 import UIKit
 import Combine
 import Foundation
-import shared
 
 final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
@@ -17,8 +16,6 @@ final class BluetoothListViewController: UIViewController {
         let control = CustomSegmentedControl(items: items)
         return control
     }()
-    
-    
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Нажми меня", for: .normal)
@@ -44,11 +41,11 @@ final class BluetoothListViewController: UIViewController {
     required init?(coder: NSCoder) { fatalError("Use init(coder:viewModel:)") }
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
         title = "BLE Devices"
         // Скрываем навигационную панель (верхнюю строку)
         navigationController?.navigationBar.isHidden = true
+        
         // настройка внешнего вида списка фильтра устройств
         let segmentContainer = UIView()
         segmentContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -128,8 +125,6 @@ final class BluetoothListViewController: UIViewController {
             bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
-    
-        
         let titleTextAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? UIColor.white]
         UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes, for: .normal)
         let titleTextAttributes2: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_white") ?? UIColor.black]
@@ -183,8 +178,6 @@ final class BluetoothListViewController: UIViewController {
         print("[BLE-CONNECT] Bottom button tapped")
         viewModel.sendBytes()
     }
-    
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         if let backgroundColor = UIColor(named: "ubi4_back") {
@@ -192,36 +185,6 @@ final class BluetoothListViewController: UIViewController {
         }
     }
 
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        
-//        if let backgroundColor = UIColor(named: "ubi4_back") {
-//            containerView.backgroundColor = backgroundColor
-//        }
-//
-//        // --- добавляем только один раз ---
-//        if view.viewWithTag(999) == nil {
-//            let iv = UIImageView(image: SharedRes.images().collection_thumb_up.toUIImage())
-//            iv.contentMode = .scaleAspectFit
-//            iv.frame.size = CGSize(width: 200, height: 200)
-//            iv.center = view.center
-//            iv.tag = 999
-//            view.addSubview(iv)
-//
-//            let text = SharedRes.strings().helloWorld.desc().localized()
-//            let label = UILabel(frame: CGRect(
-//                x: 0,
-//                y: iv.frame.maxY + 16,
-//                width: view.bounds.width,
-//                height: 30
-//            ))
-//            label.text = text
-//            label.textAlignment = .center
-//            label.tag = 1000
-//            view.addSubview(label)
-//        }
-//    }
-        
     func updateConstraints() {
         tableHeightConstraint.constant = tableViewDevices.contentSize.height
         UIView.animate(withDuration: 0.33,

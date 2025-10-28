@@ -56,7 +56,7 @@ struct SliderRowView: View {
         self._provider = ObservedObject(wrappedValue: provider)
         self.onFirstSliderEditingEnded = onFirstSliderEditingEnded
         self.onSecondSliderEditingEnded = onSecondSliderEditingEnded
-
+        
         // если не установлены на стороне стека, то устанавливаем по дефолту
         if (provider.maxProgress == provider.minProgress ) {
             provider.minProgress = 0
@@ -179,3 +179,4 @@ struct SliderRowView: View {
         }
     }
 }
+

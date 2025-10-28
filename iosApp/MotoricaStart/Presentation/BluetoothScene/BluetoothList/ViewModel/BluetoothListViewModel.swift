@@ -51,8 +51,6 @@ final class BluetoothListViewModel {
             .store(in: &cancellables)
     }
     
-//    let title = Strings().get(id: ShareRes.strings.)
-    
     func onAppear() {
         print("BLE-CONNECT onAppear")
         bleManager.startScanKmm { [weak self] bleDevice in

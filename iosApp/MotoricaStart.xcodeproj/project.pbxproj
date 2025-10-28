@@ -295,18 +295,8 @@
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0D907A702E5C957600A55863 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				PreviewHostApp.swift,
-			);
-			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0D907A5A2E5C88E300A55863 /* PreviewHost */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (0D907A702E5C957600A55863 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PreviewHost; sourceTree = "<group>"; };
+		0D907A5A2E5C88E300A55863 /* PreviewHost */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PreviewHost; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */

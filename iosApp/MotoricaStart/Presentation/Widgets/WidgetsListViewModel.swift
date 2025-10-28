@@ -29,7 +29,6 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
-    func queueHardTest()
 }
 
 protocol WidgetsListViewModelOutput {
@@ -109,6 +108,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
                 case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
                 case .switchWidget: return ListItemType.switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
+                case .gestureOpticWidget: return ListItemType.gestureOptic(GestureOpticListItemViewModel(widget: widget, bleManager: bleManager))
                 @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }
@@ -183,77 +183,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             onChunkSent: {}
         )
     }
-    internal func queueHardTest() {
-        let command = BLECommands.shared.requestSlider(
-            addressDevice: 6,
-            parameterID: 3
-        )
-        let command2 = BLECommands.shared.requestSlider(
-            addressDevice: 6,
-            parameterID: 1
-        )
-        
-        bleManager.sendBytesKmm(
-            data: command,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command2,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command2,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command2,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command2,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: command2,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-    }
 }
 
 extension KotlinByteArray {
@@ -278,6 +207,7 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case plot(PlotListItemViewModel)
     case slider(SliderListItemViewModel)
     case `switch`(SwitchListItemViewModel)
+    case gestureOptic(GestureOpticListItemViewModel)
 }
 // MARK: - INPUT. View event methods
 

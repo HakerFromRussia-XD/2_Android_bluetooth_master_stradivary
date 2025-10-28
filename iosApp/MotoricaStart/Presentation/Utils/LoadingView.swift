@@ -13,7 +13,7 @@ final class LoadingView {
     private static var containerView: LoadingContainerView?
     private static var currentState: State?
     private static var isObservingOrientationChanges = false
-    private static let animationName = "wrist_extend"
+    private static let animationName = "sinchronization"
 
     static func show(state: State) {
         DispatchQueue.main.async {

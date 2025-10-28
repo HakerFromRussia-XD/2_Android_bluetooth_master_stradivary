@@ -265,5 +265,4 @@ data class WidgetSwitchInfo (
     var isChecked: Boolean = false,
     var widgetSwitch: Switch,
     var isMobileSettings: Boolean = false
-    //TODO добавить информацию - чей виджет? наш/не наш
 )

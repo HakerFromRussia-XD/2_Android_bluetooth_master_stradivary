@@ -18,6 +18,7 @@ extension CommandListItemViewModel {
     
     func didPressDown() {
         let command = widget.commandUnified?.pressedCommand ?? 0
+        print("[BLE_COMMAND] \(command) send")
         
         let data = BLECommands.shared.sendOneButtonCommand(
             addressDevice: Int32(widget.deviceAddress),

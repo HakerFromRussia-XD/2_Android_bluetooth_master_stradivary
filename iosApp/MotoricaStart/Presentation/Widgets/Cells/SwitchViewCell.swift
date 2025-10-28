@@ -37,7 +37,9 @@ final class SwitchViewCell: UITableViewCell {
         )
         self.provider = provider
         cancellable?.cancel()
+        isProgrammaticUpdate = true
         cancellable = provider.$isOn
+            .dropFirst()
             .removeDuplicates()
             .sink { [weak self] isOn in
                 self?.handleSwitchChange(isOn: isOn)
@@ -74,8 +76,7 @@ final class SwitchViewCell: UITableViewCell {
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
         
-        let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+        let parameter = ParameterProvider.Companion().getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         
         guard let isOn = viewModel.switchValue(from: parameter) else { return }
         
@@ -83,15 +84,17 @@ final class SwitchViewCell: UITableViewCell {
             guard let self else { return }
             guard self.provider?.isOn != isOn else { return }
             self.isProgrammaticUpdate = true
+            defer { self.isProgrammaticUpdate = false }
             self.provider?.isOn = isOn
-            self.isProgrammaticUpdate = false
         }
     }
 }
     
 private extension SwitchViewCell {
     func handleSwitchChange(isOn: Bool) {
-        guard !isProgrammaticUpdate else { return }
+        let isProgrammatic = isProgrammaticUpdate
+        isProgrammaticUpdate = false
+        guard !isProgrammatic else { return }
         viewModel.sendSwitchState(isOn: isOn)
     }
 }

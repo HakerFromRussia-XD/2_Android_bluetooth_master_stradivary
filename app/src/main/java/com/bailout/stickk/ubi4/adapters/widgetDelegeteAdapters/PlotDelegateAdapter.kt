@@ -29,8 +29,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
@@ -135,14 +135,13 @@ class PlotDelegateAdapter (
             )
         )
 
-//        Log.d("PlotDelegateAdapter", "deviceAddress = $addressDeviceThreshold")
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
-                Log.d("PlotDelegateAdapter", "type = ${PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                Log.d("PlotDelegateAdapter", "type = ${PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                     it.deviceAddress,
                     it.parameterID
                 ).type]}")
-                if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                if (PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
                     ).type].sizeOf != 0
@@ -150,7 +149,7 @@ class PlotDelegateAdapter (
                     numberOfCharts = ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
-                    ).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
+                    ).parameterDataSize / PreferenceKeysUbi4.ParameterTypeEnum.entries[ParameterProvider.getParameter(
                         it.deviceAddress,
                         it.parameterID
                     ).type].sizeOf
@@ -264,7 +263,6 @@ class PlotDelegateAdapter (
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
     private fun plotArrayFlowCollect() {
-        platformLog("Test_PLOT", "plotArrayFlowCollect Run")
         scope?.launch(Dispatchers.IO) {
             try {
                 System.err.println("plotArrayFlowCollectttttt")
@@ -280,11 +278,9 @@ class PlotDelegateAdapter (
                             System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} ")
                             if (plotParameterRef.dataPlots.size >= 1) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens1 = plotParameterRef.dataPlots[0]
-                                platformLog("Test_PLOT", " sencse 1 =${plotParameterRef.dataPlots[0]}")
                             } // нулевой всегда датчик открытия
                             if (plotParameterRef.dataPlots.size >= 2) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens2 = plotParameterRef.dataPlots[1]
-                                platformLog("Test_PLOT", " sencse 2 =${plotParameterRef.dataPlots[1]}")
                             } // первый всегда датчик закрытия
                             if (plotParameterRef.dataPlots.size >= 3) {
                                 widgetPlotsInfo[indexWidgetPlot].dataSens3 = plotParameterRef.dataPlots[2]
@@ -310,7 +306,7 @@ class PlotDelegateAdapter (
                         val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
                         if (idx == -1) return@map
                         // на случай, если после мерджа появился новый threshold-параметр
-                        val firstThresholdRef = firstThresholdRefFrom(widgetPlotsInfo[idx].addressDeviceSet)
+                        val firstThresholdRef = firstThresholdRefFrom(widgetPlotsInfo[idx].parameterInfoSet)
                         if (firstThresholdRef != null && requestedThresholdRefs.add(firstThresholdRef)) {
                             val (addr, pid) = firstThresholdRef
                             responseReceived.set(false)
@@ -332,7 +328,7 @@ class PlotDelegateAdapter (
                                     ParameterRef(
                                         addr,
                                         pid,
-                                        PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                                        PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
                                     )
                                 )
                             }
@@ -654,10 +650,8 @@ class PlotDelegateAdapter (
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
-            widgetPlotInfo.addressDeviceSet.forEach {
-                if (it.deviceAddress == addressDevice && it.parameterID == parameterID) {
-                    return index
-                }
+            if (widgetPlotInfo.parameterInfoSet.any { it.deviceAddress == addressDevice && it.parameterID == parameterID }) {
+                return index
             }
         }
         return -1
@@ -715,7 +709,7 @@ class PlotDelegateAdapter (
     }
 
     private fun firstThresholdRefFrom(set: Set<ParameterInfo<Int, Int, Int, Int>>): Pair<Int, Int>? {
-        return set.firstOrNull { it.dataCode == PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
+        return set.firstOrNull { it.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
             ?.let { it.deviceAddress to it.parameterID }
     }
 
@@ -730,11 +724,11 @@ class PlotDelegateAdapter (
 
     private fun requestThresholdsOnce() {
         val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
-            PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+            PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
             parameterInfoSet
         )
         val pid = ParameterInfoProvider.getParameterIDByCode(
-            PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
+            PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
             parameterInfoSet
         )
 
@@ -758,7 +752,7 @@ class PlotDelegateAdapter (
                 ParameterRef(
                     addr,
                     pid,
-                    PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
                 )
             )
         }
@@ -768,7 +762,7 @@ class PlotDelegateAdapter (
 
 
 data class WidgetPlotInfo (
-    var addressDeviceSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),
+    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(),
     var openThreshold: Int = 0,
     var closeThreshold: Int = 0,
     var threshold3: Int = 0,

@@ -3,7 +3,7 @@ package com.bailout.stickk.ubi4.utility
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GestureEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GestureEnum
 import com.bailout.stickk.ubi4.shared.SharedRes
 
 class CollectionGesturesProvider() {

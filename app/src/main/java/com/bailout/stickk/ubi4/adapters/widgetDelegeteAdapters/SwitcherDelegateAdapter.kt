@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Switch
-import android.widget.Toast
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -20,8 +19,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSS
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -156,7 +155,7 @@ class SwitcherDelegateAdapter(
     private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION, switch.isChecked) }
+                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, switch.isChecked) }
             }
         }
     }

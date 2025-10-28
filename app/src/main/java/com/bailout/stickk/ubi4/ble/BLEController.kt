@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
@@ -317,6 +318,7 @@ private fun parseReceivedData(data: ByteArray?) {
     }
 
     private suspend fun reconnect() {
+        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
         withContext(Dispatchers.IO) {
             try {
                 mContext.unbindService(mServiceConnection)
@@ -330,10 +332,13 @@ private fun parseReceivedData(data: ByteArray?) {
             mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         }
 
+        // На главном потоке регистрируем ресивер (если требуется)
         withContext(Dispatchers.Main) {
             try {
+                // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
                 mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
             } catch (e: IllegalArgumentException) {
+                // Если уже зарегистрирован, игнорируем
                 Log.w("BLEController", "Ресивер уже зарегистрирован")
             }
             mBluetoothLeService?.connect(connectedDeviceAddress)
@@ -353,6 +358,7 @@ private fun parseReceivedData(data: ByteArray?) {
             withContext(Dispatchers.Main) {
                 mConnected = false
                 listWidgets.clear()
+                UiState.resetWidgetRequests()
                 main.openScanActivity()
             }
         }
@@ -402,7 +408,7 @@ private fun parseReceivedData(data: ByteArray?) {
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
                 Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid}")
-                if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
+                if(mGattCharacteristics[i][j].uuid.toString().equals(uuid, ignoreCase = true)){
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {

@@ -14,13 +14,17 @@ final class BluetoothListViewModel {
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
     private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
-    private let bleManager = BleManagerKmm()
+    let bleManager : BleManagerKmm
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository
     private var cancellables = Set<AnyCancellable>()
     
-    init(repository: BluetoothRepository = BluetoothRepositoryImpl()) {
+    init(
+        bleManager: BleManagerKmm,
+        repository: BluetoothRepository = BluetoothRepositoryImpl()
+    ) {
+        self.bleManager = bleManager
         self.repository = repository
         // При инициализации читаем сохранённый фильтр
         selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
@@ -110,60 +114,6 @@ final class BluetoothListViewModel {
         let u8: [UInt8] = [0x40, 0x88, 0x00, 0x01, 0x00, 0x00, 0x06, 0x03]
         let kb = KotlinByteArray(u8)
 
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
-        bleManager.sendBytesKmm(
-            data: kb,
-            command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: Constants.WRITE,
-            onChunkSent: {}
-        )
         bleManager.sendBytesKmm(
             data: kb,
             command: Constants.MAIN_CHANNEL_CHARACTERISTIC,

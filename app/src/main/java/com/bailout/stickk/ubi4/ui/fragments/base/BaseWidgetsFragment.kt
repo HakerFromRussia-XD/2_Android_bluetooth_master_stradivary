@@ -38,10 +38,10 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
@@ -469,12 +469,12 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     //Others fun
     private fun loadGestureNameList() {
-        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)
+        val macKey = navigator().getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4)
         gestureNameList.clear()
-        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
-            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+        for (i in 0 until PreferenceKeysUbi4.NUM_GESTURES) {
+            System.err.println("loadGestureNameList: " + PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(
-                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+                navigator().getString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             )
         }
     }

@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.KEY_SECRET_ITEM_VISIBLE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.KEY_SECRET_ITEM_VISIBLE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.NAME
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomnavigation.LabelVisibilityMode

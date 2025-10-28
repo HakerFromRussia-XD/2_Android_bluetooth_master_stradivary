@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -45,7 +45,7 @@ class SplashScreen : AppCompatActivity() {
 
         backgroundRl = findViewById(R.id.background_rl)
         mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED) == true) {
+        if (loadBool(PreferenceKeysUbi4.UBI4_MODE_ACTIVATED) == true) {
             window.statusBarColor = this.resources.getColor(R.color.color_primary, theme)
             runOnUiThread {
                 backgroundRl!!.setBackgroundColor(this.getColor(R.color.color_primary))

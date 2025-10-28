@@ -32,7 +32,7 @@ import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.models.user.Manager
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -116,7 +116,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         System.err.println("AccountFragmentMainUBI4: onViewCreated")
         super.onViewCreated(view, savedInstanceState)
-        mSettings = mContext?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
         myRequests = Ubi4RequestsApi()
         encryptionManager = EncryptionManagerUtilsUbi4.instance
@@ -167,7 +167,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
              runProgramTypeFlow.collect { (addr, runType) ->
                 val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
                 if (idx != -1) {
-                    bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUBI4.RunProgramType.BOOTLOADER
+                    bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
                     bootloaderAdapter.notifyItemChanged(idx)
                 }
             }
@@ -260,8 +260,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 //                    System.err.println("clientId: ${clientId}")
 //                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
 //                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
 //                    requestDeviceList()
 //                },
 //                { error ->
@@ -293,8 +293,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
     }
     private fun saveManagerInfo(manager: Manager?) {
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, manager?.fio.orEmpty())
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, manager?.phone.orEmpty())
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, manager?.fio.orEmpty())
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, manager?.phone.orEmpty())
     }
 
 
@@ -360,12 +360,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 //        CoroutineScope(Dispatchers.Main).launch {
 //            myRequests!!.getRequestDeviceInfo(
 //                { deviceInfo ->
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
-//                    main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
+//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
 //                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
 //                    // ... (другие логи)
 //                },
@@ -393,27 +393,27 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
     private fun saveDeviceInfo(info: DeviceInfo) {
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS,
             simplificationName(info.model?.name.orEmpty())
         )
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS,
             info.size?.name.orEmpty()
         )
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS,
             info.side?.name.orEmpty()
         )
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS,
             info.status?.name.orEmpty()
         )
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,
             info.dateTransfer.orEmpty()
         )
         main?.saveString(
-            PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
+            PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
             info.guaranteePeriod.orEmpty()
         )
     }
@@ -475,18 +475,18 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         // Локальные версии прошивок
         driverVersion = if (!checkMultigrib()) {
             ((mSettings?.getInt(
-                main?.mDeviceAddress + PreferenceKeysUBI4.DRIVER_NUM, 1
+                main?.mDeviceAddress + PreferenceKeysUbi4.DRIVER_NUM, 1
             ) ?: 1) / 100f).toString()
         } else {
             main?.driverVersionS ?: "0.01"
         }
 
         bmsVersion = ((mSettings?.getInt(
-            main?.mDeviceAddress + PreferenceKeysUBI4.BMS_NUM, 1
+            main?.mDeviceAddress + PreferenceKeysUbi4.BMS_NUM, 1
         ) ?: 1) / 100f).toString()
 
         sensorsVersion = ((mSettings?.getInt(
-            main?.mDeviceAddress + PreferenceKeysUBI4.SENS_NUM, 1
+            main?.mDeviceAddress + PreferenceKeysUbi4.SENS_NUM, 1
         ) ?: 1) / 100f).toString()
     }
 
@@ -557,17 +557,17 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             updateAccountSafe(item)
 
         }
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_FIO, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MANAGER_PHONE, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_MODEL_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIZE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_SIDE_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_STATUS_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_ROTATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
-        main?.saveString(PreferenceKeysUBI4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
 
@@ -578,7 +578,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         // CPU (addr = 0)
         fullInicializeConnectionStruct?.let {
             boardNameByAddr[0] =
-                PreferenceKeysUBI4.DeviceCode
+                PreferenceKeysUbi4.DeviceCode
                     .from(it.deviceCode)
                     .title.removeSuffix(" version")      // ← важно!
         }
@@ -586,7 +586,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         // Sub-devices
         baseSubDevicesInfoStructSet.forEach { sub ->
             boardNameByAddr[sub.deviceAddress] =
-                PreferenceKeysUBI4.DeviceCode
+                PreferenceKeysUbi4.DeviceCode
                     .from(sub.deviceCode)
                     .title.removeSuffix(" version")      // ← то же
         }

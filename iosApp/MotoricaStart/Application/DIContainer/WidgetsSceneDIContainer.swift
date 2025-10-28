@@ -1,11 +1,12 @@
 import UIKit
 import SwiftUI
+import shared
 
-final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
-    
+final class WidgetsSceneDIContainer {
     struct Dependencies {
         let apiDataTransferService: DataTransferService
         let imageDataTransferService: DataTransferService
+        let bleManager: BleManagerKmm
     }
     
     private let dependencies: Dependencies
@@ -45,82 +46,56 @@ final class WidgetsSceneDIContainer: WidgetsSearchFlowCoordinatorDependencies {
             cache: widgetsResponseCache
         )
     }
+    
     func makeWidgetsQueriesRepository() -> WidgetsQueriesRepository {
         DefaultWidgetsQueriesRepository(
             widgetsQueriesPersistentStorage: widgetsQueriesStorage
         )
     }
-    func makePosterImagesRepository() -> PosterImagesRepository {
-        DefaultPosterImagesRepository(
-            dataTransferService: dependencies.imageDataTransferService
+    
+    // MARK: - Widgets List
+    func makeWidgetsListViewController(
+        actions: WidgetsListViewModelActions,
+        screenTitle: String? = nil
+    ) -> WidgetsListViewController {
+        WidgetsListViewController.create(
+            with: makeWidgetsListViewModel(actions: actions)
         )
     }
     
-    // MARK: - Widgets List
-    func makeWidgetsListViewController(actions: WidgetsListViewModelActions) -> WidgetsListViewController {
-        WidgetsListViewController.create(
-            with: makeWidgetsListViewModel(actions: actions),
-            posterImagesRepository: makePosterImagesRepository()
-        )
+    func makeGesturesTabViewController(actions: WidgetsListViewModelActions) -> GesturesTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 0
+        controller.screenTitleOverride = NSLocalizedString("Gestures", comment: "")
+        return GesturesTabViewController(contentViewController: controller)
+    }
+
+    func makeSensorsTabViewController(actions: WidgetsListViewModelActions) -> SensorsTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 1
+        controller.screenTitleOverride = NSLocalizedString("Sensors", comment: "")
+        return SensorsTabViewController(contentViewController: controller)
+    }
+
+    func makeTrainingTabViewController(actions: WidgetsListViewModelActions) -> TrainingTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 3
+        controller.screenTitleOverride = NSLocalizedString("Training", comment: "")
+        return TrainingTabViewController(contentViewController: controller)
+    }
+
+    func makeSpecialSettingsTabViewController(actions: WidgetsListViewModelActions) -> SpecialSettingsTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 2
+        controller.screenTitleOverride = NSLocalizedString("Special settings", comment: "")
+        return SpecialSettingsTabViewController(contentViewController: controller)
     }
     
     func makeWidgetsListViewModel(actions: WidgetsListViewModelActions) -> WidgetsListViewModel {
         DefaultWidgetsListViewModel(
             searchMWidgetsUseCase: makeSearchWidgetsUseCase(),
+            bleManager: dependencies.bleManager,
             actions: actions
-        )
-    }
-    
-    // MARK: - Widget Details
-    func makeWidgetsDetailsViewController(widget: Widget) -> UIViewController {
-            WidgetDetailsViewController.create(
-            with: makeWidgetsDetailsViewModel(widget: widget)
-        )
-    }
-    
-    func makeWidgetsDetailsViewModel(widget: Widget) -> WidgetDetailsViewModel {
-        DefaultWidgetDetailsViewModel(
-            widget: widget,
-            posterImagesRepository: makePosterImagesRepository()
-        )
-    }
-    
-    // MARK: - Widgets Queries Suggestions List
-    func makeWidgetsQueriesSuggestionsListViewController(didSelect: @escaping WidgetsQueryListViewModelDidSelectAction) -> UIViewController {
-        if #available(iOS 13.0, *) { // SwiftUI
-            let view = WidgetsQueryListView(
-                viewModelWrapper: makeWidgetsQueryListViewModelWrapper(didSelect: didSelect)
-            )
-            return UIHostingController(rootView: view)
-        } else { // UIKit
-            return WidgetsQueriesTableViewController.create(
-                with: makeWidgetsQueryListViewModel(didSelect: didSelect)
-            )
-        }
-    }
-    
-    func makeWidgetsQueryListViewModel(didSelect: @escaping WidgetsQueryListViewModelDidSelectAction) -> WidgetsQueryListViewModel {
-        DefaultWidgetsQueryListViewModel(
-            numberOfQueriesToShow: 10,
-            fetchRecentWidgetQueriesUseCaseFactory: makeFetchRecentWidgetQueriesUseCase,
-            didSelect: didSelect
-        )
-    }
-
-    @available(iOS 13.0, *)
-    func makeWidgetsQueryListViewModelWrapper(
-        didSelect: @escaping WidgetsQueryListViewModelDidSelectAction
-    ) -> WidgetsQueryListViewModelWrapper {
-        WidgetsQueryListViewModelWrapper(
-            viewModel: makeWidgetsQueryListViewModel(didSelect: didSelect)
-        )
-    }
-
-    // MARK: - Flow Coordinators
-    func makeWidgetsSearchFlowCoordinator(navigationController: UINavigationController) -> WidgetsSearchFlowCoordinator {
-        WidgetsSearchFlowCoordinator(
-            navigationController: navigationController,
-            dependencies: self
         )
     }
 }

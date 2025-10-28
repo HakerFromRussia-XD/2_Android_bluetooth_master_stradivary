@@ -29,7 +29,7 @@ import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -57,7 +57,7 @@ class GesturesFragment : BaseWidgetsFragment() {
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
-        mSettings = context?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = context?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
         Log.d("LifeCycele", "onCreateView")
 

@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
+
 /** Информация об обнаруженном устройстве */
 actual class BleDeviceKmm actual constructor (
     actual val id: String,
@@ -10,6 +12,7 @@ actual class BleDeviceKmm actual constructor (
 /** Менеджер для работы с Bluetooth LE */
 actual class BleManagerKmm actual constructor() {
     private var bleCommandExecutor: BleCommandExecutor? = null
+    private var onCharacteristicsReady: (() -> Unit)? = null
 
     fun setBleCommandExecutor(executor: BleCommandExecutor) {
         bleCommandExecutor = executor
@@ -22,6 +25,11 @@ actual class BleManagerKmm actual constructor() {
 
     actual fun connectToDevice(uuid: String) {}
 
+    actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
+        onCharacteristicsReady = onReady
+        onCharacteristicsReady?.invoke()
+    }
+
     /**
      * Отправить [data] в характеристику [characteristicUuid]
      * устройства [device] (или по его id).
@@ -32,7 +40,8 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit,
     ) {
-        bleCommandExecutor?.bleCommandWithQueue(
+        val executor = bleCommandExecutor ?: BleEnvironment.getBleCommandExecutor()
+        executor.bleCommandWithQueue(
             data,
             command,
             typeCommand,

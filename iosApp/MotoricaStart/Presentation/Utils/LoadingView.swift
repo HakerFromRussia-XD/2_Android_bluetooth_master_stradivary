@@ -1,44 +1,87 @@
 import UIKit
 
-class LoadingView {
+final class LoadingView {
+    struct State {
+        let message: String
+        let progress: Float
 
-    internal static var spinner: UIActivityIndicatorView?
-
-    static func show() {
-        DispatchQueue.main.async {
-            NotificationCenter.default.addObserver(self, selector: #selector(update), name: UIDevice.orientationDidChangeNotification, object: nil)
-            if spinner == nil, let window = getKeyWindow() {
-                let frame = UIScreen.main.bounds
-                let spinner = UIActivityIndicatorView(frame: frame)
-                spinner.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-                spinner.style = .large
-                window.addSubview(spinner)
-
-                spinner.startAnimating()
-                self.spinner = spinner
-            }
+        init(message: String, progress: Float = 0) {
+            self.message = message
+            self.progress = progress
         }
     }
+    private static var containerView: LoadingContainerView?
+    private static var currentState: State?
+    private static var isObservingOrientationChanges = false
+    private static let animationName = "wrist_extend"
 
+    static func show(state: State) {
+        DispatchQueue.main.async {
+            guard let window = getKeyWindow() else { return }
+            currentState = state
+            
+            if containerView == nil {
+                let container = LoadingContainerView(frame: window.bounds, animationName: animationName)
+                containerView = container
+                window.addSubview(container)
+                container.frame = window.bounds
+                startObservingOrientationChanges()
+            }
+            
+            guard let container = containerView else { return }
+            
+            if container.superview == nil {
+                window.addSubview(container)
+            } else {
+                window.bringSubviewToFront(container)
+            }
+            
+            container.frame = window.bounds
+            container.alpha = 1
+            container.apply(state: state)
+            container.startAnimation()
+        }
+    }
+        
     static func hide() {
         DispatchQueue.main.async {
-            guard let spinner = spinner else { return }
-            spinner.stopAnimating()
-            spinner.removeFromSuperview()
-            self.spinner = nil
+            guard let container = containerView else { return }
+            container.stopAnimation()
+            UIView.animate(withDuration: 0.3, animations: {
+                container.alpha = 0
+            }, completion: { _ in
+                container.removeFromSuperview()
+                container.alpha = 1
+                containerView = nil
+                currentState = nil
+                stopObservingOrientationChanges()
+            })
         }
     }
 
     @objc static func update() {
         DispatchQueue.main.async {
-            if spinner != nil {
-                hide()
-                show()
+            guard let container = containerView, let window = getKeyWindow() else { return }
+            container.frame = window.bounds
+            if let state = currentState {
+                container.apply(state: state)
             }
         }
     }
     
-    static func getKeyWindow() -> UIWindow? {
+    private static func startObservingOrientationChanges() {
+        guard !isObservingOrientationChanges else { return }
+        NotificationCenter.default.addObserver(self, selector: #selector(update), name: UIDevice.orientationDidChangeNotification, object: nil)
+        isObservingOrientationChanges = true
+    }
+
+    private static func stopObservingOrientationChanges() {
+        guard isObservingOrientationChanges else { return }
+        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+        isObservingOrientationChanges = false
+    }
+    
+    private static func getKeyWindow() -> UIWindow? {
         if #available(iOS 15.0, *) {
             // Для iOS 15 и выше используем оконную сцену
             if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {

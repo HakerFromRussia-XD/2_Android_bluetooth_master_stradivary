@@ -6,7 +6,12 @@
   
 */
 
-"Widgets" = "Widgets";
+"Gestures" = "Gestures";
+"Sensors" = "Sensors";
+"Training" = "Training";
+"Special settings" = "Special settings";
+"Service settings" = "Service settings";
+
 "Search results" = "Search results";
 "Release Date" = "Release Date";
 "To be announced" = "To be announced";

@@ -9,7 +9,7 @@ final class SliderViewCell: UITableViewCell {
 //        String(describing: self)
 //    }
     static let height = CGFloat(130)
-    @State private var isOn = false
+    
     @IBOutlet private var widgetSliderTitleLabel: UILabel!
     @IBOutlet private var widgetSliderTitleLabel_2: UILabel!
     @IBOutlet private weak var progressSlider: UISlider!
@@ -56,13 +56,13 @@ final class SliderViewCell: UITableViewCell {
             value_2: .zero,
             title_2: viewModel.title,
             numLabel_2: viewModel.title_2,
-            isSecondSliderShow: viewModel.showSecondSlider
+            isSecondSliderShow: viewModel.showSecondSlider,
         )
         self.provider = provider
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
-            CustomSwitcher(title: viewModel.title, isOn: self.$isOn)
+            SliderRowView(provider: provider)
         }
         numberCancellable?.cancel()
         

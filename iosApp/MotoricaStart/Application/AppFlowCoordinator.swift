@@ -4,6 +4,7 @@ final class AppFlowCoordinator {
 
     var navigationController: UINavigationController
     private let appDIContainer: AppDIContainer
+    private var bluetoothCoordinator: BluetoothListCoordinator?
     
     init(
         navigationController: UINavigationController,
@@ -14,11 +15,11 @@ final class AppFlowCoordinator {
     }
 
     func start() {
-        // Теперь основной экран — список BLE-устройств
-        let bleSceneDI = appDIContainer.makeBluetoothSceneDIContainer()
-        let flow = bleSceneDI.makeBluetoothListCoordinator(
+        let bluetoothDI = appDIContainer.makeBluetoothSceneDIContainer()
+        let coordinator = bluetoothDI.makeBluetoothListCoordinator(
             navigationController: navigationController
         )
-        flow.start()
+        bluetoothCoordinator = coordinator
+        coordinator.start()
     }
 }

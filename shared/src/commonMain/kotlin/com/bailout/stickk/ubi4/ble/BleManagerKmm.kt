@@ -18,6 +18,12 @@ expect class BleManagerKmm() {
     fun connectToDevice(uuid: String)
 
     /**
+     * Установить обработчик, который будет вызван один раз после получения
+     * всех характеристик подключенного устройства.
+     */
+    fun setOnCharacteristicsReadyListener(onReady: () -> Unit)
+
+    /**
      * Отправить [data] в xарактеристику [characteristicUuid]
      * устройства [device] (или по его id).
      */

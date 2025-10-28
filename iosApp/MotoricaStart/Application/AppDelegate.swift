@@ -1,10 +1,11 @@
 import UIKit
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let appDIContainer = AppDIContainer()
-    var appFlowCoordinator: AppFlowCoordinator?
+    private var appFlowCoordinator: AppFlowCoordinator?
     var window: UIWindow?
     
     func application(
@@ -14,17 +15,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AppAppearance.setupAppearance()
         
-        window = UIWindow(frame: UIScreen.main.bounds)
+        
         let navigationController = UINavigationController()
-
+        let ubi4BackgroundColor = UIColor(named: "ubi4_back") ?? UIColor.black
+        navigationController.view.backgroundColor = ubi4BackgroundColor
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.backgroundColor = ubi4BackgroundColor
         window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+        if #available(iOS 13.0, *) {
+            if let statusBarFrame = window?.windowScene?.statusBarManager?.statusBarFrame {
+                let statusBarView = UIView(frame: statusBarFrame)
+                statusBarView.backgroundColor = ubi4BackgroundColor
+                statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+                window?.addSubview(statusBarView)
+            }
+        } else {
+            let statusBarView = UIView(frame: UIApplication.shared.statusBarFrame)
+            statusBarView.backgroundColor = ubi4BackgroundColor
+            statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+            window?.addSubview(statusBarView)
+        }
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
-        window?.makeKeyAndVisible()
-    
         return true
     }
 

@@ -52,9 +52,9 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -135,7 +135,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         super.onCreate(savedInstanceState)
         syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
         val window = this.window
@@ -143,7 +143,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         //TODO проверить
 //        setContentView(view)
-//        binding.bottomNavigation.post { binding.bottomNavigation.selectedItemId = R.id.page_2 }
         initAllVariables()
         observeSyncProgress()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -209,10 +208,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
 //        binding.runCommandBtn.setOnClickListener {
-//            toggleGestureModeLocal()
+//
 //        }
-
-
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -309,7 +306,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
-
     fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
@@ -335,7 +331,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         finish()
     }
     private fun resetLastMAC() {
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "null")
     }
 
     fun setPercentProgressLearningModel(p: Int) {
@@ -347,7 +343,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
 
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
     }
     override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
@@ -398,7 +394,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {

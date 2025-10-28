@@ -30,7 +30,7 @@ class BleCommandExecutorIos(
                 val task = queue.get()
                 task.run()
                 remainingTasks.decrementAndGet()
-                platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
+                platformLog("sendBytesKmm", "1 ЗАГРУЗКА_КОМАНДЫ команд в очереди: $remainingTasks")
             }
         }
     }
@@ -53,11 +53,17 @@ class BleCommandExecutorIos(
             }
             queue.put(runnable, byteArray)
             remainingTasks.incrementAndGet()
-            platformLog("sendBytesKmm", "команд в очереди: $remainingTasks")
+            platformLog("sendBytesKmm", "1 ЗАГРУЗКА_КОМАНДЫ команд в очереди: $remainingTasks")
         }
     }
 
-    override fun sendWidgetsArray() { /* Not required on iOS yet */ }
+    override fun sendWidgetsArray() {
+        // Обновляем хранилище/модель, затем…
+//        WidgetStore.shared.setWidgets(widgets)
+
+        // …рассылаем сигнал
+//        updateWidgets.send()
+    }
 
     override fun updateSerialNumber(deviceInfo: DeviceInfoStructs) { /* Not required on iOS yet */ }
 }

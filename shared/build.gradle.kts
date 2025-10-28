@@ -76,6 +76,7 @@ kotlin {
             languageSettings {
                 optIn("org.jetbrains.compose.ExperimentalComposeLibrary")
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
+                optIn("kotlin.experimental.ExperimentalObjCName")
             }
         }
 
@@ -145,6 +146,11 @@ kotlin {
                 api("dev.icerock.moko:graphics:0.9.0")
 //                implementation("app.cash.sqldelight:native-driver:2.1.0")
             }
+        }
+        androidUnitTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(kotlin("test-junit"))
+            implementation("junit:junit:4.13.2")
         }
     }
 }

@@ -20,8 +20,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterTypeEnum
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -37,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 
 
 class SliderDelegateAdapter(
@@ -53,12 +52,9 @@ class SliderDelegateAdapter(
     private var collectJob: kotlinx.coroutines.Job? = null
 
 
-    val text = SharedRes.files.help_accent_circle_json
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
-
-
         Log.d("SliderAdapterTest", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
@@ -95,8 +91,6 @@ class SliderDelegateAdapter(
                     "E struct: addressDevice = $addressDevice   ${widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
-
-
             is SliderParameterWidgetSStruct -> {
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).deviceAddress
@@ -116,18 +110,7 @@ class SliderDelegateAdapter(
                     "S struct: addressDevice = $addressDevice   ${widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}"
                 )
             }
-
         }
-        val widgetType = when (item.widget) {
-            is SliderParameterWidgetEStruct -> "E"
-            is SliderParameterWidgetSStruct -> "S"
-            else -> "?"
-        }
-        Log.d(
-            "SliderProbe",
-            "bind type=$widgetType addr=$addressDevice pid=$parameterID pos=$widgetPosition " +
-                    "params=${dataOffset.size} offsets=${dataOffset.joinToString()} title='${item.title}'"
-        )
 
         // Количество параметров определяем количеством dataOffset
         val paramCount = dataOffset.size
@@ -172,6 +155,7 @@ class SliderDelegateAdapter(
         // Получаем индекс текущего виджета по значению device и parameter
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice, parameterID)
         val range = if (maxProgress == minProgress) 100 else maxProgress - minProgress
+
         // Настраиваем слайдеры: если параметров больше одного, показываем второй слайдер
         widgetSliderSb.max = range
         if (paramCount > 1) {
@@ -182,10 +166,9 @@ class SliderDelegateAdapter(
         } else {
             secondSliderCl.visibility = View.GONE
         }
+
         widgetSliderSb.progress = currentSliderInfo.progress[0]
         widgetSliderNumTv.text = currentSliderInfo.progress[0].toString()
-
-
 //        widgetSliderTitleTv.text = item.title
         val sliderE = item.widget as? SliderParameterWidgetEStruct
         if (sliderE != null) {
@@ -194,8 +177,8 @@ class SliderDelegateAdapter(
             val labelsByOffset = UiState.labelCodesByOffset[labelKey]
 
             val langKey = if (systemLang().startsWith("ru", true)) "ru" else "en"
-            val dict = PreferenceKeysUBI4.parameterWidgetLabel[langKey]
-                ?: PreferenceKeysUBI4.parameterWidgetLabel["en"].orEmpty()
+            val dict = PreferenceKeysUbi4.parameterWidgetLabel[langKey]
+                ?: PreferenceKeysUbi4.parameterWidgetLabel["en"].orEmpty()
 
             fun resolve(off: Int?): String? =
                 off?.let { labelsByOffset?.get(it) }?.let { code -> dict[code.toString()] }
@@ -362,29 +345,21 @@ class SliderDelegateAdapter(
         val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
-                val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
-                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
+                val sizeOf = PreferenceKeysUbi4.ParameterTypeEnum.entries[parameter.type].sizeOf
+                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, dataOffset ->
                     Log.d("SliderDebug", "Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}")
                     if (parameter.data.isNotEmpty()) {
                         val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress
 
                         var newValue = castUnsignedCharToInt(
-                            parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte()
+                            parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte()
                         )
-                        if (parameter.type == ParameterTypeEnum.PARTE_INT8_TYPE.number || parameter.type == ParameterTypeEnum.PARTE_UINT8_TYPE.number){
-                            newValue = parameter.data.substring((sizeOf * it) * 2, sizeOf * (it + 1) * 2).toInt(16).toByte().toInt()
+                        if (parameter.type == PreferenceKeysUbi4.ParameterTypeEnum.PARTE_INT8_TYPE.number){
+                            newValue = parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte().toInt()
                         }
                         widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
                         animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue - widgetSlidersInfo[indexWidgetSlider].minProgress)
                         widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = newValue.toString()
-
-
-                        platformLog("SliderDebugTest!", "deviceAdress = ${parameterRef.addressDevice} parameterId = ${parameterRef.parameterID}")
-                        platformLog("SliderDebugTest!", "type = ${parameter.type}")
-                        platformLog("SliderDebugTest!", "parameterData = ${parameter.data}")
-                        platformLog("SliderDebugTest!", "newValue = ${newValue}")
-
-
                     }
                     // Обновляем отображение
                     widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
@@ -419,9 +394,6 @@ class SliderDelegateAdapter(
         }
     }
 
-//    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
-//        return widgetSlidersInfo.indexOfFirst { it.addressDevice == addressDevice && it.parameterID == parameterID }
-//    }
 private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
     val idx = widgetSlidersInfo.indexOfFirst {
         it.addressDevice == addressDevice && it.parameterID == parameterID

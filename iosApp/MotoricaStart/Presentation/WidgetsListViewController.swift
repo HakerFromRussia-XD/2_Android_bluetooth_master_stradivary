@@ -171,6 +171,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                         widgetType = .switchWidget
                         title = switchItem.title
                         widgetObject = switchItem.widget
+                    case let gestureOpticItem as GesturesItem:
+                        widgetType = .gestureOpticWidget
+                        title = gestureOpticItem.title
+                        widgetObject = gestureOpticItem.widget
                     case let oneButtonItem as OneButtonItem:
                         widgetType = .commandWidget
                         title = oneButtonItem.title
@@ -264,10 +268,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Private
     @objc private func bottomButtonTapped() {
-//        resetWidgetsStateForResynchronization()
-//        beginSynchronization(resetState: true, state: defaultLoadingState)
-//        viewModel.requestInicializeInformation()
-        viewModel.tetsRequest()
+        resetWidgetsStateForResynchronization()
+        beginSynchronization(resetState: true, state: defaultLoadingState)
+        viewModel.requestInicializeInformation()
         print("[handleWidgetsLoadingCompletion] bottomButtonTapped")
     }
     
@@ -288,8 +291,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
-//        widgetsListContainer.isHidden = false
-//        emptyDataLabel.isHidden = true
         if isSynchronizationCompleted {
             widgetsTableViewController?.reload()
             showWidgetsContent()

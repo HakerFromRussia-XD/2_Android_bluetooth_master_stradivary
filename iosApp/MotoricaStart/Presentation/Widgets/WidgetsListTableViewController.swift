@@ -114,6 +114,15 @@ final class WidgetsListTableViewController: UITableViewController {
                     print("requestSwitch title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
+                
+                case .gestureOptic(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: GestureOpticViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! GestureOpticViewCell
+                    print("requestGestureOptic title = \(vm.title)")
+                    cell.configure(with: vm)
+                    return cell
             }
         }
     }

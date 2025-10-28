@@ -119,6 +119,7 @@
 		65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
 		65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 65588F9D2EA0E499005CF5BA /* Lottie */; };
 		65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA62EA6557C005CF5BA /* sinchronization.lottie */; };
+		65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -134,8 +135,9 @@
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
-		65BDBADB2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */; };
-		65BDBADC2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */; };
+		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
+		65BDBADC2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
+		65BDBADE2EABA76300685580 /* GestureOpticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GestureOpticProvider.swift */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
@@ -278,6 +280,7 @@
 		65588F922E9CF31A005CF5BA /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
 		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
 		65588FA62EA6557C005CF5BA /* sinchronization.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = sinchronization.lottie; sourceTree = "<group>"; };
+		65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesWidgetView.swift; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -291,7 +294,8 @@
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
-		65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesOpticListItemViewModel.swift; sourceTree = "<group>"; };
+		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
+		65BDBADD2EABA75400685580 /* GestureOpticProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticProvider.swift; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -796,6 +800,7 @@
 		652136F42DF82876006AB049 /* SliderRow */ = {
 			isa = PBXGroup;
 			children = (
+				65BDBADD2EABA75400685580 /* GestureOpticProvider.swift */,
 				65588F922E9CF31A005CF5BA /* SwitchRowView.swift */,
 				652136F52DF82884006AB049 /* SliderRowView.swift */,
 			);
@@ -914,6 +919,7 @@
 		65B52B0D2DF704F100FE1430 /* CustomUI */ = {
 			isa = PBXGroup;
 			children = (
+				65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */,
 				65F27F002E67294700AD5DFD /* CustomSwitcher.swift */,
 				65F27F092E69B19400AD5DFD /* CustomPlot.swift */,
 				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
@@ -944,7 +950,7 @@
 				1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */,
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
 				652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */,
-				65BDBADA2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift */,
+				65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1204,6 +1210,7 @@
 				1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */,
 				1F57F8D223C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
+				65BDBADE2EABA76300685580 /* GestureOpticProvider.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
 				652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */,
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
@@ -1211,8 +1218,9 @@
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
-				65BDBADB2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */,
+				65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */,
 				65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */,
+				65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
@@ -1280,7 +1288,7 @@
 				1F4102F5240BEE6A00EC014A /* UseCase.swift in Sources */,
 				1F474F2D22356C7F0092DB4B /* SearchWidgetsUseCase.swift in Sources */,
 				655830332DBBAE8F00744D5C /* ScanItem.swift in Sources */,
-				65BDBADC2EA7E6CA00685580 /* GesturesOpticListItemViewModel.swift in Sources */,
+				65BDBADC2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */,
 				1F9034C52306FF2D00DEA4BD /* NetworkService.swift in Sources */,
 				1F9034D32307161D00DEA4BD /* NetworkSessionManagerMock.swift in Sources */,
 				1FFF1C10243B9ABB00937EE4 /* PlotListItemViewModel.swift in Sources */,

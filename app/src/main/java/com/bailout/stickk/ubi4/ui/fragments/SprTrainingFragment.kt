@@ -68,6 +68,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var canSendNextChunkFlag = true
     private var sendFileSuccessFlag = true
     private var autoDialogShown = false
+    private var loaderDialog: Dialog? = null
+
 
     private val display = 3
 
@@ -135,6 +137,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     main?.runOnUiThread {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        main?.refreshBottomNavVisibility()
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -156,6 +159,29 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
+    fun showConfirmTrainingDialogWithLoader(onConfirmed: () -> Unit) {
+        // 1) мгновенно показываем заглушку
+        if (loaderDialog?.isShowing != true) {
+            loaderDialog = showLoaderDialog()
+        }
+
+        // 2) выполняем подготовку (auth + паспорт), затем показываем confirm
+        startAuthAndDownloadPassport {
+            if (!isAdded) {
+                loaderDialog?.dismiss()
+                loaderDialog = null
+                return@startAuthAndDownloadPassport
+            }
+
+            // 3) закрываем заглушку и показываем реальный confirm
+            loaderDialog?.dismiss()
+            loaderDialog = null
+
+            showConfirmTrainingDialog {
+                onConfirmed()
+            }
+        }
+    }
 
     @SuppressLint("MissingInflatedId")
     override fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
@@ -422,6 +448,20 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         bleController.setProgressDialog(myDialog)
         return myDialog
     }
+
+    private fun showLoaderDialog(): Dialog {
+        closeProgressDialog()
+
+        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_loader_training, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+        return myDialog
+
+
+    }
     override fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
         if (loadingCurrentDialog != null && loadingCurrentDialog?.isShowing == true) {
             return
@@ -601,6 +641,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         loadingCurrentDialog = null
         progressDialog?.dismiss()
         progressDialog = null
+        loaderDialog?.dismiss()
+        loaderDialog = null
     }
     private fun closeWarningDialog() {
         warningDialog?.dismiss()
@@ -661,6 +703,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             } catch (e: IOException) {
                 withContext(Main) {
                     Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+                    closeCurrentDialog()
                 }
             }
         }

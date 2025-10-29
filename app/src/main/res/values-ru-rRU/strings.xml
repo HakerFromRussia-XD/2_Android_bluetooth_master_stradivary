@@ -248,7 +248,6 @@
     <string name="hold_to_lock_time">время удержания для блокировки</string>
     <string name="debug_screen">отладочный экран</string>
     <string name="scale">размер протеза:</string>
-    <string name="choose_the_size_of_the_prostheses">Выберете размер протеза</string>
     <string name="yes">да</string>
     <string name="the_size_of_your_prostheses">Размер вашего протеза</string>
     <string name="amplitude">амплитуда</string>

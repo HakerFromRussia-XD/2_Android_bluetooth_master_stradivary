@@ -21,7 +21,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -34,26 +36,31 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
+import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
+import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
@@ -66,12 +73,14 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
+import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -93,6 +102,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private var currentSerial: String? = null
 
+    private var syncShownOnce = false
+
 
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
@@ -108,14 +119,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private val bleManager = BleManagerKmm()
 
+    private lateinit var syncDialog: SyncProgressDialog
+    private var chromeHidden = false
+
+    private var job: Job? = null
+
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
 
 
+
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
@@ -126,7 +144,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
+        observeSyncProgress()
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        refreshBottomNavVisibility()
         observeBattery()
         // инициализация блютуз
         mBLEController = BLEController()
@@ -155,13 +176,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 bluetoothLeService = null
             }
         }
-        showSensorsScreen()
-
 
 
         if (savedInstanceState == null) {
-//            showOpticGesturesScreen()
+            binding.bottomNavigation.selectedItemId = R.id.page_2
+            showSensorsScreen()
         }
+
+
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
@@ -211,8 +233,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
         lifecycle.addObserver(bleStatusController)
         ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
-
-
     }
 
 
@@ -236,6 +256,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun onDestroy() {
         super.onDestroy()
+        job?.cancel()
+        if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
     }
 
@@ -332,11 +354,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             writeLock.notifyAll()
         }
         bleManager.setBleCommandExecutor(this)
-//        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
-        val parser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
-        bleParser = parser
-        BleEnvironment.register(bleManager, this, parser)
-        platformLog("[BLE-COMMUNICATION]","инициализация BLEParser для Android")
+        bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
     }
 
     // сохранение и загрузка данных
@@ -426,7 +444,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun sendFwInfoRequests() {
         // CPU
-        bleCommandWithQueue(BLECommands.requestProductInfoType(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         // Sub-devices (если уже известны)
         baseSubDevicesInfoStructSet.forEach { sub ->
             bleCommandWithQueue(
@@ -464,9 +482,33 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    private fun observeSyncProgress() {
+        syncDialog.observeSyncProgress { visible ->
+            setChromeVisible(visible)
+        }
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
+    }
+
+    private fun computeVisibleDisplays(): Set<Int> {
+        val factory = DataFactory()
+        return (0..4)
+            .filter { display -> factory.prepareData(display).isNotEmpty() }
+            .toSet()
+    }
+
+    fun refreshBottomNavVisibility() {
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+    }
+
+    private fun setChromeVisible(visible: Boolean) {
+        val v = if (visible) View.VISIBLE else View.INVISIBLE
+        binding.statusBar.visibility = v
+        binding.bottomNavigation.visibility = v
+        binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
     companion object {

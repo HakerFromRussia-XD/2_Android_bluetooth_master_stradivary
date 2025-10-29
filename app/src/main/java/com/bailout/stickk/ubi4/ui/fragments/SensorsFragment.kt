@@ -73,6 +73,7 @@ class SensorsFragment : BaseWidgetsFragment() {
                     platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=${mDataFactory.prepareData(display)}")
                     binding.homeRv.post {
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
+                        main?.refreshBottomNavVisibility()
                     }
                     binding.refreshLayout.setRefreshing(false)
                 }

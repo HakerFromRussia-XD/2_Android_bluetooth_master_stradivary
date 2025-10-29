@@ -11,9 +11,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+
 
 class SelectedGesturesAdapter(
     private var selectedGesturesList: MutableList<kotlin.Pair<Int, Int>>,
@@ -27,9 +27,7 @@ class SelectedGesturesAdapter(
         val dotsThreeBtnSpr: ImageView = itemView.findViewById(R.id.dotsThreeBtnSpr)
     }
 
-    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
-        CollectionGesturesProvider(AndroidResourceProvider(myContext))
-    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SprGesturesViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.ubi4_item_gesture, parent, false)
@@ -41,11 +39,12 @@ class SelectedGesturesAdapter(
         return selectedGesturesList.size
     }
 
+
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
         //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)
-        holder.gestureName.text = collectionGesturesProvider.getGesture(bindingGesture.second).gestureName
-        holder.gestureAnimation.setAnimation(SprGestureItemsProvider(AndroidResourceProvider(myContext)).getSprGesture(bindingGesture.first).animationId)
+        holder.gestureName.text = CollectionGesturesProvider.getGesture(bindingGesture.second).gestureName
+        holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
         holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)

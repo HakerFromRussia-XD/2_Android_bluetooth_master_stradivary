@@ -21,15 +21,14 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -66,7 +65,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
+
         //настоящие виджеты
         widgetListUpdater()
         adapterWidgets.swapData(mDataFactory.prepareData(display))
@@ -131,11 +130,11 @@ class SprGestureFragment: BaseWidgetsFragment() {
     myDialog.show()
 
 
-    val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
-        ArrayList(collectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
-        Log.d("SprGestureFragment", "Gestures list: ${collectionGesturesProvider.getCollectionGestures()}")
+        val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
+            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
 
-    // установка галочек в списке соответственно текущей группе ротации
+
+        // установка галочек в списке соответственно текущей группе ротации
     for (dialogGesture in dialogCollectionGestures) {
         rotationGroupGestures.find { it.gestureId == dialogGesture.gesture.gestureId }?.let {
             dialogGesture.check = true
@@ -217,6 +216,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
                 binding.sprGesturesRv.post {
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
+                    main?.refreshBottomNavVisibility()
                 }
                 binding.refreshLayout.setRefreshing(false)
             }

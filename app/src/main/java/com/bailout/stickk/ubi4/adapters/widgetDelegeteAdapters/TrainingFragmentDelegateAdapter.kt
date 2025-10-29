@@ -14,6 +14,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,8 @@ class TrainingFragmentDelegateAdapter(
         Ubi4WidgetTrainingOpticBinding::inflate
     ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -60,7 +63,7 @@ class TrainingFragmentDelegateAdapter(
                         trainingBtn.isEnabled = true
                         trainingBtn.setOnClickListener { onConfirmClick() }
                     }
-                    else -> { // BASE
+                    else -> { //BASE
                         trainingSubTitleTv.text = main.getString(R.string.follow_the_gestures_on_the_screen_and_keep_track_of_the_time)
                         trainingTitleTv.text = main.getString(R.string.let_s_start_training_spr)
                         trainingAnnotationIv.visibility = View.VISIBLE
@@ -79,8 +82,7 @@ class TrainingFragmentDelegateAdapter(
         }
         Log.d("TestWidgetView", "Start onBind, item: ${item} item.getItemId() = ${item.getItemId()}")
         onDestroyParent { onDestroy() }
-//        main.getPercentProgressLearningModel()
-//        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
+
         var addressDevice = 0
         var parameterId = 0
         var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(
@@ -98,7 +100,6 @@ class TrainingFragmentDelegateAdapter(
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterId = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 parameterIDSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-
             }
         }
         parameterIDSet.forEach { Log.d("parameterTestID", "parameterID = $it") }
@@ -114,8 +115,6 @@ class TrainingFragmentDelegateAdapter(
     }
 
 
-
-
     override fun isForViewType(item: Any): Boolean = item is TrainingGestureItem
 
     override fun TrainingGestureItem.getItemId(): Any = title
@@ -126,5 +125,6 @@ class TrainingFragmentDelegateAdapter(
         onDestroyParent = {}
         scope.cancel()
     }
+
 }
 

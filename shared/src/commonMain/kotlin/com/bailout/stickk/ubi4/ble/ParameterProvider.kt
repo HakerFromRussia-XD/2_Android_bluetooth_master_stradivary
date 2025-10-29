@@ -3,13 +3,14 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 class ParameterProvider {
     companion object {
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
-            if (baseParametrInfoStructArray.size != 0){
+            if (baseParametrInfoStructArray.size != 0) {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
-                if (deviceAddress == 0 ) {
+                if (deviceAddress == 0) {
                     // значит мы ищем параметр на мастере
                     baseParametrInfoStructArray.forEach {
                         if (it.ID == parameterID) return it
@@ -39,7 +40,32 @@ class ParameterProvider {
                     if (parameter.dataCode == dataCode) return parameter
                 }
             }
-            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, mutableSetOf(),"")
+            return BaseParameterInfoStruct(
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                mutableSetOf(),
+                ""
+            )
         }
+
+
     }
-    }
+}

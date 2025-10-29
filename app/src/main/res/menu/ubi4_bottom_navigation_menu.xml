@@ -5,7 +5,9 @@
         android:id="@+id/page_1"
         android:enabled="true"
         android:icon="@drawable/ic_gestures"
-        android:title="@string/title_home"/>
+        android:title="@string/title_home"
+
+        />
     <item
         android:id="@+id/page_2"
         android:enabled="true"

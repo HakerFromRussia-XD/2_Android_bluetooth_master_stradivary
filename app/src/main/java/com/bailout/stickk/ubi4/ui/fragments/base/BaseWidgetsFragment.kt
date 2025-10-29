@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -32,21 +34,19 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
-import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import java.io.File
 
@@ -57,9 +57,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
-    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
-        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
-    }
+
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
@@ -131,15 +129,14 @@ abstract class BaseWidgetsFragment : Fragment() {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
                     // Получаем ссылку на текущий SprTrainingFragment
                     val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
-                    spr.startAuthAndDownloadPassport{
-                        showConfirmTrainingDialog {
-                            navigator().showMotionTrainingScreen {
-                                parentFragmentManager.beginTransaction()
-                                    .replace(R.id.fragmentContainer, spr)
-                                    .commit()
-                            }
+                    spr.showConfirmTrainingDialogWithLoader {
+                        navigator().showMotionTrainingScreen {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragmentContainer, spr)
+                                .commit()
                         }
                     }
+
                 },
                 onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
                 onShowEmg8Files = {
@@ -196,7 +193,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        UiState.resetWidgetRequests()
         onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
@@ -228,7 +224,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
         val sprGestureDialogList: ArrayList<SprDialogCollectionGestureItem> =
             ArrayList(
-                SprGestureItemsProvider(AndroidResourceProvider(requireContext())).getSprGestureItemList()
+                SprGestureItemsProvider(requireContext()).getSprGestureItemList()
                     .map { SprDialogCollectionGestureItem(it) })
 
         for (sprDialogCollectionGestureItem in sprGestureDialogList) {
@@ -313,7 +309,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         titleText.setText(R.string.assign_gesture)
 
         val collectionGestureDialogList: ArrayList<DialogCollectionGestureItem> = ArrayList(
-            collectionGesturesProvider.getCollectionGestures().map { gesture ->
+            getCollectionGestures().map { gesture ->
                 DialogCollectionGestureItem(
                     gesture = gesture,
                     check = (gesture.gestureId == bindingItem.second)
@@ -416,9 +412,8 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun refreshWidgetsList() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
-        listWidgets.clear()
-        UiState.resetWidgetRequests()
         adapterWidgets.swapData(emptyList())
+        listWidgets.clear()
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 

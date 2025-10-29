@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
+import com.bailout.stickk.ubi4.AndroidContextProvider.context
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
@@ -19,12 +20,12 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterTypeEnum
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.logging.systemLang
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+
 
 class SliderDelegateAdapter(
     val onSetProgress: (addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) -> Unit,
@@ -45,6 +48,9 @@ class SliderDelegateAdapter(
     private var sliderInfoCounter = 0
     private var timer: CountDownTimer? = null
     private var isAttached = false
+
+    private var collectJob: kotlinx.coroutines.Job? = null
+
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -74,6 +80,7 @@ class SliderDelegateAdapter(
                 // Собираем данные для всех параметров (например, dataOffset и dataCode)
                 widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     dataOffset.add(it.dataOffset)
+
                 }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
@@ -120,10 +127,28 @@ class SliderDelegateAdapter(
             widgetPosition = widgetPosition
         )
 
+//        currentSliderInfo.instanceId = sliderInfoCounter++
+//        widgetSlidersInfo.removeAll { it.widgetPosition == widgetPosition }
+//        widgetSlidersInfo.sortBy { it.widgetPosition }
+//        widgetSlidersInfo.add(currentSliderInfo)
+
         currentSliderInfo.instanceId = sliderInfoCounter++
-        widgetSlidersInfo.removeAll { it.widgetPosition == widgetPosition }
-        widgetSlidersInfo.sortBy { it.widgetPosition }
+// Не удаляем по widgetPosition — разные слайдеры могут делить одну позицию!
+        val removed = widgetSlidersInfo.removeAll {
+            it.addressDevice == addressDevice && it.parameterID == parameterID
+        }
+        if (removed) Log.d("SliderMap", "Replaced widget for addr=$addressDevice pid=$parameterID")
         widgetSlidersInfo.add(currentSliderInfo)
+        Log.d("SliderMap", "Added widget: addr=$addressDevice pid=$parameterID pos=$widgetPosition; total=${widgetSlidersInfo.size}")
+
+        // Cache-first draw to avoid showing 0 if the event already arrived earlier
+        run {
+            val ref = ParameterRef(addressDevice, parameterID, dataCode)
+            val cached = ParameterProvider.getParameter(addressDevice, parameterID)
+            if (cached.data.isNotEmpty()) {
+                setUI(ref)
+            }
+        }
 
         sliderCollect()
 
@@ -231,27 +256,32 @@ class SliderDelegateAdapter(
             minusBtnRipple2.setOnClickListener(null)
             plusBtnRipple2.setOnClickListener(null)
         }
-
-        currentSliderInfo.responseReceived.set(false)
-        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)){
-            RetryUtils.sendRequestWithRetry(
-                request = {
-                    Log.d("SliderRequest", "addressDevice = $addressDevice, parameterID = $parameterID")
-                    main.bleCommandWithQueue(
-                        BLECommands.requestSlider(addressDevice, parameterID),
-                        MAIN_CHANNEL_CHARACTERISTIC,
-                        SampleGattAttributes.WRITE
-                    ) {}
-                },
-                isResponseReceived = { currentSliderInfo.responseReceived.get() },
-                maxRetries = 5,
-                delayMillis = 400L
-            )
-            Log.d("RequestUtils", "ВЕТКА IF Запрос выполнен: firstReceiveDataFlag true parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
-        }
-        else {
-            setUI(ParameterRef(addressDevice,parameterID, dataCode))
-            Log.d("RequestUtils", "ВЕТКА ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+        // Cache-first + Refresh: if cache is empty -> request with retries; otherwise UI already set
+        run {
+            val cachedNow = ParameterProvider.getParameter(addressDevice, parameterID)
+            if (cachedNow.data.isEmpty()) {
+                currentSliderInfo.responseReceived.set(false)
+                RetryUtils.sendRequestWithRetry(
+                    request = {
+                        Log.d("SliderDebugTest!", "=============================================")
+                        Log.d("SliderDebugTest!", "1 - addressDevice = $addressDevice, parameterID = $parameterID")
+                        main.bleCommandWithQueue(
+                            BLECommands.requestSlider(addressDevice, parameterID),
+                            MAIN_CHANNEL_CHARACTERISTIC,
+                            SampleGattAttributes.WRITE
+                        ) {}
+                    },
+                    isResponseReceived = { currentSliderInfo.responseReceived.get() },
+                    maxRetries = 5,
+                    delayMillis = 400L,
+                    scope = scope
+                )
+                Log.d("RequestUtils", "Запрос отправлен: кэш пуст. deviceAddress=$addressDevice, parameterId=$parameterID")
+            } else {
+                // Данные уже есть – убеждаемся, что не будем ретраить зря
+                currentSliderInfo.responseReceived.set(true)
+                Log.d("RequestUtils", "Кэш уже заполнен: deviceAddress=$addressDevice, parameterId=$parameterID, data='${cachedNow.data}'")
+            }
         }
 
     }
@@ -286,11 +316,23 @@ class SliderDelegateAdapter(
     }
 
     private fun sliderCollect() {
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                slidersFlow.collect { parameterRef ->
-                    setUI(parameterRef)
-                }
+        if (collectJob?.isActive == true) return
+        collectJob = scope.launch(Dispatchers.Main) {
+            slidersFlow.collect { parameterRef ->
+                val idx = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+
+
+                val info = widgetSlidersInfo.getOrNull(idx)
+                Log.d(
+                    "SliderProbe",
+                    "flow addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID} idx=$idx " +
+                            "params=${info?.dataOffset?.size ?: -1} offsets=${info?.dataOffset}"
+                )
+
+                Log.d("SliderDebugTest!", "2 - addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID} parameterData = ${parameter.data}")
+                Log.d("SliderFlow", "addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}, data=${parameter.data}, hasIdx=${idx != -1}")
+                if (idx != -1) setUI(parameterRef) else Log.d("SliderFlow", "skip update: adapter doesn't have widget for addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}")
             }
         }
     }
@@ -312,7 +354,7 @@ class SliderDelegateAdapter(
                         var newValue = castUnsignedCharToInt(
                             parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte()
                         )
-                        if (parameter.type == ParameterTypeEnum.PARTE_INT8_TYPE.number){
+                        if (parameter.type == PreferenceKeysUbi4.ParameterTypeEnum.PARTE_INT8_TYPE.number){
                             newValue = parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte().toInt()
                         }
                         widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
@@ -332,9 +374,10 @@ class SliderDelegateAdapter(
                 Log.d("SliderDebug", "Установлен флаг responseReceived=true для слайдера с индексом $indexWidgetSlider")
             }
         } else {
-            Log.d("parameter sliderCollect", "НЕТ слайдера для параметров: addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}")
-            widgetSlidersInfo.forEach {
-                Log.d("parameter sliderCollect", "Существующий слайдер: addressDevice = ${it.addressDevice}, parameterID = ${it.parameterID}")
+            Log.d("parameter sliderCollect", "НЕТ слайдера для: addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}. Всего=${widgetSlidersInfo.size}")
+            widgetSlidersInfo.forEachIndexed { i, it ->
+                Log.d("SliderMap", "MISS setUI for addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID}")
+                Log.d("parameter sliderCollect", "[$i] addr=${it.addressDevice}, pid=${it.parameterID}, pos=${it.widgetPosition}, min=${it.minProgress}, max=${it.maxProgress}")
             }
         }
         Log.d("SliderDebug", "Received parameter.data = '${parameter.data}', длина = ${parameter.data.length}")
@@ -351,12 +394,34 @@ class SliderDelegateAdapter(
         }
     }
 
-    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
-        return widgetSlidersInfo.indexOfFirst { it.addressDevice == addressDevice && it.parameterID == parameterID }
+private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
+    val idx = widgetSlidersInfo.indexOfFirst {
+        it.addressDevice == addressDevice && it.parameterID == parameterID
     }
+    if (idx == -1) {
+        Log.d("SliderMap", "Not found: addr=$addressDevice pid=$parameterID; listSize=${widgetSlidersInfo.size}")
+    }
+    return idx
+}
 
     override fun isForViewType(item: Any): Boolean = item is SliderItem
-    override fun SliderItem.getItemId(): Any = title
+    override fun SliderItem.getItemId(): Any = when (val w = widget) {
+        is SliderParameterWidgetEStruct -> {
+            val s = w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            val addr = s.parameterInfoSet.elementAt(0).deviceAddress
+            val pid = s.parameterInfoSet.elementAt(0).parameterID
+            val pos = s.widgetPosition
+            "slider-$addr-$pid-$pos"
+        }
+        is SliderParameterWidgetSStruct -> {
+            val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            val addr = s.parameterInfoSet.elementAt(0).deviceAddress
+            val pid = s.parameterInfoSet.elementAt(0).parameterID
+            val pos = s.widgetPosition
+            "slider-$addr-$pid-$pos"
+        }
+        else -> title
+    }
 
     fun onDestroy() {
         Log.d("SliderAdapterTest", "onDestroy slider")
@@ -364,6 +429,8 @@ class SliderDelegateAdapter(
         timer?.cancel()
         timer = null
         scope.coroutineContext.cancelChildren()
+        collectJob?.cancel()
+        collectJob = null
     }
 }
 

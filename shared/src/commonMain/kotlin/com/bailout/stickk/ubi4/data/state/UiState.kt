@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
@@ -20,6 +20,8 @@ object UiState {
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
 
 
+
+
     init {
         listWidgets = mutableSetOf()
         activeGestureFragmentFilterFlow = MutableStateFlow(1)
@@ -28,7 +30,7 @@ object UiState {
         updateFlow = MutableSharedFlow()
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
-        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 1)
+        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
     }
 
     private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {

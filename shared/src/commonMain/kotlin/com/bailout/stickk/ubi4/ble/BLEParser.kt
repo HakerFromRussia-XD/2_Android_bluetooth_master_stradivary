@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bmsStatusFlow
@@ -32,9 +33,11 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoDataStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -69,7 +72,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMa
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -82,6 +85,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DE
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
+import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -100,6 +104,7 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
+
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
 
@@ -348,6 +353,7 @@ class BLEParser(
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
+
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
                 ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> {
@@ -454,6 +460,7 @@ class BLEParser(
                             val idDec = idHex.toInt(16)
                             platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            activeGestureState.value = idDec
                             coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
@@ -462,7 +469,9 @@ class BLEParser(
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            val mode = (paramData.takeLast(2).toIntOrNull(16) == 1)
                             platformLog("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            selectGestureModeState.value = mode
                             coroutineScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                     }
@@ -508,6 +517,7 @@ class BLEParser(
             }
             DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 parseInitializeInformation(receiveDataString)
+
             }
             DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
                 try {
@@ -581,9 +591,15 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 WRITE_SLOT")
             }
             DataManagerCommand.READ_DATA.number -> {
-                platformLog("BLEParser", "TEST parser 2 READ_DATA")
-                parseProductInfoType(receiveDataString)
-                parseProductFwInfoType(receiveDataString)
+                platformLog("receiveDataString", "${receiveDataString.length}")
+                //TODO исправить версию прошивки CPU без мэджик намберс
+                if (receiveDataString.length == 174){
+                    parseProductInfoType(receiveDataString)
+
+                }
+                else if (receiveDataString.length == 166){
+                    parseProductFwInfoType(receiveDataString)
+                }
             }
             DataManagerCommand.WRITE_DATA.number -> {
                 platformLog("BLEParser", "TEST parser 2 WRITE_DATA")
@@ -600,10 +616,13 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+        listWidgets.clear()
         val progressTotal =
             fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
-        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+//        widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(widgetsLoadingProgressTotal, 0))
         coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
+        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
         bleManager.sendBytesKmm(
             BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
@@ -683,10 +702,13 @@ class BLEParser(
                         val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
                         val widgetDisplay = widgetStruct.display
                         platformLog("widgetStruct", "▶️widgetcode - ${widgetStruct.widgetCode}")
-
+                        //TODO проверить зачем!
+//                        baseParametrInfoStructArray[ID].additionalInfoRefSet.add(parsedWidget)
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             platformLog("sendWidgetsArray", "▶️ sendWidgetsArray()  called, total widgets=${listWidgets.size}")
+                            //TODO проверить оба варианта!
+                            //bleCommandExecutor.sendWidgetsArray()
                             updateFlow.emit(widgetDisplay)
                         }
                     }
@@ -754,7 +776,12 @@ class BLEParser(
                     bleManager.sendBytesKmm(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),
                         MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+
                 }
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestProductFWInfoType(0),
+                    MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+
             } else {
                 showToast("Нет сабдевайсов с параметрами")
             }
@@ -975,6 +1002,7 @@ class BLEParser(
         platformLog("parseProductInfoType", "deviceInfoStructs = $deviceInfoStructs")
         bleCommandExecutor.updateSerialNumber(deviceInfoStructs)
     }
+
 
     private fun parseProductFwInfoType(hex: String) {
         val deviceAddr = castUnsignedCharToInt(hex.substringSafe(12, 14).toInt(16).toByte())
@@ -1290,10 +1318,16 @@ class BLEParser(
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it)) {
                             canAdd = false
                             it.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetStruct.dataOffset))
+                            platformLog("addToListWidgetsTest", "run 1")
+                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                         if (combineWidgetId == it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetStruct.dataOffset))
+                            platformLog("addToListWidgetsTest", "run 2")
+                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                     }
                     is CommandParameterWidgetEStruct -> {
@@ -1305,15 +1339,18 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                     }
                     is PlotParameterWidgetEStruct -> {
+                        platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
 //                        if (deviceAddress == 34 && parameterID == 3) {
@@ -1332,6 +1369,8 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
@@ -1339,23 +1378,22 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                         }
                     }
                     is SliderParameterWidgetEStruct -> {
-//                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
-                            )
-                        }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
+                            val set = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
                         }
+                        coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                     }
                     is SwitchParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
@@ -1364,6 +1402,7 @@ class BLEParser(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
                             )
+                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         platformLog("SwitchParameterWidgetEStruct_addToListWidgets", "combineWidgetId = $combineWidgetId")
                     }
@@ -1414,12 +1453,12 @@ class BLEParser(
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
                         platformLog("parseWidgets SLIDER", "Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)}  $combineWidgetId = $combineWidgetIdIterated")
-                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
-                        }
+//                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
+//                            canAdd = false
+//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+//                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
+//                            )
+//                        }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
                             it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
@@ -1461,15 +1500,13 @@ class BLEParser(
             }
         }
         if (canAdd) {
-//            listWidgets.add(widget)
             val added = listWidgets.add(widget)
             if (added) {
-                val total = widgetsLoadingProgressTotal
-                if (total > 0) {
-                    val current = listWidgets.size
-                    coroutineScope.launch {
-                        widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
-                    }
+                // мгновенный апдейт прогресса по формуле коллеги
+                val total = widgetsLoadingProgressTotal.coerceAtLeast(1)
+                val current = listWidgets.size.coerceAtMost(total)
+                coroutineScope.launch {
+                    widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
                 }
             }
         }

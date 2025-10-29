@@ -30,8 +30,8 @@ class WDApplication : MultiDexApplication() {
     app = this
     instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()
-        .applicationModule(ApplicationModule1(this))
-        .build()
+      .applicationModule(ApplicationModule1(this))
+      .build()
     bluetoothModule = BluetoothModule(this)
     AndroidContextProvider.init(applicationContext)
   }

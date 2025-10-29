@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -24,6 +25,11 @@ object WidgetState {
     var plotArray by Delegates.notNull<ArrayList<Int>>()
     var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
+    var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+
+    val activeGestureState = MutableStateFlow<Int?>(null)
+    val selectGestureModeState = MutableStateFlow(false)
+
 
 
     var countBinding by Delegates.notNull<Int>()
@@ -33,13 +39,13 @@ object WidgetState {
         plotArrayFlow = MutableStateFlow( PlotParameterRef(0, 0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow(replay = 1)
         plotArray = arrayListOf()
-        slidersFlow = MutableSharedFlow(replay = 1)
-        thresholdFlow = MutableSharedFlow(replay = 1)
-        switcherFlow = MutableSharedFlow(replay = 1)
-        bindingGroupFlow = MutableSharedFlow(replay = 1)
-        activeGestureFlow = MutableSharedFlow(replay = 1)
-        selectGestureModeFlow = MutableSharedFlow(replay = 1)
-        spinnerFlow = MutableSharedFlow(replay = 1)
+        slidersFlow = MutableSharedFlow()
+        thresholdFlow = MutableSharedFlow()
+        switcherFlow = MutableSharedFlow()
+        bindingGroupFlow = MutableSharedFlow()
+        activeGestureFlow = MutableSharedFlow()
+        selectGestureModeFlow = MutableSharedFlow()
+        spinnerFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUbi4.TrainingModelState.BASE)
         rotationGroupGestures = arrayListOf()
         bindingGroupGestures = arrayListOf()
@@ -47,6 +53,6 @@ object WidgetState {
         graphThreadFlag = true
         bmsStatusFlow = MutableSharedFlow()
         batteryPercentFlow = MutableSharedFlow(replay = 1)
-
+        widgetsMergeEventFlow = MutableSharedFlow()
     }
 }

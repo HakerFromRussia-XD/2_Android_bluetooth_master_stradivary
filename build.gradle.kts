@@ -6,6 +6,11 @@ plugins {
     id("com.android.library") apply false
     id("org.jetbrains.compose") apply false
 }
+buildscript {
+    dependencies {
+        classpath("dev.icerock.moko:resources-generator:0.25.1")
+    }
+}
 
 allprojects {
     configurations.all {

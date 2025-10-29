@@ -6,9 +6,11 @@
 //
 import Foundation
 import shared
+import UIKit
 
-struct GestureOpticListItemViewModel: Equatable, Hashable {
-    @ObservedObject var provider: GestureOpticProvider
+//typealias RotationGroup = ComBailoutStickkUbi4DataLocalRotationGroup
+
+struct GestureListItemViewModel: Equatable, Hashable {
     private let identifier: String
     let title: String
     let widget: Widget
@@ -21,7 +23,7 @@ struct GestureOpticListItemViewModel: Equatable, Hashable {
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
-        self.gestureNameList = GestureOpticListItemViewModel.makeGestureNames()
+        self.gestureNameList = GestureListItemViewModel.makeGestureNames()
         
         if let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget) {
             self.parameterInfoSet = ParameterInfoData.makeSet(from: baseStruct.parameterInfoSet)
@@ -31,61 +33,87 @@ struct GestureOpticListItemViewModel: Equatable, Hashable {
     }
 }
 
-extension GestureOpticListItemViewModel {
-    func makeProvider() -> GestureOpticProvider {
+extension GestureListItemViewModel {
+    func makeProvider() -> GestureProvider {
         let factory = GestureCatalog.factoryGestures
         let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
         let rotation = Array(factory.prefix(4))
-        let spr: [GestureOpticProvider.SprGestureDisplayItem] = []
-        return GestureOpticProvider(
-            factoryGestures: factory.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: nil) },
-            customGestures: custom.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: $0.subtitle) },
-            rotationGroup: rotation.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: nil) },
+        let spr: [GestureProvider.SprGestureDisplayItem] = []
+        return GestureProvider(
+            factoryGestures: factory.map {
+                GestureProvider.GestureDisplayItem(
+                    id: $0.id,
+                    title: $0.title,
+                    subtitle: nil,
+                    imageView: $0.imageView
+                )
+            },
+            customGestures: custom.map {
+                GestureProvider.GestureDisplayItem(
+                    id: $0.id,
+                    title: $0.title,
+                    subtitle: $0.subtitle,
+                    imageView: nil
+                )
+            },
+            rotationGroup: rotation.map {
+                GestureProvider.GestureDisplayItem(
+                    id: $0.id,
+                    title: $0.title,
+                    subtitle: nil,
+                    imageView: $0.imageView
+                )
+            },
             sprGestures: spr,
             activeGestureId: 0,
             activeGestureTitle: nil
         )
     }
-    func selectFactoryGesture(_ item: GestureOpticProvider.GestureDisplayItem, provider: GestureOpticProvider) {
+    func selectFactoryGesture(_ item: GestureProvider.GestureDisplayItem, provider: GestureProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
         sendActiveGesture(gestureId: item.id)
     }
 
-    func selectCustomGesture(_ item: GestureOpticProvider.GestureDisplayItem, provider: GestureOpticProvider) {
+    func selectCustomGesture(_ item: GestureProvider.GestureDisplayItem, provider: GestureProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
         sendActiveGesture(gestureId: item.id)
     }
 
-    func openGestureSettings(for item: GestureOpticProvider.GestureDisplayItem) {
+    func openGestureSettings(for item: GestureProvider.GestureDisplayItem) {
         requestGestureSettings(gestureId: item.id)
     }
 
-    func moveRotationGestureUp(at index: Int, provider: GestureOpticProvider) {
+    func moveRotationGestureUp(at index: Int, provider: GestureProvider) {
         guard index > 0 else { return }
         provider.rotationGroup.swapAt(index, index - 1)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func moveRotationGestureDown(at index: Int, provider: GestureOpticProvider) {
+    func moveRotationGestureDown(at index: Int, provider: GestureProvider) {
         guard index < provider.rotationGroup.count - 1 else { return }
         provider.rotationGroup.swapAt(index, index + 1)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func removeRotationGesture(at index: Int, provider: GestureOpticProvider) {
+    func removeRotationGesture(at index: Int, provider: GestureProvider) {
         guard provider.rotationGroup.indices.contains(index) else { return }
         provider.rotationGroup.remove(at: index)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func appendRotationGesture(provider: GestureOpticProvider) {
+    func appendRotationGesture(provider: GestureProvider) {
         guard let gesture = GestureCatalog.factoryGestures.first(where: { item in
             provider.rotationGroup.contains(where: { $0.id == item.id }) == false
         }) else { return }
         provider.rotationGroup.append(
-            GestureOpticProvider.GestureDisplayItem(id: gesture.id, title: gesture.title, subtitle: nil)
+            GestureProvider.GestureDisplayItem(
+                id: gesture.id,
+                title: gesture.title,
+                subtitle: nil,
+                imageView: gesture.imageView
+            )
         )
         sendRotationGroup(with: provider.rotationGroup)
     }
@@ -132,16 +160,16 @@ extension GestureOpticListItemViewModel {
         sendBytes(data)
     }
 
-    private func sendRotationGroup(with gestures: [GestureOpticProvider.GestureDisplayItem]) {
-        let rotationGroup = RotationGroup.make(from: gestures)
+    private func sendRotationGroup(with gestures: [GestureProvider.GestureDisplayItem]) {
+//        let rotationGroup = RotationGroup.make(from: gestures)
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
-        let data = BLECommands.shared.sendRotationGroupInfo(
-            addressDevice: Int32(widget.deviceAddress),
-            parameterID: Int32(parameterID),
-            rotationGroup: rotationGroup
-        )
-        sendBytes(data)
+//        let data = BLECommands.shared.sendRotationGroupInfo(
+//            addressDevice: Int32(widget.deviceAddress),
+//            parameterID: Int32(parameterID),
+//            rotationGroup: rotationGroup
+//        )
+//        sendBytes(data)
     }
     
     private func parameterID(for dataCode: Int) -> Int {
@@ -162,7 +190,7 @@ extension GestureOpticListItemViewModel {
         hasher.combine(identifier)
         hasher.combine(title)
     }
-    static func == (lhs: GestureOpticListItemViewModel, rhs: GestureOpticListItemViewModel) -> Bool {
+    static func == (lhs: GestureListItemViewModel, rhs: GestureListItemViewModel) -> Bool {
         lhs.identifier == rhs.identifier
         && lhs.title == rhs.title
     }
@@ -174,24 +202,25 @@ private enum GestureCatalog {
         let id: Int
         let title: String
         var subtitle: String? = nil
+        let imageView: UIImageView?
     }
 
     static let factoryGestures: [GestureItem] = [
-        .init(id: 1, title: NSLocalizedString("Fist", comment: "")),
-        .init(id: 2, title: NSLocalizedString("Point", comment: "")),
-        .init(id: 3, title: NSLocalizedString("Pinch", comment: "")),
-        .init(id: 4, title: NSLocalizedString("Fist + thumb", comment: "")),
-        .init(id: 5, title: NSLocalizedString("Key", comment: "")),
-        .init(id: 6, title: NSLocalizedString("Rock", comment: "")),
-        .init(id: 7, title: NSLocalizedString("Tweezers", comment: "")),
-        .init(id: 8, title: NSLocalizedString("Cupholder", comment: "")),
-        .init(id: 9, title: NSLocalizedString("Half grab", comment: "")),
-        .init(id: 10, title: NSLocalizedString("OK", comment: "")),
-        .init(id: 11, title: NSLocalizedString("Thumb up", comment: "")),
-        .init(id: 12, title: NSLocalizedString("Middle finger", comment: "")),
-        .init(id: 13, title: NSLocalizedString("Double point", comment: "")),
-        .init(id: 14, title: NSLocalizedString("Call me", comment: "")),
-        .init(id: 15, title: NSLocalizedString("Natural", comment: ""))
+        .init(id: 1, title: NSLocalizedString("Fist", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_fist_1.toUIImage())),
+        .init(id: 2, title: NSLocalizedString("Point", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_point.toUIImage())),
+        .init(id: 3, title: NSLocalizedString("Pinch", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_pinch.toUIImage())),
+        .init(id: 4, title: NSLocalizedString("Fist + thumb", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_fist_2.toUIImage())),
+        .init(id: 5, title: NSLocalizedString("Key", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_key.toUIImage())),
+        .init(id: 6, title: NSLocalizedString("Rock", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_rock.toUIImage())),
+        .init(id: 7, title: NSLocalizedString("Tweezers", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_twizzers.toUIImage())),
+        .init(id: 8, title: NSLocalizedString("Cupholder", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_cupholder.toUIImage())),
+        .init(id: 9, title: NSLocalizedString("Half grab", comment: ""), imageView: UIImageView(image: SharedRes.images().collect_half_grab.toUIImage())),
+        .init(id: 10, title: NSLocalizedString("OK", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_ok.toUIImage())),
+        .init(id: 11, title: NSLocalizedString("Thumb up", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_thumb_up.toUIImage())),
+//        .init(id: 12, title: NSLocalizedString("Middle finger", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_middle_finger.toUIImage())),
+        .init(id: 13, title: NSLocalizedString("Double point", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_double_point.toUIImage())),
+        .init(id: 14, title: NSLocalizedString("Call me", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_call_me.toUIImage())),
+        .init(id: 15, title: NSLocalizedString("Natural", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_natural_position.toUIImage()))
     ]
 
     static func customGestures(withTitles titles: [String]) -> [GestureItem] {
@@ -200,41 +229,32 @@ private enum GestureCatalog {
             GestureItem(
                 id: baseIdentifier + index,
                 title: title,
-                subtitle: NSLocalizedString("Custom gesture", comment: "")
+                subtitle: NSLocalizedString("Custom gesture", comment: ""),
+                imageView: nil
             )
         }
     }
 }
 private extension RotationGroup {
-    static func make(from gestures: [GestureOpticProvider.GestureDisplayItem]) -> RotationGroup {
-//        var group = RotationGroup()
-//        for (index, gesture) in gestures.enumerated() {
-//            let value = Int32(gesture.id)
-//            switch index {
-//            case 0:
-//                group.gesture1Id = value
-//            case 1:
-//                group.gesture2Id = value
-//            case 2:
-//                group.gesture3Id = value
-//            case 3:
-//                group.gesture4Id = value
-//            case 4:
-//                group.gesture5Id = value
-//            case 5:
-//                group.gesture6Id = value
-//            case 6:
-//                group.gesture7Id = value
-//            case 7:
-//                group.gesture8Id = value
-//            default:
-//                break
-//            }
-//        }
-        return group
+    static func make(from gestures: [GestureProvider.GestureDisplayItem]) -> RotationGroup {
+        func id(_ index: Int) -> Int32 {
+            guard gestures.indices.contains(index) else { return 0 }
+            return Int32(gestures[index].id)
+        }
+
+        return RotationGroup(
+            gesture1Id: id(0), gesture1ImageId: 0,
+            gesture2Id: id(1), gesture2ImageId: 0,
+            gesture3Id: id(2), gesture3ImageId: 0,
+            gesture4Id: id(3), gesture4ImageId: 0,
+            gesture5Id: id(4), gesture5ImageId: 0,
+            gesture6Id: id(5), gesture6ImageId: 0,
+            gesture7Id: id(6), gesture7ImageId: 0,
+            gesture8Id: id(7), gesture8ImageId: 0
+        )
     }
 }
-private extension GestureOpticListItemViewModel {
+private extension GestureListItemViewModel {
     static func makeGestureNames() -> [String] {
         return (1...14).map { index in
             String(format: NSLocalizedString("Gesture %d", comment: ""), index)

@@ -3,13 +3,13 @@ import SwiftUI
 import Combine
 import shared
 
-final class GestureOpticViewCell: UITableViewCell {
-    static let reuseIdentifier = String(describing: GestureOpticViewCell.self)
+final class GestureViewCell: UITableViewCell {
+    static let reuseIdentifier = String(describing: GestureViewCell.self)
     
-    private var viewModel: GestureOpticListItemViewModel!
+    private var viewModel: GestureListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var cancellable: AnyCancellable?
-    private var provider:   GestureOpticProvider?
+    private var provider:   GestureProvider?
     private var job: Kotlinx_coroutines_coreJob?
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
@@ -23,7 +23,7 @@ final class GestureOpticViewCell: UITableViewCell {
     override func awakeFromNib() { super.awakeFromNib() }
     
     @available(iOS 16.0, *)
-    func configure(with viewModel: GestureOpticListItemViewModel) {
+    func configure(with viewModel: GestureListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
@@ -38,7 +38,7 @@ final class GestureOpticViewCell: UITableViewCell {
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
-            GestureOpticProvider(  
+            GesturesWidgetView (
                 provider: provider,
                 onSegmentChange: { [weak self] segment in
                     guard let self else { return }
@@ -90,7 +90,7 @@ final class GestureOpticViewCell: UITableViewCell {
             self?.updateUI(paramRef, viewModel: viewModel)
         }
         
-        viewModel.requestActiveGesutre()
+//        viewModel.requestActiveGesutre()
     }
         
     override func prepareForReuse() {
@@ -105,7 +105,7 @@ final class GestureOpticViewCell: UITableViewCell {
     }
         
         
-    private func updateUI(_ ref: ParameterRef, viewModel: GestureOpticListItemViewModel) {
+    private func updateUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
         

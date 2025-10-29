@@ -19,3 +19,15 @@
 "No internet connection" = "No internet connection";
 "Failed loading widgets" = "Failed loading widgets";
 "Search Widgets" = "Search Widgets";
+
+"collection_of_gestures" = "Collection";
+"rotation_group" = "Rotation group";
+"spr_gestures" = "SPR gestures";
+"custom_gestures_section" = "Custom gestures";
+"active_gesture_is" = "Active gesture: %1$@";
+"gesture_not_selected" = "Not selected";
+"add_gesture" = "Add gesture";
+"rotation_group_hint" = "Here you can select gestures for everyday use inside the rotation group.";
+"spr_empty_placeholder" = "No gestures have been added yet";
+"control_gestures" = "Control gestures";
+"annotation_main_text" = "Here you can select gestures recorded during training, as well as attach your own gestures to them.";

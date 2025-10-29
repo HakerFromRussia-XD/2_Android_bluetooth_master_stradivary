@@ -19,3 +19,15 @@
 "No internet connection" = "Нет сети";
 "Failed loading widgets" = "Ошибка загрузки виджетов";
 "Search Widgets" = "Поиск виджетов";
+
+"collection_of_gestures" = "Коллекция";
+"rotation_group" = "Группа ротации";
+"spr_gestures" = "СПППР жесты";
+"custom_gestures_section" = "Пользовательские жесты";
+"active_gesture_is" = "Активный жест: %1$@";
+"gesture_not_selected" = "Не выбран";
+"add_gesture" = "Добавить жест";
+"rotation_group_hint" = "Здесь можно выбрать жесты для повседневного использования в группе ротации.";
+"spr_empty_placeholder" = "Жесты пока не добавлены";
+"control_gestures" = "Жесты контроля";
+"annotation_main_text" = "Здесь можно выбрать жесты записанные во время обучения, а так же привязать к ним собственные жесты.";

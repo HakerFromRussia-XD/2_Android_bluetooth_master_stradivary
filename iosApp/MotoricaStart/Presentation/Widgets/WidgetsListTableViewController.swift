@@ -117,10 +117,10 @@ final class WidgetsListTableViewController: UITableViewController {
                 
                 case .gestureOptic(let vm):
                     let cell = tableView.dequeueReusableCell(
-                        withIdentifier: GestureOpticViewCell.reuseIdentifier,
+                        withIdentifier: GestureViewCell.reuseIdentifier,
                         for: indexPath
-                    ) as! GestureOpticViewCell
-                    print("requestGestureOptic title = \(vm.title)")
+                    ) as! GestureViewCell
+                    print("requestGesture title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
             }

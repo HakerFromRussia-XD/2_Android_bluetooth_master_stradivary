@@ -8,6 +8,7 @@ import Foundation
 import shared
 
 struct GestureOpticListItemViewModel: Equatable, Hashable {
+    @ObservedObject var provider: GestureOpticProvider
     private let identifier: String
     let title: String
     let widget: Widget
@@ -45,7 +46,6 @@ extension GestureOpticListItemViewModel {
             activeGestureTitle: nil
         )
     }
-    
     func selectFactoryGesture(_ item: GestureOpticProvider.GestureDisplayItem, provider: GestureOpticProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
@@ -207,30 +207,30 @@ private enum GestureCatalog {
 }
 private extension RotationGroup {
     static func make(from gestures: [GestureOpticProvider.GestureDisplayItem]) -> RotationGroup {
-        var group = RotationGroup()
-        for (index, gesture) in gestures.enumerated() {
-            let value = Int32(gesture.id)
-            switch index {
-            case 0:
-                group.gesture1Id = value
-            case 1:
-                group.gesture2Id = value
-            case 2:
-                group.gesture3Id = value
-            case 3:
-                group.gesture4Id = value
-            case 4:
-                group.gesture5Id = value
-            case 5:
-                group.gesture6Id = value
-            case 6:
-                group.gesture7Id = value
-            case 7:
-                group.gesture8Id = value
-            default:
-                break
-            }
-        }
+//        var group = RotationGroup()
+//        for (index, gesture) in gestures.enumerated() {
+//            let value = Int32(gesture.id)
+//            switch index {
+//            case 0:
+//                group.gesture1Id = value
+//            case 1:
+//                group.gesture2Id = value
+//            case 2:
+//                group.gesture3Id = value
+//            case 3:
+//                group.gesture4Id = value
+//            case 4:
+//                group.gesture5Id = value
+//            case 5:
+//                group.gesture6Id = value
+//            case 6:
+//                group.gesture7Id = value
+//            case 7:
+//                group.gesture8Id = value
+//            default:
+//                break
+//            }
+//        }
         return group
     }
 }

@@ -20,7 +20,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
-import com.bailout.stickk.ubi4.shared.SharedRes
+//import com.bailout.stickk.ubi4.MR
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 
 
 class SliderDelegateAdapter(
@@ -50,8 +51,6 @@ class SliderDelegateAdapter(
     private var isAttached = false
 
     private var collectJob: kotlinx.coroutines.Job? = null
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {

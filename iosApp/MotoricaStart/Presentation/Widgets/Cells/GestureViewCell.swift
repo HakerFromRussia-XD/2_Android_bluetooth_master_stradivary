@@ -38,7 +38,7 @@ final class GestureOpticViewCell: UITableViewCell {
         
         // 2. Вклеиваем SwiftUI контент
         contentConfiguration = UIHostingConfiguration {
-            GestureOpticProvider(
+            GestureOpticProvider(  
                 provider: provider,
                 onSegmentChange: { [weak self] segment in
                     guard let self else { return }

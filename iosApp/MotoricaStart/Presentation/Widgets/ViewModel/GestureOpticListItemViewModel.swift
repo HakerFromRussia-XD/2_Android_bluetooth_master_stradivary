@@ -12,63 +12,152 @@ struct GestureOpticListItemViewModel: Equatable, Hashable {
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
-}
-
-extension GestureOpticListItemViewModel {
+    private let gestureNameList: [String]
+    private let parameterInfoSet: Set<ParameterInfoData>
+    
     init(widget: Widget, bleManager: BleManagerKmm) {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
+        self.gestureNameList = GestureOpticListItemViewModel.makeGestureNames()
+        
+        if let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget) {
+            self.parameterInfoSet = ParameterInfoData.makeSet(from: baseStruct.parameterInfoSet)
+        } else {
+            self.parameterInfoSet = []
+        }
+    }
+}
+
+extension GestureOpticListItemViewModel {
+    func makeProvider() -> GestureOpticProvider {
+        let factory = GestureCatalog.factoryGestures
+        let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
+        let rotation = Array(factory.prefix(4))
+        let spr: [GestureOpticProvider.SprGestureDisplayItem] = []
+        return GestureOpticProvider(
+            factoryGestures: factory.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: nil) },
+            customGestures: custom.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: $0.subtitle) },
+            rotationGroup: rotation.map { GestureOpticProvider.GestureDisplayItem(id: $0.id, title: $0.title, subtitle: nil) },
+            sprGestures: spr,
+            activeGestureId: 0,
+            activeGestureTitle: nil
+        )
     }
     
-    func requestActiveGesutre() {
-//        let data = BLECommands.shared.requestSwitcher(
-//            addressDevice: Int32(widget.deviceAddress),
-//            parameterID: Int32(widget.parameterID)
-//        )
-//
-//        sendBytes(data)
-        print("[request] requestActiveGesutre")
+    func selectFactoryGesture(_ item: GestureOpticProvider.GestureDisplayItem, provider: GestureOpticProvider) {
+        provider.activeGestureId = item.id
+        provider.activeGestureTitle = item.title
+        sendActiveGesture(gestureId: item.id)
     }
-//    func sendSwitchState(isOn: Bool) {
-//        let data = BLECommands.shared.sendSwitcherCommand(
-//            addressDevice: Int32(widget.deviceAddress),
-//            parameterID: Int32(widget.parameterID),
-//            switchState: isOn
-//        )
-//
-//        sendBytes(data)
-//    }
-//
-//    func cachedSwitchValue() -> Bool? {
-//        let parameter = ParameterProvider.Companion()
-//            .getParameter(deviceAddress: Int32(widget.deviceAddress), parameterID: Int32(widget.parameterID))
-//
-//        guard parameter.firstReceiveDataFlag == false else { return nil }
-//
-//        return switchValue(from: parameter)
-//    }
-//
-//    func switchValue(from parameter: BaseParameterInfoStruct) -> Bool? {
-//        let data = parameter.data
-//        guard data.count >= 2 else { return nil }
-//
-//        let prefix = data.prefix(2)
-//        let value = Int(prefix, radix: 16) ?? 0
-//
-//        return value != 0
-//    }
-//
-//    
-//    private func sendBytes (_ data: KotlinByteArray) {
-//        let gatt = SampleGattAttributes()
-//        bleManager.sendBytesKmm(
-//            data: data,
-//            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
-//            typeCommand: gatt.WRITE,
-//            onChunkSent: {})
-//    }
+
+    func selectCustomGesture(_ item: GestureOpticProvider.GestureDisplayItem, provider: GestureOpticProvider) {
+        provider.activeGestureId = item.id
+        provider.activeGestureTitle = item.title
+        sendActiveGesture(gestureId: item.id)
+    }
+
+    func openGestureSettings(for item: GestureOpticProvider.GestureDisplayItem) {
+        requestGestureSettings(gestureId: item.id)
+    }
+
+    func moveRotationGestureUp(at index: Int, provider: GestureOpticProvider) {
+        guard index > 0 else { return }
+        provider.rotationGroup.swapAt(index, index - 1)
+        sendRotationGroup(with: provider.rotationGroup)
+    }
+
+    func moveRotationGestureDown(at index: Int, provider: GestureOpticProvider) {
+        guard index < provider.rotationGroup.count - 1 else { return }
+        provider.rotationGroup.swapAt(index, index + 1)
+        sendRotationGroup(with: provider.rotationGroup)
+    }
+
+    func removeRotationGesture(at index: Int, provider: GestureOpticProvider) {
+        guard provider.rotationGroup.indices.contains(index) else { return }
+        provider.rotationGroup.remove(at: index)
+        sendRotationGroup(with: provider.rotationGroup)
+    }
+
+    func appendRotationGesture(provider: GestureOpticProvider) {
+        guard let gesture = GestureCatalog.factoryGestures.first(where: { item in
+            provider.rotationGroup.contains(where: { $0.id == item.id }) == false
+        }) else { return }
+        provider.rotationGroup.append(
+            GestureOpticProvider.GestureDisplayItem(id: gesture.id, title: gesture.title, subtitle: nil)
+        )
+        sendRotationGroup(with: provider.rotationGroup)
+    }
+
+    func requestRotationGroup() {
+        let parameterID = parameterID(for: ParameterCode.gestureGroup)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.requestRotationGroup(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID)
+        )
+        sendBytes(data)
+    }
+
+    func requestBindingGroup() {
+        let parameterID = parameterID(for: ParameterCode.bindingGroup)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.requestBindingGroup(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID)
+        )
+        sendBytes(data)
+    }
+
+    private func sendActiveGesture(gestureId: Int) {
+        let parameterID = parameterID(for: ParameterCode.selectGesture)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.sendActiveGesture(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            activeGesture: Int32(gestureId)
+        )
+        sendBytes(data)
+    }
+
+    private func requestGestureSettings(gestureId: Int) {
+        let parameterID = parameterID(for: ParameterCode.gestureSettings)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.requestGestureInfo(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            gestureId: Int32(gestureId)
+        )
+        sendBytes(data)
+    }
+
+    private func sendRotationGroup(with gestures: [GestureOpticProvider.GestureDisplayItem]) {
+        let rotationGroup = RotationGroup.make(from: gestures)
+        let parameterID = parameterID(for: ParameterCode.gestureGroup)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.sendRotationGroupInfo(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            rotationGroup: rotationGroup
+        )
+        sendBytes(data)
+    }
+    
+    private func parameterID(for dataCode: Int) -> Int {
+        parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
+    }
+
+    private func sendBytes(_ data: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+   
     func hash(into hasher: inout Hasher) {
         hasher.combine(identifier)
         hasher.combine(title)
@@ -77,4 +166,84 @@ extension GestureOpticListItemViewModel {
         lhs.identifier == rhs.identifier
         && lhs.title == rhs.title
     }
+}
+
+
+private enum GestureCatalog {
+    struct GestureItem {
+        let id: Int
+        let title: String
+        var subtitle: String? = nil
+    }
+
+    static let factoryGestures: [GestureItem] = [
+        .init(id: 1, title: NSLocalizedString("Fist", comment: "")),
+        .init(id: 2, title: NSLocalizedString("Point", comment: "")),
+        .init(id: 3, title: NSLocalizedString("Pinch", comment: "")),
+        .init(id: 4, title: NSLocalizedString("Fist + thumb", comment: "")),
+        .init(id: 5, title: NSLocalizedString("Key", comment: "")),
+        .init(id: 6, title: NSLocalizedString("Rock", comment: "")),
+        .init(id: 7, title: NSLocalizedString("Tweezers", comment: "")),
+        .init(id: 8, title: NSLocalizedString("Cupholder", comment: "")),
+        .init(id: 9, title: NSLocalizedString("Half grab", comment: "")),
+        .init(id: 10, title: NSLocalizedString("OK", comment: "")),
+        .init(id: 11, title: NSLocalizedString("Thumb up", comment: "")),
+        .init(id: 12, title: NSLocalizedString("Middle finger", comment: "")),
+        .init(id: 13, title: NSLocalizedString("Double point", comment: "")),
+        .init(id: 14, title: NSLocalizedString("Call me", comment: "")),
+        .init(id: 15, title: NSLocalizedString("Natural", comment: ""))
+    ]
+
+    static func customGestures(withTitles titles: [String]) -> [GestureItem] {
+        let baseIdentifier = 64
+        return titles.enumerated().map { index, title in
+            GestureItem(
+                id: baseIdentifier + index,
+                title: title,
+                subtitle: NSLocalizedString("Custom gesture", comment: "")
+            )
+        }
+    }
+}
+private extension RotationGroup {
+    static func make(from gestures: [GestureOpticProvider.GestureDisplayItem]) -> RotationGroup {
+        var group = RotationGroup()
+        for (index, gesture) in gestures.enumerated() {
+            let value = Int32(gesture.id)
+            switch index {
+            case 0:
+                group.gesture1Id = value
+            case 1:
+                group.gesture2Id = value
+            case 2:
+                group.gesture3Id = value
+            case 3:
+                group.gesture4Id = value
+            case 4:
+                group.gesture5Id = value
+            case 5:
+                group.gesture6Id = value
+            case 6:
+                group.gesture7Id = value
+            case 7:
+                group.gesture8Id = value
+            default:
+                break
+            }
+        }
+        return group
+    }
+}
+private extension GestureOpticListItemViewModel {
+    static func makeGestureNames() -> [String] {
+        return (1...14).map { index in
+            String(format: NSLocalizedString("Gesture %d", comment: ""), index)
+        }
+    }
+}
+private enum ParameterCode {
+    static let selectGesture = 1
+    static let gestureSettings = 31
+    static let gestureGroup = 32
+    static let bindingGroup = 43
 }

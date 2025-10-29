@@ -8,7 +8,9 @@ final class GestureOpticViewCell: UITableViewCell {
     
     private var viewModel: GestureOpticListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
-    private var numberCancellable: AnyCancellable?
+    private var cancellable: AnyCancellable?
+    private var provider:   GestureOpticProvider?
+    private var job: Kotlinx_coroutines_coreJob?
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -18,34 +20,75 @@ final class GestureOpticViewCell: UITableViewCell {
         super.init(coder: coder)
     }
     
-    private var cancellable: AnyCancellable?
-    private var provider:   GestureOpticProvider?
-    private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
-    
     override func awakeFromNib() { super.awakeFromNib() }
     
     @available(iOS 16.0, *)
     func configure(with viewModel: GestureOpticListItemViewModel) {
         self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
-        let provider = GestureOpticProvider(
-            title: viewModel.title
-        )
+//        let provider = GestureOpticProvider(
+//            title: viewModel.title
+//        )
+        let provider = viewModel.makeProvider()
         self.provider = provider
         cancellable?.cancel()
         
         // 2. Вклеиваем SwiftUI контент
-//        contentConfiguration = UIHostingConfiguration {
-//            GestureOpticProvider(provider: provider, title: <#String#>)
-//        }
+        contentConfiguration = UIHostingConfiguration {
+            GestureOpticProvider(
+                provider: provider,
+                onSegmentChange: { [weak self] segment in
+                    guard let self else { return }
+                    switch segment {
+                    case .collection:
+                        break
+                    case .rotationGroup:
+                        self.viewModel.requestRotationGroup()
+                    case .sprGroup:
+                        self.viewModel.requestBindingGroup()
+                    }
+                },
+                onFactoryGestureTap: { [weak self] item in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.selectFactoryGesture(item, provider: provider)
+                },
+                onCustomGestureTap: { [weak self] item in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.selectCustomGesture(item, provider: provider)
+                },
+                onCustomGestureSettingsTap: { [weak self] item in
+                    self?.viewModel.openGestureSettings(for: item)
+                },
+                onRotationGestureMoveUp: { [weak self] index in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.moveRotationGestureUp(at: index, provider: provider)
+                },
+                onRotationGestureMoveDown: { [weak self] index in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.moveRotationGestureDown(at: index, provider: provider)
+                },
+                onRotationGestureRemove: { [weak self] index in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.removeRotationGesture(at: index, provider: provider)
+                },
+                onRotationGestureAdd: { [weak self] in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.appendRotationGesture(provider: provider)
+                },
+                onSprGestureAction: { _ in },
+                onSprAddTap: { }
+            )
+        }
 //        numberCancellable?.cancel()
-//            
-//        // 3. Запускаем подписку на поток
-//        job?.cancel(cause: nil)
-//        job = WidgetStateBridge.shared.observeSwitchers { [weak self] paramRef in
-//            self?.updateUI(paramRef, viewModel: viewModel)
-//        }
+            
+        // 3. Запускаем подписку на поток
+        job?.cancel(cause: nil)
+        job = WidgetStateBridge.shared.observeSwitchers { [weak self] paramRef in
+            self?.updateUI(paramRef, viewModel: viewModel)
+        }
         
         viewModel.requestActiveGesutre()
     }
@@ -54,15 +97,15 @@ final class GestureOpticViewCell: UITableViewCell {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
-//        job?.cancel(cause: nil)        // прекращаем наблюдение
-//        job = nil
-//        provider    = nil
-//        contentConfiguration = nil
+        job?.cancel(cause: nil)
+        job = nil
+        provider = nil
+        contentConfiguration = nil
 //        isProgrammaticUpdate = false
     }
         
         
-    private func updateUI(_ ref: ParameterRef, viewModel: SwitchListItemViewModel) {
+    private func updateUI(_ ref: ParameterRef, viewModel: GestureOpticListItemViewModel) {
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
         

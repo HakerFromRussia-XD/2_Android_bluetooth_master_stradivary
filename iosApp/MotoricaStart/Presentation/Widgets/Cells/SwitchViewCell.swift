@@ -29,6 +29,8 @@ final class SwitchViewCell: UITableViewCell {
     @available(iOS 16.0, *)
     func configure(with viewModel: SwitchListItemViewModel) {
         self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
         let provider = SwitchProvider(

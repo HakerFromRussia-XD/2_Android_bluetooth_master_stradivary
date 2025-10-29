@@ -5,9 +5,10 @@
 //  Created by Motorica LLC on 24.10.2025.
 //
 
-import SwiftUI
+import Combine
+import UIKit
 
-final class GestureProvider: ObservableObject {
+final class GesturesProvider: ObservableObject {
     @Published var selectedSegment: Segment = .collection
     @Published var isFactoryExpanded: Bool = true
     @Published var activeGestureId: Int?

@@ -88,7 +88,7 @@
 		1FFFC832221B0041007D99D2 /* WidgetsQueriesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC828221B0041007D99D2 /* WidgetsQueriesRepository.swift */; };
 		1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */; };
 		1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */; };
-		652136F62DF82888006AB049 /* SliderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652136F52DF82884006AB049 /* SliderRowView.swift */; };
+		652136F62DF82888006AB049 /* SliderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652136F52DF82884006AB049 /* SliderProvider.swift */; };
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
 		65267E8A2D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
@@ -113,7 +113,7 @@
 		6558303B2DBBAF4100744D5C /* inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* inter.ttf */; };
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
-		65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchRowView.swift */; };
+		65588F932E9CF31B005CF5BA /* SwitchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchProvider.swift */; };
 		65588F992EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
 		65588F9A2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
 		65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
@@ -121,6 +121,8 @@
 		65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA62EA6557C005CF5BA /* sinchronization.lottie */; };
 		65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */; };
 		65682FCB2EB22F4100BF2D7A /* GesturesRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */; };
+		65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCD2EB2574000BF2D7A /* SliderRowView.swift */; };
+		65682FD02EB257C900BF2D7A /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -138,7 +140,7 @@
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADC2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
-		65BDBADE2EABA76300685580 /* GestureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GestureProvider.swift */; };
+		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
@@ -261,7 +263,7 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ExampleMVVMTests/Info.plist; sourceTree = SOURCE_ROOT; };
-		652136F52DF82884006AB049 /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
+		652136F52DF82884006AB049 /* SliderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderProvider.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
 		652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsTabContainerViewController.swift; sourceTree = "<group>"; };
@@ -278,11 +280,13 @@
 		6558303C2DBBAFE300744D5C /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
 		655830712DD61F7000744D5C /* GreetingKMMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingKMMTests.swift; sourceTree = "<group>"; };
-		65588F922E9CF31A005CF5BA /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
+		65588F922E9CF31A005CF5BA /* SwitchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchProvider.swift; sourceTree = "<group>"; };
 		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
 		65588FA62EA6557C005CF5BA /* sinchronization.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = sinchronization.lottie; sourceTree = "<group>"; };
 		65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesWidgetView.swift; sourceTree = "<group>"; };
 		65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesRowView.swift; sourceTree = "<group>"; };
+		65682FCD2EB2574000BF2D7A /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
+		65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -297,7 +301,7 @@
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
-		65BDBADD2EABA75400685580 /* GestureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureProvider.swift; sourceTree = "<group>"; };
+		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -707,6 +711,7 @@
 		1FE49D72230AA7C200D1D42E /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				65682FCC2EB2572900BF2D7A /* RowViews */,
 				652136F42DF82876006AB049 /* SliderRow */,
 				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
@@ -802,10 +807,9 @@
 		652136F42DF82876006AB049 /* SliderRow */ = {
 			isa = PBXGroup;
 			children = (
-				65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */,
-				65BDBADD2EABA75400685580 /* GestureProvider.swift */,
-				65588F922E9CF31A005CF5BA /* SwitchRowView.swift */,
-				652136F52DF82884006AB049 /* SliderRowView.swift */,
+				65BDBADD2EABA75400685580 /* GesturesProvider.swift */,
+				65588F922E9CF31A005CF5BA /* SwitchProvider.swift */,
+				652136F52DF82884006AB049 /* SliderProvider.swift */,
 			);
 			path = SliderRow;
 			sourceTree = "<group>";
@@ -845,6 +849,16 @@
 				65588FA62EA6557C005CF5BA /* sinchronization.lottie */,
 			);
 			path = Animations;
+			sourceTree = "<group>";
+		};
+		65682FCC2EB2572900BF2D7A /* RowViews */ = {
+			isa = PBXGroup;
+			children = (
+				65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */,
+				65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */,
+				65682FCD2EB2574000BF2D7A /* SliderRowView.swift */,
+			);
+			path = RowViews;
 			sourceTree = "<group>";
 		};
 		659A459A2DB9282E002BE2BC /* Bluetooth */ = {
@@ -1195,6 +1209,7 @@
 				1FE49D8B230AA7C200D1D42E /* WidgetsListTableViewController.swift in Sources */,
 				1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */,
 				1F77930F222C0DF2004E034C /* StoryboardInstantiable.swift in Sources */,
+				65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */,
 				65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */,
 				65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */,
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
@@ -1214,7 +1229,7 @@
 				1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */,
 				1F57F8D223C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
-				65BDBADE2EABA76300685580 /* GestureProvider.swift in Sources */,
+				65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
 				652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */,
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
@@ -1223,10 +1238,11 @@
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */,
-				65588F932E9CF31B005CF5BA /* SwitchRowView.swift in Sources */,
+				65588F932E9CF31B005CF5BA /* SwitchProvider.swift in Sources */,
 				65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
+				65682FD02EB257C900BF2D7A /* SwitchRowView.swift in Sources */,
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
 				1FFFC831221B0041007D99D2 /* DefaultWidgetsQueriesRepository.swift in Sources */,
@@ -1254,7 +1270,7 @@
 				1F2AB95324278CC20010DEEE /* WidgetsRequestDTO+Mapping.swift in Sources */,
 				65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
 				1F903535230759AC00DEA4BD /* WidgetQueryEntity+Mapping.swift in Sources */,
-				652136F62DF82888006AB049 /* SliderRowView.swift in Sources */,
+				652136F62DF82888006AB049 /* SliderProvider.swift in Sources */,
 				65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */,
 				659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,

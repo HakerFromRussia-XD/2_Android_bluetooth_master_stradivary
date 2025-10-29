@@ -34,14 +34,14 @@ struct GestureListItemViewModel: Equatable, Hashable {
 }
 
 extension GestureListItemViewModel {
-    func makeProvider() -> GestureProvider {
+    func makeProvider() -> GesturesProvider {
         let factory = GestureCatalog.factoryGestures
         let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
         let rotation = Array(factory.prefix(4))
-        let spr: [GestureProvider.SprGestureDisplayItem] = []
-        return GestureProvider(
+        let spr: [GesturesProvider.SprGestureDisplayItem] = []
+        return GesturesProvider(
             factoryGestures: factory.map {
-                GestureProvider.GestureDisplayItem(
+                GesturesProvider.GestureDisplayItem(
                     id: $0.id,
                     title: $0.title,
                     subtitle: nil,
@@ -49,7 +49,7 @@ extension GestureListItemViewModel {
                 )
             },
             customGestures: custom.map {
-                GestureProvider.GestureDisplayItem(
+                GesturesProvider.GestureDisplayItem(
                     id: $0.id,
                     title: $0.title,
                     subtitle: $0.subtitle,
@@ -57,7 +57,7 @@ extension GestureListItemViewModel {
                 )
             },
             rotationGroup: rotation.map {
-                GestureProvider.GestureDisplayItem(
+                GesturesProvider.GestureDisplayItem(
                     id: $0.id,
                     title: $0.title,
                     subtitle: nil,
@@ -69,46 +69,46 @@ extension GestureListItemViewModel {
             activeGestureTitle: nil
         )
     }
-    func selectFactoryGesture(_ item: GestureProvider.GestureDisplayItem, provider: GestureProvider) {
+    func selectFactoryGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
         sendActiveGesture(gestureId: item.id)
     }
 
-    func selectCustomGesture(_ item: GestureProvider.GestureDisplayItem, provider: GestureProvider) {
+    func selectCustomGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
         sendActiveGesture(gestureId: item.id)
     }
 
-    func openGestureSettings(for item: GestureProvider.GestureDisplayItem) {
+    func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
         requestGestureSettings(gestureId: item.id)
     }
 
-    func moveRotationGestureUp(at index: Int, provider: GestureProvider) {
+    func moveRotationGestureUp(at index: Int, provider: GesturesProvider) {
         guard index > 0 else { return }
         provider.rotationGroup.swapAt(index, index - 1)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func moveRotationGestureDown(at index: Int, provider: GestureProvider) {
+    func moveRotationGestureDown(at index: Int, provider: GesturesProvider) {
         guard index < provider.rotationGroup.count - 1 else { return }
         provider.rotationGroup.swapAt(index, index + 1)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func removeRotationGesture(at index: Int, provider: GestureProvider) {
+    func removeRotationGesture(at index: Int, provider: GesturesProvider) {
         guard provider.rotationGroup.indices.contains(index) else { return }
         provider.rotationGroup.remove(at: index)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-    func appendRotationGesture(provider: GestureProvider) {
+    func appendRotationGesture(provider: GesturesProvider) {
         guard let gesture = GestureCatalog.factoryGestures.first(where: { item in
             provider.rotationGroup.contains(where: { $0.id == item.id }) == false
         }) else { return }
         provider.rotationGroup.append(
-            GestureProvider.GestureDisplayItem(
+            GesturesProvider.GestureDisplayItem(
                 id: gesture.id,
                 title: gesture.title,
                 subtitle: nil,
@@ -160,7 +160,7 @@ extension GestureListItemViewModel {
         sendBytes(data)
     }
 
-    private func sendRotationGroup(with gestures: [GestureProvider.GestureDisplayItem]) {
+    private func sendRotationGroup(with gestures: [GesturesProvider.GestureDisplayItem]) {
 //        let rotationGroup = RotationGroup.make(from: gestures)
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
@@ -236,7 +236,7 @@ private enum GestureCatalog {
     }
 }
 private extension RotationGroup {
-    static func make(from gestures: [GestureProvider.GestureDisplayItem]) -> RotationGroup {
+    static func make(from gestures: [GesturesProvider.GestureDisplayItem]) -> RotationGroup {
         func id(_ index: Int) -> Int32 {
             guard gestures.indices.contains(index) else { return 0 }
             return Int32(gestures[index].id)

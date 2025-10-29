@@ -9,7 +9,7 @@ final class GestureViewCell: UITableViewCell {
     private var viewModel: GestureListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var cancellable: AnyCancellable?
-    private var provider:   GestureProvider?
+    private var provider:   GesturesProvider?
     private var job: Kotlinx_coroutines_coreJob?
     
     // Реализуем обязательный инициализатор для создания ячейки из кода

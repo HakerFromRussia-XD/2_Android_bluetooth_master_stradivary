@@ -11,17 +11,17 @@ struct GesturesWidgetView: View {
 
     // MARK: - Dependencies
 
-    @ObservedObject var provider: GestureProvider
+    @ObservedObject var provider: GesturesProvider
 
-    var onSegmentChange: (GestureProvider.Segment) -> Void
-    var onFactoryGestureTap: (GestureProvider.GestureDisplayItem) -> Void
-    var onCustomGestureTap: (GestureProvider.GestureDisplayItem) -> Void
-    var onCustomGestureSettingsTap: (GestureProvider.GestureDisplayItem) -> Void
+    var onSegmentChange: (GesturesProvider.Segment) -> Void
+    var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
+    var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
+    var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRotationGestureMoveUp: (Int) -> Void
     var onRotationGestureMoveDown: (Int) -> Void
     var onRotationGestureRemove: (Int) -> Void
     var onRotationGestureAdd: () -> Void
-    var onSprGestureAction: (GestureProvider.SprGestureDisplayItem) -> Void
+    var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
 
     // MARK: - Body
@@ -50,7 +50,7 @@ struct GesturesWidgetView: View {
     private var segmentSelector: some View {
         GeometryReader { geo in
             let width = geo.size.width
-            let segmentCount = CGFloat(GestureProvider.Segment.allCases.count)
+            let segmentCount = CGFloat(GesturesProvider.Segment.allCases.count)
             let segmentWidth = (width - 4) / segmentCount
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
@@ -69,7 +69,7 @@ struct GesturesWidgetView: View {
                     .animation(.easeInOut(duration: 0.2), value: provider.selectedSegment)
 
                 HStack(spacing: 0) {
-                    ForEach(Array(GestureProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
+                    ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
                         Button(action: { select(segment: segment) }) {
                             Text(segment.title)
                                 .font(.system(size: 12, weight: .light))
@@ -86,11 +86,11 @@ struct GesturesWidgetView: View {
     }
 
     private func highlightOffset(width: CGFloat) -> CGFloat {
-        guard let index = GestureProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) else { return 0 }
+        guard let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) else { return 0 }
         return CGFloat(index) * width
     }
 
-    private func select(segment: GestureProvider.Segment) {
+    private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
         withAnimation { provider.selectedSegment = segment }
         onSegmentChange(segment)
@@ -496,39 +496,3 @@ private struct SprGestureRow: View {
         .buttonStyle(.plain)
     }
 }
-
-//#if DEBUG
-//struct GesturesWidgetView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let provider = GestureProvider(
-//            factoryGestures: (1...6).map { index in
-//                GestureProvider.GestureDisplayItem(id: index, title: "Gesture \(index)", subtitle: nil, imageView: nil)
-//            },
-//            customGestures: (1...6).map { index in
-//                GestureProvider.GestureDisplayItem(id: 60 + index, title: "Custom \(index)", subtitle: "Custom gesture", imageView: nil)
-//            },
-//            rotationGroup: (1...4).map { index in
-//                GestureProvider.GestureDisplayItem(id: index, title: "Rotation \(index)", subtitle: nil, imageView: nil)
-//            },
-//            sprGestures: [],
-//            activeGestureId: 1,
-//            activeGestureTitle: "Gesture 1"
-//        )
-//
-//        return GesturesWidgetView(
-//            provider: provider,
-//            onSegmentChange: { _ in },
-//            onFactoryGestureTap: { _ in },
-//            onCustomGestureTap: { _ in },
-//            onCustomGestureSettingsTap: { _ in },
-//            onRotationGestureMoveUp: { _ in },
-//            onRotationGestureMoveDown: { _ in },
-//            onRotationGestureRemove: { _ in },
-//            onRotationGestureAdd: {},
-//            onSprGestureAction: { _ in },
-//            onSprAddTap: {}
-//        )
-//        .preferredColorScheme(.dark)
-//    }
-//}
-//#endif

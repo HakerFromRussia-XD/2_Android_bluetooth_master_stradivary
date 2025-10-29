@@ -6,62 +6,7 @@
 //
 
 import SwiftUI
-
-final class GesturesProvider: ObservableObject {
-    struct GestureDisplayItem: Identifiable, Hashable {
-        let id: Int
-        let title: String
-        var subtitle: String?
-    }
-
-    struct SprGestureDisplayItem: Identifiable, Hashable {
-        let id: Int
-        let title: String
-        var subtitle: String?
-    }
-
-    enum Segment: CaseIterable {
-        case collection
-        case rotationGroup
-        case sprGroup
-
-        var title: String {
-            switch self {
-            case .collection:
-                return NSLocalizedString("Collection", comment: "")
-            case .rotationGroup:
-                return NSLocalizedString("Rotation", comment: "")
-            case .sprGroup:
-                return "SPR"
-            }
-        }
-    }
-
-    @Published var selectedSegment: Segment = .collection
-    @Published var isFactoryExpanded: Bool = true
-    @Published var activeGestureId: Int?
-    @Published var activeGestureTitle: String?
-    @Published var factoryGestures: [GestureDisplayItem]
-    @Published var customGestures: [GestureDisplayItem]
-    @Published var rotationGroup: [GestureDisplayItem]
-    @Published var sprGestures: [SprGestureDisplayItem]
-
-    init(
-        factoryGestures: [GestureDisplayItem],
-        customGestures: [GestureDisplayItem],
-        rotationGroup: [GestureDisplayItem],
-        sprGestures: [SprGestureDisplayItem],
-        activeGestureId: Int?,
-        activeGestureTitle: String?
-    ) {
-        self.factoryGestures = factoryGestures
-        self.customGestures = customGestures
-        self.rotationGroup = rotationGroup
-        self.sprGestures = sprGestures
-        self.activeGestureId = activeGestureId
-        self.activeGestureTitle = activeGestureTitle
-    }
-}
+import Combine
 
 struct GesturesRowView: View {
     @ObservedObject var provider: GesturesProvider
@@ -196,6 +141,7 @@ struct GesturesRowView: View {
                     ForEach(provider.factoryGestures) { gesture in
                         GestureCard(
                             title: gesture.title,
+                            image: gesture.imageView?.image,
                             isActive: provider.activeGestureId == gesture.id
                         ) {
                             onFactoryGestureTap?(gesture)
@@ -304,12 +250,20 @@ struct GesturesRowView: View {
 
 private struct GestureCard: View {
     let title: String
+    var image: UIImage?
     var isActive: Bool
     var action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                }
+                
                 Text(title)
                     .font(.custom("SFProDisplay-Light", size: 12))
                     .foregroundColor(.white)

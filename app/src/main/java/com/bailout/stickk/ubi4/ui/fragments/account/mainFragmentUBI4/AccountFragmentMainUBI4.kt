@@ -492,6 +492,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
     private fun handleBackPress() {
         // Получаем имя исходного фрагмента из аргументов
+        (activity as? MainActivityUBI4)?.showBottomNavigation()
         val sourceFragmentClassName = arguments?.getString("sourceFragmentClass")
         if (sourceFragmentClassName != null) {
             when (sourceFragmentClassName) {
@@ -533,6 +534,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
     override fun onDestroyView() {
+        main?.showBottomNavigation()
         super.onDestroyView()
         System.err.println("AccountFragmentMainUBI4: onDestroyView")
     }

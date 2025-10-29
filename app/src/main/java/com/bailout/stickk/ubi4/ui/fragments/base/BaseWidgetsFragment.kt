@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
@@ -43,10 +44,13 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import java.io.File
 
@@ -410,6 +414,9 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     open fun refreshWidgetsList() {
+        main?.observeSyncProgress()
+        UiState.widgetsLoadingFlow.tryEmit(Unit)
+        UiState.widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(1, 0))
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
         adapterWidgets.swapData(emptyList())
@@ -458,10 +465,16 @@ abstract class BaseWidgetsFragment : Fragment() {
         Log.d("sendSwitcherState", "addressDevice: $addressDevice, parameterID: $parameterID, switchState: $switchState")
         transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
+        val packet = BLECommands.sendSliderCommand(addressDevice, parameterID, progress)
+        platformLog("BLE_SEND_CALLSITE",
+            "from Fragment → addr=$addressDevice pid=$parameterID progress=$progress hex=${EncodeByteToHex.bytesToHexString(packet)}")
         Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+
+
     open fun clearSwitcherCache() {
         Log.d("clearSwitcherCache", "clearSwitcherCache run")
         onClearSwitcherCache.invoke()

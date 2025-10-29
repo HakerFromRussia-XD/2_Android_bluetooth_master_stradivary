@@ -397,6 +397,7 @@ private fun parseReceivedData(data: ByteArray?) {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
                         reconnectThread()
+
                     }
                 }
             }

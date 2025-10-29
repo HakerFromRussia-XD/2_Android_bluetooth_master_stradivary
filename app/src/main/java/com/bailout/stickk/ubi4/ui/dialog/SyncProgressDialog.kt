@@ -14,7 +14,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
 class SyncProgressDialog(
@@ -31,6 +35,7 @@ class SyncProgressDialog(
 
     @SuppressLint("InflateParams")
     fun show() {
+        platformLog("SyncProgressDialog", "show run")
         if (isShowing) return
         dismiss()
 
@@ -56,51 +61,41 @@ class SyncProgressDialog(
     }
 
     fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {
-        // мгновенно показать
-        show()
-        if (!chromeHidden) {
-            setChromeVisible(false)
-            chromeHidden = true
+        if (!isShowing) {
+            show()
+            if (!chromeHidden) {
+                setChromeVisible(false)
+                chromeHidden = true
+            }
         }
-
         watchJob?.cancel()
         watchJob = owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                UiState.widgetsLoadingProgressFlow.collect { p ->
-                    val total   = p.total.coerceAtLeast(1)
-                    val current = p.current.coerceAtMost(total)
-                    val percent = (current * 100 / total).coerceIn(0, 100)
-
-                    // обновляем прогресс тут, одной подпиской
-                    progressBar?.let { bar ->
-                        val target = percent
-                        val next = maxOf(bar.progress, target)
-                        if (Build.VERSION.SDK_INT >= 24) {
-                            bar.setProgress(next, true)
-                        } else {
-                            bar.progress = next
+                merge(
+                    UiState.widgetsLoadingProgressFlow.map { p ->
+                        val total = p.total.coerceAtLeast(1)
+                        val current = p.current.coerceAtMost(total)
+                        val percent = (current * 100 / total).coerceIn(0, 100)
+                        progressBar?.let { bar ->
+                            val next = maxOf(bar.progress, percent)
+                            if (Build.VERSION.SDK_INT >= 24) bar.setProgress(next, true)
+                            else bar.progress = next
+                        }
+                    },
+                    UiState.widgetsLoadingFlow.map {
+                        if (isShowing) {
+                            dismiss()
+                            if (chromeHidden) {
+                                setChromeVisible(true)
+                                chromeHidden = false
+                            }
                         }
                     }
-
-                    if (percent < 100 && !isShowing) {
-                        show()
-                        if (!chromeHidden) {
-                            setChromeVisible(false)
-                            chromeHidden = true
-                        }
-                    }
-
-                    if (percent >= 100 && isShowing) {
-                        dismiss()
-                        if (chromeHidden) {
-                            setChromeVisible(true)
-                            chromeHidden = false
-                        }
-                    }
-                }
+                ).collect()
             }
         }
     }
+
 }
 
 

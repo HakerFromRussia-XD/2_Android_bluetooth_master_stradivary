@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog

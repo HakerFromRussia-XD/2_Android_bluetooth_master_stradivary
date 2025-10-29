@@ -118,6 +118,7 @@ class ControllerBleStatusConnection(
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED -> {
                     // Доигрываем текущую итерацию (если луп), затем Connected (одиночный)
+                    com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow.tryEmit(Unit)
                     requestState(UiState.Connected, loopOverride = false)
                 }
             }

@@ -15,6 +15,7 @@ object UiState {
     var widgetsLoadingFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
     var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
+//    var syncStartFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
@@ -30,7 +31,8 @@ object UiState {
         updateFlow = MutableSharedFlow()
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
-        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
+        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
+//        syncStartFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
     }
 
     private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {

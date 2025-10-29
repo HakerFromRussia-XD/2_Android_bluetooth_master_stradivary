@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -204,6 +205,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             sendFwInfoRequests()
             sendRunProgramTypeRequests()
             showAccountScreen()
+            binding.bottomNavigation.visibility = View.INVISIBLE
+
         }
 
 
@@ -482,7 +485,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    private fun observeSyncProgress() {
+    fun observeSyncProgress() {
+        platformLog("SyncProgressDialog","Main observeSyncProgress run ")
         syncDialog.observeSyncProgress { visible ->
             setChromeVisible(visible)
         }
@@ -503,6 +507,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     fun refreshBottomNavVisibility() {
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
     }
+
+    fun showBottomNavigation() {
+        binding.bottomNavigation.visibility = View.VISIBLE
+    }
+
 
     private fun setChromeVisible(visible: Boolean) {
         val v = if (visible) View.VISIBLE else View.INVISIBLE

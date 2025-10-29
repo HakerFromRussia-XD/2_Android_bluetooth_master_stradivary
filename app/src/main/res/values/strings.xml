@@ -582,7 +582,7 @@
     <string name="no_saved_files">No saved files</string>
     <string name="select_training_file"> Select training file</string>
     <string name="show_files">Show Files</string>
-    <string name="model_training_in_progress_please_wait">Model training in progress, please wait...</string>
+    <string name="model_training_in_progress_please_wait">SPPPR training in progress, please wait...</string>
     <string name="wait_until_the_model_file_is_created">Wait until the model file is created</string>
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">The model file is saved to the device memory, please wait...</string>
     <string name="file_is_being_downloaded">File is being downloaded</string>

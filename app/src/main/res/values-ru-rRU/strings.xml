@@ -583,7 +583,7 @@
     <string name="no_saved_files">Нет сохранённых файлов</string>
     <string name="select_training_file">Выберите файл обучения</string>
     <string name="show_files">Показать файлы</string>
-    <string name="model_training_in_progress_please_wait">Обучение модели выполняется, пожалуйста, подождите...</string>
+    <string name="model_training_in_progress_please_wait">Обучение СПППР выполняется, пожалуйста, подождите...</string>
     <string name="wait_until_the_model_file_is_created">Дождитесь завершения создания файла модели</string>
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">Файл модели сохраняется в память устройства, пожалуйста, подождите...</string>
     <string name="file_is_being_downloaded">Идет загрузка файла</string>

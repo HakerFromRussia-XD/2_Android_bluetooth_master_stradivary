@@ -206,7 +206,7 @@ private enum GestureCatalog {
     }
 
     static let factoryGestures: [GestureItem] = [
-        .init(id: 1, title: NSLocalizedString("Fist", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_fist_1.toUIImage())),
+        .init(id: 1, title: NSLocalizedString("Fist", comment: ""), imageView: UIImageView(image: UIImage(named: "ic_trophy"))),
         .init(id: 2, title: NSLocalizedString("Point", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_point.toUIImage())),
         .init(id: 3, title: NSLocalizedString("Pinch", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_pinch.toUIImage())),
         .init(id: 4, title: NSLocalizedString("Fist + thumb", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_fist_2.toUIImage())),

@@ -39,7 +39,7 @@ final class GesturesProvider: ObservableObject {
         let id: Int
         let title: String
         var subtitle: String?
-        let imageView: UIImageView?
+        let image: UIImage?
 
         static func == (lhs: GestureDisplayItem, rhs: GestureDisplayItem) -> Bool {
             lhs.id == rhs.id

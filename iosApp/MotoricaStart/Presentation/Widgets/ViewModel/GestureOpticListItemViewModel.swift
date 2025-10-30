@@ -45,7 +45,7 @@ extension GestureListItemViewModel {
                     id: $0.id,
                     title: $0.title,
                     subtitle: nil,
-                    imageView: $0.imageView
+                    image: $0.image
                 )
             },
             customGestures: custom.map {
@@ -53,7 +53,7 @@ extension GestureListItemViewModel {
                     id: $0.id,
                     title: $0.title,
                     subtitle: $0.subtitle,
-                    imageView: nil
+                    image: nil
                 )
             },
             rotationGroup: rotation.map {
@@ -61,7 +61,7 @@ extension GestureListItemViewModel {
                     id: $0.id,
                     title: $0.title,
                     subtitle: nil,
-                    imageView: $0.imageView
+                    image: $0.image
                 )
             },
             sprGestures: spr,
@@ -112,7 +112,7 @@ extension GestureListItemViewModel {
                 id: gesture.id,
                 title: gesture.title,
                 subtitle: nil,
-                imageView: gesture.imageView
+                image: gesture.image
             )
         )
         sendRotationGroup(with: provider.rotationGroup)
@@ -202,25 +202,85 @@ private enum GestureCatalog {
         let id: Int
         let title: String
         var subtitle: String? = nil
-        let imageView: UIImageView?
+        let image: UIImage?
     }
 
     static let factoryGestures: [GestureItem] = [
-        .init(id: 1, title: NSLocalizedString("Fist", comment: ""), imageView: UIImageView(image: UIImage(named: "ic_trophy"))),
-        .init(id: 2, title: NSLocalizedString("Point", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_point.toUIImage())),
-        .init(id: 3, title: NSLocalizedString("Pinch", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_pinch.toUIImage())),
-        .init(id: 4, title: NSLocalizedString("Fist + thumb", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_fist_2.toUIImage())),
-        .init(id: 5, title: NSLocalizedString("Key", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_key.toUIImage())),
-        .init(id: 6, title: NSLocalizedString("Rock", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_rock.toUIImage())),
-        .init(id: 7, title: NSLocalizedString("Tweezers", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_twizzers.toUIImage())),
-        .init(id: 8, title: NSLocalizedString("Cupholder", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_cupholder.toUIImage())),
-        .init(id: 9, title: NSLocalizedString("Half grab", comment: ""), imageView: UIImageView(image: SharedRes.images().collect_half_grab.toUIImage())),
-        .init(id: 10, title: NSLocalizedString("OK", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_ok.toUIImage())),
-        .init(id: 11, title: NSLocalizedString("Thumb up", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_thumb_up.toUIImage())),
-//        .init(id: 12, title: NSLocalizedString("Middle finger", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_middle_finger.toUIImage())),
-        .init(id: 13, title: NSLocalizedString("Double point", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_double_point.toUIImage())),
-        .init(id: 14, title: NSLocalizedString("Call me", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_call_me.toUIImage())),
-        .init(id: 15, title: NSLocalizedString("Natural", comment: ""), imageView: UIImageView(image: SharedRes.images().collection_natural_position.toUIImage()))
+        .init(
+            id: 1,
+            title: NSLocalizedString("Fist", comment: ""),
+            image: SharedRes.images().collection_fist_1.toUIImage()
+        ),
+        .init(
+            id: 2,
+            title: NSLocalizedString("Point", comment: ""),
+            image: SharedRes.images().collection_point.toUIImage()
+        ),
+        .init(
+            id: 3,
+            title: NSLocalizedString("Pinch", comment: ""),
+            image: SharedRes.images().collection_pinch.toUIImage()
+        ),
+        .init(
+            id: 4,
+            title: NSLocalizedString("Fist + thumb", comment: ""),
+            image: SharedRes.images().collection_fist_2.toUIImage()
+        ),
+        .init(
+            id: 5,
+            title: NSLocalizedString("Key", comment: ""),
+            image: SharedRes.images().collection_key.toUIImage()
+        ),
+        .init(
+            id: 6,
+            title: NSLocalizedString("Rock", comment: ""),
+            image: SharedRes.images().collection_rock.toUIImage()
+        ),
+        .init(
+            id: 7,
+            title: NSLocalizedString("Tweezers", comment: ""),
+            image: SharedRes.images().collection_twizzers.toUIImage()
+        ),
+        .init(
+            id: 8,
+            title: NSLocalizedString("Cupholder", comment: ""),
+            image: SharedRes.images().collection_cupholder.toUIImage()
+        ),
+        .init(
+            id: 9,
+            title: NSLocalizedString("Half grab", comment: ""),
+            image: SharedRes.images().collect_half_grab.toUIImage()
+        ),
+        .init(
+            id: 10,
+            title: NSLocalizedString("OK", comment: ""),
+            image: SharedRes.images().collection_ok.toUIImage()
+        ),
+        .init(
+            id: 11,
+            title: NSLocalizedString("Thumb up", comment: ""),
+            image: SharedRes.images().collection_thumb_up.toUIImage()
+        ),
+//        .init(
+//            id: 12,
+//            title: NSLocalizedString("Middle finger", comment: ""),
+//            image: SharedRes.images().collection_middle_finger.toUIImage()
+//        ),
+        .init(
+            id: 13,
+            title: NSLocalizedString("Double point", comment: ""),
+            image: SharedRes.images().collection_double_point.toUIImage()
+        ),
+        .init(
+            id: 14,
+            title: NSLocalizedString("Call me", comment: ""),
+            image: SharedRes.images().collection_call_me.toUIImage()
+        ),
+        .init(
+            id: 15,
+            title: NSLocalizedString("Natural", comment: ""),
+            image: SharedRes.images().collection_natural_position.toUIImage()
+        )
     ]
 
     static func customGestures(withTitles titles: [String]) -> [GestureItem] {
@@ -230,7 +290,7 @@ private enum GestureCatalog {
                 id: baseIdentifier + index,
                 title: title,
                 subtitle: NSLocalizedString("Custom gesture", comment: ""),
-                imageView: nil
+                image: nil
             )
         }
     }

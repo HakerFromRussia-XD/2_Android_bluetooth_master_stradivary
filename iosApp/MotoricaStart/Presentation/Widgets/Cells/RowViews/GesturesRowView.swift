@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UIKit
 
 struct GesturesRowView: View {
     @ObservedObject var provider: GesturesProvider
@@ -141,7 +142,7 @@ struct GesturesRowView: View {
                     ForEach(provider.factoryGestures) { gesture in
                         GestureCard(
                             title: gesture.title,
-                            image: gesture.imageView?.image,
+                            image: gesture.image,
                             isActive: provider.activeGestureId == gesture.id
                         ) {
                             onFactoryGestureTap?(gesture)

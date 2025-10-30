@@ -712,7 +712,7 @@
 			isa = PBXGroup;
 			children = (
 				65682FCC2EB2572900BF2D7A /* RowViews */,
-				652136F42DF82876006AB049 /* SliderRow */,
+				652136F42DF82876006AB049 /* Providers */,
 				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
@@ -804,14 +804,14 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
-		652136F42DF82876006AB049 /* SliderRow */ = {
+		652136F42DF82876006AB049 /* Providers */ = {
 			isa = PBXGroup;
 			children = (
 				65BDBADD2EABA75400685580 /* GesturesProvider.swift */,
 				65588F922E9CF31A005CF5BA /* SwitchProvider.swift */,
 				652136F52DF82884006AB049 /* SliderProvider.swift */,
 			);
-			path = SliderRow;
+			path = Providers;
 			sourceTree = "<group>";
 		};
 		6547845D2DEDA4B0005AF8A3 /* Frameworks */ = {

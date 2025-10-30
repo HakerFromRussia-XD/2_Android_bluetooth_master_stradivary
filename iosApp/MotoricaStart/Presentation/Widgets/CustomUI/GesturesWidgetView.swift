@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct GesturesWidgetView: View {
 
@@ -133,6 +134,7 @@ struct GesturesWidgetView: View {
                         GestureTile(
                             title: item.title,
                             subtitle: item.subtitle,
+                            image: item.image,
                             isActive: provider.activeGestureId == item.id,
                             action: { onFactoryGestureTap(item) }
                         )
@@ -309,6 +311,7 @@ struct GesturesWidgetView: View {
 private struct GestureTile: View {
     let title: String
     let subtitle: String?
+    let image: UIImage?
     let isActive: Bool
     let action: () -> Void
 
@@ -317,6 +320,13 @@ private struct GestureTile: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 8) {
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                }
+                
                 Text(title)
                     .font(.system(size: 12, weight: .light))
                     .foregroundColor(.white)

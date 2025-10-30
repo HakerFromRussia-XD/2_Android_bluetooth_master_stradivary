@@ -44,7 +44,7 @@ struct GesturesRowView: View {
             GeometryReader { geometry in
                 let segmentWidth = geometry.size.width / CGFloat(GesturesProvider.Segment.allCases.count)
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("ubi4_active"))
+                    .fill(Color("ubi4_no_system_red"))
                     .frame(width: segmentWidth - 8, height: 40)
                     .offset(x: segmentOffset(width: segmentWidth), y: 4)
                     .animation(.easeInOut(duration: 0.25), value: provider.selectedSegment)
@@ -107,7 +107,7 @@ struct GesturesRowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color("ubi4_active"))
+                        .fill(Color("ubi4_no_system_red"))
                         .shadow(color: Color.black.opacity(0.24), radius: 3, x: 0, y: 2)
                 )
         }
@@ -135,7 +135,7 @@ struct GesturesRowView: View {
                     .font(.custom("SFProDisplay-Light", size: 12))
                     .foregroundColor(.white)
             }
-            .toggleStyle(SwitchToggleStyle(tint: Color("ubi4_active")))
+            .toggleStyle(SwitchToggleStyle(tint: Color("ubi4_no_system_red")))
 
             if provider.isFactoryExpanded {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
@@ -274,8 +274,12 @@ private struct GestureCard: View {
             .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isActive ? Color("ubi4_active") : Color("ubi4_gray"))
+                    .fill(Color("ubi4_gray"))
                     .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 2)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isActive ? Color("ubi4_active") : Color.clear, lineWidth: 1)
             )
         }
     }
@@ -317,8 +321,12 @@ private struct GestureRow: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(isActive ? Color("ubi4_active") : Color("ubi4_gray"))
+                .fill(Color("ubi4_gray"))
                 .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isActive ? Color("ubi4_active") : Color.clear, lineWidth: 1)
         )
     }
 }
@@ -345,7 +353,7 @@ private struct RotationGestureRow: View {
             }
             Button(action: onRemove) {
                 Image(systemName: "trash")
-                    .foregroundColor(Color("ubi4_active"))
+                    .foregroundColor(Color("ubi4_no_system_red"))
             }
         }
         .padding()

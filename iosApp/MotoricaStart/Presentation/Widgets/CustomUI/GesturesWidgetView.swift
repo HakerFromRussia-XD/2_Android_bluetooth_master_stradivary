@@ -67,7 +67,7 @@ struct GesturesWidgetView: View {
                     .padding(2)
                     .frame(width: segmentWidth)
                     .offset(x: highlightOffset(width: segmentWidth))
-                    .animation(.easeInOut(duration: 0.2), value: provider.selectedSegment)
+                    .animation(.easeInOut(duration: 10.3), value: provider.selectedSegment)
 
                 HStack(spacing: 0) {
                     ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
@@ -93,7 +93,8 @@ struct GesturesWidgetView: View {
 
     private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
-        withAnimation { provider.selectedSegment = segment }
+        provider.selectedSegment = segment
+//        withAnimation { provider.selectedSegment = segment }
         onSegmentChange(segment)
     }
 
@@ -165,7 +166,8 @@ struct GesturesWidgetView: View {
     }
 
     private func toggleFactorySection() {
-        withAnimation { provider.isFactoryExpanded.toggle() }
+        provider.isFactoryExpanded.toggle()
+//        withAnimation { provider.isFactoryExpanded.toggle() }
     }
 
     // MARK: - Rotation Group View
@@ -315,22 +317,25 @@ private struct GestureTile: View {
     let isActive: Bool
     let action: () -> Void
 
-    private var fillColor: Color { isActive ? Color("ubi4_active") : Color("ubi4_gray") }
+    private var borderColor: Color {
+        isActive ? Color("ubi4_active") : Color("ubi4_gray_border")
+    }
 
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+                
                 if let image {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
-                
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.leading)
 
                 if let subtitle, subtitle.isEmpty == false {
                     Text(subtitle)
@@ -344,10 +349,10 @@ private struct GestureTile: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(fillColor)
+                    .fill(Color("ubi4_gray"))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                            .stroke(borderColor, lineWidth: 1)
                     )
                     .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
             )
@@ -363,7 +368,9 @@ private struct CustomGestureTile: View {
     let onTap: () -> Void
     let onSettingsTap: () -> Void
 
-    private var fillColor: Color { isActive ? Color("ubi4_active") : Color("ubi4_gray") }
+    private var borderColor: Color {
+        isActive ? Color("ubi4_active") : Color("ubi4_gray_border")
+    }
 
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -385,10 +392,10 @@ private struct CustomGestureTile: View {
                 .frame(height: 48)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(fillColor)
+                        .fill(Color("ubi4_gray"))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                                .stroke(borderColor, lineWidth: 1)
                         )
                         .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
                 )

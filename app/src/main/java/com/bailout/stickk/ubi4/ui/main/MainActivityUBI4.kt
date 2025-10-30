@@ -207,9 +207,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-//        binding.runCommandBtn.setOnClickListener {
-//
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            BLECommands.requestDataSlots(10)
+        }
+
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE

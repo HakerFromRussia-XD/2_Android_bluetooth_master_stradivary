@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_ML_MODEL_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
@@ -332,6 +333,30 @@ object BLECommands {
         val data = byteArrayOf(
             READ_DATA.number,
             DTCE_FW_INFO_TYPE.number
+        )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+
+        return header + data
+    }
+    fun requestDataSlots(deviceAddress: Int): ByteArray {
+        val firstByte = if (deviceAddress == 0) {
+            0x20.toByte()
+        } else {
+            0xA0.toByte()
+        }
+        val header = byteArrayOf(
+            firstByte,
+            DATA_MANAGER.number,
+            0x00,
+            0x00, // будет установлено ниже
+            0x00,
+            0x00,
+            deviceAddress.toByte()
+        )
+        val data = byteArrayOf(
+            READ_DATA.number,
+            DTCE_ML_MODEL_DATA.number
         )
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()

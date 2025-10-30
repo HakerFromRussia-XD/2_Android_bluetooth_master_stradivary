@@ -30,19 +30,32 @@ struct GesturesWidgetView: View {
     var body: some View {
         VStack(spacing: 16) {
             segmentSelector
-            activeGestureView
-
-            switch provider.selectedSegment {
-            case .collection:
-                collectionView
-            case .rotationGroup:
-                rotationGroupView
-            case .sprGroup:
-                sprGroupView
+//            activeGestureView
+//
+//            switch provider.selectedSegment {
+//            case .collection:
+//                collectionView
+//            case .rotationGroup:
+//                rotationGroupView
+//            case .sprGroup:
+//                sprGroupView
+//            }
+            Group {
+                activeGestureView
+                
+                switch provider.selectedSegment {
+                case .collection:
+                    collectionView
+                case .rotationGroup:
+                    rotationGroupView
+                case .sprGroup:
+                    sprGroupView
+                }
             }
+            .animation(nil, value: provider.selectedSegment)
         }
         .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
         .background(Color("ubi4_back"))
     }
 
@@ -305,6 +318,7 @@ struct GesturesWidgetView: View {
                 content()
             }
         }
+        .animation(nil, value: isExpanded)
     }
 }
 

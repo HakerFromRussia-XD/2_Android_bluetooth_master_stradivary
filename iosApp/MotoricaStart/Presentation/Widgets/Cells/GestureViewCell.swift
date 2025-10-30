@@ -35,9 +35,11 @@ final class GestureViewCell: UITableViewCell {
         let provider = viewModel.makeProvider()
         self.provider = provider
         cancellable?.cancel()
+        preservesSuperviewLayoutMargins = false
+        contentView.directionalLayoutMargins = .zero
         
         // 2. Вклеиваем SwiftUI контент
-        contentConfiguration = UIHostingConfiguration {
+        var configuration = UIHostingConfiguration {
             GesturesWidgetView (
                 provider: provider,
                 onSegmentChange: { [weak self] segment in
@@ -82,6 +84,8 @@ final class GestureViewCell: UITableViewCell {
                 onSprAddTap: { }
             )
         }
+//        configuration.margins = .zero
+        contentConfiguration = configuration
 //        numberCancellable?.cancel()
             
         // 3. Запускаем подписку на поток

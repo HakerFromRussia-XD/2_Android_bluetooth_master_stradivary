@@ -257,7 +257,7 @@ private struct GestureCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 0) {
                 if let image {
                     Image(uiImage: image)
                         .resizable()

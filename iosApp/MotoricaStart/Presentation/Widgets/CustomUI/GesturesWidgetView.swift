@@ -52,7 +52,7 @@ struct GesturesWidgetView: View {
                     sprGroupView
                 }
             }
-            .animation(nil, value: provider.selectedSegment)
+//            .animation(nil, value: provider.selectedSegment)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 8)
@@ -318,7 +318,7 @@ struct GesturesWidgetView: View {
                 content()
             }
         }
-        .animation(nil, value: isExpanded)
+//        .animation(nil, value: isExpanded)
     }
 }
 

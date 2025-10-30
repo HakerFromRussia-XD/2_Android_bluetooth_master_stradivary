@@ -47,7 +47,6 @@ struct GesturesRowView: View {
                     .fill(Color("ubi4_no_system_red"))
                     .frame(width: segmentWidth - 8, height: 40)
                     .offset(x: segmentOffset(width: segmentWidth), y: 4)
-                    .animation(.easeInOut(duration: 0.25), value: provider.selectedSegment)
             }
             .allowsHitTesting(false)
 

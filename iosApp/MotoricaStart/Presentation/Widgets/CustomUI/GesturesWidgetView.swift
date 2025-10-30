@@ -80,7 +80,7 @@ struct GesturesWidgetView: View {
                     .padding(2)
                     .frame(width: segmentWidth)
                     .offset(x: highlightOffset(width: segmentWidth))
-                    .animation(.easeInOut(duration: 10.3), value: provider.selectedSegment)
+//                    .animation(.easeInOut(duration: 0.3), value: provider.selectedSegment)
 
                 HStack(spacing: 0) {
                     ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in

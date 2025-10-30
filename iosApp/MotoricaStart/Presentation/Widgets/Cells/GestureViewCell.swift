@@ -84,7 +84,7 @@ final class GestureViewCell: UITableViewCell {
                 onSprAddTap: { }
             )
         }
-//        configuration.margins = .zero
+//        configuration = configuration.margins(0)
         contentConfiguration = configuration
 //        numberCancellable?.cancel()
             

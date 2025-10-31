@@ -1,7 +1,5 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
-import com.android.build.api.dsl.Packaging
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -31,7 +29,7 @@ android {
         minSdk = 28
         targetSdk = 33
         versionCode = 11
-        versionName = "3.2.1288"
+        versionName = "3.2.1290"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 //        signingConfig = signingConfigs.getByName("release")

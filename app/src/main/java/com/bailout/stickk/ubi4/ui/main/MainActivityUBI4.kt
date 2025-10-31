@@ -52,6 +52,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
@@ -254,6 +255,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (!mBLEController.getStatusConnected()) {
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
+        }
+        lifecycleScope.launch {
+            val c = WidgetRepoProvider.get().count()
+            platformLog("ROOM_CHECK", "Widget rows = $c")
         }
     }
 

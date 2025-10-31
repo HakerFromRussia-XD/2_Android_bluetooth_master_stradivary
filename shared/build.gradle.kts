@@ -6,10 +6,14 @@ plugins {
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("dev.icerock.mobile.multiplatform-resources")
-    kotlin("kapt")
+    id("com.google.devtools.ksp") version "2.1.21-2.0.1"
+    id("androidx.room") version "2.7.2"
+//    kotlin("kapt")
 }
 
-
+room {
+    schemaDirectory("$projectDir/schemas")
+}
 
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
@@ -50,6 +54,7 @@ android {
 tasks.named("preBuild").configure {
     dependsOn("generateMRandroidMain")
 }
+
 
 kotlin {
     androidTarget()
@@ -106,6 +111,10 @@ kotlin {
                 // ---- MOKO resources ----
                 api("dev.icerock.moko:resources:0.25.1")
                 api("dev.icerock.moko:graphics:0.9.0")
+
+                // --- Room Multiplatform ---
+                implementation("androidx.room:room-runtime:2.7.2")
+                implementation("androidx.sqlite:sqlite-bundled:2.5.0")
             }
         }
 
@@ -134,6 +143,9 @@ kotlin {
                 implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
                 implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 
+                implementation("androidx.room:room-runtime:2.7.2")
+                implementation("androidx.room:room-ktx:2.7.2")
+
             }
 
         }
@@ -142,6 +154,7 @@ kotlin {
             dependencies {
                 // SQLDelight iOS
 //                api("app.cash.sqldelight:native-driver:2.1.0")
+                implementation("androidx.room:room-runtime:2.7.2")
                 api("dev.icerock.moko:resources:0.25.1")
                 api("dev.icerock.moko:graphics:0.9.0")
 //                implementation("app.cash.sqldelight:native-driver:2.1.0")
@@ -155,10 +168,21 @@ kotlin {
     }
 }
 
-    multiplatformResources {
-        resourcesPackage.set("com.bailout.stickk.ubi4.shared")
-        resourcesClassName.set("SharedRes")
-    }
+dependencies {
+    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
+    add("kspAndroid", "androidx.room:room-compiler:2.7.2")
+    add("kspIosX64", "androidx.room:room-compiler:2.7.2")
+    add("kspIosArm64", "androidx.room:room-compiler:2.7.2")
+    add("kspIosSimulatorArm64", "androidx.room:room-compiler:2.7.2")
+}
+
+
+
+
+multiplatformResources {
+    resourcesPackage.set("com.bailout.stickk.ubi4.shared")
+    resourcesClassName.set("SharedRes")
+}
 
 
 

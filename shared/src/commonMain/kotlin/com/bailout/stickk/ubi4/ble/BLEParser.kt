@@ -73,6 +73,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -88,7 +89,10 @@ import com.bailout.stickk.ubi4.utility.showToast
 import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
 
@@ -350,9 +354,43 @@ class BLEParser(
             .toString(16)
             .uppercase()
             .padStart(2, '0')
+
+
+
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
+
+            if (deviceAddress == 7 || deviceAddress == 8) {
+                return@forEach
+            }
+
+
+            //ROOM DB
+            val param = ParameterProvider.getParameter(deviceAddress, parameterID)
+            val raw = param.data
+            val ts = getTimeMillis()
+            val firstByte = raw.take(2).toIntOrNull(16)?.toLong()
+
+            coroutineScope.launch {
+                withContext(Dispatchers.IO) {
+                    WidgetRepoProvider.get().upsertState(
+                        deviceAddr  = deviceAddress,
+                        widgetId    = it.widgetId,
+                        widgetCode  = it.widgetCode,
+                        parameterId = parameterID,
+                        dataCode    = param.dataCode,
+                        dataOffset  = it.dataOffset,
+                        tsMs        = ts,
+                        valueText   = raw,
+                        valueI1     = firstByte,
+                        valueI2     = null,
+                        valueI3     = null
+                    )
+                    val c = WidgetRepoProvider.get().count()
+                    platformLog("ROOM_DBG", "rows=$c (after upsert) device=$deviceAddress pid=$parameterID code=$dataCode wid=${it.widgetId}")
+                }
+            }
 
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
@@ -1520,5 +1558,11 @@ class BLEParser(
             "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
         )
         return "00"
+    }
+
+    private fun String.hexSlice(offsetBytes: Int, sizeBytes: Int): String {
+        val start = offsetBytes * 2
+        val end   = start + sizeBytes * 2
+        return substringSafe(start, end)
     }
 }

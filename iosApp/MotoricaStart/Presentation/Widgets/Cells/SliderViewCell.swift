@@ -67,7 +67,7 @@ final class SliderViewCell: UITableViewCell {
         }
         
         // 2. Вклеиваем SwiftUI контент
-        contentConfiguration = UIHostingConfiguration {
+        var configuration = UIHostingConfiguration {
             SliderRowView(
                 provider: provider,
                 onFirstSliderEditingEnded: { [weak self] _ in
@@ -78,6 +78,8 @@ final class SliderViewCell: UITableViewCell {
                 }
             )
         }
+        configuration = configuration.margins(.vertical, 0)
+        contentConfiguration = configuration
         numberCancellable?.cancel()
         
         // 3. Запускаем подписку на поток

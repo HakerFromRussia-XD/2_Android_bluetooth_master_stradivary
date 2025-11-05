@@ -152,7 +152,6 @@
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F072E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
 		65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
-		65F27F0A2E69B19400AD5DFD /* CustomPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F092E69B19400AD5DFD /* CustomPlot.swift */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		6C0F72E629CF12930005020A /* DispatchQueueTypeMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */; };
@@ -312,7 +311,6 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
-		65F27F092E69B19400AD5DFD /* CustomPlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPlot.swift; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		6C0F72E429CF12180005020A /* DispatchQueueTypeMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueTypeMock.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
@@ -937,7 +935,6 @@
 			children = (
 				65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */,
 				65F27F002E67294700AD5DFD /* CustomSwitcher.swift */,
-				65F27F092E69B19400AD5DFD /* CustomPlot.swift */,
 				65F27ED12E6709D200AD5DFD /* CustomButton.swift */,
 				65A053332E58A16A0057474E /* StepButton.swift */,
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
@@ -1186,7 +1183,6 @@
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
 				65682FCB2EB22F4100BF2D7A /* GesturesRowView.swift in Sources */,
 				65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */,
-				65F27F0A2E69B19400AD5DFD /* CustomPlot.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */,
 				FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */,

@@ -48,9 +48,11 @@ final class SwitchViewCell: UITableViewCell {
             }
         
         // 2. Вклеиваем SwiftUI контент
-        contentConfiguration = UIHostingConfiguration {
+        var configuration = UIHostingConfiguration {
             SwitchRowView(provider: provider)
         }
+        configuration = configuration.margins(.vertical, 0)
+        contentConfiguration = configuration
         numberCancellable?.cancel()
             
         // 3. Запускаем подписку на поток

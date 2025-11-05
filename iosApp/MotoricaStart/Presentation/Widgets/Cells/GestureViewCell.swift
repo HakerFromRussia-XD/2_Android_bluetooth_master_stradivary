@@ -85,6 +85,7 @@ final class GestureViewCell: UITableViewCell {
             )
         }
 //        configuration = configuration.margins(0)
+        configuration = configuration.margins(.vertical, 0)
         contentConfiguration = configuration
 //        numberCancellable?.cancel()
             

@@ -52,11 +52,11 @@ struct GesturesWidgetView: View {
                     sprGroupView
                 }
             }
-//            .animation(nil, value: provider.selectedSegment)
+            .animation(nil, value: provider.selectedSegment)
         }
-//        .padding(.vertical, 12)
-//        .padding(.horizontal, 8)
-        .padding(.bottom, 12)
+        //TODO: раскомментить после эксперимента с отступами
+//        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
         .background(Color("ubi4_back"))
     }
 
@@ -66,7 +66,7 @@ struct GesturesWidgetView: View {
         GeometryReader { geo in
             let width = geo.size.width
             let segmentCount = CGFloat(GesturesProvider.Segment.allCases.count)
-            let segmentWidth = (width - 4) / segmentCount
+            let segmentWidth = (width - 0) / segmentCount // -4
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))
@@ -78,7 +78,7 @@ struct GesturesWidgetView: View {
 
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color("ubi4_back"))
-                    .padding(2)
+                    .padding(1)
                     .frame(width: segmentWidth)
                     .offset(x: highlightOffset(width: segmentWidth))
 
@@ -458,7 +458,7 @@ private struct RotationGestureRow: View {
             controlButton(systemName: "trash", action: onRemove)
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+//        .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("ubi4_gray"))
@@ -513,7 +513,7 @@ private struct SprGestureRow: View {
                     .foregroundColor(Color("ubi4_deactivate_text"))
             }
             .padding(.horizontal, 12)
-//            .padding(.vertical, 14)
+            .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))

@@ -144,8 +144,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func reloadWidgetsFromShared() {
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
-        let kotlinWidgets = dataFactory.prepareData(display: display)
+        //TODO: тут можно включать фейковые виджеты (2)
+//        let kotlinWidgets = dataFactory.prepareData(display: display)
 //        let kotlinWidgets = dataFactory.fakeData()
+        let kotlinWidgets = dataFactory.fakeData2()
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
@@ -357,7 +359,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let normalized = min(max(Float(currentValue) / widgetsLoadingMax, 0), 1)
         let message = currentLoadingMessage ?? defaultLoadingState.message
         currentLoadingMessage = message
-//        LoadingView.show(state: LoadingView.State(message: message, progress: normalized))
         presentLoading(with: LoadingView.State(message: message, progress: normalized))
     }
     
@@ -406,7 +407,8 @@ private extension WidgetsListViewController {
     func presentLoading(with state: LoadingView.State) {
         lastKnownLoadingState = state
         guard isViewVisible else { return }
-        LoadingView.show(state: state)
+        //TODO: тут можно отключать лоадер (3)
+//        LoadingView.show(state: state)
     }
     
     var isSynchronizationCompleted: Bool {
@@ -417,5 +419,28 @@ private extension WidgetsListViewController {
     var isSynchronizationInProgress: Bool {
         get { Self.globalSynchronizationInProgress }
         set { Self.globalSynchronizationInProgress = newValue }
+    }
+}
+
+
+enum WidgetsSynchronizationLoadingConfiguration {
+    private static let userDefaultsKey = "widgetsSynchronizationLoadingEnabled"
+
+    /// Controls whether the fullscreen LoadingView should be shown during widgets synchronization.
+    /// - Note: The value is persisted in `UserDefaults` so it can be toggled from debug utilities
+    ///         or other parts of the application and remembered between launches.
+    static var isEnabled: Bool {
+        get {
+            guard UserDefaults.standard.object(forKey: userDefaultsKey) != nil else { return true }
+            return UserDefaults.standard.bool(forKey: userDefaultsKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: userDefaultsKey)
+        }
+    }
+
+    /// Removes the persisted preference forcing the controller to fallback to the default behaviour.
+    static func reset() {
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 }

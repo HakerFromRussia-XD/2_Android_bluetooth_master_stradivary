@@ -59,8 +59,9 @@ class DataFactory {
         add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
     }
     fun fakeData2(): List<Any> = buildList {
-        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
-        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
+        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1)))
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
+        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
     }
 
     fun fakeDataClear(): List<Any> = emptyList()

@@ -11,6 +11,8 @@ import Foundation
 final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
     
+    private var didTriggerFakeConnection = false
+    
     lazy var segmentedConrol: CustomSegmentedControl = {
         let items = ["Все устройства", "Протезы"]
         let control = CustomSegmentedControl(items: items)
@@ -195,10 +197,23 @@ final class BluetoothListViewController: UIViewController {
                         },
                        completion: nil)
     }
+    
+    //TODO: тут можно включать автоконнекшн (1)
+    //комментим viewDidAppear если не нужен автоконнекшн
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard !didTriggerFakeConnection else { return }
+        didTriggerFakeConnection = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.simulateAutoConnection()
+        }
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.onDisappear()
     }
+    
     
     // Функция обновления высоты таблицы
     private func updateTableHeight() {
@@ -319,6 +334,12 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             imageDataTransferService: dataTransfer,
             bleManager: viewModel.bleManager
          )
+    }
+    private func simulateAutoConnection() {
+        guard let index = viewModel.prepareFakeDeviceForTesting() else { return }
+        tableViewDevices.reloadData()
+        viewModel.connectToDevice(at: index)
+        openMainTabBar()
     }
 }
 extension String {

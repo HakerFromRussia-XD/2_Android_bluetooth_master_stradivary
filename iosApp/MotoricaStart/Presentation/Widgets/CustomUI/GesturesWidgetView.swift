@@ -54,8 +54,9 @@ struct GesturesWidgetView: View {
             }
 //            .animation(nil, value: provider.selectedSegment)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 8)
+//        .padding(.vertical, 12)
+//        .padding(.horizontal, 8)
+        .padding(.bottom, 12)
         .background(Color("ubi4_back"))
     }
 
@@ -80,7 +81,6 @@ struct GesturesWidgetView: View {
                     .padding(2)
                     .frame(width: segmentWidth)
                     .offset(x: highlightOffset(width: segmentWidth))
-//                    .animation(.easeInOut(duration: 0.3), value: provider.selectedSegment)
 
                 HStack(spacing: 0) {
                     ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in

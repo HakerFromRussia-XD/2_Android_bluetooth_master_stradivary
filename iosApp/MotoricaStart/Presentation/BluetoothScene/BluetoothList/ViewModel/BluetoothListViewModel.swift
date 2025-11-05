@@ -9,6 +9,10 @@ import Combine
 import shared
 
 final class BluetoothListViewModel {
+    private enum StubConstants {
+        static let fakeDeviceName = "UBIv4_CPU_Roma"
+        static let fakeDeviceUUID = UUID(uuidString: "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE")!
+    }
     private var allDevices: [BLEDevice] = [] // хранение полного списка устройств
     @Published private(set) var devices: [BLEDevice] = [] // список устройств для отображения в ViewController
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
@@ -118,5 +122,23 @@ final class BluetoothListViewModel {
             typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
+    }
+    
+    /// Добавляет в список устройств заглушку для тестового подключения и возвращает индекс устройства.
+    @discardableResult
+    func prepareFakeDeviceForTesting() -> Int? {
+        let fakeDevice = BLEDevice(
+            id: StubConstants.fakeDeviceUUID,
+            name: StubConstants.fakeDeviceName,
+            uuid: StubConstants.fakeDeviceUUID,
+            rssi: -45
+        )
+
+        if !allDevices.contains(where: { $0.id == fakeDevice.id }) {
+            allDevices.append(fakeDevice)
+        }
+
+        applyFilter(index: selectedFilterIndex)
+        return devices.firstIndex(where: { $0.id == fakeDevice.id })
     }
 }

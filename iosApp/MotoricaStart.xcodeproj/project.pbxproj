@@ -545,7 +545,6 @@
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
-				C056B6E2B97A83B8C666B159 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -978,13 +977,6 @@
 				1F7C1D17242117790014F011 /* Movie+Stub.swift */,
 			);
 			path = Stubs;
-			sourceTree = "<group>";
-		};
-		C056B6E2B97A83B8C666B159 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		FC7408122165557500FE52A5 /* PersistentStorages */ = {

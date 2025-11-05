@@ -513,7 +513,7 @@ private struct SprGestureRow: View {
                     .foregroundColor(Color("ubi4_deactivate_text"))
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 14)
+//            .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))

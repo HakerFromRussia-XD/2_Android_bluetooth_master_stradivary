@@ -148,6 +148,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 //        let kotlinWidgets = dataFactory.prepareData(display: display)
 //        let kotlinWidgets = dataFactory.fakeData()
         let kotlinWidgets = dataFactory.fakeData2()
+        handleWidgetsLoadingCompletion()
+        //handleWidgetsLoadingCompletion() нужен только при отрисовке фейковых виджетов
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу

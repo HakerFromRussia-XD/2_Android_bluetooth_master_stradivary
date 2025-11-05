@@ -360,37 +360,8 @@ class BLEParser(
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
-
-            if (deviceAddress == 7 || deviceAddress == 8) {
-                return@forEach
-            }
-
-
             //ROOM DB
-            val param = ParameterProvider.getParameter(deviceAddress, parameterID)
-            val raw = param.data
-            val ts = getTimeMillis()
-            val firstByte = raw.take(2).toIntOrNull(16)?.toLong()
-
-            coroutineScope.launch {
-                withContext(Dispatchers.IO) {
-                    WidgetRepoProvider.get().upsertState(
-                        deviceAddr  = deviceAddress,
-                        widgetId    = it.widgetId,
-                        widgetCode  = it.widgetCode,
-                        parameterId = parameterID,
-                        dataCode    = param.dataCode,
-                        dataOffset  = it.dataOffset,
-                        tsMs        = ts,
-                        valueText   = raw,
-                        valueI1     = firstByte,
-                        valueI2     = null,
-                        valueI3     = null
-                    )
-                    val c = WidgetRepoProvider.get().count()
-                    platformLog("ROOM_DBG", "rows=$c (after upsert) device=$deviceAddress pid=$parameterID code=$dataCode wid=${it.widgetId}")
-                }
-            }
+            persistParamToRoom(deviceAddress, parameterID, dataCode)
 
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
@@ -1560,9 +1531,56 @@ class BLEParser(
         return "00"
     }
 
-    private fun String.hexSlice(offsetBytes: Int, sizeBytes: Int): String {
-        val start = offsetBytes * 2
-        val end   = start + sizeBytes * 2
-        return substringSafe(start, end)
+    private fun hexByteAt(raw: String, offset: Int): Int? {
+        val i = offset * 2
+        return if (i + 2 <= raw.length) raw.substring(i, i + 2).toInt(16) else null
     }
+
+    // persist в Room
+    private fun persistParamToRoom(deviceAddr: Int, parameterId: Int, dataCode: Int) {
+        val p   = ParameterProvider.getParameter(deviceAddr, parameterId)
+        val raw = p.data
+        val ts  = getTimeMillis()
+
+        listWidgets.forEach { w ->
+            val base = when (w) {
+                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
+                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
+                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                else -> null
+            } ?: return@forEach
+
+            base.parameterInfoSet
+                .asSequence()
+                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
+                .forEach { info ->
+                    val b = hexByteAt(raw, info.dataOffset) ?: 0
+                    coroutineScope.launch(Dispatchers.IO) {
+                        WidgetRepoProvider.get().upsertState(
+                            deviceAddr  = deviceAddr,
+                            widgetId    = base.widgetId,
+                            widgetCode  = base.widgetCode,
+                            parameterId = parameterId,
+                            dataCode    = dataCode,
+                            dataOffset  = info.dataOffset,
+                            tsMs        = ts,
+                            valueText   = raw,
+                            valueI1     = b.toLong(),
+                            valueI2     = null,
+                            valueI3     = null
+                        )
+                        val c = WidgetRepoProvider.get().count()
+                        platformLog("ROOM_DBG", "rows=$c (after upsert) device=$deviceAddr pid=$parameterId code=$dataCode wid=${base.widgetId} off=${info.dataOffset}")
+                    }
+                }
+        }
+    }
+
 }

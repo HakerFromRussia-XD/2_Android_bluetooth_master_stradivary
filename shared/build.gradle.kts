@@ -11,9 +11,32 @@ plugins {
 //    kotlin("kapt")
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
+ksp {
+    arg("ksp.incremental", "false")
+    arg("ksp.verbose", "true")
 }
+room {
+//    schemaDirectory("$projectDir/schemas")
+    // Android variants
+    schemaDirectory("debug",   layout.projectDirectory.dir("schemas/androidDebug"))
+    schemaDirectory("release", layout.projectDirectory.dir("schemas/androidRelease"))
+
+    // Common metadata
+    schemaDirectory("metadata",                    layout.projectDirectory.dir("schemas/metadata"))
+    schemaDirectory("kspKotlinMetadata",           layout.projectDirectory.dir("schemas/metadata"))
+    schemaDirectory("kspCommonMainKotlinMetadata", layout.projectDirectory.dir("schemas/metadata"))
+
+    // iOS targets — даём оба написания для каждого
+    schemaDirectory("iosArm64",            layout.projectDirectory.dir("schemas/iosArm64"))
+    schemaDirectory("kspKotlinIosArm64",   layout.projectDirectory.dir("schemas/iosArm64"))
+
+    schemaDirectory("iosX64",              layout.projectDirectory.dir("schemas/iosX64"))
+    schemaDirectory("kspKotlinIosX64",     layout.projectDirectory.dir("schemas/iosX64"))
+
+    schemaDirectory("iosSimulatorArm64",   layout.projectDirectory.dir("schemas/iosSimArm64"))
+    schemaDirectory("kspKotlinIosSimulatorArm64", layout.projectDirectory.dir("schemas/iosSimArm64"))
+}
+
 
 android {
     namespace = "com.bailout.stickk.ubi4.shared"
@@ -60,7 +83,7 @@ kotlin {
     androidTarget()
 
     listOf(
-        iosX64(),
+//        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -171,7 +194,6 @@ kotlin {
 dependencies {
     add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
     add("kspAndroid", "androidx.room:room-compiler:2.7.2")
-    add("kspIosX64", "androidx.room:room-compiler:2.7.2")
     add("kspIosArm64", "androidx.room:room-compiler:2.7.2")
     add("kspIosSimulatorArm64", "androidx.room:room-compiler:2.7.2")
 }

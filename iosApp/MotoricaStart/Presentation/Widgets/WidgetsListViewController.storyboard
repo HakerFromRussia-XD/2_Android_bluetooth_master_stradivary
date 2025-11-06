@@ -115,17 +115,17 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f96-AD-XFo" customClass="LineChartView" customModule="DGCharts">
-                                            <rect key="frame" x="-12" y="-1" width="399" height="317"/>
+                                            <rect key="frame" x="-12" y="-1" width="399" height="321"/>
                                             <color key="backgroundColor" name="ubi4_gray"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="320" id="268-CM-gjM"/>
                                             </constraints>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U2J-nJ-kCH">
-                                            <rect key="frame" x="15.5" y="3.5" width="344" height="312"/>
+                                            <rect key="frame" x="15.5" y="3.5" width="344" height="316"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Frj-Ub-yHJ">
-                                                    <rect key="frame" x="0.0" y="294" width="344" height="15"/>
+                                                    <rect key="frame" x="0.0" y="298" width="344" height="15"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1KY-iF-G1p">
                                                             <rect key="frame" x="30" y="6" width="61.5" height="11"/>
@@ -151,7 +151,7 @@
                                                             <rect key="frame" x="0.0" y="0.0" width="30" height="15"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kZQ-IQ-j7F">
-                                                                    <rect key="frame" x="9" y="1.5" width="10.5" height="12.5"/>
+                                                                    <rect key="frame" x="9" y="1" width="10.5" height="12.5"/>
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="30">
                                                                             <attributes>
@@ -258,10 +258,10 @@
                                                     </constraints>
                                                 </view>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kW2-b7-d4t">
-                                                    <rect key="frame" x="172" y="0.0" width="172" height="312"/>
+                                                    <rect key="frame" x="172" y="0.0" width="172" height="316"/>
                                                 </view>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s9D-Oi-R9B">
-                                                    <rect key="frame" x="0.0" y="0.0" width="172" height="312"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="172" height="316"/>
                                                 </view>
                                             </subviews>
                                             <constraints>
@@ -293,7 +293,7 @@
                                         <constraint firstAttribute="trailing" secondItem="f96-AD-XFo" secondAttribute="trailing" constant="-12" id="NwB-jr-lQj"/>
                                         <constraint firstAttribute="bottom" secondItem="Xn1-A6-eIY" secondAttribute="bottom" constant="4" id="WQZ-2R-1dy"/>
                                         <constraint firstItem="Xn1-A6-eIY" firstAttribute="leading" secondItem="OzQ-03-uhC" secondAttribute="leading" constant="16" id="kK1-kk-hay"/>
-                                        <constraint firstAttribute="bottom" secondItem="f96-AD-XFo" secondAttribute="bottom" constant="4" id="nAu-pb-HT7"/>
+                                        <constraint firstAttribute="bottom" secondItem="f96-AD-XFo" secondAttribute="bottom" id="nAu-pb-HT7"/>
                                         <constraint firstItem="U2J-nJ-kCH" firstAttribute="height" secondItem="f96-AD-XFo" secondAttribute="height" multiplier="0.984227" id="s2v-gh-3Ul"/>
                                     </constraints>
                                 </tableViewCellContentView>

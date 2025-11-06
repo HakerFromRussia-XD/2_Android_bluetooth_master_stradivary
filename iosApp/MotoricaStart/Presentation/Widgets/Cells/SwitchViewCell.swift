@@ -51,7 +51,7 @@ final class SwitchViewCell: UITableViewCell {
         var configuration = UIHostingConfiguration {
             SwitchRowView(provider: provider)
         }
-        configuration = configuration.margins(.vertical, 0)
+        configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
         numberCancellable?.cancel()
             

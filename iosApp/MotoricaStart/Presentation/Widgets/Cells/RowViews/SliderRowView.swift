@@ -114,7 +114,7 @@ struct SliderRowView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1) // Обводка
                 )
-                .shadow(color: Color.black.opacity(0.24), radius: 2, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
     }
     

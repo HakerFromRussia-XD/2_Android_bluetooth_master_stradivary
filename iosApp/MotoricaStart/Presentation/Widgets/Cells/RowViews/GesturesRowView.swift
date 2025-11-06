@@ -108,7 +108,7 @@ struct GesturesRowView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color("ubi4_no_system_red"))
-                        .shadow(color: Color.black.opacity(0.24), radius: 3, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
         }
     }
@@ -198,7 +198,7 @@ struct GesturesRowView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color("ubi4_gray"))
-                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
             }
         }
@@ -237,7 +237,7 @@ struct GesturesRowView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color("ubi4_gray"))
-                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
             }
 
@@ -275,7 +275,7 @@ private struct GestureCard: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))
-                    .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 2)
+                    .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -322,7 +322,7 @@ private struct GestureRow: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("ubi4_gray"))
-                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.5), radius: 3, x: 0, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -361,7 +361,7 @@ private struct RotationGestureRow: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("ubi4_gray"))
-                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
     }
 }

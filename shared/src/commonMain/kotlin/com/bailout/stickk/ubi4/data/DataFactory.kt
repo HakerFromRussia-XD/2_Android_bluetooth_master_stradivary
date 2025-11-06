@@ -63,8 +63,9 @@ class DataFactory {
     fun fakeData2(): List<Any> = buildList {
 //        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1)))
         add(GesturesItem("test gestures widget", GestureParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1)))))
-        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
         add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 4)))
         add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
         add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7))))

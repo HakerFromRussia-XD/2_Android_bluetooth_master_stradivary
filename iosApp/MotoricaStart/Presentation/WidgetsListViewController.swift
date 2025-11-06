@@ -8,6 +8,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
+    private let tableView = UITableView()
+    @IBOutlet private weak var tableViewWidgets: UITableView!
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Нажми меня", for: .normal)
@@ -235,7 +237,16 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {
-        viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
+//        viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
+        viewModel.items.observe(on: self) { [weak self] _ in
+            guard let tableView = self?.tableView else { return }
+
+            UIView.performWithoutAnimation {
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+        }
+        
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
     }

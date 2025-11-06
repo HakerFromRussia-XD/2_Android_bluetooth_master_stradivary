@@ -53,7 +53,7 @@ final class BluetoothListViewController: UIViewController {
         segmentContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentContainer)
         segmentContainer.layer.shadowColor = UIColor.black.cgColor
-        segmentContainer.layer.shadowOpacity = 0.24
+        segmentContainer.layer.shadowOpacity = 0.25
         segmentContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         segmentContainer.layer.shadowRadius = 3
         segmentContainer.layer.cornerRadius = 22
@@ -87,7 +87,7 @@ final class BluetoothListViewController: UIViewController {
         tableContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableContainer)
         tableContainer.layer.shadowColor = UIColor.black.cgColor
-        tableContainer.layer.shadowOpacity = 0.24
+        tableContainer.layer.shadowOpacity = 0.25
         tableContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         tableContainer.layer.shadowRadius = 3
         tableContainer.layer.cornerRadius = 20

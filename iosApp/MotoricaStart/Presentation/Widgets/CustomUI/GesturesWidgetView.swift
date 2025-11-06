@@ -30,16 +30,6 @@ struct GesturesWidgetView: View {
     var body: some View {
         VStack(spacing: 16) {
             segmentSelector
-//            activeGestureView
-//
-//            switch provider.selectedSegment {
-//            case .collection:
-//                collectionView
-//            case .rotationGroup:
-//                rotationGroupView
-//            case .sprGroup:
-//                sprGroupView
-//            }
             Group {
                 activeGestureView
                 
@@ -54,8 +44,9 @@ struct GesturesWidgetView: View {
             }
             .animation(nil, value: provider.selectedSegment)
         }
-        //TODO: раскомментить после эксперимента с отступами
-//        .padding(.vertical, 4)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
         .padding(.horizontal, 8)
         .background(Color("ubi4_back"))
     }
@@ -66,7 +57,7 @@ struct GesturesWidgetView: View {
         GeometryReader { geo in
             let width = geo.size.width
             let segmentCount = CGFloat(GesturesProvider.Segment.allCases.count)
-            let segmentWidth = (width - 0) / segmentCount // -4
+            let segmentWidth = (width) / segmentCount
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))
@@ -74,13 +65,14 @@ struct GesturesWidgetView: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
 
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color("ubi4_back"))
                     .padding(1)
                     .frame(width: segmentWidth)
                     .offset(x: highlightOffset(width: segmentWidth))
+                    .animation(nil, value: provider.selectedSegment)
 
                 HStack(spacing: 0) {
                     ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
@@ -96,6 +88,9 @@ struct GesturesWidgetView: View {
                 .padding(2)
             }
         }
+        .transaction { transaction in
+            transaction.animation = nil
+        }
         .frame(height: 48)
     }
 
@@ -107,7 +102,6 @@ struct GesturesWidgetView: View {
     private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
         provider.selectedSegment = segment
-//        withAnimation { provider.selectedSegment = segment }
         onSegmentChange(segment)
     }
 
@@ -130,7 +124,7 @@ struct GesturesWidgetView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
     }
 
@@ -180,7 +174,6 @@ struct GesturesWidgetView: View {
 
     private func toggleFactorySection() {
         provider.isFactoryExpanded.toggle()
-//        withAnimation { provider.isFactoryExpanded.toggle() }
     }
 
     // MARK: - Rotation Group View
@@ -368,7 +361,7 @@ private struct GestureTile: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(borderColor, lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
             )
         }
         .buttonStyle(.plain)
@@ -411,7 +404,7 @@ private struct CustomGestureTile: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(borderColor, lineWidth: 1)
                         )
-                        .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
             }
             .buttonStyle(.plain)
@@ -424,7 +417,7 @@ private struct CustomGestureTile: View {
                     .background(
                         Circle()
                             .fill(Color.white.opacity(0.9))
-                            .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1)
+                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                     )
                     .padding(.trailing, 8)
             }
@@ -466,7 +459,7 @@ private struct RotationGestureRow: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
     }
 
@@ -521,7 +514,7 @@ private struct SprGestureRow: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
             )
         }
         .buttonStyle(.plain)

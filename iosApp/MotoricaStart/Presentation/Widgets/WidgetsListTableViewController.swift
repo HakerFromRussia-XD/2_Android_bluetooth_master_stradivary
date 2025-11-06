@@ -51,11 +51,14 @@ final class WidgetsListTableViewController: UITableViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
+//                CATransaction.begin()
+//                CATransaction.setDisableActions(true)
                 
 //                UIView.performWithoutAnimation {
-//                    self.tableViewMy.beginUpdates()
-//                    self.tableViewMy.endUpdates()
+//                    self.tableView.beginUpdates()
+//                    self.tableView.endUpdates()
 //                }
+//                CATransaction.commit()
                 self.updateTableLayoutWithoutAnimation()
             }
         }
@@ -67,9 +70,9 @@ final class WidgetsListTableViewController: UITableViewController {
         UIView.performWithoutAnimation {
             UIView.setAnimationsEnabled(false)
             defer { UIView.setAnimationsEnabled(true) }
-            self.tableViewMy.beginUpdates()
-            self.tableViewMy.endUpdates()
-            self.tableViewMy.layoutIfNeeded()
+            self.tableView.beginUpdates()
+            self.tableView.endUpdates()
+            self.tableView.layoutIfNeeded()
         }
         CATransaction.commit()
     }

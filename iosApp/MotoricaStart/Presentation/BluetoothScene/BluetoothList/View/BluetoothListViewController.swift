@@ -158,8 +158,8 @@ final class BluetoothListViewController: UIViewController {
                 }
                 UIView.performWithoutAnimation {
                     self.tableViewDevices.reloadData()
-                    self.updateTableHeight()
                 }
+                self.updateTableHeight()
             }
             .store(in: &cancellables)
         viewModel.onAppear()

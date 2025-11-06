@@ -37,13 +37,6 @@ final class WidgetsListTableViewController: UITableViewController {
         applySnapshot(animatingDifferences: false)
 //        applySnapshot(animatingDifferences: hasAppliedInitialSnapshot)
     }
-
-    private func recalculateHeightsWithoutAnimation() {
-        UIView.performWithoutAnimation {
-            tableView.beginUpdates()
-            tableView.endUpdates()
-        }
-    }
     
     // Assistant: Общая функция для обновления таблицы через DiffableDataSource
     private func applySnapshot(animatingDifferences: Bool) {
@@ -57,13 +50,15 @@ final class WidgetsListTableViewController: UITableViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
-//                self.hasAppliedInitialSnapshot = true
-                self.recalculateHeightsWithoutAnimation()
+                
+                UIView.performWithoutAnimation {
+                    self.tableViewMy.beginUpdates()
+                    self.tableViewMy.endUpdates()
+//                    self.tableViewMy.reloadData()
+//                    self.updateTableHeight()
+                }
             }
         }
-//        if !hasAppliedInitialSnapshot {
-//            hasAppliedInitialSnapshot = true
-//        }
     }
 
 

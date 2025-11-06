@@ -237,16 +237,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {
-//        viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
-        viewModel.items.observe(on: self) { [weak self] _ in
-            guard let tableView = self?.tableView else { return }
-
-            UIView.performWithoutAnimation {
-                tableView.beginUpdates()
-                tableView.endUpdates()
-            }
-        }
-        
+        viewModel.items.observe(on: self) { [weak self] _ in self?.updateItems() }
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
     }

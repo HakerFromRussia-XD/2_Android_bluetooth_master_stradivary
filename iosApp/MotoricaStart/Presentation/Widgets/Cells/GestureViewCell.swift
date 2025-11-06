@@ -29,9 +29,6 @@ final class GestureViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
-//        let provider = GestureOpticProvider(
-//            title: viewModel.title
-//        )
         let provider = viewModel.makeProvider()
         self.provider = provider
         cancellable?.cancel()
@@ -65,29 +62,27 @@ final class GestureViewCell: UITableViewCell {
                     self?.viewModel.openGestureSettings(for: item)
                 },
                 onRotationGestureMoveUp: { [weak self] index in
-                    guard let self, let provider = self.provider else { return }
-                    self.viewModel.moveRotationGestureUp(at: index, provider: provider)
+//                    guard let self, let provider = self.provider else { return }
+//                    self.viewModel.moveRotationGestureUp(at: index, provider: provider)
                 },
                 onRotationGestureMoveDown: { [weak self] index in
-                    guard let self, let provider = self.provider else { return }
-                    self.viewModel.moveRotationGestureDown(at: index, provider: provider)
+//                    guard let self, let provider = self.provider else { return }
+//                    self.viewModel.moveRotationGestureDown(at: index, provider: provider)
                 },
                 onRotationGestureRemove: { [weak self] index in
-                    guard let self, let provider = self.provider else { return }
-                    self.viewModel.removeRotationGesture(at: index, provider: provider)
+//                    guard let self, let provider = self.provider else { return }
+//                    self.viewModel.removeRotationGesture(at: index, provider: provider)
                 },
                 onRotationGestureAdd: { [weak self] in
-                    guard let self, let provider = self.provider else { return }
-                    self.viewModel.appendRotationGesture(provider: provider)
+//                    guard let self, let provider = self.provider else { return }
+//                    self.viewModel.appendRotationGesture(provider: provider)
                 },
                 onSprGestureAction: { _ in },
                 onSprAddTap: { }
             )
         }
-//        configuration = configuration.margins(0)
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
-//        numberCancellable?.cancel()
             
         // 3. Запускаем подписку на поток
         job?.cancel(cause: nil)

@@ -161,15 +161,15 @@ extension GestureListItemViewModel {
     }
 
     private func sendRotationGroup(with gestures: [GesturesProvider.GestureDisplayItem]) {
-//        let rotationGroup = RotationGroup.make(from: gestures)
+        let rotationGroup = RotationGroup.make(from: gestures)
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
-//        let data = BLECommands.shared.sendRotationGroupInfo(
-//            addressDevice: Int32(widget.deviceAddress),
-//            parameterID: Int32(parameterID),
-//            rotationGroup: rotationGroup
-//        )
-//        sendBytes(data)
+        let data = BLECommands.shared.sendRotationGroupInfo(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            rotationGroup: rotationGroup
+        )
+        sendBytes(data)
     }
     
     private func parameterID(for dataCode: Int) -> Int {

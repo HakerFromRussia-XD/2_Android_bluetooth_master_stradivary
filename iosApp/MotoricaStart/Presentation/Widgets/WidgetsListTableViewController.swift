@@ -1,5 +1,6 @@
 import UIKit
 import ObjectiveC
+import QuartzCore
 
 final class WidgetsListTableViewController: UITableViewController {
     @IBOutlet weak var tableViewMy: UITableView!
@@ -51,16 +52,27 @@ final class WidgetsListTableViewController: UITableViewController {
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
                 
-                UIView.performWithoutAnimation {
-                    self.tableViewMy.beginUpdates()
-                    self.tableViewMy.endUpdates()
-//                    self.tableViewMy.reloadData()
-//                    self.updateTableHeight()
-                }
+//                UIView.performWithoutAnimation {
+//                    self.tableViewMy.beginUpdates()
+//                    self.tableViewMy.endUpdates()
+//                }
+                self.updateTableLayoutWithoutAnimation()
             }
         }
     }
 
+    private func updateTableLayoutWithoutAnimation() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        UIView.performWithoutAnimation {
+            UIView.setAnimationsEnabled(false)
+            defer { UIView.setAnimationsEnabled(true) }
+            self.tableViewMy.beginUpdates()
+            self.tableViewMy.endUpdates()
+            self.tableViewMy.layoutIfNeeded()
+        }
+        CATransaction.commit()
+    }
 
     func updateLoading(_ loading: WidgetsListViewModelLoading?) {
         tableView.tableFooterView = nil

@@ -4,27 +4,40 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface WidgetStateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(entity: WidgetStateEntity)
+    suspend fun upsert(e: WidgetStateEntity)
+
+    @Query("SELECT * FROM widget_state WHERE device_mac = :mac AND widget_id = :widgetId ORDER BY ts_ms DESC")
+    fun observeByWidget(mac: String, widgetId: Long): Flow<List<WidgetStateEntity>>
 
     @Query("""
-        SELECT * FROM widget_state WHERE
-        device_addr=:deviceAddr AND widget_id=:widgetId AND widget_code=:widgetCode AND
-        parameter_id=:parameterId AND data_code=:dataCode AND data_offset=:dataOffset
+        SELECT * FROM widget_state
+        WHERE device_mac = :mac
+          AND device_addr = :deviceAddr AND widget_id = :widgetId AND widget_code = :widgetCode
+          AND parameter_id = :parameterId AND data_code = :dataCode AND data_offset = :dataOffset
         LIMIT 1
     """)
-    suspend fun selectByKey(
+    fun observeByKey(
+        mac: String,
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
-    ): WidgetStateEntity?
+    ): Flow<WidgetStateEntity?>
 
-    @Query("SELECT COUNT(*) FROM widget_state")
-    suspend fun count(): Long
+    @Query("""
+    SELECT * FROM widget_state
+    WHERE device_mac = :mac
+    ORDER BY ts_ms DESC
+""")
+    fun observeAll(mac: String): Flow<List<WidgetStateEntity>>
 
-    @Query("SELECT * FROM widget_state WHERE widget_id=:widgetId")
-    suspend fun selectByWidget(widgetId: Long): List<WidgetStateEntity>
+    @Query("DELETE FROM widget_state WHERE device_mac = :mac AND device_addr = :deviceAddr")
+    suspend fun clearByDevice(mac: String, deviceAddr: Long)
+
+    @Query("SELECT COUNT(*) FROM widget_state WHERE device_mac = :mac")
+    suspend fun count(mac: String): Long
 }

@@ -206,4 +206,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.1")
     implementation("io.ktor:ktor-client-logging:2.3.1")
+
+
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
 }

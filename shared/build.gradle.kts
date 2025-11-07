@@ -138,6 +138,8 @@ kotlin {
                 // --- Room Multiplatform ---
                 implementation("androidx.room:room-runtime:2.7.2")
                 implementation("androidx.sqlite:sqlite-bundled:2.5.0")
+
+                implementation("androidx.room:room-common:2.7.2")
             }
         }
 

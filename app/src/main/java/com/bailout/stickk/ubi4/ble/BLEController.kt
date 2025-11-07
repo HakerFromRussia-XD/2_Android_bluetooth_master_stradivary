@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -109,6 +110,7 @@ class BLEController() {
 //                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") //fest FO3
 
 
+                WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
                 mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
@@ -185,6 +187,8 @@ class BLEController() {
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
+                    WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
@@ -341,6 +345,7 @@ private fun parseReceivedData(data: ByteArray?) {
                 // Если уже зарегистрирован, игнорируем
                 Log.w("BLEController", "Ресивер уже зарегистрирован")
             }
+            WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
             mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }

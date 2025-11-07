@@ -7,6 +7,7 @@ import androidx.room.Index
 @Entity(
     tableName = "widget_state",
     primaryKeys = [
+        "device_mac",
         "device_addr","widget_id","widget_code",
         "parameter_id","data_code","data_offset"
     ],
@@ -18,6 +19,7 @@ import androidx.room.Index
     ]
 )
 data class WidgetStateEntity(
+    val device_mac: String,
     val device_addr: Long,
     val widget_id: Long,
     val widget_code: Long,

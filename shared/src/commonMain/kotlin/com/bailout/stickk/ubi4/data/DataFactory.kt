@@ -61,7 +61,6 @@ class DataFactory {
         add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
     }
     fun fakeData2(): List<Any> = buildList {
-//        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1)))
         add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0))))
         add(GesturesItem("test gestures widget", GestureParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1)))))
         add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 2))))

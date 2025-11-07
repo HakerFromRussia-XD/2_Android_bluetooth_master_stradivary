@@ -51,11 +51,14 @@ final class WidgetsListTableViewController: UITableViewController {
         DispatchQueue.main.async {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
+            let animationsWereEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
             
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
                 self.updateTableLayoutWithoutAnimation()
+                CATransaction.commit()
+                UIView.setAnimationsEnabled(animationsWereEnabled)
             }
         }
     }
@@ -64,7 +67,7 @@ final class WidgetsListTableViewController: UITableViewController {
         self.tableView.beginUpdates()
         self.tableView.endUpdates()
         self.tableView.layoutIfNeeded()
-        CATransaction.commit()
+//        CATransaction.commit()
     }
 
     func updateLoading(_ loading: WidgetsListViewModelLoading?) {

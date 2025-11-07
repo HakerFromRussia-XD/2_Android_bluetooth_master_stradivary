@@ -9,9 +9,10 @@ import SwiftUI
 import UIKit
 
 struct GesturesWidgetView: View {
-
+    @State private var highlightOffsetX: CGFloat = 0
+    
+    
     // MARK: - Dependencies
-
     @ObservedObject var provider: GesturesProvider
 
     var onSegmentChange: (GesturesProvider.Segment) -> Void
@@ -25,8 +26,8 @@ struct GesturesWidgetView: View {
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
 
+    
     // MARK: - Body
-
     var body: some View {
         VStack(spacing: 16) {
             segmentSelector
@@ -51,8 +52,8 @@ struct GesturesWidgetView: View {
         .background(Color("ubi4_back"))
     }
 
+    
     // MARK: - Segment Selector
-
     private var segmentSelector: some View {
         GeometryReader { geo in
             let width = geo.size.width
@@ -71,8 +72,8 @@ struct GesturesWidgetView: View {
                     .fill(Color("ubi4_back"))
                     .padding(1)
                     .frame(width: segmentWidth)
-                    .offset(x: highlightOffset(width: segmentWidth))
-                    .animation(nil, value: provider.selectedSegment)
+                    .offset(x: highlightOffsetX)
+                    .animation(.easeOut(duration: 0.3), value: highlightOffsetX)
 
                 HStack(spacing: 0) {
                     ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
@@ -89,26 +90,36 @@ struct GesturesWidgetView: View {
                 }
                 .padding(2)
             }
+            .onChange(of: provider.selectedSegment) { _ in
+                updateHighlightOffset(segmentWidth: segmentWidth, animated: true)
+            }
         }
         .transaction { transaction in
             transaction.animation = nil
         }
         .frame(height: 48)
     }
-
-    private func highlightOffset(width: CGFloat) -> CGFloat {
-        guard let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) else { return 0 }
-        return CGFloat(index) * width
+    
+    private func updateHighlightOffset(segmentWidth: CGFloat, animated: Bool) {
+        let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
+        let newOffset = CGFloat(index) * segmentWidth
+        if animated {
+            withAnimation(.easeOut(duration: 0.3)) {
+                highlightOffsetX = newOffset
+            }
+        } else {
+            highlightOffsetX = newOffset
+        }
     }
-
+    
     private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
         provider.selectedSegment = segment
         onSegmentChange(segment)
     }
 
+    
     // MARK: - Active Gesture
-
     private var activeGestureView: some View {
         VStack(alignment: .leading, spacing: 8) {
             let activeTitle = provider.activeGestureTitle ?? NSLocalizedString("gesture_not_selected", comment: "")
@@ -130,8 +141,8 @@ struct GesturesWidgetView: View {
         )
     }
 
+    
     // MARK: - Collection View
-
     private var collectionView: some View {
         VStack(alignment: .leading, spacing: 16) {
             collapsibleSection(
@@ -177,9 +188,45 @@ struct GesturesWidgetView: View {
     private func toggleFactorySection() {
         provider.isFactoryExpanded.toggle()
     }
+    
+    private func collapsibleSection<Content: View>(
+        title: String,
+        isExpanded: Bool,
+        toggle: @escaping () -> Void,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: toggle) {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.white)
+                        .padding(6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color("ubi4_gray"))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                                )
+                        )
+                        .animation(nil, value: isExpanded)
+                }
+                .buttonStyle(.plain)
+            }
 
+            if isExpanded {
+                content()
+            }
+        }
+        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+    }
+
+    
     // MARK: - Rotation Group View
-
     private var rotationGroupView: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(NSLocalizedString("rotation_group", comment: ""))
@@ -201,7 +248,7 @@ struct GesturesWidgetView: View {
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color("ubi4_gray"))
@@ -212,6 +259,7 @@ struct GesturesWidgetView: View {
                         )
                 }
                 .buttonStyle(.plain)
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
             }
 
             Text(NSLocalizedString("rotation_group_hint", comment: ""))
@@ -220,8 +268,8 @@ struct GesturesWidgetView: View {
         }
     }
 
+    
     // MARK: - SPR Group View
-
     private var sprGroupView: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(NSLocalizedString("spr_gestures", comment: ""))
@@ -278,47 +326,10 @@ struct GesturesWidgetView: View {
                 .frame(maxWidth: .infinity)
         }
     }
-
-    // MARK: - Components
-
-    private func collapsibleSection<Content: View>(
-        title: String,
-        isExpanded: Bool,
-        toggle: @escaping () -> Void,
-        @ViewBuilder content: @escaping () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
-                Spacer()
-                Button(action: toggle) {
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.white)
-                        .padding(6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color("ubi4_gray"))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                                )
-                        )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if isExpanded {
-                content()
-            }
-        }
-//        .animation(nil, value: isExpanded)
-    }
 }
 
-// MARK: - Gesture Tiles
 
+// MARK: - Gesture Tiles
 private struct GestureTile: View {
     let title: String
     let subtitle: String?

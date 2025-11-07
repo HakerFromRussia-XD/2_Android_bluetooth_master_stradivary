@@ -7,13 +7,14 @@
 
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
+
 
 struct GesturesWidgetView: View {
-    @State private var highlightOffsetX: CGFloat = 0
-    
     
     // MARK: - Dependencies
     @ObservedObject var provider: GesturesProvider
+    @State private var highlightOffsetX: CGFloat = 0
 
     var onSegmentChange: (GesturesProvider.Segment) -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
@@ -23,6 +24,7 @@ struct GesturesWidgetView: View {
     var onRotationGestureMoveDown: (Int) -> Void
     var onRotationGestureRemove: (Int) -> Void
     var onRotationGestureAdd: () -> Void
+    var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
 
@@ -234,19 +236,26 @@ struct GesturesWidgetView: View {
                 .foregroundColor(.white)
 
             VStack(spacing: 12) {
-                ForEach(Array(provider.rotationGroup.enumerated()), id: \.offset) { index, item in
-                    RotationGestureRow(
-                        title: item.title,
-                        subtitle: item.subtitle,
-                        onMoveUp: { onRotationGestureMoveUp(index) },
-                        onMoveDown: { onRotationGestureMoveDown(index) },
-                        onRemove: { onRotationGestureRemove(index) }
-                    )
-                }
+//                ForEach(Array(provider.rotationGroup.enumerated()), id: \.offset) { index, item in
+//                    RotationGestureRow(
+//                        title: item.title,
+//                        subtitle: item.subtitle,
+//                        onMoveUp: { onRotationGestureMoveUp(index) },
+//                        onMoveDown: { onRotationGestureMoveDown(index) },
+//                        onRemove: { onRotationGestureRemove(index) }
+//                    )
+//                }
+                RotationGesturesReorderView(
+                    items: $provider.rotationGroup,
+                    onRemove: { index in onRotationGestureRemove(index) },
+                    onReorder: { items in
+                        onRotationGesturesReorder(items)
+                    }
+                )
                 Button(action: onRotationGestureAdd) {
                     Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
-                        .foregroundColor(.white)
+                        .foregroundColor( .white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .background(
@@ -439,13 +448,56 @@ private struct CustomGestureTile: View {
     }
 }
 
+private struct RotationGesturesReorderView: View {
+    @Binding var items: [GesturesProvider.GestureDisplayItem]
+    var onRemove: (Int) -> Void
+    var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
+
+    @State private var draggedItem: GesturesProvider.GestureDisplayItem?
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(items) { item in
+                RotationGestureRow(
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    isDragging: draggedItem == item,
+                    onRemove: {
+                        if let index = items.firstIndex(of: item) {
+                            onRemove(index)
+                        }
+                    }
+                )
+                .onDrag {
+                    draggedItem = item
+                    return NSItemProvider(object: NSString(string: "rotation-\(item.id)"))
+                }
+                .onDrop(
+                    of: [UTType.text],
+                    delegate: RotationGestureDropDelegate(
+                        currentItem: item,
+                        items: $items,
+                        draggedItem: $draggedItem,
+                        onReorder: onReorder
+                    )
+                )
+            }
+        }
+    }
+}
+
 private struct RotationGestureRow: View {
     let title: String
     let subtitle: String?
-    var onMoveUp: () -> Void
-    var onMoveDown: () -> Void
+//    var onMoveUp: () -> Void
+//    var onMoveDown: () -> Void
+    var isDragging: Bool
     var onRemove: () -> Void
 
+    private var backgroundColor: Color {
+        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
@@ -459,21 +511,26 @@ private struct RotationGestureRow: View {
                 }
             }
             Spacer()
-            controlButton(systemName: "chevron.up", action: onMoveUp)
-            controlButton(systemName: "chevron.down", action: onMoveDown)
+//            controlButton(systemName: "chevron.up", action: onMoveUp)
+//            controlButton(systemName: "chevron.down", action: onMoveDown)
+            Image(systemName: "line.3.horizontal")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color("ubi4_deactivate_text"))
+                .padding(.vertical, 12)
             controlButton(systemName: "trash", action: onRemove)
         }
         .padding(.horizontal, 12)
-//        .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_gray"))
+//                .fill(Color("ubi4_gray"))
+                .fill(backgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
+        .animation(.easeInOut(duration: 0.3), value: isDragging)
     }
 
     private func controlButton(systemName: String, action: @escaping () -> Void) -> some View {
@@ -492,6 +549,35 @@ private struct RotationGestureRow: View {
                 )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct RotationGestureDropDelegate: DropDelegate {
+    let currentItem: GesturesProvider.GestureDisplayItem
+    @Binding var items: [GesturesProvider.GestureDisplayItem]
+    @Binding var draggedItem: GesturesProvider.GestureDisplayItem?
+    var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedItem,
+              draggedItem != currentItem,
+              let fromIndex = items.firstIndex(of: draggedItem),
+              let toIndex = items.firstIndex(of: currentItem) else { return }
+
+        items.move(fromOffsets: IndexSet(integer: fromIndex), toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+
+        withAnimation(.easeInOut) {
+            onReorder(items)
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedItem = nil
+        return true
     }
 }
 

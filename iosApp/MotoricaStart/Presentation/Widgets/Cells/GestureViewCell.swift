@@ -77,6 +77,10 @@ final class GestureViewCell: UITableViewCell {
 //                    guard let self, let provider = self.provider else { return }
 //                    self.viewModel.appendRotationGesture(provider: provider)
                 },
+                onRotationGesturesReorder: { [weak self] items in
+//                    guard let self, let provider = self.provider else { return }
+//                    self.viewModel.reorderRotationGestures(items, provider: provider)
+                },
                 onSprGestureAction: { _ in },
                 onSprAddTap: { }
             )

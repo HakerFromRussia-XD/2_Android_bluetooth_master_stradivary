@@ -80,8 +80,10 @@ struct GesturesWidgetView: View {
                             Text(segment.title)
                                 .font(.system(size: 12, weight: .light))
                                 .foregroundColor(segment == provider.selectedSegment ? .white : Color("ubi4_deactivate_text"))
+                                .animation(nil, value: provider.selectedSegment)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
+                        .animation(nil, value: provider.selectedSegment)
                         .buttonStyle(.plain)
                     }
                 }

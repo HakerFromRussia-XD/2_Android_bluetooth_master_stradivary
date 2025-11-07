@@ -3,7 +3,7 @@ import ObjectiveC
 import QuartzCore
 
 final class WidgetsListTableViewController: UITableViewController {
-    @IBOutlet weak var tableViewMy: UITableView!
+//    @IBOutlet weak var tableViewMy: UITableView!
 //    private var hasAppliedInitialSnapshot = false
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
@@ -49,31 +49,21 @@ final class WidgetsListTableViewController: UITableViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModel.items.value)
         DispatchQueue.main.async {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            UIView.setAnimationsEnabled(false)
+            
             self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                 print("[DEBUG] snapshot applied")
-//                CATransaction.begin()
-//                CATransaction.setDisableActions(true)
-                
-//                UIView.performWithoutAnimation {
-//                    self.tableView.beginUpdates()
-//                    self.tableView.endUpdates()
-//                }
-//                CATransaction.commit()
                 self.updateTableLayoutWithoutAnimation()
             }
         }
     }
 
     private func updateTableLayoutWithoutAnimation() {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        UIView.performWithoutAnimation {
-            UIView.setAnimationsEnabled(false)
-            defer { UIView.setAnimationsEnabled(true) }
-            self.tableView.beginUpdates()
-            self.tableView.endUpdates()
-            self.tableView.layoutIfNeeded()
-        }
+        self.tableView.beginUpdates()
+        self.tableView.endUpdates()
+        self.tableView.layoutIfNeeded()
         CATransaction.commit()
     }
 

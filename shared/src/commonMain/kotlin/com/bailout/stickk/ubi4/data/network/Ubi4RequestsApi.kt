@@ -11,17 +11,21 @@ import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
 import com.bailout.stickk.ubi4.models.user.User
 import com.bailout.stickk.ubi4.models.user.UserV2
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.models.network.PassportUploadResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.utils.io.errors.IOException
 
 
@@ -150,6 +154,29 @@ class Ubi4RequestsApi(
             url("${BaseUrlUtilsUBI4.PASSPORT_BASE}clients_table/clients/")
             header(HttpHeaders.Authorization, auth)
         }
+
+    suspend fun uploadPassportData(
+        token: String,
+        files: List<SharedFile>
+    ): NetworkResult<PassportUploadResponse> {
+        val fileData = files.map { file ->
+            file.readBytes() to file.name
+        }
+
+        return safePost(passportClient) {
+            url("${BaseUrlUtilsUBI4.PASSPORT_BASE}clients_passports_data/")
+            header("Authorization", token)
+            setBody(MultiPartFormDataContent(
+                formData {
+                    fileData.forEach { (bytes, name) ->
+                        append("files", bytes, Headers.build {
+                            append(HttpHeaders.ContentDisposition, "filename=\"$name\"")
+                        })
+                    }
+                }
+            ))
+        }
+    }
 
     // ==== HELPERS ====
 

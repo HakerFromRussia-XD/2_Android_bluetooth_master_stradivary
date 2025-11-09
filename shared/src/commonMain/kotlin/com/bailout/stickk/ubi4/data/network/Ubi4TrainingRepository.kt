@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.data.network
 // commonMain
 import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.models.network.PassportUploadResponse
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
@@ -83,6 +84,18 @@ class Ubi4TrainingRepository(
         // распаковываем (expect/actual)
         val (_, unpacked) = unzipArchive(zipFile, outputDir)
         return zipFile to unpacked
+    }
+
+    suspend fun uploadPassportData(
+        token: String,
+        passportFiles: List<SharedFile>
+    ): PassportUploadResponse {
+        return when (val result = api.uploadPassportData(token, passportFiles)) {
+            is NetworkResult.Success -> result.value
+            is NetworkResult.Error -> {
+                throw IOException("Passport upload failed ${result.code}: ${result.message}")
+            }
+        }
     }
 }
 

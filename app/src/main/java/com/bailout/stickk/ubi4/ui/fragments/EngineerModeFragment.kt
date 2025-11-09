@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -31,6 +32,17 @@ import com.google.gson.reflect.TypeToken
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
+import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.API_KEY
+import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
+import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
+import com.bailout.stickk.ubi4.data.network.sharedFile
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment.Companion.PASSWORD_DEFAULT
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.TrainingUploadManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
 
@@ -92,22 +104,43 @@ class EngineerModeFragment : BaseWidgetsFragment() {
 
         startAuthAndDownloadPassport {
             configFile = File(requireContext().getExternalFilesDir(null), "config.json")
+
+            val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_data_collection_settings, null)
+            val dialog = Dialog(requireContext())
+
+            dialog.setContentView(dialogBinding)
+            dialog.setCancelable(false)
+            dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+            dataCollectionDialog = dialog
+            dialog.show()
+
+            setupDialogControls(dialogBinding)
+            setupDialogButtons(dialogBinding, dialog)
         }
-
-        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_data_collection_settings, null)
-        val dialog = Dialog(requireContext())
-
-        dialog.setContentView(dialogBinding)
-        dialog.setCancelable(false)
-        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-        dataCollectionDialog = dialog
-        dialog.show()
-
-        setupDialogControls(dialogBinding)
-        setupDialogButtons(dialogBinding, dialog)
     }
 
     private fun setupDialogControls(dialogBinding: View) {
+        val configJson = if (configFile?.exists() == true) {
+            try {
+                JSONObject(configFile!!.readText())
+            }
+            catch (e: Exception) {
+                null
+            }
+        }
+        else {
+            null
+        }
+
+        fun getIntFromConfig(key: String, defaultValue: Int): Int {
+            return try {
+                configJson?.getInt(key) ?: defaultValue
+            }
+            catch (e: Exception) {
+                defaultValue
+            }
+        }
+
         // N_CYCLES
         setupSlider(
             dialogBinding,
@@ -117,7 +150,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.nCyclesPlusBtnRipple,
             minValue = 1,
             maxValue = 10,
-            defaultValue = 3
+            defaultValue = getIntFromConfig("N_CYCLES", 3)
         )
 
         // BASELINE_DURATION
@@ -129,7 +162,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.baselineDurationPlusBtnRipple,
             minValue = 1,
             maxValue = 10,
-            defaultValue = 5
+            defaultValue = getIntFromConfig("BASELINE_DURATION", 5)
         )
 
         // PRE_GEST_DURATION
@@ -141,7 +174,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.preGestDurationPlusBtnRipple,
             minValue = 1,
             maxValue = 5,
-            defaultValue = 2
+            defaultValue = getIntFromConfig("PRE_GEST_DURATION", 2)
         )
 
         // AT_GEST_DURATION
@@ -153,7 +186,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.atGestDurationPlusBtnRipple,
             minValue = 1,
             maxValue = 5,
-            defaultValue = 2
+            defaultValue = getIntFromConfig("AT_GEST_DURATION", 2)
         )
 
         // POST_GEST_DURATION
@@ -165,7 +198,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.postGestDurationPlusBtnRipple,
             minValue = 1,
             maxValue = 5,
-            defaultValue = 2
+            defaultValue = getIntFromConfig("POST_GEST_DURATION", 2)
         )
     }
 
@@ -221,6 +254,9 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         saveBtn.setOnClickListener {
             val settings = collectDialogSettings(dialogBinding)
             saveDataCollectionSettings(settings)
+            lifecycleScope.launch(Dispatchers.IO) {
+                uploadPassport()
+            }
             dialog.dismiss()
         }
 
@@ -233,17 +269,52 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     private fun saveDataCollectionSettings(settings: DataCollectionSettings) {
         if (configFile?.exists() == true) {
             val json = JSONObject(configFile!!.readText())
+            val ts = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.getDefault()).format(java.util.Date())
+            json.put("DATA_PASSPORT_PATH", "./Data/${ts}.emg8.data_passport")
             json.put("N_CYCLES", settings.nCycles)
             json.put("BASELINE_DURATION", settings.baselineDuration)
             json.put("PRE_GEST_DURATION", settings.preGestDuration)
             json.put("AT_GEST_DURATION", settings.atGestDuration)
             json.put("POST_GEST_DURATION", settings.postGestDuration)
-            val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
-            val count = prefs.getInt("gestures_count", 0)
-            val gestures = (0 until count)
-                .mapNotNull { prefs.getString("gesture_${it}_name", null) }
-            json.put("gesture_sequence", org.json.JSONArray(gestures))
             configFile!!.writeText(json.toString())
+        }
+    }
+
+    private suspend fun uploadPassport() {
+        val repo = Ubi4TrainingRepository(Ubi4RequestsApi())
+        val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
+        var token = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
+        var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+
+        if (token.isBlank() || serial.isBlank()) {
+            serial = main.getCurrentSerial() ?: ""
+            token = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
+            prefs.edit()
+                .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
+                .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                .apply()
+        }
+        try {
+            val externalDir = requireContext().getExternalFilesDir(null)
+            val configFile = File(externalDir, "config.json")
+            Log.d("PassportUpload", "${configFile.readText()}")
+
+            if (configFile.exists()) {
+                val ts = JSONObject(configFile.readText()).getString("DATA_PASSPORT_PATH").split('/')[2].split('.')[0]
+                val tempPassportFile = File(externalDir, "${ts}.emg8.data_passport")
+                Log.d("PassportUpload", "${tempPassportFile.name}")
+                configFile.copyTo(tempPassportFile, overwrite = true)
+                val passportFiles = listOf(sharedFile(tempPassportFile.absolutePath))
+                val response = repo.uploadPassportData(token, passportFiles)
+                Log.d("PassportUpload", "Success: ${response.message}")
+                tempPassportFile.delete()
+            }
+            else {
+                Log.w("PassportUpload", "config.json not found")
+            }
+        }
+        catch (e: Exception) {
+            Log.e("PassportUpload", "Error: ${e.message}")
         }
     }
 
@@ -324,33 +395,47 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     }
 
     private fun loadGesturesOrder() {
-        val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
-        val gesturesCount = prefs.getInt("gestures_count", 0)
-
         selectedGestures.clear()
-        for (i in 0 until gesturesCount) {
-            val id = prefs.getInt("gesture_${i}_id", -1)
-            val name = prefs.getString("gesture_${i}_name", "")
-            if (id != -1 && !name.isNullOrEmpty()) {
-                selectedGestures.add(GestureItem(id, name))
+        if (configFile?.exists() == true) {
+            try {
+                val json = JSONObject(configFile!!.readText())
+                val gestureSequenceJson = json.optJSONArray("gesture_sequence")
+                if (gestureSequenceJson != null && gestureSequenceJson.length() > 0) {
+                    val firstGesture = gestureSequenceJson.getString(0)
+                    val startIndex = if (firstGesture == "Neutral") 1 else 0
+                    var idIndex = 0
+                    for (i in startIndex until gestureSequenceJson.length()) {
+                        val gestureName = gestureSequenceJson.getString(i)
+                        selectedGestures.add(GestureItem(idIndex, gestureName))
+                        idIndex++
+                    }
+                }
+            }
+            catch (e: Exception) {
+                Log.e("LoadGestures", "Error loading from config: ${e.message}")
             }
         }
-
-        Log.d("LoadGestures", "Loaded ${selectedGestures.size} gestures: ${selectedGestures.map { it.name }}")
     }
 
     private fun saveGesturesOrder() {
-        val prefs = requireContext().getSharedPreferences("gestures_order", Context.MODE_PRIVATE)
-        val editor = prefs.edit()
+        if (configFile?.exists() == true) {
+            try {
+                val json = JSONObject(configFile!!.readText())
+                val gestures = mutableListOf<String>()
+                gestures.add("Neutral")
+                gestures.addAll(selectedGestures.map { it.name })
+                json.put("gesture_sequence", org.json.JSONArray(gestures))
+                configFile!!.writeText(json.toString())
 
-        editor.putInt("gestures_count", selectedGestures.size)
-        selectedGestures.forEachIndexed { index, gesture ->
-            editor.putInt("gesture_${index}_id", gesture.id)
-            editor.putString("gesture_${index}_name", gesture.name)
+                Log.d("SaveGestures", "Saved ${gestures.size} gestures to config: ${gestures}")
+            }
+            catch (e: Exception) {
+                Log.e("SaveGestures", "Error saving to config: ${e.message}")
+            }
         }
-        editor.apply()
-
-        Log.d("SaveGestures", "Saved ${selectedGestures.size} gestures: ${selectedGestures.map { it.name }}")
+        else {
+            Log.w("SaveGestures", "config.json not found, cannot save gestures")
+        }
     }
 
     private fun showAddGestureDialog() {

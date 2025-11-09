@@ -676,7 +676,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
 //        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<-  Макс Емец
 //        private const val SERIAL_DEFAULT = "CYBI-F-05663" //<- Тест
-        private const val PASSWORD_DEFAULT = "123фыв6"
+        const val PASSWORD_DEFAULT = "123фыв6"
     }
 }
 

@@ -178,8 +178,6 @@ struct GesturesRowView: View {
                 ForEach(Array(provider.rotationGroup.enumerated()), id: \.element.id) { index, gesture in
                     RotationGestureRow(
                         title: gesture.title,
-                        onMoveUp: { onRotationGestureMoveUp?(index) },
-                        onMoveDown: { onRotationGestureMoveDown?(index) },
                         onRemove: { onRotationGestureRemove?(index) }
                     )
                 }
@@ -333,8 +331,6 @@ private struct GestureRow: View {
 
 private struct RotationGestureRow: View {
     let title: String
-    var onMoveUp: () -> Void
-    var onMoveDown: () -> Void
     var onRemove: () -> Void
 
     var body: some View {
@@ -343,14 +339,6 @@ private struct RotationGestureRow: View {
                 .font(.custom("SFProDisplay-Light", size: 12))
                 .foregroundColor(.white)
             Spacer()
-            Button(action: onMoveUp) {
-                Image(systemName: "chevron.up")
-                    .foregroundColor(.white)
-            }
-            Button(action: onMoveDown) {
-                Image(systemName: "chevron.down")
-                    .foregroundColor(.white)
-            }
             Button(action: onRemove) {
                 Image(systemName: "trash")
                     .foregroundColor(Color("ubi4_no_system_red"))

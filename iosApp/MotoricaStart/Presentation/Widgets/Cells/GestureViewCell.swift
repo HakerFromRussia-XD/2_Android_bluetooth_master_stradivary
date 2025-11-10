@@ -61,14 +61,6 @@ final class GestureViewCell: UITableViewCell {
                 onCustomGestureSettingsTap: { [weak self] item in
                     self?.viewModel.openGestureSettings(for: item)
                 },
-                onRotationGestureMoveUp: { [weak self] index in
-//                    guard let self, let provider = self.provider else { return }
-//                    self.viewModel.moveRotationGestureUp(at: index, provider: provider)
-                },
-                onRotationGestureMoveDown: { [weak self] index in
-//                    guard let self, let provider = self.provider else { return }
-//                    self.viewModel.moveRotationGestureDown(at: index, provider: provider)
-                },
                 onRotationGestureRemove: { [weak self] index in
 //                    guard let self, let provider = self.provider else { return }
 //                    self.viewModel.removeRotationGesture(at: index, provider: provider)

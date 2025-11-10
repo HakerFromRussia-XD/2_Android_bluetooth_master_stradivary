@@ -20,8 +20,6 @@ struct GesturesWidgetView: View {
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
-    var onRotationGestureMoveUp: (Int) -> Void
-    var onRotationGestureMoveDown: (Int) -> Void
     var onRotationGestureRemove: (Int) -> Void
     var onRotationGestureAdd: () -> Void
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
@@ -240,14 +238,15 @@ struct GesturesWidgetView: View {
 //                    RotationGestureRow(
 //                        title: item.title,
 //                        subtitle: item.subtitle,
-//                        onMoveUp: { onRotationGestureMoveUp(index) },
-//                        onMoveDown: { onRotationGestureMoveDown(index) },
 //                        onRemove: { onRotationGestureRemove(index) }
 //                    )
 //                }
                 RotationGesturesReorderView(
                     items: $provider.rotationGroup,
-                    onRemove: { index in onRotationGestureRemove(index) },
+                    onRemove: {
+                        index in onRotationGestureRemove(index)
+                        print("onRemove \(index)")
+                    },
                     onReorder: { items in
                         onRotationGesturesReorder(items)
                     }
@@ -456,21 +455,35 @@ private struct RotationGesturesReorderView: View {
     @State private var draggedItem: GesturesProvider.GestureDisplayItem?
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             ForEach(items) { item in
                 RotationGestureRow(
                     title: item.title,
                     subtitle: item.subtitle,
                     isDragging: draggedItem == item,
+                    isLast: item == items.last,
                     onRemove: {
                         if let index = items.firstIndex(of: item) {
                             onRemove(index)
                         }
                     }
                 )
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
                 .onDrag {
                     draggedItem = item
                     return NSItemProvider(object: NSString(string: "rotation-\(item.id)"))
+                }
+                preview: {
+                    RotationGestureRow(
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        isDragging: true,
+                        isLast: false,
+                        onRemove: {}
+                    )
+                    .frame(maxWidth: .infinity)
+                    .fixedSize(horizontal: true, vertical: true)
                 }
                 .onDrop(
                     of: [UTType.text],
@@ -483,19 +496,29 @@ private struct RotationGesturesReorderView: View {
                 )
             }
         }
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("ubi4_gray"))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
     }
 }
 
 private struct RotationGestureRow: View {
     let title: String
     let subtitle: String?
-//    var onMoveUp: () -> Void
-//    var onMoveDown: () -> Void
     var isDragging: Bool
+    var isLast: Bool
     var onRemove: () -> Void
 
     private var backgroundColor: Color {
-        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
+//        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
+        isDragging ? Color("ubi4_gray").opacity(0.8) : .clear
     }
     
     var body: some View {
@@ -511,26 +534,28 @@ private struct RotationGestureRow: View {
                 }
             }
             Spacer()
-//            controlButton(systemName: "chevron.up", action: onMoveUp)
-//            controlButton(systemName: "chevron.down", action: onMoveDown)
+            Button(action: onRemove) {
+                Image(systemName: "trash")
+                    .foregroundColor(Color("ubi4_no_system_red"))
+                    .padding(.trailing, 16)
+            }
             Image(systemName: "line.3.horizontal")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(Color("ubi4_deactivate_text"))
                 .padding(.vertical, 12)
-            controlButton(systemName: "trash", action: onRemove)
         }
-        .padding(.horizontal, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-//                .fill(Color("ubi4_gray"))
-                .fill(backgroundColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .background(backgroundColor)
+        .overlay(alignment: .bottom) {
+            if !isLast {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+            }
+        }
         .animation(.easeInOut(duration: 0.3), value: isDragging)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func controlButton(systemName: String, action: @escaping () -> Void) -> some View {

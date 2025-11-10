@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.persistence.preference
 
+import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,9 +20,16 @@ object WidgetRepoProvider {
     fun mac(): String = _currentMac.value
     fun macFlow(): StateFlow<String> = _currentMac
 
-    fun init(dao: WidgetStateDao): WidgetRepository {
-        return (repo ?: WidgetRepositoryImpl(dao)).also { repo = it }
+//    fun init(dao: WidgetStateDao): WidgetRepository {
+//        return (repo ?: WidgetRepositoryImpl(dao)).also { repo = it }
+//    }
+
+    fun init(widgetStateDao: WidgetStateDao, parameterInfoDao: BaseParameterInfoDao): WidgetRepository {
+        return (repo ?: WidgetRepositoryImpl(widgetStateDao, parameterInfoDao)).also { repo = it }
     }
+
+
+
     fun get(): WidgetRepository = checkNotNull(repo) { "WidgetRepoProvider not init" }
 
     /** ВАЖНО: поток «все записи для текущего MAC» */

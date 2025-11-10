@@ -42,7 +42,8 @@ class WDApplication : MultiDexApplication() {
     DbProvider.setInstance(RoomInit.init())
 
     val db = DbProvider.instance()
-    WidgetRepoProvider.init(db.widgetStateDao())
+//    WidgetRepoProvider.init(db.widgetStateDao())
+    WidgetRepoProvider.init(db.widgetStateDao(), db.baseParameterInfoDao())
   }
 
   companion object {

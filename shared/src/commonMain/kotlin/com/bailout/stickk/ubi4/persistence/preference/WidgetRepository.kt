@@ -1,7 +1,11 @@
 package com.bailout.stickk.ubi4.persistence.preference
 
+import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +27,14 @@ interface WidgetRepository {
         valueI2: Long?,
         valueI3: Long?
     )
+
+    suspend fun upsertParameterInfo(
+        deviceAddr: Int,
+        parameterId: Int,
+        dataCode: Int,
+        tsMs: Long,
+        info: BaseParameterInfoStruct
+    )
     fun observeByWidget(widgetId: Long): Flow<List<WidgetStateEntity>>
     fun observeByKey(
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
@@ -35,6 +47,7 @@ interface WidgetRepository {
 
 class WidgetRepositoryImpl(
     private val dao: WidgetStateDao,
+    private val parameterInfoDao: BaseParameterInfoDao,
     private val cache: WidgetMemoryCache = WidgetMemoryCache(),
 ) : WidgetRepository {
 
@@ -73,6 +86,30 @@ class WidgetRepositoryImpl(
             value_i3 = valueI3
         )
     )
+
+    override suspend fun upsertParameterInfo(
+        deviceAddr: Int,
+        parameterId: Int,
+        dataCode: Int,
+        tsMs: Long,
+        info: BaseParameterInfoStruct
+    ) = withContext(Dispatchers.IO) {
+        val entity = BaseParameterInfoEntity.create(
+            mac = mac(),
+            deviceAddr = deviceAddr,
+            parameterId = parameterId,
+            dataCode = dataCode,
+            tsMs = tsMs,
+            info = info
+        )
+        parameterInfoDao.upsert(entity)
+        platformLog(
+            "PARAM_INFO_DB",
+            "upsert ok: mac=${mac()} addr=$deviceAddr pid=$parameterId dcode=$dataCode ts=$tsMs " +
+                    "data.len=${info.data.length} widgets=${info.additionalInfoRefSet}"
+        )
+
+    }
 
     override fun observeByWidget(widgetId: Long) =
         dao.observeByWidget(mac(), widgetId)

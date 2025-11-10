@@ -1541,6 +1541,17 @@ class BLEParser(
         val p   = ParameterProvider.getParameter(deviceAddr, parameterId)
         val raw = p.data
         val ts  = getTimeMillis()
+        val repo = WidgetRepoProvider.get()
+
+        coroutineScope.launch(Dispatchers.IO) {
+            repo.upsertParameterInfo(
+                deviceAddr = deviceAddr,
+                parameterId = parameterId,
+                dataCode = dataCode,
+                tsMs = ts,
+                info = p
+            )
+        }
 
         listWidgets.forEach { w ->
             val base = when (w) {
@@ -1563,7 +1574,7 @@ class BLEParser(
                 .forEach { info ->
                     val b = hexByteAt(raw, info.dataOffset) ?: 0
                     coroutineScope.launch(Dispatchers.IO) {
-                        WidgetRepoProvider.get().upsertState(
+                        repo.upsertState(
                             deviceAddr  = deviceAddr,
                             widgetId    = base.widgetId,
                             widgetCode  = base.widgetCode,
@@ -1576,7 +1587,7 @@ class BLEParser(
                             valueI2     = null,
                             valueI3     = null
                         )
-                        val c = WidgetRepoProvider.get().count()
+                        val c = repo.count()
                         platformLog("ROOM_DBG", "rows=$c (after upsert) device=$deviceAddr pid=$parameterId code=$dataCode wid=${base.widgetId} off=${info.dataOffset}")
                     }
                 }

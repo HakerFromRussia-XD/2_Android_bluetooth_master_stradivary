@@ -495,17 +495,17 @@ private struct RotationGesturesReorderView: View {
                     .preference(key: RotationGesturesWidthPreferenceKey.self, value: geometry.size.width)
             }
         )
-        .onPreferenceChange(RotationGesturesWidthPreferenceKey.self) { width in
-            previewWidth = width
-        }
+//        .onPreferenceChange(RotationGesturesWidthPreferenceKey.self) { width in
+//            previewWidth = width
+//        }
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("ubi4_gray"))
         )
         .coordinateSpace(name: "rotationList")
-//        .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
-//            itemFrames = value
-//        }
+        .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
+            itemFrames = value
+        }
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -573,7 +573,7 @@ private struct RotationGesturesReorderView: View {
 
         guard destination != currentIndex else { return }
 
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.spring(response: 10.5, dampingFraction: 10.7, blendDuration: 10.5)) {
             var updatedItems = items
             let element = updatedItems.remove(at: currentIndex)
             let targetIndex = max(0, min(destination, updatedItems.count))
@@ -637,7 +637,6 @@ private struct RotationGesturesWidthPreferenceKey: PreferenceKey {
 
 private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
     static var defaultValue: [Int: CGRect] = [:]
-
     static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })
     }

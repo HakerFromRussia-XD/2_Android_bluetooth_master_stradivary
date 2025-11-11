@@ -129,7 +129,7 @@ class SensorsFragment : BaseWidgetsFragment() {
                     }
 
                     // 4) перерисовываем экран через твою фабрику
-                    adapterWidgets.swapData(mDataFactory.prepareData(display))
+                     adapterWidgets.swapData(mDataFactory.prepareData(display))
                 }
             }
         }

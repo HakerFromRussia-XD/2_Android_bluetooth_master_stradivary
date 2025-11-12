@@ -45,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
+import java.util.Locale
 
 class EngineerModeFragment : BaseWidgetsFragment() {
     private var dataCollectionDialog: Dialog? = null
@@ -141,6 +142,16 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             }
         }
 
+        fun getDoubleFromConfig(key: String, defaultValue: Double): Int {
+            return try {
+                val value = configJson?.getDouble(key) ?: defaultValue
+                (value * 10).toInt()
+            }
+            catch (e: Exception) {
+                (defaultValue * 10).toInt()
+            }
+        }
+
         // N_CYCLES
         setupSlider(
             dialogBinding,
@@ -172,9 +183,10 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.preGestDurationSliderNumTv,
             R.id.preGestDurationMinusBtnRipple,
             R.id.preGestDurationPlusBtnRipple,
-            minValue = 1,
-            maxValue = 5,
-            defaultValue = getIntFromConfig("PRE_GEST_DURATION", 2)
+            minValue = 0,
+            maxValue = 40,
+            defaultValue = getDoubleFromConfig("PRE_GEST_DURATION", 2.0),
+            isFloat = true
         )
 
         // AT_GEST_DURATION
@@ -184,9 +196,10 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.atGestDurationSliderNumTv,
             R.id.atGestDurationMinusBtnRipple,
             R.id.atGestDurationPlusBtnRipple,
-            minValue = 1,
-            maxValue = 5,
-            defaultValue = getIntFromConfig("AT_GEST_DURATION", 2)
+            minValue = 0,
+            maxValue = 40,
+            defaultValue = getDoubleFromConfig("AT_GEST_DURATION", 2.0),
+            isFloat = true
         )
 
         // POST_GEST_DURATION
@@ -196,9 +209,10 @@ class EngineerModeFragment : BaseWidgetsFragment() {
             R.id.postGestDurationSliderNumTv,
             R.id.postGestDurationMinusBtnRipple,
             R.id.postGestDurationPlusBtnRipple,
-            minValue = 1,
-            maxValue = 5,
-            defaultValue = getIntFromConfig("POST_GEST_DURATION", 2)
+            minValue = 0,
+            maxValue = 40,
+            defaultValue = getDoubleFromConfig("POST_GEST_DURATION", 2.0),
+            isFloat = true
         )
     }
 
@@ -210,7 +224,8 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         plusBtnId: Int,
         minValue: Int,
         maxValue: Int,
-        defaultValue: Int
+        defaultValue: Int,
+        isFloat: Boolean = false
     ) {
         val seekBar = dialogBinding.findViewById<SeekBar>(seekBarId)
         val textView = dialogBinding.findViewById<TextView>(textViewId)
@@ -219,12 +234,18 @@ class EngineerModeFragment : BaseWidgetsFragment() {
 
         seekBar.max = maxValue - minValue
         seekBar.progress = defaultValue - minValue
-        textView.text = defaultValue.toString()
+        if (isFloat)
+            textView.text = "%.1f".format(Locale.ROOT, defaultValue / 10.0)
+        else
+            textView.text = defaultValue.toString()
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val value = progress + minValue
-                textView.text = value.toString()
+                if (isFloat)
+                    textView.text = "%.1f".format(Locale.ROOT, value / 10.0)
+                else
+                    textView.text = value.toString()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -269,7 +290,7 @@ class EngineerModeFragment : BaseWidgetsFragment() {
     private fun saveDataCollectionSettings(settings: DataCollectionSettings) {
         if (configFile?.exists() == true) {
             val json = JSONObject(configFile!!.readText())
-            val ts = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.getDefault()).format(java.util.Date())
+            val ts = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault()).format(java.util.Date())
             json.put("DATA_PASSPORT_PATH", "./Data/${ts}.emg8.data_passport")
             json.put("N_CYCLES", settings.nCycles)
             json.put("BASELINE_DURATION", settings.baselineDuration)
@@ -318,18 +339,19 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         }
     }
 
-    private fun getSliderValue(dialogBinding: View, seekBarId: Int, minValue: Int = 1): Int {
-        val seekBar = dialogBinding.findViewById<SeekBar>(seekBarId)
-        return seekBar.progress + minValue
+    private fun getSliderValue(dialogBinding: View, textViewId: Int): Double {
+        val textView = dialogBinding.findViewById<TextView>(textViewId)
+        val text = textView.text.toString()
+        return text.toDouble()
     }
 
     private fun collectDialogSettings(dialogBinding: View): DataCollectionSettings {
         return DataCollectionSettings(
-            nCycles = getSliderValue(dialogBinding, R.id.nCyclesSliderSb),
-            baselineDuration = getSliderValue(dialogBinding, R.id.baselineDurationSliderSb),
-            preGestDuration = getSliderValue(dialogBinding, R.id.preGestDurationSliderSb),
-            atGestDuration = getSliderValue(dialogBinding, R.id.atGestDurationSliderSb),
-            postGestDuration = getSliderValue(dialogBinding, R.id.postGestDurationSliderSb)
+            nCycles = getSliderValue(dialogBinding, R.id.nCyclesSliderNumTv).toInt(),
+            baselineDuration = getSliderValue(dialogBinding, R.id.baselineDurationSliderNumTv).toInt(),
+            preGestDuration = getSliderValue(dialogBinding, R.id.preGestDurationSliderNumTv),
+            atGestDuration = getSliderValue(dialogBinding, R.id.atGestDurationSliderNumTv),
+            postGestDuration = getSliderValue(dialogBinding, R.id.postGestDurationSliderNumTv)
         )
     }
 

@@ -104,9 +104,9 @@ struct GesturesWidgetView: View {
         let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
         let newOffset = CGFloat(index) * segmentWidth
         if animated {
-            withAnimation(.easeOut(duration: 0.3)) {
+//            withAnimation(.easeOut(duration: 0.3)) {
                 highlightOffsetX = newOffset
-            }
+//            }
         } else {
             highlightOffsetX = newOffset
         }
@@ -454,6 +454,8 @@ private struct RotationGesturesReorderView: View {
 
     @State private var draggedItem: GesturesProvider.GestureDisplayItem?
     @State private var dragOffset: CGSize = .zero
+    @State private var reorderOffset: CGFloat = 0
+    @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
 
@@ -477,34 +479,25 @@ private struct RotationGesturesReorderView: View {
                 .contentShape(Rectangle())
                 .background(frameReader(for: item))
                 .offset(y: offset(for: item))
+                .onAppear { print("→ appear \(item.id)") }
                 .zIndex(draggedItem == item ? 1 : 0)
                 .gesture(longPressDragGesture(for: item))
-                preview: do {
-                    RotationGestureDragPreview(
-                        title: item.title,
-                        subtitle: item.subtitle
-                    )
-                    .frame(width: previewWidth == .zero ? nil : previewWidth)
-                }
+//                preview: do {
+//                    RotationGestureDragPreview(
+//                        title: item.title,
+//                        subtitle: item.subtitle
+//                    )
+//                    .frame(width: previewWidth == .zero ? nil : previewWidth)
+//                }
             }
             
         }
-        .background(
-            GeometryReader { geometry in
-                Color.clear
-                    .preference(key: RotationGesturesWidthPreferenceKey.self, value: geometry.size.width)
-            }
-        )
-//        .onPreferenceChange(RotationGesturesWidthPreferenceKey.self) { width in
-//            previewWidth = width
-//        }
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_gray"))
-        )
+//        .background(Color("ubi4_gray"))  //цвет фона
         .coordinateSpace(name: "rotationList")
         .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
-            itemFrames = value
+            DispatchQueue.main.async {
+                itemFrames = value
+            }
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
@@ -515,29 +508,93 @@ private struct RotationGesturesReorderView: View {
     }
     
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
-        LongPressGesture(minimumDuration: activationDuration)
-            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named("rotationList")))
-            .onChanged { value in
-                switch value {
-                case .first(true):
-                    if draggedItem == nil {
-                        draggedItem = item
-                        dragOffset = .zero
+        // 1️⃣ Long press активация
+//        let longPress = LongPressGesture(minimumDuration: 0.15)
+//            .onChanged { _ in
+//                print("👉 [LONG PRESS began] for \(item)")
+//            }
+//            .onEnded { _ in
+//                print("✅ [LONG PRESS ended] activated for \(item)")
+//                if draggedItem == nil {
+//                    draggedItem = item
+//                    dragOffset = .zero
+//                    print("🎯 draggedItem = \(item)")
+//                }
+//            }
+//
+//        // 2️⃣ Drag — движение пальца
+//        let drag = DragGesture(minimumDistance: 0)
+//            .onChanged { value in
+//                guard draggedItem == item else { return }
+//                dragOffset = value.translation
+//                print(String(format: "⬆️ [DRAG changed] offset: (%.1f, %.1f)", value.translation.width, value.translation.height))
+//            }
+//            .onEnded { _ in
+//                print("🏁 [DRAG ended] releasing \(item)")
+//                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+//                    dragOffset = .zero
+//                    print("🎬 [ANIMATION] returning to zero")
+//                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+//                    draggedItem = nil
+//                    print("🧹 [RESET] draggedItem cleared\n---")
+//                }
+//            }
+//
+//        // 3️⃣ Объединяем оба жеста
+//        return longPress.simultaneously(with: drag)
+        return DragGesture(minimumDistance: 0)
+            .onChanged { drag in
+                if draggedItem == nil {
+                    // При первом движении инициализируем "захват"
+                    draggedItem = item
+                    dragOffset = .zero
+                    
+                    // Можно добавить небольшую задержку для имитации long press
+                    if draggedItem == item {
+                        print("✅ [Drag started] for \(item)")
                     }
-                case .second(true, let drag?):
-                    guard draggedItem == item else { return }
+                } else if draggedItem == item {
                     dragOffset = drag.translation
                     updateOrder(with: drag)
-                default:
-                    break
                 }
             }
-            .onEnded { _ in
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    dragOffset = .zero
-                }
+            .onEnded { drag in
+                print("🏁 [DRAG ended] releasing \(item)")
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
                 draggedItem = nil
             }
+//        LongPressGesture(minimumDuration: activationDuration)
+//            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named("rotationList")))
+//            .onChanged { value in
+//                print(String(format: "⬆️ [LongPress changed]"))
+//                switch value {
+//                case .first(true):
+//                    if draggedItem == nil {
+//                        draggedItem = item
+//                        dragOffset = .zero
+////                        reorderOffset = 0
+//                    }
+//                case .second(true, let drag?):
+//                    guard draggedItem == item else { return }
+//                    dragOffset = drag.translation
+//                    updateOrder(with: drag)
+//                default:
+//                    break
+//                }
+//            }
+//            .onEnded { value in
+//                print("🏁 [LongPress ended] releasing \(item)")
+////                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
+//                    dragOffset = .zero
+////                    reorderOffset = 0
+////                }
+//                // сбрасываем draggedItem немного позже, чтобы анимация успела отработать
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+////                dragOffset = .zero
+//                    draggedItem = nil
+//                }
+//            }
     }
 
     private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {
@@ -548,10 +605,17 @@ private struct RotationGesturesReorderView: View {
             )
         }
         .allowsHitTesting(false)
+        .onChange(of: itemFrames) { _ in
+            DispatchQueue.main.async {
+                // Используй задержку для обновления frame
+                itemFrames = itemFrames
+            }
+        }
     }
 
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
         draggedItem == item ? dragOffset.height : 0
+//        draggedItem == item ? dragOffset.height + reorderOffset : 0
     }
 
     private func updateOrder(with drag: DragGesture.Value) {
@@ -567,22 +631,69 @@ private struct RotationGesturesReorderView: View {
         }
 
         guard orderedItems.count == items.count else { return }
+        
+        let sortedItems = orderedItems.sorted { $0.1.minY < $1.1.minY }
+        
+        guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
+        
+        var itemsWithoutDragged = sortedItems
+        itemsWithoutDragged.remove(at: currentPosition)
 
-        let itemsWithoutDragged = orderedItems.filter { $0.0 != draggedItem }
-        let destination = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
+        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
 
-        guard destination != currentIndex else { return }
+        var updatedItems = items
+        let element = updatedItems.remove(at: currentIndex)
 
-        withAnimation(.spring(response: 10.5, dampingFraction: 10.7, blendDuration: 10.5)) {
-            var updatedItems = items
-            let element = updatedItems.remove(at: currentIndex)
-            let targetIndex = max(0, min(destination, updatedItems.count))
-            updatedItems.insert(element, at: targetIndex)
-            items = updatedItems
-            onReorder(updatedItems)
+        let targetIndex: Int
+        if destinationPosition == itemsWithoutDragged.count {
+            targetIndex = updatedItems.count
+        } else {
+            let destinationItem = itemsWithoutDragged[destinationPosition].0
+            guard let destinationIndex = updatedItems.firstIndex(of: destinationItem) else { return }
+            targetIndex = destinationIndex
         }
+
+        guard targetIndex != currentIndex else { return }
+
+//        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
+////            var updatedItems = items
+////            let element = updatedItems.remove(at: currentIndex)
+////            let clampedIndex = max(0, min(targetIndex, updatedItems.count))
+////            updatedItems.insert(element, at: clampedIndex)
+////            items = updatedItems
+////            onReorder(updatedItems)
+//            updatedItems.insert(element, at: targetIndex)
+//            items = updatedItems
+//            onReorder(updatedItems)
+//        }
     }
 }
+
+private func reorderShift(
+        currentIndex: Int,
+        destination: Int,
+        currentFrame: CGRect,
+        orderedItems: [(GesturesProvider.GestureDisplayItem, CGRect)],
+        itemsWithoutDragged: [(GesturesProvider.GestureDisplayItem, CGRect)]
+    ) -> CGFloat {
+    let itemHeight = currentFrame.height
+
+    if destination > currentIndex {
+        let referenceFrame: CGRect
+        if destination >= orderedItems.count {
+            guard let lastFrame = itemsWithoutDragged.last?.1 else { return 0 }
+            referenceFrame = lastFrame
+        } else {
+            referenceFrame = orderedItems[destination].1
+        }
+
+        return referenceFrame.maxY - currentFrame.minY - itemHeight
+    } else {
+        let referenceFrame = orderedItems[destination].1
+        return referenceFrame.minY - currentFrame.maxY + itemHeight
+    }
+}
+
 private struct RotationGestureDragPreview: View {
     let title: String
     let subtitle: String?

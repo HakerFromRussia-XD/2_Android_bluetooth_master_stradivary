@@ -455,7 +455,7 @@ private struct RotationGestureRow: View {
                     .frame(height: 1)
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: isDragging)
+        .animation(.easeInOut(duration: 10.3), value: isDragging)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

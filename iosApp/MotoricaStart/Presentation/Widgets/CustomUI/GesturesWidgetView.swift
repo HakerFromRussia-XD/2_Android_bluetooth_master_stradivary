@@ -666,6 +666,17 @@ private struct RotationGesturesReorderView: View {
 //            items = updatedItems
 //            onReorder(updatedItems)
 //        }
+        let clampedIndex = max(0, min(targetIndex, updatedItems.count))
+        updatedItems.insert(element, at: clampedIndex)
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            items = updatedItems
+        }
+
+        onReorder(updatedItems)
     }
 }
 

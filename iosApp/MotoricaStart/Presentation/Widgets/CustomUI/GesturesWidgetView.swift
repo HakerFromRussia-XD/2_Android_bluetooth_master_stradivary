@@ -545,19 +545,21 @@ private struct RotationGesturesReorderView: View {
 //        return longPress.simultaneously(with: drag)
         return DragGesture(minimumDistance: 0)
             .onChanged { drag in
-                if draggedItem == nil {
-                    // При первом движении инициализируем "захват"
-                    draggedItem = item
-                    dragOffset = .zero
-                    
-                    // Можно добавить небольшую задержку для имитации long press
-                    if draggedItem == item {
-                        print("✅ [Drag started] for \(item)")
-                    }
-                } else if draggedItem == item {
-                    dragOffset = drag.translation
-                    updateOrder(with: drag)
-                }
+               if draggedItem == nil {
+                   // При первом движении инициализируем "захват"
+                   draggedItem = item
+                   dragOffset = .zero
+                   
+                   // Можно добавить небольшую задержку для имитации long press
+                   if draggedItem == item {
+                       print("✅ [Drag started] for \(item)")
+                   }
+               } else if draggedItem == item {
+                   withTransaction(Transaction(animation: nil)) {
+                       dragOffset = drag.translation
+                       updateOrder(with: drag)
+                  }
+               }
             }
             .onEnded { drag in
                 print("🏁 [DRAG ended] releasing \(item)")

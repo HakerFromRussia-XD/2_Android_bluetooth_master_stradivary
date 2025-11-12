@@ -41,9 +41,13 @@ class WDApplication : MultiDexApplication() {
     AndroidCtx.appContext = applicationContext
     DbProvider.setInstance(RoomInit.init())
 
+
     val db = DbProvider.instance()
-//    WidgetRepoProvider.init(db.widgetStateDao())
-    WidgetRepoProvider.init(db.widgetStateDao(), db.baseParameterInfoDao())
+    WidgetRepoProvider.init(
+      db.widgetStateDao(),
+      db.baseParameterInfoDao(),
+      db.baseSubDeviceInfoDao()
+    )
   }
 
   companion object {

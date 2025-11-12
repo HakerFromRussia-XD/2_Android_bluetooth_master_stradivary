@@ -11,6 +11,9 @@ import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllMasterParams
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllSubDevices
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistParamUpdate
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
@@ -361,7 +364,7 @@ class BLEParser(
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
             //ROOM DB
-            persistParamToRoom(deviceAddress, parameterID, dataCode)
+            persistParamUpdate(scope = coroutineScope, deviceAddr = deviceAddress, parameterId = parameterID, dataCode = dataCode, listWidgets = listWidgets.toList())
 
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
@@ -685,6 +688,8 @@ class BLEParser(
             }
         }
 
+        persistAllMasterParams(coroutineScope)
+
     }
 
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String, deviceAddress: Int) {
@@ -992,6 +997,9 @@ class BLEParser(
             coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
+
+            persistAllSubDevices(coroutineScope)
+
         }
     }
 
@@ -1537,6 +1545,10 @@ class BLEParser(
     }
 
     // persist в Room
+
+
+
+
     private fun persistParamToRoom(deviceAddr: Int, parameterId: Int, dataCode: Int) {
         val p   = ParameterProvider.getParameter(deviceAddr, parameterId)
         val raw = p.data

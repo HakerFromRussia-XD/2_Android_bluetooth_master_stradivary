@@ -1,10 +1,13 @@
 package com.bailout.stickk.ubi4.persistence.preference
 
+import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -35,6 +38,13 @@ interface WidgetRepository {
         tsMs: Long,
         info: BaseParameterInfoStruct
     )
+
+    suspend fun upsertSubDevice(
+        deviceAddr: Int,
+        sub: BaseSubDeviceInfoStruct,
+        tsMs: Long
+    )
+
     fun observeByWidget(widgetId: Long): Flow<List<WidgetStateEntity>>
     fun observeByKey(
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
@@ -48,6 +58,7 @@ interface WidgetRepository {
 class WidgetRepositoryImpl(
     private val dao: WidgetStateDao,
     private val parameterInfoDao: BaseParameterInfoDao,
+    private val subDeviceDao: BaseSubDeviceInfoDao,
     private val cache: WidgetMemoryCache = WidgetMemoryCache(),
 ) : WidgetRepository {
 
@@ -72,7 +83,7 @@ class WidgetRepositoryImpl(
         tsMs: Long, valueText: String?, valueI1: Long?, valueI2: Long?, valueI3: Long?
     ) = upsert(
         WidgetStateEntity(
-            device_mac = mac(), // важно
+            device_mac = mac(),
             device_addr = deviceAddr.toLong(),
             widget_id = widgetId.toLong(),
             widget_code = widgetCode.toLong(),
@@ -105,19 +116,35 @@ class WidgetRepositoryImpl(
         parameterInfoDao.upsert(entity)
         platformLog(
             "PARAM_INFO_DB",
-            "upsert ok: mac=${mac()} addr=$deviceAddr pid=$parameterId dcode=$dataCode ts=$tsMs " +
-                    "data.len=${info.data.length} widgets=${info.additionalInfoRefSet}"
+            "upsert ok: mac=${mac()} addr=$deviceAddr pid=$parameterId dcode=$dataCode ts=$tsMs data.len=${info.data.length} widgets=${info.additionalInfoRefSet}"
         )
-
     }
 
-    override fun observeByWidget(widgetId: Long) =
+    override suspend fun upsertSubDevice(
+        deviceAddr: Int,
+        sub: BaseSubDeviceInfoStruct,
+        tsMs: Long
+    ) = withContext(Dispatchers.IO) {
+        val entity = BaseSubDeviceInfoEntity.create(
+            mac = mac(),
+            tsMs = tsMs,
+            sub = sub
+        )
+        subDeviceDao.upsert(entity)
+        platformLog(
+            "SUBDEV_INFO_DB",
+            "upsert ok: mac=${mac()} addr=$deviceAddr subAddr=${sub.deviceAddress} ts=$tsMs params=${sub.parametersList.size}"
+        )
+    }
+
+    override fun observeByWidget(widgetId: Long): Flow<List<WidgetStateEntity>> =
         dao.observeByWidget(mac(), widgetId)
 
     override fun observeByKey(
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
-    ) = dao.observeByKey(mac(), deviceAddr, widgetId, widgetCode, parameterId, dataCode, dataOffset)
+    ): Flow<WidgetStateEntity?> =
+        dao.observeByKey(mac(), deviceAddr, widgetId, widgetCode, parameterId, dataCode, dataOffset)
 
     override fun observeAll(): Flow<List<WidgetStateEntity>> =
         dao.observeAll(mac())

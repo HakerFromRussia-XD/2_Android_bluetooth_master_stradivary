@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/delegateadapter/2_Android_bluetooth_master_stradivary.delegateadapter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/delegateadapter/2_Android_bluetooth_master_stradivary.delegateadapter.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/2_Android_bluetooth_master_stradivaryXcode.iml" filepath="$PROJECT_DIR$/.idea/2_Android_bluetooth_master_stradivaryXcode.iml" />
     </modules>
   </component>
 </project>

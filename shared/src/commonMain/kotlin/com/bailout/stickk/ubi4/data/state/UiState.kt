@@ -18,7 +18,6 @@ object UiState {
     var widgetsLoadingFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
     var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
-//    var syncStartFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
@@ -38,19 +37,7 @@ object UiState {
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
         widgetsLoadingProgressFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
-//        syncStartFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
     }
-
-    private fun createRequestKey(deviceAddress: Int, parameterID: Int): Long {
-        val high = deviceAddress.toLong() and 0xFFFF_FFFFL
-        val low = parameterID.toLong() and 0xFFFF_FFFFL
-        return (high shl 32) or low
-    }
-
-    fun shouldRequestParameter(deviceAddress: Int, parameterID: Int): Boolean {
-        return requestedWidgetParameters.add(createRequestKey(deviceAddress, parameterID))
-    }
-
     fun resetWidgetRequests() {
         requestedWidgetParameters.clear()
     }
@@ -60,5 +47,4 @@ object UiState {
         list.forEach { cachedWidgetKeys.add(WidgetKey.from(it)) }
     }
 
-    fun isCached(key: WidgetKey): Boolean = key in cachedWidgetKeys
 }

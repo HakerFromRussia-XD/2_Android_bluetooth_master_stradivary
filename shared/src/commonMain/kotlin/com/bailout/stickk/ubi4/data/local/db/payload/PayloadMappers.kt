@@ -2,6 +2,16 @@ package com.bailout.stickk.ubi4.data.local.db.payload
 
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 
@@ -69,3 +79,35 @@ internal fun BaseSubDeviceInfoStruct.toPayload(): BaseSubDeviceInfoPayload =
         defaultPort = defaultPort,
         parametersList = parametersList.map { it.toPayload() }
     )
+
+internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
+    when (this) {
+        is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct.toPayload()
+        is BaseParameterWidgetSStruct -> this.baseParameterWidgetStruct.toPayload()
+
+        is CommandParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+
+        is CommandParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+
+        is PlotParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+
+        is PlotParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+
+        is SliderParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+
+        is SliderParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+
+        is SwitchParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+
+        is SwitchParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+
+        else -> null
+    }

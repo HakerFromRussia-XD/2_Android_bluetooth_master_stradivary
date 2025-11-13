@@ -5,6 +5,8 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.BaseSubDeviceInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.ListWidgetsDao
+import com.bailout.stickk.ubi4.data.local.db.ListWidgetsEntity
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
@@ -53,12 +55,18 @@ interface WidgetRepository {
     suspend fun clearByDevice(deviceAddr: Long)
     suspend fun count(): Long
     fun observeAll(): Flow<List<WidgetStateEntity>>
+
+    suspend fun upsertWidgetsSnapshot(
+        deviceAddr: Int,
+        widgets: List<Any>
+    )
 }
 
 class WidgetRepositoryImpl(
     private val dao: WidgetStateDao,
     private val parameterInfoDao: BaseParameterInfoDao,
-    private val subDeviceDao: BaseSubDeviceInfoDao,
+    private val subDeviceDao: BaseSubDeviceInfoDao?,
+    private val listWidgetsDao: ListWidgetsDao,
     private val cache: WidgetMemoryCache = WidgetMemoryCache(),
 ) : WidgetRepository {
 
@@ -130,7 +138,7 @@ class WidgetRepositoryImpl(
             tsMs = tsMs,
             sub = sub
         )
-        subDeviceDao.upsert(entity)
+        subDeviceDao?.upsert(entity)
         platformLog(
             "SUBDEV_INFO_DB",
             "upsert ok: mac=${mac()} addr=$deviceAddr subAddr=${sub.deviceAddress} ts=$tsMs params=${sub.parametersList.size}"
@@ -148,6 +156,24 @@ class WidgetRepositoryImpl(
 
     override fun observeAll(): Flow<List<WidgetStateEntity>> =
         dao.observeAll(mac())
+
+    override suspend fun upsertWidgetsSnapshot(
+        deviceAddr: Int,
+        widgets: List<Any>
+    ) = withContext(Dispatchers.IO) {
+        val dao = listWidgetsDao ?: return@withContext
+
+        val entity = ListWidgetsEntity.create(
+            mac = mac(),
+            deviceAddr = deviceAddr,
+            widgets = widgets
+        )
+        dao.upsert(entity)
+        platformLog(
+            "DB_WRITE_WIDGETS",
+            "snapshot: mac=${mac()} dev=$deviceAddr widgets=${widgets.size}"
+        )
+    }
 
     override suspend fun clearByDevice(deviceAddr: Long) = withContext(Dispatchers.IO) {
         cache.clearByDevice(mac(), deviceAddr)

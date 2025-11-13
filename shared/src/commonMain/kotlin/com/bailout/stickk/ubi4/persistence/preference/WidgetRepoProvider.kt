@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.persistence.preference
 
 import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,12 +22,15 @@ object WidgetRepoProvider {
     fun init(
         widgetStateDao: WidgetStateDao,
         parameterInfoDao: BaseParameterInfoDao,
-        baseSubDeviceInfoDao: BaseSubDeviceInfoDao
+        listWidgetsDao: ListWidgetsDao,
+        subDeviceDao: BaseSubDeviceInfoDao? = null
     ): WidgetRepository {
         return (repo ?: WidgetRepositoryImpl(
-            widgetStateDao,
-            parameterInfoDao,
-            baseSubDeviceInfoDao
+            dao = widgetStateDao,
+            parameterInfoDao = parameterInfoDao,
+            cache = WidgetMemoryCache(),
+            subDeviceDao = subDeviceDao,
+            listWidgetsDao = listWidgetsDao
         )).also { repo = it }
     }
 

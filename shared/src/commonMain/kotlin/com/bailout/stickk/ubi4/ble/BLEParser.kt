@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persisListWidgets
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllMasterParams
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllSubDevices
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistParamUpdate
@@ -998,7 +999,14 @@ class BLEParser(
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
 
+
             persistAllSubDevices(coroutineScope)
+            persisListWidgets(
+                scope = coroutineScope,
+                deviceAddr = fullInicializeConnectionStruct.deviceAddress,
+                listWidgets = listWidgets.toList()
+            )
+
 
         }
     }

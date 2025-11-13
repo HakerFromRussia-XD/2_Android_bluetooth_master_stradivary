@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
 @Database(
-    entities = [WidgetStateEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class],
+    entities = [WidgetStateEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,
+        ListWidgetsEntity::class],
     version = 1,
     exportSchema = true // схемы уже настроены в Gradle
 )
@@ -16,6 +17,7 @@ abstract class Ubi4RoomDb : RoomDatabase() {
     abstract fun widgetStateDao(): WidgetStateDao
     abstract fun baseParameterInfoDao(): BaseParameterInfoDao
     abstract fun baseSubDeviceInfoDao(): BaseSubDeviceInfoDao
+    abstract fun listWidgetsDao(): ListWidgetsDao
 }
 
 expect object Ubi4RoomDbConstructor : RoomDatabaseConstructor<Ubi4RoomDb> {

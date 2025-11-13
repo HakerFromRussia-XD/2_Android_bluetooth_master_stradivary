@@ -125,6 +125,24 @@ object RoomPersistence {
         }
     }
 
+    fun persisListWidgets(
+        scope: CoroutineScope,
+        deviceAddr: Int,
+        listWidgets: List<Any>
+    ) {
+        logWidgetsSnapshot("IN-MEM listWidgets before save", listWidgets)
+
+        val repo = WidgetRepoProvider.get()
+
+        scope.launch(Dispatchers.IO) {
+            repo.upsertWidgetsSnapshot(
+                deviceAddr = deviceAddr,
+                widgets = listWidgets
+            )
+        }
+    }
+
+
     /** Безопасно достать байт из hex-строки по смещению (в байтах), вернуть null если не влезает. */
     private fun hexByteAt(raw: String, offset: Int): Int? {
         val i = offset * 2
@@ -132,3 +150,11 @@ object RoomPersistence {
     }
 }
 
+
+fun logWidgetsSnapshot(title: String, list: List<Any>) {
+    val head = list.take(5).joinToString { it::class.simpleName ?: "Unknown" }
+    platformLog(
+        "SNAPSHOT_WIDGETS",
+        "$title: count=${list.size} head=[ $head${if (list.size > 5) ", …" else ""} ]"
+    )
+}

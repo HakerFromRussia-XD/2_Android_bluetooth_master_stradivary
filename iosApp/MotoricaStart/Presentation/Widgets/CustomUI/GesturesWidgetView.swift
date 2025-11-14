@@ -566,15 +566,29 @@ private struct RotationGesturesReorderView: View {
     }
 
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
-        draggedItem == item ? dragOffset.height : 0
+        if draggedItem == item {
+            print(String(format: "↕️ offset(for id=%d) = %.2f", item.id, dragOffset.height))
+            return dragOffset.height
+        } else {
+            return 0
+        }
     }
 
     private func updateOrder(with drag: DragGesture.Value) {
         guard let draggedItem,
               let currentFrame = itemFrames[draggedItem.id],
               let currentIndex = items.firstIndex(of: draggedItem) else { return }
+        print(String(format: "🟢 [FINGER] y=%.2f  dragOffset=%.2f", drag.location.y, drag.translation.height))
+        if let f = itemFrames[draggedItem.id] {
+            print(String(format: "📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
+        }
 
-        let currentMidY = currentFrame.midY + drag.translation.height
+//        let currentMidY = currentFrame.midY + drag.translation.height
+//        let fingerY = drag.location.y
+        let currentMidY = drag.location.y
+        print("2️⃣ Вычисление новой позиции пальца \(currentMidY) = \(currentFrame.midY) + \(drag.translation.height)")
+//        let fingerY = drag.location.y
+//        print(String(format: "🟢 [FINGER] y=%.2f (drag.location.y, real finger pos)", fingerY))
 
         let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
             guard let frame = itemFrames[item.id] else { return nil }
@@ -603,9 +617,16 @@ private struct RotationGesturesReorderView: View {
             guard let destinationIndex = updatedItems.firstIndex(of: destinationItem) else { return }
             targetIndex = destinationIndex
         }
+        print(String(format: "📦 currentIndex=%d → targetIndex=%d  destinationPos=%d", currentIndex, targetIndex, destinationPosition))
 
         guard targetIndex != currentIndex else { return }
 
+        // ⚙️ Исправление: корректируем dragOffset на изменение layout
+        // считаем вертикальное смещение между старыми и новыми фреймами
+        let previousMidY = currentFrame.midY
+        let clampedIndex = max(0, min(targetIndex, updatedItems.count))
+        updatedItems.insert(element, at: clampedIndex)
+        
 //        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
 ////            var updatedItems = items
 ////            let element = updatedItems.remove(at: currentIndex)
@@ -617,14 +638,24 @@ private struct RotationGesturesReorderView: View {
 //            items = updatedItems
 //            onReorder(updatedItems)
 //        }
-        let clampedIndex = max(0, min(targetIndex, updatedItems.count))
-        updatedItems.insert(element, at: clampedIndex)
 
+        print("📋 items before reorder:", items.map(\.id))
+        print("📋 items after reorder:", updatedItems.map(\.id))
         var transaction = Transaction()
         transaction.disablesAnimations = true
 
         withTransaction(transaction) {
             items = updatedItems
+        }
+        
+        // После перестановки SwiftUI пересчитает frame.
+        // Чтобы элемент остался под пальцем — пересчитаем dragOffset.
+        DispatchQueue.main.async {
+            if let newFrame = itemFrames[draggedItem.id] {
+                let deltaY = newFrame.midY - previousMidY
+                dragOffset.height -= deltaY
+                print(String(format: "🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
+            }
         }
 
         onReorder(updatedItems)

@@ -466,14 +466,24 @@ private struct RotationGesturesReorderView: View {
             ForEach(items) { item in
                 RotationGestureRow(
                     title: item.title,
-                    subtitle: item.subtitle,
                     isDragging: draggedItem == item,
                     isLast: item == items.last,
                     onRemove: {
                         if let index = items.firstIndex(of: item) {
                             onRemove(index)
                         }
-                    }
+                    },
+                    item: item,
+                    items: $items,
+                    onReorder: onReorder
+//                    handle: {
+//                        Image(systemName: "line.3.horizontal")
+//                            .font(.system(size: 16, weight: .semibold))
+//                            .foregroundColor(Color("ubi4_deactivate_text"))
+//                            .padding(.vertical, 12)
+//                            .contentShape(Rectangle())          // расширяем зону тапа хэндла
+//                            .gesture(longPressDragGesture(for: item))
+//                    }
                 )
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
@@ -481,7 +491,8 @@ private struct RotationGesturesReorderView: View {
                 .offset(y: offset(for: item))
                 .onAppear { print("→ appear \(item.id)") }
                 .zIndex(draggedItem == item ? 1 : 0)
-                .gesture(longPressDragGesture(for: item))
+//                .gesture(longPressDragGesture(for: item))
+                
 //                preview: do {
 //                    RotationGestureDragPreview(
 //                        title: item.title,
@@ -506,7 +517,175 @@ private struct RotationGesturesReorderView: View {
         )
         .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
     }
+
+    private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {
+        GeometryReader { proxy in
+            Color.clear.preference(
+                key: RotationGestureRowFramePreferenceKey.self,
+                value: [item.id: proxy.frame(in: .named("rotationList"))]
+            )
+        }
+        .allowsHitTesting(false)
+        .onChange(of: itemFrames) { _ in
+            DispatchQueue.main.async {
+                // Используй задержку для обновления frame
+                itemFrames = itemFrames
+            }
+        }
+    }
+
+    private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
+        draggedItem == item ? dragOffset.height : 0
+//        draggedItem == item ? dragOffset.height + reorderOffset : 0
+    }
+}
+
+private func reorderShift(
+        currentIndex: Int,
+        destination: Int,
+        currentFrame: CGRect,
+        orderedItems: [(GesturesProvider.GestureDisplayItem, CGRect)],
+        itemsWithoutDragged: [(GesturesProvider.GestureDisplayItem, CGRect)]
+    ) -> CGFloat {
+    let itemHeight = currentFrame.height
+
+    if destination > currentIndex {
+        let referenceFrame: CGRect
+        if destination >= orderedItems.count {
+            guard let lastFrame = itemsWithoutDragged.last?.1 else { return 0 }
+            referenceFrame = lastFrame
+        } else {
+            referenceFrame = orderedItems[destination].1
+        }
+
+        return referenceFrame.maxY - currentFrame.minY - itemHeight
+    } else {
+        let referenceFrame = orderedItems[destination].1
+        return referenceFrame.minY - currentFrame.maxY + itemHeight
+    }
+}
+
+private struct RotationGestureDragPreview: View {
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(.white)
+            }
+
+            Spacer()
+
+            Image(systemName: "trash")
+                .foregroundColor(Color("ubi4_no_system_red"))
+                .padding(.trailing, 16)
+
+            Image(systemName: "line.3.horizontal")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color("ubi4_deactivate_text"))
+                .padding(.vertical, 12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("ubi4_gray"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+        )
+    }
+}
+
+private struct RotationGesturesWidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
+    static var defaultValue: [Int: CGRect] = [:]
+    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
+}
+
+private struct RotationGestureRow: View {
+    let title: String
+    var isDragging: Bool
+    var isLast: Bool
+    var onRemove: () -> Void
+    var item: GesturesProvider.GestureDisplayItem
+    var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
+    @Binding var items: [GesturesProvider.GestureDisplayItem]
+    @State private var draggedItem: GesturesProvider.GestureDisplayItem?
+    @State private var dragOffset: CGSize = .zero
+    @State private var itemFrames: [Int: CGRect] = [:]
+
+    init(
+        title: String,
+        isDragging: Bool,
+        isLast: Bool,
+        onRemove: @escaping () -> Void,
+        item: GesturesProvider.GestureDisplayItem,
+        items: Binding<[GesturesProvider.GestureDisplayItem]>,
+        onReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void
+    ) {
+        self.title = title
+        self.isDragging = isDragging
+        self.isLast = isLast
+        self.onRemove = onRemove
+        self.item = item
+        self._items = items
+        self.onReorder = onReorder
+    }
     
+    private var backgroundColor: Color {
+//        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
+        isDragging ? Color("ubi4_gray").opacity(1) : .clear
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(.white)
+            }
+            Spacer()
+            Button(action: onRemove) {
+                Image(systemName: "trash")
+                    .foregroundColor(Color("ubi4_no_system_red"))
+                    .padding(.trailing, 16)
+            }
+            Image(systemName: "line.3.horizontal")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color("ubi4_deactivate_text"))
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())          // расширяем зону тапа хэндла
+                .gesture(longPressDragGesture(for: item))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .background(backgroundColor)
+        .overlay(alignment: .bottom) {
+            if !isLast {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: isDragging)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { drag in
@@ -531,28 +710,7 @@ private struct RotationGesturesReorderView: View {
                 draggedItem = nil
             }
     }
-
-    private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {
-        GeometryReader { proxy in
-            Color.clear.preference(
-                key: RotationGestureRowFramePreferenceKey.self,
-                value: [item.id: proxy.frame(in: .named("rotationList"))]
-            )
-        }
-        .allowsHitTesting(false)
-        .onChange(of: itemFrames) { _ in
-            DispatchQueue.main.async {
-                // Используй задержку для обновления frame
-                itemFrames = itemFrames
-            }
-        }
-    }
-
-    private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
-        draggedItem == item ? dragOffset.height : 0
-//        draggedItem == item ? dragOffset.height + reorderOffset : 0
-    }
-
+    
     private func updateOrder(with drag: DragGesture.Value) {
         guard let draggedItem,
               let currentFrame = itemFrames[draggedItem.id],
@@ -613,141 +771,7 @@ private struct RotationGesturesReorderView: View {
 
         onReorder(updatedItems)
     }
-}
-
-private func reorderShift(
-        currentIndex: Int,
-        destination: Int,
-        currentFrame: CGRect,
-        orderedItems: [(GesturesProvider.GestureDisplayItem, CGRect)],
-        itemsWithoutDragged: [(GesturesProvider.GestureDisplayItem, CGRect)]
-    ) -> CGFloat {
-    let itemHeight = currentFrame.height
-
-    if destination > currentIndex {
-        let referenceFrame: CGRect
-        if destination >= orderedItems.count {
-            guard let lastFrame = itemsWithoutDragged.last?.1 else { return 0 }
-            referenceFrame = lastFrame
-        } else {
-            referenceFrame = orderedItems[destination].1
-        }
-
-        return referenceFrame.maxY - currentFrame.minY - itemHeight
-    } else {
-        let referenceFrame = orderedItems[destination].1
-        return referenceFrame.minY - currentFrame.maxY + itemHeight
-    }
-}
-
-private struct RotationGestureDragPreview: View {
-    let title: String
-    let subtitle: String?
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
-
-                if let subtitle, subtitle.isEmpty == false {
-                    Text(subtitle)
-                        .font(.system(size: 10, weight: .light))
-                        .foregroundColor(Color("ubi4_deactivate_text"))
-                }
-            }
-
-            Spacer()
-
-            Image(systemName: "trash")
-                .foregroundColor(Color("ubi4_no_system_red"))
-                .padding(.trailing, 16)
-
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("ubi4_deactivate_text"))
-                .padding(.vertical, 12)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_gray"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-        )
-    }
-}
-
-private struct RotationGesturesWidthPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = .zero
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
-private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
-    static var defaultValue: [Int: CGRect] = [:]
-    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
-        value.merge(nextValue(), uniquingKeysWith: { $1 })
-    }
-}
-
-private struct RotationGestureRow: View {
-    let title: String
-    let subtitle: String?
-    var isDragging: Bool
-    var isLast: Bool
-    var onRemove: () -> Void
-
-    private var backgroundColor: Color {
-//        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
-        isDragging ? Color("ubi4_gray").opacity(1) : .clear
-    }
     
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
-                if let subtitle, subtitle.isEmpty == false {
-                    Text(subtitle)
-                        .font(.system(size: 10, weight: .light))
-                        .foregroundColor(Color("ubi4_deactivate_text"))
-                }
-            }
-            Spacer()
-            Button(action: onRemove) {
-                Image(systemName: "trash")
-                    .foregroundColor(Color("ubi4_no_system_red"))
-                    .padding(.trailing, 16)
-            }
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("ubi4_deactivate_text"))
-                .padding(.vertical, 12)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 6)
-        .background(backgroundColor)
-        .overlay(alignment: .bottom) {
-            if !isLast {
-                Rectangle()
-                    .fill(Color("ubi4_gray_border"))
-                    .frame(height: 1)
-            }
-        }
-        .animation(.easeInOut(duration: 0.3), value: isDragging)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
     private func controlButton(systemName: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)

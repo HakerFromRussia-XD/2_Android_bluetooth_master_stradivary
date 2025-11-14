@@ -508,49 +508,13 @@ private struct RotationGesturesReorderView: View {
     }
     
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
-        // 1️⃣ Long press активация
-//        let longPress = LongPressGesture(minimumDuration: 0.15)
-//            .onChanged { _ in
-//                print("👉 [LONG PRESS began] for \(item)")
-//            }
-//            .onEnded { _ in
-//                print("✅ [LONG PRESS ended] activated for \(item)")
-//                if draggedItem == nil {
-//                    draggedItem = item
-//                    dragOffset = .zero
-//                    print("🎯 draggedItem = \(item)")
-//                }
-//            }
-//
-//        // 2️⃣ Drag — движение пальца
-//        let drag = DragGesture(minimumDistance: 0)
-//            .onChanged { value in
-//                guard draggedItem == item else { return }
-//                dragOffset = value.translation
-//                print(String(format: "⬆️ [DRAG changed] offset: (%.1f, %.1f)", value.translation.width, value.translation.height))
-//            }
-//            .onEnded { _ in
-//                print("🏁 [DRAG ended] releasing \(item)")
-//                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-//                    dragOffset = .zero
-//                    print("🎬 [ANIMATION] returning to zero")
-//                }
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-//                    draggedItem = nil
-//                    print("🧹 [RESET] draggedItem cleared\n---")
-//                }
-//            }
-//
-//        // 3️⃣ Объединяем оба жеста
-//        return longPress.simultaneously(with: drag)
-        return DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 0)
             .onChanged { drag in
                if draggedItem == nil {
                    // При первом движении инициализируем "захват"
                    draggedItem = item
                    dragOffset = .zero
                    
-                   // Можно добавить небольшую задержку для имитации long press
                    if draggedItem == item {
                        print("✅ [Drag started] for \(item)")
                    }
@@ -566,37 +530,6 @@ private struct RotationGesturesReorderView: View {
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
                 draggedItem = nil
             }
-//        LongPressGesture(minimumDuration: activationDuration)
-//            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named("rotationList")))
-//            .onChanged { value in
-//                print(String(format: "⬆️ [LongPress changed]"))
-//                switch value {
-//                case .first(true):
-//                    if draggedItem == nil {
-//                        draggedItem = item
-//                        dragOffset = .zero
-////                        reorderOffset = 0
-//                    }
-//                case .second(true, let drag?):
-//                    guard draggedItem == item else { return }
-//                    dragOffset = drag.translation
-//                    updateOrder(with: drag)
-//                default:
-//                    break
-//                }
-//            }
-//            .onEnded { value in
-//                print("🏁 [LongPress ended] releasing \(item)")
-////                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
-//                    dragOffset = .zero
-////                    reorderOffset = 0
-////                }
-//                // сбрасываем draggedItem немного позже, чтобы анимация успела отработать
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-////                dragOffset = .zero
-//                    draggedItem = nil
-//                }
-//            }
     }
 
     private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {

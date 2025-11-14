@@ -23,7 +23,9 @@ data class BaseParameterWidgetPayload(
     val dataSize: Int,
     val channelOffset: Int,
     val parameterInfoSet: List<ParameterInfoPayload>,
-    val keyMobileSettings: String
+    val keyMobileSettings: String,
+    val labelCode: Int = 0,
+    val label: String? = null
 )
 
 @Serializable

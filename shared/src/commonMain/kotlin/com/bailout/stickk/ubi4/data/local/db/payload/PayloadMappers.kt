@@ -8,6 +8,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
@@ -15,6 +17,10 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+
+// ------------------------------------------------------------------------
+// Struct → Payload
+// ------------------------------------------------------------------------
 
 internal fun BaseParameterInfoStruct.toPayload(): BaseParameterInfoPayload =
     BaseParameterInfoPayload(
@@ -43,7 +49,10 @@ internal fun BaseParameterInfoStruct.toPayload(): BaseParameterInfoPayload =
         firstReceiveDataFlag = firstReceiveDataFlag
     )
 
-internal fun BaseParameterWidgetStruct.toPayload(): BaseParameterWidgetPayload =
+internal fun BaseParameterWidgetStruct.toPayload(
+    labelCode: Int = 0,
+    label: String? = null
+): BaseParameterWidgetPayload =
     BaseParameterWidgetPayload(
         widgetType = widgetType,
         widgetLabelType = widgetLabelType,
@@ -56,7 +65,9 @@ internal fun BaseParameterWidgetStruct.toPayload(): BaseParameterWidgetPayload =
         dataSize = dataSize,
         channelOffset = channelOffset,
         parameterInfoSet = parameterInfoSet.map { it.toPayload() },
-        keyMobileSettings = keyMobileSettings
+        keyMobileSettings = keyMobileSettings,
+        labelCode = labelCode,
+        label = label
     )
 
 internal fun ParameterInfo<Int, Int, Int, Int>.toPayload(): ParameterInfoPayload =
@@ -81,37 +92,80 @@ internal fun BaseSubDeviceInfoStruct.toPayload(): BaseSubDeviceInfoPayload =
         parametersList = parametersList.map { it.toPayload() }
     )
 
+/**
+ * EndStruct → BaseParameterWidgetPayload.
+ * Сохраняем базу + либо labelCode (E), либо string label (S).
+ */
 internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
     when (this) {
-        is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct.toPayload()
-        is BaseParameterWidgetSStruct -> this.baseParameterWidgetStruct.toPayload()
+        // Базовые E/S (если вдруг кто-то напрямую их пихнёт в сохранение)
+        is BaseParameterWidgetEStruct ->
+            this.baseParameterWidgetStruct.toPayload(labelCode = labelCode)
 
+        is BaseParameterWidgetSStruct ->
+            this.baseParameterWidgetStruct.toPayload(label = label)
+
+        // -------- COMMAND (BUTTON) --------
         is CommandParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            )
 
         is CommandParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            )
 
+        // -------- PLOT --------
         is PlotParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            )
 
         is PlotParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            )
 
+        // -------- SLIDER --------
         is SliderParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            )
 
         is SliderParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            )
 
+        // -------- SWITCH --------
         is SwitchParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload()
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            )
 
         is SwitchParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload()
+            baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            )
+
+        // -------- SPINNER --------
+        is SpinnerParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            )
+
+        is SpinnerParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            )
 
         else -> null
     }
+
+// ------------------------------------------------------------------------
+// Payload → Struct
+// ------------------------------------------------------------------------
 
 internal fun ParameterInfoPayload.toModel(): ParameterInfo<Int, Int, Int, Int> =
     ParameterInfo(
@@ -138,47 +192,107 @@ internal fun BaseParameterWidgetPayload.toBaseStruct(): BaseParameterWidgetStruc
     )
 
 /**
- * Восстановить endStruct (Slider/Plot/Switch/Command/…)
+ * Восстановить endStruct (Slider/Plot/Switch/Command/Spinner/…)
  * из payload, который мы сохранили в Room.
+ *
+ * ВАЖНО: здесь мы обратно подкладываем labelCode / label.
  */
 internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
-    val base = toBaseStruct()
+    val baseStruct = toBaseStruct()
+    val isStringLabel =
+        widgetLabelType == PreferenceKeysUbi4.ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt()
 
-    return when (widgetCode) {
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
+    // Базовые E/S-структуры сразу с нужным labelCode / label
+    val baseEStruct = BaseParameterWidgetEStruct(
+        baseParameterWidgetStruct = baseStruct,
+        labelCode = labelCode
+    )
+
+    val baseSStruct = BaseParameterWidgetSStruct(
+        baseParameterWidgetStruct = baseStruct,
+        label = label ?: ""
+    )
+
+    fun sliderStruct(): Any =
+        if (isStringLabel) {
+            SliderParameterWidgetSStruct(
+                baseParameterWidgetSStruct = baseSStruct,
+                minProgress = 0,
+                maxProgress = 100
+            )
+        } else {
             SliderParameterWidgetEStruct(
-                baseParameterWidgetEStruct = BaseParameterWidgetEStruct(base),
+                baseParameterWidgetEStruct = baseEStruct,
                 minProgress = 0,      // можно позже тоже хранить в БД
                 maxProgress = 100
             )
+        }
 
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
+    fun plotStruct(): Any =
+        if (isStringLabel) {
+            PlotParameterWidgetSStruct(
+                baseParameterWidgetSStruct = baseSStruct
+            )
+        } else {
             PlotParameterWidgetEStruct(
-                baseParameterWidgetEStruct = BaseParameterWidgetEStruct(base)
+                baseParameterWidgetEStruct = baseEStruct
             )
+        }
 
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() ->
+    fun switchStruct(): Any =
+        if (isStringLabel) {
+            SwitchParameterWidgetSStruct(
+                baseParameterWidgetSStruct = baseSStruct
+            )
+        } else {
             SwitchParameterWidgetEStruct(
-                baseParameterWidgetEStruct = BaseParameterWidgetEStruct(base)
+                baseParameterWidgetEStruct = baseEStruct
             )
+        }
 
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
+    fun commandStruct(): Any =
+        if (isStringLabel) {
+            CommandParameterWidgetSStruct(
+                baseParameterWidgetSStruct = baseSStruct
+            )
+        } else {
             CommandParameterWidgetEStruct(
-                baseParameterWidgetEStruct = BaseParameterWidgetEStruct(base)
+                baseParameterWidgetEStruct = baseEStruct
             )
+        }
 
-        else -> {
-            // fallback — простой базовый виджет, если код нам не важен
-            if (widgetLabelType ==
-                PreferenceKeysUbi4.ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt()
-            ) {
-                BaseParameterWidgetSStruct(base)
-            } else {
-                BaseParameterWidgetEStruct(base)
-            }
+    fun spinnerStruct(): Any =
+        if (isStringLabel) {
+            SpinnerParameterWidgetSStruct(
+                baseParameterWidgetSStruct = baseSStruct
+            )
+        } else {
+            SpinnerParameterWidgetEStruct(
+                baseParameterWidgetEStruct = baseEStruct
+            )
+        }
+
+    return when (widgetCode) {
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt()  -> sliderStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt()    -> plotStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt()  -> switchStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt()  -> commandStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> spinnerStruct()
+
+        else -> if (isStringLabel) {
+            BaseParameterWidgetSStruct(
+                baseParameterWidgetStruct = baseStruct,
+                label = label ?: ""
+            )
+        } else {
+            BaseParameterWidgetEStruct(
+                baseParameterWidgetStruct = baseStruct,
+                labelCode = labelCode
+            )
         }
     }
 }
+
 internal fun BaseParameterInfoPayload.toModel(): BaseParameterInfoStruct =
     BaseParameterInfoStruct(
         ID                   = ID,

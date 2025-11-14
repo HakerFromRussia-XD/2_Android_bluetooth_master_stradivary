@@ -473,17 +473,14 @@ private struct RotationGesturesReorderView: View {
                             onRemove(index)
                         }
                     },
-                    item: item,
-                    items: $items,
-                    onReorder: onReorder
-//                    handle: {
-//                        Image(systemName: "line.3.horizontal")
-//                            .font(.system(size: 16, weight: .semibold))
-//                            .foregroundColor(Color("ubi4_deactivate_text"))
-//                            .padding(.vertical, 12)
-//                            .contentShape(Rectangle())          // расширяем зону тапа хэндла
-//                            .gesture(longPressDragGesture(for: item))
-//                    }
+                    handle: {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color("ubi4_deactivate_text"))
+                            .padding(.vertical, 12)
+                            .contentShape(Rectangle())          // расширяем зону тапа хэндла
+                            .gesture(longPressDragGesture(for: item))
+                    }
                 )
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
@@ -517,6 +514,31 @@ private struct RotationGesturesReorderView: View {
         )
         .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
     }
+    
+    private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { drag in
+               if draggedItem == nil {
+                   // При первом движении инициализируем "захват"
+                   draggedItem = item
+                   dragOffset = .zero
+                   
+                   if draggedItem == item {
+                       print("✅ [Drag started] for \(item)")
+                   }
+               } else if draggedItem == item {
+                   withTransaction(Transaction(animation: nil)) {
+                       dragOffset = drag.translation
+                       updateOrder(with: drag)
+                  }
+               }
+            }
+            .onEnded { drag in
+                print("🏁 [DRAG ended] releasing \(item)")
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
+                draggedItem = nil
+            }
+    }
 
     private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {
         GeometryReader { proxy in
@@ -537,6 +559,67 @@ private struct RotationGesturesReorderView: View {
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
         draggedItem == item ? dragOffset.height : 0
 //        draggedItem == item ? dragOffset.height + reorderOffset : 0
+    }
+
+    private func updateOrder(with drag: DragGesture.Value) {
+        guard let draggedItem,
+              let currentFrame = itemFrames[draggedItem.id],
+              let currentIndex = items.firstIndex(of: draggedItem) else { return }
+
+        let currentMidY = currentFrame.midY + drag.translation.height
+
+        let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
+            guard let frame = itemFrames[item.id] else { return nil }
+            return (item, frame)
+        }
+
+        guard orderedItems.count == items.count else { return }
+        
+        let sortedItems = orderedItems.sorted { $0.1.minY < $1.1.minY }
+        
+        guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
+        
+        var itemsWithoutDragged = sortedItems
+        itemsWithoutDragged.remove(at: currentPosition)
+
+        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
+
+        var updatedItems = items
+        let element = updatedItems.remove(at: currentIndex)
+
+        let targetIndex: Int
+        if destinationPosition == itemsWithoutDragged.count {
+            targetIndex = updatedItems.count
+        } else {
+            let destinationItem = itemsWithoutDragged[destinationPosition].0
+            guard let destinationIndex = updatedItems.firstIndex(of: destinationItem) else { return }
+            targetIndex = destinationIndex
+        }
+
+        guard targetIndex != currentIndex else { return }
+
+//        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
+////            var updatedItems = items
+////            let element = updatedItems.remove(at: currentIndex)
+////            let clampedIndex = max(0, min(targetIndex, updatedItems.count))
+////            updatedItems.insert(element, at: clampedIndex)
+////            items = updatedItems
+////            onReorder(updatedItems)
+//            updatedItems.insert(element, at: targetIndex)
+//            items = updatedItems
+//            onReorder(updatedItems)
+//        }
+        let clampedIndex = max(0, min(targetIndex, updatedItems.count))
+        updatedItems.insert(element, at: clampedIndex)
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            items = updatedItems
+        }
+
+        onReorder(updatedItems)
     }
 }
 
@@ -617,34 +700,25 @@ private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
     }
 }
 
-private struct RotationGestureRow: View {
+private struct RotationGestureRow<Handle: View>: View {
     let title: String
     var isDragging: Bool
     var isLast: Bool
     var onRemove: () -> Void
-    var item: GesturesProvider.GestureDisplayItem
-    var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
-    @Binding var items: [GesturesProvider.GestureDisplayItem]
-    @State private var draggedItem: GesturesProvider.GestureDisplayItem?
-    @State private var dragOffset: CGSize = .zero
-    @State private var itemFrames: [Int: CGRect] = [:]
+    let handle: Handle
 
     init(
         title: String,
         isDragging: Bool,
         isLast: Bool,
         onRemove: @escaping () -> Void,
-        item: GesturesProvider.GestureDisplayItem,
-        items: Binding<[GesturesProvider.GestureDisplayItem]>,
-        onReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void
+        @ViewBuilder handle: () -> Handle
     ) {
         self.title = title
         self.isDragging = isDragging
         self.isLast = isLast
         self.onRemove = onRemove
-        self.item = item
-        self._items = items
-        self.onReorder = onReorder
+        self.handle = handle()
     }
     
     private var backgroundColor: Color {
@@ -665,12 +739,11 @@ private struct RotationGestureRow: View {
                     .foregroundColor(Color("ubi4_no_system_red"))
                     .padding(.trailing, 16)
             }
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("ubi4_deactivate_text"))
-                .padding(.vertical, 12)
-                .contentShape(Rectangle())          // расширяем зону тапа хэндла
-                .gesture(longPressDragGesture(for: item))
+            handle
+//            Image(systemName: "line.3.horizontal")
+//                .font(.system(size: 16, weight: .semibold))
+//                .foregroundColor(Color("ubi4_deactivate_text"))
+//                .padding(.vertical, 12)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
@@ -686,92 +759,6 @@ private struct RotationGestureRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { drag in
-               if draggedItem == nil {
-                   // При первом движении инициализируем "захват"
-                   draggedItem = item
-                   dragOffset = .zero
-                   
-                   if draggedItem == item {
-                       print("✅ [Drag started] for \(item)")
-                   }
-               } else if draggedItem == item {
-                   withTransaction(Transaction(animation: nil)) {
-                       dragOffset = drag.translation
-                       updateOrder(with: drag)
-                  }
-               }
-            }
-            .onEnded { drag in
-                print("🏁 [DRAG ended] releasing \(item)")
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
-                draggedItem = nil
-            }
-    }
-    
-    private func updateOrder(with drag: DragGesture.Value) {
-        guard let draggedItem,
-              let currentFrame = itemFrames[draggedItem.id],
-              let currentIndex = items.firstIndex(of: draggedItem) else { return }
-
-        let currentMidY = currentFrame.midY + drag.translation.height
-
-        let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
-            guard let frame = itemFrames[item.id] else { return nil }
-            return (item, frame)
-        }
-
-        guard orderedItems.count == items.count else { return }
-        
-        let sortedItems = orderedItems.sorted { $0.1.minY < $1.1.minY }
-        
-        guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
-        
-        var itemsWithoutDragged = sortedItems
-        itemsWithoutDragged.remove(at: currentPosition)
-
-        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
-
-        var updatedItems = items
-        let element = updatedItems.remove(at: currentIndex)
-
-        let targetIndex: Int
-        if destinationPosition == itemsWithoutDragged.count {
-            targetIndex = updatedItems.count
-        } else {
-            let destinationItem = itemsWithoutDragged[destinationPosition].0
-            guard let destinationIndex = updatedItems.firstIndex(of: destinationItem) else { return }
-            targetIndex = destinationIndex
-        }
-
-        guard targetIndex != currentIndex else { return }
-
-//        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
-////            var updatedItems = items
-////            let element = updatedItems.remove(at: currentIndex)
-////            let clampedIndex = max(0, min(targetIndex, updatedItems.count))
-////            updatedItems.insert(element, at: clampedIndex)
-////            items = updatedItems
-////            onReorder(updatedItems)
-//            updatedItems.insert(element, at: targetIndex)
-//            items = updatedItems
-//            onReorder(updatedItems)
-//        }
-        let clampedIndex = max(0, min(targetIndex, updatedItems.count))
-        updatedItems.insert(element, at: clampedIndex)
-
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-
-        withTransaction(transaction) {
-            items = updatedItems
-        }
-
-        onReorder(updatedItems)
-    }
-    
     private func controlButton(systemName: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)

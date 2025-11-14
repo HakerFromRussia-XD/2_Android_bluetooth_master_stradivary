@@ -10,15 +10,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -34,14 +41,15 @@ class SensorsFragment : BaseWidgetsFragment() {
     private var count = 0
     private val display = 1
 
+
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
-        widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
+
+//        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -49,9 +57,41 @@ class SensorsFragment : BaseWidgetsFragment() {
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
-
+        widgetListUpdater()
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
+
+
+
+
+//        val masterAddr = 0
+//
+//        viewLifecycleOwner.lifecycleScope.launch {
+////            waitUntilMacIsReady()
+//            try {
+//                // 1. Поднимаем всё из Room (параметры, сабдевайсы, snapshot виджетов)
+//                WidgetBootstrapHydrator.restoreFromDb(masterAddr)
+//                // 2. Гидратируем ParameterProvider (dataCode + данные из widget_state)
+//                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
+//                // 3. Будим адаптеры — шлём события в slidersFlow / thresholdFlow и т.п.
+//                WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
+//
+//                // 4. Если что-то восстановили — сразу покажем
+//                if (UiState.listWidgets.isNotEmpty()) {
+//                    val data = mDataFactory.prepareData(display)
+//                    platformLog("BOOTSTRAP_UI", "apply cached widgets: size=${data.size}")
+//                    adapterWidgets.swapData(data)
+//                    main?.refreshBottomNavVisibility()
+//                } else {
+//                    platformLog("BOOTSTRAP_UI", "no cached widgets for master=$masterAddr")
+//                }
+//            } catch (e: Exception) {
+//                platformLog("BOOTSTRAP_UI", "error: ${e.message}")
+//            }
+//        }
+
+        bootstrapWhenMacReady()
+
         return binding.root
     }
 
@@ -62,6 +102,50 @@ class SensorsFragment : BaseWidgetsFragment() {
         onDestroyParentCallbacks.forEach {
             Log.d("onDestroyParentCallbacks", " считаем сколько раз")
             it.invoke() }
+    }
+
+//    private suspend fun waitUntilMacIsReady() {
+//        repeat(50) { // 5 секунд максимум
+//            val mac = WidgetRepoProvider.mac()
+//            if (mac.isNotBlank()) return
+//            delay(100)
+//        }
+//    }
+
+    private fun bootstrapWhenMacReady() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 1. Ждём, когда в WidgetRepoProvider придёт не пустой MAC
+            val mac = WidgetRepoProvider.macFlow()
+                .filter { it.isNotBlank() }
+                .first()
+
+            platformLog("BOOTSTRAP_UI", "mac ready: $mac → стартуем бутстрап из БД")
+
+            val masterAddr = 0
+
+            try {
+                // 1) Тянем всё из Room (параметры, сабдевайсы, snapshot виджетов)
+                WidgetBootstrapHydrator.restoreFromDb(masterAddr)
+
+                // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
+                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
+
+                // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
+                WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
+
+                // 4) Если в UiState.listWidgets что-то есть — сразу отрисовываем
+                if (UiState.listWidgets.isNotEmpty()) {
+                    val data = mDataFactory.prepareData(display)
+                    platformLog("BOOTSTRAP_UI", "apply cached widgets from DB: size=${data.size}")
+                    adapterWidgets.swapData(data)
+                    main?.refreshBottomNavVisibility()
+                } else {
+                    platformLog("BOOTSTRAP_UI", "no cached widgets for mac=$mac master=$masterAddr")
+                }
+            } catch (e: Exception) {
+                platformLog("BOOTSTRAP_UI", "error while bootstrap: ${e.message}")
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

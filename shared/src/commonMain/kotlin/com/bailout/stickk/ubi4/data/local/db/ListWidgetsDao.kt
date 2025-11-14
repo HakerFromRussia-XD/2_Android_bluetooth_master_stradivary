@@ -14,12 +14,9 @@ interface ListWidgetsDao {
     @Query(
         """
         SELECT * FROM list_widgets_snapshot
-        WHERE device_mac = :mac AND device_addr = :deviceAddr
+        WHERE device_mac = :mac
         LIMIT 1
         """
     )
-    suspend fun getSnapshot(
-        mac: String,
-        deviceAddr: Long
-    ): ListWidgetsEntity?
+    suspend fun getSnapshot(mac: String): ListWidgetsEntity?
 }

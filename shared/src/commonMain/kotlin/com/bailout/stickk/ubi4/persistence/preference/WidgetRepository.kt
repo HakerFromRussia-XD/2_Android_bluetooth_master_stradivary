@@ -9,12 +9,18 @@ import com.bailout.stickk.ubi4.data.local.db.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.ListWidgetsEntity
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterInfoPayload
+import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
+import com.bailout.stickk.ubi4.data.local.db.payload.BaseSubDeviceInfoPayload
+import com.bailout.stickk.ubi4.data.local.db.payload.toModel
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
 interface WidgetRepository {
     suspend fun upsert(entity: WidgetStateEntity)
@@ -60,6 +66,18 @@ interface WidgetRepository {
         deviceAddr: Int,
         widgets: List<Any>
     )
+
+    suspend fun loadAllMasterParams(deviceAddr: Int): List<BaseParameterInfoStruct>
+
+    suspend fun loadAllSubDevices(deviceAddr: Int): Set<BaseSubDeviceInfoStruct>
+
+    suspend fun loadWidgetsSnapshot(mac: String): List<BaseParameterWidgetPayload>?
+
+    suspend fun loadLastState(
+        deviceAddr: Int,
+        parameterId: Int,
+        dataCode: Int
+    ): WidgetStateEntity?
 }
 
 class WidgetRepositoryImpl(
@@ -70,6 +88,9 @@ class WidgetRepositoryImpl(
     private val cache: WidgetMemoryCache = WidgetMemoryCache(),
 ) : WidgetRepository {
 
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
     private fun mac() = WidgetRepoProvider.mac()
 
     override suspend fun upsert(entity: WidgetStateEntity) = withContext(Dispatchers.IO) {
@@ -161,19 +182,94 @@ class WidgetRepositoryImpl(
         deviceAddr: Int,
         widgets: List<Any>
     ) = withContext(Dispatchers.IO) {
-        val dao = listWidgetsDao ?: return@withContext
-
         val entity = ListWidgetsEntity.create(
             mac = mac(),
             deviceAddr = deviceAddr,
             widgets = widgets
         )
-        dao.upsert(entity)
+        listWidgetsDao.upsert(entity)
         platformLog(
             "DB_WRITE_WIDGETS",
             "snapshot: mac=${mac()} dev=$deviceAddr widgets=${widgets.size}"
         )
     }
+
+    override suspend fun loadAllMasterParams(deviceAddr: Int): List<BaseParameterInfoStruct> =
+        withContext(Dispatchers.IO) {
+            val mac = mac()
+
+            // тащим все строки по mac
+            val rows = parameterInfoDao.getAllForMac(mac)
+            platformLog("BOOTSTRAP_DB", "base_parameter_info rows=${rows.size} for mac=$mac")
+
+            rows.mapNotNull { entity ->
+                runCatching {
+                    val payload = json.decodeFromString(
+                        BaseParameterInfoPayload.serializer(),
+                        entity.payload
+                    )
+                    payload.toModel()
+                }.onFailure {
+                    platformLog("BOOTSTRAP_DB", "decode PARAM_INFO error: ${it.message}")
+                }.getOrNull()
+            }
+        }
+
+    override suspend fun loadAllSubDevices(deviceAddr: Int): Set<BaseSubDeviceInfoStruct> =
+        withContext(Dispatchers.IO) {
+            val mac = mac()
+            val daoLocal = subDeviceDao ?: return@withContext emptySet()
+
+            // Тут используй тот метод, который ты добавишь в DAO:
+            // либо getAllForMac(mac), либо getAllForMaster(mac, deviceAddr.toLong())
+            val rows = daoLocal.getAllForMac(mac)
+
+            rows.mapNotNull { entity ->
+                runCatching {
+                    val payload = json.decodeFromString(
+                        BaseSubDeviceInfoPayload.serializer(),
+                        entity.payload
+                    )
+                    payload.toModel()          // BaseSubDeviceInfoPayload.toModel()
+                }.getOrNull()
+            }.toSet()
+        }
+
+    override suspend fun loadWidgetsSnapshot(mac: String): List<BaseParameterWidgetPayload>? =
+        withContext(Dispatchers.IO) {
+
+            val row = listWidgetsDao.getSnapshot(mac) ?: return@withContext null
+
+            runCatching {
+                json.decodeFromString(
+                    ListSerializer(BaseParameterWidgetPayload.serializer()),
+                    row.payload
+                )
+            }.onFailure {
+                platformLog("DB_READ_WIDGETS", "decode error: ${it.message}")
+            }.getOrNull()
+        }
+
+    override suspend fun loadLastState(
+        deviceAddr: Int,
+        parameterId: Int,
+        dataCode: Int
+    ): WidgetStateEntity? =
+        withContext(Dispatchers.IO) {
+            val mac = mac()
+            val row = dao.getLastByMac(
+                mac        = mac,
+                parameterId = parameterId.toLong(),
+                dataCode    = dataCode.toLong()
+            )
+            if (row == null) {
+                platformLog(
+                    "BOOTSTRAP_DB",
+                    "no last state: mac=$mac pid=$parameterId dcode=$dataCode"
+                )
+            }
+            row
+        }
 
     override suspend fun clearByDevice(deviceAddr: Long) = withContext(Dispatchers.IO) {
         cache.clearByDevice(mac(), deviceAddr)

@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toWidgetPayloadOrNull
+import kotlinx.datetime.Clock
 
 @Entity(
     tableName = "list_widgets_snapshot",
@@ -33,7 +34,7 @@ data class ListWidgetsEntity(
             return ListWidgetsEntity(
                 device_mac = mac,
                 device_addr = deviceAddr.toLong(),
-                ts_ms = System.currentTimeMillis(),
+                ts_ms = Clock.System.now().toEpochMilliseconds(),
                 payload = json.encodeToString(payloadList)
             )
         }

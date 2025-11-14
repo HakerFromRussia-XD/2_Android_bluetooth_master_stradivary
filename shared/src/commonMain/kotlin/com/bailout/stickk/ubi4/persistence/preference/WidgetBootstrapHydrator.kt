@@ -49,6 +49,8 @@ object WidgetBootstrapHydrator {
         }
 
 
+
+
         platformLog("BOOTSTRAP_DB", "restoreFromDb: mac=$mac")
 
         // 1. Параметры мастера
@@ -71,7 +73,7 @@ object WidgetBootstrapHydrator {
 
         val restored = payloads.map { it.toEndStruct() }.toMutableSet()
         UiState.listWidgets = restored
-
+        platformLog("BOOTSTRAP111", "restoreFromDb done, listWidgets.size=${UiState.listWidgets.size}")
         platformLog(
             "BOOTSTRAP",
             "restoreFromDb: dev=$deviceAddr, params=${paramsFromDb.size}, subs=${subsFromDb.size}, widgets=${restored.size}"

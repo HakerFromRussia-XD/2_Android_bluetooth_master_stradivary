@@ -62,35 +62,12 @@ class SensorsFragment : BaseWidgetsFragment() {
         binding.homeRv.adapter = adapterWidgets
 
 
+        val initialData = mDataFactory.prepareData(display)
+        platformLog("BOOTSTRAP_UI", "apply initial widgets in SensorsFragment: size=${initialData.size}")
+        adapterWidgets.swapData(initialData)
+        main?.refreshBottomNavVisibility()
 
-
-//        val masterAddr = 0
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-////            waitUntilMacIsReady()
-//            try {
-//                // 1. Поднимаем всё из Room (параметры, сабдевайсы, snapshot виджетов)
-//                WidgetBootstrapHydrator.restoreFromDb(masterAddr)
-//                // 2. Гидратируем ParameterProvider (dataCode + данные из widget_state)
-//                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
-//                // 3. Будим адаптеры — шлём события в slidersFlow / thresholdFlow и т.п.
-//                WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
-//
-//                // 4. Если что-то восстановили — сразу покажем
-//                if (UiState.listWidgets.isNotEmpty()) {
-//                    val data = mDataFactory.prepareData(display)
-//                    platformLog("BOOTSTRAP_UI", "apply cached widgets: size=${data.size}")
-//                    adapterWidgets.swapData(data)
-//                    main?.refreshBottomNavVisibility()
-//                } else {
-//                    platformLog("BOOTSTRAP_UI", "no cached widgets for master=$masterAddr")
-//                }
-//            } catch (e: Exception) {
-//                platformLog("BOOTSTRAP_UI", "error: ${e.message}")
-//            }
-//        }
-
-        bootstrapWhenMacReady()
+//        bootstrapWhenMacReady()
 
         return binding.root
     }

@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
@@ -188,6 +189,17 @@ class BLEController() {
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+
+                    main.lifecycleScope.launch {
+                        WidgetBootstrapHydrator.restoreFromDb(0)
+
+                        // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
+                        WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+
+                        // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
+                        WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+                    }
+
 
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)

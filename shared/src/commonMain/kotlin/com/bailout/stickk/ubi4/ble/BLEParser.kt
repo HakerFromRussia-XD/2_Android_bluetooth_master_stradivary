@@ -629,8 +629,17 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
-        listWidgets.clear()
-       val progressTotal  =
+//        listWidgets.clear()
+        UiState.resetWidgetRequests()
+        UiState.labelCodesByOffset.clear()
+
+        coroutineScope.launch {
+            widgetsLoadingProgressTotal = 0
+            widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(0, 0))
+            updateFlow.emit(0)
+        }
+
+        val progressTotal  =
             fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
         widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
         coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }

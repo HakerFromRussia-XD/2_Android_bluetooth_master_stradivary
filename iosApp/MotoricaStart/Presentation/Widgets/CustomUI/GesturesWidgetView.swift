@@ -488,7 +488,6 @@ private struct RotationGesturesReorderView: View {
                 .offset(y: offset(for: item))
                 .onAppear { print("→ appear \(item.id)") }
                 .zIndex(draggedItem == item ? 1 : 0)
-//                .gesture(longPressDragGesture(for: item))
                 
 //                preview: do {
 //                    RotationGestureDragPreview(
@@ -516,29 +515,40 @@ private struct RotationGesturesReorderView: View {
     }
     
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 0, coordinateSpace: .named("rotationList"))
             .onChanged { drag in
-               if draggedItem == nil {
-                   // При первом движении инициализируем "захват"
-                   draggedItem = item
-                   dragOffset = .zero
-                   
-                   if draggedItem == item {
-                       print("✅ [Drag started] for \(item)")
-                   }
-               } else if draggedItem == item {
-                   withTransaction(Transaction(animation: nil)) {
-                       dragOffset = drag.translation
-                       updateOrder(with: drag)
-                  }
-               }
+                guard let itemFrame = itemFrames[item.id] else { return }
+
+                if draggedItem == nil {
+                    let handleActivationMinX = itemFrame.maxX - handleActivationWidth
+                    guard drag.startLocation.x >= handleActivationMinX else { return }
+
+                    // При первом движении инициализируем "захват"
+                    draggedItem = item
+                    dragOffset = .zero
+
+                    if draggedItem == item {
+                        print("✅ [Drag started] for \(item)")
+                    }
+                }
+
+                if draggedItem == item {
+                    withTransaction(Transaction(animation: nil)) {
+                        dragOffset = drag.translation
+                        updateOrder(with: drag)
+                    }
+                }
             }
-            .onEnded { drag in
+            .onEnded { _ in
+                guard draggedItem == item else { return }
                 print("🏁 [DRAG ended] releasing \(item)")
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
                 draggedItem = nil
             }
     }
+    
+    /// Ширина активной зоны справа, откуда можно начать перетаскивание.
+    private var handleActivationWidth: CGFloat { 56 }
 
     private func frameReader(for item: GesturesProvider.GestureDisplayItem) -> some View {
         GeometryReader { proxy in
@@ -550,7 +560,6 @@ private struct RotationGesturesReorderView: View {
         .allowsHitTesting(false)
         .onChange(of: itemFrames) { _ in
             DispatchQueue.main.async {
-                // Используй задержку для обновления frame
                 itemFrames = itemFrames
             }
         }
@@ -558,7 +567,6 @@ private struct RotationGesturesReorderView: View {
 
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
         draggedItem == item ? dragOffset.height : 0
-//        draggedItem == item ? dragOffset.height + reorderOffset : 0
     }
 
     private func updateOrder(with drag: DragGesture.Value) {
@@ -620,31 +628,6 @@ private struct RotationGesturesReorderView: View {
         }
 
         onReorder(updatedItems)
-    }
-}
-
-private func reorderShift(
-        currentIndex: Int,
-        destination: Int,
-        currentFrame: CGRect,
-        orderedItems: [(GesturesProvider.GestureDisplayItem, CGRect)],
-        itemsWithoutDragged: [(GesturesProvider.GestureDisplayItem, CGRect)]
-    ) -> CGFloat {
-    let itemHeight = currentFrame.height
-
-    if destination > currentIndex {
-        let referenceFrame: CGRect
-        if destination >= orderedItems.count {
-            guard let lastFrame = itemsWithoutDragged.last?.1 else { return 0 }
-            referenceFrame = lastFrame
-        } else {
-            referenceFrame = orderedItems[destination].1
-        }
-
-        return referenceFrame.maxY - currentFrame.minY - itemHeight
-    } else {
-        let referenceFrame = orderedItems[destination].1
-        return referenceFrame.minY - currentFrame.maxY + itemHeight
     }
 }
 
@@ -740,10 +723,6 @@ private struct RotationGestureRow<Handle: View>: View {
                     .padding(.trailing, 16)
             }
             handle
-//            Image(systemName: "line.3.horizontal")
-//                .font(.system(size: 16, weight: .semibold))
-//                .foregroundColor(Color("ubi4_deactivate_text"))
-//                .padding(.vertical, 12)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)

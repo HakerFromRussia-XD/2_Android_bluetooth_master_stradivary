@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.persistence.preference
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.db.extractKey
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toEndStruct
 import com.bailout.stickk.ubi4.data.state.RestoredState
@@ -10,6 +11,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.GestureOpticParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
@@ -44,14 +46,14 @@ object WidgetBootstrapHydrator {
 
         val mac = WidgetRepoProvider.mac()
         if (mac.isBlank()) {
-            platformLog("BOOTSTRAP_DB", "restoreFromDb: mac is blank, skip")
+            platformLog("WIDGET_SOURCE", "restoreFromDb: mac is blank → кеш не используем")
             return
         }
 
 
 
 
-        platformLog("BOOTSTRAP_DB", "restoreFromDb: mac=$mac")
+        platformLog("WIDGET_SOURCE", "restoreFromDb: mac=$mac → читаем из БД")
 
         // 1. Параметры мастера
         val paramsFromDb = repo.loadAllMasterParams(deviceAddr)
@@ -73,11 +75,23 @@ object WidgetBootstrapHydrator {
 
         val restored = payloads.map { it.toEndStruct() }.toMutableSet()
         UiState.listWidgets = restored
-        platformLog("BOOTSTRAP111", "restoreFromDb done, listWidgets.size=${UiState.listWidgets.size}")
+        platformLog("WIDGET_PERSIST", "restoreWidgets: mac=$mac size=${restored.size}")
+        restored.forEachIndexed { index, w ->
+            platformLog(
+                "WIDGET_PERSIST",
+                "RESTORE[$index] ${extractKey(w)} type=${w::class.simpleName}"
+            )
+        }
         platformLog(
-            "BOOTSTRAP",
+            "WIDGET_SOURCE",
+            "restoreFromDb: mac=$mac widgets_from_DB=${restored.size}")
+
+        platformLog(
+            "BOOTSTRAP_TETS",
             "restoreFromDb: dev=$deviceAddr, params=${paramsFromDb.size}, subs=${subsFromDb.size}, widgets=${restored.size}"
         )
+
+
     }
 
     /**
@@ -180,6 +194,7 @@ object WidgetBootstrapHydrator {
             is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
             is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
             is GestureParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is GestureOpticParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
             is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
             else -> null
         }

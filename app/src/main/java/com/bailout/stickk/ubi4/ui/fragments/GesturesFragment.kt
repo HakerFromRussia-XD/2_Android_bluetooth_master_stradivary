@@ -72,6 +72,14 @@ class GesturesFragment : BaseWidgetsFragment() {
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.homeRv.layoutManager = LinearLayoutManager(context)
+        binding.homeRv.adapter = adapterWidgets
+
+        val initialData = mDataFactory.prepareData(display)
+        Log.d("GesturesFragment", "initialData size=${initialData.size}")
+        binding.homeRv.post {
+            adapterWidgets.swapData(initialData)
+        }
 
         RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable
             .compose(main?.bindToLifecycle())
@@ -86,23 +94,25 @@ class GesturesFragment : BaseWidgetsFragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
-        binding.homeRv.layoutManager = LinearLayoutManager(context)
-        binding.homeRv.adapter = adapterWidgets
+
         return binding.root
     }
 
     private fun widgetListUpdater() {
-        viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect {
-                    main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        binding.homeRv.post {
-                            adapterWidgets.swapData(mDataFactory.prepareData(display))
-                        }
-                        binding.refreshLayout.setRefreshing(false)
+        viewLifecycleOwner.lifecycleScope.launch { // по умолчанию Main.immediate
+            updateFlow.collect {
+                val data = mDataFactory.prepareData(display)
+                Log.d("GesturesFragment", "updateFlow event, data size=${data.size}")
+
+                if (binding.homeRv.isComputingLayout) {
+                    binding.homeRv.post {
+                        adapterWidgets.swapData(data)
                     }
+                } else {
+                    adapterWidgets.swapData(data)
                 }
+
+                binding.refreshLayout.setRefreshing(false)
             }
         }
     }

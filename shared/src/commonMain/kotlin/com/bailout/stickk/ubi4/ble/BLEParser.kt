@@ -629,7 +629,7 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
-//        listWidgets.clear()
+        listWidgets.clear()
         UiState.resetWidgetRequests()
         UiState.labelCodesByOffset.clear()
 
@@ -1386,16 +1386,6 @@ class BLEParser(
                         platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
-//                        if (deviceAddress == 34 && parameterID == 3) {
-//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
-//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
-//                        }
-//                        if (deviceAddress == 6 && parameterID == 3) {
-//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
-//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
-//                        }
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
                             canAdd = false
                             platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
@@ -1531,6 +1521,10 @@ class BLEParser(
             if (added) {
                 val total = widgetsLoadingProgressTotal.coerceAtLeast(1)
                 val current = listWidgets.size.coerceAtMost(total)
+                platformLog(
+                    "WIDGET_SOURCE",
+                    "addToListWidgets: FROM_BLE widget=${widget::class.simpleName} dev=$deviceAddress pid=$parameterID code=$dataCode offset=$dataOffset totalWidgets=${listWidgets.size}"
+                )
                 coroutineScope.launch {
                     widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
                 }

@@ -4,6 +4,9 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.GestureOpticParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -159,6 +162,33 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
             this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
                 label = baseParameterWidgetSStruct.label
             )
+        is OpticStartLearningWidgetEStruct ->
+            baseParameterWidgetEStruct.baseParameterWidgetStruct
+                .toPayload()
+                .copy(
+                    labelCode = baseParameterWidgetEStruct.labelCode,
+                    label = null
+                )
+
+
+        is OpticStartLearningWidgetSStruct ->
+            baseParameterWidgetSStruct.baseParameterWidgetStruct
+                .toPayload()
+                .copy(
+                    // для S-структур обычно label у нас строкой
+                    labelCode = 0,
+                    label = baseParameterWidgetSStruct.label
+                )
+
+        is GestureOpticParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                .toPayload()
+                .copy(
+                    labelCode = baseParameterWidgetEStruct.labelCode,
+                    label = null
+                )
+
+
 
         else -> null
     }

@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.parameterWidgetLabel
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.logging.systemLang
 
 
@@ -85,6 +86,10 @@ class DataFactory {
     }
 
     fun prepareData(display: Int): List<Any> {
+        platformLog(
+            "WIDGET_SOURCE",
+            "prepareData: display=$display listWidgets.size=${UiState.listWidgets.size}"
+        )
         // Фильтруем виджеты по display
         val filteredWidgets = UiState.listWidgets.filter { widget ->
             when (widget) {

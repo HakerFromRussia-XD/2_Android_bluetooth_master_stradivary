@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.local.db
 
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.subStructures.*
 import com.bailout.stickk.ubi4.data.widget.endStructures.*
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
@@ -140,6 +141,12 @@ object RoomPersistence {
                 widgets = listWidgets
             )
         }
+
+        platformLog("WIDGET_PERSIST", "saveWidgets: deviceAddr=$deviceAddr size=${listWidgets.size}")
+
+        listWidgets.forEachIndexed { index, w ->
+            platformLog("WIDGET_PERSIST", "[$index] ${extractKey(w)} type=${w::class.simpleName}")
+        }
     }
 
 
@@ -151,10 +158,40 @@ object RoomPersistence {
 }
 
 
+fun extractKey(widget: Any): String {
+    val base = when (widget) {
+        is BaseParameterWidgetEStruct   -> widget.baseParameterWidgetStruct
+        is BaseParameterWidgetSStruct   -> widget.baseParameterWidgetStruct
+        is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is PlotParameterWidgetEStruct   -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is PlotParameterWidgetSStruct   -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is SwitchParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is SwitchParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is ThresholdParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is ThresholdParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        is GestureParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is OpticStartLearningWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        else -> return "NO_BASE"
+    }
+
+    val param = base.parameterInfoSet.firstOrNull()
+    return if (param != null) {
+        "dev=${param.deviceAddress} wid=${base.widgetId} wcode=${base.widgetCode} " +
+                "pid=${param.parameterID} dcode=${param.dataCode} offset=${param.dataOffset}"
+    } else {
+        "dev=${base.deviceId} wid=${base.widgetId} wcode=${base.widgetCode} NO_PARAM"
+    }
+}
+
 fun logWidgetsSnapshot(title: String, list: List<Any>) {
     val head = list.take(5).joinToString { it::class.simpleName ?: "Unknown" }
     platformLog(
         "SNAPSHOT_WIDGETS",
         "$title: count=${list.size} head=[ $head${if (list.size > 5) ", …" else ""} ]"
     )
+
+
 }

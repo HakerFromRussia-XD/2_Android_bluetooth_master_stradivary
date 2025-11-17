@@ -196,7 +196,6 @@ class GesturesOpticDelegateAdapter(
 
         // Подписка на BLE-события
         borderAnimator?.checkStateSelectGestureMode()
-        collectActiveFlows()
 
         // Определяем deviceAddress/parameterInfoSet в зависимости от widget
         when (val widget = item.widget) {
@@ -430,6 +429,9 @@ class GesturesOpticDelegateAdapter(
         showIntroduction()
         setupListRecyclerView()
 
+        collectActiveFlows()
+
+
     }
 
 
@@ -524,6 +526,18 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun showIntroduction() {
+        if (!::mRotationGroupExplanationTv.isInitialized ||
+            !::mRotationGroupExplanation2Tv.isInitialized ||
+            !::mRotationGroupExplanationIv.isInitialized ||
+            !::mRotationGroupExplanation2Iv.isInitialized
+        ) {
+            Log.w(
+                "GesturesOpticDelegateAdapter",
+                "showIntroduction() called before views initialized, skip"
+            )
+            return
+        }
+
         if (rotationGroupGestures.size == 0) {
             mRotationGroupExplanationTv.visibility = View.VISIBLE
             mRotationGroupExplanation2Tv.visibility = View.VISIBLE
@@ -577,14 +591,18 @@ class GesturesOpticDelegateAdapter(
 
     private fun collectActiveFlows() {
         Log.d("BorderAnimator", "collectActiveFlows() started")
+
+        // Если уже была подписка — убиваем
         collectJob?.cancel()
+
         collectJob = coroutineScope?.launch {
             try {
                 merge(
-                    // заменили activeGestureFlow → activeGestureState
+                    // 1) Активный жест (подсветка и текст)
                     WidgetState.activeGestureState.map { activeGestureId ->
                         withContext(Dispatchers.Main) {
                             setActiveGesture(getGestureViewById(activeGestureId))
+
                             val gestureName = when {
                                 activeGestureId == null -> "Unknown"
                                 activeGestureId < 63 -> getCollectionGestures()
@@ -592,16 +610,30 @@ class GesturesOpticDelegateAdapter(
                                     ?.gestureName ?: "Unknown"
                                 else -> gestureNameList.getOrNull(activeGestureId - 64) ?: "Unknown"
                             }
+
                             _activeGestureNameTv.text =
                                 main.getString(R.string.active_gesture_is, gestureName)
                         }
                     },
+
+                    // 2) BindingGroup (SPR / оптический биндинг)
                     bindingGroupFlow.map { bindingGroupParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             bindingGroupParameterRef.addressDevice,
                             bindingGroupParameterRef.parameterID
                         )
-                        val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+
+                        val raw = "\"${parameter.data}\""
+                        val bindingGroup = runCatching {
+                            Json.decodeFromString<BindingGestureGroup>(raw)
+                        }.getOrElse { e ->
+                            Log.e(
+                                "GesturesOpticDelegateAdapter",
+                                "decode BindingGroup failed: raw=$raw error=${e.message}"
+                            )
+                            BindingGestureGroup() // дефолт вместо падения
+                        }
+
                         listBindingGesture.clear()
                         bindingGroup.toGestureList().forEach {
                             if (it.first != 0) {
@@ -609,24 +641,41 @@ class GesturesOpticDelegateAdapter(
                             }
                         }
                         isBindingGroupResponseReceived = true
+
                         withContext(Dispatchers.Main) {
                             fillCollectionGesturesInBindingGroup()
                         }
                     },
+
+                    // 3) RotationGroup (группа ротации)
                     rotationGroupFlow.map { rotationGroupParameterRef ->
                         val parameter = ParameterProvider.getParameter(
                             rotationGroupParameterRef.addressDevice,
                             rotationGroupParameterRef.parameterID
                         )
-                        val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+
+                        val raw = "\"${parameter.data}\""
+                        val rotationGroup = runCatching {
+                            Json.decodeFromString<RotationGroup>(raw)
+                        }.getOrElse { e ->
+                            Log.e(
+                                "GesturesOpticDelegateAdapter",
+                                "decode RotationGroup failed: raw=$raw error=${e.message}"
+                            )
+                            RotationGroup()
+                        }
+
                         val rotationGroupList = rotationGroup.toGestureList()
+
                         rotationGroupGestures.clear()
                         rotationGroupList.forEach { item ->
                             if (item.first != 0) {
                                 rotationGroupGestures.add(getGesture(item.first))
                             }
                         }
+
                         isRotationGroupResponseReceived = true
+
                         withContext(Dispatchers.Main) {
                             showIntroduction()
                             setupListRecyclerView()
@@ -634,9 +683,10 @@ class GesturesOpticDelegateAdapter(
                             calculatingShowAddButton()
                         }
                     },
+
+                    // 4) Переключение фильтра (коллекция / rotation / SPR)
                     activeGestureFragmentFilterFlow.map { newFilter ->
                         withContext(Dispatchers.Main) {
-                            // При любом изменении фильтра - рендерим UI
                             renderFilterUI(newFilter)
                         }
                     }
@@ -644,12 +694,15 @@ class GesturesOpticDelegateAdapter(
             } catch (e: CancellationException) {
                 Log.d("collectActiveFlows", "Job was cancelled: ${e.message}")
             } catch (e: Exception) {
+                // Больше НЕ убиваем всё молча. Логируем, но не роняем UI.
+                Log.e("collectActiveFlows", "Unexpected error in collectActiveFlows: $e", e)
                 main.runOnUiThread {
-                    main.showToast("ERROR collectActiveFlows")
-                    Log.e("collectActiveFlows", "ERROR collectActiveFlows: $e")
+                    main.showToast("collectActiveFlows error: ${e.message}")
                 }
             }
         }
+
+        // Отдельный лисенер для режима выбора жеста (обводка BorderAnimator)
         coroutineScope?.launch(Dispatchers.Main.immediate) {
             WidgetState.selectGestureModeState.collect { isSelectMode ->
                 Log.d("BorderAnimator", "Mode changed = $isSelectMode")
@@ -659,8 +712,14 @@ class GesturesOpticDelegateAdapter(
     }
 
 
-
     private fun calculatingShowAddButton() {
+        if (!::mAddGestureToRotationGroupBtn.isInitialized || !::mPlusIv.isInitialized) {
+            Log.w(
+                "GesturesOpticDelegateAdapter",
+                "calculatingShowAddButton() called before views initialized, skip"
+            )
+            return
+        }
         if (rotationGroupGestures.size >= 8) {
             mAddGestureToRotationGroupBtn.visibility = View.GONE
             mPlusIv.visibility = View.GONE

@@ -89,41 +89,6 @@ class SensorsFragment : BaseWidgetsFragment() {
 //        }
 //    }
 
-    private fun bootstrapWhenMacReady() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            // 1. Ждём, когда в WidgetRepoProvider придёт не пустой MAC
-            val mac = WidgetRepoProvider.macFlow()
-                .filter { it.isNotBlank() }
-                .first()
-
-            platformLog("BOOTSTRAP_UI", "mac ready: $mac → стартуем бутстрап из БД")
-
-            val masterAddr = 0
-
-            try {
-                // 1) Тянем всё из Room (параметры, сабдевайсы, snapshot виджетов)
-                WidgetBootstrapHydrator.restoreFromDb(masterAddr)
-
-                // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
-                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
-
-                // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
-                WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
-
-                // 4) Если в UiState.listWidgets что-то есть — сразу отрисовываем
-                if (UiState.listWidgets.isNotEmpty()) {
-                    val data = mDataFactory.prepareData(display)
-                    platformLog("BOOTSTRAP_UI", "apply cached widgets from DB: size=${data.size}")
-                    adapterWidgets.swapData(data)
-                    main?.refreshBottomNavVisibility()
-                } else {
-                    platformLog("BOOTSTRAP_UI", "no cached widgets for mac=$mac master=$masterAddr")
-                }
-            } catch (e: Exception) {
-                platformLog("BOOTSTRAP_UI", "error while bootstrap: ${e.message}")
-            }
-        }
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun widgetListUpdater() {

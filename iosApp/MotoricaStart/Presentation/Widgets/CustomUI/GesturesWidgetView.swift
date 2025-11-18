@@ -454,7 +454,8 @@ private struct RotationGesturesReorderView: View {
 
     @State private var draggedItem: GesturesProvider.GestureDisplayItem?
     @State private var dragOffset: CGSize = .zero
-    @State private var reorderOffset: CGFloat = 0
+//    @State private var reorderOffset: CGFloat = 0
+    @State private var cumulativeDragCorrection: CGFloat = 0
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
@@ -528,7 +529,8 @@ private struct RotationGesturesReorderView: View {
                     // При первом движении инициализируем "захват"
                     draggedItem = item
                     dragOffset = .zero
-                    myDragOffset = .zero
+//                    myDragOffset = .zero
+                    cumulativeDragCorrection = 0
 
                     if draggedItem == item {
                         print("✅ [Drag started] for \(item)")
@@ -537,7 +539,7 @@ private struct RotationGesturesReorderView: View {
 
                 if draggedItem == item {
                     withTransaction(Transaction(animation: nil)) {
-                        dragOffset = drag.translation
+//                        dragOffset = drag.translation
                         updateOrder(with: drag)
                     }
                 }
@@ -547,6 +549,7 @@ private struct RotationGesturesReorderView: View {
                 print("🏁 [DRAG ended] releasing \(item)")
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
                 draggedItem = nil
+                cumulativeDragCorrection = 0
             }
     }
     
@@ -615,6 +618,12 @@ private struct RotationGesturesReorderView: View {
         }
         print(String(format: "3⃣ 📦 currentIndex=%d → targetIndex=%d  destinationPos=%d", currentIndex, targetIndex, destinationPosition))
 
+        let positionDelta = targetIndex - currentIndex
+        let rowHeight = currentFrame.height
+        let newCorrection = cumulativeDragCorrection + CGFloat(positionDelta) * rowHeight
+        dragOffset = CGSize(width: drag.translation.width, height: drag.translation.height - newCorrection)
+        cumulativeDragCorrection = newCorrection
+        
         // ⚙️ эта часть работает ахуенно
         guard targetIndex != currentIndex else { return }
         let previousMidY = currentFrame.midY
@@ -643,15 +652,15 @@ private struct RotationGesturesReorderView: View {
 
         
         
-        // Переставляет элемент всего на один кадр вместо перманентной перестановки
-        DispatchQueue.main.async {
-//            if let newFrame = itemFrames[draggedItem.id] {
-                let deltaY = currentFrame.midY - previousMidY
-                dragOffset.height -= 0//49
-                
-                print(String(format: "5⃣ 🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
-//            }
-        }
+//        // Переставляет элемент всего на один кадр вместо перманентной перестановки
+//        DispatchQueue.main.async {
+////            if let newFrame = itemFrames[draggedItem.id] {
+//                let deltaY = currentFrame.midY - previousMidY
+//                dragOffset.height -= 0//49
+//                
+//                print(String(format: "5⃣ 🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
+////            }
+//        }
 
         onReorder(updatedItems)
     }

@@ -120,7 +120,6 @@
 		65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 65588F9D2EA0E499005CF5BA /* Lottie */; };
 		65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65588FA62EA6557C005CF5BA /* sinchronization.lottie */; };
 		65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */; };
-		65682FCB2EB22F4100BF2D7A /* GesturesRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */; };
 		65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCD2EB2574000BF2D7A /* SliderRowView.swift */; };
 		65682FD02EB257C900BF2D7A /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
@@ -283,7 +282,6 @@
 		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
 		65588FA62EA6557C005CF5BA /* sinchronization.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = sinchronization.lottie; sourceTree = "<group>"; };
 		65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesWidgetView.swift; sourceTree = "<group>"; };
-		65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesRowView.swift; sourceTree = "<group>"; };
 		65682FCD2EB2574000BF2D7A /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
 		65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
@@ -851,7 +849,6 @@
 		65682FCC2EB2572900BF2D7A /* RowViews */ = {
 			isa = PBXGroup;
 			children = (
-				65682FCA2EB22F2700BF2D7A /* GesturesRowView.swift */,
 				65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */,
 				65682FCD2EB2574000BF2D7A /* SliderRowView.swift */,
 			);
@@ -1181,7 +1178,6 @@
 				65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */,
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
-				65682FCB2EB22F4100BF2D7A /* GesturesRowView.swift in Sources */,
 				65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */,

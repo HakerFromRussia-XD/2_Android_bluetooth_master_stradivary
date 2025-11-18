@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UIKit
-//import UniformTypeIdentifiers
 
 
 struct GesturesWidgetView: View {
@@ -454,15 +453,13 @@ private struct RotationGesturesReorderView: View {
 
     @State private var draggedItem: GesturesProvider.GestureDisplayItem?
     @State private var dragOffset: CGSize = .zero
-//    @State private var reorderOffset: CGFloat = 0
     @State private var cumulativeDragCorrection: CGFloat = 0
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
-    //================================================
-    @State private var myDragOffset: CGSize = .zero
 
     private let activationDuration: TimeInterval = 0.001
+    private let releaseAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -489,20 +486,14 @@ private struct RotationGesturesReorderView: View {
                 .contentShape(Rectangle())
                 .background(frameReader(for: item))
                 .offset(y: offset(for: item))
+                .animation(animation(for: item), value: items.map(\.id))
                 .onAppear { print("→ appear \(item.id)") }
                 .zIndex(draggedItem == item ? 1 : 0)
-                
-//                preview: do {
-//                    RotationGestureDragPreview(
-//                        title: item.title,
-//                        subtitle: item.subtitle
-//                    )
-//                    .frame(width: previewWidth == .zero ? nil : previewWidth)
-//                }
             }
             
         }
-//        .background(Color("ubi4_gray"))  //цвет фона
+        .animation(draggedItem == nil ? releaseAnimation : nil, value: items)
+        .background(Color("ubi4_gray"))  //цвет фона
         .coordinateSpace(name: "rotationList")
         .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
             DispatchQueue.main.async {
@@ -529,7 +520,6 @@ private struct RotationGesturesReorderView: View {
                     // При первом движении инициализируем "захват"
                     draggedItem = item
                     dragOffset = .zero
-//                    myDragOffset = .zero
                     cumulativeDragCorrection = 0
 
                     if draggedItem == item {
@@ -539,7 +529,6 @@ private struct RotationGesturesReorderView: View {
 
                 if draggedItem == item {
                     withTransaction(Transaction(animation: nil)) {
-//                        dragOffset = drag.translation
                         updateOrder(with: drag)
                     }
                 }
@@ -547,7 +536,7 @@ private struct RotationGesturesReorderView: View {
             .onEnded { _ in
                 guard draggedItem == item else { return }
                 print("🏁 [DRAG ended] releasing \(item)")
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) { dragOffset = .zero }
+                withAnimation(releaseAnimation) { dragOffset = .zero }
                 draggedItem = nil
                 cumulativeDragCorrection = 0
             }
@@ -573,7 +562,6 @@ private struct RotationGesturesReorderView: View {
 
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
         if draggedItem == item {
-//            print(String(format: "↕️ offset(for id=%d) = %.2f", item.id, dragOffset.height))
             return dragOffset.height
         } else {
             return 0
@@ -589,12 +577,8 @@ private struct RotationGesturesReorderView: View {
             print(String(format: "1⃣ 📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
         }
 
-//        let currentMidY = currentFrame.midY + drag.translation.height
-//        let fingerY = drag.location.y
         let currentMidY = drag.location.y
         print("2⃣ Вычисление новой позиции пальца \(currentMidY) = \(currentFrame.midY) + \(drag.translation.height)")
-//        let fingerY = drag.location.y
-//        print(String(format: "🟢 [FINGER] y=%.2f (drag.location.y, real finger pos)", fingerY))
 
         let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
             guard let frame = itemFrames[item.id] else { return nil }
@@ -629,40 +613,18 @@ private struct RotationGesturesReorderView: View {
         let previousMidY = currentFrame.midY
         let clampedIndex = max(0, min(targetIndex, updatedItems.count))
         updatedItems.insert(element, at: clampedIndex)
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction) { items = updatedItems }
         print("4⃣ 📋 items before reorder:", items.map(\.id))
         print("4⃣ 📋 items after reorder:", updatedItems.map(\.id))
-        
-        
-//        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
-////            var updatedItems = items
-////            let element = updatedItems.remove(at: currentIndex)
-////            let clampedIndex = max(0, min(targetIndex, updatedItems.count))
-////            updatedItems.insert(element, at: clampedIndex)
-////            items = updatedItems
-////            onReorder(updatedItems)
-//            updatedItems.insert(element, at: targetIndex)
-//            items = updatedItems
-//            onReorder(updatedItems)
-//        }
-
-
-
-        
-        
-//        // Переставляет элемент всего на один кадр вместо перманентной перестановки
-//        DispatchQueue.main.async {
-////            if let newFrame = itemFrames[draggedItem.id] {
-//                let deltaY = currentFrame.midY - previousMidY
-//                dragOffset.height -= 0//49
-//                
-//                print(String(format: "5⃣ 🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
-////            }
-//        }
+        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.25)) {
+            items = updatedItems
+        }
 
         onReorder(updatedItems)
+    }
+    
+    private func animation(for item: GesturesProvider.GestureDisplayItem) -> Animation? {
+        guard draggedItem != item else { return nil }
+        return .interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.25)
     }
 }
 
@@ -739,11 +701,6 @@ private struct RotationGestureRow<Handle: View>: View {
         self.handle = handle()
     }
     
-    private var backgroundColor: Color {
-//        isDragging ? Color("ubi4_gray").opacity(0.8) : Color("ubi4_gray")
-        isDragging ? Color("ubi4_gray").opacity(1) : .clear
-    }
-    
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
@@ -761,12 +718,28 @@ private struct RotationGestureRow<Handle: View>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
-        .background(backgroundColor)
+        .background(
+            Group {
+                if isDragging {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color("ubi4_gray_border"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color("ubi4_deactivate_text"), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                } else {
+                    Color.clear
+                }
+            }
+        )
         .overlay(alignment: .bottom) {
             if !isLast {
-                Rectangle()
-                    .fill(Color("ubi4_gray_border"))
-                    .frame(height: 1)
+                if !isDragging {
+                    Rectangle()
+                        .fill(Color("ubi4_gray_border"))
+                        .frame(height: 1)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: isDragging)

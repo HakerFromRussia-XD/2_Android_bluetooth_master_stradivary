@@ -458,6 +458,8 @@ private struct RotationGesturesReorderView: View {
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
+    //================================================
+    @State private var myDragOffset: CGSize = .zero
 
     private let activationDuration: TimeInterval = 0.001
 
@@ -526,6 +528,7 @@ private struct RotationGesturesReorderView: View {
                     // При первом движении инициализируем "захват"
                     draggedItem = item
                     dragOffset = .zero
+                    myDragOffset = .zero
 
                     if draggedItem == item {
                         print("✅ [Drag started] for \(item)")
@@ -567,7 +570,7 @@ private struct RotationGesturesReorderView: View {
 
     private func offset(for item: GesturesProvider.GestureDisplayItem) -> CGFloat {
         if draggedItem == item {
-            print(String(format: "↕️ offset(for id=%d) = %.2f", item.id, dragOffset.height))
+//            print(String(format: "↕️ offset(for id=%d) = %.2f", item.id, dragOffset.height))
             return dragOffset.height
         } else {
             return 0
@@ -578,15 +581,15 @@ private struct RotationGesturesReorderView: View {
         guard let draggedItem,
               let currentFrame = itemFrames[draggedItem.id],
               let currentIndex = items.firstIndex(of: draggedItem) else { return }
-        print(String(format: "🟢 [FINGER] y=%.2f  dragOffset=%.2f", drag.location.y, drag.translation.height))
+        print(String(format: "0⃣ 🟢 [FINGER] y=%.2f  dragOffset=%.2f", drag.location.y, drag.translation.height))
         if let f = itemFrames[draggedItem.id] {
-            print(String(format: "📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
+            print(String(format: "1⃣ 📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
         }
 
 //        let currentMidY = currentFrame.midY + drag.translation.height
 //        let fingerY = drag.location.y
         let currentMidY = drag.location.y
-        print("2️⃣ Вычисление новой позиции пальца \(currentMidY) = \(currentFrame.midY) + \(drag.translation.height)")
+        print("2⃣ Вычисление новой позиции пальца \(currentMidY) = \(currentFrame.midY) + \(drag.translation.height)")
 //        let fingerY = drag.location.y
 //        print(String(format: "🟢 [FINGER] y=%.2f (drag.location.y, real finger pos)", fingerY))
 
@@ -594,21 +597,14 @@ private struct RotationGesturesReorderView: View {
             guard let frame = itemFrames[item.id] else { return nil }
             return (item, frame)
         }
-
         guard orderedItems.count == items.count else { return }
-        
         let sortedItems = orderedItems.sorted { $0.1.minY < $1.1.minY }
-        
         guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
-        
         var itemsWithoutDragged = sortedItems
         itemsWithoutDragged.remove(at: currentPosition)
-
         let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
-
         var updatedItems = items
         let element = updatedItems.remove(at: currentIndex)
-
         let targetIndex: Int
         if destinationPosition == itemsWithoutDragged.count {
             targetIndex = updatedItems.count
@@ -617,15 +613,19 @@ private struct RotationGesturesReorderView: View {
             guard let destinationIndex = updatedItems.firstIndex(of: destinationItem) else { return }
             targetIndex = destinationIndex
         }
-        print(String(format: "📦 currentIndex=%d → targetIndex=%d  destinationPos=%d", currentIndex, targetIndex, destinationPosition))
+        print(String(format: "3⃣ 📦 currentIndex=%d → targetIndex=%d  destinationPos=%d", currentIndex, targetIndex, destinationPosition))
 
+        // ⚙️ эта часть работает ахуенно
         guard targetIndex != currentIndex else { return }
-
-        // ⚙️ Исправление: корректируем dragOffset на изменение layout
-        // считаем вертикальное смещение между старыми и новыми фреймами
         let previousMidY = currentFrame.midY
         let clampedIndex = max(0, min(targetIndex, updatedItems.count))
         updatedItems.insert(element, at: clampedIndex)
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { items = updatedItems }
+        print("4⃣ 📋 items before reorder:", items.map(\.id))
+        print("4⃣ 📋 items after reorder:", updatedItems.map(\.id))
+        
         
 //        withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.3)) {
 ////            var updatedItems = items
@@ -639,23 +639,18 @@ private struct RotationGesturesReorderView: View {
 //            onReorder(updatedItems)
 //        }
 
-        print("📋 items before reorder:", items.map(\.id))
-        print("📋 items after reorder:", updatedItems.map(\.id))
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
 
-        withTransaction(transaction) {
-            items = updatedItems
-        }
+
         
-        // После перестановки SwiftUI пересчитает frame.
-        // Чтобы элемент остался под пальцем — пересчитаем dragOffset.
+        
+        // Переставляет элемент всего на один кадр вместо перманентной перестановки
         DispatchQueue.main.async {
-            if let newFrame = itemFrames[draggedItem.id] {
-                let deltaY = newFrame.midY - previousMidY
-                dragOffset.height -= deltaY
-                print(String(format: "🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
-            }
+//            if let newFrame = itemFrames[draggedItem.id] {
+                let deltaY = currentFrame.midY - previousMidY
+                dragOffset.height -= 0//49
+                
+                print(String(format: "5⃣ 🧮 Коррекция dragOffset: deltaY=%.2f → dragOffset=%.2f", deltaY, dragOffset.height))
+//            }
         }
 
         onReorder(updatedItems)

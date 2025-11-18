@@ -589,7 +589,13 @@ private struct RotationGesturesReorderView: View {
         guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
         var itemsWithoutDragged = sortedItems
         itemsWithoutDragged.remove(at: currentPosition)
-        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
+//        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
+
+        let thresholdMultiplier: CGFloat = drag.translation.height >= 0 ? 0.25 : 0.75
+        let destinationPosition = itemsWithoutDragged.firstIndex {
+            let thresholdY = $0.1.minY + $0.1.height * thresholdMultiplier
+            return currentMidY < thresholdY
+        } ?? itemsWithoutDragged.count
         var updatedItems = items
         let element = updatedItems.remove(at: currentIndex)
         let targetIndex: Int
@@ -610,7 +616,6 @@ private struct RotationGesturesReorderView: View {
         
         // ⚙️ эта часть работает ахуенно
         guard targetIndex != currentIndex else { return }
-        let previousMidY = currentFrame.midY
         let clampedIndex = max(0, min(targetIndex, updatedItems.count))
         updatedItems.insert(element, at: clampedIndex)
         print("4⃣ 📋 items before reorder:", items.map(\.id))
@@ -625,43 +630,6 @@ private struct RotationGesturesReorderView: View {
     private func animation(for item: GesturesProvider.GestureDisplayItem) -> Animation? {
         guard draggedItem != item else { return nil }
         return .interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.25)
-    }
-}
-
-private struct RotationGestureDragPreview: View {
-    let title: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
-            }
-
-            Spacer()
-
-            Image(systemName: "trash")
-                .foregroundColor(Color("ubi4_no_system_red"))
-                .padding(.trailing, 16)
-
-            Image(systemName: "line.3.horizontal")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("ubi4_deactivate_text"))
-                .padding(.vertical, 12)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_gray"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-        )
     }
 }
 
@@ -725,7 +693,7 @@ private struct RotationGestureRow<Handle: View>: View {
                         .fill(Color("ubi4_gray_border"))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color("ubi4_deactivate_text"), lineWidth: 1)
+                                .stroke(Color("ubi4_rotation_gray_border"), lineWidth: 1)
                         )
                         .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                 } else {
@@ -734,12 +702,10 @@ private struct RotationGestureRow<Handle: View>: View {
             }
         )
         .overlay(alignment: .bottom) {
-            if !isLast {
-                if !isDragging {
-                    Rectangle()
-                        .fill(Color("ubi4_gray_border"))
-                        .frame(height: 1)
-                }
+            if !isLast && !isDragging {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: isDragging)

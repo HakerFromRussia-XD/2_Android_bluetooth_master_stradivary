@@ -10,22 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
-import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -42,6 +33,10 @@ class SensorsFragment : BaseWidgetsFragment() {
     private val display = 1
 
 
+    override fun onResume() {
+        super.onResume()
+        syncWidgetsFromDb()
+    }
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
@@ -67,8 +62,6 @@ class SensorsFragment : BaseWidgetsFragment() {
         adapterWidgets.swapData(initialData)
         main?.refreshBottomNavVisibility()
 
-//        bootstrapWhenMacReady()
-
         return binding.root
     }
 
@@ -81,19 +74,10 @@ class SensorsFragment : BaseWidgetsFragment() {
             it.invoke() }
     }
 
-//    private suspend fun waitUntilMacIsReady() {
-//        repeat(50) { // 5 секунд максимум
-//            val mac = WidgetRepoProvider.mac()
-//            if (mac.isNotBlank()) return
-//            delay(100)
-//        }
-//    }
-
 
     @SuppressLint("NotifyDataSetChanged")
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            //viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED){}
             updateFlow.collect { updateEvent->
                 Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
                 main?.runOnUiThread {

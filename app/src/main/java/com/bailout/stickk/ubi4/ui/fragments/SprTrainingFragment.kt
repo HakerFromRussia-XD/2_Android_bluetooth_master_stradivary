@@ -77,6 +77,10 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, MODE_PRIVATE) }
 
+    override fun onResume() {
+        super.onResume()
+        syncWidgetsFromDb()
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

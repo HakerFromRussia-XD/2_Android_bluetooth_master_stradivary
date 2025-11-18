@@ -28,8 +28,10 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var isMobileSettings = false
 
 
-
-
+    override fun onResume() {
+        super.onResume()
+        syncWidgetsFromDb()
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

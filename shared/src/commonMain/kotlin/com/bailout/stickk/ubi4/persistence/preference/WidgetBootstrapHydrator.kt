@@ -5,6 +5,9 @@ import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toEndStruct
 import com.bailout.stickk.ubi4.data.state.RestoredState
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
@@ -137,7 +140,21 @@ object WidgetBootstrapHydrator {
                         "no last state (master): addr=$masterAddr pid=${info.ID} dcode=${info.dataCode}"
                     )
                 }
+                //  ДОБАВЛЯЕМ ВОССТАНОВЛЕНИЕ АКТИВНОГО ЖЕСТА
+                if (info.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number) {
+                    val gestureId: Int? =
+                        lastState?.value_i1?.toInt() ?: lastState?.value_text?.toIntOrNull()
+
+                    WidgetState.activeGestureState.value = gestureId
+
+                    platformLog(
+                        "BOOTSTRAP_GESTURE",
+                        "hydrate: activeGestureState from DB: addr=$masterAddr pid=${info.ID} gestureId=$gestureId"
+                    )
+                }
+
             }
+
 
             // --- сабдевайсы ---
             subDevices.forEach { sub ->
@@ -177,6 +194,60 @@ object WidgetBootstrapHydrator {
         )
     }
 
+    /**
+     * Эмулируем события, как будто BLE прислал уведомления.
+     * Это "будит" адаптеры (Slider, Switch, Plot и т.д.).
+     */
+    suspend fun replayWidgetEventsFromDb(deviceAddr: Int) {
+        UiState.listWidgets.forEach { widget ->
+            val base = widget.baseStructOrNull() ?: return@forEach
+            val info = base.parameterInfoSet.firstOrNull() ?: return@forEach
+
+            val ref = ParameterRef(
+                addressDevice = info.deviceAddress,
+                parameterID = info.parameterID,
+                dataCode = info.dataCode
+            )
+
+            when (base.widgetCode) {
+                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                    slidersFlow.tryEmit(ref)
+                }
+
+                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                    switcherFlow.tryEmit(ref)
+                }
+
+                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                    thresholdFlow.tryEmit(ref)
+                    widgetsMergeEventFlow.tryEmit(ref)
+                }
+
+                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+
+                }
+            }
+            when (info.dataCode) {
+                PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                    // группа ротации
+                    rotationGroupFlow.tryEmit(ref)
+                }
+
+                PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+                    // биндинги (SPR)
+                    bindingGroupFlow.tryEmit(ref)
+                }
+            }
+
+
+            platformLog(
+                "BOOTSTRAP",
+                "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
+            )
+        }
+    }
+
     // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
 
     private fun Any.baseStructOrNull() =
@@ -199,45 +270,5 @@ object WidgetBootstrapHydrator {
             else -> null
         }
 
-    /**
-     * Эмулируем события, как будто BLE прислал уведомления.
-     * Это "будит" адаптеры (Slider, Switch, Plot и т.д.).
-     */
-    suspend fun replayWidgetEventsFromDb(deviceAddr: Int) {
-        UiState.listWidgets.forEach { widget ->
-            val base = widget.baseStructOrNull() ?: return@forEach
-            val info = base.parameterInfoSet.firstOrNull() ?: return@forEach
 
-            val ref = ParameterRef(
-                addressDevice = info.deviceAddress,
-                parameterID   = info.parameterID,
-                dataCode      = info.dataCode
-            )
-
-            when (base.widgetCode) {
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
-                    slidersFlow.tryEmit(ref)
-                }
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
-                    switcherFlow.tryEmit(ref)
-                }
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
-                    thresholdFlow.tryEmit(ref)
-                    widgetsMergeEventFlow.tryEmit(ref)
-                }
-
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
-
-
-                }
-                // при необходимости добавишь ещё типы виджетов
-            }
-        }
-
-        platformLog(
-            "BOOTSTRAP",
-            "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
-        )
-    }
 }

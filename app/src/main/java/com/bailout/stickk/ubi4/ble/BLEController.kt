@@ -192,10 +192,8 @@ class BLEController() {
 
                     main.lifecycleScope.launch {
                         WidgetBootstrapHydrator.restoreFromDb(0)
-
                         // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
                         WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-
                         // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
                         WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
                     }

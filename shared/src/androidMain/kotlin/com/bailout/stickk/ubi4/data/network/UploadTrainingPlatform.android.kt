@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.data.network
 
+import android.util.Log
 import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.PASSPORT_BASE
+import com.bailout.stickk.ubi4.models.network.ModelVersions
 import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
@@ -32,6 +34,18 @@ actual suspend fun uploadTrainingDataSsePlatform(
         .build()
 
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
+        val modelVersions = ModelVersions(
+            boardHardwareVersion = 3,
+            boardSoftwareVersion = "0.1.4",
+            appVersion = "3.2.1148",
+            modelCode = 0,
+            modelVersion = "0.0.1"
+        )
+        val json = Json { ignoreUnknownKeys = true }
+        val jsonString = json.encodeToString(ModelVersions.serializer(), modelVersions)
+        val jsonBody = jsonString.toRequestBody("application/json".toMediaType())
+        addFormDataPart("model_versions", "model_versions.json", jsonBody)
+
         addFormDataPart("serial", serial)
         pairs.flatMap { listOf(it.first, it.second) }
             .forEach { file ->
@@ -49,6 +63,9 @@ actual suspend fun uploadTrainingDataSsePlatform(
         .build()
 
     client.newCall(request).execute().use { resp ->
+        Log.d("UploadTraining", "Response code: ${resp.code}")
+        Log.d("UploadTraining", "Response headers: ${resp.headers}")
+        Log.e("UploadTraining", "Response message: ${resp.message}")
         if (!resp.isSuccessful) throw IOException("Upload failed ${resp.code}")
         val body = resp.body ?: throw IOException("Empty body")
         return body.source().collectSseCheckpoint(onProgress)

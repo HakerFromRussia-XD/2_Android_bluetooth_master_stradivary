@@ -57,7 +57,7 @@ struct GesturesWidgetView: View {
                 segmentSelector
                 Group {
                     activeGestureView
-
+                    
                     switch provider.selectedSegment {
                     case .collection:
                         collectionView
@@ -74,27 +74,22 @@ struct GesturesWidgetView: View {
             }
             .padding(.horizontal, 8)
             .background(Color("ubi4_back"))
-
-            if isRotationDialogPresented {
-                Color.black.opacity(0.45)
-                    .ignoresSafeArea()
-
-                RotationGroupGesturesDialog(
-                    title: NSLocalizedString("rotation_dialog_title", comment: ""),
-                    saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
-                    cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
-                    options: rotationDialogOptions,
-                    selection: rotationDialogSelection,
-                    errorMessage: rotationDialogError,
-                    onOptionTap: { option in
-                        toggleRotationDialogSelection(option: option)
-                    },
-                    onSave: handleRotationDialogSave,
-                    onCancel: dismissRotationDialog
-                )
-                .padding(.horizontal, 32)
-                .transition(.opacity)
-            }
+            
+        }
+        .fullScreenCover(isPresented: $isRotationDialogPresented) {
+            RotationDialogOverlay(
+                title: NSLocalizedString("rotation_dialog_title", comment: ""),
+                saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
+                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                options: rotationDialogOptions,
+                selection: rotationDialogSelection,
+                errorMessage: rotationDialogError,
+                onOptionTap: { option in
+                    toggleRotationDialogSelection(option: option)
+                },
+                onSave: handleRotationDialogSave,
+                onCancel: dismissRotationDialog
+            )
         }
     }
 
@@ -950,7 +945,7 @@ private struct RotationGroupGesturesDialog: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(20)
+        .padding([.top, .leading, .trailing], 20)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("ubi4_back"))
@@ -978,4 +973,36 @@ private struct RotationGestureSelectionOption: Identifiable, Hashable {
     let type: SourceType
 
     var id: Int { item.id }
+}
+
+private struct RotationDialogOverlay: View {
+    let title: String
+    let saveTitle: String
+    let cancelTitle: String
+    let options: [RotationGestureSelectionOption]
+    let selection: Set<Int>
+    let errorMessage: String?
+    var onOptionTap: (RotationGestureSelectionOption) -> Void
+    var onSave: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+
+            RotationGroupGesturesDialog(
+                title: title,
+                saveTitle: saveTitle,
+                cancelTitle: cancelTitle,
+                options: options,
+                selection: selection,
+                errorMessage: errorMessage,
+                onOptionTap: onOptionTap,
+                onSave: onSave,
+                onCancel: onCancel
+            )
+            .padding(.horizontal, 32)
+        }
+    }
 }

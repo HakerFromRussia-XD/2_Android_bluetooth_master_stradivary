@@ -577,9 +577,10 @@ private struct RotationGesturesReorderView: View {
             print(String(format: "1⃣ 📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
         }
 
-        let currentMidY = drag.location.y
-        print("2⃣ Вычисление новой позиции пальца \(currentMidY) = \(currentFrame.midY) + \(drag.translation.height)")
+        //вычисление позиции пальца по Y
+        let draggedMidY = currentFrame.midY + drag.translation.height - cumulativeDragCorrection
 
+        //вычисление какие элементы выше, а какие ниже перетаскиваемого. Удаление перетаскиваемого для лёгких расчётов
         let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
             guard let frame = itemFrames[item.id] else { return nil }
             return (item, frame)
@@ -589,13 +590,14 @@ private struct RotationGesturesReorderView: View {
         guard let currentPosition = sortedItems.firstIndex(where: { $0.0 == draggedItem }) else { return }
         var itemsWithoutDragged = sortedItems
         itemsWithoutDragged.remove(at: currentPosition)
-//        let destinationPosition = itemsWithoutDragged.firstIndex { currentMidY < $0.1.midY } ?? itemsWithoutDragged.count
-
-        let thresholdMultiplier: CGFloat = drag.translation.height >= 0 ? 0.25 : 0.75
+        
+        //тут установка зоны для перещёлкивания порядка элементов
+        let thresholdMultiplier: CGFloat = drag.translation.height >= 0 ? 0.30 : 0.80
         let destinationPosition = itemsWithoutDragged.firstIndex {
             let thresholdY = $0.1.minY + $0.1.height * thresholdMultiplier
-            return currentMidY < thresholdY
+            return draggedMidY < thresholdY
         } ?? itemsWithoutDragged.count
+    
         var updatedItems = items
         let element = updatedItems.remove(at: currentIndex)
         let targetIndex: Int

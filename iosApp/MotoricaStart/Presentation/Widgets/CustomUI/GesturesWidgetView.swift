@@ -865,9 +865,10 @@ private struct RotationGroupGesturesDialog: View {
     var body: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.system(size: 24, weight: .heavy))
+                .font(.custom("sf_pro_text_bold", size: 20))
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
 
             ScrollView {
                 VStack(spacing: 0) {

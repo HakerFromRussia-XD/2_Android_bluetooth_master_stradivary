@@ -28,6 +28,10 @@
 "gesture_not_selected" = "Not selected";
 "add_gesture" = "Add gesture";
 "rotation_group_hint" = "Here you can select gestures for everyday use inside the rotation group.";
+"rotation_dialog_title" = "Adding gestures to rotation group";
+"rotation_dialog_save" = "Save";
+"rotation_dialog_cancel" = "Cancel";
+"rotation_dialog_limit_message" = "You can't add more than 8 gestures.";
 "spr_empty_placeholder" = "No gestures have been added yet";
 "control_gestures" = "Control gestures";
 "annotation_main_text" = "Here you can select gestures recorded during training, as well as attach your own gestures to them.";

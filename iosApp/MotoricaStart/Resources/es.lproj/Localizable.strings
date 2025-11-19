@@ -14,3 +14,7 @@
 "No internet connection" = "Sin conexión a internet";
 "Failed loading widgets" = "Error al descargar películas";
 "Search Widgets" = "Buscar películas";
+"rotation_dialog_title" = "Agregar gestos al grupo de rotación";
+"rotation_dialog_save" = "Guardar";
+"rotation_dialog_cancel" = "Cancelar";
+"rotation_dialog_limit_message" = "No se pueden añadir más de 8 gestos.";

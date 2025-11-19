@@ -31,12 +31,33 @@ struct GesturesWidgetView: View {
     
     // MARK: - Body
     var body: some View {
+        //        VStack(spacing: 16) {
+        //            segmentSelector
+        //            Group {
+        //                activeGestureView
+        //
+        //                switch provider.selectedSegment {
+        //                case .collection:
+        //                    collectionView
+        //                case .rotationGroup:
+        //                    rotationGroupView
+        //                case .sprGroup:
+        //                    sprGroupView
+        //                }
+        //            }
+        //            .animation(nil, value: provider.selectedSegment)
+        //        }
+        //        .transaction { transaction in
+        //            transaction.animation = nil
+        //        }
+        //        .padding(.horizontal, 8)
+        //        .background(Color("ubi4_back"))
         ZStack {
             VStack(spacing: 16) {
                 segmentSelector
                 Group {
                     activeGestureView
-                    
+
                     switch provider.selectedSegment {
                     case .collection:
                         collectionView
@@ -53,21 +74,27 @@ struct GesturesWidgetView: View {
             }
             .padding(.horizontal, 8)
             .background(Color("ubi4_back"))
-        }
-        .fullScreenCover(isPresented: $isRotationDialogPresented) {
-            RotationDialogOverlay(
-                title: NSLocalizedString("rotation_dialog_title", comment: ""),
-                saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
-                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
-                options: rotationDialogOptions,
-                selection: rotationDialogSelection,
-                errorMessage: rotationDialogError,
-                onOptionTap: { option in
-                    toggleRotationDialogSelection(option: option)
-                },
-                onSave: handleRotationDialogSave,
-                onCancel: dismissRotationDialog
-            )
+
+            if isRotationDialogPresented {
+                Color.black.opacity(0.45)
+                    .ignoresSafeArea()
+
+                RotationGroupGesturesDialog(
+                    title: NSLocalizedString("rotation_dialog_title", comment: ""),
+                    saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
+                    cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                    options: rotationDialogOptions,
+                    selection: rotationDialogSelection,
+                    errorMessage: rotationDialogError,
+                    onOptionTap: { option in
+                        toggleRotationDialogSelection(option: option)
+                    },
+                    onSave: handleRotationDialogSave,
+                    onCancel: dismissRotationDialog
+                )
+                .padding(.horizontal, 32)
+                .transition(.opacity)
+            }
         }
     }
 
@@ -123,7 +150,9 @@ struct GesturesWidgetView: View {
         let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
         let newOffset = CGFloat(index) * segmentWidth
         if animated {
-            highlightOffsetX = newOffset
+//            withAnimation(.easeOut(duration: 0.3)) {
+                highlightOffsetX = newOffset
+//            }
         } else {
             highlightOffsetX = newOffset
         }
@@ -326,7 +355,6 @@ struct GesturesWidgetView: View {
         }
         return factory + custom
     }
-
 
     
     // MARK: - SPR Group View
@@ -842,7 +870,7 @@ private struct RotationGroupGesturesDialog: View {
     var body: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 24, weight: .heavy))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -868,9 +896,10 @@ private struct RotationGroupGesturesDialog: View {
                                 }
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, 16)
                             .frame(maxWidth: .infinity)
                             .background(Color.clear)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -935,9 +964,7 @@ private struct RotationGroupGesturesDialog: View {
 
     private func shouldShowDivider(before index: Int) -> Bool {
         guard index > 0 else { return false }
-        let previous = options[index - 1]
-        let current = options[index]
-        return previous.type != current.type
+        return index != 0
     }
 }
 
@@ -952,36 +979,3 @@ private struct RotationGestureSelectionOption: Identifiable, Hashable {
 
     var id: Int { item.id }
 }
-
-private struct RotationDialogOverlay: View {
-    let title: String
-    let saveTitle: String
-    let cancelTitle: String
-    let options: [RotationGestureSelectionOption]
-    let selection: Set<Int>
-    let errorMessage: String?
-    var onOptionTap: (RotationGestureSelectionOption) -> Void
-    var onSave: () -> Void
-    var onCancel: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-
-            RotationGroupGesturesDialog(
-                title: title,
-                saveTitle: saveTitle,
-                cancelTitle: cancelTitle,
-                options: options,
-                selection: selection,
-                errorMessage: errorMessage,
-                onOptionTap: onOptionTap,
-                onSave: onSave,
-                onCancel: onCancel
-            )
-            .padding(.horizontal, 32)
-        }
-    }
-}
-

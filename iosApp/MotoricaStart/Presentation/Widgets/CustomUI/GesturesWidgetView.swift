@@ -14,13 +14,16 @@ struct GesturesWidgetView: View {
     // MARK: - Dependencies
     @ObservedObject var provider: GesturesProvider
     @State private var highlightOffsetX: CGFloat = 0
+    @State private var isRotationDialogPresented = false
+    @State private var rotationDialogSelection: Set<Int> = []
+    @State private var rotationDialogError: String? = nil
 
     var onSegmentChange: (GesturesProvider.Segment) -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRotationGestureRemove: (Int) -> Void
-    var onRotationGestureAdd: () -> Void
+    var onRotationGestureAdd: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
@@ -28,27 +31,44 @@ struct GesturesWidgetView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 16) {
-            segmentSelector
-            Group {
-                activeGestureView
-                
-                switch provider.selectedSegment {
-                case .collection:
-                    collectionView
-                case .rotationGroup:
-                    rotationGroupView
-                case .sprGroup:
-                    sprGroupView
+        ZStack {
+            VStack(spacing: 16) {
+                segmentSelector
+                Group {
+                    activeGestureView
+                    
+                    switch provider.selectedSegment {
+                    case .collection:
+                        collectionView
+                    case .rotationGroup:
+                        rotationGroupView
+                    case .sprGroup:
+                        sprGroupView
+                    }
                 }
+                .animation(nil, value: provider.selectedSegment)
             }
-            .animation(nil, value: provider.selectedSegment)
+            .transaction { transaction in
+                transaction.animation = nil
+            }
+            .padding(.horizontal, 8)
+            .background(Color("ubi4_back"))
         }
-        .transaction { transaction in
-            transaction.animation = nil
+        .fullScreenCover(isPresented: $isRotationDialogPresented) {
+            RotationDialogOverlay(
+                title: NSLocalizedString("rotation_dialog_title", comment: ""),
+                saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
+                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                options: rotationDialogOptions,
+                selection: rotationDialogSelection,
+                errorMessage: rotationDialogError,
+                onOptionTap: { option in
+                    toggleRotationDialogSelection(option: option)
+                },
+                onSave: handleRotationDialogSave,
+                onCancel: dismissRotationDialog
+            )
         }
-        .padding(.horizontal, 8)
-        .background(Color("ubi4_back"))
     }
 
     
@@ -103,9 +123,7 @@ struct GesturesWidgetView: View {
         let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
         let newOffset = CGFloat(index) * segmentWidth
         if animated {
-//            withAnimation(.easeOut(duration: 0.3)) {
-                highlightOffsetX = newOffset
-//            }
+            highlightOffsetX = newOffset
         } else {
             highlightOffsetX = newOffset
         }
@@ -228,18 +246,7 @@ struct GesturesWidgetView: View {
     // MARK: - Rotation Group View
     private var rotationGroupView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(NSLocalizedString("rotation_group", comment: ""))
-                .font(.system(size: 12, weight: .light))
-                .foregroundColor(.white)
-
             VStack(spacing: 12) {
-//                ForEach(Array(provider.rotationGroup.enumerated()), id: \.offset) { index, item in
-//                    RotationGestureRow(
-//                        title: item.title,
-//                        subtitle: item.subtitle,
-//                        onRemove: { onRotationGestureRemove(index) }
-//                    )
-//                }
                 RotationGesturesReorderView(
                     items: $provider.rotationGroup,
                     onRemove: {
@@ -250,7 +257,7 @@ struct GesturesWidgetView: View {
                         onRotationGesturesReorder(items)
                     }
                 )
-                Button(action: onRotationGestureAdd) {
+                Button(action: presentRotationDialog) {
                     Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor( .white)
@@ -274,6 +281,52 @@ struct GesturesWidgetView: View {
                 .foregroundColor(Color("ubi4_deactivate_text"))
         }
     }
+
+    private func presentRotationDialog() {
+        rotationDialogSelection = Set(provider.rotationGroup.map { $0.id })
+        rotationDialogError = nil
+        isRotationDialogPresented = true
+    }
+
+    private func dismissRotationDialog() {
+        rotationDialogError = nil
+        isRotationDialogPresented = false
+    }
+
+    private func handleRotationDialogSave() {
+        let selected = rotationDialogOptions.filter { rotationDialogSelection.contains($0.id) }
+        let gestures = selected.map { $0.item }
+        onRotationGestureAdd(gestures)
+        dismissRotationDialog()
+    }
+
+    private func toggleRotationDialogSelection(option: RotationGestureSelectionOption) {
+        if rotationDialogSelection.contains(option.id) {
+            rotationDialogSelection.remove(option.id)
+            rotationDialogError = nil
+            return
+        }
+
+        let maxCount = RotationGroupGesturesDialog.Constants.maxGestures
+        if rotationDialogSelection.count >= maxCount {
+            rotationDialogError = NSLocalizedString("rotation_dialog_limit_message", comment: "")
+            return
+        }
+
+        rotationDialogSelection.insert(option.id)
+        rotationDialogError = nil
+    }
+
+    private var rotationDialogOptions: [RotationGestureSelectionOption] {
+        let factory = provider.factoryGestures.map {
+            RotationGestureSelectionOption(item: $0, type: .factory)
+        }
+        let custom = provider.customGestures.map {
+            RotationGestureSelectionOption(item: $0, type: .custom)
+        }
+        return factory + custom
+    }
+
 
     
     // MARK: - SPR Group View
@@ -314,7 +367,7 @@ struct GesturesWidgetView: View {
                     .font(.system(size: 12, weight: .light))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 16)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color("ubi4_gray"))
@@ -487,7 +540,6 @@ private struct RotationGesturesReorderView: View {
                 .background(frameReader(for: item))
                 .offset(y: offset(for: item))
                 .animation(animation(for: item), value: items.map(\.id))
-                .onAppear { print("→ appear \(item.id)") }
                 .zIndex(draggedItem == item ? 1 : 0)
             }
             
@@ -517,7 +569,7 @@ private struct RotationGesturesReorderView: View {
                     let handleActivationMinX = itemFrame.maxX - handleActivationWidth
                     guard drag.startLocation.x >= handleActivationMinX else { return }
 
-                    // При первом движении инициализируем "захват"
+                    /// При первом движении инициализируем "захват"
                     draggedItem = item
                     dragOffset = .zero
                     cumulativeDragCorrection = 0
@@ -577,10 +629,10 @@ private struct RotationGesturesReorderView: View {
             print(String(format: "1⃣ 📐 draggedItem id=%d  frame.minY=%.2f  midY=%.2f  maxY=%.2f", draggedItem.id, f.minY, f.midY, f.maxY))
         }
 
-        //вычисление позиции пальца по Y
+        /// вычисление позиции пальца по Y
         let draggedMidY = currentFrame.midY + drag.translation.height - cumulativeDragCorrection
 
-        //вычисление какие элементы выше, а какие ниже перетаскиваемого. Удаление перетаскиваемого для лёгких расчётов
+        /// вычисление какие элементы выше, а какие ниже перетаскиваемого. Удаление перетаскиваемого для лёгких расчётов
         let orderedItems = items.compactMap { item -> (GesturesProvider.GestureDisplayItem, CGRect)? in
             guard let frame = itemFrames[item.id] else { return nil }
             return (item, frame)
@@ -591,7 +643,7 @@ private struct RotationGesturesReorderView: View {
         var itemsWithoutDragged = sortedItems
         itemsWithoutDragged.remove(at: currentPosition)
         
-        //тут установка зоны для перещёлкивания порядка элементов
+        /// тут установка зоны для перещёлкивания порядка элементов
         let thresholdMultiplier: CGFloat = drag.translation.height >= 0 ? 0.30 : 0.80
         let destinationPosition = itemsWithoutDragged.firstIndex {
             let thresholdY = $0.1.minY + $0.1.height * thresholdMultiplier
@@ -616,7 +668,7 @@ private struct RotationGesturesReorderView: View {
         dragOffset = CGSize(width: drag.translation.width, height: drag.translation.height - newCorrection)
         cumulativeDragCorrection = newCorrection
         
-        // ⚙️ эта часть работает ахуенно
+        /// ⚙️ эта часть работает ахуенно
         guard targetIndex != currentIndex else { return }
         let clampedIndex = max(0, min(targetIndex, updatedItems.count))
         updatedItems.insert(element, at: clampedIndex)
@@ -771,3 +823,165 @@ private struct SprGestureRow: View {
         .buttonStyle(.plain)
     }
 }
+
+private struct RotationGroupGesturesDialog: View {
+    struct Constants {
+        static let maxGestures = 8
+    }
+
+    let title: String
+    let saveTitle: String
+    let cancelTitle: String
+    let options: [RotationGestureSelectionOption]
+    let selection: Set<Int>
+    let errorMessage: String?
+    var onOptionTap: (RotationGestureSelectionOption) -> Void
+    var onSave: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(Array(options.enumerated()), id: \.offset) { index, option in
+                        if shouldShowDivider(before: index) {
+                            Rectangle()
+                                .fill(Color("ubi4_gray_border"))
+                                .frame(height: 1)
+                        }
+
+                        Button(action: { onOptionTap(option) }) {
+                            HStack {
+                                Text(option.item.title)
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                if selection.contains(option.id) {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(Color("ubi4_active"))
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.clear)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .frame(maxHeight: 320)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("ubi4_gray"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                    )
+            )
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(Color("ubi4_no_system_red"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onSave) {
+                    Text(saveTitle)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color("ubi4_yes_system_blue"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.plain)
+
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onCancel) {
+                    Text(cancelTitle)
+                        .font(.system(size: 16, weight: .light))
+                        .foregroundColor(Color("ubi4_yes_system_blue"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color("ubi4_back"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
+        )
+    }
+
+    private func shouldShowDivider(before index: Int) -> Bool {
+        guard index > 0 else { return false }
+        let previous = options[index - 1]
+        let current = options[index]
+        return previous.type != current.type
+    }
+}
+
+private struct RotationGestureSelectionOption: Identifiable, Hashable {
+    enum SourceType: Equatable {
+        case factory
+        case custom
+    }
+
+    let item: GesturesProvider.GestureDisplayItem
+    let type: SourceType
+
+    var id: Int { item.id }
+}
+
+private struct RotationDialogOverlay: View {
+    let title: String
+    let saveTitle: String
+    let cancelTitle: String
+    let options: [RotationGestureSelectionOption]
+    let selection: Set<Int>
+    let errorMessage: String?
+    var onOptionTap: (RotationGestureSelectionOption) -> Void
+    var onSave: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+
+            RotationGroupGesturesDialog(
+                title: title,
+                saveTitle: saveTitle,
+                cancelTitle: cancelTitle,
+                options: options,
+                selection: selection,
+                errorMessage: errorMessage,
+                onOptionTap: onOptionTap,
+                onSave: onSave,
+                onCancel: onCancel
+            )
+            .padding(.horizontal, 32)
+        }
+    }
+}
+

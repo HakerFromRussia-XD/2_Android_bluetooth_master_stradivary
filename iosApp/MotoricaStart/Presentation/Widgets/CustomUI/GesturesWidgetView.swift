@@ -23,7 +23,7 @@ struct GesturesWidgetView: View {
     @State private var isRotationDeleteDialogVisible = false
     @State private var rotationDeleteDialogDismissWorkItem: DispatchWorkItem?
     @State private var rotationDeleteDialogItem: GesturesProvider.GestureDisplayItem?
-    @State private var rotationDeleteDialogGestureTitle: String = ""
+    @State private var rotationDeleteDialogMessage: String = ""
 
     var animationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
@@ -85,7 +85,7 @@ struct GesturesWidgetView: View {
             RotationDeleteDialogOverlay(
                 isVisible: $isRotationDeleteDialogVisible,
                 title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
-                message: rotationDeleteDialogMessage,
+                message: $rotationDeleteDialogMessage,
                 deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
                 cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 onDelete: handleRotationDeleteConfirm,
@@ -320,6 +320,9 @@ struct GesturesWidgetView: View {
 
     private func presentRotationGroupAddGesturesDialog() {
         rotationGroupAddGesturesDialogSelection = Set(provider.rotationGroup.map { $0.id })
+        guard let item = rotationDeleteDialogItem else { return }
+        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
+        rotationDeleteDialogMessage = String(format: format, item.title)
         rotationGroupAddGesturesDialogError = nil
         rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
         isRotationGroupAddGesturesDialogVisible = false
@@ -387,7 +390,9 @@ struct GesturesWidgetView: View {
         guard provider.rotationGroup.indices.contains(index) else { return }
         let item = provider.rotationGroup[index]
         rotationDeleteDialogItem = item
-        rotationDeleteDialogGestureTitle = item.title
+        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
+        rotationDeleteDialogMessage = String(format: format, item.title)
+        print ("presentRotationDeleteDialog for \(index) \(rotationDeleteDialogMessage)")
         rotationDeleteDialogDismissWorkItem?.cancel()
         isRotationDeleteDialogVisible = false
         isRotationDeleteDialogPresented = true
@@ -407,7 +412,6 @@ struct GesturesWidgetView: View {
         let workItem = DispatchWorkItem {
             isRotationDeleteDialogPresented = false
             rotationDeleteDialogItem = nil
-            rotationDeleteDialogGestureTitle = ""
             rotationDeleteDialogDismissWorkItem = nil
         }
         rotationDeleteDialogDismissWorkItem = workItem
@@ -425,11 +429,6 @@ struct GesturesWidgetView: View {
         }
         onRotationGestureRemove(index)
         dismissRotationDeleteDialog()
-    }
-    
-    private var rotationDeleteDialogMessage: String {
-        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
-        return String(format: format, rotationDeleteDialogGestureTitle)
     }
 
     
@@ -1113,7 +1112,7 @@ private struct RotationGroupAddGesturesDialogOverlay: View {
 private struct RotationDeleteDialogOverlay: View {
     @Binding var isVisible: Bool
     let title: String
-    let message: String
+    @Binding var message: String
     let deleteTitle: String
     let cancelTitle: String
     var onDelete: () -> Void
@@ -1126,7 +1125,7 @@ private struct RotationDeleteDialogOverlay: View {
 
             RotationDeleteGestureDialog(
                 title: title,
-                message: message,
+                message: $message,
                 deleteTitle: deleteTitle,
                 cancelTitle: cancelTitle,
                 onDelete: onDelete,
@@ -1140,7 +1139,7 @@ private struct RotationDeleteDialogOverlay: View {
 
 private struct RotationDeleteGestureDialog: View {
     let title: String
-    let message: String
+    @Binding var message: String
     let deleteTitle: String
     let cancelTitle: String
     var onDelete: () -> Void

@@ -58,6 +58,78 @@ object RoomPersistence {
      * Точечное сохранение апдейта параметра + связанных widget_state.
      * Вызывай каждый раз, когда пришли новые данные по (deviceAddr, parameterId, dataCode).
      */
+//    fun persistParamUpdate(
+//        scope: CoroutineScope,
+//        deviceAddr: Int,
+//        parameterId: Int,
+//        dataCode: Int,
+//        listWidgets: List<Any>
+//    ) {
+//        val repo = WidgetRepoProvider.get()
+//        val p = ParameterProvider.getParameter(deviceAddr, parameterId)
+//        val raw = p.data
+//        val ts = getTimeMillis()
+//
+//
+//        platformLog(
+//            "ROOM_PERSIST",
+//            "persistParamUpdate → device=$deviceAddr, param=$parameterId, code=$dataCode, rawLen=${raw.length}"
+//        )
+//        // 1) сохраняем BaseParameterInfo
+//        scope.launch(Dispatchers.IO) {
+//            repo.upsertParameterInfo(
+//                deviceAddr = deviceAddr,
+//                parameterId = parameterId,
+//                dataCode = dataCode,
+//                tsMs = ts,
+//                info = p
+//            )
+//        }
+//
+//        // 2) для всех виджетов, которые «подвязаны» к этому параметру — upsert в widget_state
+//        listWidgets.forEach { w ->
+//            val base = when (w) {
+//                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
+//                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
+//                is GestureParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is ThresholdParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                is ThresholdParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+//                is GestureOpticParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+//                else -> null
+//            } ?: return@forEach
+//
+//            base.parameterInfoSet
+//                .asSequence()
+//                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
+//                .forEach { info ->
+//                    val b = hexByteAt(raw, info.dataOffset) ?: 0
+//                    scope.launch(Dispatchers.IO) {
+//                        repo.upsertState(
+//                            deviceAddr  = deviceAddr,
+//                            widgetId    = base.widgetId,
+//                            widgetCode  = base.widgetCode,
+//                            parameterId = parameterId,
+//                            dataCode    = dataCode,
+//                            dataOffset  = info.dataOffset,
+//                            tsMs        = ts,
+//                            valueText   = raw,
+//                            valueI1     = b.toLong(),
+//                            valueI2     = null,
+//                            valueI3     = null
+//                        )
+//                    }
+//                }
+//        }
+//    }
+
     fun persistParamUpdate(
         scope: CoroutineScope,
         deviceAddr: Int,
@@ -70,11 +142,11 @@ object RoomPersistence {
         val raw = p.data
         val ts = getTimeMillis()
 
-
         platformLog(
             "ROOM_PERSIST",
             "persistParamUpdate → device=$deviceAddr, param=$parameterId, code=$dataCode, rawLen=${raw.length}"
         )
+
         // 1) сохраняем BaseParameterInfo
         scope.launch(Dispatchers.IO) {
             repo.upsertParameterInfo(
@@ -86,19 +158,25 @@ object RoomPersistence {
             )
         }
 
-        // 2) для всех виджетов, которые «подвязаны» к этому параметру — upsert в widget_state
+        // 2) для всех виджетов, которые подвязаны к этому параметру — upsert в widget_state
+        var rows = 0
+
         listWidgets.forEach { w ->
             val base = when (w) {
-                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
-                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
+                is BaseParameterWidgetEStruct   -> w.baseParameterWidgetStruct
+                is BaseParameterWidgetSStruct   -> w.baseParameterWidgetStruct
+                is GestureParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is GestureOpticParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
                 is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
                 is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetEStruct   -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is PlotParameterWidgetSStruct   -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
                 is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
                 is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
                 is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
                 is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                is ThresholdParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                is ThresholdParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
                 else -> null
             } ?: return@forEach
 
@@ -107,6 +185,16 @@ object RoomPersistence {
                 .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
                 .forEach { info ->
                     val b = hexByteAt(raw, info.dataOffset) ?: 0
+                    rows++
+
+                    platformLog(
+                        "ROOM_PERSIST",
+                        "widget_state WRITE → mac=${WidgetRepoProvider.mac()} dev=$deviceAddr " +
+                                "wid=${base.widgetId} wcode=${base.widgetCode} " +
+                                "pid=$parameterId dcode=$dataCode offset=${info.dataOffset} " +
+                                "byte=$b raw=$raw"
+                    )
+
                     scope.launch(Dispatchers.IO) {
                         repo.upsertState(
                             deviceAddr  = deviceAddr,
@@ -124,8 +212,15 @@ object RoomPersistence {
                     }
                 }
         }
-    }
 
+        if (rows == 0) {
+            platformLog(
+                "ROOM_PERSIST",
+                "widget_state SKIP → НИ ОДНОГО виджета не найдено " +
+                        "для dev=$deviceAddr param=$parameterId code=$dataCode raw=$raw"
+            )
+        }
+    }
     fun persisListWidgets(
         scope: CoroutineScope,
         deviceAddr: Int,

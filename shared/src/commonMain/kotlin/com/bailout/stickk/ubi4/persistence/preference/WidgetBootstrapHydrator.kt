@@ -1,10 +1,15 @@
 package com.bailout.stickk.ubi4.persistence.preference
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import com.bailout.stickk.ubi4.data.local.db.extractKey
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toEndStruct
 import com.bailout.stickk.ubi4.data.state.RestoredState
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
@@ -52,9 +57,6 @@ object WidgetBootstrapHydrator {
             platformLog("WIDGET_SOURCE", "restoreFromDb: mac is blank → кеш не используем")
             return
         }
-
-
-
 
         platformLog("WIDGET_SOURCE", "restoreFromDb: mac=$mac → читаем из БД")
 
@@ -119,7 +121,9 @@ object WidgetBootstrapHydrator {
             // --- мастер ---
             masterParams.forEach { info ->
                 val p = ParameterProvider.getParameter(masterAddr, info.ID)
-
+                if (info.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) {
+                    platformLog("BOOTSTRAP_BINDING", "try hydrate binding:  pid=${info.ID} dcode=${info.dataCode}")
+                }
                 val lastState = repo.loadLastState(
                     deviceAddr  = masterAddr,
                     parameterId = info.ID,
@@ -201,53 +205,50 @@ object WidgetBootstrapHydrator {
     suspend fun replayWidgetEventsFromDb(deviceAddr: Int) {
         UiState.listWidgets.forEach { widget ->
             val base = widget.baseStructOrNull() ?: return@forEach
-            val info = base.parameterInfoSet.firstOrNull() ?: return@forEach
 
-            val ref = ParameterRef(
-                addressDevice = info.deviceAddress,
-                parameterID = info.parameterID,
-                dataCode = info.dataCode
-            )
+            // ВАЖНО: идём по всем параметрам виджета, а не только по первому
+            base.parameterInfoSet.forEach { info ->
+                val ref = ParameterRef(
+                    addressDevice = info.deviceAddress,
+                    parameterID   = info.parameterID,
+                    dataCode      = info.dataCode
+                )
 
-            when (base.widgetCode) {
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
-                    slidersFlow.tryEmit(ref)
+                when (base.widgetCode) {
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                        slidersFlow.tryEmit(ref)
+                    }
+
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                        switcherFlow.tryEmit(ref)
+                    }
+
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                        thresholdFlow.tryEmit(ref)
+                        widgetsMergeEventFlow.tryEmit(ref)
+                    }
                 }
 
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
-                    switcherFlow.tryEmit(ref)
-                }
+                // А вот это — завязка на конкретные dataCode
+                when (info.dataCode) {
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                        rotationGroupFlow.tryEmit(ref)
+                    }
 
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
-                    thresholdFlow.tryEmit(ref)
-                    widgetsMergeEventFlow.tryEmit(ref)
-                }
-
-                PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
-
-                }
-            }
-            when (info.dataCode) {
-                PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
-                    // группа ротации
-                    rotationGroupFlow.tryEmit(ref)
-                }
-
-                PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
-                    // биндинги (SPR)
-                    bindingGroupFlow.tryEmit(ref)
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+                        bindingGroupFlow.tryEmit(ref)
+                    }
                 }
             }
-
-
-            platformLog(
-                "BOOTSTRAP",
-                "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
-            )
         }
-    }
 
+        platformLog(
+            "BOOTSTRAP",
+            "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
+        )
+        updateFlow.tryEmit(0)
+    }
     // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
 
     private fun Any.baseStructOrNull() =
@@ -270,5 +271,161 @@ object WidgetBootstrapHydrator {
             else -> null
         }
 
+    fun Any.primaryParamOrNull(): WidgetParamRef? {
+        val base = baseStructOrNull() ?: return null
+        val info = base.parameterInfoSet.firstOrNull() ?: return null
+
+        return WidgetParamRef(
+            deviceAddr  = info.deviceAddress,
+            parameterId = info.parameterID,
+            dataCode    = info.dataCode
+        )
+    }
+
+    fun requestWidgetsCommandKmm(
+        sendCommand: (ByteArray) -> Unit
+    ) {
+        // чтобы не долбить один и тот же параметр по 10 раз
+        val requested = mutableSetOf<Triple<Int, Int, Int>>()  // (addr, pid, dcode)
+
+        // ---------------------------------------------------------
+        // 1. ЗАПРОСЫ ОТ ВИДЖЕТОВ
+        // ---------------------------------------------------------
+        UiState.listWidgets.forEach { widget ->
+            val primary = widget.primaryParamOrNull() ?: run {
+                platformLog("WIDGET_REQ", "skip widget=${widget::class.simpleName} (нет параметров)")
+                return@forEach
+            }
+
+            val key = Triple(primary.deviceAddr, primary.parameterId, primary.dataCode)
+            if (!requested.add(key)) {
+                platformLog(
+                    "WIDGET_REQ",
+                    "dup skip dev=${primary.deviceAddr} pid=${primary.parameterId} dcode=${primary.dataCode}"
+                )
+                return@forEach
+            }
+
+            when (widget) {
+
+                // ---------- SLIDER ----------
+                is SliderParameterWidgetEStruct,
+                is SliderParameterWidgetSStruct -> {
+                    val cmd = BLECommands.requestSlider(primary.deviceAddr, primary.parameterId)
+                    sendCommand(cmd)
+                    platformLog("WIDGET_REQ", "SLIDER: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                }
+
+                // ---------- SWITCH ----------
+                is SwitchParameterWidgetEStruct,
+                is SwitchParameterWidgetSStruct -> {
+                    val cmd = BLECommands.requestSwitcher(primary.deviceAddr, primary.parameterId)
+                    sendCommand(cmd)
+                    platformLog("WIDGET_REQ", "SWITCHER: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                }
+
+                // ---------- THRESHOLD ----------
+                is ThresholdParameterWidgetEStruct,
+                is ThresholdParameterWidgetSStruct -> {
+                    val cmd = BLECommands.requestThresholds(primary.deviceAddr, primary.parameterId)
+                    sendCommand(cmd)
+                    platformLog("WIDGET_REQ", "THRESHOLD: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                }
+
+                // ---------- GESTURE (селектор активного жеста как виджет) ----------
+                is GestureParameterWidgetEStruct -> {
+                    val cmd = BLECommands.requestActiveGesture(primary.deviceAddr, primary.parameterId)
+                    sendCommand(cmd)
+                    platformLog("WIDGET_REQ", "ACTIVE_GESTURE(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                }
+
+                // ---------- OPTIC BINDING как виджет ----------
+                is GestureOpticParameterWidgetEStruct -> {
+                    val cmd = BLECommands.requestBindingGroup(primary.deviceAddr, primary.parameterId)
+                    sendCommand(cmd)
+                    platformLog("WIDGET_REQ", "OPTIC_BINDING(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                }
+
+                // ---------- BASE WIDGETS — тут как раз РОТАЦИИ, БИНДИНГИ, БАТАРЕЙКА ----------
+                is BaseParameterWidgetEStruct,
+                is BaseParameterWidgetSStruct -> {
+                    when (primary.dataCode) {
+
+                        // ROTATION GROUP
+                        PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                            val cmd = BLECommands.requestRotationGroup(primary.deviceAddr, primary.parameterId)
+                            sendCommand(cmd)
+                            platformLog(
+                                "WIDGET_REQ",
+                                "ROTATION_GROUP(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                            )
+                        }
+
+                        // BINDING GROUP
+                        PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+                            val cmd = BLECommands.requestBindingGroup(primary.deviceAddr, primary.parameterId)
+                            sendCommand(cmd)
+                            platformLog(
+                                "WIDGET_REQ",
+                                "BINDING_GROUP(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                            )
+                        }
+
+
+                        else -> {
+                            platformLog(
+                                "WIDGET_REQ",
+                                "BASE_WIDGET(widget): dev=${primary.deviceAddr} pid=${primary.parameterId} dcode=${primary.dataCode} → skip"
+                            )
+                        }
+                    }
+                }
+
+                // ---------- Остальное ----------
+                else -> {
+                    platformLog("WIDGET_REQ", "UNHANDLED widget=${widget::class.simpleName} → skip")
+                }
+            }
+        }
+
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            val addr = sub.deviceAddress
+
+            sub.parametersList.forEach { info ->
+                val pid   = info.ID
+                val dcode = info.dataCode
+
+                val key = Triple(addr, pid, dcode)
+                if (!requested.add(key)) return@forEach
+
+                when (dcode) {
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
+                        val cmd = BLECommands.requestActiveGesture(addr, pid)
+                        sendCommand(cmd)
+                        platformLog("WIDGET_REQ", "ACTIVE_GESTURE(sub): addr=$addr pid=$pid")
+                    }
+
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+                        val cmd = BLECommands.requestBindingGroup(addr, pid)
+                        sendCommand(cmd)
+                        platformLog("WIDGET_REQ", "BINDING_GROUP(sub): addr=$addr pid=$pid")
+                    }
+
+                    PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                        val cmd = BLECommands.requestRotationGroup(addr, pid)
+                        sendCommand(cmd)
+                        platformLog("WIDGET_REQ", "ROTATION_GROUP(sub): addr=$addr pid=$pid")
+                    }
+                }
+            }
+        }
+    }
+
+
+    data class WidgetParamRef(
+        val deviceAddr: Int,
+        val parameterId: Int,
+        val dataCode: Int
+    )
 
 }

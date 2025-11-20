@@ -27,7 +27,6 @@ object UiState {
 
 
 
-
     init {
         listWidgets = mutableSetOf()
         activeGestureFragmentFilterFlow = MutableStateFlow(1)

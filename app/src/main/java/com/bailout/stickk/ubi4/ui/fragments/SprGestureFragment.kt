@@ -52,8 +52,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        adapterWidgets.notifyDataSetChanged()
-        syncWidgetsFromDb()
+        updateFlow.tryEmit(0)
     }
 
     @SuppressLint("CutPasteId", "LogNotTimber")

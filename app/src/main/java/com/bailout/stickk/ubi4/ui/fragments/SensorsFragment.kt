@@ -35,7 +35,7 @@ class SensorsFragment : BaseWidgetsFragment() {
 
     override fun onResume() {
         super.onResume()
-        syncWidgetsFromDb()
+        updateFlow.tryEmit(0)
     }
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

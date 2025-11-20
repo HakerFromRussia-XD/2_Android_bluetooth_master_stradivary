@@ -56,6 +56,8 @@ import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator.requestWidgetsCommandKmm
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
@@ -212,9 +214,28 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-//        binding.runCommandBtn.setOnClickListener {
+        binding.runCommandBtn.setOnClickListener {
+            lifecycleScope.launch {
 //
-//        }
+//                // 1) запросить ВСЕ параметры по всем виджетам
+//                requestWidgetsCommandKmm { bytes ->
+//                    // bytes — это готовая команда BLE
+//                    main.bleCommandWithQueue(
+//                        bytes,
+//                        MAIN_CHANNEL_CHARACTERISTIC,
+//                        WRITE
+//                    ) {}
+//                }
+                WidgetBootstrapHydrator.restoreFromDb(0)
+                // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
+                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+                // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
+                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+                updateFlow.emit(0)
+            }
+        }
+
+
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -530,4 +551,5 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
     }
+
 }

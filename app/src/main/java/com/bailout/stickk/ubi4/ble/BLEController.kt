@@ -37,12 +37,14 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -188,24 +190,23 @@ class BLEController() {
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
-                    WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
-                    main.lifecycleScope.launch {
-                        WidgetBootstrapHydrator.restoreFromDb(0)
-                        // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
-                        WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-                        // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
-                        WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
-                    }
+
+
+                    WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+                    // 1) запросить ВСЕ параметры по всем виджетам
 
 
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
                         main.lifecycleScope.launch {
+
                             firstNotificationRequest()
                         }
                     }
+
+
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
@@ -229,8 +230,6 @@ class BLEController() {
 
 
 
-
-
     private suspend fun firstNotificationRequest() {
         var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
@@ -247,6 +246,10 @@ class BLEController() {
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
 
+            WidgetBootstrapHydrator.restoreFromDb(0)
+            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+            updateFlow.emit(0)
             if (needReRequestTransferFlow) {
                 Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
                 bleCommand(

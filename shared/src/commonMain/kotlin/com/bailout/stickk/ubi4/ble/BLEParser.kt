@@ -77,6 +77,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
@@ -629,14 +630,32 @@ class BLEParser(
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
             Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
-        listWidgets.clear()
-        UiState.resetWidgetRequests()
-        UiState.labelCodesByOffset.clear()
+        val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 
-        coroutineScope.launch {
-            widgetsLoadingProgressTotal = 0
-            widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(0, 0))
-            updateFlow.emit(0)
+
+        if (!hadWidgetsFromCache) {
+            // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
+            platformLog("INIT_TEST_LOG", "run  if (!hadWidgetsFromCache")
+            bleManager.sendBytesKmm(
+                BLECommands.requestInicializeInformation(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+            platformLog("INIT_TEST_LOG", "run  if (!hadWidgetsFromCache -2")
+
+            listWidgets.clear()
+            UiState.resetWidgetRequests()
+            UiState.labelCodesByOffset.clear()
+            coroutineScope.launch {
+                widgetsLoadingFlow.tryEmit(Unit)
+                widgetsLoadingProgressTotal = 1
+                widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
+                updateFlow.emit(0)   // полностью перерисуем
+            }
+        } else {
+            // ТЁПЛЫЙ СТАРТ — виджеты уже подняты из БД, их НЕ ТРОГАЕМ
+            UiState.resetWidgetRequests()
+            UiState.labelCodesByOffset.clear()
         }
 
         val progressTotal  =
@@ -1016,6 +1035,13 @@ class BLEParser(
                 listWidgets = listWidgets.toList()
             )
 
+            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+                bleManager.sendBytesKmm(
+                    cmd,
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
+            }
 
         }
     }
@@ -1550,71 +1576,5 @@ class BLEParser(
         return "00"
     }
 
-    private fun hexByteAt(raw: String, offset: Int): Int? {
-        val i = offset * 2
-        return if (i + 2 <= raw.length) raw.substring(i, i + 2).toInt(16) else null
-    }
-
-    // persist в Room
-
-
-
-
-    private fun persistParamToRoom(deviceAddr: Int, parameterId: Int, dataCode: Int) {
-        val p   = ParameterProvider.getParameter(deviceAddr, parameterId)
-        val raw = p.data
-        val ts  = getTimeMillis()
-        val repo = WidgetRepoProvider.get()
-
-        coroutineScope.launch(Dispatchers.IO) {
-            repo.upsertParameterInfo(
-                deviceAddr = deviceAddr,
-                parameterId = parameterId,
-                dataCode = dataCode,
-                tsMs = ts,
-                info = p
-            )
-        }
-
-        listWidgets.forEach { w ->
-            val base = when (w) {
-                is BaseParameterWidgetEStruct -> w.baseParameterWidgetStruct
-                is BaseParameterWidgetSStruct -> w.baseParameterWidgetStruct
-                is CommandParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is CommandParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is PlotParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is SliderParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is SliderParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                is SwitchParameterWidgetEStruct -> w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-                is SwitchParameterWidgetSStruct -> w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                else -> null
-            } ?: return@forEach
-
-            base.parameterInfoSet
-                .asSequence()
-                .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
-                .forEach { info ->
-                    val b = hexByteAt(raw, info.dataOffset) ?: 0
-                    coroutineScope.launch(Dispatchers.IO) {
-                        repo.upsertState(
-                            deviceAddr  = deviceAddr,
-                            widgetId    = base.widgetId,
-                            widgetCode  = base.widgetCode,
-                            parameterId = parameterId,
-                            dataCode    = dataCode,
-                            dataOffset  = info.dataOffset,
-                            tsMs        = ts,
-                            valueText   = raw,
-                            valueI1     = b.toLong(),
-                            valueI2     = null,
-                            valueI3     = null
-                        )
-                        val c = repo.count()
-                        platformLog("ROOM_DBG", "rows=$c (after upsert) device=$deviceAddr pid=$parameterId code=$dataCode wid=${base.widgetId} off=${info.dataOffset}")
-                    }
-                }
-        }
-    }
 
 }

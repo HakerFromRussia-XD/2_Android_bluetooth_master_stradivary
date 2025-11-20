@@ -42,7 +42,7 @@ object WidgetState {
         slidersFlow = MutableSharedFlow()
         thresholdFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
-        bindingGroupFlow = MutableSharedFlow()
+        bindingGroupFlow = MutableSharedFlow(replay = 1)
         activeGestureFlow = MutableSharedFlow()
         selectGestureModeFlow = MutableSharedFlow()
         spinnerFlow = MutableSharedFlow()

@@ -14,13 +14,17 @@ struct GesturesWidgetView: View {
     // MARK: - Dependencies
     @ObservedObject var provider: GesturesProvider
     @State private var highlightOffsetX: CGFloat = 0
-    @State private var isRotationDialogPresented = false
-    @State private var isRotationDialogVisible = false
-    @State private var rotationDialogDismissWorkItem: DispatchWorkItem?
-    @State private var rotationDialogSelection: Set<Int> = []
-    @State private var rotationDialogError: String? = nil
+    @State private var isRotationGroupAddGesturesDialogPresented = false
+    @State private var isRotationGroupAddGesturesDialogVisible = false
+    @State private var rotationGroupAddGesturesDialogDismissWorkItem: DispatchWorkItem?
+    @State private var rotationGroupAddGesturesDialogSelection: Set<Int> = []
+    @State private var rotationGroupAddGesturesDialogError: String? = nil
+    @State private var isRotationDeleteDialogPresented = false
+    @State private var isRotationDeleteDialogVisible = false
+    @State private var rotationDeleteDialogDismissWorkItem: DispatchWorkItem?
+    @State private var rotationDeleteDialogItem: GesturesProvider.GestureDisplayItem?
 
-    var rotationDialogAnimationDuration: Double { 0.3 }
+    var animationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
@@ -58,20 +62,33 @@ struct GesturesWidgetView: View {
             .background(Color("ubi4_back"))
             
         }
-        .fullScreenCover(isPresented: $isRotationDialogPresented) {
+        .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
-                isVisible: $isRotationDialogVisible,
+                isVisible: $isRotationGroupAddGesturesDialogVisible,
                 title: NSLocalizedString("rotation_dialog_title", comment: ""),
                 saveTitle: NSLocalizedString("dialog_save", comment: ""),
                 cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 options: rotationDialogOptions,
-                selection: $rotationDialogSelection,
-                errorMessage: rotationDialogError,
+                selection: $rotationGroupAddGesturesDialogSelection,
+                errorMessage: rotationGroupAddGesturesDialogError,
                 onOptionTap: { option in
                     toggleRotationDialogSelection(option: option)
                 },
                 onSave: handleRotationDialogSave,
-                onCancel: dismissRotationDialog
+                onCancel: dismissRotationGroupAddGesturesDialog
+            )
+            .interactiveDismissDisabled()
+            .background(ClearFullScreenBackgroundView())
+        }
+        .fullScreenCover(isPresented: $isRotationDeleteDialogPresented) {
+            RotationDeleteDialogOverlay(
+                isVisible: $isRotationDeleteDialogVisible,
+                title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
+                message: rotationDeleteDialogMessage,
+                deleteTitle: NSLocalizedString("rotation_delete_dialog_delete", comment: ""),
+                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                onDelete: handleRotationDeleteConfirm,
+                onCancel: dismissRotationDeleteDialog
             )
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
@@ -267,15 +284,15 @@ struct GesturesWidgetView: View {
             VStack(spacing: 12) {
                 RotationGesturesReorderView(
                     items: $provider.rotationGroup,
-                    onRemove: {
-                        index in onRotationGestureRemove(index)
+                    onRemove: { index in
+//                        presentRotationDeleteDialog(for: index)
                         print("onRemove \(index)")
                     },
                     onReorder: { items in
                         onRotationGesturesReorder(items)
                     }
                 )
-                Button(action: presentRotationDialog) {
+                Button(action: presentRotationGroupAddGesturesDialog) {
                     Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor( .white)
@@ -300,70 +317,118 @@ struct GesturesWidgetView: View {
         }
     }
 
-    private func presentRotationDialog() {
-        rotationDialogSelection = Set(provider.rotationGroup.map { $0.id })
-        rotationDialogError = nil
-        rotationDialogDismissWorkItem?.cancel()
-        isRotationDialogVisible = false
-        isRotationDialogPresented = true
+    private func presentRotationGroupAddGesturesDialog() {
+        rotationGroupAddGesturesDialogSelection = Set(provider.rotationGroup.map { $0.id })
+        rotationGroupAddGesturesDialogError = nil
+        rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
+        isRotationGroupAddGesturesDialogVisible = false
+        isRotationGroupAddGesturesDialogPresented = true
         DispatchQueue.main.async {
-            withAnimation(.easeInOut(duration: rotationDialogAnimationDuration)) {
-                isRotationDialogVisible = true
+            withAnimation(.easeInOut(duration: animationDuration)) {
+                isRotationGroupAddGesturesDialogVisible = true
             }
         }
     }
 
-    private func dismissRotationDialog() {
-        rotationDialogError = nil
-        guard isRotationDialogPresented else { return }
-        withAnimation(.easeInOut(duration: rotationDialogAnimationDuration)) {
-            isRotationDialogVisible = false
+    private func dismissRotationGroupAddGesturesDialog() {
+        rotationGroupAddGesturesDialogError = nil
+        guard isRotationGroupAddGesturesDialogPresented else { return }
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            isRotationGroupAddGesturesDialogVisible = false
         }
-        rotationDialogDismissWorkItem?.cancel()
+        rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem {
-            isRotationDialogPresented = false
-            rotationDialogDismissWorkItem = nil
+            isRotationGroupAddGesturesDialogPresented = false
+            rotationGroupAddGesturesDialogDismissWorkItem = nil
         }
-        rotationDialogDismissWorkItem = workItem
+        rotationGroupAddGesturesDialogDismissWorkItem = workItem
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + rotationDialogAnimationDuration,
+            deadline: .now() + animationDuration,
             execute: workItem
         )
     }
 
     private func handleRotationDialogSave() {
-        let selected = rotationDialogOptions.filter { rotationDialogSelection.contains($0.id) }
+        let selected = rotationDialogOptions.filter { rotationGroupAddGesturesDialogSelection.contains($0.id) }
         let gestures = selected.map { $0.item }
         onRotationGestureAdd(gestures)
-        dismissRotationDialog()
+        dismissRotationGroupAddGesturesDialog()
     }
 
-    private func toggleRotationDialogSelection(option: RotationGestureSelectionOption) {
-        if rotationDialogSelection.contains(option.id) {
-            rotationDialogSelection.remove(option.id)
-            rotationDialogError = nil
+    private func toggleRotationDialogSelection(option: RotationGroupAddGesturesSelectionOption) {
+        if rotationGroupAddGesturesDialogSelection.contains(option.id) {
+            rotationGroupAddGesturesDialogSelection.remove(option.id)
+            rotationGroupAddGesturesDialogError = nil
             return
         }
 
         let maxCount = RotationGroupAddGesturesDialog.Constants.maxGestures
-        if rotationDialogSelection.count >= maxCount {
-            rotationDialogError = NSLocalizedString("rotation_dialog_limit_message", comment: "")
+        if rotationGroupAddGesturesDialogSelection.count >= maxCount {
+            rotationGroupAddGesturesDialogError = NSLocalizedString("rotation_dialog_limit_message", comment: "")
             return
         }
 
-        rotationDialogSelection.insert(option.id)
-        rotationDialogError = nil
+        rotationGroupAddGesturesDialogSelection.insert(option.id)
+        rotationGroupAddGesturesDialogError = nil
     }
 
-    private var rotationDialogOptions: [RotationGestureSelectionOption] {
+    private var rotationDialogOptions: [RotationGroupAddGesturesSelectionOption] {
         let factory = provider.factoryGestures.map {
-            RotationGestureSelectionOption(item: $0, type: .factory)
+            RotationGroupAddGesturesSelectionOption(item: $0, type: .factory)
         }
         let custom = provider.customGestures.map {
-            RotationGestureSelectionOption(item: $0, type: .custom)
+            RotationGroupAddGesturesSelectionOption(item: $0, type: .custom)
         }
         return factory + custom
     }
+    
+    private func presentRotationDeleteDialog(for index: Int) {
+         guard provider.rotationGroup.indices.contains(index) else { return }
+         rotationDeleteDialogItem = provider.rotationGroup[index]
+         rotationDeleteDialogDismissWorkItem?.cancel()
+         isRotationDeleteDialogVisible = false
+         isRotationDeleteDialogPresented = true
+         DispatchQueue.main.async {
+             withAnimation(.easeInOut(duration: animationDuration)) {
+                 isRotationDeleteDialogVisible = true
+             }
+         }
+     }
+
+    private func dismissRotationDeleteDialog() {
+        guard isRotationDeleteDialogPresented else { return }
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            isRotationDeleteDialogVisible = false
+        }
+        rotationDeleteDialogDismissWorkItem?.cancel()
+        let workItem = DispatchWorkItem {
+            isRotationDeleteDialogPresented = false
+            rotationDeleteDialogItem = nil
+            rotationDeleteDialogDismissWorkItem = nil
+        }
+        rotationDeleteDialogDismissWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + animationDuration,
+            execute: workItem
+        )
+    }
+
+    private func handleRotationDeleteConfirm() {
+        guard let item = rotationDeleteDialogItem,
+            let index = provider.rotationGroup.firstIndex(of: item) else {
+            dismissRotationDeleteDialog()
+            return
+        }
+        onRotationGestureRemove(index)
+        dismissRotationDeleteDialog()
+    }
+
+    private var rotationDeleteDialogMessage: String {
+        let gestureTitle = rotationDeleteDialogItem?.title ?? ""
+        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
+        return String(format: format, gestureTitle)
+    }
+
     
     
     // MARK: - SPR Group View
@@ -547,8 +612,6 @@ private struct RotationGesturesReorderView: View {
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
-    @State private var pendingDeleteGesture: GesturesProvider.GestureDisplayItem?
-    @State private var pendingDeleteIndex: Int?
 
     private let activationDuration: TimeInterval = 0.001
     private let releaseAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)
@@ -562,7 +625,7 @@ private struct RotationGesturesReorderView: View {
                         isDragging: draggedItem == item,
                         isLast: item == items.last,
                         onRemove: {
-                            presentDeleteDialog(for: item)
+//                            presentDeleteDialog(for: item)
                         },
                         handle: {
                             Image(systemName: "line.3.horizontal")
@@ -596,26 +659,7 @@ private struct RotationGesturesReorderView: View {
                     .stroke(Color("ubi4_gray_border"), lineWidth: 1)
             )
             .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-
-            if let pendingDeleteGesture, let pendingDeleteIndex {
-                RotationDeleteDialogOverlay(
-                    title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
-                    message: String(
-                        format: NSLocalizedString("rotation_delete_dialog_message", comment: ""),
-                        "\"\(pendingDeleteGesture.title)\""
-                    ),
-                    deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
-                    cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
-                    onDelete: {
-                        onRemove(pendingDeleteIndex)
-                        dismissDeleteDialog()
-                    },
-                    onCancel: dismissDeleteDialog
-                )
-                .transition(.opacity)
-            }
         }
-        .animation(.easeInOut(duration: 0.2), value: pendingDeleteGesture != nil)
     }
     
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
@@ -676,17 +720,6 @@ private struct RotationGesturesReorderView: View {
         } else {
             return 0
         }
-    }
-    
-    private func presentDeleteDialog(for item: GesturesProvider.GestureDisplayItem) {
-        guard let index = items.firstIndex(of: item) else { return }
-        pendingDeleteGesture = item
-        pendingDeleteIndex = index
-    }
-
-    private func dismissDeleteDialog() {
-        pendingDeleteGesture = nil
-        pendingDeleteIndex = nil
     }
 
     private func updateOrder(with drag: DragGesture.Value) {
@@ -901,10 +934,10 @@ private struct RotationGroupAddGesturesDialog: View {
     let title: String
     let saveTitle: String
     let cancelTitle: String
-    let options: [RotationGestureSelectionOption]
+    let options: [RotationGroupAddGesturesSelectionOption]
     @Binding var selection: Set<Int>
     let errorMessage: String?
-    var onOptionTap: (RotationGestureSelectionOption) -> Void
+    var onOptionTap: (RotationGroupAddGesturesSelectionOption) -> Void
     var onSave: () -> Void
     var onCancel: () -> Void
 
@@ -1027,7 +1060,7 @@ private struct RotationGroupAddGesturesDialog: View {
     }
 }
 
-private struct RotationGestureSelectionOption: Identifiable, Hashable {
+private struct RotationGroupAddGesturesSelectionOption: Identifiable, Hashable {
     enum SourceType: Equatable {
         case factory
         case custom
@@ -1044,10 +1077,10 @@ private struct RotationGroupAddGesturesDialogOverlay: View {
     let title: String
     let saveTitle: String
     let cancelTitle: String
-    let options: [RotationGestureSelectionOption]
+    let options: [RotationGroupAddGesturesSelectionOption]
     @Binding var selection: Set<Int>
     let errorMessage: String?
-    var onOptionTap: (RotationGestureSelectionOption) -> Void
+    var onOptionTap: (RotationGroupAddGesturesSelectionOption) -> Void
     var onSave: () -> Void
     var onCancel: () -> Void
 
@@ -1074,6 +1107,7 @@ private struct RotationGroupAddGesturesDialogOverlay: View {
 }
 
 private struct RotationDeleteDialogOverlay: View {
+    @Binding var isVisible: Bool
     let title: String
     let message: String
     let deleteTitle: String
@@ -1086,24 +1120,22 @@ private struct RotationDeleteDialogOverlay: View {
             Color.black.opacity(0.65)
                 .ignoresSafeArea()
 
-            VStack {
-                Spacer()
-                RotationDeleteDialog(
-                    title: title,
-                    message: message,
-                    deleteTitle: deleteTitle,
-                    cancelTitle: cancelTitle,
-                    onDelete: onDelete,
-                    onCancel: onCancel
-                )
-                Spacer()
-            }
-            .padding(.horizontal, 32)
+            RotationDeleteGestureDialog(
+                title: title,
+                message: message,
+                deleteTitle: deleteTitle,
+                cancelTitle: cancelTitle,
+                onDelete: onDelete,
+                onCancel: onCancel
+            )
+            .padding(.horizontal, 24)
         }
+        .opacity(isVisible ? 1 : 0)
+        .animation(.easeInOut(duration: 0.3), value: isVisible)
     }
 }
 
-private struct RotationDeleteDialog: View {
+private struct RotationDeleteGestureDialog: View {
     let title: String
     let message: String
     let deleteTitle: String
@@ -1112,56 +1144,59 @@ private struct RotationDeleteDialog: View {
     var onCancel: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.custom("SFProText-Bold", size: 18))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 16)
-                    .padding(.horizontal, 16)
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.custom("SFProText-Bold", size: 18))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 16)
 
-                Text(message)
-                    .font(.custom("SFProDisplay-Light", size: 13))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
+            Text(message)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(Color("ubi4_deactivate_text"))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onDelete) {
+                    Text(deleteTitle)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color("ubi4_no_system_red"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onCancel) {
+                    Text(cancelTitle)
+                        .font(.system(size: 16, weight: .light))
+                        .foregroundColor(Color("ubi4_yes_system_blue"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
-
-            Divider()
-                .background(Color("ubi4_gray_border"))
-                .padding(.top, 16)
-
-            Button(action: onDelete) {
-                Text(deleteTitle)
-                    .font(.custom("SFProText-Bold", size: 18))
-                    .foregroundColor(Color("ubi4_no_system_red"))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-            }
-            .buttonStyle(.plain)
-
-            Divider()
-                .background(Color("ubi4_gray_border"))
-
-            Button(action: onCancel) {
-                Text(cancelTitle)
-                    .font(.custom("SFProDisplay-Regular", size: 18))
-                    .foregroundColor(Color("ubi4_yes_system_blue"))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-            }
-            .buttonStyle(.plain)
         }
+        .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color("ubi4_gray"))
+                .fill(Color("ubi4_back"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                )
                 .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
         )
     }
 }
-

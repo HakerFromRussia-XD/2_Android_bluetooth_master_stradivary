@@ -894,10 +894,11 @@ private struct RotationGroupGesturesDialog: View {
     private var dialogContent: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.custom("sf_pro_text_bold", size: 20))
+                .font(.custom("SFProText-Bold", size: 20))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 16)
 
             ScrollView {
                 VStack(spacing: 0) {
@@ -939,12 +940,14 @@ private struct RotationGroupGesturesDialog: View {
                             .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                     )
             )
+            .padding(.horizontal, 16)
 
             if let errorMessage {
                 Text(errorMessage)
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(Color("ubi4_no_system_red"))
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
             }
 
             VStack(spacing: 0) {
@@ -957,7 +960,8 @@ private struct RotationGroupGesturesDialog: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Color("ubi4_yes_system_blue"))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
@@ -971,11 +975,12 @@ private struct RotationGroupGesturesDialog: View {
                         .foregroundColor(Color("ubi4_yes_system_blue"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding([.top, .leading, .trailing], 20)
+        .padding(.top, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("ubi4_back"))
@@ -1019,7 +1024,7 @@ private struct RotationDialogOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.45)
+            Color.clear
                 .ignoresSafeArea()
 
             RotationGroupGesturesDialog(

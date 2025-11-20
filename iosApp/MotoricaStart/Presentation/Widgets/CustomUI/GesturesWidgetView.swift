@@ -15,9 +15,12 @@ struct GesturesWidgetView: View {
     @ObservedObject var provider: GesturesProvider
     @State private var highlightOffsetX: CGFloat = 0
     @State private var isRotationDialogPresented = false
+    @State private var isRotationDialogVisible = false
+    @State private var rotationDialogDismissWorkItem: DispatchWorkItem?
     @State private var rotationDialogSelection: Set<Int> = []
     @State private var rotationDialogError: String? = nil
 
+    var rotationDialogAnimationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
@@ -31,27 +34,6 @@ struct GesturesWidgetView: View {
     
     // MARK: - Body
     var body: some View {
-        //        VStack(spacing: 16) {
-        //            segmentSelector
-        //            Group {
-        //                activeGestureView
-        //
-        //                switch provider.selectedSegment {
-        //                case .collection:
-        //                    collectionView
-        //                case .rotationGroup:
-        //                    rotationGroupView
-        //                case .sprGroup:
-        //                    sprGroupView
-        //                }
-        //            }
-        //            .animation(nil, value: provider.selectedSegment)
-        //        }
-        //        .transaction { transaction in
-        //            transaction.animation = nil
-        //        }
-        //        .padding(.horizontal, 8)
-        //        .background(Color("ubi4_back"))
         ZStack {
             VStack(spacing: 16) {
                 segmentSelector
@@ -78,11 +60,12 @@ struct GesturesWidgetView: View {
         }
         .fullScreenCover(isPresented: $isRotationDialogPresented) {
             RotationDialogOverlay(
+                isVisible: $isRotationDialogVisible,
                 title: NSLocalizedString("rotation_dialog_title", comment: ""),
                 saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
                 cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
                 options: rotationDialogOptions,
-                selection: rotationDialogSelection,
+                selection: $rotationDialogSelection,
                 errorMessage: rotationDialogError,
                 onOptionTap: { option in
                     toggleRotationDialogSelection(option: option)
@@ -90,7 +73,27 @@ struct GesturesWidgetView: View {
                 onSave: handleRotationDialogSave,
                 onCancel: dismissRotationDialog
             )
+            .interactiveDismissDisabled()
         }
+//        .overlay {
+//            if isRotationDialogPresented {
+//                RotationDialogOverlay(
+//                    title: NSLocalizedString("rotation_dialog_title", comment: ""),
+//                    saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
+//                    cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+//                    options: rotationDialogOptions,
+//                    selection: rotationDialogSelection,
+//                    errorMessage: rotationDialogError,
+//                    onOptionTap: { option in
+//                        toggleRotationDialogSelection(option: option)
+//                    },
+//                    onSave: handleRotationDialogSave,
+//                    onCancel: dismissRotationDialog
+//                )
+//                .transition(.opacity)
+//            }
+//        }
+//        .animation(.easeInOut(duration: 0.3), value: isRotationDialogPresented)
     }
 
     
@@ -132,7 +135,7 @@ struct GesturesWidgetView: View {
                 .padding(2)
             }
             .onChange(of: provider.selectedSegment) { _ in
-                updateHighlightOffset(segmentWidth: segmentWidth, animated: true)
+                updateHighlightOffset(segmentWidth: segmentWidth)
             }
         }
         .transaction { transaction in
@@ -141,16 +144,10 @@ struct GesturesWidgetView: View {
         .frame(height: 48)
     }
     
-    private func updateHighlightOffset(segmentWidth: CGFloat, animated: Bool) {
+    private func updateHighlightOffset(segmentWidth: CGFloat) {
         let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
         let newOffset = CGFloat(index) * segmentWidth
-        if animated {
-//            withAnimation(.easeOut(duration: 0.3)) {
-                highlightOffsetX = newOffset
-//            }
-        } else {
-            highlightOffsetX = newOffset
-        }
+        highlightOffsetX = newOffset
     }
     
     private func select(segment: GesturesProvider.Segment) {
@@ -309,12 +306,32 @@ struct GesturesWidgetView: View {
     private func presentRotationDialog() {
         rotationDialogSelection = Set(provider.rotationGroup.map { $0.id })
         rotationDialogError = nil
+        rotationDialogDismissWorkItem?.cancel()
+        isRotationDialogVisible = false
         isRotationDialogPresented = true
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: rotationDialogAnimationDuration)) {
+                isRotationDialogVisible = true
+            }
+        }
     }
 
     private func dismissRotationDialog() {
         rotationDialogError = nil
-        isRotationDialogPresented = false
+        guard isRotationDialogPresented else { return }
+        withAnimation(.easeInOut(duration: rotationDialogAnimationDuration)) {
+            isRotationDialogVisible = false
+        }
+        rotationDialogDismissWorkItem?.cancel()
+        let workItem = DispatchWorkItem {
+            isRotationDialogPresented = false
+            rotationDialogDismissWorkItem = nil
+        }
+        rotationDialogDismissWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + rotationDialogAnimationDuration,
+            execute: workItem
+        )
     }
 
     private func handleRotationDialogSave() {
@@ -350,7 +367,7 @@ struct GesturesWidgetView: View {
         }
         return factory + custom
     }
-
+    
     
     // MARK: - SPR Group View
     private var sprGroupView: some View {
@@ -856,13 +873,25 @@ private struct RotationGroupGesturesDialog: View {
     let saveTitle: String
     let cancelTitle: String
     let options: [RotationGestureSelectionOption]
-    let selection: Set<Int>
+    @Binding var selection: Set<Int>
     let errorMessage: String?
     var onOptionTap: (RotationGestureSelectionOption) -> Void
     var onSave: () -> Void
     var onCancel: () -> Void
 
     var body: some View {
+        VStack {
+            Spacer()
+            dialogContent
+                .padding(.horizontal, 32)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private var dialogContent: some View {
         VStack(spacing: 20) {
             Text(title)
                 .font(.custom("sf_pro_text_bold", size: 20))
@@ -977,11 +1006,12 @@ private struct RotationGestureSelectionOption: Identifiable, Hashable {
 }
 
 private struct RotationDialogOverlay: View {
+    @Binding var isVisible: Bool
     let title: String
     let saveTitle: String
     let cancelTitle: String
     let options: [RotationGestureSelectionOption]
-    let selection: Set<Int>
+    @Binding var selection: Set<Int>
     let errorMessage: String?
     var onOptionTap: (RotationGestureSelectionOption) -> Void
     var onSave: () -> Void
@@ -997,13 +1027,14 @@ private struct RotationDialogOverlay: View {
                 saveTitle: saveTitle,
                 cancelTitle: cancelTitle,
                 options: options,
-                selection: selection,
+                selection: $selection,
                 errorMessage: errorMessage,
                 onOptionTap: onOptionTap,
                 onSave: onSave,
                 onCancel: onCancel
             )
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 8)
         }
+        .opacity(isVisible ? 1 : 0)
     }
 }

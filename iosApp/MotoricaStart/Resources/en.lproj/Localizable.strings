@@ -29,8 +29,11 @@
 "add_gesture" = "Add gesture";
 "rotation_group_hint" = "Here you can select gestures for everyday use inside the rotation group.";
 "rotation_dialog_title" = "Adding gestures to rotation group";
-"rotation_dialog_save" = "Save";
-"rotation_dialog_cancel" = "Cancel";
+"rotation_delete_dialog_title" = "Remove gesture from group?";
+"rotation_delete_dialog_message" = "Gesture \"%@\" will remain available in the gesture collection but will be removed from the rotation group.";
+"dialog_delete" = "Delete";
+"dialog_save" = "Save";
+"dialog_cancel" = "cancel";
 "rotation_dialog_limit_message" = "You can't add more than 8 gestures.";
 "spr_empty_placeholder" = "No gestures have been added yet";
 "control_gestures" = "Control gestures";

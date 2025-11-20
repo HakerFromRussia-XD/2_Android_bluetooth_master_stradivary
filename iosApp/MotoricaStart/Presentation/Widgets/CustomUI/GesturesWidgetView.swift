@@ -59,11 +59,11 @@ struct GesturesWidgetView: View {
             
         }
         .fullScreenCover(isPresented: $isRotationDialogPresented) {
-            RotationDialogOverlay(
+            RotationGroupAddGesturesDialogOverlay(
                 isVisible: $isRotationDialogVisible,
                 title: NSLocalizedString("rotation_dialog_title", comment: ""),
-                saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
-                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                saveTitle: NSLocalizedString("dialog_save", comment: ""),
+                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 options: rotationDialogOptions,
                 selection: $rotationDialogSelection,
                 errorMessage: rotationDialogError,
@@ -73,7 +73,6 @@ struct GesturesWidgetView: View {
                 onSave: handleRotationDialogSave,
                 onCancel: dismissRotationDialog
             )
-//            .background(Color.clear)
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
         }
@@ -346,7 +345,7 @@ struct GesturesWidgetView: View {
             return
         }
 
-        let maxCount = RotationGroupGesturesDialog.Constants.maxGestures
+        let maxCount = RotationGroupAddGesturesDialog.Constants.maxGestures
         if rotationDialogSelection.count >= maxCount {
             rotationDialogError = NSLocalizedString("rotation_dialog_limit_message", comment: "")
             return
@@ -548,54 +547,75 @@ private struct RotationGesturesReorderView: View {
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
+    @State private var pendingDeleteGesture: GesturesProvider.GestureDisplayItem?
+    @State private var pendingDeleteIndex: Int?
 
     private let activationDuration: TimeInterval = 0.001
     private let releaseAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)
 
     var body: some View {
-        VStack(spacing: 0) {
-            ForEach(items) { item in
-                RotationGestureRow(
-                    title: item.title,
-                    isDragging: draggedItem == item,
-                    isLast: item == items.last,
-                    onRemove: {
-                        if let index = items.firstIndex(of: item) {
-                            onRemove(index)
+        ZStack {
+            VStack(spacing: 0) {
+                ForEach(items) { item in
+                    RotationGestureRow(
+                        title: item.title,
+                        isDragging: draggedItem == item,
+                        isLast: item == items.last,
+                        onRemove: {
+                            presentDeleteDialog(for: item)
+                        },
+                        handle: {
+                            Image(systemName: "line.3.horizontal")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(Color("ubi4_deactivate_text"))
+                                .padding(.vertical, 12)
+                                .contentShape(Rectangle())          // расширяем зону тапа хэндла
+                                .gesture(longPressDragGesture(for: item))
                         }
+                    )
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .background(frameReader(for: item))
+                    .offset(y: offset(for: item))
+                    .animation(animation(for: item), value: items.map(\.id))
+                    .zIndex(draggedItem == item ? 1 : 0)
+                }
+
+            }
+            .animation(draggedItem == nil ? releaseAnimation : nil, value: items)
+            .background(Color("ubi4_gray"))  //цвет фона
+            .coordinateSpace(name: "rotationList")
+            .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
+                DispatchQueue.main.async {
+                    itemFrames = value
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+
+            if let pendingDeleteGesture, let pendingDeleteIndex {
+                RotationDeleteDialogOverlay(
+                    title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
+                    message: String(
+                        format: NSLocalizedString("rotation_delete_dialog_message", comment: ""),
+                        "\"\(pendingDeleteGesture.title)\""
+                    ),
+                    deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
+                    cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                    onDelete: {
+                        onRemove(pendingDeleteIndex)
+                        dismissDeleteDialog()
                     },
-                    handle: {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Color("ubi4_deactivate_text"))
-                            .padding(.vertical, 12)
-                            .contentShape(Rectangle())          // расширяем зону тапа хэндла
-                            .gesture(longPressDragGesture(for: item))
-                    }
+                    onCancel: dismissDeleteDialog
                 )
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
-                .background(frameReader(for: item))
-                .offset(y: offset(for: item))
-                .animation(animation(for: item), value: items.map(\.id))
-                .zIndex(draggedItem == item ? 1 : 0)
-            }
-            
-        }
-        .animation(draggedItem == nil ? releaseAnimation : nil, value: items)
-        .background(Color("ubi4_gray"))  //цвет фона
-        .coordinateSpace(name: "rotationList")
-        .onPreferenceChange(RotationGestureRowFramePreferenceKey.self) { value in
-            DispatchQueue.main.async {
-                itemFrames = value
+                .transition(.opacity)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+        .animation(.easeInOut(duration: 0.2), value: pendingDeleteGesture != nil)
     }
     
     private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
@@ -656,6 +676,17 @@ private struct RotationGesturesReorderView: View {
         } else {
             return 0
         }
+    }
+    
+    private func presentDeleteDialog(for item: GesturesProvider.GestureDisplayItem) {
+        guard let index = items.firstIndex(of: item) else { return }
+        pendingDeleteGesture = item
+        pendingDeleteIndex = index
+    }
+
+    private func dismissDeleteDialog() {
+        pendingDeleteGesture = nil
+        pendingDeleteIndex = nil
     }
 
     private func updateOrder(with drag: DragGesture.Value) {
@@ -862,7 +893,7 @@ private struct SprGestureRow: View {
     }
 }
 
-private struct RotationGroupGesturesDialog: View {
+private struct RotationGroupAddGesturesDialog: View {
     struct Constants {
         static let maxGestures = 8
     }
@@ -986,7 +1017,7 @@ private struct RotationGroupGesturesDialog: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
     }
 
@@ -1008,7 +1039,7 @@ private struct RotationGestureSelectionOption: Identifiable, Hashable {
     var id: Int { item.id }
 }
 
-private struct RotationDialogOverlay: View {
+private struct RotationGroupAddGesturesDialogOverlay: View {
     @Binding var isVisible: Bool
     let title: String
     let saveTitle: String
@@ -1025,7 +1056,7 @@ private struct RotationDialogOverlay: View {
             Color.black.opacity(0.65)
                 .ignoresSafeArea()
 
-            RotationGroupGesturesDialog(
+            RotationGroupAddGesturesDialog(
                 title: title,
                 saveTitle: saveTitle,
                 cancelTitle: cancelTitle,
@@ -1041,3 +1072,96 @@ private struct RotationDialogOverlay: View {
         .opacity(isVisible ? 1 : 0)
     }
 }
+
+private struct RotationDeleteDialogOverlay: View {
+    let title: String
+    let message: String
+    let deleteTitle: String
+    let cancelTitle: String
+    var onDelete: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.65)
+                .ignoresSafeArea()
+
+            VStack {
+                Spacer()
+                RotationDeleteDialog(
+                    title: title,
+                    message: message,
+                    deleteTitle: deleteTitle,
+                    cancelTitle: cancelTitle,
+                    onDelete: onDelete,
+                    onCancel: onCancel
+                )
+                Spacer()
+            }
+            .padding(.horizontal, 32)
+        }
+    }
+}
+
+private struct RotationDeleteDialog: View {
+    let title: String
+    let message: String
+    let deleteTitle: String
+    let cancelTitle: String
+    var onDelete: () -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.custom("SFProText-Bold", size: 18))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 16)
+                    .padding(.horizontal, 16)
+
+                Text(message)
+                    .font(.custom("SFProDisplay-Light", size: 13))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+            }
+
+            Divider()
+                .background(Color("ubi4_gray_border"))
+                .padding(.top, 16)
+
+            Button(action: onDelete) {
+                Text(deleteTitle)
+                    .font(.custom("SFProText-Bold", size: 18))
+                    .foregroundColor(Color("ubi4_no_system_red"))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+            }
+            .buttonStyle(.plain)
+
+            Divider()
+                .background(Color("ubi4_gray_border"))
+
+            Button(action: onCancel) {
+                Text(cancelTitle)
+                    .font(.custom("SFProDisplay-Regular", size: 18))
+                    .foregroundColor(Color("ubi4_yes_system_blue"))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+            }
+            .buttonStyle(.plain)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color("ubi4_gray"))
+                .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+        )
+    }
+}
+

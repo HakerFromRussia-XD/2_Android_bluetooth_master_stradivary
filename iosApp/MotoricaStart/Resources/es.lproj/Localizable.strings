@@ -15,6 +15,9 @@
 "Failed loading widgets" = "Error al descargar películas";
 "Search Widgets" = "Buscar películas";
 "rotation_dialog_title" = "Agregar gestos al grupo de rotación";
-"rotation_dialog_save" = "Guardar";
-"rotation_dialog_cancel" = "Cancelar";
+"rotation_delete_dialog_title" = "¿Eliminar el gesto del grupo?";
+"rotation_delete_dialog_message" = "El gesto \"%@\" seguirá disponible en la colección de gestos, pero se eliminará del grupo de rotación.";
+"dialog_delete" = "Eliminar";
+"dialog_save" = "Guardar";
+"dialog_cancel" = "cancelar";
 "rotation_dialog_limit_message" = "No se pueden añadir más de 8 gestos.";

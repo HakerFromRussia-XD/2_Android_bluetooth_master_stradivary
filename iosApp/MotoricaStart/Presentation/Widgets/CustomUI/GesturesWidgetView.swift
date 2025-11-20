@@ -23,6 +23,7 @@ struct GesturesWidgetView: View {
     @State private var isRotationDeleteDialogVisible = false
     @State private var rotationDeleteDialogDismissWorkItem: DispatchWorkItem?
     @State private var rotationDeleteDialogItem: GesturesProvider.GestureDisplayItem?
+    @State private var rotationDeleteDialogGestureTitle: String = ""
 
     var animationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
@@ -383,17 +384,19 @@ struct GesturesWidgetView: View {
     }
     
     private func presentRotationDeleteDialog(for index: Int) {
-         guard provider.rotationGroup.indices.contains(index) else { return }
-         rotationDeleteDialogItem = provider.rotationGroup[index]
-         rotationDeleteDialogDismissWorkItem?.cancel()
-         isRotationDeleteDialogVisible = false
-         isRotationDeleteDialogPresented = true
-         DispatchQueue.main.async {
-             withAnimation(.easeInOut(duration: animationDuration)) {
-                 isRotationDeleteDialogVisible = true
-             }
-         }
-     }
+        guard provider.rotationGroup.indices.contains(index) else { return }
+        let item = provider.rotationGroup[index]
+        rotationDeleteDialogItem = item
+        rotationDeleteDialogGestureTitle = item.title
+        rotationDeleteDialogDismissWorkItem?.cancel()
+        isRotationDeleteDialogVisible = false
+        isRotationDeleteDialogPresented = true
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: animationDuration)) {
+                isRotationDeleteDialogVisible = true
+            }
+        }
+    }
 
     private func dismissRotationDeleteDialog() {
         guard isRotationDeleteDialogPresented else { return }
@@ -404,6 +407,7 @@ struct GesturesWidgetView: View {
         let workItem = DispatchWorkItem {
             isRotationDeleteDialogPresented = false
             rotationDeleteDialogItem = nil
+            rotationDeleteDialogGestureTitle = ""
             rotationDeleteDialogDismissWorkItem = nil
         }
         rotationDeleteDialogDismissWorkItem = workItem
@@ -422,14 +426,12 @@ struct GesturesWidgetView: View {
         onRotationGestureRemove(index)
         dismissRotationDeleteDialog()
     }
-
+    
     private var rotationDeleteDialogMessage: String {
-        let gestureTitle = rotationDeleteDialogItem?.title ?? ""
         let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
-        return String(format: format, gestureTitle)
+        return String(format: format, rotationDeleteDialogGestureTitle)
     }
 
-    
     
     // MARK: - SPR Group View
     private var sprGroupView: some View {
@@ -1145,6 +1147,18 @@ private struct RotationDeleteGestureDialog: View {
     var onCancel: () -> Void
 
     var body: some View {
+        VStack {
+            Spacer()
+            dialogContent
+                .padding(.horizontal, 32)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private var dialogContent: some View {
         VStack(spacing: 16) {
             Text(title)
                 .font(.custom("SFProText-Bold", size: 18))

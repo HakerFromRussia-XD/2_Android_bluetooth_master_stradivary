@@ -85,8 +85,8 @@ struct GesturesWidgetView: View {
                 isVisible: $isRotationDeleteDialogVisible,
                 title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
                 message: rotationDeleteDialogMessage,
-                deleteTitle: NSLocalizedString("rotation_delete_dialog_delete", comment: ""),
-                cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
+                deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
+                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 onDelete: handleRotationDeleteConfirm,
                 onCancel: dismissRotationDeleteDialog
             )
@@ -285,8 +285,8 @@ struct GesturesWidgetView: View {
                 RotationGesturesReorderView(
                     items: $provider.rotationGroup,
                     onRemove: { index in
-//                        presentRotationDeleteDialog(for: index)
-                        print("onRemove \(index)")
+                        presentRotationDeleteDialog(for: index)
+                        print("onRemove 1 \(index)")
                     },
                     onReorder: { items in
                         onRotationGesturesReorder(items)
@@ -625,7 +625,9 @@ private struct RotationGesturesReorderView: View {
                         isDragging: draggedItem == item,
                         isLast: item == items.last,
                         onRemove: {
-//                            presentDeleteDialog(for: item)
+                            if let index = items.firstIndex(of: item) {
+                                onRemove(index)
+                            }
                         },
                         handle: {
                             Image(systemName: "line.3.horizontal")
@@ -1050,7 +1052,7 @@ private struct RotationGroupAddGesturesDialog: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color("ubi4_gray_border"), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
         )
     }
 
@@ -1128,10 +1130,9 @@ private struct RotationDeleteDialogOverlay: View {
                 onDelete: onDelete,
                 onCancel: onCancel
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 8)
         }
         .opacity(isVisible ? 1 : 0)
-        .animation(.easeInOut(duration: 0.3), value: isVisible)
     }
 }
 
@@ -1188,7 +1189,7 @@ private struct RotationDeleteGestureDialog: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 16)
+        .padding(.top, 16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("ubi4_back"))

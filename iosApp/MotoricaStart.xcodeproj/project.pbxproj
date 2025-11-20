@@ -99,11 +99,8 @@
 		654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
-		65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */; };
 		65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE82DF31E37006E985F /* sf_pro_display_light.otf */; };
-		65519BEC2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */; };
 		65519BED2DF31E37006E985F /* sf_pro_display_light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE82DF31E37006E985F /* sf_pro_display_light.otf */; };
-		65519BEE2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */; };
 		65519BEF2DF31E37006E985F /* sf_pro_display_light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65519BE82DF31E37006E985F /* sf_pro_display_light.otf */; };
 		655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830312DBBAE8F00744D5C /* ScanItem.swift */; };
 		655830332DBBAE8F00744D5C /* ScanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830312DBBAE8F00744D5C /* ScanItem.swift */; };
@@ -122,6 +119,9 @@
 		65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */; };
 		65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCD2EB2574000BF2D7A /* SliderRowView.swift */; };
 		65682FD02EB257C900BF2D7A /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */; };
+		65682FD22ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */; };
+		65682FD32ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */; };
+		65682FD42ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */; };
 		659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
 		659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */; };
@@ -270,7 +270,6 @@
 		6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Shared.xcframework; path = SharedPackage/Shared.xcframework; sourceTree = "<group>"; };
 		654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = WidgetsListViewController.storyboard; sourceTree = "<group>"; };
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
-		65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_text_bold.otf; sourceTree = "<group>"; };
 		655830312DBBAE8F00744D5C /* ScanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanItem.swift; sourceTree = "<group>"; };
 		655830352DBBAEB400744D5C /* DeviceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DeviceCell.xib; sourceTree = "<group>"; };
 		655830372DBBAF4100744D5C /* inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = inter.ttf; sourceTree = "<group>"; };
@@ -284,6 +283,7 @@
 		65682FC82EB0B3DB00BF2D7A /* GesturesWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesWidgetView.swift; sourceTree = "<group>"; };
 		65682FCD2EB2574000BF2D7A /* SliderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderRowView.swift; sourceTree = "<group>"; };
 		65682FCF2EB257BE00BF2D7A /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
+		65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_text_bold.otf; sourceTree = "<group>"; };
 		659A459C2DB92863002BE2BC /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepository.swift; sourceTree = "<group>"; };
 		659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -822,9 +822,9 @@
 			isa = PBXGroup;
 			children = (
 				65519BE82DF31E37006E985F /* sf_pro_display_light.otf */,
-				65519BE92DF31E37006E985F /* sf_pro_text_bold.otf */,
 				655830372DBBAF4100744D5C /* inter.ttf */,
 				655830382DBBAF4100744D5C /* OpenSans-wght.ttf */,
+				65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */,
 			);
 			path = Fontes;
 			sourceTree = "<group>";
@@ -1099,8 +1099,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65682FD22ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
-				65519BEE2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEF2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				1FF082B923944E7800876A22 /* Localizable.strings in Resources */,
 			);
@@ -1114,8 +1114,8 @@
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,
 				6558303B2DBBAF4100744D5C /* inter.ttf in Resources */,
-				65519BEA2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
+				65682FD32ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
@@ -1128,8 +1128,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65519BEC2DF31E37006E985F /* sf_pro_text_bold.otf in Resources */,
 				65519BED2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
+				65682FD42ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -165,10 +165,11 @@ final class BluetoothListViewController: UIViewController {
         viewModel.onAppear()
         
         
+
 //        for family in UIFont.familyNames {
-//            print(family)
-//            for font in UIFont.fontNames(forFamilyName: family) {
-//                print("ШРИФТЫ:  \(font)")
+//            print("Family: \(family)")
+//            for name in UIFont.fontNames(forFamilyName: family) {
+//                print("Font: \(name)")
 //            }
 //        }
     }

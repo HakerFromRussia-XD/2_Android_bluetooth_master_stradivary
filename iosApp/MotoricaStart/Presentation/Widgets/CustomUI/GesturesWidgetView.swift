@@ -73,29 +73,27 @@ struct GesturesWidgetView: View {
                 onSave: handleRotationDialogSave,
                 onCancel: dismissRotationDialog
             )
+//            .background(Color.clear)
             .interactiveDismissDisabled()
+            .background(ClearFullScreenBackgroundView())
         }
-//        .overlay {
-//            if isRotationDialogPresented {
-//                RotationDialogOverlay(
-//                    title: NSLocalizedString("rotation_dialog_title", comment: ""),
-//                    saveTitle: NSLocalizedString("rotation_dialog_save", comment: ""),
-//                    cancelTitle: NSLocalizedString("rotation_dialog_cancel", comment: ""),
-//                    options: rotationDialogOptions,
-//                    selection: rotationDialogSelection,
-//                    errorMessage: rotationDialogError,
-//                    onOptionTap: { option in
-//                        toggleRotationDialogSelection(option: option)
-//                    },
-//                    onSave: handleRotationDialogSave,
-//                    onCancel: dismissRotationDialog
-//                )
-//                .transition(.opacity)
-//            }
-//        }
-//        .animation(.easeInOut(duration: 0.3), value: isRotationDialogPresented)
     }
 
+    private struct ClearFullScreenBackgroundView: UIViewRepresentable {
+        func makeUIView(context: Context) -> UIView {
+            let view = UIView()
+            view.backgroundColor = .clear
+
+            DispatchQueue.main.async {
+                view.superview?.superview?.backgroundColor = .clear
+                view.superview?.backgroundColor = .clear
+            }
+
+            return view
+        }
+
+        func updateUIView(_ uiView: UIView, context: Context) { }
+    }
     
     // MARK: - Segment Selector
     private var segmentSelector: some View {
@@ -894,7 +892,7 @@ private struct RotationGroupGesturesDialog: View {
     private var dialogContent: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.custom("SFProText-Bold", size: 20))
+                .font(.custom("SFProText-Bold", size: 18))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -1024,7 +1022,7 @@ private struct RotationDialogOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.clear
+            Color.black.opacity(0.65)
                 .ignoresSafeArea()
 
             RotationGroupGesturesDialog(

@@ -2,6 +2,7 @@ import UIKit
 import DGCharts
 import shared
 
+
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     static var defaultFileName: String { "WidgetsListViewController" }
     @IBOutlet private var contentView: UIView!

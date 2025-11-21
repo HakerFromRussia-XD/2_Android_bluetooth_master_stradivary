@@ -230,6 +230,40 @@ class BLEController() {
 
 
 
+//    private suspend fun firstNotificationRequest() {
+//        var attempts = 0
+//        while (firstNotificationRequestFlag && attempts < 5) {
+//            Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
+//            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+//            bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//            delay(1000)
+//            attempts++
+//        }
+//        if (firstNotificationRequestFlag) {
+//            Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
+//            //TODO проверить  нужна ли следующая строку - конфликт при мердже
+//            firstNotificationRequest()
+//        } else {
+//            Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
+//
+//            val cacheCount = WidgetRepoProvider.get().count()
+//            if (cacheCount > 0) {
+//                WidgetBootstrapHydrator.restoreFromDb(0)
+//                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+//                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+//                updateFlow.emit(0)
+//            }
+//            if (needReRequestTransferFlow) {
+//                Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
+//                bleCommand(
+//                    BLECommands.requestTransferFlow(1),
+//                    MAIN_CHANNEL_CHARACTERISTIC,
+//                    WRITE
+//                )
+//                needReRequestTransferFlow = false
+//            }
+//        }
+//    }
     private suspend fun firstNotificationRequest() {
         var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
@@ -241,15 +275,22 @@ class BLEController() {
         }
         if (firstNotificationRequestFlag) {
             Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
-            //TODO проверить  нужна ли следующая строку - конфликт при мердже
+            // да, рекурсивный ретрай — спорно, но это отдельная тема
             firstNotificationRequest()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
 
-            WidgetBootstrapHydrator.restoreFromDb(0)
-            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
-            updateFlow.emit(0)
+            // 1) Проверяем, есть ли кеш к этому моменту
+            val cacheCount = WidgetRepoProvider.get().count()
+            val hasCache = cacheCount > 0
+
+            if (hasCache) {
+                WidgetBootstrapHydrator.restoreFromDb(0)
+                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+                updateFlow.emit(0)
+            }
+
             if (needReRequestTransferFlow) {
                 Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
                 bleCommand(
@@ -259,20 +300,26 @@ class BLEController() {
                 )
                 needReRequestTransferFlow = false
             }
+
+            // 2) В ЛЮБОМ случае — говорим диалогу "синк завершён"
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
         }
     }
 
-private fun parseReceivedData(data: ByteArray?) {
-    val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
-    Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
-    val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
-    val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
-    Log.d("BLE_PARSER", "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex")
-    if (data != null) {
-        firstNotificationRequestFlag = false
-        mBLEParser?.parseReceivedData(data)
+    private fun parseReceivedData(data: ByteArray?) {
+        val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
+        Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
+        val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
+        val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
+        Log.d(
+            "BLE_PARSER",
+            "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex"
+        )
+        if (data != null) {
+            firstNotificationRequestFlag = false
+            mBLEParser?.parseReceivedData(data)
+        }
     }
-}
 
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")

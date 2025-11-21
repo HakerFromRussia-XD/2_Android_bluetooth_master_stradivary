@@ -149,7 +149,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
+
+        WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+
+        // 1) Проверяем, есть ли хоть что-то в БД для текущего MAC
+        lifecycleScope.launch {
+            val cacheCount = WidgetRepoProvider.get().count()
+            platformLog("SyncProgressDialog", "onCreate cacheCount=$cacheCount mac=$connectedDeviceAddress")
+
+            if (cacheCount == 0L) {
+                // Первый старт для этой платы → сразу показываем диалог
+                observeSyncProgress()
+            }
+        }
 //        observeSyncProgress()
+
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
         refreshBottomNavVisibility()
@@ -214,26 +228,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-        binding.runCommandBtn.setOnClickListener {
-            lifecycleScope.launch {
+//        binding.runCommandBtn.setOnClickListener {
 //
-//                // 1) запросить ВСЕ параметры по всем виджетам
-//                requestWidgetsCommandKmm { bytes ->
-//                    // bytes — это готовая команда BLE
-//                    main.bleCommandWithQueue(
-//                        bytes,
-//                        MAIN_CHANNEL_CHARACTERISTIC,
-//                        WRITE
-//                    ) {}
-//                }
-                WidgetBootstrapHydrator.restoreFromDb(0)
-                // 2) Гидратируем ParameterProvider (dataCode + последние value_text)
-                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-                // 3) Будим адаптеры (слidersFlow/thresholdFlow/etc)
-                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
-                updateFlow.emit(0)
-            }
-        }
+//        }
 
 
         val accountPb = binding.accountPb.apply {

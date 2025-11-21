@@ -635,14 +635,7 @@ class BLEParser(
 
         if (!hadWidgetsFromCache) {
             // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
-            platformLog("INIT_TEST_LOG", "run  if (!hadWidgetsFromCache")
-            bleManager.sendBytesKmm(
-                BLECommands.requestInicializeInformation(),
-                MAIN_CHANNEL_CHARACTERISTIC,
-                WRITE
-            ) {}
             platformLog("INIT_TEST_LOG", "run  if (!hadWidgetsFromCache -2")
-
             listWidgets.clear()
             UiState.resetWidgetRequests()
             UiState.labelCodesByOffset.clear()

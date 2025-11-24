@@ -712,7 +712,6 @@ private struct RotationGesturesReorderView: View {
 
     var body: some View {
         ZStack {
-            HapticBridge(engine: haptic).allowsHitTesting(false)
             VStack(spacing: 0) {
                 ForEach(items) { item in
                     RotationGestureRow(
@@ -775,9 +774,6 @@ private struct RotationGesturesReorderView: View {
 
                     if draggedItem == item {
                         print("✅ [Drag started] for \(item)")
-                        DispatchQueue.main.async {
-                            haptic.generator.prepare()
-                        }
                     }
                 }
 
@@ -893,28 +889,14 @@ private struct RotationGesturesReorderView: View {
 }
 
 final class HapticEngineUIKit: ObservableObject {
-    let generator = UIImpactFeedbackGenerator(style: .medium)
-
-    init() { generator.prepare() }
+    private var generator: UIImpactFeedbackGenerator?
 
     func fire() {
-        generator.impactOccurred()
-        generator.prepare()
+        let g = UIImpactFeedbackGenerator(style: .medium)
+        g.prepare()
+        g.impactOccurred(intensity: 1.0)
+        generator = g
     }
-}
-
-struct HapticBridge: UIViewRepresentable {
-    let engine: HapticEngineUIKit
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        DispatchQueue.main.async {
-            engine.generator.prepare()
-        }
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 private struct RotationGesturesWidthPreferenceKey: PreferenceKey {

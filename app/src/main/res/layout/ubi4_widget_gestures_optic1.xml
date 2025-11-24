@@ -182,7 +182,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -1241,7 +1241,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -1312,7 +1312,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="129dp"
             android:elevation="4dp"
-            android:fontFamily="@font/sf_pro_text_bold"
+            android:fontFamily="@font/font_open_sans_bold"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
             android:text="@string/annotation_main_text"
@@ -1326,8 +1326,8 @@
 
         <ImageView
             android:id="@+id/annotationIv"
-            android:layout_width="147dp"
-            android:layout_height="161dp"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
             android:layout_marginTop="20dp"
             android:src="@drawable/annotationman"
             android:visibility="visible"
@@ -1344,7 +1344,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -1394,6 +1394,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="120dp"
             android:gravity="center"
+            android:fontFamily="@font/font_open_sans_bold"
             android:text="Здесь можно выбрать жесты для\nповседневного использования в\nгруппе ротации.\n
             Переключение внутри этой группы\nможно осуществлять датчиками или\nкнопками на протезе."
             android:textColor="@color/ubi4_deactivate_text"
@@ -1403,7 +1404,7 @@
 
         <ImageView
             android:id="@+id/rotationGroupExplanationIv"
-            android:layout_width="140dp"
+            android:layout_width="0dp"
             android:layout_height="160dp"
             android:layout_marginTop="20dp"
             android:src="@drawable/annotationman"
@@ -1425,11 +1426,12 @@
             android:id="@+id/rotationGroupExplanation2Tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/font_open_sans_bold"
             android:gravity="center"
-            android:text="Нажми меня"
+            android:text="@string/push_me"
             android:textColor="@color/ubi4_deactivate_text"
-            app:layout_constraintEnd_toEndOf="@+id/rotationGroupExplanation2Iv"
+            app:layout_constraintEnd_toStartOf="@+id/rotationGroupExplanation2Iv"
+            app:layout_constraintStart_toStartOf="@+id/rotationGroupExplanation2Iv"
             app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanation2Iv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

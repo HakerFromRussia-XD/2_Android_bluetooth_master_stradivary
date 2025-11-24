@@ -21,3 +21,5 @@
 "dialog_save" = "Guardar";
 "dialog_cancel" = "cancelar";
 "rotation_dialog_limit_message" = "No se pueden añadir más de 8 gestos.";
+"rotation_group_tap_hint" = "Pulsa aquí";
+"rotation_group_switch_hint" = "El cambio dentro de este grupo se puede realizar con sensores o botones en la prótesis.";

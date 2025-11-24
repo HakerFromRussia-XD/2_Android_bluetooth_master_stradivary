@@ -630,7 +630,7 @@
     <string name="mobile_settings">Mobile Settings</string>
     <string name="auto_login">Auto login</string>
     <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
-
+    <string name="push_me">Push me</string>
 
 
     <string-array name="numbers">

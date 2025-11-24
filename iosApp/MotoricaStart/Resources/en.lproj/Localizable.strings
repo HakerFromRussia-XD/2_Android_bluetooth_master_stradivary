@@ -38,3 +38,5 @@
 "spr_empty_placeholder" = "No gestures have been added yet";
 "control_gestures" = "Control gestures";
 "annotation_main_text" = "Here you can select gestures recorded during training, as well as attach your own gestures to them.";
+"rotation_group_tap_hint" = "Tap me";
+"rotation_group_switch_hint" = "Switching inside this group can be done using sensors or buttons on the prosthesis.";

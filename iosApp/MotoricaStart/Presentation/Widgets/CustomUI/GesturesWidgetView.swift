@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import shared
 
 
 struct GesturesWidgetView: View {
@@ -282,17 +283,56 @@ struct GesturesWidgetView: View {
     // MARK: - Rotation Group View
     private var rotationGroupView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(spacing: 12) {
-                RotationGesturesReorderView(
-                    items: $provider.rotationGroup,
-                    onRemove: { index in
-                        presentRotationDeleteDialog(for: index)
-                        print("onRemove 1 \(index)")
-                    },
-                    onReorder: { items in
-                        onRotationGesturesReorder(items)
-                    }
+            if provider.rotationGroup.isEmpty {
+                rotationGroupEmptyState
+            } else {
+                rotationGroupContent
+            }
+        }
+    }
+    
+    private var rotationGroupContent: some View {
+        VStack(spacing: 12) {
+            RotationGesturesReorderView(
+                items: $provider.rotationGroup,
+                onRemove: { index in
+                    presentRotationDeleteDialog(for: index)
+                    print("onRemove 1 \(index)")
+                },
+                onReorder: { items in
+                    onRotationGesturesReorder(items)
+                }
+            )
+
+            if provider.rotationGroup.count < RotationGroupAddGesturesDialog.Constants.maxGestures {
+                rotationGroupAddButton
+            }
+        }
+    }
+    
+    private var rotationGroupAddButton: some View {
+        Button(action: presentRotationGroupAddGesturesDialog) {
+            Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
+                .font(.system(size: 12, weight: .light))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color("ubi4_gray"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                        )
                 )
+        }
+        .buttonStyle(.plain)
+        .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+    }
+    
+    private var rotationGroupEmptyState: some View {
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
                 Button(action: presentRotationGroupAddGesturesDialog) {
                     Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
@@ -310,19 +350,70 @@ struct GesturesWidgetView: View {
                 }
                 .buttonStyle(.plain)
                 .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                
+                Image("ic_long_arrow")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60)
+                    .offset(x: -100)
+                
+                Text(NSLocalizedString("rotation_group_tap_hint", comment: ""))
+                    .foregroundColor(Color("ubi4_deactivate_text"))
+                    .multilineTextAlignment(.center)
+                    .alignmentGuide(.leading) { d in d[HorizontalAlignment.center] }
+                    .offset(x: -130)
+                    .font(.system(size: 12, weight: .light))
             }
+            VStack(spacing: 8) {
+                Text(NSLocalizedString("rotation_group_hint", comment: ""))
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(Color("ubi4_deactivate_text"))
+                    .multilineTextAlignment(.center)
 
-            Text(NSLocalizedString("rotation_group_hint", comment: ""))
-                .font(.system(size: 12, weight: .light))
-                .foregroundColor(Color("ubi4_deactivate_text"))
+                Text(NSLocalizedString("rotation_group_switch_hint", comment: ""))
+                    .font(.system(size: 12, weight: .light))
+                    .foregroundColor(Color("ubi4_deactivate_text"))
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+
+            Image(uiImage: SharedRes.images().annotationman.toUIImage()!)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 180)
         }
+        .frame(maxWidth: .infinity)
     }
+                    
+                    
+                    
+//                Button(action: presentRotationGroupAddGesturesDialog) {
+//                    Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
+//                        .font(.system(size: 12, weight: .light))
+//                        .foregroundColor( .white)
+//                        .frame(maxWidth: .infinity)
+//                        .padding(.vertical, 16)
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 12)
+//                                .fill(Color("ubi4_gray"))
+//                                .overlay(
+//                                    RoundedRectangle(cornerRadius: 12)
+//                                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+//                                )
+//                        )
+//                }
+//                .buttonStyle(.plain)
+//                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+//            }
+//
+//            Text(NSLocalizedString("rotation_group_hint", comment: ""))
+//                .font(.system(size: 12, weight: .light))
+//                .foregroundColor(Color("ubi4_deactivate_text"))
+//        }
+//    }
 
     private func presentRotationGroupAddGesturesDialog() {
         rotationGroupAddGesturesDialogSelection = Set(provider.rotationGroup.map { $0.id })
-        guard let item = rotationDeleteDialogItem else { return }
-        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
-        rotationDeleteDialogMessage = String(format: format, item.title)
         rotationGroupAddGesturesDialogError = nil
         rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
         isRotationGroupAddGesturesDialogVisible = false
@@ -613,12 +704,15 @@ private struct RotationGesturesReorderView: View {
     @State private var dragged = false
     @State private var itemFrames: [Int: CGRect] = [:]
     @State private var previewWidth: CGFloat = .zero
+//    @StateObject private var haptic = Haptic()
+    @StateObject private var haptic = HapticEngineUIKit()
 
     private let activationDuration: TimeInterval = 0.001
     private let releaseAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)
 
     var body: some View {
         ZStack {
+            HapticBridge(engine: haptic).allowsHitTesting(false)
             VStack(spacing: 0) {
                 ForEach(items) { item in
                     RotationGestureRow(
@@ -665,7 +759,7 @@ private struct RotationGesturesReorderView: View {
         }
     }
     
-    private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some Gesture {
+    private func longPressDragGesture(for item: GesturesProvider.GestureDisplayItem) -> some SwiftUI.Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .named("rotationList"))
             .onChanged { drag in
                 guard let itemFrame = itemFrames[item.id] else { return }
@@ -681,6 +775,9 @@ private struct RotationGesturesReorderView: View {
 
                     if draggedItem == item {
                         print("✅ [Drag started] for \(item)")
+                        DispatchQueue.main.async {
+                            haptic.generator.prepare()
+                        }
                     }
                 }
 
@@ -779,6 +876,9 @@ private struct RotationGesturesReorderView: View {
         updatedItems.insert(element, at: clampedIndex)
         print("4⃣ 📋 items before reorder:", items.map(\.id))
         print("4⃣ 📋 items after reorder:", updatedItems.map(\.id))
+        DispatchQueue.main.async {
+            haptic.fire()
+        }
         withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.25)) {
             items = updatedItems
         }
@@ -790,6 +890,31 @@ private struct RotationGesturesReorderView: View {
         guard draggedItem != item else { return nil }
         return .interactiveSpring(response: 0.35, dampingFraction: 0.85, blendDuration: 0.25)
     }
+}
+
+final class HapticEngineUIKit: ObservableObject {
+    let generator = UIImpactFeedbackGenerator(style: .medium)
+
+    init() { generator.prepare() }
+
+    func fire() {
+        generator.impactOccurred()
+        generator.prepare()
+    }
+}
+
+struct HapticBridge: UIViewRepresentable {
+    let engine: HapticEngineUIKit
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        DispatchQueue.main.async {
+            engine.generator.prepare()
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 private struct RotationGesturesWidthPreferenceKey: PreferenceKey {

@@ -53,6 +53,8 @@ class SliderDelegateAdapter(
 
 
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
         Log.d("SliderAdapterTest", "onBind RUN")
@@ -66,6 +68,7 @@ class SliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
+
 
         when (val widget = item.widget) {
             is SliderParameterWidgetEStruct -> {
@@ -364,6 +367,7 @@ class SliderDelegateAdapter(
                     // Обновляем отображение
                     widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
                         widgetSlidersInfo[indexWidgetSlider].progress[index] - widgetSlidersInfo[indexWidgetSlider].minProgress
+
                 }
             } catch (e: Exception) {
                 Log.e("SliderDebug", "Ошибка при обработке данных: ${e.message}", e)

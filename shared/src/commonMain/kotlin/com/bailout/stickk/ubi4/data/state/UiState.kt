@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.data.state
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.persistence.preference.WidgetKey
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.concurrent.Volatile
@@ -21,7 +20,6 @@ object UiState {
     var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
-    val cachedWidgetKeys: MutableSet<WidgetKey> = mutableSetOf()
     @Volatile
     var animateState: Boolean = false
 
@@ -32,7 +30,7 @@ object UiState {
         activeGestureFragmentFilterFlow = MutableStateFlow(1)
         activeSettingsFragmentFilterFlow = MutableStateFlow(4)
         isMobileSettings = false
-        updateFlow = MutableSharedFlow()
+        updateFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 64)
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
         widgetsLoadingProgressFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
@@ -41,9 +39,5 @@ object UiState {
         requestedWidgetParameters.clear()
     }
 
-    fun markCached(list: List<WidgetStateEntity>) {
-        cachedWidgetKeys.clear()
-        list.forEach { cachedWidgetKeys.add(WidgetKey.from(it)) }
-    }
 
 }

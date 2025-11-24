@@ -25,7 +25,9 @@ data class BaseParameterWidgetPayload(
     val parameterInfoSet: List<ParameterInfoPayload>,
     val keyMobileSettings: String,
     val labelCode: Int = 0,
-    val label: String? = null
+    val label: String? = null,
+    val minProgress: Int? = null,
+    val maxProgress: Int? = null,
 )
 
 @Serializable

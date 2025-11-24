@@ -26,7 +26,6 @@ import kotlinx.serialization.json.Json
 
 interface WidgetRepository {
     suspend fun upsert(entity: WidgetStateEntity)
-    suspend fun upsertBatch(entities: List<WidgetStateEntity>)
     suspend fun upsertState(
         deviceAddr: Int,
         widgetId: Int,
@@ -60,7 +59,6 @@ interface WidgetRepository {
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
     ): Flow<WidgetStateEntity?>
-    suspend fun clearByDevice(deviceAddr: Long)
     suspend fun count(): Long
     fun observeAll(): Flow<List<WidgetStateEntity>>
 
@@ -87,7 +85,7 @@ class WidgetRepositoryImpl(
     private val parameterInfoDao: BaseParameterInfoDao,
     private val subDeviceDao: BaseSubDeviceInfoDao?,
     private val listWidgetsDao: ListWidgetsDao,
-    private val cache: WidgetMemoryCache = WidgetMemoryCache(),
+//    private val cache: WidgetMemoryCache = WidgetMemoryCache(),
 ) : WidgetRepository {
 
     private val json = Json {
@@ -97,16 +95,9 @@ class WidgetRepositoryImpl(
 
     override suspend fun upsert(entity: WidgetStateEntity) = withContext(Dispatchers.IO) {
         val e = entity.copy(device_mac = mac())
-        cache.put(mac(), e)
         dao.upsert(e)
     }
 
-    override suspend fun upsertBatch(entities: List<WidgetStateEntity>) = withContext(Dispatchers.IO) {
-        if (entities.isEmpty()) return@withContext
-        val withMac = entities.map { it.copy(device_mac = mac()) }
-        cache.putAll(mac(), withMac)
-        for (e in withMac) dao.upsert(e)
-    }
 
     override suspend fun upsertState(
         deviceAddr: Int, widgetId: Int, widgetCode: Int,
@@ -272,11 +263,6 @@ class WidgetRepositoryImpl(
             }
             row
         }
-
-    override suspend fun clearByDevice(deviceAddr: Long) = withContext(Dispatchers.IO) {
-        cache.clearByDevice(mac(), deviceAddr)
-        dao.clearByDevice(mac(), deviceAddr)
-    }
 
     override suspend fun count(): Long = withContext(Dispatchers.IO) { dao.count(mac()) }
 }

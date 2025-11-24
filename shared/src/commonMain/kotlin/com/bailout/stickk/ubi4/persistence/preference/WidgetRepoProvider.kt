@@ -17,7 +17,6 @@ object WidgetRepoProvider {
     private val _currentMac = MutableStateFlow("")
     fun setCurrentMac(mac: String) { _currentMac.value = mac }
     fun mac(): String = _currentMac.value
-    fun macFlow(): StateFlow<String> = _currentMac
 
     fun init(
         widgetStateDao: WidgetStateDao,
@@ -28,7 +27,6 @@ object WidgetRepoProvider {
         return (repo ?: WidgetRepositoryImpl(
             dao = widgetStateDao,
             parameterInfoDao = parameterInfoDao,
-            cache = WidgetMemoryCache(),
             subDeviceDao = subDeviceDao,
             listWidgetsDao = listWidgetsDao
         )).also { repo = it }
@@ -36,8 +34,4 @@ object WidgetRepoProvider {
 
     fun get(): WidgetRepository = checkNotNull(repo) { "WidgetRepoProvider not init" }
 
-    fun observeAllForCurrentMac(): kotlinx.coroutines.flow.Flow<List<WidgetStateEntity>> =
-        macFlow().flatMapLatest { m ->
-            if (m.isBlank()) flowOf(emptyList()) else get().observeAll()
-        }
 }

@@ -70,7 +70,8 @@ internal fun BaseParameterWidgetStruct.toPayload(
         parameterInfoSet = parameterInfoSet.map { it.toPayload() },
         keyMobileSettings = keyMobileSettings,
         labelCode = labelCode,
-        label = label
+        label = label,
+
     )
 
 internal fun ParameterInfo<Int, Int, Int, Int>.toPayload(): ParameterInfoPayload =
@@ -134,11 +135,17 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
         is SliderParameterWidgetEStruct ->
             this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
                 labelCode = baseParameterWidgetEStruct.labelCode
-            )
+            ).copy(
+                    minProgress = minProgress,
+                    maxProgress = maxProgress
+                )
 
         is SliderParameterWidgetSStruct ->
             this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
                 label = baseParameterWidgetSStruct.label
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress
             )
 
         // -------- SWITCH --------
@@ -243,20 +250,25 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
         label = label ?: ""
     )
 
-    fun sliderStruct(): Any =
-        if (isStringLabel) {
+    fun sliderStruct(): Any {
+        val min = minProgress ?: 0
+        val max = maxProgress ?: 100
+
+        return if (isStringLabel) {
             SliderParameterWidgetSStruct(
                 baseParameterWidgetSStruct = baseSStruct,
-                minProgress = 0,
-                maxProgress = 100
+                minProgress = min,
+                maxProgress = max
             )
         } else {
             SliderParameterWidgetEStruct(
                 baseParameterWidgetEStruct = baseEStruct,
-                minProgress = 0,      // можно позже тоже хранить в БД
-                maxProgress = 100
+                minProgress = min,
+                maxProgress = max
             )
         }
+    }
+
 
     fun plotStruct(): Any =
         if (isStringLabel) {

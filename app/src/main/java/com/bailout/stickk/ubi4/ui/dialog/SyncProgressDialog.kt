@@ -14,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect

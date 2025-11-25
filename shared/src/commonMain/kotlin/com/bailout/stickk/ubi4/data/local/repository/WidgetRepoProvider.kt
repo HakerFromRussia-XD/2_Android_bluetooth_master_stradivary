@@ -1,14 +1,10 @@
-package com.bailout.stickk.ubi4.persistence.preference
+package com.bailout.stickk.ubi4.data.local.repository
 
 import BaseSubDeviceInfoDao
-import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
-import com.bailout.stickk.ubi4.data.local.db.ListWidgetsDao
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
+import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlin.concurrent.Volatile
 
 object WidgetRepoProvider {

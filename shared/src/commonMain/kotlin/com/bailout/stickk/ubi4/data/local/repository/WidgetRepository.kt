@@ -1,14 +1,14 @@
-package com.bailout.stickk.ubi4.persistence.preference
+package com.bailout.stickk.ubi4.data.local.repository
 
 import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoDao
-import com.bailout.stickk.ubi4.data.local.db.BaseParameterInfoEntity
-import com.bailout.stickk.ubi4.data.local.db.BaseSubDeviceInfoEntity
-import com.bailout.stickk.ubi4.data.local.db.ListWidgetsDao
-import com.bailout.stickk.ubi4.data.local.db.ListWidgetsEntity
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateDao
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
+import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
+import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterInfoPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseSubDeviceInfoPayload
@@ -20,8 +20,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 interface WidgetRepository {

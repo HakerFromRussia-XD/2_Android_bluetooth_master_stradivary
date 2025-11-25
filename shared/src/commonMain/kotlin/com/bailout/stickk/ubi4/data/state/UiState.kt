@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

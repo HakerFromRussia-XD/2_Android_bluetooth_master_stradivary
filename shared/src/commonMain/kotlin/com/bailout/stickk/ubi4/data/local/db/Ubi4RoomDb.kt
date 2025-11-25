@@ -5,6 +5,13 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
+import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
 
 @Database(
     entities = [WidgetStateEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,

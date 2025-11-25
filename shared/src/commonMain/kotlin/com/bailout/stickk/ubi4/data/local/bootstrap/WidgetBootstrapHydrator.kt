@@ -1,22 +1,14 @@
-package com.bailout.stickk.ubi4.persistence.preference
+package com.bailout.stickk.ubi4.data.local.bootstrap
+
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.local.db.WidgetStateEntity
 import com.bailout.stickk.ubi4.data.local.db.extractKey
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toEndStruct
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.state.RestoredState
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
-import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.GestureOpticParameterWidgetEStruct
@@ -33,8 +25,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidge
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -64,15 +56,15 @@ object WidgetBootstrapHydrator {
         val paramsFromDb = repo.loadAllMasterParams(deviceAddr)
         RestoredState.baseParamsFromDb = paramsFromDb.toMutableList()
 
-        baseParametrInfoStructArray.clear()
-        baseParametrInfoStructArray.addAll(paramsFromDb)
+        GlobalParameters.baseParametrInfoStructArray.clear()
+        GlobalParameters.baseParametrInfoStructArray.addAll(paramsFromDb)
 
         // 2. Сабдевайсы
         val subsFromDb = repo.loadAllSubDevices(deviceAddr)
         RestoredState.subDevicesFromDb = subsFromDb.toMutableSet()
 
-        baseSubDevicesInfoStructSet.clear()
-        baseSubDevicesInfoStructSet.addAll(subsFromDb)
+        GlobalParameters.baseSubDevicesInfoStructSet.clear()
+        GlobalParameters.baseSubDevicesInfoStructSet.addAll(subsFromDb)
 
         // 3. Snapshot ВИДЖЕТОВ ТЕПЕРЬ ГРУЗИМ ПО MAC
         val payloads: List<BaseParameterWidgetPayload> =
@@ -89,7 +81,8 @@ object WidgetBootstrapHydrator {
         }
         platformLog(
             "WIDGET_SOURCE",
-            "restoreFromDb: mac=$mac widgets_from_DB=${restored.size}")
+            "restoreFromDb: mac=$mac widgets_from_DB=${restored.size}"
+        )
 
         platformLog(
             "BOOTSTRAP_TETS",
@@ -120,14 +113,17 @@ object WidgetBootstrapHydrator {
         withContext(Dispatchers.Default) {
             // --- мастер ---
             masterParams.forEach { info ->
-                val p = ParameterProvider.getParameter(masterAddr, info.ID)
+                val p = ParameterProvider.Companion.getParameter(masterAddr, info.ID)
                 if (info.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) {
-                    platformLog("BOOTSTRAP_BINDING", "try hydrate binding:  pid=${info.ID} dcode=${info.dataCode}")
+                    platformLog(
+                        "BOOTSTRAP_BINDING",
+                        "try hydrate binding:  pid=${info.ID} dcode=${info.dataCode}"
+                    )
                 }
                 val lastState = repo.loadLastState(
-                    deviceAddr  = masterAddr,
+                    deviceAddr = masterAddr,
                     parameterId = info.ID,
-                    dataCode    = info.dataCode
+                    dataCode = info.dataCode
                 )
 
                 if (lastState?.value_text != null) {
@@ -165,12 +161,12 @@ object WidgetBootstrapHydrator {
                 val subAddr = sub.deviceAddress
 
                 sub.parametersList.forEach { info ->
-                    val p = ParameterProvider.getParameter(subAddr, info.ID)
+                    val p = ParameterProvider.Companion.getParameter(subAddr, info.ID)
 
                     val lastState = repo.loadLastState(
-                        deviceAddr  = subAddr,
+                        deviceAddr = subAddr,
                         parameterId = info.ID,
-                        dataCode    = info.dataCode
+                        dataCode = info.dataCode
                     )
 
                     if (lastState?.value_text != null) {
@@ -210,34 +206,34 @@ object WidgetBootstrapHydrator {
             base.parameterInfoSet.forEach { info ->
                 val ref = ParameterRef(
                     addressDevice = info.deviceAddress,
-                    parameterID   = info.parameterID,
-                    dataCode      = info.dataCode
+                    parameterID = info.parameterID,
+                    dataCode = info.dataCode
                 )
 
                 when (base.widgetCode) {
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
-                        slidersFlow.tryEmit(ref)
+                        WidgetState.slidersFlow.tryEmit(ref)
                     }
 
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
-                        switcherFlow.tryEmit(ref)
+                        WidgetState.switcherFlow.tryEmit(ref)
                     }
 
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
-                        thresholdFlow.tryEmit(ref)
-                        widgetsMergeEventFlow.tryEmit(ref)
+                        WidgetState.thresholdFlow.tryEmit(ref)
+                        WidgetState.widgetsMergeEventFlow.tryEmit(ref)
                     }
                 }
 
                 // А вот это — завязка на конкретные dataCode
                 when (info.dataCode) {
                     PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
-                        rotationGroupFlow.tryEmit(ref)
+                        WidgetState.rotationGroupFlow.tryEmit(ref)
                     }
 
                     PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
-                        bindingGroupFlow.tryEmit(ref)
+                        WidgetState.bindingGroupFlow.tryEmit(ref)
                     }
                 }
             }
@@ -247,18 +243,18 @@ object WidgetBootstrapHydrator {
             "BOOTSTRAP",
             "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
         )
-        updateFlow.tryEmit(0)
+        UiState.updateFlow.tryEmit(0)
     }
     // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
 
     private fun Any.baseStructOrNull() =
         when (this) {
-            is BaseParameterWidgetEStruct   -> baseParameterWidgetStruct
-            is BaseParameterWidgetSStruct   -> baseParameterWidgetStruct
+            is BaseParameterWidgetEStruct -> baseParameterWidgetStruct
+            is BaseParameterWidgetSStruct -> baseParameterWidgetStruct
             is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
             is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is PlotParameterWidgetEStruct   -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is PlotParameterWidgetSStruct   -> baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is PlotParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is PlotParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
             is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
             is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
             is ThresholdParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
@@ -287,13 +283,15 @@ object WidgetBootstrapHydrator {
     ) {
         // чтобы не долбить один и тот же параметр по 10 раз
         val requested = mutableSetOf<Triple<Int, Int, Int>>()  // (addr, pid, dcode)
-
         // ---------------------------------------------------------
         // 1. ЗАПРОСЫ ОТ ВИДЖЕТОВ
         // ---------------------------------------------------------
         UiState.listWidgets.forEach { widget ->
             val primary = widget.primaryParamOrNull() ?: run {
-                platformLog("WIDGET_REQ", "skip widget=${widget::class.simpleName} (нет параметров)")
+                platformLog(
+                    "WIDGET_REQ",
+                    "skip widget=${widget::class.simpleName} (нет параметров)"
+                )
                 return@forEach
             }
 
@@ -313,7 +311,10 @@ object WidgetBootstrapHydrator {
                 is SliderParameterWidgetSStruct -> {
                     val cmd = BLECommands.requestSlider(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
-                    platformLog("WIDGET_REQ", "SLIDER: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                    platformLog(
+                        "WIDGET_REQ",
+                        "SLIDER: dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                    )
                 }
 
                 // ---------- SWITCH ----------
@@ -321,7 +322,10 @@ object WidgetBootstrapHydrator {
                 is SwitchParameterWidgetSStruct -> {
                     val cmd = BLECommands.requestSwitcher(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
-                    platformLog("WIDGET_REQ", "SWITCHER: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                    platformLog(
+                        "WIDGET_REQ",
+                        "SWITCHER: dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                    )
                 }
 
                 // ---------- THRESHOLD ----------
@@ -329,21 +333,30 @@ object WidgetBootstrapHydrator {
                 is ThresholdParameterWidgetSStruct -> {
                     val cmd = BLECommands.requestThresholds(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
-                    platformLog("WIDGET_REQ", "THRESHOLD: dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                    platformLog(
+                        "WIDGET_REQ",
+                        "THRESHOLD: dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                    )
                 }
 
                 // ---------- GESTURE (селектор активного жеста как виджет) ----------
                 is GestureParameterWidgetEStruct -> {
                     val cmd = BLECommands.requestActiveGesture(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
-                    platformLog("WIDGET_REQ", "ACTIVE_GESTURE(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                    platformLog(
+                        "WIDGET_REQ",
+                        "ACTIVE_GESTURE(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                    )
                 }
 
                 // ---------- OPTIC BINDING как виджет ----------
                 is GestureOpticParameterWidgetEStruct -> {
                     val cmd = BLECommands.requestBindingGroup(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
-                    platformLog("WIDGET_REQ", "OPTIC_BINDING(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}")
+                    platformLog(
+                        "WIDGET_REQ",
+                        "OPTIC_BINDING(widget): dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                    )
                 }
 
                 // ---------- BASE WIDGETS — тут как раз РОТАЦИИ, БИНДИНГИ, БАТАРЕЙКА ----------
@@ -388,7 +401,7 @@ object WidgetBootstrapHydrator {
             }
         }
 
-        baseSubDevicesInfoStructSet.forEach { sub ->
+        GlobalParameters.baseSubDevicesInfoStructSet.forEach { sub ->
             val addr = sub.deviceAddress
 
             sub.parametersList.forEach { info ->

@@ -1,10 +1,9 @@
 package com.bailout.stickk.ubi4.data.local.db
 
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.subStructures.*
 import com.bailout.stickk.ubi4.data.widget.endStructures.*
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.utility.logging.platformLog

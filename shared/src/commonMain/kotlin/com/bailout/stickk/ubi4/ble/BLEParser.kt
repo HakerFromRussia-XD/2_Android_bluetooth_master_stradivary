@@ -77,8 +77,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -89,15 +88,12 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
-import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
 
@@ -113,6 +109,7 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
+    private val fwResponseReceived = mutableMapOf<Int, Boolean>()
 
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
@@ -1065,7 +1062,10 @@ class BLEParser(
 
     platformLog("parseProductInfoTypefw", "fw = $fw")
     platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
+
         FirmwareInfoState.emitFirmwareInfo(fw)
+        fwFlag(deviceAddr, true)
+
     }
 
 
@@ -1555,6 +1555,49 @@ class BLEParser(
         return mConnected
     }
 
+    private fun fwFlag(addr: Int, value: Boolean? = null): Boolean {
+        if (value != null) fwResponseReceived[addr] = value
+        return fwResponseReceived.getOrPut(addr) { false }
+    }
+
+
+    fun sendFwInfoRequestsWithRetry() {
+        // CPU (адрес 0)
+        fwFlag(0, false)   // сбрасываем флаг перед серией запросов
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestProductFWInfoType(0),
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
+            },
+            isResponseReceived = { fwFlag(0) },
+            maxRetries = 5,
+            delayMillis = 1000L,
+            scope = coroutineScope
+        )
+
+        // Сабдевайсы
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            val addr = sub.deviceAddress
+            fwFlag(addr, false)
+
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    bleCommandExecutor.bleCommandWithQueue(
+                        BLECommands.requestProductFWInfoType(addr),
+                        MAIN_CHANNEL_CHARACTERISTIC,
+                        WRITE
+                    ) {}
+                },
+                isResponseReceived = { fwFlag(addr) },
+                maxRetries = 5,
+                delayMillis = 1000L,
+                scope = coroutineScope
+            )
+        }
+    }
     private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
         // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
         if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {

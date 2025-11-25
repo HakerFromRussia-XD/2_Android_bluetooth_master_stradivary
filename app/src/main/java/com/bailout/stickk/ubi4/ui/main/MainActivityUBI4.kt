@@ -21,9 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -36,29 +34,22 @@ import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
-import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
-import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator
-import com.bailout.stickk.ubi4.persistence.preference.WidgetBootstrapHydrator.requestWidgetsCommandKmm
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -77,11 +68,9 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -471,15 +460,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     private fun sendFwInfoRequests() {
-        // CPU
-        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-        // Sub-devices (если уже известны)
-        baseSubDevicesInfoStructSet.forEach { sub ->
-            bleCommandWithQueue(
-                BLECommands.requestProductFWInfoType(sub.deviceAddress),
-                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-            ) {}
-        }
+        bleParser.sendFwInfoRequestsWithRetry()
+//        // CPU
+//        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+//        // Sub-devices (если уже известны)
+//        baseSubDevicesInfoStructSet.forEach { sub ->
+//            bleCommandWithQueue(
+//                BLECommands.requestProductFWInfoType(sub.deviceAddress),
+//                MAIN_CHANNEL_CHARACTERISTIC, WRITE
+//            ) {}
+//        }
     }
 
     private fun sendRunProgramTypeRequests() {

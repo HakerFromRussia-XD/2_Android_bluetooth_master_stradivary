@@ -20,7 +20,7 @@ import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.data.local.db.AndroidCtx
 import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.local.db.RoomInit
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 

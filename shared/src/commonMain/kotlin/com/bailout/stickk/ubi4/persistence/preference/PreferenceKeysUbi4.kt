@@ -89,7 +89,11 @@ object PreferenceKeysUbi4 {
         SET_DEVICE_NAME                         (0x0d),
 
         GET_DEVICE_ROLE                         (0x0e),
-        SET_DEVICE_ROLE                         (0x0f)
+        SET_DEVICE_ROLE                         (0x0f),
+        GET_DEVICE_CRC                          (0x17),
+        GET_MASTER_CRC                          (0x19),
+        GET_SYSTEM_CRC                          (0x1A)
+        
     }
 
     enum class DataManagerCommand(val number: Byte) {

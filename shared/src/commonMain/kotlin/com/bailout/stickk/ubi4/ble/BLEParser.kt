@@ -117,6 +117,8 @@ class BLEParser(
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
 
+
+
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             platformLog("BLEParser", "data.size=${data.size}")
             platformLog("BLEParser", "dataString=$receiveDataString")
@@ -130,7 +132,9 @@ class BLEParser(
                 if (data.size > 3) {
                     castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4]) * 256
                 } else 0
+
             val CRC = if (data.size > 5) castUnsignedCharToInt(data[5]) else 0
+
             val deviceAddress = if (data.size > 6) castUnsignedCharToInt(data[6]) else 0
             val packageCodeRequest = if (data.size > 7) data[7] else 0
             val ID = if (data.size > 8) castUnsignedCharToInt(data[8]) else 0
@@ -189,7 +193,7 @@ class BLEParser(
                                 .uppercase()
                         }
 
-                       platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
+                        platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
                         when (packageCodeRequest) {
                             PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
@@ -227,10 +231,10 @@ class BLEParser(
                             PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
                                 val rawHex = data.joinToString(" ")
                                 platformLog("FW_FLOW", "CHECK_NEW_FW raw data = [$rawHex]")
-                                    val payloadIndex = HEADER_BLE_OFFSET + 1
-                                    val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
-                                    platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
-                                    FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
+                                FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
                             }
                             PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
@@ -585,6 +589,16 @@ class BLEParser(
             DeviceInformationCommand.SET_DEVICE_ROLE.number -> {
                 platformLog("BLEParser", "TEST parser 2 SET_DEVICE_ROLE")
             }
+
+            DeviceInformationCommand.GET_SYSTEM_CRC.number -> {
+                parseProducCRCInfo(receiveDataString)
+            }
+
+            DeviceInformationCommand.GET_DEVICE_CRC.number -> {
+                parseProducCRCInfo(receiveDataString)
+            }
+
+
         }
     }
 
@@ -1060,12 +1074,28 @@ class BLEParser(
         val fw = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
             .copy(deviceAddress = deviceAddr)
 
-    platformLog("parseProductInfoTypefw", "fw = $fw")
-    platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
+        platformLog("parseProductInfoTypefw", "fw = $fw")
+        platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
 
         FirmwareInfoState.emitFirmwareInfo(fw)
         fwFlag(deviceAddr, true)
 
+    }
+
+    private fun parseProducCRCInfo(receiveDataString: String) {
+        val deviceAddr = castUnsignedCharToInt(receiveDataString.substringSafe(12, 14).toInt(16).toByte())
+        val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
+        val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
+        val b0 = payloadHex.substringSafe(0, 2).toInt(16)
+        val b1 = payloadHex.substringSafe(2, 4).toInt(16)
+        val b2 = payloadHex.substringSafe(4, 6).toInt(16)
+        val b3 = payloadHex.substringSafe(6, 8).toInt(16)
+        val crc = (b0 or
+                (b1 shl 8) or
+                (b2 shl 16) or
+                (b3 shl 24)).toLong() and 0xFFFFFFFFL
+        platformLog("parseProducCRCInfo", "addr=$deviceAddr crc=${crc}")
+        platformLog("parseProducCRCInfo", "payload=$payloadHex crc=${crc}")
     }
 
 

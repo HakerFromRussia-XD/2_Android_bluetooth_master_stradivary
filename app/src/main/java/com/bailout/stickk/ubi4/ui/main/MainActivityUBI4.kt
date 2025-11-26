@@ -217,9 +217,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
-//        binding.runCommandBtn.setOnClickListener {
-//
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            // 3) GET_SYSTEM_CRC
+            val systemCrcCmd = BLECommands.requestSystemCrc()
+            bleCommandWithQueue(
+                systemCrcCmd,
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {
+                Log.d("CRC_CMD", "✔ GET_SYSTEM_CRC sent")
+            }
+
+        }
 
 
         val accountPb = binding.accountPb.apply {

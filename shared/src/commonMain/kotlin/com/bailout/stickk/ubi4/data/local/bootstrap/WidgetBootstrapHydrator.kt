@@ -202,6 +202,13 @@ object WidgetBootstrapHydrator {
         UiState.listWidgets.forEach { widget ->
             val base = widget.baseStructOrNull() ?: return@forEach
 
+            if (base.widgetCode == PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt()) {
+                platformLog(
+                    "PLOT_BOOTSTRAP",
+                    "replay: dev=${base.deviceId} wid=${base.widgetId} display=${base.display} params=${base.parameterInfoSet.size}"
+                )
+            }
+
             // ВАЖНО: идём по всем параметрам виджета, а не только по первому
             base.parameterInfoSet.forEach { info ->
                 val ref = ParameterRef(
@@ -221,6 +228,10 @@ object WidgetBootstrapHydrator {
 
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt(),
                     PreferenceKeysUbi4.ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                        platformLog(
+                            "PLOT_BOOTSTRAP",
+                            "emit threshold/merge: dev=${ref.addressDevice} pid=${ref.parameterID} dcode=${ref.dataCode}"
+                        )
                         WidgetState.thresholdFlow.tryEmit(ref)
                         WidgetState.widgetsMergeEventFlow.tryEmit(ref)
                     }
@@ -243,6 +254,7 @@ object WidgetBootstrapHydrator {
             "BOOTSTRAP",
             "replayWidgetEventsFromDb: dev=$deviceAddr widgets=${UiState.listWidgets.size}"
         )
+        platformLog("PLOT_BOOTSTRAP", "emit updateFlow")
         UiState.updateFlow.tryEmit(0)
     }
     // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———

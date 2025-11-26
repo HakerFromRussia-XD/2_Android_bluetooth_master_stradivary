@@ -9,6 +9,7 @@ import kotlin.properties.Delegates
 
 object UiState {
     var listWidgets: MutableSet<Any> by Delegates.notNull()
+
     var activeGestureFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
     var activeSettingsFragmentFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
     var isMobileSettings by Delegates.notNull<Boolean>()

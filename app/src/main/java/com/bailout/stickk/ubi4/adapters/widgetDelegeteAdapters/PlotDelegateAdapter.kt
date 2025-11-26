@@ -722,6 +722,7 @@ class PlotDelegateAdapter (
         Log.d("onDestroy" , "onDestroy plot")
     }
 
+
     private fun requestThresholdsOnce() {
         val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
             PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
@@ -758,6 +759,7 @@ class PlotDelegateAdapter (
         }
     }
 }
+
 
 
 

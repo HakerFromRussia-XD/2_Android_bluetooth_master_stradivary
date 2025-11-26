@@ -3,11 +3,13 @@ package com.bailout.stickk.ubi4.data.local.repository
 import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
 import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.entity.DeviceCrcEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterInfoPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
@@ -76,14 +78,34 @@ interface WidgetRepository {
         parameterId: Int,
         dataCode: Int
     ): WidgetStateEntity?
+
+    suspend fun upsertDeviceCrc(
+        deviceAddr: Int,
+        crc: Long,
+        tsMs: Long
+    )
+
+    suspend fun loadDeviceCrc(
+        deviceAddr: Int
+    ): Long?
+
 }
+
+
+
+
+
+
+
+
+
 
 class WidgetRepositoryImpl(
     private val dao: WidgetStateDao,
     private val parameterInfoDao: BaseParameterInfoDao,
     private val subDeviceDao: BaseSubDeviceInfoDao?,
     private val listWidgetsDao: ListWidgetsDao,
-//    private val cache: WidgetMemoryCache = WidgetMemoryCache(),
+    private val deviceCrcDao: DeviceCrcDao?,
 ) : WidgetRepository {
 
     private val json = Json {
@@ -260,6 +282,50 @@ class WidgetRepositoryImpl(
                 )
             }
             row
+        }
+
+    override suspend fun upsertDeviceCrc(
+        deviceAddr: Int,
+        crc: Long,
+        tsMs: Long
+    ) = withContext(Dispatchers.IO) {
+        val daoLocal = deviceCrcDao ?: run {
+            platformLog("DEVICE_CRC_DB", "upsertDeviceCrc: deviceCrcDao is null → skip")
+            return@withContext
+        }
+
+        val mac = mac()
+        val entity = DeviceCrcEntity(
+            device_mac = mac,
+            device_addr = deviceAddr.toLong(),
+            ts_ms = tsMs,
+            crc = crc
+        )
+
+        daoLocal.upsert(entity)
+
+        platformLog(
+            "DEVICE_CRC_DB",
+            "upsertDeviceCrc ok: mac=$mac addr=$deviceAddr crc=$crc ts=$tsMs"
+        )
+    }
+
+    override suspend fun loadDeviceCrc(deviceAddr: Int): Long? =
+        withContext(Dispatchers.IO) {
+            val daoLocal = deviceCrcDao ?: run {
+                platformLog("DEVICE_CRC_DB", "loadDeviceCrc: deviceCrcDao is null → return null")
+                return@withContext null
+            }
+
+            val mac = mac()
+            val row = daoLocal.load(mac, deviceAddr.toLong())
+            if (row == null) {
+                platformLog("DEVICE_CRC_DB", "no CRC in DB: mac=$mac addr=$deviceAddr")
+                null
+            } else {
+                platformLog("DEVICE_CRC_DB", "loadDeviceCrc: mac=$mac addr=$deviceAddr crc=${row.crc}")
+                row.crc
+            }
         }
 
     override suspend fun count(): Long = withContext(Dispatchers.IO) { dao.count(mac()) }

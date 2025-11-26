@@ -178,6 +178,28 @@ object RoomPersistence {
         val i = offset * 2
         return if (i + 2 <= raw.length) raw.substring(i, i + 2).toInt(16) else null
     }
+
+    fun persistDeviceCrc(
+        scope: CoroutineScope,
+        deviceAddr: Int,
+        crc: Long
+    ) {
+        val repo = WidgetRepoProvider.get()
+        val ts = getTimeMillis()
+
+        platformLog(
+            "ROOM_PERSIST",
+            "device_crc WRITE → mac=${WidgetRepoProvider.mac()} dev=$deviceAddr crc=$crc"
+        )
+
+        scope.launch(Dispatchers.IO) {
+            repo.upsertDeviceCrc(
+                deviceAddr = deviceAddr,
+                crc        = crc,
+                tsMs       = ts
+            )
+        }
+    }
 }
 
 
@@ -215,6 +237,7 @@ fun logWidgetsSnapshot(title: String, list: List<Any>) {
         "SNAPSHOT_WIDGETS",
         "$title: count=${list.size} head=[ $head${if (list.size > 5) ", …" else ""} ]"
     )
+
 
 
 }

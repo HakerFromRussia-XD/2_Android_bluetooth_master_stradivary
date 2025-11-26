@@ -47,7 +47,8 @@ class WDApplication : MultiDexApplication() {
       widgetStateDao = db.widgetStateDao(),
       parameterInfoDao = db.baseParameterInfoDao(),
       listWidgetsDao = db.listWidgetsDao(),
-      subDeviceDao = db.baseSubDeviceInfoDao()
+      subDeviceDao = db.baseSubDeviceInfoDao(),
+      deviceCrcDao = db.deviceCrcDao(),
     )
   }
 

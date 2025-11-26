@@ -202,6 +202,7 @@ class BLEController() {
                         main.lifecycleScope.launch {
 
                             firstNotificationRequest()
+
                         }
                     }
 
@@ -227,57 +228,23 @@ class BLEController() {
             }
         }
 
-
-
-//    private suspend fun firstNotificationRequest() {
-//        var attempts = 0
-//        while (firstNotificationRequestFlag && attempts < 5) {
-//            Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
-//            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
-//            bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-//            delay(1000)
-//            attempts++
-//        }
-//        if (firstNotificationRequestFlag) {
-//            Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
-//            //TODO проверить  нужна ли следующая строку - конфликт при мердже
-//            firstNotificationRequest()
-//        } else {
-//            Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
-//
-//            val cacheCount = WidgetRepoProvider.get().count()
-//            if (cacheCount > 0) {
-//                WidgetBootstrapHydrator.restoreFromDb(0)
-//                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-//                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
-//                updateFlow.emit(0)
-//            }
-//            if (needReRequestTransferFlow) {
-//                Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
-//                bleCommand(
-//                    BLECommands.requestTransferFlow(1),
-//                    MAIN_CHANNEL_CHARACTERISTIC,
-//                    WRITE
-//                )
-//                needReRequestTransferFlow = false
-//            }
-//        }
-//    }
     private suspend fun firstNotificationRequest() {
-        var attempts = 0
+    var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
             Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
             bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
             bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+            main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+
             delay(1000)
             attempts++
         }
         if (firstNotificationRequestFlag) {
             Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
-            // да, рекурсивный ретрай — спорно, но это отдельная тема
             firstNotificationRequest()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
+
 
             // 1) Проверяем, есть ли кеш к этому моменту
             val cacheCount = WidgetRepoProvider.get().count()
@@ -461,7 +428,6 @@ class BLEController() {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
                         reconnectThread()
-
                     }
                 }
             }

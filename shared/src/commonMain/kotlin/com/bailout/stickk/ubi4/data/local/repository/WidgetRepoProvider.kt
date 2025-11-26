@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.local.repository
 
 import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,13 +19,15 @@ object WidgetRepoProvider {
         widgetStateDao: WidgetStateDao,
         parameterInfoDao: BaseParameterInfoDao,
         listWidgetsDao: ListWidgetsDao,
-        subDeviceDao: BaseSubDeviceInfoDao? = null
+        subDeviceDao: BaseSubDeviceInfoDao? = null,
+        deviceCrcDao: DeviceCrcDao? = null
     ): WidgetRepository {
         return (repo ?: WidgetRepositoryImpl(
             dao = widgetStateDao,
             parameterInfoDao = parameterInfoDao,
             subDeviceDao = subDeviceDao,
-            listWidgetsDao = listWidgetsDao
+            listWidgetsDao = listWidgetsDao,
+            deviceCrcDao = deviceCrcDao
         )).also { repo = it }
     }
 

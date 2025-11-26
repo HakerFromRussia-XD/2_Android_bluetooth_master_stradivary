@@ -16,7 +16,7 @@ data class BaseSubDeviceInfoEntity(
     val device_mac: String,
     val sub_device_addr: Long,
     val ts_ms: Long,
-    val payload: String
+    val payload: String,
 ) {
     companion object {
         private val json = Json { encodeDefaults = true }

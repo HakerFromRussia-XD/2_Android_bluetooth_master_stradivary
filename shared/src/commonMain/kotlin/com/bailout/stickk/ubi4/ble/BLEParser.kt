@@ -78,8 +78,10 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Glob
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
+import com.bailout.stickk.ubi4.utility.BleHexUtils
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -591,11 +593,11 @@ class BLEParser(
             }
 
             DeviceInformationCommand.GET_SYSTEM_CRC.number -> {
-                parseProducCRCInfo(receiveDataString)
+                parseProductCRCInfo(receiveDataString)
             }
 
             DeviceInformationCommand.GET_DEVICE_CRC.number -> {
-                parseProducCRCInfo(receiveDataString)
+//                parseProductCRCInfo(receiveDataString)
             }
 
 
@@ -1082,20 +1084,26 @@ class BLEParser(
 
     }
 
-    private fun parseProducCRCInfo(receiveDataString: String) {
-        val deviceAddr = castUnsignedCharToInt(receiveDataString.substringSafe(12, 14).toInt(16).toByte())
+
+    private fun parseProductCRCInfo(receiveDataString: String) {
+        // addr мастера / сабдевайса из хедера
+        val deviceAddr = castUnsignedCharToInt(
+            receiveDataString.substringSafe(12, 14).toInt(16).toByte()
+        )
+
+        // payload CRC начинается с байта (HEADER_BLE_OFFSET + 1)
         val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
         val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
-        val b0 = payloadHex.substringSafe(0, 2).toInt(16)
-        val b1 = payloadHex.substringSafe(2, 4).toInt(16)
-        val b2 = payloadHex.substringSafe(4, 6).toInt(16)
-        val b3 = payloadHex.substringSafe(6, 8).toInt(16)
-        val crc = (b0 or
-                (b1 shl 8) or
-                (b2 shl 16) or
-                (b3 shl 24)).toLong() and 0xFFFFFFFFL
-        platformLog("parseProducCRCInfo", "addr=$deviceAddr crc=${crc}")
-        platformLog("parseProducCRCInfo", "payload=$payloadHex crc=${crc}")
+
+        val crc = BleHexUtils.crc32FromHexLE(payloadHex)
+
+        platformLog("parseProductCRCInfo", "addr=$deviceAddr payload=$payloadHex crc=$crc")
+
+        RoomPersistence.persistDeviceCrc(
+            scope = coroutineScope,
+            deviceAddr = deviceAddr,
+            crc = crc
+        )
     }
 
 
@@ -1110,6 +1118,7 @@ class BLEParser(
         }
         return 0
     }
+
 
     private fun getNextSubDevice(subDeviceCounter: Int): Int {
         for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
@@ -1566,12 +1575,13 @@ class BLEParser(
             }
         }
         if (canAdd) {
+
             val added = listWidgets.add(widget)
             if (added) {
                 val total = widgetsLoadingProgressTotal.coerceAtLeast(1)
                 val current = listWidgets.size.coerceAtMost(total)
                 platformLog(
-                    "WIDGET_SOURCE",
+                    "WIDGET_LOG_ADD",
                     "addToListWidgets: FROM_BLE widget=${widget::class.simpleName} dev=$deviceAddress pid=$parameterID code=$dataCode offset=$dataOffset totalWidgets=${listWidgets.size}"
                 )
                 coroutineScope.launch {

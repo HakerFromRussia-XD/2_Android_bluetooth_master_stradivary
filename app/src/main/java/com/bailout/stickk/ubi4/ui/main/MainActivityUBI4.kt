@@ -164,6 +164,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
+
         bluetoothLeService = BluetoothLeService()
         mServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -216,17 +217,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-
+//        main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         binding.runCommandBtn.setOnClickListener {
             // 3) GET_SYSTEM_CRC
-            val systemCrcCmd = BLECommands.requestSystemCrc()
-            bleCommandWithQueue(
-                systemCrcCmd,
-                MAIN_CHANNEL_CHARACTERISTIC,
-                WRITE
-            ) {
-                Log.d("CRC_CMD", "✔ GET_SYSTEM_CRC sent")
-            }
+            bleCommand(BLECommands.requestSystemCrc(),MAIN_CHANNEL_CHARACTERISTIC,WRITE)
+
 
         }
 
@@ -423,18 +418,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
+        Log.d("BLE_INIT", "bleCommandWithQueue 1")
         if (byteArray != null) {
+            Log.d("BLE_INIT", "bleCommandWithQueue 2")
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
             remainingTasks.incrementAndGet()
+        } else {
+            Log.d("BLE_INIT", "bleCommandWithQueue 3")
         }
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
+            Log.d("BLE_INIT", "getBleCommandWithQueue")
             writeData(byteArray, command, typeCommand)
             onChunkSent() } }
     val writeLock = Any()
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
+            Log.d("BLE_INIT", "writeData")
             canSendFlag = false
             bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")

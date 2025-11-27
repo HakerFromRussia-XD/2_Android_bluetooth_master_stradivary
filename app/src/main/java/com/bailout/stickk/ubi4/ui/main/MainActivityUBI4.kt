@@ -219,10 +219,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 //        main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         binding.runCommandBtn.setOnClickListener {
-            // 3) GET_SYSTEM_CRC
-            bleCommand(BLECommands.requestSystemCrc(),MAIN_CHANNEL_CHARACTERISTIC,WRITE)
-
-
+            bleCommandWithQueue(
+                BLECommands.requestTransferFlow(1),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
         }
 
 

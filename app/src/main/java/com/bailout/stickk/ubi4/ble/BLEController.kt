@@ -370,6 +370,9 @@ class BLEController() {
             // 1) поднимаем всё из кеша
             WidgetBootstrapHydrator.restoreFromDb(0)
             WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+
+            WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
+
             WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
             updateFlow.emit(0)
 
@@ -383,11 +386,11 @@ class BLEController() {
             }
 
             // 3) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
-            bleCommand(
+            main.bleCommandWithQueue(
                 BLECommands.requestTransferFlow(1),
                 MAIN_CHANNEL_CHARACTERISTIC,
                 WRITE
-            )
+            ) {}
 
             // на всякий случай, чтобы дальше не пытаться ещё раз
             needReRequestTransferFlow = false
@@ -396,7 +399,6 @@ class BLEController() {
             UiState.widgetsLoadingFlow.tryEmit(Unit)
             return
         }
-
         Log.d(
             "BLE_INIT",
             "CRC отличается или кеша нет (old=$oldCrc, new=$newCrc, hasCache=$hasCache) → полная инициализация"

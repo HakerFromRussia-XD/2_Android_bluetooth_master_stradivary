@@ -14,16 +14,20 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetS
 import com.bailout.stickk.ubi4.data.widget.endStructures.GestureOpticParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
@@ -259,34 +263,30 @@ object WidgetBootstrapHydrator {
     }
     // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
 
-    private fun Any.baseStructOrNull() =
-        when (this) {
-            is BaseParameterWidgetEStruct -> baseParameterWidgetStruct
-            is BaseParameterWidgetSStruct -> baseParameterWidgetStruct
-            is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is PlotParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is PlotParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is ThresholdParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is ThresholdParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct
-            is GestureParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is GestureOpticParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct
-            else -> null
+    suspend fun rebuildParameterLinksFromDb(masterAddr: Int) {
+        // На всякий случай не чистим ничего в ParameterProvider —
+        // fast-путь вызывается один раз после восстановления.
+        var linksCount = 0
+
+        UiState.listWidgets.forEach { widget ->
+            val base = widget.baseStructOrNull() ?: return@forEach
+
+            // parameterInfoSet мы уже сохранили в БД и подняли обратно
+            base.parameterInfoSet.forEach { info ->
+                val param = ParameterProvider.getParameter(
+                    info.deviceAddress,
+                    info.parameterID
+                )
+                // additionalInfoRefSet — это как раз тот набор, который читает updateAllUI
+                if (param.additionalInfoRefSet.add(base)) {
+                    linksCount++
+                }
+            }
         }
 
-    fun Any.primaryParamOrNull(): WidgetParamRef? {
-        val base = baseStructOrNull() ?: return null
-        val info = base.parameterInfoSet.firstOrNull() ?: return null
-
-        return WidgetParamRef(
-            deviceAddr  = info.deviceAddress,
-            parameterId = info.parameterID,
-            dataCode    = info.dataCode
+        platformLog(
+            "BOOTSTRAP",
+            "rebuildParameterLinksFromDb: master=$masterAddr widgets=${UiState.listWidgets.size} links=$linksCount"
         )
     }
 
@@ -445,6 +445,48 @@ object WidgetBootstrapHydrator {
             }
         }
     }
+}
+
+    private fun Any.baseStructOrNull() =
+        when (this) {
+            is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct
+            is BaseParameterWidgetSStruct -> this.baseParameterWidgetStruct
+
+            // CODE_LABEL виджеты
+            is CommandParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is SwitchParameterWidgetEStruct  -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is SliderParameterWidgetEStruct  -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is PlotParameterWidgetEStruct    -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is SpinnerParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is OpticStartLearningWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is ThresholdParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+
+            // STRING_LABEL виджеты
+            is CommandParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is SwitchParameterWidgetSStruct  -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is SliderParameterWidgetSStruct  -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is PlotParameterWidgetSStruct    -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is SpinnerParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is OpticStartLearningWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is ThresholdParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+
+            // На всякий случай — чистые Base-виджеты, если они вдруг лежат напрямую
+            is BaseParameterWidgetStruct -> this
+            else -> null
+        }
+
+    fun Any.primaryParamOrNull(): WidgetParamRef? {
+        val base = baseStructOrNull() ?: return null
+        val info = base.parameterInfoSet.firstOrNull() ?: return null
+
+        return WidgetParamRef(
+            deviceAddr  = info.deviceAddress,
+            parameterId = info.parameterID,
+            dataCode    = info.dataCode
+        )
+    }
+
+
 
 
     data class WidgetParamRef(
@@ -453,4 +495,3 @@ object WidgetBootstrapHydrator {
         val dataCode: Int
     )
 
-}

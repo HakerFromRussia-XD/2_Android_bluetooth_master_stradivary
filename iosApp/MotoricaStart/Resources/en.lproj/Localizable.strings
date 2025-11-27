@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   App
 
@@ -27,7 +27,7 @@
 "active_gesture_is" = "Active gesture: %1$@";
 "gesture_not_selected" = "Not selected";
 "add_gesture" = "Add gesture";
-"rotation_group_hint" = "Here you can select gestures for everyday use inside the rotation group.";
+"rotation_group_hint" = "Here you can select gestures \n for everyday use inside \n the rotation group.";
 "rotation_dialog_title" = "Adding gestures to rotation group";
 "rotation_delete_dialog_title" = "Remove gesture from group?";
 "rotation_delete_dialog_message" = "Gesture \"%@\" will remain available in the gesture collection but will be removed from the rotation group.";
@@ -37,6 +37,19 @@
 "rotation_dialog_limit_message" = "You can't add more than 8 gestures.";
 "spr_empty_placeholder" = "No gestures have been added yet";
 "control_gestures" = "Control gestures";
-"annotation_main_text" = "Here you can select gestures recorded during training, as well as attach your own gestures to them.";
+"annotation_main_text" = "Here you can select gestures \n recorded during training, \n as well as attach your own gestures \n to them.";
 "rotation_group_tap_hint" = "Tap me";
-"rotation_group_switch_hint" = "Switching inside this group can be done using sensors or buttons on the prosthesis.";
+"rotation_group_switch_hint" = "Switching inside this group \n can be done using sensors \n or buttons on the prosthesis.";
+"spr_dialog_title" = "Select control gestures";
+"spr_thumb_finger" = "Thumb finger";
+"spr_flexion" = "Flexion";
+"spr_extension" = "Extension";
+"spr_palm_closing" = "Palm closing";
+"spr_palm_opening" = "Palm opening";
+"spr_ok_pinch" = "OK pinch";
+"spr_pistol_pointer" = "Pointer gesture";
+"spr_key" = "Key";
+"spr_adduction" = "Adduction";
+"spr_abduction" = "Abduction";
+"spr_pronation" = "Pronation";
+"spr_supination" = "Supination";

@@ -19,6 +19,8 @@ class DeviceCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        deviceNameText.font = UIFont(name: "OpenSansRoman-SemiBold", size: 13)
+        rssi.font = UIFont(name: "OpenSansRoman-SemiBold", size: 13)
     }
     
     override func  setSelected(_ selected: Bool, animated: Bool) {

@@ -107,7 +107,7 @@
 		655830342DBBAE8F00744D5C /* ScanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830312DBBAE8F00744D5C /* ScanItem.swift */; };
 		655830362DBBAEB400744D5C /* DeviceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 655830352DBBAEB400744D5C /* DeviceCell.xib */; };
 		6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830382DBBAF4100744D5C /* OpenSans-wght.ttf */; };
-		6558303B2DBBAF4100744D5C /* inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* inter.ttf */; };
+		6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* Inter.ttf */; };
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
 		65588F932E9CF31B005CF5BA /* SwitchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchProvider.swift */; };
@@ -140,6 +140,18 @@
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADC2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
+		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
+		65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4772ED865D400B3C49D /* adduction.lottie */; };
+		65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47D2ED865D400B3C49D /* pronation.lottie */; };
+		65EAF4852ED865D400B3C49D /* close.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4782ED865D400B3C49D /* close.lottie */; };
+		65EAF4862ED865D400B3C49D /* abduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4762ED865D400B3C49D /* abduction.lottie */; };
+		65EAF4872ED865D400B3C49D /* thumb_fingers.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47F2ED865D400B3C49D /* thumb_fingers.lottie */; };
+		65EAF4882ED865D400B3C49D /* supination.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47E2ED865D400B3C49D /* supination.lottie */; };
+		65EAF4892ED865D400B3C49D /* key.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47A2ED865D400B3C49D /* key.lottie */; };
+		65EAF48A2ED865D400B3C49D /* wrist_flex.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4812ED865D400B3C49D /* wrist_flex.lottie */; };
+		65EAF48B2ED865D400B3C49D /* wrist_extend.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4802ED865D400B3C49D /* wrist_extend.lottie */; };
+		65EAF48C2ED865D400B3C49D /* open.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47B2ED865D400B3C49D /* open.lottie */; };
+		65EAF48D2ED865D400B3C49D /* pinch.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47C2ED865D400B3C49D /* pinch.lottie */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
@@ -272,7 +284,7 @@
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
 		655830312DBBAE8F00744D5C /* ScanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanItem.swift; sourceTree = "<group>"; };
 		655830352DBBAEB400744D5C /* DeviceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DeviceCell.xib; sourceTree = "<group>"; };
-		655830372DBBAF4100744D5C /* inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = inter.ttf; sourceTree = "<group>"; };
+		655830372DBBAF4100744D5C /* Inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter.ttf; sourceTree = "<group>"; };
 		655830382DBBAF4100744D5C /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
 		6558303C2DBBAFE300744D5C /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
@@ -299,6 +311,18 @@
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
+		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
+		65EAF4772ED865D400B3C49D /* adduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = adduction.lottie; sourceTree = "<group>"; };
+		65EAF4782ED865D400B3C49D /* close.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = close.lottie; sourceTree = "<group>"; };
+		65EAF4792ED865D400B3C49D /* indication.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = indication.lottie; sourceTree = "<group>"; };
+		65EAF47A2ED865D400B3C49D /* key.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = key.lottie; sourceTree = "<group>"; };
+		65EAF47B2ED865D400B3C49D /* open.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = open.lottie; sourceTree = "<group>"; };
+		65EAF47C2ED865D400B3C49D /* pinch.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = pinch.lottie; sourceTree = "<group>"; };
+		65EAF47D2ED865D400B3C49D /* pronation.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = pronation.lottie; sourceTree = "<group>"; };
+		65EAF47E2ED865D400B3C49D /* supination.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = supination.lottie; sourceTree = "<group>"; };
+		65EAF47F2ED865D400B3C49D /* thumb_fingers.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = thumb_fingers.lottie; sourceTree = "<group>"; };
+		65EAF4802ED865D400B3C49D /* wrist_extend.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_extend.lottie; sourceTree = "<group>"; };
+		65EAF4812ED865D400B3C49D /* wrist_flex.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_flex.lottie; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -822,7 +846,7 @@
 			isa = PBXGroup;
 			children = (
 				65519BE82DF31E37006E985F /* sf_pro_display_light.otf */,
-				655830372DBBAF4100744D5C /* inter.ttf */,
+				655830372DBBAF4100744D5C /* Inter.ttf */,
 				655830382DBBAF4100744D5C /* OpenSans-wght.ttf */,
 				65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */,
 			);
@@ -841,6 +865,18 @@
 		65588FA12EA1206D005CF5BA /* Animations */ = {
 			isa = PBXGroup;
 			children = (
+				65EAF4762ED865D400B3C49D /* abduction.lottie */,
+				65EAF4772ED865D400B3C49D /* adduction.lottie */,
+				65EAF4782ED865D400B3C49D /* close.lottie */,
+				65EAF4792ED865D400B3C49D /* indication.lottie */,
+				65EAF47A2ED865D400B3C49D /* key.lottie */,
+				65EAF47B2ED865D400B3C49D /* open.lottie */,
+				65EAF47C2ED865D400B3C49D /* pinch.lottie */,
+				65EAF47D2ED865D400B3C49D /* pronation.lottie */,
+				65EAF47E2ED865D400B3C49D /* supination.lottie */,
+				65EAF47F2ED865D400B3C49D /* thumb_fingers.lottie */,
+				65EAF4802ED865D400B3C49D /* wrist_extend.lottie */,
+				65EAF4812ED865D400B3C49D /* wrist_flex.lottie */,
 				65588FA62EA6557C005CF5BA /* sinchronization.lottie */,
 			);
 			path = Animations;
@@ -1113,7 +1149,19 @@
 				655830362DBBAEB400744D5C /* DeviceCell.xib in Resources */,
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,
-				6558303B2DBBAF4100744D5C /* inter.ttf in Resources */,
+				6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */,
+				65EAF4822ED865D400B3C49D /* indication.lottie in Resources */,
+				65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */,
+				65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */,
+				65EAF4852ED865D400B3C49D /* close.lottie in Resources */,
+				65EAF4862ED865D400B3C49D /* abduction.lottie in Resources */,
+				65EAF4872ED865D400B3C49D /* thumb_fingers.lottie in Resources */,
+				65EAF4882ED865D400B3C49D /* supination.lottie in Resources */,
+				65EAF4892ED865D400B3C49D /* key.lottie in Resources */,
+				65EAF48A2ED865D400B3C49D /* wrist_flex.lottie in Resources */,
+				65EAF48B2ED865D400B3C49D /* wrist_extend.lottie in Resources */,
+				65EAF48C2ED865D400B3C49D /* open.lottie in Resources */,
+				65EAF48D2ED865D400B3C49D /* pinch.lottie in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				65682FD32ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,

@@ -142,15 +142,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
         // 1) Проверяем, есть ли хоть что-то в БД для текущего MAC
-        lifecycleScope.launch {
-            val cacheCount = WidgetRepoProvider.get().count()
-            platformLog("SyncProgressDialog", "onCreate cacheCount=$cacheCount mac=$connectedDeviceAddress")
-
-            if (cacheCount == 0L) {
-                // Первый старт для этой платы → сразу показываем диалог
-                observeSyncProgress()
-            }
-        }
+//        lifecycleScope.launch {
+//            val cacheCount = WidgetRepoProvider.get().count()
+//            platformLog("SyncProgressDialog", "onCreate cacheCount=$cacheCount mac=$connectedDeviceAddress")
+//
+//            if (cacheCount == 0L) {
+//                // Первый старт для этой платы → сразу показываем диалог
+//                observeSyncProgress()
+//            }
+//        }
 //        observeSyncProgress()
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)

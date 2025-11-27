@@ -173,6 +173,11 @@ object RoomPersistence {
     }
 
 
+    suspend fun loadDeviceCrc(deviceAddr: Int): Long? {
+        val repo = WidgetRepoProvider.get()
+        return repo.loadDeviceCrc(deviceAddr)
+    }
+
     /** Безопасно достать байт из hex-строки по смещению (в байтах), вернуть null если не влезает. */
     private fun hexByteAt(raw: String, offset: Int): Int? {
         val i = offset * 2

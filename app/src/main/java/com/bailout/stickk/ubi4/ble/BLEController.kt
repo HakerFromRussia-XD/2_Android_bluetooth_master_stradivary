@@ -39,6 +39,7 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
@@ -201,7 +202,8 @@ class BLEController() {
 
                         main.lifecycleScope.launch {
 
-                            firstNotificationRequest()
+                            smartInitWithCrc()
+//                            firstNotificationRequest()
 
                         }
                     }
@@ -228,23 +230,78 @@ class BLEController() {
             }
         }
 
-    private suspend fun firstNotificationRequest() {
-    var attempts = 0
+//    private suspend fun firstNotificationRequest() {
+//        var attempts = 0
+//
+//            while (firstNotificationRequestFlag && attempts < 5) {
+//                Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
+//                bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+//                bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//                main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+//
+//                delay(1000)
+//                attempts++
+//            }
+//            if (firstNotificationRequestFlag) {
+//                Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
+//                firstNotificationRequest()
+//            } else {
+//                Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
+//
+//
+//                // 1) Проверяем, есть ли кеш к этому моменту
+//                val cacheCount = WidgetRepoProvider.get().count()
+//                val hasCache = cacheCount > 0
+//
+//                if (hasCache) {
+//                    WidgetBootstrapHydrator.restoreFromDb(0)
+//                    WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+//                    WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+//                    updateFlow.emit(0)
+//                }
+//
+//                if (needReRequestTransferFlow) {
+//                    Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
+//                    bleCommand(
+//                        BLECommands.requestTransferFlow(1),
+//                        MAIN_CHANNEL_CHARACTERISTIC,
+//                        WRITE
+//                    )
+//                    needReRequestTransferFlow = false
+//                }
+//
+//                // 2) В ЛЮБОМ случае — говорим диалогу "синк завершён"
+//                UiState.widgetsLoadingFlow.tryEmit(Unit)
+//            }
+//    }
+
+    private suspend fun firstNotificationRequestFull() {
+        var attempts = 0
+
         while (firstNotificationRequestFlag && attempts < 5) {
-            Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
-            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+            Log.d("BLE_INIT", "▶ firstNotificationRequestFull попытка #${attempts + 1}")
+            bleCommand(
+                BLECommands.requestInicializeInformation(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            )
             bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-            main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            main.bleCommandWithQueue(
+                BLECommands.requestSystemCrc(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
 
             delay(1000)
             attempts++
         }
+
         if (firstNotificationRequestFlag) {
             Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
-            firstNotificationRequest()
+            // да, оставляем рекурсивный ретрай как был
+            firstNotificationRequestFull()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
-
 
             // 1) Проверяем, есть ли кеш к этому моменту
             val cacheCount = WidgetRepoProvider.get().count()
@@ -267,10 +324,88 @@ class BLEController() {
                 needReRequestTransferFlow = false
             }
 
-            // 2) В ЛЮБОМ случае — говорим диалогу "синк завершён"
             UiState.widgetsLoadingFlow.tryEmit(Unit)
         }
     }
+
+    private suspend fun smartInitWithCrc() {
+        val masterAddr = 0
+
+        val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
+        Log.d("BLE_CRC", "oldCrc from DB = $oldCrc")
+
+        // 1) включаем NOTIFY и запрашиваем CRC
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(150)
+
+        Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
+        main.bleCommandWithQueue(
+            BLECommands.requestSystemCrc(),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
+
+        // 2) ждём, пока parseProductCRCInfo сохранит CRC в БД
+        var newCrc: Long? = null
+        repeat(5) { attempt ->
+            delay(200)
+            newCrc = RoomPersistence.loadDeviceCrc(masterAddr)
+            Log.d("BLE_CRC", "poll[$attempt] newCrc = $newCrc")
+            if (newCrc != null) return@repeat
+        }
+
+        Log.d("BLE_CRC", "final newCrc = $newCrc")
+
+        val crcSame = oldCrc != null && newCrc != null && oldCrc == newCrc
+
+        val cacheCount = WidgetRepoProvider.get().count()
+        val hasCache = cacheCount > 0
+
+        if (crcSame && hasCache) {
+            Log.d(
+                "BLE_INIT",
+                "CRC совпадает (old=$oldCrc, new=$newCrc), cacheCount=$cacheCount → бустрапим из БД и включаем поток"
+            )
+
+            // 1) поднимаем всё из кеша
+            WidgetBootstrapHydrator.restoreFromDb(0)
+            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+            updateFlow.emit(0)
+
+            // 2) отправляем запросы по параметрам, как это делалось после холодной инициализации
+            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+                bleCommand(
+                    cmd,
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                )
+            }
+
+            // 3) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
+            bleCommand(
+                BLECommands.requestTransferFlow(1),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            )
+
+            // на всякий случай, чтобы дальше не пытаться ещё раз
+            needReRequestTransferFlow = false
+
+            // 4) говорим диалогу, что всё готово
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+            return
+        }
+
+        Log.d(
+            "BLE_INIT",
+            "CRC отличается или кеша нет (old=$oldCrc, new=$newCrc, hasCache=$hasCache) → полная инициализация"
+        )
+
+        // если CRC не совпал / кеша нет — идём по старому тяжёлому пути
+        firstNotificationRequestFull()
+    }
+
 
     private fun parseReceivedData(data: ByteArray?) {
         val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"

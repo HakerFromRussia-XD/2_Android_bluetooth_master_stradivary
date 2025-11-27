@@ -660,33 +660,6 @@ struct GesturesWidgetView: View {
     }
 }
 
-//private struct GestureLottieAnimationView: UIViewRepresentable {
-////    private let animationLoader: LottieAnimationLoader
-//
-//    init(animationName: String) {
-////        animationLoader = LottieAnimationLoader(animationName: animationName)
-//    }
-//
-//    func makeUIView(context: Context) -> LottieAnimationView {
-//        let animationView = LottieAnimationView(configuration: .shared)
-//        animationView.contentMode = .scaleAspectFit
-//        animationView.loopMode = .loop
-//        loadAnimation(into: animationView)
-//        return animationView
-//    }
-//
-//    func updateUIView(_ uiView: LottieAnimationView, context: Context) {
-//        loadAnimation(into: uiView)
-//    }
-//
-//    private func loadAnimation(into animationView: LottieAnimationView) {
-////        animationLoader.loadAnimationIfNeeded(into: animationView, playAfterLoading: true) {
-////            animationView.loopMode = .loop
-////            animationView.play()
-////        }
-//    }
-//}
-
 // MARK: - Gesture Tiles
 private struct GestureTile: View {
     let title: String
@@ -1411,19 +1384,18 @@ private struct SprGestureTile: View {
     var onDotsTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: -16) {
             HStack {
                 Text(title)
                     .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("ubi4_deactivate_text"))
                     .multilineTextAlignment(.leading)
                 Spacer()
                 
                 Button(action: onDotsTap) {
                     Image(systemName: "ellipsis")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("ubi4_deactivate_text"))
-                        .padding(6)
+                        .foregroundColor(Color("ubi4_white"))
+                        .frame(width: 48, height: 42)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -1431,19 +1403,25 @@ private struct SprGestureTile: View {
             
             if let animationName {
                 SprGestureAnimationView(animationName: animationName)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
+                    .frame(width: 140, height: 140)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             
-            if let gestureName, gestureName.isEmpty == false {
-                Text(gestureName)
-                    .font(.system(size: 10, weight: .light))
-                    .foregroundColor(Color("ubi4_deactivate_text"))
-            }
+            //            if let gestureName, gestureName.isEmpty == false {
+            //                Text(gestureName)
+            //                    .font(.system(size: 10, weight: .light))
+            //                    .foregroundColor(Color("ubi4_deactivate_text"))
+            //            }
+            Text("gestureName")
+                .font(.custom("OpenSansRoman-Bold", size: 12))
+                .foregroundColor(Color("ubi4_white"))
+                .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 8)
+            .padding(.bottom, 16)
             
             Spacer(minLength: 0)
         }
-        .padding(12)
+        .padding([.leading, .bottom], 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("ubi4_gray"))
@@ -1459,21 +1437,44 @@ private struct SprGestureTile: View {
 private struct SprGestureAnimationView: UIViewRepresentable {
     let animationName: String
 
-    func makeUIView(context: Context) -> LottieAnimationView {
-        let view = LottieAnimationView(configuration: .shared)
-        view.contentMode = .scaleAspectFit
-        view.loopMode = .loop
-        loadAnimation(into: view)
-        return view
-    }
+    
+    func makeUIView(context: Context) -> UIView {
+        // 1) ОБЯЗАТЕЛЬНО создаём контейнер
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
 
-    func updateUIView(_ uiView: LottieAnimationView, context: Context) {
-        if uiView.accessibilityIdentifier != animationName {
-            loadAnimation(into: uiView)
-//            uiView.loadedAnimationName = animationName
+        // 2) создаём реальный LottieView
+        let animationView = LottieAnimationView(configuration: .shared)
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.contentMode = .scaleAspectFit
+
+        container.addSubview(animationView)
+
+        // 3) фиксируем *размер контейнера*
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: 140),
+            container.heightAnchor.constraint(equalToConstant: 140),
+
+            // 4) растягиваем анимацию НА контейнер
+            animationView.topAnchor.constraint(equalTo: container.topAnchor),
+            animationView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            animationView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            animationView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+        ])
+
+        loadAnimation(into: animationView)
+        return container
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        guard let animationView = uiView.subviews.first as? LottieAnimationView else { return }
+
+        if animationView.loadedAnimationName != animationName {
+            loadAnimation(into: animationView)
         }
-        if uiView.isAnimationPlaying == false {
-            uiView.play()
+
+        if !animationView.isAnimationPlaying {
+            animationView.play()
         }
     }
     
@@ -1492,7 +1493,8 @@ private struct SprGestureAnimationView: UIViewRepresentable {
                         if let provider = animationContainer.configuration.imageProvider {
                             view.imageProvider = provider
                         }
-                        view.loopMode = animationContainer.configuration.loopMode
+                        view.contentMode = .scaleAspectFill
+                        view.loopMode = .loop
                         view.animationSpeed = CGFloat(animationContainer.configuration.speed)
                         view.play()
                     case .failure:

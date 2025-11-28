@@ -2,10 +2,13 @@ package com.bailout.stickk.ubi4.data.local.bootstrap
 
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.db.extractKey
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.toEndStruct
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.state.ConnectionState
 import com.bailout.stickk.ubi4.data.state.RestoredState
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
@@ -54,6 +57,14 @@ object WidgetBootstrapHydrator {
             return
         }
 
+        val crcFromDb = RoomPersistence.loadDeviceCrc(deviceAddr)
+        if (crcFromDb == null) {
+            platformLog(
+                "WIDGET_SOURCE",
+                "restoreFromDb: mac=$mac dev=$deviceAddr → CRC нет в БД, пропускаем восстановление из кеша"
+            )
+            return
+        }
         platformLog("WIDGET_SOURCE", "restoreFromDb: mac=$mac → читаем из БД")
 
         // 1. Параметры мастера
@@ -91,6 +102,27 @@ object WidgetBootstrapHydrator {
         platformLog(
             "BOOTSTRAP_TETS",
             "restoreFromDb: dev=$deviceAddr, params=${paramsFromDb.size}, subs=${subsFromDb.size}, widgets=${restored.size}"
+        )
+
+        ConnectionState.fullInicializeConnectionStruct = FullInicializeConnectionStruct(
+            deviceName = "Cached device",
+            deviceVersion = 0,
+            deviceSubVersion = 0,
+            deviceLabel = "",
+            deviceType = 0,
+            deviceCode = 0,
+            deviceAddress = deviceAddr,
+            deviceUUID_Prefix = "",
+            deviceUUID = 0L,
+            parametrsNum = paramsFromDb.size,
+            subDeviceNum = subsFromDb.size,
+            programType = 0,
+            defaultPort = 0
+        )
+
+        platformLog(
+            "BOOTSTRAP_FAKE_INIT",
+            "FullInit from cache: dev=$deviceAddr params=${paramsFromDb.size}, subs=${subsFromDb.size}"
         )
 
 
@@ -469,7 +501,6 @@ object WidgetBootstrapHydrator {
             is SpinnerParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
             is OpticStartLearningWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
             is ThresholdParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
-
             // На всякий случай — чистые Base-виджеты, если они вдруг лежат напрямую
             is BaseParameterWidgetStruct -> this
             else -> null

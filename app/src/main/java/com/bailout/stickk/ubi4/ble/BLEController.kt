@@ -41,7 +41,10 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -72,6 +75,7 @@ class BLEController() {
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
+    private var onNeedFullInitListener: (() -> Unit)? = null
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -194,8 +198,6 @@ class BLEController() {
 
 
                     WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
-                    // 1) запросить ВСЕ параметры по всем виджетам
-
 
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
@@ -367,7 +369,8 @@ class BLEController() {
                 "CRC совпадает (old=$oldCrc, new=$newCrc), cacheCount=$cacheCount → бустрапим из БД и включаем поток"
             )
 
-            // 1) поднимаем всё из кеша
+
+            // 2) поднимаем всё из кеша
             WidgetBootstrapHydrator.restoreFromDb(0)
             WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
 
@@ -376,7 +379,15 @@ class BLEController() {
             WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
             updateFlow.emit(0)
 
-            // 2) отправляем запросы по параметрам, как это делалось после холодной инициализации
+            // 1) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
+            main.bleCommandWithQueue(
+                BLECommands.requestTransferFlow(1),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
+
+            // 3) отправляем запросы по параметрам, как это делалось после холодной инициализации
             WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
                 bleCommand(
                     cmd,
@@ -385,9 +396,15 @@ class BLEController() {
                 )
             }
 
-            // 3) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
+            // 4) отправляем запросы на серийный номер
             main.bleCommandWithQueue(
-                BLECommands.requestTransferFlow(1),
+                BLECommands.requestProductInfoType(0x00.toByte()),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
+            main.bleCommandWithQueue(
+                BLECommands.requestBatteryStatus(7, 0),
                 MAIN_CHANNEL_CHARACTERISTIC,
                 WRITE
             ) {}
@@ -395,6 +412,8 @@ class BLEController() {
             // на всякий случай, чтобы дальше не пытаться ещё раз
             needReRequestTransferFlow = false
 
+
+            widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
             // 4) говорим диалогу, что всё готово
             UiState.widgetsLoadingFlow.tryEmit(Unit)
             return
@@ -403,6 +422,14 @@ class BLEController() {
             "BLE_INIT",
             "CRC отличается или кеша нет (old=$oldCrc, new=$newCrc, hasCache=$hasCache) → полная инициализация"
         )
+
+
+
+        widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
+
+        withContext(Dispatchers.Main) {
+            onNeedFullInitListener?.invoke()
+        }
 
         // если CRC не совпал / кеша нет — идём по старому тяжёлому пути
         firstNotificationRequestFull()
@@ -623,6 +650,10 @@ class BLEController() {
         }
     }
 
+
+    fun setOnNeedFullInitListener(listener: () -> Unit) {
+        onNeedFullInitListener = listener
+    }
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }

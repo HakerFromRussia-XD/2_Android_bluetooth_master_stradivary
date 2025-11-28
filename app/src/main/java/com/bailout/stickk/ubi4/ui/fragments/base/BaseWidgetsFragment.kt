@@ -478,11 +478,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
 
     protected open fun syncWidgetsFromDb() {
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            WidgetBootstrapHydrator.restoreFromDb(0)
-//            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-//            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
-//        }
+
     }
 
     open fun clearSwitcherCache() {

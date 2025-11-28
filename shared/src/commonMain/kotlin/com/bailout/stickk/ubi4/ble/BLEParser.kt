@@ -366,6 +366,9 @@ class BLEParser(
 
 
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
+        val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+        var bmsHandled = false
+
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
             //ROOM DB
@@ -412,7 +415,6 @@ class BLEParser(
                     platformLog("[BLE-COMMUNICATION]", "slider update")
                 }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-                    val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data
                     val paddedData: String = data.padEnd(12, '0')
                     platformLog("updateAllUITest", "data = $data")
@@ -493,38 +495,83 @@ class BLEParser(
                         }
                     }
                 }
+
                 ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
                     when (dataCode) {
                         ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                             //TODO проверить!
                             platformLog("TestOptic", " dataCode: $dataCode")
                             platformLog("FileInfoWriteFile", "recive ok")
-                            RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode))
+                            RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(
+                                ParameterRef(
+                                    deviceAddress,
+                                    parameterID,
+                                    dataCode
+                                )
+                            )
                         }
 
                     }
                 }
+
                 ParameterWidgetCode.PWCE_SERVICE_INFO.number.toInt() -> {
                     platformLog("updateAllUITest", "here!")
 
-                    when(dataCode){
+
+                    when (dataCode) {
                         ParameterDataCodeEnum.PDCE_BMS_STATUS_COMBINED_PARAM.number -> {
-                            val paramData = ParameterProvider.getParameter(deviceAddress,parameterID).data
-                            platformLog("updateAllUITest", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            val paramData =
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            platformLog(
+                                "updateAllUITest",
+                                "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData"
+                            )
                             val percent = paramData.hexToBatteryPercent()
                             platformLog(
                                 "BatteryParser",
                                 "raw=$paramData → percent=$percent%"
                             )
-                            coroutineScope.launch { bmsStatusFlow.emit(ParameterRef(deviceAddress,parameterID, dataCode))
+                            coroutineScope.launch {
+                                bmsStatusFlow.emit(
+                                    ParameterRef(
+                                        deviceAddress,
+                                        parameterID,
+                                        dataCode
+                                    )
+                                )
                             }
                             coroutineScope.launch { batteryPercentFlow.emit(percent) }
+                            bmsHandled = true
                         }
                     }
+
                 }
             }
         }
+
+        //для работы батки из кэша
+        if (!bmsHandled && dataCode == ParameterDataCodeEnum.PDCE_BMS_STATUS_COMBINED_PARAM.number) {
+            val paramData = parameter.data
+            val percent = paramData.hexToBatteryPercent()
+            platformLog(
+                "BatteryParser",
+                "raw=$paramData → percent=$percent% (fallback)"
+            )
+            coroutineScope.launch {
+                bmsStatusFlow.emit(
+                    ParameterRef(
+                        deviceAddress,
+                        parameterID,
+                        dataCode
+                    )
+                )
+            }
+            coroutineScope.launch { batteryPercentFlow.emit(percent) }
+        }
+
     }
+
+
 
 
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, deviceAddress: Int, receiveDataString: String) {

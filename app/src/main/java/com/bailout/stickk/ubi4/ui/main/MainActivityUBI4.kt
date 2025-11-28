@@ -12,6 +12,7 @@ import android.content.SharedPreferences
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RotateDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -141,24 +142,29 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
-        // 1) Проверяем, есть ли хоть что-то в БД для текущего MAC
-//        lifecycleScope.launch {
-//            val cacheCount = WidgetRepoProvider.get().count()
-//            platformLog("SyncProgressDialog", "onCreate cacheCount=$cacheCount mac=$connectedDeviceAddress")
-//
-//            if (cacheCount == 0L) {
-//                // Первый старт для этой платы → сразу показываем диалог
-//                observeSyncProgress()
-//            }
-//        }
-//        observeSyncProgress()
+        lifecycleScope.launch {
+            val cacheCount = WidgetRepoProvider.get().count()
+            Log.d("BLE_INIT", "onCreate → cacheCount=$cacheCount for mac=$connectedDeviceAddress")
+
+            if (cacheCount == 0L) {
+                // Кеш отсутствует → точно будет тяжёлый старт → показываем диалог сразу
+                ensureSyncDialogShown()
+            }
+        }
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
         refreshBottomNavVisibility()
         observeBattery()
         // инициализация блютуз
-        mBLEController = BLEController()
+
+        //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
+        mBLEController = BLEController().also { controller ->
+            controller.setOnNeedFullInitListener {
+                // этот колбэк всегда будет на main-потоке (мы так сделали в smartInitWithCrc)
+                ensureSyncDialogShown()
+            }
+        }
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
         bluetoothLeService = BluetoothLeService()
@@ -492,7 +498,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    private fun observeBattery(){
+    fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
         val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
         val shapeDrawable = rotate.drawable as GradientDrawable
@@ -516,6 +522,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         syncDialog.observeSyncProgress { visible ->
             setChromeVisible(visible)
         }
+    }
+
+    fun ensureSyncDialogShown() {
+        // уже показывали — больше не трогаем
+        if (syncShownOnce) return
+
+        // если активити уже закрывается / закрыта — просто выходим
+        if (isFinishing || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed)) {
+            Log.w("SyncProgressDialog", "ensureSyncDialogShown: activity is finishing/destroyed, skip")
+            return
+        }
+
+        syncShownOnce = true
+        observeSyncProgress()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

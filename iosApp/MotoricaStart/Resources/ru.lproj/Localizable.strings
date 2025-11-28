@@ -41,6 +41,7 @@
 "rotation_group_tap_hint" = "Нажми меня";
 "rotation_group_switch_hint" = "Переключение внутри этой группы \n можно осуществлять датчиками \n или кнопками на протезе.";
 "spr_dialog_title" = "Выбор жестов контроля";
+"spr_dialog_binding_title" = "";
 "spr_thumb_finger" = "Большой палец";
 "spr_flexion" = "Сгибание";
 "spr_extension" = "Разгибание";

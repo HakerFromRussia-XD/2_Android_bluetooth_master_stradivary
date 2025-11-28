@@ -58,6 +58,7 @@ final class GesturesProvider: ObservableObject {
         let id: Int
         let title: String
         var subtitle: String?
+        var boundGestureId: Int?
     }
 
     enum Segment: CaseIterable {

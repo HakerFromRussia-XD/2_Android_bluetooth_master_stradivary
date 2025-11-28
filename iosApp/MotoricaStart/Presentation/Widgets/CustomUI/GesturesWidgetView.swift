@@ -32,7 +32,13 @@ struct GesturesWidgetView: View {
     @State private var isSprGesturesDialogVisible = false
     @State private var sprGesturesDialogDismissWorkItem: DispatchWorkItem?
     @State private var sprGesturesDialogSelection: Set<Int> = []
-
+    // spppr bindings
+    @State private var isSprBindingDialogPresented = false
+    @State private var isSprBindingDialogVisible = false
+    @State private var sprBindingDialogDismissWorkItem: DispatchWorkItem?
+    @State private var sprBindingDialogSelection: Set<Int> = []
+    @State private var sprBindingDialogTarget: GesturesProvider.SprGestureDisplayItem?
+    
     var animationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
@@ -113,6 +119,22 @@ struct GesturesWidgetView: View {
                 onOptionTap: toggleSprDialogSelection,
                 onSave: handleSprDialogSave,
                 onCancel: dismissSprGesturesDialog
+            )
+            .interactiveDismissDisabled()
+            .background(ClearFullScreenBackgroundView())
+        }
+        .fullScreenCover(isPresented: $isSprBindingDialogPresented) {
+            RotationGroupAddGesturesDialogOverlay(
+                isVisible: $isSprBindingDialogVisible,
+                title: NSLocalizedString("", comment: ""),
+                saveTitle: NSLocalizedString("dialog_save", comment: ""),
+                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                options: rotationDialogOptions,
+                selection: $sprBindingDialogSelection,
+                errorMessage: nil,
+                onOptionTap: toggleSprBindingSelection,
+                onSave: handleSprBindingDialogSave,
+                onCancel: dismissSprBindingDialog
             )
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
@@ -530,7 +552,7 @@ struct GesturesWidgetView: View {
                             title: item.title,
                             gestureName: item.subtitle,
                             animationName: SprGestureAnimationMapper.animationName(for: item.id),
-                            onDotsTap: { onSprGestureAction(item) }
+                            onDotsTap: { presentSprBindingDialog(for: item) }
                         )
                         .aspectRatio(1, contentMode: .fit)
                     }
@@ -648,13 +670,73 @@ struct GesturesWidgetView: View {
             GesturesProvider.SprGestureDisplayItem(
                 id: $0.id,
                 title: $0.title,
-                subtitle: nil
+                subtitle: nil,
+                boundGestureId: nil
             )
         }
         onSprAddTap()
         dismissSprGesturesDialog()
     }
 
+    private func presentSprBindingDialog(for item: GesturesProvider.SprGestureDisplayItem) {
+        sprBindingDialogTarget = item
+        if let boundGestureId = item.boundGestureId {
+            sprBindingDialogSelection = [boundGestureId]
+        } else {
+            sprBindingDialogSelection = []
+        }
+        sprBindingDialogDismissWorkItem?.cancel()
+        isSprBindingDialogVisible = false
+        isSprBindingDialogPresented = true
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: animationDuration)) {
+                isSprBindingDialogVisible = true
+            }
+        }
+    }
+
+    private func dismissSprBindingDialog() {
+        guard isSprBindingDialogPresented else { return }
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            isSprBindingDialogVisible = false
+        }
+        sprBindingDialogDismissWorkItem?.cancel()
+        let workItem = DispatchWorkItem {
+            isSprBindingDialogPresented = false
+            sprBindingDialogTarget = nil
+            sprBindingDialogDismissWorkItem = nil
+        }
+        sprBindingDialogDismissWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + animationDuration,
+            execute: workItem
+        )
+    }
+
+    private func toggleSprBindingSelection(option: RotationGroupAddGesturesSelectionOption) {
+        if sprBindingDialogSelection.contains(option.id) {
+            sprBindingDialogSelection.remove(option.id)
+            return
+        }
+
+        sprBindingDialogSelection = [option.id]
+    }
+
+    private func handleSprBindingDialogSave() {
+        guard let target = sprBindingDialogTarget,
+              let selectedId = sprBindingDialogSelection.first,
+              let selectedOption = rotationDialogOptions.first(where: { $0.id == selectedId }),
+              let index = provider.sprGestures.firstIndex(where: { $0.id == target.id }) else {
+            dismissSprBindingDialog()
+            return
+        }
+
+        provider.sprGestures[index].subtitle = selectedOption.item.title
+        provider.sprGestures[index].boundGestureId = selectedId
+        onSprGestureAction(provider.sprGestures[index])
+        dismissSprBindingDialog()
+    }
+    
     private var sprDialogOptions: [SprGestureSelectionOption] {
         SprGesturesCatalog.all
     }
@@ -1408,12 +1490,12 @@ private struct SprGestureTile: View {
             }
             
             if let gestureName, gestureName.isEmpty == false {
-                Text("gestureName")
+                Text(gestureName)
                     .font(.custom("OpenSansRoman-Bold", size: 12))
                     .foregroundColor(Color("ubi4_white"))
                     .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 8)
-                .padding(.bottom, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
             }
             Spacer(minLength: 0)
         }

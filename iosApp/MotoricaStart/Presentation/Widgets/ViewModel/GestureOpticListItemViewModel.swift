@@ -102,20 +102,6 @@ extension GestureListItemViewModel {
         sendRotationGroup(with: provider.rotationGroup)
     }
 
-//    func appendRotationGesture(provider: GesturesProvider) {
-//        guard let gesture = GestureCatalog.factoryGestures.first(where: { item in
-//            provider.rotationGroup.contains(where: { $0.id == item.id }) == false
-//        }) else { return }
-//        provider.rotationGroup.append(
-//            GesturesProvider.GestureDisplayItem(
-//                id: gesture.id,
-//                title: gesture.title,
-//                subtitle: nil,
-//                image: gesture.image
-//            )
-//        )
-//        sendRotationGroup(with: provider.rotationGroup)
-//    }
     func updateRotationGestures(_ gestures: [GesturesProvider.GestureDisplayItem], provider: GesturesProvider) {
         provider.rotationGroup = gestures
         sendRotationGroup(with: provider.rotationGroup)

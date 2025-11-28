@@ -1407,18 +1407,14 @@ private struct SprGestureTile: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
             
-            //            if let gestureName, gestureName.isEmpty == false {
-            //                Text(gestureName)
-            //                    .font(.system(size: 10, weight: .light))
-            //                    .foregroundColor(Color("ubi4_deactivate_text"))
-            //            }
-            Text("gestureName")
-                .font(.custom("OpenSansRoman-Bold", size: 12))
-                .foregroundColor(Color("ubi4_white"))
-                .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 8)
-            .padding(.bottom, 16)
-            
+            if let gestureName, gestureName.isEmpty == false {
+                Text("gestureName")
+                    .font(.custom("OpenSansRoman-Bold", size: 12))
+                    .foregroundColor(Color("ubi4_white"))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
+            }
             Spacer(minLength: 0)
         }
         .padding([.leading, .bottom], 12)

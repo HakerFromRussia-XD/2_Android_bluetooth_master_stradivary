@@ -36,7 +36,7 @@ extension GestureListItemViewModel {
     func makeProvider() -> GesturesProvider {
         let factory = GestureCatalog.factoryGestures
         let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
-        let rotation = Array(factory.prefix(4))
+        let rotation = Array(factory.prefix(8))
         let spr: [GesturesProvider.SprGestureDisplayItem] = []
         return GesturesProvider(
             factoryGestures: factory.map {

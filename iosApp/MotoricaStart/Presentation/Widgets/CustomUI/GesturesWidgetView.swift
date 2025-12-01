@@ -100,7 +100,7 @@ struct GesturesWidgetView: View {
                 isVisible: $isRotationDeleteDialogVisible,
                 title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
                 message: $rotationDeleteDialogMessage,
-                deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
+                deleteTitle: NSLocalizedString("dialog_delete", comment: ""), //SharedRes.strings().delete.desc().localized(),
                 cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 onDelete: handleRotationDeleteConfirm,
                 onCancel: dismissRotationDeleteDialog
@@ -126,7 +126,7 @@ struct GesturesWidgetView: View {
         .fullScreenCover(isPresented: $isSprBindingDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
                 isVisible: $isSprBindingDialogVisible,
-                title: NSLocalizedString("", comment: ""),
+                title: SharedRes.strings().assign_gesture.desc().localized(),
                 saveTitle: NSLocalizedString("dialog_save", comment: ""),
                 cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
                 options: rotationDialogOptions,

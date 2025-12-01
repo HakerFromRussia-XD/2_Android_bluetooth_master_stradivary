@@ -79,6 +79,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Glob
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.BleHexUtils
@@ -689,42 +690,90 @@ class BLEParser(
 
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
-            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+            Json.decodeFromString<FullInicializeConnectionStruct>(
+                "\"${receiveDataString.substring(18, receiveDataString.length)}\""
+            )
+
         val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 
+        // 1) Сбрасываем состояние запросов и label-маппинг
+        UiState.resetWidgetRequests()
+        UiState.labelCodesByOffset.clear()
 
+        // 2) Холодный / тёплый старт
         if (!hadWidgetsFromCache) {
-            // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
-            platformLog("INIT_TEST_LOG", "run  if (!hadWidgetsFromCache -2")
+            platformLog("INIT_TEST_LOG", "COLD START: clear widgets list")
             listWidgets.clear()
-            UiState.resetWidgetRequests()
-            UiState.labelCodesByOffset.clear()
-            coroutineScope.launch {
-                widgetsLoadingFlow.tryEmit(Unit)
-                widgetsLoadingProgressTotal = 1
-                widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
-                updateFlow.emit(0)   // полностью перерисуем
-            }
         } else {
-            // ТЁПЛЫЙ СТАРТ — виджеты уже подняты из БД, их НЕ ТРОГАЕМ
-            UiState.resetWidgetRequests()
-            UiState.labelCodesByOffset.clear()
+            platformLog("INIT_TEST_LOG", "WARM START: keep widgets from cache")
         }
 
-        val progressTotal  =
+        // 3) Считаем прогресс
+        val progressTotal =
             fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
         widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
-        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
-        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+
+        // 4) Шлём info + стартовый прогресс (current = уже имеющиеся виджеты из кеша)
+        coroutineScope.launch {
+            initializationInfoFlow.emit(fullInicializeConnectionStruct)
+
+            widgetsLoadingProgressFlow.emit(
+                WidgetsLoadingProgress(
+                    total = widgetsLoadingProgressTotal,
+                    current = listWidgets.size.coerceAtMost(widgetsLoadingProgressTotal)
+                )
+            )
+        }
+
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
+
+        // 5) Запрашиваем базовые параметры мастера
         bleManager.sendBytesKmm(
-            BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
+            BLECommands.requestBaseParametrInfo(
+                0x00,
+                fullInicializeConnectionStruct.parametrsNum.toByte()
+            ),
             MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
+
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
         platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
     }
+
+//    private fun parseInitializeInformation(receiveDataString: String) {
+//        fullInicializeConnectionStruct =
+//            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+//        val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
+//
+//        UiState.resetWidgetRequests()
+//        UiState.labelCodesByOffset.clear()
+//
+//        if (!hadWidgetsFromCache) {
+//            // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
+//            platformLog("INIT_TEST_LOG", "COLD START: clear widgets list")
+//            listWidgets.clear()
+//
+//        } else {
+//            // ТЁПЛЫЙ СТАРТ — виджеты уже подняты из БД, их НЕ ТРОГАЕМ
+//            platformLog("INIT_TEST_LOG", "WARM START: keep widgets from cache")
+//        }
+//
+//        val progressTotal  =
+//            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
+//        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+//        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
+//        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+//        platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
+//
+//        bleManager.sendBytesKmm(
+//            BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
+//            MAIN_CHANNEL_CHARACTERISTIC,
+//            WRITE
+//        ) {}
+//        platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
+//        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
+//    }
 
     private fun parseReadDeviceParameters(receiveDataString: String) {
         platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 2")
@@ -1133,25 +1182,62 @@ class BLEParser(
 
 
     private fun parseProductCRCInfo(receiveDataString: String) {
-        // addr мастера / сабдевайса из хедера
+        // Текущий MAC (уже должен быть установлен в ACTION_GATT_SERVICES_DISCOVERED)
+        val mac = WidgetRepoProvider.mac()
+
+        // 1) Адрес устройства из хедера (мастер / саб-девайс)
+        val addrHex = receiveDataString.substringSafe(12, 14)
         val deviceAddr = castUnsignedCharToInt(
-            receiveDataString.substringSafe(12, 14).toInt(16).toByte()
+            addrHex.toInt(16).toByte()
         )
 
-        // payload CRC начинается с байта (HEADER_BLE_OFFSET + 1)
+        // 2) CRC в payload — 4 байта, little-endian, начиная с (HEADER_BLE_OFFSET + 1)
         val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
         val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
 
+        if (payloadHex.length < 8) {
+            platformLog(
+                "parseProductCRCInfo",
+                "SKIP: payload too short mac=$mac addr=$deviceAddr hex='$payloadHex'"
+            )
+            return
+        }
+
         val crc = BleHexUtils.crc32FromHexLE(payloadHex)
 
-        platformLog("parseProductCRCInfo", "addr=$deviceAddr payload=$payloadHex crc=$crc")
+        platformLog(
+            "parseProductCRCInfo",
+            "READ: mac=$mac addr=$deviceAddr payload=$payloadHex crc=$crc"
+        )
 
+        // 3) Сохраняем CRC в БД (привязка по mac + deviceAddr внутри RoomPersistence)
         RoomPersistence.persistDeviceCrc(
-            scope = coroutineScope,
+            scope      = coroutineScope,
             deviceAddr = deviceAddr,
-            crc = crc
+            crc        = crc
         )
     }
+//
+//    private fun parseProductCRCInfo(receiveDataString: String) {
+//        // addr мастера / сабдевайса из хедера
+//        val deviceAddr = castUnsignedCharToInt(
+//            receiveDataString.substringSafe(12, 14).toInt(16).toByte()
+//        )
+//
+//        // payload CRC начинается с байта (HEADER_BLE_OFFSET + 1)
+//        val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
+//        val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
+//
+//        val crc = BleHexUtils.crc32FromHexLE(payloadHex)
+//
+//        platformLog("parseProductCRCInfo", "addr=$deviceAddr payload=$payloadHex crc=$crc")
+//
+//        RoomPersistence.persistDeviceCrc(
+//            scope = coroutineScope,
+//            deviceAddr = deviceAddr,
+//            crc = crc
+//        )
+//    }
 
 
 

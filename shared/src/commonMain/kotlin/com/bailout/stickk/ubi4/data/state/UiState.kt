@@ -33,7 +33,7 @@ object UiState {
         updateFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 64)
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
-        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
+        widgetsLoadingProgressFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
     }
     fun resetWidgetRequests() {
         requestedWidgetParameters.clear()

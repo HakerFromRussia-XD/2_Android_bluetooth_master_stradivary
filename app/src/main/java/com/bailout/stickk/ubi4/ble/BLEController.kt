@@ -330,11 +330,113 @@ class BLEController() {
         }
     }
 
+//    private suspend fun smartInitWithCrc() {
+//        val masterAddr = 0
+//
+//        val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
+//        Log.d("BLE_CRC", "oldCrc from DB = $oldCrc")
+//
+//        // 1) включаем NOTIFY и запрашиваем CRC
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//        delay(150)
+//
+//        Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
+//        main.bleCommandWithQueue(
+//            BLECommands.requestSystemCrc(),
+//            MAIN_CHANNEL_CHARACTERISTIC,
+//            WRITE
+//        ) {}
+//
+//        // 2) ждём, пока parseProductCRCInfo сохранит CRC в БД
+//        var newCrc: Long? = null
+//        repeat(5) { attempt ->
+//            delay(200)
+//            newCrc = RoomPersistence.loadDeviceCrc(masterAddr)
+//            Log.d("BLE_CRC", "poll[$attempt] newCrc = $newCrc")
+//            if (newCrc != null) return@repeat
+//        }
+//
+//        Log.d("BLE_CRC", "final newCrc = $newCrc")
+//
+//        val crcSame = oldCrc != null && newCrc != null && oldCrc == newCrc
+//
+//        val cacheCount = WidgetRepoProvider.get().count()
+//        val hasCache = cacheCount > 0
+//
+//        if (crcSame && hasCache) {
+//            Log.d(
+//                "BLE_INIT",
+//                "CRC совпадает (old=$oldCrc, new=$newCrc), cacheCount=$cacheCount → бустрапим из БД и включаем поток"
+//            )
+//
+//            // 2) поднимаем всё из кеша
+//            WidgetBootstrapHydrator.restoreFromDb(0)
+//            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+//
+//            WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
+//
+//            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+//            updateFlow.emit(0)
+//
+//            // 1) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
+//            main.bleCommandWithQueue(
+//                BLECommands.requestTransferFlow(1),
+//                MAIN_CHANNEL_CHARACTERISTIC,
+//                WRITE
+//            ) {}
+//
+//            // 3) отправляем запросы по параметрам, как это делалось после холодной инициализации
+//            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+//                bleCommand(
+//                    cmd,
+//                    MAIN_CHANNEL_CHARACTERISTIC,
+//                    WRITE
+//                )
+//            }
+//            // 4) отправляем запросы на серийный номер
+//            main.bleCommandWithQueue(
+//                BLECommands.requestProductInfoType(0x00.toByte()),
+//                MAIN_CHANNEL_CHARACTERISTIC,
+//                WRITE
+//            ) {}
+//
+//            main.bleCommandWithQueue(
+//                BLECommands.requestBatteryStatus(7, 0),
+//                MAIN_CHANNEL_CHARACTERISTIC,
+//                WRITE
+//            ) {}
+//
+//            // на всякий случай, чтобы дальше не пытаться ещё раз
+//            needReRequestTransferFlow = false
+//
+//
+//            widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
+//            // 4) говорим диалогу, что всё готово
+//            UiState.widgetsLoadingFlow.tryEmit(Unit)
+//            return
+//        }
+//        Log.d(
+//            "BLE_INIT",
+//            "CRC отличается или кеша нет (old=$oldCrc, new=$newCrc, hasCache=$hasCache) → полная инициализация"
+//        )
+//
+//
+//
+////        widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
+//
+//        withContext(Dispatchers.Main) {
+//            onNeedFullInitListener?.invoke()
+//        }
+//
+//        // если CRC не совпал / кеша нет — идём по старому тяжёлому пути
+//        firstNotificationRequestFull()
+//    }
+
     private suspend fun smartInitWithCrc() {
         val masterAddr = 0
 
         val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
-        Log.d("BLE_CRC", "oldCrc from DB = $oldCrc")
+        Log.d("BLE_CRC", "oldCrc from DB = $oldCrc, mac=${WidgetRepoProvider.mac()}")
 
         // 1) включаем NOTIFY и запрашиваем CRC
         bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
@@ -352,51 +454,40 @@ class BLEController() {
         repeat(5) { attempt ->
             delay(200)
             newCrc = RoomPersistence.loadDeviceCrc(masterAddr)
-            Log.d("BLE_CRC", "poll[$attempt] newCrc = $newCrc")
+            Log.d("BLE_CRC", "poll[$attempt] newCrc = $newCrc, mac=${WidgetRepoProvider.mac()}")
             if (newCrc != null) return@repeat
         }
 
-        Log.d("BLE_CRC", "final newCrc = $newCrc")
+        Log.d("BLE_CRC", "final newCrc = $newCrc, mac=${WidgetRepoProvider.mac()}")
 
         val crcSame = oldCrc != null && newCrc != null && oldCrc == newCrc
 
         val cacheCount = WidgetRepoProvider.get().count()
         val hasCache = cacheCount > 0
 
+        // ---------- ТЁПЛЫЙ СТАРТ ----------
         if (crcSame && hasCache) {
             Log.d(
                 "BLE_INIT",
-                "CRC совпадает (old=$oldCrc, new=$newCrc), cacheCount=$cacheCount → бустрапим из БД и включаем поток"
+                "WARM START (old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()})"
             )
 
-
-            // 2) поднимаем всё из кеша
-            WidgetBootstrapHydrator.restoreFromDb(0)
-            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
-
+            WidgetBootstrapHydrator.restoreFromDb(masterAddr)
+            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
             WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
-
-            WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+            WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
             updateFlow.emit(0)
 
-            // 1) включаем поток данных, как это делалось в parseReadSubDeviceAdditionalParameters
             main.bleCommandWithQueue(
                 BLECommands.requestTransferFlow(1),
                 MAIN_CHANNEL_CHARACTERISTIC,
                 WRITE
             ) {}
 
-
-            // 3) отправляем запросы по параметрам, как это делалось после холодной инициализации
             WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
-                bleCommand(
-                    cmd,
-                    MAIN_CHANNEL_CHARACTERISTIC,
-                    WRITE
-                )
+                bleCommand(cmd, MAIN_CHANNEL_CHARACTERISTIC, WRITE)
             }
 
-            // 4) отправляем запросы на серийный номер
             main.bleCommandWithQueue(
                 BLECommands.requestProductInfoType(0x00.toByte()),
                 MAIN_CHANNEL_CHARACTERISTIC,
@@ -409,32 +500,24 @@ class BLEController() {
                 WRITE
             ) {}
 
-            // на всякий случай, чтобы дальше не пытаться ещё раз
             needReRequestTransferFlow = false
-
-
-            widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
-            // 4) говорим диалогу, что всё готово
-            UiState.widgetsLoadingFlow.tryEmit(Unit)
+            // ВАЖНО: диалог НЕ трогаем, потому что он не должен вообще появляться на тёплом старте
             return
         }
+
+        // ---------- ХОЛОДНЫЙ СТАРТ ----------
         Log.d(
             "BLE_INIT",
-            "CRC отличается или кеша нет (old=$oldCrc, new=$newCrc, hasCache=$hasCache) → полная инициализация"
+            "COLD START (old=$oldCrc, new=$newCrc, hasCache=$hasCache, mac=${WidgetRepoProvider.mac()}) → full init"
         )
 
-
-
-        widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(1, 0))
-
+        // Показываем диалог ТОЛЬКО тут
         withContext(Dispatchers.Main) {
             onNeedFullInitListener?.invoke()
         }
 
-        // если CRC не совпал / кеша нет — идём по старому тяжёлому пути
         firstNotificationRequestFull()
     }
-
 
     private fun parseReceivedData(data: ByteArray?) {
         val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"

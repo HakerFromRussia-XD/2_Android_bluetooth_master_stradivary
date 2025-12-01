@@ -79,16 +79,17 @@ interface WidgetRepository {
         dataCode: Int
     ): WidgetStateEntity?
 
+    suspend fun loadDeviceCrc(
+        mac: String,
+        addr: Int
+    ): Long?
+
     suspend fun upsertDeviceCrc(
+        mac: String,
         deviceAddr: Int,
         crc: Long,
         tsMs: Long
     )
-
-    suspend fun loadDeviceCrc(
-        deviceAddr: Int
-    ): Long?
-
 }
 
 
@@ -284,49 +285,35 @@ class WidgetRepositoryImpl(
             row
         }
 
+
+    override suspend fun loadDeviceCrc(
+        mac: String,
+        addr: Int
+    ): Long? {
+        // если deviceCrcDao == null (например, на iOS пока не используешь Room)
+        val entity = deviceCrcDao?.load(
+            mac  = mac,
+            addr = addr.toLong()
+        )
+        return entity?.crc
+    }
+
     override suspend fun upsertDeviceCrc(
+        mac: String,
         deviceAddr: Int,
         crc: Long,
         tsMs: Long
-    ) = withContext(Dispatchers.IO) {
-        val daoLocal = deviceCrcDao ?: run {
-            platformLog("DEVICE_CRC_DB", "upsertDeviceCrc: deviceCrcDao is null → skip")
-            return@withContext
-        }
-
-        val mac = mac()
-        val entity = DeviceCrcEntity(
-            device_mac = mac,
-            device_addr = deviceAddr.toLong(),
-            ts_ms = tsMs,
-            crc = crc
-        )
-
-        daoLocal.upsert(entity)
-
-        platformLog(
-            "DEVICE_CRC_DB",
-            "upsertDeviceCrc ok: mac=$mac addr=$deviceAddr crc=$crc ts=$tsMs"
+    ) {
+        val dao = deviceCrcDao ?: return
+        dao.upsert(
+            DeviceCrcEntity(
+                device_mac  = mac,
+                device_addr = deviceAddr.toLong(),
+                ts_ms       = tsMs,
+                crc         = crc
+            )
         )
     }
-
-    override suspend fun loadDeviceCrc(deviceAddr: Int): Long? =
-        withContext(Dispatchers.IO) {
-            val daoLocal = deviceCrcDao ?: run {
-                platformLog("DEVICE_CRC_DB", "loadDeviceCrc: deviceCrcDao is null → return null")
-                return@withContext null
-            }
-
-            val mac = mac()
-            val row = daoLocal.load(mac, deviceAddr.toLong())
-            if (row == null) {
-                platformLog("DEVICE_CRC_DB", "no CRC in DB: mac=$mac addr=$deviceAddr")
-                null
-            } else {
-                platformLog("DEVICE_CRC_DB", "loadDeviceCrc: mac=$mac addr=$deviceAddr crc=${row.crc}")
-                row.crc
-            }
-        }
 
     override suspend fun count(): Long = withContext(Dispatchers.IO) { dao.count(mac()) }
 }

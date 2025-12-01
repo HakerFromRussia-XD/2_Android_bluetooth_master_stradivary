@@ -142,15 +142,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
-        lifecycleScope.launch {
-            val cacheCount = WidgetRepoProvider.get().count()
-            Log.d("BLE_INIT", "onCreate → cacheCount=$cacheCount for mac=$connectedDeviceAddress")
-
-            if (cacheCount == 0L) {
-                // Кеш отсутствует → точно будет тяжёлый старт → показываем диалог сразу
-                ensureSyncDialogShown()
-            }
-        }
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
@@ -224,13 +215,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 //        main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-        binding.runCommandBtn.setOnClickListener {
-            bleCommandWithQueue(
-                BLECommands.requestTransferFlow(1),
-                MAIN_CHANNEL_CHARACTERISTIC,
-                WRITE
-            ) {}
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            bleCommandWithQueue(
+//                BLECommands.requestTransferFlow(1),
+//                MAIN_CHANNEL_CHARACTERISTIC,
+//                WRITE
+//            ) {}
+//        }
 
 
         val accountPb = binding.accountPb.apply {

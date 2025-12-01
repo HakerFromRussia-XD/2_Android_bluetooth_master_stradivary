@@ -125,7 +125,6 @@ object WidgetBootstrapHydrator {
             "FullInit from cache: dev=$deviceAddr params=${paramsFromDb.size}, subs=${subsFromDb.size}"
         )
 
-
     }
 
     /**

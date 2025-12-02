@@ -106,8 +106,26 @@ extension GestureListItemViewModel {
         provider.rotationGroup = gestures
         sendRotationGroup(with: provider.rotationGroup)
     }
+    
+    func rotationGroup(from parameterData: String, provider: GesturesProvider) -> [GesturesProvider.GestureDisplayItem] {
+        let gestureIds = rotationGroupIds(from: parameterData)
+        let catalog = GestureCatalog.factoryGestures + GestureCatalog.customGestures(withTitles: gestureNameList)
+
+        return gestureIds.compactMap { id in
+            guard id != 0,
+                  let gesture = catalog.first(where: { $0.id == id }) else { return nil }
+
+            return GesturesProvider.GestureDisplayItem(
+                id: gesture.id,
+                title: gesture.title,
+                subtitle: gesture.subtitle,
+                image: gesture.image
+            )
+        }
+    }
 
     func requestRotationGroup() {
+        print("sendBytes requestRotationGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestRotationGroup(
@@ -118,6 +136,7 @@ extension GestureListItemViewModel {
     }
 
     func requestBindingGroup() {
+        print("sendBytes requestBindingGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
         let parameterID = parameterID(for: ParameterCode.bindingGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestBindingGroup(
@@ -162,11 +181,32 @@ extension GestureListItemViewModel {
     }
     
     private func parameterID(for dataCode: Int) -> Int {
-        parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
+        parameterInfoSet.forEach { ParameterInfoData in
+            print("sendBytes ParameterInfoData: \(ParameterInfoData) dataCode = \(dataCode)")
+        }
+        return parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
+    }
+    
+    private func rotationGroupIds(from parameterData: String) -> [Int] {
+        let sanitized = parameterData.trimmingCharacters(in: .whitespacesAndNewlines)
+        var ids: [Int] = []
+
+        stride(from: 0, to: min(sanitized.count, 32), by: 4).forEach { offset in
+            let idStart = sanitized.index(sanitized.startIndex, offsetBy: offset)
+            guard let idEnd = sanitized.index(idStart, offsetBy: 2, limitedBy: sanitized.endIndex) else { return }
+
+            let idSubstring = sanitized[idStart..<idEnd]
+            if let id = Int(idSubstring, radix: 16) {
+                ids.append(id)
+            }
+        }
+
+        return ids
     }
 
     private func sendBytes(_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()
+        print("sendBytes to \(data)")
         bleManager.sendBytesKmm(
             data: data,
             command: gatt.MAIN_CHANNEL_CHARACTERISTIC,

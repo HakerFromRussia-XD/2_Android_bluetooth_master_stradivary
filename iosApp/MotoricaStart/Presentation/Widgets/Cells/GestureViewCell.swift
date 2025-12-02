@@ -79,11 +79,9 @@ final class GestureViewCell: UITableViewCell {
             
         // 3. Запускаем подписку на поток
         job?.cancel(cause: nil)
-        job = WidgetStateBridge.shared.observeSwitchers { [weak self] paramRef in
+        job = WidgetStateBridge.shared.observeRotationGroup { [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
         }
-        
-//        viewModel.requestActiveGesutre()
     }
         
     override func prepareForReuse() {
@@ -94,25 +92,22 @@ final class GestureViewCell: UITableViewCell {
         job = nil
         provider = nil
         contentConfiguration = nil
-//        isProgrammaticUpdate = false
     }
         
         
     private func updateUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
         guard ref.addressDevice == viewModel.widget.deviceAddress,
-              ref.parameterID   == viewModel.widget.parameterID else { return }
+              ref.parameterID   == viewModel.widget.parameterID,
+              let provider      = provider else { return }
         
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         
-//        guard let isOn = viewModel.switchValue(from: parameter) else { return }
-//        
-//        DispatchQueue.main.async { [weak self] in
-//            guard let self else { return }
-//            guard self.provider?.isOn != isOn else { return }
-//            self.isProgrammaticUpdate = true
-//            self.provider?.isOn = isOn
-//            self.isProgrammaticUpdate = false
-//        }
+        let rotationGroup = viewModel.rotationGroup(from: parameter.data, provider: provider)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.provider?.rotationGroup = rotationGroup
+        }
     }
 }

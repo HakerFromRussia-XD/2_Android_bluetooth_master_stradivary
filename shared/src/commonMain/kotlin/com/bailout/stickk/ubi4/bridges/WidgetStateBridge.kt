@@ -47,4 +47,14 @@ object WidgetStateBridge {
         coroutineScope.launch {
             WidgetState.thresholdFlow.collect { callback(it) }
         }
+
+
+    /**
+     * Подписка на rotationGroupFlow.
+     * @param callback вызывается с каждым новым значением группы ротации.
+     */
+    fun observeRotationGroup(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.rotationGroupFlow.collect { callback(it) }
+        }
 }

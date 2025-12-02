@@ -29,11 +29,6 @@ struct GestureListItemViewModel: Equatable, Hashable {
         } else {
             self.parameterInfoSet = []
         }
-//        print("sendBytes widget: \(String(describing: widget))")
-//        let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget)
-//        print("sendBytes baseStruct: \(String(describing: baseStruct))")
-//        self.parameterInfoSet = ParameterInfoData.makeSet(from: baseStruct?.parameterInfoSet)
-//        print("sendBytes parameterInfoSet.count: \(parameterInfoSet.count)")
     }
 }
 
@@ -89,25 +84,15 @@ extension GestureListItemViewModel {
         requestGestureSettings(gestureId: item.id)
     }
 
-    func moveRotationGestureUp(at index: Int, provider: GesturesProvider) {
-        guard index > 0 else { return }
-        provider.rotationGroup.swapAt(index, index - 1)
-        sendRotationGroup(with: provider.rotationGroup)
-    }
-
-    func moveRotationGestureDown(at index: Int, provider: GesturesProvider) {
-        guard index < provider.rotationGroup.count - 1 else { return }
-        provider.rotationGroup.swapAt(index, index + 1)
-        sendRotationGroup(with: provider.rotationGroup)
-    }
-
     func removeRotationGesture(at index: Int, provider: GesturesProvider) {
+        print("sendBytes removeRotationGesture")
         guard provider.rotationGroup.indices.contains(index) else { return }
         provider.rotationGroup.remove(at: index)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
     func updateRotationGestures(_ gestures: [GesturesProvider.GestureDisplayItem], provider: GesturesProvider) {
+        print("sendBytes updateRotationGestures")
         provider.rotationGroup = gestures
         sendRotationGroup(with: provider.rotationGroup)
     }
@@ -130,7 +115,8 @@ extension GestureListItemViewModel {
     }
 
     func requestRotationGroup() {
-        print("sendBytes requestRotationGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
+        print("sendBytes requestRotationGroup")
+//        print("sendBytes requestRotationGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestRotationGroup(
@@ -141,7 +127,8 @@ extension GestureListItemViewModel {
     }
 
     func requestBindingGroup() {
-        print("sendBytes requestBindingGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
+        print("sendBytes requestBindingGroup")
+//        print("sendBytes requestBindingGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
         let parameterID = parameterID(for: ParameterCode.bindingGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestBindingGroup(
@@ -152,6 +139,7 @@ extension GestureListItemViewModel {
     }
 
     private func sendActiveGesture(gestureId: Int) {
+        print("sendBytes sendActiveGesture")
         let parameterID = parameterID(for: ParameterCode.selectGesture)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.sendActiveGesture(
@@ -174,7 +162,9 @@ extension GestureListItemViewModel {
     }
 
     private func sendRotationGroup(with gestures: [GesturesProvider.GestureDisplayItem]) {
+        print("sendBytes sendRotationGroup gestures: \(gestures)")
         let rotationGroup = RotationGroup.make(from: gestures)
+        print("sendBytes sendRotationGroup rotationGroup: \(rotationGroup)")
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.sendRotationGroupInfo(

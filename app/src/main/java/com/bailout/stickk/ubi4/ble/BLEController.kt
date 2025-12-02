@@ -205,7 +205,11 @@ class BLEController() {
 
                         main.lifecycleScope.launch {
 
-                            smartInitWithCrc()
+                            UiState.fullInitInProgress.value = false
+                            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
+                            UiState.widgetsLoadingFlow.tryEmit(Unit)
+//                            smartInitWithCrc()
+                            smartInitWithCrcSafe()
 //                            firstNotificationRequest()
 
                         }
@@ -233,6 +237,19 @@ class BLEController() {
             }
         }
 
+
+
+    @Volatile
+    private var initStarted = false
+
+    private suspend fun smartInitWithCrcSafe() {
+        if (initStarted) {
+            Log.d("BLE_INIT", "smartInitWithCrc уже стартовал, пропускаем")
+            return
+        }
+        initStarted = true
+        smartInitWithCrc()
+    }
 
     private suspend fun firstNotificationRequestFull() {
         var attempts = 0
@@ -294,9 +311,7 @@ class BLEController() {
         val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
         Log.d("BLE_CRC", "oldCrc from DB = $oldCrc, mac=${WidgetRepoProvider.mac()}")
 
-        UiState.fullInitInProgress.value = false
-
-        // 1) включаем NOTIFY и запрашиваем CRC
+        // Включаем NOTIFY и запрашиваем CRC
         bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
         delay(150)
 
@@ -319,9 +334,13 @@ class BLEController() {
         Log.d("BLE_CRC", "final newCrc = $newCrc, mac=${WidgetRepoProvider.mac()}")
 
         val crcSame = oldCrc != null && newCrc != null && oldCrc == newCrc
-
         val cacheCount = WidgetRepoProvider.get().count()
         val hasCache = cacheCount > 0
+
+        Log.d(
+            "BLE_INIT",
+            "DECISION: crcSame=$crcSame, hasCache=$hasCache, old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()}"
+        )
 
         // ---------- ТЁПЛЫЙ СТАРТ ----------
         if (crcSame && hasCache) {
@@ -330,13 +349,26 @@ class BLEController() {
                 "WARM START (old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()})"
             )
 
+            // Полной инициализации НЕТ
             UiState.fullInitInProgress.value = false
+
+            // Сбрасываем прогресс
+            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                current = 0,
+                total = 0
+            )
+
+            // На всякий случай гасим диалог
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+
+            // Гидратация из кеша
             WidgetBootstrapHydrator.restoreFromDb(masterAddr)
             WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
             WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
             WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
             updateFlow.emit(0)
 
+            // Запускаем живой поток
             main.bleCommandWithQueue(
                 BLECommands.requestTransferFlow(1),
                 MAIN_CHANNEL_CHARACTERISTIC,
@@ -360,7 +392,6 @@ class BLEController() {
             ) {}
 
             needReRequestTransferFlow = false
-            // ВАЖНО: диалог НЕ трогаем, потому что он не должен вообще появляться на тёплом старте
             return
         }
 
@@ -372,7 +403,6 @@ class BLEController() {
 
         UiState.fullInitInProgress.value = true
 
-        // Показываем диалог ТОЛЬКО тут
         withContext(Dispatchers.Main) {
             onNeedFullInitListener?.invoke()
         }
@@ -588,16 +618,33 @@ class BLEController() {
         onDisconnectedListener = listener
     }
 
+//    fun cleanup() {
+//        // Отменяем запущенные корутины
+//        bleJob.cancel()
+//        try {
+//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
+//        } catch (e: IllegalArgumentException) {
+//            Log.w("BLEController", "Ресивер уже отписан")
+//        }
+//    }
+
     fun cleanup() {
-        // Отменяем запущенные корутины
         bleJob.cancel()
+        if (!receiverRegistered) return
+
         try {
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+                LocalBroadcastManager.getInstance(mContext)
+                    .unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
         } catch (e: IllegalArgumentException) {
-            Log.w("BLEController", "Ресивер уже отписан")
+            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
+        } finally {
+            receiverRegistered = false
         }
     }
-
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener

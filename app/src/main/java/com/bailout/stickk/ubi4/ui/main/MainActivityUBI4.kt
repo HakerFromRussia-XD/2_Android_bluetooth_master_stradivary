@@ -420,6 +420,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (byteArray != null) {
             Log.d("BLE_INIT", "bleCommandWithQueue 2")
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
+            platformLog("bleCommandWithQueue_Test", "очередь команд - ${queue.size()}")
             remainingTasks.incrementAndGet()
         } else {
             Log.d("BLE_INIT", "bleCommandWithQueue 3")
@@ -441,6 +442,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 writeLock.wait()    // ждём, пока кто-то вызовет notify()
             }
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
+            platformLog("bleCommandWithQueue_Test", "очередь команд исполнение - ${queue.size()}")
+
         }
     }
 

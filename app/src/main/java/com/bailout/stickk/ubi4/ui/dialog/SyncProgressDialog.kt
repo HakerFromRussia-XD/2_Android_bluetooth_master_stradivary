@@ -61,99 +61,157 @@ class SyncProgressDialog(
         progressBar = null
     }
 
+//    fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {
+//        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress() CALLED | isShowing=$isShowing owner=$owner chromeHidden=$chromeHidden")
+//
+//        // ВАЖНО: больше ничего тут не делаем — НИ show(), НИ setChromeVisible(false)
+//        // Всё это будет решаться только внутри коллектора по факту прихода прогресса.
+//
+//        if (watchJob != null) {
+//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): cancel previous watchJob=$watchJob")
+//        }
+//        watchJob?.cancel()
+//
+//        watchJob = owner.lifecycleScope.launch {
+//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): new watchJob STARTED = $watchJob")
+//
+//            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): enter repeatOnLifecycle(STARTED)")
+//
+//                merge(
+//                    UiState.widgetsLoadingProgressFlow.map { p ->
+//                        val total = p.total.coerceAtLeast(0)
+//                        val current = p.current.coerceAtLeast(0).coerceAtMost(total)
+//                        val percent = if (total > 0) (current * 100 / total).coerceIn(0, 100) else 0
+//
+//                        Log.d(
+//                            "SYNC_DIALOG_DEBUG",
+//                            "FLOW_PROGRESS: current=${p.current}, total=${p.total}, percent=$percent, dialog=$dialog, progressBar=$progressBar"
+//                        )
+//
+//                        val fullInit = UiState.fullInitInProgress.value
+//
+//
+//                        if (!fullInit && !isShowing) {
+//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: skip, fullInitInProgress=false")
+//                            return@map
+//                        }
+//                        // Показываем диалог ТОЛЬКО если реально идёт "незавершённый" прогресс
+//                        val needShow = total > 0 && current < total
+//
+//                        if (needShow && !isShowing) {
+//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: needShow=true → call show()")
+//                            show()
+//                            if (!chromeHidden) {
+//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: hiding chrome (setChromeVisible(false))")
+//                                setChromeVisible(false)
+//                                chromeHidden = true
+//                            }
+//                        }
+//
+//                        // Если диалог открыт — обновляем прогрессбар
+//                        if (isShowing) {
+//                            progressBar?.let { bar ->
+//                                val next = maxOf(bar.progress, percent)
+//                                if (Build.VERSION.SDK_INT >= 24) {
+//                                    bar.setProgress(next, true)
+//                                } else {
+//                                    bar.progress = next
+//                                }
+//                            } ?: run {
+//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: progressBar is NULL, cannot update UI")
+//                            }
+//                        } else {
+//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: dialog is NOT showing, skip progress update")
+//                        }
+//                    },
+//                    UiState.widgetsLoadingFlow.map {
+//                        Log.d(
+//                            "SYNC_DIALOG_DEBUG",
+//                            "FLOW_DONE: widgetsLoadingFlow event received, isShowing=$isShowing, dialog=$dialog, chromeHidden=$chromeHidden"
+//                        )
+//
+//                        if (isShowing) {
+//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dismiss() called from flow")
+//                            dismiss()
+//                            if (chromeHidden) {
+//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: show chrome (setChromeVisible(true))")
+//                                setChromeVisible(true)
+//                                chromeHidden = false
+//                            } else {
+//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: chrome already visible, skip setChromeVisible(true)")
+//                            }
+//                        } else {
+//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dialog is not showing, skip dismiss()")
+//                        }
+//                    }
+//                ).collect {
+//                    Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): merge collector tick")
+//                }
+//            }
+//
+//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): EXIT repeatOnLifecycle(STARTED)")
+//        }
+//
+//        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): watchJob assigned = $watchJob")
+//    }
+
     fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {
-        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress() CALLED | isShowing=$isShowing owner=$owner chromeHidden=$chromeHidden")
+        platformLog("SyncProgressDialog", "observeSyncProgress() start, isShowing=$isShowing")
 
-        // ВАЖНО: больше ничего тут не делаем — НИ show(), НИ setChromeVisible(false)
-        // Всё это будет решаться только внутри коллектора по факту прихода прогресса.
-
-        if (watchJob != null) {
-            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): cancel previous watchJob=$watchJob")
-        }
         watchJob?.cancel()
-
         watchJob = owner.lifecycleScope.launch {
-            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): new watchJob STARTED = $watchJob")
-
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): enter repeatOnLifecycle(STARTED)")
-
                 merge(
                     UiState.widgetsLoadingProgressFlow.map { p ->
                         val total = p.total.coerceAtLeast(0)
                         val current = p.current.coerceAtLeast(0).coerceAtMost(total)
                         val percent = if (total > 0) (current * 100 / total).coerceIn(0, 100) else 0
 
-                        Log.d(
-                            "SYNC_DIALOG_DEBUG",
-                            "FLOW_PROGRESS: current=${p.current}, total=${p.total}, percent=$percent, dialog=$dialog, progressBar=$progressBar"
-                        )
-
                         val fullInit = UiState.fullInitInProgress.value
 
-
-                        if (!fullInit && !isShowing) {
-                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: skip, fullInitInProgress=false")
+                        // ЖЁСТКИЙ GUARD: если полной инициализации нет – диалог не нужен
+                        if (!fullInit) {
+                            if (isShowing) {
+                                dismiss()
+                                if (chromeHidden) {
+                                    setChromeVisible(true)
+                                    chromeHidden = false
+                                }
+                            }
                             return@map
                         }
-                        // Показываем диалог ТОЛЬКО если реально идёт "незавершённый" прогресс
+
                         val needShow = total > 0 && current < total
 
                         if (needShow && !isShowing) {
-                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: needShow=true → call show()")
                             show()
                             if (!chromeHidden) {
-                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: hiding chrome (setChromeVisible(false))")
                                 setChromeVisible(false)
                                 chromeHidden = true
                             }
                         }
 
-                        // Если диалог открыт — обновляем прогрессбар
                         if (isShowing) {
                             progressBar?.let { bar ->
                                 val next = maxOf(bar.progress, percent)
-                                if (Build.VERSION.SDK_INT >= 24) {
-                                    bar.setProgress(next, true)
-                                } else {
-                                    bar.progress = next
-                                }
-                            } ?: run {
-                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: progressBar is NULL, cannot update UI")
+                                if (Build.VERSION.SDK_INT >= 24) bar.setProgress(next, true)
+                                else bar.progress = next
                             }
-                        } else {
-                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: dialog is NOT showing, skip progress update")
                         }
                     },
                     UiState.widgetsLoadingFlow.map {
-                        Log.d(
-                            "SYNC_DIALOG_DEBUG",
-                            "FLOW_DONE: widgetsLoadingFlow event received, isShowing=$isShowing, dialog=$dialog, chromeHidden=$chromeHidden"
-                        )
-
                         if (isShowing) {
-                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dismiss() called from flow")
                             dismiss()
                             if (chromeHidden) {
-                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: show chrome (setChromeVisible(true))")
                                 setChromeVisible(true)
                                 chromeHidden = false
-                            } else {
-                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: chrome already visible, skip setChromeVisible(true)")
                             }
-                        } else {
-                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dialog is not showing, skip dismiss()")
                         }
                     }
-                ).collect {
-                    Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): merge collector tick")
-                }
+                ).collect()
             }
-
-            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): EXIT repeatOnLifecycle(STARTED)")
         }
-
-        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): watchJob assigned = $watchJob")
     }
 
 }

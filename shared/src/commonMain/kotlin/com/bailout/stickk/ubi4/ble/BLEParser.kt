@@ -27,7 +27,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -113,6 +112,7 @@ class BLEParser(
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
     private val fwResponseReceived = mutableMapOf<Int, Boolean>()
+    private var widgetsProgressTotal: Int = 0
 
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
@@ -709,20 +709,21 @@ class BLEParser(
         }
 
         // 3) Считаем прогресс
-        val progressTotal =
-            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
-        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+        val total = fullInicializeConnectionStruct.parametrsNum *
+                fullInicializeConnectionStruct.subDeviceNum
+        widgetsProgressTotal = total.coerceAtLeast(1)
+
+        val currentFromCache = listWidgets.size.coerceAtMost(widgetsProgressTotal)
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = currentFromCache,
+            total = widgetsProgressTotal
+        )
+
 
         // 4) Шлём info + стартовый прогресс (current = уже имеющиеся виджеты из кеша)
         coroutineScope.launch {
             initializationInfoFlow.emit(fullInicializeConnectionStruct)
 
-            widgetsLoadingProgressFlow.emit(
-                WidgetsLoadingProgress(
-                    total = widgetsLoadingProgressTotal,
-                    current = listWidgets.size.coerceAtMost(widgetsLoadingProgressTotal)
-                )
-            )
         }
 
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
@@ -1125,6 +1126,11 @@ class BLEParser(
             subDeviceAdditionalCounter++
         } else {
             bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
+            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                current = safeTotal,
+                total = safeTotal
+            )
             coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
@@ -1711,15 +1717,16 @@ class BLEParser(
 
             val added = listWidgets.add(widget)
             if (added) {
-                val total = widgetsLoadingProgressTotal.coerceAtLeast(1)
-                val current = listWidgets.size.coerceAtMost(total)
+                val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
+                val safeCurrent = listWidgets.size.coerceAtMost(safeTotal)
                 platformLog(
                     "WIDGET_LOG_ADD",
                     "addToListWidgets: FROM_BLE widget=${widget::class.simpleName} dev=$deviceAddress pid=$parameterID code=$dataCode offset=$dataOffset totalWidgets=${listWidgets.size}"
                 )
-                coroutineScope.launch {
-                    widgetsLoadingProgressFlow.emit(WidgetsLoadingProgress(total, current))
-                }
+                UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                    current = safeCurrent,
+                    total = safeTotal
+                )
             }
         }
     }

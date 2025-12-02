@@ -416,6 +416,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     open fun refreshWidgetsList() {
+        UiState.fullInitInProgress.value = true
         main?.observeSyncProgress()
         UiState.widgetsLoadingFlow.tryEmit(Unit)
         UiState.widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(1, 0))

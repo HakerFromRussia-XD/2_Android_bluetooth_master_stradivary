@@ -29,6 +29,11 @@ struct GestureListItemViewModel: Equatable, Hashable {
         } else {
             self.parameterInfoSet = []
         }
+//        print("sendBytes widget: \(String(describing: widget))")
+//        let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget)
+//        print("sendBytes baseStruct: \(String(describing: baseStruct))")
+//        self.parameterInfoSet = ParameterInfoData.makeSet(from: baseStruct?.parameterInfoSet)
+//        print("sendBytes parameterInfoSet.count: \(parameterInfoSet.count)")
     }
 }
 
@@ -181,8 +186,9 @@ extension GestureListItemViewModel {
     }
     
     private func parameterID(for dataCode: Int) -> Int {
+//        print("sendBytes parameterID parameterInfoSet.count: \(parameterInfoSet.count) dataCode = \(dataCode)")
         parameterInfoSet.forEach { ParameterInfoData in
-            print("sendBytes ParameterInfoData: \(ParameterInfoData) dataCode = \(dataCode)")
+//            print("sendBytes ParameterInfoData: \(ParameterInfoData) dataCode = \(dataCode)")
         }
         return parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
     }

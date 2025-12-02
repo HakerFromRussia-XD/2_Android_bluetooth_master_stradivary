@@ -69,9 +69,13 @@ final class LoadingView {
     
     private static func getKeyWindow() -> UIWindow? {
         if #available(iOS 15.0, *) {
-            // Для iOS 15 и выше используем оконную сцену
-            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                return scene.windows.first(where: { $0.isKeyWindow })
+            // Для iOS 15 и выше ищем ключевое окно среди всех сцен, а не только активной,
+            // так как во время старта подключения сцена может еще не перейти в foregroundActive.
+            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            if let window = scenes
+                .flatMap({ $0.windows })
+                .first(where: { $0.isKeyWindow }) {
+                return window
             }
         } else {
             // Для iOS 14 и ниже используем старый способ

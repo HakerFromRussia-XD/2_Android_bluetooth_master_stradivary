@@ -28,6 +28,10 @@ data class BaseParameterWidgetPayload(
     val label: String? = null,
     val minProgress: Int? = null,
     val maxProgress: Int? = null,
+
+    val clickCommand: Int? = null,
+    val pressedCommand: Int? = null,
+    val releasedCommand: Int? = null,
 )
 
 @Serializable

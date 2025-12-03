@@ -618,32 +618,21 @@ class BLEController() {
     }
 
     fun cleanup() {
-        // Отменяем запущенные корутины
         bleJob.cancel()
         try {
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Там, где регистрировали через LocalBroadcastManager
+                LocalBroadcastManager.getInstance(mContext)
+                    .unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                // Там, где регистрировали через обычный Context
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
         } catch (e: IllegalArgumentException) {
-            Log.w("BLEController", "Ресивер уже отписан")
+            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
         }
     }
 
-//    fun cleanup() {
-//        bleJob.cancel()
-//        if (!receiverRegistered) return
-//
-//        try {
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-//                LocalBroadcastManager.getInstance(mContext)
-//                    .unregisterReceiver(mGattUpdateReceiver)
-//            } else {
-//                mContext.unregisterReceiver(mGattUpdateReceiver)
-//            }
-//        } catch (e: IllegalArgumentException) {
-//            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
-//        } finally {
-//            receiverRegistered = false
-//        }
-//    }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener

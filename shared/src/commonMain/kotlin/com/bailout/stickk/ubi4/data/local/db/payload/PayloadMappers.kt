@@ -111,14 +111,22 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
 
         // -------- COMMAND (BUTTON) --------
         is CommandParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
-                labelCode = baseParameterWidgetEStruct.labelCode
-            )
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+                .toPayload(labelCode = baseParameterWidgetEStruct.labelCode)
+                .copy(
+                    clickCommand   = clickCommand,
+                    pressedCommand = pressedCommand,
+                    releasedCommand= releasedCommand
+                )
 
         is CommandParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
-                label = baseParameterWidgetSStruct.label
-            )
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                .toPayload(label = baseParameterWidgetSStruct.label)
+                .copy(
+                    clickCommand   = clickCommand,
+                    pressedCommand = pressedCommand,
+                    releasedCommand= releasedCommand
+                )
 
         // -------- PLOT --------
         is PlotParameterWidgetEStruct ->
@@ -292,16 +300,27 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
             )
         }
 
-    fun commandStruct(): Any =
-        if (isStringLabel) {
+    fun commandStruct(): Any {
+        val click  = clickCommand   ?: 0
+        val press  = pressedCommand ?: 0
+        val release= releasedCommand?: 0
+
+        return if (isStringLabel) {
             CommandParameterWidgetSStruct(
-                baseParameterWidgetSStruct = baseSStruct
+                baseParameterWidgetSStruct = baseSStruct,
+                clickCommand   = click,
+                pressedCommand = press,
+                releasedCommand= release
             )
         } else {
             CommandParameterWidgetEStruct(
-                baseParameterWidgetEStruct = baseEStruct
+                baseParameterWidgetEStruct = baseEStruct,
+                clickCommand   = click,
+                pressedCommand = press,
+                releasedCommand= release
             )
         }
+    }
 
     fun spinnerStruct(): Any =
         if (isStringLabel) {

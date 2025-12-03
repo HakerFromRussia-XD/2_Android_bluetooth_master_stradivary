@@ -208,8 +208,7 @@ class BLEController() {
                             UiState.fullInitInProgress.value = false
                             UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
                             UiState.widgetsLoadingFlow.tryEmit(Unit)
-//                            smartInitWithCrc()
-                            smartInitWithCrcSafe()
+                            smartInitWithCrc()
 //                            firstNotificationRequest()
 
                         }
@@ -618,33 +617,33 @@ class BLEController() {
         onDisconnectedListener = listener
     }
 
-//    fun cleanup() {
-//        // Отменяем запущенные корутины
-//        bleJob.cancel()
-//        try {
-//            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
-//        } catch (e: IllegalArgumentException) {
-//            Log.w("BLEController", "Ресивер уже отписан")
-//        }
-//    }
-
     fun cleanup() {
+        // Отменяем запущенные корутины
         bleJob.cancel()
-        if (!receiverRegistered) return
-
         try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-                LocalBroadcastManager.getInstance(mContext)
-                    .unregisterReceiver(mGattUpdateReceiver)
-            } else {
-                mContext.unregisterReceiver(mGattUpdateReceiver)
-            }
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
         } catch (e: IllegalArgumentException) {
-            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
-        } finally {
-            receiverRegistered = false
+            Log.w("BLEController", "Ресивер уже отписан")
         }
     }
+
+//    fun cleanup() {
+//        bleJob.cancel()
+//        if (!receiverRegistered) return
+//
+//        try {
+//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+//                LocalBroadcastManager.getInstance(mContext)
+//                    .unregisterReceiver(mGattUpdateReceiver)
+//            } else {
+//                mContext.unregisterReceiver(mGattUpdateReceiver)
+//            }
+//        } catch (e: IllegalArgumentException) {
+//            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
+//        } finally {
+//            receiverRegistered = false
+//        }
+//    }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener

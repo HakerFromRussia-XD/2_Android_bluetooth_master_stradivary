@@ -10,7 +10,9 @@ final class GestureViewCell: UITableViewCell {
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var cancellable: AnyCancellable?
     private var provider:   GesturesProvider?
-    private var job: Kotlinx_coroutines_coreJob?
+//    private var job: Kotlinx_coroutines_coreJob?
+    private var rotationJob: Kotlinx_coroutines_coreJob?
+    private var activeGestureJob: Kotlinx_coroutines_coreJob?
     private let rotationDebouncer = Debouncer(delay: 1.0)
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
@@ -68,11 +70,7 @@ final class GestureViewCell: UITableViewCell {
                 },
                 onRotationGestureAdd: { [weak self] items in
                     guard let self, let provider = self.provider else { return }
-                    
-                    self.rotationDebouncer.schedule { [weak self] in
-                        guard let self else { return }
-                        self.viewModel.updateRotationGestures(items, provider: provider)
-                    }
+                    self.viewModel.updateRotationGestures(items, provider: provider)
                 },
                 onRotationGesturesReorder: { [weak self] items in
                     guard let self, let provider = self.provider else { return }
@@ -82,17 +80,28 @@ final class GestureViewCell: UITableViewCell {
                         self.viewModel.updateRotationGestures(items, provider: provider)
                     }
                 },
-                onSprGestureAction: { _ in },
-                onSprAddTap: { }
+                onSprGestureAction: { [weak self] items in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.updateBindingGroup(provider: provider)
+                    print("TODO: Implement")
+                },
+                onSprAddTap: { [weak self] in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.updateBindingGroup(provider: provider)
+                }
             )
         }
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
             
         // 3. Запускаем подписку на поток
-        job?.cancel(cause: nil)
-        job = WidgetStateBridge.shared.observeRotationGroup { [weak self] paramRef in
+        rotationJob?.cancel(cause: nil)
+        rotationJob = WidgetStateBridge.shared.observeRotationGroup { [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
+        }
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = WidgetStateBridge.shared.observeActiveGesture { [weak self] paramRef in
+            self?.updateActiveGestureUI(paramRef, viewModel: viewModel)
         }
     }
         
@@ -100,8 +109,10 @@ final class GestureViewCell: UITableViewCell {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
-        job?.cancel(cause: nil)
-        job = nil
+        rotationJob?.cancel(cause: nil)
+        rotationJob = nil
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = nil
         provider = nil
         contentConfiguration = nil
     }
@@ -120,6 +131,27 @@ final class GestureViewCell: UITableViewCell {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.provider?.rotationGroup = rotationGroup
+        }
+    }
+    
+    private func updateActiveGestureUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
+        guard viewModel.contains(ref: ref) else { return }
+        
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let data = parameter.data
+        let idHex = String(data.prefix(2))
+        guard let activeGestureId = Int(idHex, radix: 16) else { return }
+        
+        let activeGestureTitle =
+            provider?.factoryGestures.first(where: { $0.id == activeGestureId })?.title ??
+            provider?.customGestures.first(where: { $0.id == activeGestureId })?.title
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.provider?.activeGestureId = activeGestureId
+            self.provider?.activeGestureTitle = activeGestureTitle
         }
     }
 }

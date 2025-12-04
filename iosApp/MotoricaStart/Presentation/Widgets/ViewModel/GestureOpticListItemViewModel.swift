@@ -125,31 +125,7 @@ extension GestureListItemViewModel {
         )
         sendBytes(data)
     }
-
-    func requestBindingGroup() {
-        print("sendBytes requestBindingGroup")
-//        print("sendBytes requestBindingGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
-        let parameterID = parameterID(for: ParameterCode.bindingGroup)
-        guard parameterID != 0 else { return }
-        let data = BLECommands.shared.requestBindingGroup(
-            addressDevice: Int32(widget.deviceAddress),
-            parameterID: Int32(parameterID)
-        )
-        sendBytes(data)
-    }
-
-    private func sendActiveGesture(gestureId: Int) {
-        print("sendBytes sendActiveGesture")
-        let parameterID = parameterID(for: ParameterCode.selectGesture)
-        guard parameterID != 0 else { return }
-        let data = BLECommands.shared.sendActiveGesture(
-            addressDevice: Int32(widget.deviceAddress),
-            parameterID: Int32(parameterID),
-            activeGesture: Int32(gestureId)
-        )
-        sendBytes(data)
-    }
-
+    
     private func requestGestureSettings(gestureId: Int) {
         let parameterID = parameterID(for: ParameterCode.gestureSettings)
         guard parameterID != 0 else { return }
@@ -175,14 +151,6 @@ extension GestureListItemViewModel {
         sendBytes(data)
     }
     
-    private func parameterID(for dataCode: Int) -> Int {
-//        print("sendBytes parameterID parameterInfoSet.count: \(parameterInfoSet.count) dataCode = \(dataCode)")
-        parameterInfoSet.forEach { ParameterInfoData in
-//            print("sendBytes ParameterInfoData: \(ParameterInfoData) dataCode = \(dataCode)")
-        }
-        return parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
-    }
-    
     private func rotationGroupIds(from parameterData: String) -> [Int] {
         let sanitized = parameterData.trimmingCharacters(in: .whitespacesAndNewlines)
         var ids: [Int] = []
@@ -198,6 +166,53 @@ extension GestureListItemViewModel {
         }
 
         return ids
+    }
+
+    func requestBindingGroup() {
+        print("Binding requestBindingGroup")
+//        print("sendBytes requestBindingGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
+        let parameterID = parameterID(for: ParameterCode.bindingGroup)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.requestBindingGroup(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID)
+        )
+        sendBytes(data)
+    }
+    
+    
+    func updateBindingGroup(provider: GesturesProvider) {
+        print("Binding updateBindingGroup")
+        sendBindingGroup(with: provider.sprGestures)
+    }
+
+    private func sendBindingGroup(with gestures: [GesturesProvider.SprGestureDisplayItem]) {
+        print("Binding sendBindingGroup")
+        let bindingGroup = BindingGestureGroup.make(from: gestures)
+        let parameterID = parameterID(for: ParameterCode.bindingGroup)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.sendBindingGroupInfo(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            bindingGestureGroup: bindingGroup
+        )
+        sendBytes(data)
+    }
+
+    private func sendActiveGesture(gestureId: Int) {
+        print("sendBytes sendActiveGesture")
+        let parameterID = parameterID(for: ParameterCode.selectGesture)
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.sendActiveGesture(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID),
+            activeGesture: Int32(gestureId)
+        )
+        sendBytes(data)
+    }
+    
+    private func parameterID(for dataCode: Int) -> Int {
+        parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
     }
 
     private func sendBytes(_ data: KotlinByteArray) {
@@ -218,6 +233,13 @@ extension GestureListItemViewModel {
     static func == (lhs: GestureListItemViewModel, rhs: GestureListItemViewModel) -> Bool {
         lhs.identifier == rhs.identifier
         && lhs.title == rhs.title
+    }
+    
+    func contains(ref: ParameterRef) -> Bool {
+        parameterInfoSet.contains { info in
+            info.parameterID == ref.parameterID &&
+            info.deviceAddress == ref.addressDevice
+        }
     }
 }
 
@@ -336,6 +358,34 @@ private extension RotationGroup {
             gesture6Id: id(5), gesture6ImageId: id(5),
             gesture7Id: id(6), gesture7ImageId: id(6),
             gesture8Id: id(7), gesture8ImageId: id(7)
+        )
+    }
+}
+private extension BindingGestureGroup {
+    static func make(from gestures: [GesturesProvider.SprGestureDisplayItem]) -> BindingGestureGroup {
+        func sprId(_ index: Int) -> Int32 {
+            guard gestures.indices.contains(index) else { return 0 }
+            return Int32(gestures[index].id)
+        }
+
+        func boundGestureId(_ index: Int) -> Int32 {
+            guard gestures.indices.contains(index), let boundGestureId = gestures[index].boundGestureId else { return 0 }
+            return Int32(boundGestureId)
+        }
+
+        return BindingGestureGroup(
+            gestureSpr1Id: sprId(0), gesture1Id: boundGestureId(0),
+            gestureSpr2Id: sprId(1), gesture2Id: boundGestureId(1),
+            gestureSpr3Id: sprId(2), gesture3Id: boundGestureId(2),
+            gestureSpr4Id: sprId(3), gesture4Id: boundGestureId(3),
+            gestureSpr5Id: sprId(4), gesture5Id: boundGestureId(4),
+            gestureSpr6Id: sprId(5), gesture6Id: boundGestureId(5),
+            gestureSpr7Id: sprId(6), gesture7Id: boundGestureId(6),
+            gestureSpr8Id: sprId(7), gesture8Id: boundGestureId(7),
+            gestureSpr9Id: sprId(8), gesture9Id: boundGestureId(8),
+            gestureSpr10Id: sprId(9), gesture10Id: boundGestureId(9),
+            gestureSpr11Id: sprId(10), gesture11Id: boundGestureId(10),
+            gestureSpr12Id: sprId(11), gesture12Id: boundGestureId(11)
         )
     }
 }

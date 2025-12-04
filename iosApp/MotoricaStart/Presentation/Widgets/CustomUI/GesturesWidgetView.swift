@@ -157,6 +157,7 @@ struct GesturesWidgetView: View {
         func updateUIView(_ uiView: UIView, context: Context) { }
     }
     
+    
     // MARK: - Segment Selector
     private var segmentSelector: some View {
         GeometryReader { geo in

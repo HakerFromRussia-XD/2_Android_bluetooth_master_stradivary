@@ -12,6 +12,7 @@ final class GestureViewCell: UITableViewCell {
     private var provider:   GesturesProvider?
 //    private var job: Kotlinx_coroutines_coreJob?
     private var rotationJob: Kotlinx_coroutines_coreJob?
+    private var bindingJob: Kotlinx_coroutines_coreJob?
     private var activeGestureJob: Kotlinx_coroutines_coreJob?
     private let rotationDebouncer = Debouncer(delay: 1.0)
     
@@ -99,6 +100,10 @@ final class GestureViewCell: UITableViewCell {
         rotationJob = WidgetStateBridge.shared.observeRotationGroup { [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
         }
+        bindingJob?.cancel(cause: nil)
+        bindingJob = WidgetStateBridge.shared.observeBindingGroup { [weak self] paramRef in
+            self?.updateBindingGestureUI(paramRef, viewModel: viewModel)
+        }
         activeGestureJob?.cancel(cause: nil)
         activeGestureJob = WidgetStateBridge.shared.observeActiveGesture { [weak self] paramRef in
             self?.updateActiveGestureUI(paramRef, viewModel: viewModel)
@@ -153,5 +158,11 @@ final class GestureViewCell: UITableViewCell {
             self.provider?.activeGestureId = activeGestureId
             self.provider?.activeGestureTitle = activeGestureTitle
         }
+    }
+    
+    private func updateBindingGestureUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
+        guard viewModel.contains(ref: ref) else { return }
+        
+        
     }
 }

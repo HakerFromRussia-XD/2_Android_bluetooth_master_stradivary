@@ -11,6 +11,7 @@ final class GestureViewCell: UITableViewCell {
     private var cancellable: AnyCancellable?
     private var provider:   GesturesProvider?
     private var job: Kotlinx_coroutines_coreJob?
+    private let rotationDebouncer = Debouncer(delay: 1.0)
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -67,9 +68,20 @@ final class GestureViewCell: UITableViewCell {
                 },
                 onRotationGestureAdd: { [weak self] items in
                     guard let self, let provider = self.provider else { return }
-                    self.viewModel.updateRotationGestures(items, provider: provider)
+                    
+                    self.rotationDebouncer.schedule { [weak self] in
+                        guard let self else { return }
+                        self.viewModel.updateRotationGestures(items, provider: provider)
+                    }
                 },
-                onRotationGesturesReorder: {_ in },
+                onRotationGesturesReorder: { [weak self] items in
+                    guard let self, let provider = self.provider else { return }
+                    
+                    self.rotationDebouncer.schedule { [weak self] in
+                        guard let self else { return }
+                        self.viewModel.updateRotationGestures(items, provider: provider)
+                    }
+                },
                 onSprGestureAction: { _ in },
                 onSprAddTap: { }
             )

@@ -461,8 +461,19 @@ struct GesturesWidgetView: View {
     }
 
     private func handleRotationDialogSave() {
-        let selected = rotationDialogOptions.filter { rotationGroupAddGesturesDialogSelection.contains($0.id) }
-        let gestures = selected.map { $0.item }
+        let selectedIds = rotationGroupAddGesturesDialogSelection
+
+        // Keep the current order for gestures that were already in the rotation group.
+        var gestures = provider.rotationGroup.filter { selectedIds.contains($0.id) }
+
+        // Append newly selected gestures in dialog order.
+        let existingIds = Set(gestures.map { $0.id })
+        let newGestures = rotationDialogOptions.compactMap { option -> GesturesProvider.GestureDisplayItem? in
+            guard selectedIds.contains(option.id), existingIds.contains(option.id) == false else { return nil }
+            return option.item
+        }
+        gestures.append(contentsOf: newGestures)
+        
         onRotationGestureAdd(gestures)
         dismissRotationGroupAddGesturesDialog()
     }

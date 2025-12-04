@@ -57,4 +57,14 @@ object WidgetStateBridge {
         coroutineScope.launch {
             WidgetState.rotationGroupFlow.collect { callback(it) }
         }
+
+
+    /**
+     * Подписка на activeGestureFlow.
+     * @param callback вызывается с каждым обновлением активного жеста.
+     */
+    fun observeActiveGesture(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.activeGestureFlow.collect { callback(it) }
+        }
 }

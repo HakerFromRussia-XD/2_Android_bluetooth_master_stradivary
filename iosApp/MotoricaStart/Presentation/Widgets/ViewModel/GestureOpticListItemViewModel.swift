@@ -85,14 +85,14 @@ extension GestureListItemViewModel {
     }
 
     func removeRotationGesture(at index: Int, provider: GesturesProvider) {
-        print("sendBytes removeRotationGesture")
+        print("Rotation removeRotationGesture")
         guard provider.rotationGroup.indices.contains(index) else { return }
         provider.rotationGroup.remove(at: index)
         sendRotationGroup(with: provider.rotationGroup)
     }
 
     func updateRotationGestures(_ gestures: [GesturesProvider.GestureDisplayItem], provider: GesturesProvider) {
-        print("sendBytes updateRotationGestures")
+        print("Rotation updateRotationGestures")
         provider.rotationGroup = gestures
         sendRotationGroup(with: provider.rotationGroup)
     }
@@ -115,7 +115,7 @@ extension GestureListItemViewModel {
     }
 
     func requestRotationGroup() {
-        print("sendBytes requestRotationGroup")
+        print("Rotation requestRotationGroup")
 //        print("sendBytes requestRotationGroup ParameterCode = \(ParameterCode.gestureGroup) parameterID = \(parameterID(for: ParameterCode.gestureGroup))")
         let parameterID = parameterID(for: ParameterCode.gestureGroup)
         guard parameterID != 0 else { return }
@@ -328,14 +328,14 @@ private extension RotationGroup {
         }
 
         return RotationGroup(
-            gesture1Id: id(0), gesture1ImageId: 0,
-            gesture2Id: id(1), gesture2ImageId: 0,
-            gesture3Id: id(2), gesture3ImageId: 0,
-            gesture4Id: id(3), gesture4ImageId: 0,
-            gesture5Id: id(4), gesture5ImageId: 0,
-            gesture6Id: id(5), gesture6ImageId: 0,
-            gesture7Id: id(6), gesture7ImageId: 0,
-            gesture8Id: id(7), gesture8ImageId: 0
+            gesture1Id: id(0), gesture1ImageId: id(0),
+            gesture2Id: id(1), gesture2ImageId: id(1),
+            gesture3Id: id(2), gesture3ImageId: id(2),
+            gesture4Id: id(3), gesture4ImageId: id(3),
+            gesture5Id: id(4), gesture5ImageId: id(4),
+            gesture6Id: id(5), gesture6ImageId: id(5),
+            gesture7Id: id(6), gesture7ImageId: id(6),
+            gesture8Id: id(7), gesture8ImageId: id(7)
         )
     }
 }

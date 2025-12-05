@@ -113,6 +113,39 @@ extension GestureListItemViewModel {
             )
         }
     }
+    func bindingGroup(from parameterData: String) -> [GesturesProvider.SprGestureDisplayItem] {
+        let sanitized = parameterData.trimmingCharacters(in: .whitespacesAndNewlines)
+        var items: [GesturesProvider.SprGestureDisplayItem] = []
+
+        let sprCatalog = SprGesturesCatalog.all
+        let gestureCatalog = GestureCatalog.factoryGestures + GestureCatalog.customGestures(withTitles: gestureNameList)
+
+        stride(from: 0, to: min(sanitized.count, 48), by: 4).forEach { offset in
+            let sprStart = sanitized.index(sanitized.startIndex, offsetBy: offset)
+            guard let sprEnd = sanitized.index(sprStart, offsetBy: 2, limitedBy: sanitized.endIndex),
+                  let boundEnd = sanitized.index(sprEnd, offsetBy: 2, limitedBy: sanitized.endIndex) else { return }
+
+            let sprIdHex = sanitized[sprStart..<sprEnd]
+            let boundIdHex = sanitized[sprEnd..<boundEnd]
+
+            guard let sprId = Int(sprIdHex, radix: 16), sprId != 0 else { return }
+            guard let sprGesture = sprCatalog.first(where: { $0.id == sprId }) else { return }
+
+            let boundGestureId = Int(boundIdHex, radix: 16) ?? 0
+            let boundGestureTitle = gestureCatalog.first(where: { $0.id == boundGestureId })?.title
+
+            let displayItem = GesturesProvider.SprGestureDisplayItem(
+                id: sprGesture.id,
+                title: sprGesture.title,
+                subtitle: boundGestureTitle,
+                boundGestureId: boundGestureId == 0 ? nil : boundGestureId
+            )
+
+            items.append(displayItem)
+        }
+
+        return items
+    }
 
     func requestRotationGroup() {
         print("Rotation requestRotationGroup")
@@ -388,6 +421,26 @@ private extension BindingGestureGroup {
             gestureSpr12Id: sprId(11), gesture12Id: boundGestureId(11)
         )
     }
+}
+private enum SprGesturesCatalog {
+    static let all: [SprGestureSelectionOption] = [
+        .init(id: 1, title: SharedRes.strings().thumb_finger.desc().localized()),
+        .init(id: 2, title: SharedRes.strings().flexion.desc().localized()),
+        .init(id: 3, title: SharedRes.strings().extension.desc().localized()),
+        .init(id: 4, title: SharedRes.strings().palm_closing.desc().localized()),
+        .init(id: 5, title: SharedRes.strings().palm_opening.desc().localized()),
+        .init(id: 6, title: SharedRes.strings().ok_pinch.desc().localized()),
+        .init(id: 7, title: SharedRes.strings().pistol_pointer_gesture.desc().localized()),
+        .init(id: 8, title: SharedRes.strings().gesture_key.desc().localized()),
+        .init(id: 9, title: SharedRes.strings().adduction.desc().localized()),
+        .init(id: 10, title: SharedRes.strings().abduction.desc().localized()),
+        .init(id: 11, title: SharedRes.strings().pronation.desc().localized()),
+        .init(id: 12, title: SharedRes.strings().supination.desc().localized())
+    ]
+}
+private struct SprGestureSelectionOption: Identifiable, Hashable {
+    let id: Int
+    let title: String
 }
 private extension GestureListItemViewModel {
     static func makeGestureNames() -> [String] {

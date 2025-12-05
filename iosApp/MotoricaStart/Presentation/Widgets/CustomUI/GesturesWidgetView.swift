@@ -667,7 +667,7 @@ struct GesturesWidgetView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration, execute: workItem)
     }
 
-    private func toggleSprDialogSelection(option: SprGestureSelectionOption) {
+    private func toggleSprDialogSelection(option: provider.SprGestureSelectionOption) {
         if sprGesturesDialogSelection.contains(option.id) {
             sprGesturesDialogSelection.remove(option.id)
             return
@@ -1774,28 +1774,6 @@ private struct SprGesturesDialogOverlay: View {
         }
         .opacity(isVisible ? 1 : 0)
     }
-}
-
-private struct SprGestureSelectionOption: Identifiable, Hashable {
-    let id: Int
-    let title: String
-}
-
-private enum SprGesturesCatalog {
-    static let all: [SprGestureSelectionOption] = [
-        .init(id: 1, title: SharedRes.strings().thumb_finger.desc().localized()),
-        .init(id: 2, title: SharedRes.strings().flexion.desc().localized()),
-        .init(id: 3, title: SharedRes.strings().extension.desc().localized()),
-        .init(id: 4, title: SharedRes.strings().palm_closing.desc().localized()),
-        .init(id: 5, title: SharedRes.strings().palm_opening.desc().localized()),
-        .init(id: 6, title: SharedRes.strings().ok_pinch.desc().localized()),
-        .init(id: 7, title: SharedRes.strings().pistol_pointer_gesture.desc().localized()),
-        .init(id: 8, title: SharedRes.strings().gesture_key.desc().localized()),
-        .init(id: 9, title: SharedRes.strings().adduction.desc().localized()),
-        .init(id: 10, title: SharedRes.strings().abduction.desc().localized()),
-        .init(id: 11, title: SharedRes.strings().pronation.desc().localized()),
-        .init(id: 12, title: SharedRes.strings().supination.desc().localized())
-    ]
 }
 
 private var AnimationLoadedNameKey: UInt8 = 0

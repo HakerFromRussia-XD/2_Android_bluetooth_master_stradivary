@@ -163,6 +163,15 @@ final class GestureViewCell: UITableViewCell {
     private func updateBindingGestureUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
         guard viewModel.contains(ref: ref) else { return }
         
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+        print("Binding updateBindingGestureUI")
         
+        let bindingGestures = viewModel.bindingGroup(from: parameter.data)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.provider?.sprGestures = bindingGestures
+        }
     }
 }

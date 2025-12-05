@@ -667,7 +667,7 @@ struct GesturesWidgetView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration, execute: workItem)
     }
 
-    private func toggleSprDialogSelection(option: provider.SprGestureSelectionOption) {
+    private func toggleSprDialogSelection(option: SprGestureSelectionOption) {
         if sprGesturesDialogSelection.contains(option.id) {
             sprGesturesDialogSelection.remove(option.id)
             return
@@ -678,10 +678,14 @@ struct GesturesWidgetView: View {
 
     private func handleSprDialogSave() {
         let selected = sprDialogOptions.filter { sprGesturesDialogSelection.contains($0.id) }
-        provider.sprGestures = selected.map {
-            GesturesProvider.SprGestureDisplayItem(
-                id: $0.id,
-                title: $0.title,
+        provider.sprGestures = selected.map { option in
+            if let existingItem = provider.sprGestures.first(where: { $0.id == option.id }) {
+                return existingItem
+            }
+
+            return GesturesProvider.SprGestureDisplayItem(
+                id: option.id,
+                title: option.title,
                 subtitle: nil,
                 boundGestureId: nil
             )

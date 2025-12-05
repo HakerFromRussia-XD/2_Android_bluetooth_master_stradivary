@@ -288,57 +288,57 @@ private enum GestureCatalog {
     static let factoryGestures: [GestureItem] = [
         .init(
             id: 1,
-            title: NSLocalizedString("Fist", comment: ""),
+            title: SharedRes.strings().fist.desc().localized(),
             image: SharedRes.images().collection_fist_1.toUIImage()
         ),
         .init(
             id: 2,
-            title: NSLocalizedString("Point", comment: ""),
+            title: SharedRes.strings().gesture_point.desc().localized(),
             image: SharedRes.images().collection_point.toUIImage()
         ),
         .init(
             id: 3,
-            title: NSLocalizedString("Pinch", comment: ""),
+            title: SharedRes.strings().gesture_pinch.desc().localized(),
             image: SharedRes.images().collection_pinch.toUIImage()
         ),
         .init(
             id: 4,
-            title: NSLocalizedString("Fist + thumb", comment: ""),
+            title: SharedRes.strings().gesture_fist_thumb_over.desc().localized(),
             image: SharedRes.images().collection_fist_2.toUIImage()
         ),
         .init(
             id: 5,
-            title: NSLocalizedString("Key", comment: ""),
+            title: SharedRes.strings().gesture_key.desc().localized(),
             image: SharedRes.images().collection_key.toUIImage()
         ),
         .init(
             id: 6,
-            title: NSLocalizedString("Rock", comment: ""),
+            title: SharedRes.strings().gesture_rock.desc().localized(),
             image: SharedRes.images().collection_rock.toUIImage()
         ),
         .init(
             id: 7,
-            title: NSLocalizedString("Tweezers", comment: ""),
+            title: SharedRes.strings().gesture_twizzers.desc().localized(),
             image: SharedRes.images().collection_twizzers.toUIImage()
         ),
         .init(
             id: 8,
-            title: NSLocalizedString("Cupholder", comment: ""),
+            title: SharedRes.strings().gesture_cupholder.desc().localized(),
             image: SharedRes.images().collection_cupholder.toUIImage()
         ),
         .init(
             id: 9,
-            title: NSLocalizedString("Half grab", comment: ""),
+            title: SharedRes.strings().gesture_half_grab.desc().localized(),
             image: SharedRes.images().collect_half_grab.toUIImage()
         ),
         .init(
             id: 10,
-            title: NSLocalizedString("OK", comment: ""),
+            title: SharedRes.strings().gesture_ok.desc().localized(),
             image: SharedRes.images().collection_ok.toUIImage()
         ),
         .init(
             id: 11,
-            title: NSLocalizedString("Thumb up", comment: ""),
+            title: SharedRes.strings().gesture_thumb_up.desc().localized(),
             image: SharedRes.images().collection_thumb_up.toUIImage()
         ),
 //        .init(
@@ -348,17 +348,17 @@ private enum GestureCatalog {
 //        ),
         .init(
             id: 13,
-            title: NSLocalizedString("Double point", comment: ""),
+            title: SharedRes.strings().gesture_double_point.desc().localized(),
             image: SharedRes.images().collection_double_point.toUIImage()
         ),
         .init(
             id: 14,
-            title: NSLocalizedString("Call me", comment: ""),
+            title: SharedRes.strings().gesture_call_me.desc().localized(),
             image: SharedRes.images().collection_call_me.toUIImage()
         ),
         .init(
             id: 15,
-            title: NSLocalizedString("Natural", comment: ""),
+            title: SharedRes.strings().gesture_natural_position.desc().localized(),
             image: SharedRes.images().collection_natural_position.toUIImage()
         )
     ]
@@ -422,7 +422,7 @@ private extension BindingGestureGroup {
         )
     }
 }
-private enum SprGesturesCatalog {
+enum SprGesturesCatalog {
     static let all: [SprGestureSelectionOption] = [
         .init(id: 1, title: SharedRes.strings().thumb_finger.desc().localized()),
         .init(id: 2, title: SharedRes.strings().flexion.desc().localized()),
@@ -438,15 +438,28 @@ private enum SprGesturesCatalog {
         .init(id: 12, title: SharedRes.strings().supination.desc().localized())
     ]
 }
-private struct SprGestureSelectionOption: Identifiable, Hashable {
+struct SprGestureSelectionOption: Identifiable, Hashable {
     let id: Int
     let title: String
 }
 private extension GestureListItemViewModel {
     static func makeGestureNames() -> [String] {
-        return (1...14).map { index in
-            String(format: NSLocalizedString("Gesture %d", comment: ""), index)
-        }
+        return [
+            SharedRes.strings().gesture_1_btn,
+            SharedRes.strings().gesture_2_btn,
+            SharedRes.strings().gesture_3_btn,
+            SharedRes.strings().gesture_4_btn,
+            SharedRes.strings().gesture_5_btn,
+            SharedRes.strings().gesture_6_btn,
+            SharedRes.strings().gesture_7_btn,
+            SharedRes.strings().gesture_8_btn,
+            SharedRes.strings().gesture_9_btn,
+            SharedRes.strings().gesture_10_btn,
+            SharedRes.strings().gesture_11_btn,
+            SharedRes.strings().gesture_12_btn,
+            SharedRes.strings().gesture_13_btn,
+            SharedRes.strings().gesture_14_btn
+        ].map { $0.desc().localized() }
     }
 }
 private enum ParameterCode {

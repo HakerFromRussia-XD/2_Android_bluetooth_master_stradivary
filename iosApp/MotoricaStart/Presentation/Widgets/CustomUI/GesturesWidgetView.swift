@@ -566,7 +566,6 @@ struct GesturesWidgetView: View {
                             animationName: SprGestureAnimationMapper.animationName(for: item.id),
                             onDotsTap: { presentSprBindingDialog(for: item) }
                         )
-                        .aspectRatio(1, contentMode: .fit)
                     }
                     .padding(.top, 4)
                 }
@@ -1482,49 +1481,54 @@ private struct SprGestureTile: View {
     var onDotsTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: -16) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(Color("ubi4_deactivate_text"))
-                    .multilineTextAlignment(.leading)
-                Spacer()
-                
-                Button(action: onDotsTap) {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(Color("ubi4_white"))
-                        .frame(width: 48, height: 42)
-                        .contentShape(Rectangle())
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: -16) {
+                HStack {
+                    Text(title)
+                        .font(.system(size: 12, weight: .light))
+                        .foregroundColor(Color("ubi4_deactivate_text"))
+                        .multilineTextAlignment(.leading)
+                    Spacer()
+
+                    Button(action: onDotsTap) {
+                        Image(systemName: "ellipsis")
+                            .foregroundColor(Color("ubi4_white"))
+                            .frame(width: 48, height: 42)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+
+                if let animationName {
+                    SprGestureAnimationView(animationName: animationName)
+                        .frame(width: 140, height: 140)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
+
+                if let gestureName, gestureName.isEmpty == false {
+                    Text(gestureName)
+                        .font(.custom("OpenSansRoman-Bold", size: 12))
+                        .foregroundColor(Color("ubi4_white"))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
+                }
+                Spacer(minLength: 0)
             }
-            
-            if let animationName {
-                SprGestureAnimationView(animationName: animationName)
-                    .frame(width: 140, height: 140)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            }
-            
-            if let gestureName, gestureName.isEmpty == false {
-                Text(gestureName)
-                    .font(.custom("OpenSansRoman-Bold", size: 12))
-                    .foregroundColor(Color("ubi4_white"))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 8)
-                    .padding(.bottom, 16)
-            }
-            Spacer(minLength: 0)
+
+            .padding([.leading, .bottom], 12)
+            .frame(width: geometry.size.width, height: geometry.size.width, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("ubi4_gray"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+            )
         }
-        .padding([.leading, .bottom], 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_gray"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-        )
+        .aspectRatio(1, contentMode: .fit)
     }
 }
 

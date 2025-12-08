@@ -9,15 +9,27 @@ import Combine
 import UIKit
 
 final class GesturesProvider: ObservableObject {
-    @Published var selectedSegment: Segment = .collection
-    @Published var isFactoryExpanded: Bool = true
+//    @Published var selectedSegment: Segment = .collection
+    private static let selectedSegmentDefaultsKey = "GesturesWidgetSelectedSegment"
+    private enum Constants {
+        static let factoryExpandedKey = "GesturesProvider.isFactoryExpanded"
+    }
+
+    @Published var selectedSegment: Segment = .collection {
+        didSet { saveSelectedSegment(selectedSegment) }
+    }
+//    @Published var isFactoryExpanded: Bool = true
+    @Published var isFactoryExpanded: Bool {
+        didSet {
+            Self.saveFactoryExpandedState(isFactoryExpanded)
+        }
+    }
     @Published var activeGestureId: Int?
     @Published var activeGestureTitle: String?
     @Published var factoryGestures: [GestureDisplayItem]
     @Published var customGestures: [GestureDisplayItem]
     @Published var rotationGroup: [GestureDisplayItem]
     @Published var sprGestures: [SprGestureDisplayItem]
-//    let title: String
 
     init(factoryGestures: [GestureDisplayItem],
          customGestures: [GestureDisplayItem],
@@ -26,6 +38,8 @@ final class GesturesProvider: ObservableObject {
          activeGestureId: Int = 0,
          activeGestureTitle: String?
     ) {
+        self.isFactoryExpanded = Self.loadFactoryExpandedState()
+        self.selectedSegment = Self.loadSelectedSegment()
         self.factoryGestures = factoryGestures
         self.customGestures = customGestures
         self.rotationGroup = rotationGroup
@@ -34,6 +48,13 @@ final class GesturesProvider: ObservableObject {
         self.activeGestureTitle = activeGestureTitle
     }
     
+    private static func loadFactoryExpandedState() -> Bool {
+        UserDefaults.standard.object(forKey: Constants.factoryExpandedKey) as? Bool ?? true
+    }
+
+    private static func saveFactoryExpandedState(_ isExpanded: Bool) {
+        UserDefaults.standard.set(isExpanded, forKey: Constants.factoryExpandedKey)
+    }
     
     struct GestureDisplayItem: Identifiable, Hashable {
         let id: Int
@@ -61,7 +82,7 @@ final class GesturesProvider: ObservableObject {
         var boundGestureId: Int?
     }
 
-    enum Segment: CaseIterable {
+    enum Segment: Int, CaseIterable {
         case collection
         case rotationGroup
         case sprGroup
@@ -76,5 +97,14 @@ final class GesturesProvider: ObservableObject {
                 return NSLocalizedString("spr_gestures", comment: "")
             }
         }
+    }
+    
+    private static func loadSelectedSegment() -> Segment {
+        let savedValue = UserDefaults.standard.integer(forKey: selectedSegmentDefaultsKey)
+        return Segment(rawValue: savedValue) ?? .collection
+    }
+
+    private func saveSelectedSegment(_ segment: Segment) {
+        UserDefaults.standard.set(segment.rawValue, forKey: Self.selectedSegmentDefaultsKey)
     }
 }

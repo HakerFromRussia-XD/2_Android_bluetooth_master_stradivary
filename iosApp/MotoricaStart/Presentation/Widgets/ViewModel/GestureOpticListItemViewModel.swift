@@ -244,7 +244,7 @@ extension GestureListItemViewModel {
         sendBytes(data)
     }
     
-    private func parameterID(for dataCode: Int) -> Int {
+    func parameterID(for dataCode: Int) -> Int {
         parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
     }
 
@@ -462,7 +462,7 @@ private extension GestureListItemViewModel {
         ].map { $0.desc().localized() }
     }
 }
-private enum ParameterCode {
+enum ParameterCode {
     static let selectGesture = 1
     static let gestureSettings = 31
     static let gestureGroup = 32

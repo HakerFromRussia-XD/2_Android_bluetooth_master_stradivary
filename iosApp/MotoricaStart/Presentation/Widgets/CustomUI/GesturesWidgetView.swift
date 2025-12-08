@@ -76,6 +76,10 @@ struct GesturesWidgetView: View {
             .padding(.horizontal, 8)
             .background(Color("ubi4_back"))
             
+            
+        }
+        .onAppear {
+            onSegmentChange(provider.selectedSegment)
         }
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
@@ -196,6 +200,9 @@ struct GesturesWidgetView: View {
                 .padding(2)
             }
             .onChange(of: provider.selectedSegment) { _ in
+                updateHighlightOffset(segmentWidth: segmentWidth)
+            }
+            .onAppear {
                 updateHighlightOffset(segmentWidth: segmentWidth)
             }
         }

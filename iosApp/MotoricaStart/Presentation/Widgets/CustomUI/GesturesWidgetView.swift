@@ -1510,7 +1510,7 @@ private struct SprGestureTile: View {
                         .font(.custom("OpenSansRoman-Bold", size: 12))
                         .foregroundColor(Color("ubi4_white"))
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 8)
+                        .padding(.top, 0)
                         .padding(.bottom, 16)
                 }
                 Spacer(minLength: 0)

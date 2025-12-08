@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
@@ -25,6 +26,7 @@ class SelectedGesturesAdapter(
         val gestureName: TextView = view.findViewById(R.id.gestureNumber)
         var gestureAnimation: LottieAnimationView = view.findViewById(R.id.lottieAnimationGesture)
         val dotsThreeBtnSpr: ImageView = itemView.findViewById(R.id.dotsThreeBtnSpr)
+        val gestureSprTitleTop: TextView = view.findViewById(R.id.gestureSprTitleTop)
     }
 
 
@@ -45,6 +47,9 @@ class SelectedGesturesAdapter(
         //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)
         holder.gestureName.text = CollectionGesturesProvider.getGesture(bindingGesture.second).gestureName
         holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
+        // SPR-жест по firs t
+        val sprGesture = SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first)
+        holder.gestureSprTitleTop.text = sprGesture.title
         holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)

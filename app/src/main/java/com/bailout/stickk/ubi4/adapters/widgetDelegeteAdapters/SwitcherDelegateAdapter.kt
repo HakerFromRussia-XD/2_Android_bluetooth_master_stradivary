@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
@@ -164,6 +165,11 @@ class SwitcherDelegateAdapter(
     private fun updateSwitchState(newState: Boolean, switch: Switch) {
         programmaticChange = true
         switch.isChecked = newState
+
+        if (WidgetState.dbSnapshotAppliedWithCrc) {
+            switch.jumpDrawablesToCurrentState()
+        }
+
         programmaticChange = false
     }
     private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {

@@ -94,12 +94,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
     private var activeFragment: Fragment? = null
     var dialogManager: DialogManager? = null
-
     private var currentSerial: String? = null
-
     private var syncShownOnce = false
-
-
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
     private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач

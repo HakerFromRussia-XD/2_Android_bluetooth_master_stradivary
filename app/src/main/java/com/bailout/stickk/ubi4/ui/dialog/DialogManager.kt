@@ -185,7 +185,6 @@ class DialogManager(
         // 3) Находим ProgressBar внутри dialogView
         val progressBar = dialogView.findViewById<ProgressBar>(R.id.loadingFirmwareProgressBar)
             ?: throw IllegalStateException("В ubi4_dialog_progressbar.xml нет View с id loadingFirmwareProgressBar")
-
         return progressBar
     }
 

@@ -42,6 +42,7 @@ import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
@@ -177,6 +178,9 @@ class BLEController() {
 
                     firstNotificationRequestFlag = true
                     needReRequestTransferFlow = true
+
+
+                    WidgetState.dbSnapshotAppliedWithCrc = false
 
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(mContext,
@@ -348,6 +352,7 @@ class BLEController() {
                 "WARM START (old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()})"
             )
 
+            WidgetState.dbSnapshotAppliedWithCrc = true
             // Полной инициализации НЕТ
             UiState.fullInitInProgress.value = false
 
@@ -400,6 +405,8 @@ class BLEController() {
             "COLD START (old=$oldCrc, new=$newCrc, hasCache=$hasCache, mac=${WidgetRepoProvider.mac()}) → full init"
         )
 
+        WidgetState.dbSnapshotAppliedWithCrc = false
+
         UiState.fullInitInProgress.value = true
 
         withContext(Dispatchers.Main) {
@@ -410,8 +417,6 @@ class BLEController() {
     }
 
     // WidgetBootstrapHydrator.kt (над object WidgetBootstrapHydrator)
-
-
 
     private fun parseReceivedData(data: ByteArray?) {
         val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"

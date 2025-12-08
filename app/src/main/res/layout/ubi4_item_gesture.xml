@@ -16,6 +16,7 @@
         android:elevation="3dp"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,7 +51,19 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
-
+    <TextView
+        android:id="@+id/gestureSprTitleTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="3dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:textColor="@color/ubi4_deactivate_text"
+        android:textSize="12sp"
+        android:text=""
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/dotsThreeBtnSpr"

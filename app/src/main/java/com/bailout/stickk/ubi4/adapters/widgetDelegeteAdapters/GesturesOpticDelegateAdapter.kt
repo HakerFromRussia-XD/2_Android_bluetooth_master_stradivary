@@ -128,12 +128,25 @@ class GesturesOpticDelegateAdapter(
     private var selectModeJob: Job? = null // >>> changed <<<
 
     @SuppressLint("LogNotTimber")
-    val adapter = SelectedGesturesAdapter(
-        selectedGesturesList = ArrayList(),
+    private val adapter = SelectedGesturesAdapter(
+        selectedGesturesList = mutableListOf(),
         onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
-            override fun onGestureSprClicked(position: Int, title: String) {
-                Log.d("GesturesDelegateAdapter", "Gesture clicked: $title at position: $position")
+            override fun onGestureSprClicked(position: Int, title: String, gestureId: Int) {
+                Log.d(
+                    "GesturesOpticDelegateAdapter",
+                    "SPR item clicked: title=$title, position=$position, gestureId=$gestureId"
+                )
+
+                // Жест 0 — пустой слот, ничего не делаем (на всякий случай)
+                if (gestureId == 0) return
+
+                // Подсветить соответствующую кнопку в Коллекции / кастомах
+                setActiveGesture(getGestureViewById(gestureId))
+
+                // Отправить команду активного жеста в протез
+                onSendBLEActiveGesture(gestureId)
             }
+
         },
         onDotsClickListener = { selectedPosition ->
             Log.d(
@@ -142,9 +155,10 @@ class GesturesOpticDelegateAdapter(
             )
             onSetCustomGesture({ bindingItem ->
                 // позиция изменяемой ячейки
-                val position =
-                    listBindingGesture.indexOfFirst { it.first == bindingItem.first }
-                listBindingGesture[position] = bindingItem
+                val position = listBindingGesture.indexOfFirst { it.first == bindingItem.first }
+                if (position != -1) {
+                    listBindingGesture[position] = bindingItem
+                }
                 fillCollectionGesturesInBindingGroup()
                 onSendBLEBindingGroup(
                     deviceAddress,
@@ -243,7 +257,6 @@ class GesturesOpticDelegateAdapter(
         rotationGroupSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 2)
             activeGestureFragmentFilterFlow.value = 2
-            activeGestureNameCl.visibility = View.GONE
             onRequestRotationGroup(
                 deviceAddress,
                 getParameterIDByCode(
@@ -255,12 +268,10 @@ class GesturesOpticDelegateAdapter(
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
             activeGestureFragmentFilterFlow.value = 1
-            activeGestureNameCl.visibility = View.VISIBLE
         }
         sprGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 3)
             activeGestureFragmentFilterFlow.value = 3
-            activeGestureNameCl.visibility = View.GONE
             onRequestBindingGroup(
                 deviceAddress, getParameterIDByCode(
                     ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
@@ -463,6 +474,7 @@ class GesturesOpticDelegateAdapter(
             .setDuration(ANIMATION_DURATION.toLong())
             .start()
 
+        // анимация цветов — без изменений
         val allTextViews = listOf(
             _collectionOfGesturesTv,
             _rotationGroupTv,
@@ -501,21 +513,21 @@ class GesturesOpticDelegateAdapter(
             }
         }
 
+        // <<< ВАЖНО: header всегда виден >>>
+        _activeGestureNameCl.visibility = View.VISIBLE
+
         when (activeFilter) {
             1 -> {
-                _activeGestureNameCl.visibility = View.VISIBLE
                 _collectionGesturesCl.visibility = View.VISIBLE
                 _rotationGroupCl.visibility = View.GONE
                 _sprGestureGroupCl.visibility = View.GONE
             }
             2 -> {
-                _activeGestureNameCl.visibility = View.GONE
                 _rotationGroupCl.visibility = View.VISIBLE
                 _collectionGesturesCl.visibility = View.GONE
                 _sprGestureGroupCl.visibility = View.GONE
             }
             3 -> {
-                _activeGestureNameCl.visibility = View.GONE
                 _sprGestureGroupCl.visibility = View.VISIBLE
                 _collectionGesturesCl.visibility = View.GONE
                 _rotationGroupCl.visibility = View.GONE
@@ -598,7 +610,7 @@ class GesturesOpticDelegateAdapter(
 
         collectJob?.cancel()
 
-        collectJob = coroutineScope?.launch {
+        collectJob = scope.launch {
             try {
                 merge(
                     // 1) Активный жест (подсветка и текст)
@@ -617,6 +629,9 @@ class GesturesOpticDelegateAdapter(
 
                             _activeGestureNameTv.text =
                                 main.getString(R.string.active_gesture_is, gestureName)
+
+                            // Подсветить соответствующий SPR-айтем в биндинге
+                            adapter.setActiveGesture(activeGestureId)
                         }
                     },
 
@@ -707,7 +722,7 @@ class GesturesOpticDelegateAdapter(
 
         // >>> changed <<< Отдельный лисенер для режима выбора жеста (обводка BorderAnimator)
         selectModeJob?.cancel()
-        selectModeJob = coroutineScope?.launch(Dispatchers.Main.immediate) {
+        selectModeJob = scope.launch(Dispatchers.Main.immediate) {
             WidgetState.selectGestureModeState.collect { isSelectMode ->
                 Log.d("BorderAnimator", "Mode changed = $isSelectMode")
                 borderAnimator?.toggle(isSelectMode)

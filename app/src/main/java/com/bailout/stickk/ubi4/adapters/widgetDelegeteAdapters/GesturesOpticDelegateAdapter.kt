@@ -428,6 +428,7 @@ class GesturesOpticDelegateAdapter(
                         ),
                         currentBindingGroup
                     )
+
                 }
             onAddGesturesToSprScreen(selectedGestures, listBindingGesture)
         }
@@ -605,9 +606,8 @@ class GesturesOpticDelegateAdapter(
         return null
     }
 
-    private fun collectActiveFlows() {
-        Log.d("BorderAnimator", "collectActiveFlows() started")
 
+    private fun collectActiveFlows() {
         collectJob?.cancel()
 
         collectJob = scope.launch {
@@ -615,9 +615,13 @@ class GesturesOpticDelegateAdapter(
                 merge(
                     // 1) Активный жест (подсветка и текст)
                     WidgetState.activeGestureState.map { activeGestureId ->
+                        Log.d("ACTIVE_TRACE", "activeGestureState → $activeGestureId")
+
                         withContext(Dispatchers.Main) {
+                            // Подсветка кнопки в коллекции / кастомах
                             setActiveGesture(getGestureViewById(activeGestureId))
 
+                            // Имя жеста для заголовка
                             val gestureName = when {
                                 activeGestureId == null -> "Unknown"
                                 activeGestureId < 63 -> getCollectionGestures()
@@ -637,6 +641,11 @@ class GesturesOpticDelegateAdapter(
 
                     // 2) BindingGroup (SPR / оптический биндинг)
                     bindingGroupFlow.map { bindingGroupParameterRef ->
+                        Log.d(
+                            "ACTIVE_TRACE",
+                            "bindingGroupFlow → addr=${bindingGroupParameterRef.addressDevice}, paramId=${bindingGroupParameterRef.parameterID}"
+                        )
+
                         val parameter = ParameterProvider.getParameter(
                             bindingGroupParameterRef.addressDevice,
                             bindingGroupParameterRef.parameterID
@@ -645,18 +654,14 @@ class GesturesOpticDelegateAdapter(
                         val raw = "\"${parameter.data}\""
                         val bindingGroup = runCatching {
                             Json.decodeFromString<BindingGestureGroup>(raw)
-                        }.getOrElse { e ->
-                            Log.e(
-                                "GesturesOpticDelegateAdapter",
-                                "decode BindingGroup failed: raw=$raw error=${e.message}"
-                            )
+                        }.getOrElse {
                             BindingGestureGroup()
                         }
 
                         listBindingGesture.clear()
-                        bindingGroup.toGestureList().forEach {
-                            if (it.first != 0) {
-                                listBindingGesture.add(it)
+                        bindingGroup.toGestureList().forEach { pair ->
+                            if (pair.first != 0) {
+                                listBindingGesture.add(pair)
                             }
                         }
                         isBindingGroupResponseReceived = true
@@ -676,11 +681,7 @@ class GesturesOpticDelegateAdapter(
                         val raw = "\"${parameter.data}\""
                         val rotationGroup = runCatching {
                             Json.decodeFromString<RotationGroup>(raw)
-                        }.getOrElse { e ->
-                            Log.e(
-                                "GesturesOpticDelegateAdapter",
-                                "decode RotationGroup failed: raw=$raw error=${e.message}"
-                            )
+                        }.getOrElse {
                             RotationGroup()
                         }
 
@@ -711,25 +712,22 @@ class GesturesOpticDelegateAdapter(
                     }
                 ).collect()
             } catch (e: CancellationException) {
-                Log.d("collectActiveFlows", "Job was cancelled: ${e.message}")
+                // игнор, job отменён
             } catch (e: Exception) {
-                Log.e("collectActiveFlows", "Unexpected error in collectActiveFlows: $e", e)
                 main.runOnUiThread {
                     main.showToast("collectActiveFlows error: ${e.message}")
                 }
             }
         }
 
-        // >>> changed <<< Отдельный лисенер для режима выбора жеста (обводка BorderAnimator)
+        // Отдельный лисенер для режима выбора жеста (обводка BorderAnimator)
         selectModeJob?.cancel()
         selectModeJob = scope.launch(Dispatchers.Main.immediate) {
             WidgetState.selectGestureModeState.collect { isSelectMode ->
-                Log.d("BorderAnimator", "Mode changed = $isSelectMode")
                 borderAnimator?.toggle(isSelectMode)
             }
         }
     }
-
     private fun calculatingShowAddButton() {
         if (!::mAddGestureToRotationGroupBtn.isInitialized || !::mPlusIv.isInitialized) {
             Log.w(

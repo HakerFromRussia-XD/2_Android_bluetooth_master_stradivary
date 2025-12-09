@@ -478,6 +478,11 @@ class BLEParser(
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
                             val idHex = paramData.substringSafe(0, 2)
                             val idDec = idHex.toInt(16)
+                            platformLog(
+                                "ACTIVE_TRACE",
+                                "PDCE_SELECT_GESTURE from BLE → addr=$deviceAddress pid=$parameterID raw=$paramData id=$idDec"
+                            )
+
                             platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
                             activeGestureState.value = idDec

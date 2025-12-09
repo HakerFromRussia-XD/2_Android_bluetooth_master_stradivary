@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.adapters.dialog
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -49,12 +50,14 @@ class SelectedGesturesAdapter(
         holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
         // SPR-жест по firs t
         val sprGesture = SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first)
+
         holder.gestureSprTitleTop.text = sprGesture.title
         holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
         }
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateGestures(newGestures: List<kotlin.Pair<Int, Int>>) {

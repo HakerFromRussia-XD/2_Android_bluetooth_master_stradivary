@@ -292,8 +292,8 @@ object WidgetBootstrapHydrator {
         platformLog("PLOT_BOOTSTRAP", "emit updateFlow")
         UiState.updateFlow.tryEmit(0)
     }
-    // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
 
+    // ——— Вспомогательный метод: достать BaseParameterWidgetStruct из любого endStruct ———
     suspend fun rebuildParameterLinksFromDb(masterAddr: Int) {
         // На всякий случай не чистим ничего в ParameterProvider —
         // fast-путь вызывается один раз после восстановления.
@@ -304,6 +304,13 @@ object WidgetBootstrapHydrator {
 
             // parameterInfoSet мы уже сохранили в БД и подняли обратно
             base.parameterInfoSet.forEach { info ->
+                if (
+                    base.widgetCode == PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt() &&
+                    info.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
+                ) {
+                    return@forEach
+                }
+
                 val param = ParameterProvider.getParameter(
                     info.deviceAddress,
                     info.parameterID

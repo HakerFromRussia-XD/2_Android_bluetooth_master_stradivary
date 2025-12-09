@@ -32,224 +32,31 @@ class DataFactory {
 
     fun fakeData(): List<Any> = buildList {
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0)))
-        add(
-            PlotParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 1
-                    )
-                )
-            )
-        )
-        add(
-            PlotParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 2
-                    )
-                )
-            )
-        )
-        add(
-            CommandParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 3
-                    )
-                )
-            )
-        )
-        add(
-            CommandParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 4
-                    )
-                )
-            )
-        )
-        add(
-            SwitchParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 5
-                    )
-                )
-            )
-        )
-        add(
-            SwitchParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 6
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 7
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 8
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 9
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 10
-                    )
-                )
-            )
-        )
-        add(
-            OpticStartLearningWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 11
-                    )
-                )
-            )
-        )
-        add(
-            SpinnerParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 12
-                    )
-                )
-            )
-        )
-
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1))))
+        add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
+        add(CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
+        add(CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4))))
+        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
+        add(SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 8))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9))))
+        add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10))))
+        add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
+        add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0)))
-        add(
-            PlotParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 1
-                    )
-                )
-            )
-        )
-        add(
-            PlotParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 2
-                    )
-                )
-            )
-        )
-        add(
-            CommandParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 3
-                    )
-                )
-            )
-        )
-        add(
-            CommandParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 4
-                    )
-                )
-            )
-        )
-        add(
-            SwitchParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 5
-                    )
-                )
-            )
-        )
-        add(
-            SwitchParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 6
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 7
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 8
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 9
-                    )
-                )
-            )
-        )
-        add(
-            SliderParameterWidgetSStruct(
-                BaseParameterWidgetSStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 10
-                    )
-                )
-            )
-        )
-        add(
-            OpticStartLearningWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 11
-                    )
-                )
-            )
-        )
-        add(
-            SpinnerParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 12
-                    )
-                )
-            )
-        )
+        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1))))
+        add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
+        add(CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
+        add(CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4))))
+        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
+        add(SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 8))))
+        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9))))
+        add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10))))
+        add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
+        add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
     }
 
     fun fakeData2(): List<Any> = buildList {

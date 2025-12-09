@@ -548,7 +548,7 @@
 <string name="palm_opening">Раскрытие ладони</string>
 <string name="palm_closing">Закрытие ладони</string>
 <string name="ok_pinch">Жест Оk/Щипок</string>
-<string name="pistol_pointer_gesture">Жест Пистолет/Указатель</string>
+<string name="pistol_pointer_gesture">Жест Указатель</string>
 <string name="flexion">Флексия</string>
 <string name="extension">Экстензия</string>
 <string name="adduction">Аддукция</string>

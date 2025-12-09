@@ -1,53 +1,57 @@
 package com.bailout.stickk.ubi4.utility
 
-import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GestureEnum
 import com.bailout.stickk.ubi4.shared.SharedRes
 
-class CollectionGesturesProvider() {
+class CollectionGesturesProvider {
+
     companion object {
+
         fun getCollectionGestures(): ArrayList<Gesture> {
-            val collectionGesturesList: ArrayList<Gesture> = ArrayList()
-//            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_NO_GESTURE.number, gestureName = "Нет жеста"))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_FIST.number, gestureName = applicationContext().getString(R.string.fist), gestureImage = SharedRes.images.collection_fist_1.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_POINT.number, gestureName = applicationContext().getString(R.string.gesture_point), gestureImage = SharedRes.images.collection_point.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_PINCH.number, gestureName = applicationContext().getString(R.string.gesture_pinch), gestureImage = SharedRes.images.collection_pinch.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_FIST_THUMB_OVER.number, gestureName = applicationContext().getString(R.string.gesture_fist_thumb_over), gestureImage = SharedRes.images.collection_fist_2.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_KEY.number, gestureName = applicationContext().getString(R.string.gesture_key), gestureImage = SharedRes.images.collection_key.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_ROCK.number, gestureName =applicationContext().getString(R.string.gesture_rock), gestureImage = SharedRes.images.collection_rock.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_TWIZZERS.number, gestureName = applicationContext().getString(R.string.gesture_twizzers), gestureImage = SharedRes.images.collection_twizzers.drawableResId))//от Ок отличается тем что пальцы закрыты
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUPHOLDER.number, gestureName = applicationContext().getString(R.string.gesture_cupholder), gestureImage = SharedRes.images.collection_cupholder.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_HALF_GRAB.number, gestureName = applicationContext().getString(R.string.gesture_half_grab), gestureImage = SharedRes.images.collect_half_grab.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_OK.number, gestureName = applicationContext().getString(R.string.gesture_ok), gestureImage = SharedRes.images.collection_ok.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_THUMB_UP.number, gestureName = applicationContext().getString(R.string.gesture_thumb_up), gestureImage = SharedRes.images.collection_thumb_up.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_MIDDLE_FINGER.number, gestureName = applicationContext().getString(R.string.gesture_middle_finger), gestureImage = SharedRes.images.collection_middle_finger.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_DOUBLE_POINT.number, gestureName = applicationContext().getString(R.string.gesture_double_point), gestureImage = SharedRes.images.collection_double_point.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CALL_ME.number, gestureName = applicationContext().getString(R.string.gesture_call_me), gestureImage = SharedRes.images.collection_call_me.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_NATURAL_POSITION.number, gestureName = applicationContext().getString(R.string.gesture_natural_position), gestureImage = SharedRes.images.collection_natural_position.drawableResId))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_0.number, gestureName = applicationContext().getString(R.string.gesture_1_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_1.number, gestureName = applicationContext().getString(R.string.gesture_2_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_2.number, gestureName = applicationContext().getString(R.string.gesture_3_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_3.number, gestureName = applicationContext().getString(R.string.gesture_4_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_4.number, gestureName = applicationContext().getString(R.string.gesture_5_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_5.number, gestureName = applicationContext().getString(R.string.gesture_6_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_6.number, gestureName = applicationContext().getString(R.string.gesture_7_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_7.number, gestureName = applicationContext().getString(R.string.gesture_8_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_8.number, gestureName = applicationContext().getString(R.string.gesture_9_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_9.number, gestureName = applicationContext().getString(R.string.gesture_10_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_10.number, gestureName = applicationContext().getString(R.string.gesture_11_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_11.number, gestureName = applicationContext().getString(R.string.gesture_12_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_12.number, gestureName = applicationContext().getString(R.string.gesture_13_btn)))
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_13.number, gestureName = applicationContext().getString(R.string.gesture_14_btn)))
-            return collectionGesturesList
+            val ctx = applicationContext()
+            val list = ArrayList<Gesture>()
+
+            list.add(Gesture(GestureEnum.GESTURE_FIST.number, gestureName = ctx.getString(SharedRes.strings.fist.resourceId), gestureImage = SharedRes.images.collection_fist_1.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_POINT.number, gestureName = ctx.getString(SharedRes.strings.gesture_point.resourceId), gestureImage = SharedRes.images.collection_point.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_PINCH.number, gestureName = ctx.getString(SharedRes.strings.gesture_pinch.resourceId), gestureImage = SharedRes.images.collection_pinch.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_FIST_THUMB_OVER.number, gestureName = ctx.getString(SharedRes.strings.gesture_fist_thumb_over.resourceId), gestureImage = SharedRes.images.collection_fist_2.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_KEY.number, gestureName = ctx.getString(SharedRes.strings.gesture_key.resourceId), gestureImage = SharedRes.images.collection_key.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_ROCK.number, gestureName = ctx.getString(SharedRes.strings.gesture_rock.resourceId), gestureImage = SharedRes.images.collection_rock.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_TWIZZERS.number, gestureName = ctx.getString(SharedRes.strings.gesture_twizzers.resourceId), gestureImage = SharedRes.images.collection_twizzers.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_CUPHOLDER.number, gestureName = ctx.getString(SharedRes.strings.gesture_cupholder.resourceId), gestureImage = SharedRes.images.collection_cupholder.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_HALF_GRAB.number, gestureName = ctx.getString(SharedRes.strings.gesture_half_grab.resourceId), gestureImage = SharedRes.images.collect_half_grab.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_OK.number, gestureName = ctx.getString(SharedRes.strings.gesture_ok.resourceId), gestureImage = SharedRes.images.collection_ok.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_THUMB_UP.number, gestureName = ctx.getString(SharedRes.strings.gesture_thumb_up.resourceId), gestureImage = SharedRes.images.collection_thumb_up.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_MIDDLE_FINGER.number, gestureName = ctx.getString(SharedRes.strings.gesture_middle_finger.resourceId), gestureImage = SharedRes.images.collection_middle_finger.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_DOUBLE_POINT.number, gestureName = ctx.getString(SharedRes.strings.gesture_double_point.resourceId), gestureImage = SharedRes.images.collection_double_point.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_CALL_ME.number, gestureName = ctx.getString(SharedRes.strings.gesture_call_me.resourceId), gestureImage = SharedRes.images.collection_call_me.drawableResId))
+            list.add(Gesture(GestureEnum.GESTURE_NATURAL_POSITION.number, gestureName = ctx.getString(SharedRes.strings.gesture_natural_position.resourceId), gestureImage = SharedRes.images.collection_natural_position.drawableResId))
+
+            // кастомные кнопки
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_0.number, gestureName = ctx.getString(SharedRes.strings.gesture_1_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_1.number, gestureName = ctx.getString(SharedRes.strings.gesture_2_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_2.number, gestureName = ctx.getString(SharedRes.strings.gesture_3_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_3.number, gestureName = ctx.getString(SharedRes.strings.gesture_4_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_4.number, gestureName = ctx.getString(SharedRes.strings.gesture_5_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_5.number, gestureName = ctx.getString(SharedRes.strings.gesture_6_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_6.number, gestureName = ctx.getString(SharedRes.strings.gesture_7_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_7.number, gestureName = ctx.getString(SharedRes.strings.gesture_8_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_8.number, gestureName = ctx.getString(SharedRes.strings.gesture_9_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_9.number, gestureName = ctx.getString(SharedRes.strings.gesture_10_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_10.number, gestureName = ctx.getString(SharedRes.strings.gesture_11_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_11.number, gestureName = ctx.getString(SharedRes.strings.gesture_12_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_12.number, gestureName = ctx.getString(SharedRes.strings.gesture_13_btn.resourceId)))
+            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_13.number, gestureName = ctx.getString(SharedRes.strings.gesture_14_btn.resourceId)))
+
+            return list
         }
 
         fun getGesture(gestureId: Int): Gesture {
-            val gestureList = getCollectionGestures().filter{ it.gestureId == gestureId }
+            val gestureList = getCollectionGestures().filter { it.gestureId == gestureId }
             if (gestureList.isNotEmpty()) { return gestureList[0] }
-            else { return  Gesture(0)
-            }
+            else { return Gesture(0) }
         }
     }
 }

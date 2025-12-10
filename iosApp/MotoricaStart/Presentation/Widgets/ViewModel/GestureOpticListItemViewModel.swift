@@ -17,12 +17,17 @@ struct GestureListItemViewModel: Equatable, Hashable {
     private let gestureNameList: [String]
     private let parameterInfoSet: Set<ParameterInfoData>
     
-    init(widget: Widget, bleManager: BleManagerKmm) {
+    private let openCustomGestureSettings: (() -> Void)?
+
+    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: (() -> Void)? = nil) {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
         self.gestureNameList = GestureListItemViewModel.makeGestureNames()
+        
+        self.openCustomGestureSettings = openCustomGestureSettings
+
         
         if let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: widget.widget) {
             self.parameterInfoSet = ParameterInfoData.makeSet(from: baseStruct.parameterInfoSet)
@@ -81,6 +86,7 @@ extension GestureListItemViewModel {
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
+        openCustomGestureSettings?()
         requestGestureSettings(gestureId: item.id)
     }
 
@@ -244,7 +250,7 @@ extension GestureListItemViewModel {
         sendBytes(data)
     }
     
-    func parameterID(for dataCode: Int) -> Int {
+    private func parameterID(for dataCode: Int) -> Int {
         parameterInfoSet.first(where: { $0.dataCode == dataCode })?.parameterID ?? 0
     }
 
@@ -462,7 +468,7 @@ private extension GestureListItemViewModel {
         ].map { $0.desc().localized() }
     }
 }
-enum ParameterCode {
+private enum ParameterCode {
     static let selectGesture = 1
     static let gestureSettings = 31
     static let gestureGroup = 32

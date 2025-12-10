@@ -51,6 +51,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+        viewModel.setCustomGestureSettingsOpener { [weak self] in
+            DispatchQueue.main.async {
+                self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+            }
+        }
         bind(to: viewModel)
         if !isSynchronizationCompleted {
             hideWidgetsContentForSynchronization()

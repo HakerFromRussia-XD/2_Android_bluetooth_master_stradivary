@@ -2,9 +2,8 @@ import UIKit
 import ObjectiveC
 import QuartzCore
 
-final class WidgetsListTableViewController: UITableViewController {
-//    @IBOutlet weak var tableViewMy: UITableView!
-//    private var hasAppliedInitialSnapshot = false
+@objc final class WidgetsListTableViewController: UITableViewController {
+    @objc public var savingDeviceName: String = "...."
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -127,6 +126,7 @@ final class WidgetsListTableViewController: UITableViewController {
                 
                 case .gestureOptic(let vm):
                     let cell = tableView.dequeueReusableCell(
+//                        self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil),
                         withIdentifier: GestureViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! GestureViewCell
@@ -143,5 +143,27 @@ final class WidgetsListTableViewController: UITableViewController {
         if indexPath.row == itemsCount - 1 {
             viewModel.didLoadNextPage()
         }
+    }
+    
+    @objc public func setNameGesture(numberGesture: Int, name: String) { print("Вызвана функция setNameGesture") }
+    @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
+    @objc public func getStatusConnection() -> Int { return 0; }
+    @objc public func getGestureNum() -> Int { return 0; }
+    @objc public func getGestureName(numberGesture: Int) -> String { return "0"; }
+    @objc public func getUseFestX() -> Int { return 0; }
+    @objc public func getHandSide() -> Int { return 0; }
+    @objc public func getGestureTable() -> String { return "" }
+    @objc public func getGestureTableBig() -> String {return "" }
+    @objc public func getFingersDelay() -> String {
+        var data: String = ""
+        return data
+    }
+    @objc public func getFingersDelaySwitch() -> Int { return 0; }
+    @objc public func getVersionDriverGreaterThan237() -> Bool { return true; }
+    @objc public func sendDataToFest (dataForWrite: Data, characteristic: String, typeFestX: Bool) {
+        print("Вызвана функция sendDataToFest  typeFestX = \(typeFestX)")
+    }
+    @objc func saveDataString(key: String, value: String) {
+        print("save   key: \(key) value: \(value)")
     }
 }

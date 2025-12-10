@@ -29,6 +29,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
+    func setCustomGestureSettingsOpener(_ handler: @escaping () -> Void)
 }
 
 protocol WidgetsListViewModelOutput {
@@ -52,6 +53,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private let searchWidgetsUseCase: SearchWidgetsUseCase
     private let actions: WidgetsListViewModelActions?
     private let bleManager: BleManagerKmm
+    private var customGestureSettingsOpener: (() -> Void)?
     
     var currentPage: Int = 0
     var totalPageCount: Int = 1
@@ -108,7 +110,15 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
                 case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
                 case .switchWidget: return ListItemType.switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
-                case .gestureOpticWidget: return ListItemType.gestureOptic(GestureListItemViewModel(widget: widget, bleManager: bleManager))
+//                case .gestureOpticWidget: return ListItemType.gestureOptic(GestureListItemViewModel(widget: widget, bleManager: bleManager))
+                case .gestureOpticWidget:
+                    return ListItemType.gestureOptic(
+                        GestureListItemViewModel(
+                            widget: widget,
+                            bleManager: bleManager,
+                            openCustomGestureSettings: customGestureSettingsOpener
+                        )
+                    )
                 @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
             }
         }
@@ -182,6 +192,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             typeCommand: Constants.WRITE,
             onChunkSent: {}
         )
+    }
+    
+    func setCustomGestureSettingsOpener(_ handler: @escaping () -> Void) {
+        customGestureSettingsOpener = handler
     }
 }
 

@@ -15,7 +15,8 @@ final class GestureViewCell: UITableViewCell {
     private var bindingJob: Kotlinx_coroutines_coreJob?
     private var activeGestureJob: Kotlinx_coroutines_coreJob?
     private let rotationDebouncer = Debouncer(delay: 1.0)
-    private let cache = GestureWidgetCache.shared
+    var onOpenSettings: (() -> Void)?
+    
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -36,7 +37,6 @@ final class GestureViewCell: UITableViewCell {
         // 1. Создаём провайдер
         let provider = viewModel.makeProvider()
         self.provider = provider
-        applyCachedStateIfNeeded(provider: provider, viewModel: viewModel)
         cancellable?.cancel()
         preservesSuperviewLayoutMargins = false
         contentView.directionalLayoutMargins = .zero
@@ -66,6 +66,9 @@ final class GestureViewCell: UITableViewCell {
                 },
                 onCustomGestureSettingsTap: { [weak self] item in
                     self?.viewModel.openGestureSettings(for: item)
+//                    performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+                    self?.onOpenSettings?()
+                    print("onCustomGestureSettingsTap \(item)")
                 },
                 onRotationGestureRemove: { [weak self] index in
                     guard let self, let provider = self.provider else { return }
@@ -138,7 +141,6 @@ final class GestureViewCell: UITableViewCell {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.provider?.rotationGroup = rotationGroup
-            self.cache.setRotationGroup(rotationGroup, for: self.cacheKey(deviceAddress: Int(ref.addressDevice), parameterID: Int(ref.parameterID)))
         }
     }
     
@@ -160,11 +162,6 @@ final class GestureViewCell: UITableViewCell {
             guard let self else { return }
             self.provider?.activeGestureId = activeGestureId
             self.provider?.activeGestureTitle = activeGestureTitle
-            self.cache.setActiveGesture(
-                id: activeGestureId,
-                title: activeGestureTitle,
-                for: self.cacheKey(deviceAddress: Int(ref.addressDevice), parameterID: Int(ref.parameterID))
-            )
         }
     }
     
@@ -180,138 +177,6 @@ final class GestureViewCell: UITableViewCell {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.provider?.sprGestures = bindingGestures
-            self.cache.setBindingGroup(
-                bindingGestures,
-                for: self.cacheKey(deviceAddress: Int(ref.addressDevice), parameterID: Int(ref.parameterID))
-            )
-        }
-    }
-
-    private func applyCachedStateIfNeeded(provider: GesturesProvider, viewModel: GestureListItemViewModel) {
-        let activeKey = cacheKey(deviceAddress: viewModel.widget.deviceAddress,
-                                 parameterID: viewModel.parameterID(for: ParameterCode.selectGesture))
-        if let cachedActive = cache.activeGesture(for: activeKey) {
-            provider.activeGestureId = cachedActive.id
-            provider.activeGestureTitle = cachedActive.title
-        } else {
-            applyActiveGestureFromParameter(provider: provider, viewModel: viewModel)
-        }
-
-        let rotationKey = cacheKey(deviceAddress: viewModel.widget.deviceAddress,
-                                   parameterID: viewModel.parameterID(for: ParameterCode.gestureGroup))
-        if let cachedRotation = cache.rotationGroup(for: rotationKey) {
-            provider.rotationGroup = cachedRotation
-        } else {
-            applyRotationGroupFromParameter(provider: provider, viewModel: viewModel)
-        }
-
-        let bindingKey = cacheKey(deviceAddress: viewModel.widget.deviceAddress,
-                                  parameterID: viewModel.parameterID(for: ParameterCode.bindingGroup))
-        if let cachedBinding = cache.bindingGroup(for: bindingKey) {
-            provider.sprGestures = cachedBinding
-        } else {
-            applyBindingGroupFromParameter(provider: provider, viewModel: viewModel)
-        }
-    }
-
-    private func applyActiveGestureFromParameter(provider: GesturesProvider, viewModel: GestureListItemViewModel) {
-        let parameterID = viewModel.parameterID(for: ParameterCode.selectGesture)
-        guard parameterID != 0 else { return }
-
-        let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(parameterID))
-
-        let data = parameter.data
-        let idHex = String(data.prefix(2))
-        guard let activeGestureId = Int(idHex, radix: 16) else { return }
-
-        let activeGestureTitle =
-            provider.factoryGestures.first(where: { $0.id == activeGestureId })?.title ??
-            provider.customGestures.first(where: { $0.id == activeGestureId })?.title
-
-        provider.activeGestureId = activeGestureId
-        provider.activeGestureTitle = activeGestureTitle
-        cache.setActiveGesture(
-            id: activeGestureId,
-            title: activeGestureTitle,
-            for: cacheKey(deviceAddress: viewModel.widget.deviceAddress, parameterID: parameterID)
-        )
-    }
-
-    private func applyRotationGroupFromParameter(provider: GesturesProvider, viewModel: GestureListItemViewModel) {
-        let parameterID = viewModel.parameterID(for: ParameterCode.gestureGroup)
-        guard parameterID != 0 else { return }
-
-        let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(parameterID))
-
-        let rotationGroup = viewModel.rotationGroup(from: parameter.data, provider: provider)
-        guard rotationGroup.isEmpty == false else { return }
-
-        provider.rotationGroup = rotationGroup
-        cache.setRotationGroup(
-            rotationGroup,
-            for: cacheKey(deviceAddress: viewModel.widget.deviceAddress, parameterID: parameterID)
-        )
-    }
-
-    private func applyBindingGroupFromParameter(provider: GesturesProvider, viewModel: GestureListItemViewModel) {
-        let parameterID = viewModel.parameterID(for: ParameterCode.bindingGroup)
-        guard parameterID != 0 else { return }
-
-        let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(parameterID))
-
-        let bindingGestures = viewModel.bindingGroup(from: parameter.data)
-        guard bindingGestures.isEmpty == false else { return }
-
-        provider.sprGestures = bindingGestures
-        cache.setBindingGroup(
-            bindingGestures,
-            for: cacheKey(deviceAddress: viewModel.widget.deviceAddress, parameterID: parameterID)
-        )
-    }
-
-    private func cacheKey(deviceAddress: Int, parameterID: Int) -> String {
-        "\(deviceAddress)-\(parameterID)"
-    }
-}
-
-private final class GestureWidgetCache {
-    static let shared = GestureWidgetCache()
-
-    private var rotationGroups: [String: [GesturesProvider.GestureDisplayItem]] = [:]
-    private var bindingGroups: [String: [GesturesProvider.SprGestureDisplayItem]] = [:]
-    private var activeGestures: [String: (id: Int, title: String?)] = [:]
-    private let queue = DispatchQueue(label: "GestureWidgetCache.queue")
-
-    func rotationGroup(for key: String) -> [GesturesProvider.GestureDisplayItem]? {
-        queue.sync { rotationGroups[key] }
-    }
-
-    func setRotationGroup(_ group: [GesturesProvider.GestureDisplayItem], for key: String) {
-        queue.async { [weak self] in
-            self?.rotationGroups[key] = group
-        }
-    }
-
-    func bindingGroup(for key: String) -> [GesturesProvider.SprGestureDisplayItem]? {
-        queue.sync { bindingGroups[key] }
-    }
-
-    func setBindingGroup(_ group: [GesturesProvider.SprGestureDisplayItem], for key: String) {
-        queue.async { [weak self] in
-            self?.bindingGroups[key] = group
-        }
-    }
-
-    func activeGesture(for key: String) -> (id: Int, title: String?)? {
-        queue.sync { activeGestures[key] }
-    }
-
-    func setActiveGesture(id: Int, title: String?, for key: String) {
-        queue.async { [weak self] in
-            self?.activeGestures[key] = (id: id, title: title)
         }
     }
 }

@@ -153,6 +153,17 @@
 		65EAF48C2ED865D400B3C49D /* open.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47B2ED865D400B3C49D /* open.lottie */; };
 		65EAF48D2ED865D400B3C49D /* pinch.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47C2ED865D400B3C49D /* pinch.lottie */; };
 		65EAF48F2EE0662100B3C49D /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF48E2EE0661800B3C49D /* Debouncer.swift */; };
+		65EAF49E2EE8232500B3C49D /* temple.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4982EE8232500B3C49D /* temple.fsh */; };
+		65EAF49F2EE8232500B3C49D /* reflect.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF49B2EE8232500B3C49D /* reflect.vsh */; };
+		65EAF4A02EE8232500B3C49D /* select_fragment_shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4992EE8232500B3C49D /* select_fragment_shader.fsh */; };
+		65EAF4A12EE8232500B3C49D /* select_vertex_shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF49A2EE8232500B3C49D /* select_vertex_shader.vsh */; };
+		65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4972EE8232500B3C49D /* reflect.fsh */; };
+		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
+		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
+		65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */; };
+		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
+		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
+		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
 		65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */; };
@@ -325,6 +336,24 @@
 		65EAF4802ED865D400B3C49D /* wrist_extend.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_extend.lottie; sourceTree = "<group>"; };
 		65EAF4812ED865D400B3C49D /* wrist_flex.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = wrist_flex.lottie; sourceTree = "<group>"; };
 		65EAF48E2EE0661800B3C49D /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
+		65EAF4902EE8232500B3C49D /* AAPLOpenGLViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLViewController.h; sourceTree = "<group>"; };
+		65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLViewController.m; sourceTree = "<group>"; };
+		65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
+		65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
+		65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
+		65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
+		65EAF4962EE8232500B3C49D /* temple.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
+		65EAF4972EE8232500B3C49D /* reflect.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
+		65EAF4982EE8232500B3C49D /* temple.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = temple.fsh; sourceTree = "<group>"; };
+		65EAF4992EE8232500B3C49D /* select_fragment_shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = select_fragment_shader.fsh; sourceTree = "<group>"; };
+		65EAF49A2EE8232500B3C49D /* select_vertex_shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = select_vertex_shader.vsh; sourceTree = "<group>"; };
+		65EAF49B2EE8232500B3C49D /* reflect.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.vsh; sourceTree = "<group>"; };
+		65EAF4A62EE82B3500B3C49D /* AAPLCommonDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLCommonDefinitions.h; sourceTree = "<group>"; };
+		65EAF4A72EE82B3500B3C49D /* AAPLMeshData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLMeshData.h; sourceTree = "<group>"; };
+		65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLMeshData.mm; sourceTree = "<group>"; };
+		65EAF4A92EE82B3500B3C49D /* AAPLMathUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLMathUtilities.h; sourceTree = "<group>"; };
+		65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLMathUtilities.m; sourceTree = "<group>"; };
+		65EAF4AB2EE82B3500B3C49D /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -584,6 +613,7 @@
 			isa = PBXGroup;
 			children = (
 				1FA533D5201EF29600747E55 /* Application */,
+				65EAF49D2EE8232500B3C49D /* OpenGL */,
 				1FE49D63230AA7C200D1D42E /* Presentation */,
 				1FA533D1201EF1EC00747E55 /* Domain */,
 				1F5B9E20221D61290051B5F2 /* Data */,
@@ -978,6 +1008,47 @@
 			path = CustomUI;
 			sourceTree = "<group>";
 		};
+		65EAF49C2EE8232500B3C49D /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				65EAF4962EE8232500B3C49D /* temple.vsh */,
+				65EAF4972EE8232500B3C49D /* reflect.fsh */,
+				65EAF4982EE8232500B3C49D /* temple.fsh */,
+				65EAF4992EE8232500B3C49D /* select_fragment_shader.fsh */,
+				65EAF49A2EE8232500B3C49D /* select_vertex_shader.vsh */,
+				65EAF49B2EE8232500B3C49D /* reflect.vsh */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
+		65EAF49D2EE8232500B3C49D /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				65EAF4902EE8232500B3C49D /* AAPLOpenGLViewController.h */,
+				65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */,
+				65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */,
+				65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */,
+				65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */,
+				65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */,
+				65EAF49C2EE8232500B3C49D /* shaders */,
+				65EAF4AC2EE82B3500B3C49D /* Common */,
+			);
+			path = OpenGL;
+			sourceTree = "<group>";
+		};
+		65EAF4AC2EE82B3500B3C49D /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				65EAF4A62EE82B3500B3C49D /* AAPLCommonDefinitions.h */,
+				65EAF4A72EE82B3500B3C49D /* AAPLMeshData.h */,
+				65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */,
+				65EAF4A92EE82B3500B3C49D /* AAPLMathUtilities.h */,
+				65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */,
+				65EAF4AB2EE82B3500B3C49D /* Meshes */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		65F27F022E672EFD00AD5DFD /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
@@ -1164,9 +1235,16 @@
 				65EAF48A2ED865D400B3C49D /* wrist_flex.lottie in Resources */,
 				65EAF48B2ED865D400B3C49D /* wrist_extend.lottie in Resources */,
 				65EAF48C2ED865D400B3C49D /* open.lottie in Resources */,
+				65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */,
 				65EAF48D2ED865D400B3C49D /* pinch.lottie in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				65682FD32ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
+				65EAF49E2EE8232500B3C49D /* temple.fsh in Resources */,
+				65EAF49F2EE8232500B3C49D /* reflect.vsh in Resources */,
+				65EAF4A02EE8232500B3C49D /* select_fragment_shader.fsh in Resources */,
+				65EAF4A12EE8232500B3C49D /* select_vertex_shader.vsh in Resources */,
+				65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */,
+				65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */,
 				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
@@ -1259,6 +1337,8 @@
 				1FFF12A42439F2E700937EE4 /* WidgetsResponseStorage.swift in Sources */,
 				1F2AB951242789B80010DEEE /* WidgetsResponseDTO+Mapping.swift in Sources */,
 				1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */,
+				65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */,
+				65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */,
 				1FC2C9632301FEC0001AE47E /* WidgetQueryUDS+Mapping.swift in Sources */,
 				1F1FC48A22E3693100BCBA8D /* DataTransferService.swift in Sources */,
 				1FEE31622218B17E00C160B9 /* Observable.swift in Sources */,
@@ -1297,6 +1377,8 @@
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
 				655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */,
+				65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */,
+				65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */,
 				1F1CD656222368CA00B0143C /* AppConfigurations.swift in Sources */,
 				1F474F2222356B1E0092DB4B /* Cancellable.swift in Sources */,
 				6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */,

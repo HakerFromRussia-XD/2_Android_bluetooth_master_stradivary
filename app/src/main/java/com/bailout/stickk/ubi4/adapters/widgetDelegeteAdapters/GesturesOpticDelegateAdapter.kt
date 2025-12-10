@@ -79,7 +79,9 @@ class GesturesOpticDelegateAdapter(
 ) : ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
     Ubi4WidgetGesturesOptic1Binding::inflate
 ), RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
-    RotationGroupItemAdapter.OnCopyClickRotationGroupListener {
+    RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
+    RotationGroupItemAdapter.OnSelectClickRotationGroupListener
+{
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<Pair<Int, Int>> = mutableListOf()
@@ -636,6 +638,8 @@ class GesturesOpticDelegateAdapter(
 
                             // Подсветить соответствующий SPR-айтем в биндинге
                             adapter.setActiveGesture(activeGestureId)
+
+                            listRotationGroupAdapter?.setActiveGestureId(activeGestureId ?: -1)
                         }
                     },
 
@@ -824,6 +828,7 @@ class GesturesOpticDelegateAdapter(
                 R.id.swapIv,
                 false,
                 this,
+                this,
                 this
             )
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
@@ -907,5 +912,23 @@ class GesturesOpticDelegateAdapter(
         collectJob?.cancel()
         selectModeJob?.cancel() // >>> changed <<<
         borderAnimator?.destroyCoroutines()
+    }
+
+    override fun onRotationGestureClick(
+        position: Int,
+        gestureName: String?,
+        gestureId: Int
+    ) {
+        if (gestureId == 0) return
+        // Подсветить соответствующую кнопку в коллекции / кастомах
+        setActiveGesture(getGestureViewById(gestureId))
+
+        // Обновить текст активного жеста
+        val safeName = gestureName?.ifBlank { "Unknown" }
+        _activeGestureNameTv.text =
+            main.getString(R.string.active_gesture_is, safeName)
+
+        // Отправить команду активного жеста в протез
+        onSendBLEActiveGesture(gestureId)
     }
 }

@@ -54,6 +54,7 @@ class GesturesDelegateAdapter(
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
+    RotationGroupItemAdapter.OnSelectClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
     private val ANIMATION_DURATION = 200
@@ -352,7 +353,9 @@ class GesturesDelegateAdapter(
                 R.id.swapIv,
                 false,
                 this,
+                this,
                 this
+
             )
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
         mRotationGroupDragLv?.setCanDragHorizontally(false)
@@ -489,5 +492,22 @@ class GesturesDelegateAdapter(
     fun onDestroy() {
         Log.d("LifeCycele", "stopCollectingGestureFlow")
         scope.cancel()
+    }
+
+    override fun onRotationGestureClick(
+        position: Int,
+        gestureName: String?,
+        gestureId: Int
+    ) {
+        if (gestureId == 0) return
+
+        Log.d(
+            "GesturesDelegateAdapter",
+            "Rotation item clicked: pos=$position, name=$gestureName, id=$gestureId"
+        )
+
+        // Просто шлём команду активного жеста
+        onSendBLEActiveGesture(gestureId)
+
     }
 }

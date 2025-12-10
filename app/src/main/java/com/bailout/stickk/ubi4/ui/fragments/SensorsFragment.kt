@@ -51,7 +51,9 @@ class SensorsFragment : BaseWidgetsFragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+//        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.refreshLayout.isEnabled = false
+
         widgetListUpdater()
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
@@ -87,7 +89,7 @@ class SensorsFragment : BaseWidgetsFragment() {
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
                         main?.refreshBottomNavVisibility()
                     }
-                    binding.refreshLayout.setRefreshing(false)
+//                    binding.refreshLayout.setRefreshing(false)
                 }
             }
         }

@@ -103,7 +103,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+//        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.refreshLayout.isEnabled = false
 
 
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
@@ -142,7 +143,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
                         main?.refreshBottomNavVisibility()
-                        binding.refreshLayout.setRefreshing(false)
+//                        binding.refreshLayout.setRefreshing(false)
                     }
                 }
             }

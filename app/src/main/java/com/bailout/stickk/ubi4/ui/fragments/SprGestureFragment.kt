@@ -79,7 +79,9 @@ class SprGestureFragment: BaseWidgetsFragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.refreshLayout.isEnabled = false
+
+//        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
 
         binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
@@ -218,7 +220,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
                     main?.refreshBottomNavVisibility()
                 }
-                binding.refreshLayout.setRefreshing(false)
+//                binding.refreshLayout.setRefreshing(false)
             }
         }
     }

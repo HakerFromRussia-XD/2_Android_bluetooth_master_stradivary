@@ -126,6 +126,8 @@ class GesturesOpticDelegateAdapter(
 
     private var borderAnimator: BorderAnimator? = null
 
+    private var currentActiveGestureId: Int? = null
+
     private var collectJob: Job? = null
     private var selectModeJob: Job? = null // >>> changed <<<
 
@@ -619,6 +621,9 @@ class GesturesOpticDelegateAdapter(
                     WidgetState.activeGestureState.map { activeGestureId ->
                         Log.d("ACTIVE_TRACE", "activeGestureState → $activeGestureId")
 
+                        // Remember the last active gesture id
+                        currentActiveGestureId = activeGestureId
+
                         withContext(Dispatchers.Main) {
                             // Подсветка кнопки в коллекции / кастомах
                             setActiveGesture(getGestureViewById(activeGestureId))
@@ -840,6 +845,10 @@ class GesturesOpticDelegateAdapter(
                 R.layout.ubi4_item_rotation_group_drag
             )
         )
+        // Restore last known active gesture highlight in new adapter if possible
+        currentActiveGestureId?.let { id ->
+            listRotationGroupAdapter?.setActiveGestureId(id)
+        }
     }
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
@@ -930,5 +939,9 @@ class GesturesOpticDelegateAdapter(
 
         // Отправить команду активного жеста в протез
         onSendBLEActiveGesture(gestureId)
+
+        // Immediately update highlight state for UI/adapter
+        currentActiveGestureId = gestureId
+        listRotationGroupAdapter?.setActiveGestureId(gestureId)
     }
 }

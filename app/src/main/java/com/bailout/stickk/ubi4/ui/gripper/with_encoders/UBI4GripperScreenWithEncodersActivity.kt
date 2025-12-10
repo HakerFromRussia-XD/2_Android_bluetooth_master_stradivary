@@ -279,6 +279,8 @@ class UBI4GripperScreenWithEncodersActivity
         RxView.clicks(findViewById(R.id.gripperSaveBtn))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+
+                compileBLEMassage()
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                     val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")

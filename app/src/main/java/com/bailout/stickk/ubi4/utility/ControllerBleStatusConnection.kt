@@ -1,8 +1,11 @@
-package com.bailout.stickk.ubi4.ui.main
+package com.bailout.stickk.ubi4.utility
 
 import android.animation.Animator
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner

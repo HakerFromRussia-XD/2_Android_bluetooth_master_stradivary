@@ -422,8 +422,8 @@ abstract class BaseWidgetsFragment : Fragment() {
         UiState.widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(1, 0))
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
-        adapterWidgets.swapData(emptyList())
-        listWidgets.clear()
+//        adapterWidgets.swapData(emptyList())
+//        listWidgets.clear()
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 

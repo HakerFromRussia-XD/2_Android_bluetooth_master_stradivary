@@ -154,6 +154,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 - (IBAction)perehod:(UIButton *)sender {
     _stop = true;
+    NSLog(@"Переход назад 1");
     // возобновляем работу протеза от датчиков
     uint8_t data[]   = { 0x01 };
 //    if (_typeMultigribNewVM) {
@@ -162,7 +163,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 ////        [self sendDataToFest:data :sampleGattAtributes.SENS_ENABLED_NEW :sizeof(data)];
 //    }
     
-    [_openGLRenderer stopVC];
+//    [_openGLRenderer stopVC];
     
     if (showRenameTextField) {
         NSString *result = @"    ";

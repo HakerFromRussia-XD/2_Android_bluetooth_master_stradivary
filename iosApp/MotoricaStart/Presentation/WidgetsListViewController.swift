@@ -11,6 +11,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     @IBOutlet private var emptyDataLabel: UILabel!
     private let tableView = UITableView()
     @IBOutlet private weak var tableViewWidgets: UITableView!
+    @IBAction func unwindToThisGestureViewController (sender: UIStoryboardSegue){
+//        loadDataString()
+//        initUI()
+        print("sGRG initUI() unwindToThisGestureViewController()")
+    }
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Нажми меня", for: .normal)
@@ -43,22 +48,41 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     // MARK: - Lifecycle
     static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
-        let view = WidgetsListViewController.instantiateViewController()
+//        let view = WidgetsListViewController.instantiateViewController()
+        let storyboard = UIStoryboard(name: defaultFileName, bundle: nil)
+
+        // ищем КОНКРЕТНО твой VC по ID
+        let view = storyboard.instantiateViewController(
+            withIdentifier: String(describing: WidgetsListViewController.self)
+        ) as! WidgetsListViewController
+        
         view.viewModel = viewModel
         return view
+    }
+    
+    func open3DSettings() {
+//        performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+        let vc = storyboard!.instantiateViewController(withIdentifier: "Gripper3DSettingsViewController")
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+//        viewModel.setCustomGestureSettingsOpener { [weak self] in
+//            DispatchQueue.main.async {
+//                self?.widgetsTableViewController?.performSegue(
+//                        withIdentifier: "go3DGripperSettings",
+//                        sender: nil
+//                    )
+//            }
+//        }
         viewModel.setCustomGestureSettingsOpener { [weak self] in
             DispatchQueue.main.async {
-                self?.widgetsTableViewController?.performSegue(
-                        withIdentifier: "go3DGripperSettings",
-                        sender: nil
-                    )
+                self?.open3DSettings()
             }
         }
+        
         bind(to: viewModel)
         if !isSynchronizationCompleted {
             hideWidgetsContentForSynchronization()

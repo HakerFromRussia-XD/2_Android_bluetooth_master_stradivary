@@ -126,7 +126,6 @@ import QuartzCore
                 
                 case .gestureOptic(let vm):
                     let cell = tableView.dequeueReusableCell(
-//                        self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil),
                         withIdentifier: GestureViewCell.reuseIdentifier,
                         for: indexPath
                     ) as! GestureViewCell

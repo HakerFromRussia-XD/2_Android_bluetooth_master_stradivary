@@ -179,14 +179,14 @@ object WidgetBootstrapHydrator {
                 if (info.dataCode == PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number) {
                     val gestureId: Int? =
                         lastState?.value_i1?.toInt() ?: lastState?.value_text?.toIntOrNull()
-
                     WidgetState.activeGestureState.value = gestureId
-
                     platformLog(
                         "BOOTSTRAP_GESTURE",
                         "hydrate: activeGestureState from DB: addr=$masterAddr pid=${info.ID} gestureId=$gestureId"
                     )
                 }
+
+
 
             }
 

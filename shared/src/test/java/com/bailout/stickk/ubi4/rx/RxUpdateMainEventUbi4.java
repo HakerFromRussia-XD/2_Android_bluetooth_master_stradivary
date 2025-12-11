@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.models.gestures.GestureInfo;
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress;
 
 import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 public class RxUpdateMainEventUbi4 {

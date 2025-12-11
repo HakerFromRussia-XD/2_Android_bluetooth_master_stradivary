@@ -29,6 +29,7 @@ object WidgetState {
     var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
     val activeGestureState = MutableStateFlow<Int?>(null)
     val selectGestureModeState = MutableStateFlow(false)
+
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false
 

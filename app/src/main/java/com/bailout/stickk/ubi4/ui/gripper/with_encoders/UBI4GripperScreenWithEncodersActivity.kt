@@ -117,6 +117,9 @@ class UBI4GripperScreenWithEncodersActivity
     private enum class States(val number: Int) {
         GESTURE_STATE_OPEN  (0),
         GESTURE_STATE_CLOSE (1),
+        GESTURE_OPEN_DELAY(128),
+        GESTURE_CLOSE_DELAY(129),
+        GESTURE_SAVE_BUTTON(255)
     }
 
     private var score1 = 0
@@ -279,7 +282,7 @@ class UBI4GripperScreenWithEncodersActivity
         RxView.clicks(findViewById(R.id.gripperSaveBtn))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-
+                gestureState = States.GESTURE_SAVE_BUTTON.number
                 compileBLEMassage()
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
@@ -798,10 +801,8 @@ private fun initSelector() {
             isOpenMode = true
             updateSelectorUI(true)
             // send OPEN command
-            gestureState = States.GESTURE_STATE_OPEN.number
-            gestureState += 128
+            gestureState = States.GESTURE_OPEN_DELAY.number
             compileBLEMassage()
-            gestureState -= 128
         }
     }
     binding.gestureCloseBtn.setOnClickListener {
@@ -813,10 +814,9 @@ private fun initSelector() {
             isOpenMode = false
             updateSelectorUI(false)
             // send CLOSE command
-            gestureState = States.GESTURE_STATE_CLOSE.number
-            gestureState += 128
+            gestureState = States.GESTURE_CLOSE_DELAY.number
             compileBLEMassage()
-            gestureState -= 128
+
         }
     }
 }

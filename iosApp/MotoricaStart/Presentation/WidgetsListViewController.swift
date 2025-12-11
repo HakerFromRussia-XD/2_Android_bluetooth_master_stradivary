@@ -61,9 +61,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     func open3DSettings() {
-//        performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
-        let vc = storyboard!.instantiateViewController(withIdentifier: "Gripper3DSettingsViewController")
-        navigationController?.pushViewController(vc, animated: true)
+        performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+//        let vc = storyboard!.instantiateViewController(withIdentifier: "Gripper3DSettingsViewController")
+//        navigationController?.pushViewController(vc, animated: true)
     }
 
     override func viewDidLoad() {

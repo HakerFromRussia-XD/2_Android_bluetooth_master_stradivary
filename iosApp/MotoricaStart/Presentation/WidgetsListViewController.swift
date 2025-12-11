@@ -53,7 +53,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setupViews()
         viewModel.setCustomGestureSettingsOpener { [weak self] in
             DispatchQueue.main.async {
-                self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+                self?.widgetsTableViewController?.performSegue(
+                        withIdentifier: "go3DGripperSettings",
+                        sender: nil
+                    )
             }
         }
         bind(to: viewModel)
@@ -154,8 +157,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
 //        let kotlinWidgets = dataFactory.prepareData(display: display)
+        
+
 //        let kotlinWidgets = dataFactory.fakeData()
         let kotlinWidgets = dataFactory.fakeData2()
+        handleWidgetsLoadingCompletion()
+        
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
@@ -372,6 +379,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     
     private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
         if resetState {
+            //TODO: тут можно включать фейковые виджеты (isSynchronizationCompleted = true) (4)
             isSynchronizationCompleted = false
             isSynchronizationInProgress = false
             needsReloadAfterSynchronization = false

@@ -598,7 +598,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="HBO-q4-tJ0"/>
-                        <color key="backgroundColor" red="0.47451311349999997" green="0.47450375560000002" blue="0.47451013330000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <color key="backgroundColor" name="ubi4_back"/>
                         <constraints>
                             <constraint firstItem="Uqj-w3-j3g" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="Ju8-Fy-yUK"/>
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="LMw-Ta-g2o"/>

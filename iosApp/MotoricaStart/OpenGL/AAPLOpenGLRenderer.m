@@ -531,7 +531,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     glViewport(0, 0, _viewSize.width, _viewSize.height);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.2, 0.2, 0.2, 1);
+    glClearColor(0.023, 0.023, 0.023, 0);
 
     // Use the program that renders the temple.
     glUseProgram(_templeProgram);
@@ -1670,8 +1670,8 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 
 
 - (void)stopVC {
-//    NSLog(@"Переход назад 2");
-    [self saveAllData];
+    NSLog(@"Переход назад 2");
+//    [self saveAllData];
     [self deallocAll];
 }
 - (void)savesAllData {

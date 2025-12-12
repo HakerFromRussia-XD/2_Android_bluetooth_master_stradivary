@@ -507,7 +507,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="headTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bmx-AO-BL4">
-                                <rect key="frame" x="4" y="29" width="49" height="24"/>
+                                <rect key="frame" x="4" y="27" width="49" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="pby-2d-VPU"/>
                                 </constraints>
@@ -526,23 +526,30 @@
                                     <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="k7V-Bw-8ak"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Activity Gripper" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cBK-JH-c7K" userLabel="deviceNume">
-                                <rect key="frame" x="120.5" y="20" width="134" height="42"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cBK-JH-c7K" userLabel="deviceNume">
+                                <rect key="frame" x="135.5" y="20" width="104" height="42"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="42" id="P8n-y0-U1R"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="OpenSansRoman-Bold" family="Open Sans" pointSize="17"/>
-                                <color key="textColor" name="ubi4_white"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="Жест №1">
+                                        <attributes>
+                                            <color key="NSColor" name="ubi4_white"/>
+                                            <font key="NSFont" size="14" name="SFPro-Regular"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" usesAttributedText="YES" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kvk-9h-O26">
-                                <rect key="frame" x="113.5" y="24" width="162" height="34"/>
+                                <rect key="frame" x="149.5" y="24" width="90" height="34"/>
                                 <color key="backgroundColor" name="ubi4_gray_border"/>
                                 <attributedString key="attributedText">
-                                    <fragment content="Activity Gripper">
+                                    <fragment content="Жест №1">
                                         <attributes>
                                             <color key="NSColor" red="0.9882352941176471" green="0.9882352941176471" blue="0.9882352941176471" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            <font key="NSFont" size="17" name="OpenSansRoman-Bold"/>
+                                            <font key="NSFont" size="14" name="SFPro-Regular"/>
                                             <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                         </attributes>
                                     </fragment>
@@ -555,7 +562,7 @@
                                 </userDefinedRuntimeAttributes>
                             </textField>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="disconnect_status" translatesAutoresizingMaskIntoConstraints="NO" id="cAr-5O-y8r" userLabel="connectStatus">
-                                <rect key="frame" x="277" y="38" width="10" height="10"/>
+                                <rect key="frame" x="247.5" y="36" width="10" height="10"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="10" id="HeL-YX-UCY"/>
                                     <constraint firstAttribute="height" constant="10" id="Z4Z-92-bHT"/>
@@ -578,7 +585,7 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="sb0-Fu-PYO">
-                                <rect key="frame" x="295" y="28" width="64" height="30"/>
+                                <rect key="frame" x="265.5" y="26" width="64" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="90P-ne-5hx" userLabel="goToAdvancedSettings">
                                         <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
@@ -611,19 +618,20 @@
                         <viewLayoutGuide key="safeArea" id="HBO-q4-tJ0"/>
                         <color key="backgroundColor" name="ubi4_back"/>
                         <constraints>
+                            <constraint firstItem="cAr-5O-y8r" firstAttribute="leading" secondItem="kvk-9h-O26" secondAttribute="trailing" constant="8" id="2d0-X5-VGM"/>
                             <constraint firstItem="Uqj-w3-j3g" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="Ju8-Fy-yUK"/>
-                            <constraint firstItem="Bmx-AO-BL4" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="LMw-Ta-g2o"/>
+                            <constraint firstItem="Bmx-AO-BL4" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" constant="-2" id="LMw-Ta-g2o"/>
+                            <constraint firstItem="cAr-5O-y8r" firstAttribute="leading" secondItem="cBK-JH-c7K" secondAttribute="trailing" constant="8" id="M6I-aj-AOd"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="height" secondItem="cBK-JH-c7K" secondAttribute="height" multiplier="0.809524" id="Muy-wa-3xa"/>
                             <constraint firstItem="cBK-JH-c7K" firstAttribute="top" secondItem="HBO-q4-tJ0" secondAttribute="top" id="Upg-cR-roN"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="Vqv-PO-0FD"/>
                             <constraint firstItem="cBK-JH-c7K" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="Xow-ub-QlF"/>
                             <constraint firstItem="sb0-Fu-PYO" firstAttribute="leading" secondItem="cAr-5O-y8r" secondAttribute="trailing" constant="8" id="Y2P-ew-7IJ"/>
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="leading" secondItem="HBO-q4-tJ0" secondAttribute="leading" constant="4" id="crB-mP-Olp"/>
-                            <constraint firstItem="sb0-Fu-PYO" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" constant="2" id="es1-x2-xx6"/>
+                            <constraint firstItem="sb0-Fu-PYO" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="es1-x2-xx6"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="centerX" secondItem="cBK-JH-c7K" secondAttribute="centerX" constant="7" id="jVg-bJ-Wkk"/>
                             <constraint firstItem="HBO-q4-tJ0" firstAttribute="bottom" secondItem="Uqj-w3-j3g" secondAttribute="bottom" constant="20" id="oyF-r4-UfY"/>
-                            <constraint firstItem="cAr-5O-y8r" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" constant="2" id="rXu-gG-jry"/>
-                            <constraint firstItem="HBO-q4-tJ0" firstAttribute="trailing" secondItem="sb0-Fu-PYO" secondAttribute="trailing" constant="16" id="sPB-PC-ygE"/>
+                            <constraint firstItem="cAr-5O-y8r" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="rXu-gG-jry"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="crF-tW-yST"/>
@@ -692,7 +700,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemPinkColor">
-            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.17647058823529413" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

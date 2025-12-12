@@ -182,6 +182,11 @@ class UBI4GripperScreenWithEncodersActivity
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
 
 
+
+        //TODO следить за этой строкой если - не передаем дату в кэш
+        ParameterProvider.getParameter(deviceAddress, parameterID).data = ""
+
+
         lifecycleScope.launchWhenStarted {
             BLEState.state.filter { it == BLEState.State.READY }
                 .first()

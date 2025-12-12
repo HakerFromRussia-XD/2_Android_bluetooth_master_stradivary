@@ -472,7 +472,8 @@ class BLEParser(
                                 // ↓ здесь же можно парсить остальные байты настройки, если протокол известен
                             }
                             platformLog("uiGestureSettingsObservable", "перед RX dataCode = $dataCode")
-                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
+                            val parameterRef = ParameterRef(deviceAddress,parameterID,dataCode)
+                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(parameterRef)
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data

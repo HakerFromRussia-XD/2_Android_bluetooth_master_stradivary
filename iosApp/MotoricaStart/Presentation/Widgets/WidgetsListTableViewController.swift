@@ -50,14 +50,16 @@ import QuartzCore
         DispatchQueue.main.async {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
+
             let animationsWereEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
             
-            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
-                print("[DEBUG] snapshot applied")
-                self.updateTableLayoutWithoutAnimation()
-                CATransaction.commit()
-                UIView.setAnimationsEnabled(animationsWereEnabled)
+            UIView.performWithoutAnimation {
+                self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+                    self.updateTableLayoutWithoutAnimation()
+                    CATransaction.commit()
+                    UIView.setAnimationsEnabled(animationsWereEnabled)
+                }
             }
         }
     }
@@ -148,7 +150,7 @@ import QuartzCore
     @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
     @objc public func getStatusConnection() -> Int { return 0; }
     @objc public func getGestureNum() -> Int { return 0; }
-    @objc public func getGestureName(numberGesture: Int) -> String { return "0"; }
+    @objc public func getGestureName(numberGesture: Int) -> String { return "Жест №1"; }
     @objc public func getUseFestX() -> Int { return 0; }
     @objc public func getHandSide() -> Int { return 0; }
     @objc public func getGestureTable() -> String { return "" }

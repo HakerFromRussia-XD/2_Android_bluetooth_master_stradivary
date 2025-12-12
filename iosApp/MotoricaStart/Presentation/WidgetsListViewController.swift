@@ -59,27 +59,22 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         view.viewModel = viewModel
         return view
     }
-    
-    func open3DSettings() {
-        performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
-//        let vc = storyboard!.instantiateViewController(withIdentifier: "Gripper3DSettingsViewController")
-//        navigationController?.pushViewController(vc, animated: true)
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-//        viewModel.setCustomGestureSettingsOpener { [weak self] in
-//            DispatchQueue.main.async {
-//                self?.widgetsTableViewController?.performSegue(
-//                        withIdentifier: "go3DGripperSettings",
-//                        sender: nil
-//                    )
-//            }
-//        }
         viewModel.setCustomGestureSettingsOpener { [weak self] in
             DispatchQueue.main.async {
-                self?.open3DSettings()
+                let animationsWereEnabled = UIView.areAnimationsEnabled
+                if !animationsWereEnabled {
+                    UIView.setAnimationsEnabled(true)
+                }
+                
+                self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+                
+//                if !animationsWereEnabled {
+//                    UIView.setAnimationsEnabled(false)
+//                }
             }
         }
         
@@ -403,7 +398,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     
     private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
         if resetState {
-            //TODO: тут можно включать фейковые виджеты (isSynchronizationCompleted = true) (4)
             isSynchronizationCompleted = false
             isSynchronizationInProgress = false
             needsReloadAfterSynchronization = false

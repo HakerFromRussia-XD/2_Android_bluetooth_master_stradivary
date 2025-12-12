@@ -163,7 +163,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 ////        [self sendDataToFest:data :sampleGattAtributes.SENS_ENABLED_NEW :sizeof(data)];
 //    }
     
-//    [_openGLRenderer stopVC];
+    [_openGLRenderer stopVC];
     
     if (showRenameTextField) {
         NSString *result = @"    ";

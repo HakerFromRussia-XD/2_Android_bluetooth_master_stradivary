@@ -1671,8 +1671,8 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 
 - (void)stopVC {
     NSLog(@"Переход назад 2");
-//    [self saveAllData];
-//    [self deallocAll];
+    [self saveAllData];
+    [self deallocAll];
 }
 - (void)savesAllData {
     [self saveAllData];

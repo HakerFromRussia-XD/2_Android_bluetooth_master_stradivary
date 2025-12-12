@@ -245,6 +245,7 @@ class UBI4GripperScreenWithEncodersActivity
                     editMode = true
                 }
             }
+
         RxUpdateMainEventUbi4.getInstance().fingerAngleObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())

@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.MLModelSettingsState
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -57,6 +58,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -83,21 +85,26 @@ import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParame
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
+import kotlin.time.Duration.Companion.seconds
 
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
     TransmitterUBI4, BleCommandExecutor {
     private lateinit var binding: Ubi4ActivityMainBinding
+    private var dialogBinding: View? = null
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
     private var activeFragment: Fragment? = null
@@ -208,7 +215,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             sendRunProgramTypeRequests()
             showAccountScreen()
             binding.bottomNavigation.visibility = View.INVISIBLE
-
         }
 
 
@@ -365,6 +371,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        BleEnvironment.register(
+            manager = bleManager,
+            executor = this,
+            parser = bleParser
+        )
     }
 
     // сохранение и загрузка данных

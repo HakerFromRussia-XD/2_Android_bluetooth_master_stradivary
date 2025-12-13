@@ -462,6 +462,7 @@ object BLECommands {
         header[4] = (data.size / 256).toByte()
         return header + data
     }
+
     fun requestBootloaderStatus(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
@@ -477,6 +478,7 @@ object BLECommands {
         header[4] = (data.size / 256).toByte()
         return header + data
     }
+
     fun sendLoadNewFw(deviceAddress: Byte, offset: Int, chunk: ByteArray): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
@@ -694,6 +696,46 @@ object BLECommands {
         val data = byteArrayOf(activeGesture.toByte())
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
+        return header + data
+    }
+
+    fun requestMLModelSettings(deviceAddress: Int): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            DATA_MANAGER.number,
+            0x00,
+            0x00, // будет установлено ниже
+            0x00,
+            0x00,
+            deviceAddress.toByte()
+        )
+        val data = byteArrayOf(
+            READ_DATA.number,
+            PreferenceKeysUbi4.DataTableSlotsCode.DTCE_ML_MODEL_SETTINGS.number
+        )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+
+        return header + data
+    }
+
+    fun requestOpticsBoardSettings(deviceAddress: Int): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            DATA_MANAGER.number,
+            0x00,
+            0x00, // будет установлено ниже
+            0x00,
+            0x00,
+            deviceAddress.toByte()
+        )
+        val data = byteArrayOf(
+            READ_DATA.number,
+            PreferenceKeysUbi4.DataTableSlotsCode.DTCE_BOARD_INFO_TYPE.number
+        )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+
         return header + data
     }
 

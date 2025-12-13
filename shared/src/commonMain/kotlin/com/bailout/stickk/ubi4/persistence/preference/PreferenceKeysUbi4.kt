@@ -399,6 +399,10 @@ object PreferenceKeysUbi4 {
         DCTE_GESTURE_GROUP                  (22  ) ,
         DCTE_DMS_BINDING_DATA               (23  ) ,
         DTCE_OPTIC_SETTINGS                 (24  ) ,
+        DTCE_GUI_SETTINGS                   (25  ) ,
+        DTCE_PRESSURE_SETTINGS              (26  ) ,
+        DTCE_ML_MODEL_SETTINGS              (27  ) ,
+        DTCE_DEVICES_CACHE                  (28  ) ,
         DTCE_FREE_SLOT                      ((0xFF).toByte())
     }
 

@@ -1,9 +1,25 @@
 package com.bailout.stickk.ubi4.data.network
 
 import android.util.Log
+import com.bailout.stickk.ubi4.AndroidContextProvider
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.PASSPORT_BASE
+import com.bailout.stickk.ubi4.data.state.BoardInfoState
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
+import com.bailout.stickk.ubi4.data.state.MLModelSettingsState
 import com.bailout.stickk.ubi4.models.network.ModelVersions
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.timeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -18,7 +34,9 @@ import okio.BufferedSource
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration.Companion.seconds
 
+@OptIn(FlowPreview::class, ExperimentalStdlibApi::class)
 actual suspend fun uploadTrainingDataSsePlatform(
     token: String,
     serial: String,
@@ -33,14 +51,75 @@ actual suspend fun uploadTrainingDataSsePlatform(
         .retryOnConnectionFailure(true)
         .build()
 
+    val omgModuleAddress = baseSubDevicesInfoStructSet
+        .firstOrNull { it.deviceCode == PreferenceKeysUbi4.DeviceCode.OMG_MODULE.id }
+        ?.deviceAddress
+        ?: 10
+
+    // отключение стрима с оптики
+    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+        BLECommands.requestTransferFlow(2),
+        MAIN_CHANNEL_CHARACTERISTIC,
+        WRITE
+    ) {}
+    delay(100)
+
+    // запрос информации об оптике
+    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+        BLECommands.requestOpticsBoardSettings(omgModuleAddress),
+        MAIN_CHANNEL_CHARACTERISTIC,
+        WRITE
+    ) {}
+
+    val opticsBoardHardwareInfo = BoardInfoState.boardInfoFlow.replayCache
+        .lastOrNull()
+        ?: BoardInfoState.boardInfoFlow
+            .timeout(5.seconds)
+            .first()
+
+    // запрос параметров оптики
+    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+        BLECommands.requestProductFWInfoType(omgModuleAddress),
+        MAIN_CHANNEL_CHARACTERISTIC,
+        WRITE
+    ) {}
+
+    val firmwareInfo: FirmwareInfoStruct = FirmwareInfoState.firmwareInfoFlow.replayCache
+        .lastOrNull { it.deviceAddress == omgModuleAddress }
+        ?: FirmwareInfoState.firmwareInfoFlow
+            .filter { it.deviceAddress == omgModuleAddress }
+            .timeout(5.seconds)
+            .first()
+
+    // запрос ml параметров
+    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+        BLECommands.requestMLModelSettings(omgModuleAddress),
+        MAIN_CHANNEL_CHARACTERISTIC,
+        WRITE
+    ) {}
+
+    val mlModelSettings = MLModelSettingsState.mlModelSettingsFlow.replayCache.lastOrNull()
+        ?: MLModelSettingsState.mlModelSettingsFlow
+            .timeout(5.seconds)
+            .first()
+
+    // Версия приложения
+    val appVersion = AndroidContextProvider.context.packageManager
+        .getPackageInfo(AndroidContextProvider.context.packageName, 0)
+        .versionName
+        .toString()
+
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
         val modelVersions = ModelVersions(
-            boardHardwareVersion = 3,
-            boardSoftwareVersion = "0.1.4",
-            appVersion = "3.2.1148",
-            modelCode = 0,
-            modelVersion = "0.0.1"
+            boardName = opticsBoardHardwareInfo.boardName,
+            boardHardwareVersion = opticsBoardHardwareInfo.boardVersionString,
+            boardSoftwareVersion = firmwareInfo.fwVersion,
+            appVersion = appVersion,
+            modelCode = mlModelSettings.modelCode,
+            modelVersion = mlModelSettings.modelVersion
         )
+        Log.i("modelVersions", modelVersions.toString())
+
         val json = Json { ignoreUnknownKeys = true }
         val jsonString = json.encodeToString(ModelVersions.serializer(), modelVersions)
         val jsonBody = jsonString.toRequestBody("application/json".toMediaType())

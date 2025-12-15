@@ -56,14 +56,6 @@ actual suspend fun uploadTrainingDataSsePlatform(
         ?.deviceAddress
         ?: 10
 
-    // отключение стрима с оптики
-    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
-        BLECommands.requestTransferFlow(2),
-        MAIN_CHANNEL_CHARACTERISTIC,
-        WRITE
-    ) {}
-    delay(100)
-
     // запрос информации об оптике
     BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
         BLECommands.requestOpticsBoardSettings(omgModuleAddress),
@@ -123,7 +115,7 @@ actual suspend fun uploadTrainingDataSsePlatform(
         val json = Json { ignoreUnknownKeys = true }
         val jsonString = json.encodeToString(ModelVersions.serializer(), modelVersions)
         val jsonBody = jsonString.toRequestBody("application/json".toMediaType())
-        addFormDataPart("model_versions", "model_versions.json", jsonBody)
+        addFormDataPart("files", "model_versions.json", jsonBody)
 
         addFormDataPart("serial", serial)
         pairs.flatMap { listOf(it.first, it.second) }

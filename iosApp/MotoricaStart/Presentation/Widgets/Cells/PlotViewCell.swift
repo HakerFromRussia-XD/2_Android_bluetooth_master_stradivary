@@ -37,6 +37,7 @@ final class PlotViewCell: UITableViewCell {
     private var closeThreshold: Int = 0
     private var plotDateEntryJob: Kotlinx_coroutines_coreJob?
     private var thresholdJob: Kotlinx_coroutines_coreJob?
+    private var needsThresholdLayout: Bool = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -110,6 +111,7 @@ final class PlotViewCell: UITableViewCell {
         thresholdJob?.cancel(cause: nil)
         thresholdJob = nil
         widgetPlotInfo = nil
+        needsThresholdLayout = false
         startTimer()
     }
     override func didMoveToWindow() {
@@ -117,6 +119,10 @@ final class PlotViewCell: UITableViewCell {
         if window == nil {
             stopTimer()
         }
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        applyThresholdLayout(animated: false)
     }
     
     
@@ -355,6 +361,28 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     
+    private func applyThresholdLayout(animated: Bool) {
+        guard
+            needsThresholdLayout,
+            allCHRl.bounds.height > 0
+        else { return }
+
+        setLimitPosition(
+            limit_CH: limitCH2,
+            thresholdLabel: openThresholdTv,
+            in: allCHRl,
+            thresholdValue: openThreshold,
+            animated: animated
+        )
+        setLimitPosition(
+            limit_CH: limitCH1,
+            thresholdLabel: closeThresholdTv,
+            in: allCHRl,
+            thresholdValue: closeThreshold,
+            animated: animated
+        )
+        needsThresholdLayout = false
+    }
     private func updatePlotData(_ ref: PlotParameterRef, viewModel: PlotListItemViewModel) {
         //если в сете виджета ещё нет графиков, то getIndexWidgetPlot будет -1
         guard getIndexWidgetPlot(addressDevice: Int(ref.addressDevice), parameterID: Int(ref.parameterID)) != -1 else { return }
@@ -396,25 +424,13 @@ final class PlotViewCell: UITableViewCell {
             if thresholds.indices.contains(0) {
                 let openValue = thresholds[0]
                 self.openThreshold = openValue
-                self.setLimitPosition(
-                    limit_CH: self.limitCH2,
-                    thresholdLabel: self.openThresholdTv,
-                    in: self.allCHRl,
-                    thresholdValue: openValue,
-                    animated: true
-                )
             }
             if thresholds.indices.contains(1) {
                 let closeValue = thresholds[1]
                 self.closeThreshold = closeValue
-                self.setLimitPosition(
-                    limit_CH: self.limitCH1,
-                    thresholdLabel: self.closeThresholdTv,
-                    in: self.allCHRl,
-                    thresholdValue: closeValue,
-                    animated: true
-                )
             }
+            self.needsThresholdLayout = true
+            self.applyThresholdLayout(animated: true)
         }
     }
     private func decodeThresholds(from hex: String) -> [Int] {

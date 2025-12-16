@@ -784,42 +784,42 @@ class UBI4GripperScreenWithEncodersActivity
             )
         }
     }
-private fun initSelector() {
-    halfSelectorWidth = binding.gestureStateSelectorContainer.width / 2f
-    updateSelectorUI(isOpenMode)
-    binding.gestureOpenBtn.setOnClickListener {
-        if (!isOpenMode) {
-            // animate closing → opening
-            animateFinger1(); animateFinger2(); animateFinger3()
-            animateFinger4(); animateFinger5(); animateFinger6()
-            // update selector UI
-            isOpenMode = true
-            updateSelectorUI(true)
-            // send OPEN command
-            gestureState = States.GESTURE_STATE_OPEN.number
-            gestureState += 128
-            compileBLEMassage()
-            gestureState -= 128
+    private fun initSelector() {
+        halfSelectorWidth = binding.gestureStateSelectorContainer.width / 2f
+        updateSelectorUI(isOpenMode)
+        binding.gestureOpenBtn.setOnClickListener {
+            if (!isOpenMode) {
+                // animate closing → opening
+                animateFinger1(); animateFinger2(); animateFinger3()
+                animateFinger4(); animateFinger5(); animateFinger6()
+                // update selector UI
+                isOpenMode = true
+                updateSelectorUI(true)
+                // send OPEN command
+                gestureState = States.GESTURE_STATE_OPEN.number
+                gestureState += 128
+                compileBLEMassage()
+                gestureState -= 128
+            }
+        }
+        binding.gestureCloseBtn.setOnClickListener {
+            if (isOpenMode) {
+                // animate opening → closing
+                animateFinger1(); animateFinger2(); animateFinger3()
+                animateFinger4(); animateFinger5(); animateFinger6()
+                // update selector UI
+                isOpenMode = false
+                updateSelectorUI(false)
+                // send CLOSE command
+                gestureState = States.GESTURE_STATE_CLOSE.number
+                gestureState += 128
+                compileBLEMassage()
+                gestureState -= 128
+            }
         }
     }
-    binding.gestureCloseBtn.setOnClickListener {
-        if (isOpenMode) {
-            // animate opening → closing
-            animateFinger1(); animateFinger2(); animateFinger3()
-            animateFinger4(); animateFinger5(); animateFinger6()
-            // update selector UI
-            isOpenMode = false
-            updateSelectorUI(false)
-            // send CLOSE command
-            gestureState = States.GESTURE_STATE_CLOSE.number
-            gestureState += 128
-            compileBLEMassage()
-            gestureState -= 128
-        }
-    }
-}
 
-private fun updateSelectorUI(isOpen: Boolean) {
+    private fun updateSelectorUI(isOpen: Boolean) {
     ObjectAnimator.ofFloat(
         binding.selectorIndicator,
         "translationX",

@@ -146,7 +146,10 @@ import QuartzCore
         }
     }
     
-    @objc public func setNameGesture(numberGesture: Int, name: String) { print("Вызвана функция setNameGesture") }
+    @objc public func setNameGesture(numberGesture: Int, name: String) {
+        
+        print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)")
+    }
     @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
     @objc public func getStatusConnection() -> Int { return 0; }
     @objc public func getGestureNum() -> Int { return 0; }

@@ -37,14 +37,22 @@ class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>
     private boolean mDragOnLongPress;
     OnCopyClickRotationGroupListener onCopyClickRotationGroupListener;
     OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener;
+    OnSelectClickRotationGroupListener onSelectClickRotationGroupListener;
+    private int activeGestureId = -1;
 
-    RotationGroupItemAdapter(ArrayList<kotlin.Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener) {
+    RotationGroupItemAdapter(ArrayList<kotlin.Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener, OnSelectClickRotationGroupListener onSelectClickRotationGroupListener) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
         setItemList(list);
         this.onCopyClickRotationGroupListener = onCopyClickRotationGroupListener;
         this.onDeleteClickRotationGroupListener = onDeleteClickRotationGroupListener;
+        this.onSelectClickRotationGroupListener = onSelectClickRotationGroupListener;
+    }
+
+    public void setActiveGestureId(int gestureId) {
+        this.activeGestureId = gestureId;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -57,9 +65,31 @@ class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        String text = mItemList.get(position).getSecond().split("™")[0];
+
+        String raw = mItemList.get(position).getSecond(); // format: "Name™id"
+        String[] parts = raw.split("™");
+        String text = parts.length > 0 ? parts[0] : "";
+        int gestureId = 0;
+        if (parts.length > 1) {
+            try {
+                gestureId = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).getFirst());
+
+        // По умолчанию текст белый, как раньше
+        int inactiveColor = holder.itemView.getContext().getColor(R.color.white);
+        // Активный жест подсвечиваем таким же цветом, как в биндингах
+        int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_active);
+
+        if (gestureId == activeGestureId) {
+            holder.gestureInRotationGroupTv.setTextColor(activeColor);
+        } else {
+            holder.gestureInRotationGroupTv.setTextColor(inactiveColor);
+        }
     }
 
     @Override
@@ -88,6 +118,22 @@ class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>
                 addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).getSecond()));
                 onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).getSecond());
             });
+            gestureInRotationGroupTv.setOnClickListener(v -> {
+                int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
+                String raw = mItemList.get(position).getSecond(); // format: "Name™id"
+                String[] parts = raw.split("™");
+                String gestureName = parts.length > 0 ? parts[0] : "";
+                int gestureId = 0;
+                if (parts.length > 1) {
+                    try {
+                        gestureId = Integer.parseInt(parts[1]);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                if (onSelectClickRotationGroupListener != null && gestureId != 0) {
+                    onSelectClickRotationGroupListener.onRotationGestureClick(position, gestureName, gestureId);
+                }
+            });
         }
 
         @Override
@@ -113,4 +159,5 @@ class RotationGroupItemAdapter extends DragItemAdapter<kotlin.Pair<Long, String>
     }
     public interface OnCopyClickRotationGroupListener { void onCopyClick(int position, String gestureName); }
     public interface OnDeleteClickRotationGroupListener { void onDeleteClickCb(int position); }
+    public interface OnSelectClickRotationGroupListener { void onRotationGestureClick(int position, String gestureName, int gestureId); }
 }

@@ -93,6 +93,27 @@ object BLECommands {
         return header + data
     }
 
+    fun requestSystemCrc(): ByteArray {
+        val header = byteArrayOf(
+            0x20,
+            DEVICE_INFORMATION.number,
+            0x00,
+            0x00, // длина payload → ниже
+            0x00,
+            0x00,
+            0x00
+        )
+
+        val data = byteArrayOf(
+            PreferenceKeysUbi4.DeviceInformationCommand.GET_SYSTEM_CRC.number
+        )
+
+        header[3] = data.size.toByte()
+        header[4] = (data.size ushr 8).toByte()
+
+        return header + data
+    }
+
     fun requestSubDeviceAdditionalParametrs(subDeviceAddress: Int, idParameter: Int): ByteArray {
         val header = byteArrayOf(
             0x20,

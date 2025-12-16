@@ -37,11 +37,19 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
-import com.bailout.stickk.ubi4.ui.main.ControllerBleStatusConnection
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -69,6 +77,7 @@ class BLEController() {
     private var endFlag = false
     private var mScanning = false
     private var firstNotificationRequestFlag = true
+    private var onNeedFullInitListener: (() -> Unit)? = null
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -170,6 +179,9 @@ class BLEController() {
                     firstNotificationRequestFlag = true
                     needReRequestTransferFlow = true
 
+
+                    WidgetState.dbSnapshotAppliedWithCrc = false
+
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(mContext,
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
@@ -187,15 +199,26 @@ class BLEController() {
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
+
+
+
                     WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
                         main.lifecycleScope.launch {
-                            firstNotificationRequest()
+
+                            UiState.fullInitInProgress.value = false
+                            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
+                            UiState.widgetsLoadingFlow.tryEmit(Unit)
+                            smartInitWithCrc()
+//                            firstNotificationRequest()
+
                         }
                     }
+
+
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
@@ -219,23 +242,56 @@ class BLEController() {
 
 
 
+    @Volatile
+    private var initStarted = false
 
+    private suspend fun smartInitWithCrcSafe() {
+        if (initStarted) {
+            Log.d("BLE_INIT", "smartInitWithCrc уже стартовал, пропускаем")
+            return
+        }
+        initStarted = true
+        smartInitWithCrc()
+    }
 
-    private suspend fun firstNotificationRequest() {
+    private suspend fun firstNotificationRequestFull() {
         var attempts = 0
+
         while (firstNotificationRequestFlag && attempts < 5) {
-            Log.d("BLE_INIT", "▶ firstNotificationRequest попытка #${attempts+1}")
-            bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+            Log.d("BLE_INIT", "▶ firstNotificationRequestFull попытка #${attempts + 1}")
+            bleCommand(
+                BLECommands.requestInicializeInformation(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            )
             bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+            main.bleCommandWithQueue(
+                BLECommands.requestSystemCrc(),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
             delay(1000)
             attempts++
         }
+
         if (firstNotificationRequestFlag) {
             Log.e("BLE_INIT", "✖ не получили уведомление после $attempts попыток")
-            //TODO проверить  нужна ли следующая строку - конфликт при мердже
-            firstNotificationRequest()
+            // да, оставляем рекурсивный ретрай как был
+            firstNotificationRequestFull()
         } else {
             Log.d("BLE_INIT", "✔ уведомление получено, выходим из цикла")
+
+            // 1) Проверяем, есть ли кеш к этому моменту
+            val cacheCount = WidgetRepoProvider.get().count()
+            val hasCache = cacheCount > 0
+
+            if (hasCache) {
+                WidgetBootstrapHydrator.restoreFromDb(0)
+                WidgetBootstrapHydrator.hydrateParameterProviderFromDb(0)
+                WidgetBootstrapHydrator.replayWidgetEventsFromDb(0)
+                updateFlow.emit(0)
+            }
 
             if (needReRequestTransferFlow) {
                 Log.d("BLE_INIT", "→ re-request transfer flow after reconnect")
@@ -246,20 +302,136 @@ class BLEController() {
                 )
                 needReRequestTransferFlow = false
             }
+
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
         }
     }
 
-private fun parseReceivedData(data: ByteArray?) {
-    val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
-    Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
-    val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
-    val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
-    Log.d("BLE_PARSER", "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex")
-    if (data != null) {
-        firstNotificationRequestFlag = false
-        mBLEParser?.parseReceivedData(data)
+
+    private suspend fun smartInitWithCrc() {
+        val masterAddr = 0
+
+        val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
+        Log.d("BLE_CRC", "oldCrc from DB = $oldCrc, mac=${WidgetRepoProvider.mac()}")
+
+        // Включаем NOTIFY и запрашиваем CRC
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(150)
+
+        Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
+        main.bleCommandWithQueue(
+            BLECommands.requestSystemCrc(),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
+
+        // 2) ждём, пока parseProductCRCInfo сохранит CRC в БД
+        var newCrc: Long? = null
+        repeat(5) { attempt ->
+            delay(200)
+            newCrc = RoomPersistence.loadDeviceCrc(masterAddr)
+            Log.d("BLE_CRC", "poll[$attempt] newCrc = $newCrc, mac=${WidgetRepoProvider.mac()}")
+            if (newCrc != null) return@repeat
+        }
+
+        Log.d("BLE_CRC", "final newCrc = $newCrc, mac=${WidgetRepoProvider.mac()}")
+
+        val crcSame = oldCrc != null && newCrc != null && oldCrc == newCrc
+        val cacheCount = WidgetRepoProvider.get().count()
+        val hasCache = cacheCount > 0
+
+        Log.d(
+            "BLE_INIT",
+            "DECISION: crcSame=$crcSame, hasCache=$hasCache, old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()}"
+        )
+
+        // ---------- ТЁПЛЫЙ СТАРТ ----------
+        if (crcSame && hasCache) {
+            Log.d(
+                "BLE_INIT",
+                "WARM START (old=$oldCrc, new=$newCrc, cacheCount=$cacheCount, mac=${WidgetRepoProvider.mac()})"
+            )
+
+            WidgetState.dbSnapshotAppliedWithCrc = true
+            // Полной инициализации НЕТ
+            UiState.fullInitInProgress.value = false
+
+            // Сбрасываем прогресс
+            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                current = 0,
+                total = 0
+            )
+
+            // На всякий случай гасим диалог
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+
+            // Гидратация из кеша
+            WidgetBootstrapHydrator.restoreFromDb(masterAddr)
+            WidgetBootstrapHydrator.hydrateParameterProviderFromDb(masterAddr)
+            WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
+            WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
+            updateFlow.emit(0)
+
+            // Запускаем живой поток
+            main.bleCommandWithQueue(
+                BLECommands.requestTransferFlow(1),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
+            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+                bleCommand(cmd, MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+            }
+
+            main.bleCommandWithQueue(
+                BLECommands.requestProductInfoType(0x00.toByte()),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
+            main.bleCommandWithQueue(
+                BLECommands.requestBatteryStatus(7, 0),
+                MAIN_CHANNEL_CHARACTERISTIC,
+                WRITE
+            ) {}
+
+            needReRequestTransferFlow = false
+            return
+        }
+
+        // ---------- ХОЛОДНЫЙ СТАРТ ----------
+        Log.d(
+            "BLE_INIT",
+            "COLD START (old=$oldCrc, new=$newCrc, hasCache=$hasCache, mac=${WidgetRepoProvider.mac()}) → full init"
+        )
+
+        WidgetState.dbSnapshotAppliedWithCrc = false
+
+        UiState.fullInitInProgress.value = true
+
+        withContext(Dispatchers.Main) {
+            onNeedFullInitListener?.invoke()
+        }
+
+        firstNotificationRequestFull()
     }
-}
+
+    // WidgetBootstrapHydrator.kt (над object WidgetBootstrapHydrator)
+
+    private fun parseReceivedData(data: ByteArray?) {
+        val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
+        Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
+        val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
+        val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
+        Log.d(
+            "BLE_PARSER",
+            "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex"
+        )
+        if (data != null) {
+            firstNotificationRequestFlag = false
+            mBLEParser?.parseReceivedData(data)
+        }
+    }
 
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
@@ -402,7 +574,6 @@ private fun parseReceivedData(data: ByteArray?) {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
                         reconnectThread()
-
                     }
                 }
             }
@@ -452,15 +623,25 @@ private fun parseReceivedData(data: ByteArray?) {
     }
 
     fun cleanup() {
-        // Отменяем запущенные корутины
         bleJob.cancel()
         try {
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mGattUpdateReceiver)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Там, где регистрировали через LocalBroadcastManager
+                LocalBroadcastManager.getInstance(mContext)
+                    .unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                // Там, где регистрировали через обычный Context
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
         } catch (e: IllegalArgumentException) {
-            Log.w("BLEController", "Ресивер уже отписан")
+            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
         }
     }
 
+
+    fun setOnNeedFullInitListener(listener: () -> Unit) {
+        onNeedFullInitListener = listener
+    }
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
     internal fun isCurrentlyUploading(): Boolean { return isUploading }

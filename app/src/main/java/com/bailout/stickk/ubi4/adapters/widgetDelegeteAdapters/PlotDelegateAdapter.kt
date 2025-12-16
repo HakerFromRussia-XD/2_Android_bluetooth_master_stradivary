@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
@@ -675,6 +676,13 @@ class PlotDelegateAdapter (
             val targetY = (allCHRl.height - (allCHRl.height * threshold / 255) - limit_CH.height / 2 + allCHRl.marginTop).toFloat()
             val startY = limit_CH.y
 
+            val actualDuration = if (WidgetState.dbSnapshotAppliedWithCrc) 0L else duration
+
+            if (actualDuration == 0L) {
+                limit_CH.y = targetY
+                return@post
+            }
+
             ValueAnimator.ofFloat(startY, targetY).apply {
                 this.duration = duration
                 interpolator = AccelerateDecelerateInterpolator()
@@ -722,6 +730,7 @@ class PlotDelegateAdapter (
         Log.d("onDestroy" , "onDestroy plot")
     }
 
+
     private fun requestThresholdsOnce() {
         val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
             PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
@@ -758,6 +767,7 @@ class PlotDelegateAdapter (
         }
     }
 }
+
 
 
 

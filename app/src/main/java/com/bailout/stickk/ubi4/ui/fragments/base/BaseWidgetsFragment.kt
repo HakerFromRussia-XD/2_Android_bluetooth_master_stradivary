@@ -45,6 +45,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -52,6 +53,7 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getC
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import kotlinx.coroutines.launch
 import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -414,6 +416,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     open fun refreshWidgetsList() {
+        UiState.fullInitInProgress.value = true
         main?.observeSyncProgress()
         UiState.widgetsLoadingFlow.tryEmit(Unit)
         UiState.widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(1, 0))
@@ -474,6 +477,10 @@ abstract class BaseWidgetsFragment : Fragment() {
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
 
+
+    protected open fun syncWidgetsFromDb() {
+
+    }
 
     open fun clearSwitcherCache() {
         Log.d("clearSwitcherCache", "clearSwitcherCache run")

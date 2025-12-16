@@ -548,7 +548,6 @@
     <string name="palm_closing">Closing palm</string>
     <string name="ok_pinch">Ok/Pinch Gesture</string>
     <string name="gesture_key">Gesture Key</string>
-    <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
     <string name="flexion">Flexion</string>
     <string name="extension">Extension</string>
     <string name="adduction">Adduction</string>

@@ -20,7 +20,7 @@ import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.data.local.db.AndroidCtx
 import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.local.db.RoomInit
-import com.bailout.stickk.ubi4.persistence.preference.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
@@ -41,8 +41,15 @@ class WDApplication : MultiDexApplication() {
     AndroidCtx.appContext = applicationContext
     DbProvider.setInstance(RoomInit.init())
 
+
     val db = DbProvider.instance()
-    WidgetRepoProvider.init(db.widgetStateDao())
+    WidgetRepoProvider.init(
+      widgetStateDao = db.widgetStateDao(),
+      parameterInfoDao = db.baseParameterInfoDao(),
+      listWidgetsDao = db.listWidgetsDao(),
+      subDeviceDao = db.baseSubDeviceInfoDao(),
+      deviceCrcDao = db.deviceCrcDao(),
+    )
   }
 
   companion object {

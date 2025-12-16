@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.parameterWidgetLabel
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.logging.systemLang
 
 
@@ -43,7 +44,6 @@ class DataFactory {
         add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10))))
         add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
         add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
-
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0)))
         add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1))))
         add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
@@ -58,6 +58,7 @@ class DataFactory {
         add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
         add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
     }
+
     fun fakeData2(): List<Any> = buildList {
         add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct())))
@@ -74,7 +75,13 @@ class DataFactory {
                 )
             )
         )
-        return listOfNotNull(toWidgetItemS(ParameterWidgetCode.PWCE_SWITCH.number.toInt(), "auto_login", widget))
+        return listOfNotNull(
+            toWidgetItemS(
+                ParameterWidgetCode.PWCE_SWITCH.number.toInt(),
+                "auto_login",
+                widget
+            )
+        )
     }
 
     private val baseWidget = BaseParameterWidgetStruct().apply {
@@ -85,6 +92,10 @@ class DataFactory {
     }
 
     fun prepareData(display: Int): List<Any> {
+        platformLog(
+            "WIDGET_SOURCE",
+            "prepareData: display=$display listWidgets.size=${UiState.listWidgets.size}"
+        )
         // Фильтруем виджеты по display
         val filteredWidgets = UiState.listWidgets.filter { widget ->
             when (widget) {
@@ -101,6 +112,8 @@ class DataFactory {
                 else -> false
             }
         }
+
+
         // Сортируем по widgetPosition
         val sortedWidgets = filteredWidgets.sortedBy { widget ->
             when (widget) {
@@ -121,25 +134,75 @@ class DataFactory {
         return sortedWidgets.mapNotNull { widget ->
             when (widget) {
                 is BaseParameterWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetStruct.widgetCode, widget.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetStruct.widgetCode,
+                        widget.labelCode,
+                        widget
+                    )
+
                 is CommandParameterWidgetSStruct ->
-                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                    toWidgetItemS(
+                        widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetSStruct.label,
+                        widget
+                    )
+
                 is CommandParameterWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
                 is PlotParameterWidgetSStruct ->
-                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                    toWidgetItemS(
+                        widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetSStruct.label,
+                        widget
+                    )
+
                 is PlotParameterWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
                 is OpticStartLearningWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
                 is SwitchParameterWidgetSStruct ->
-                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                    toWidgetItemS(
+                        widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetSStruct.label,
+                        widget
+                    )
+
                 is SwitchParameterWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
                 is SliderParameterWidgetSStruct ->
-                    toWidgetItemS(widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetSStruct.label, widget)
+                    toWidgetItemS(
+                        widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetSStruct.label,
+                        widget
+                    )
+
                 is SliderParameterWidgetEStruct ->
-                    toWidgetItemE(widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode, widget.baseParameterWidgetEStruct.labelCode, widget)
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
                 else -> null
             }
         }
@@ -161,10 +224,9 @@ class DataFactory {
     }
 
 
-
     private fun toWidgetItemS(widgetCode: Int, label: String = "no name", widget: Any): Any? {
         val resolvedLabel = if (label.startsWith('%')) {
-            labelBy( label.substring(1).trimEnd('\u0000'))
+            labelBy(label.substring(1).trimEnd('\u0000'))
         } else {
             label
         }
@@ -172,50 +234,52 @@ class DataFactory {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() ->
                 SwitchItem(resolvedLabel, widget)
+
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
                 SliderItem(resolvedLabel, widget)
+
             ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
                 PlotItem(resolvedLabel, widget)
+
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
+
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() ->
                 GesturesItem(resolvedLabel, widget)
+
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() ->
                 TrainingGestureItem(resolvedLabel, widget)
+
             else -> OneButtonItem(resolvedLabel, "description", widget)
         }
     }
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

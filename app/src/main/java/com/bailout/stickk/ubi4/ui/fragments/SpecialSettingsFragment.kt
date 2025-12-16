@@ -28,8 +28,10 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var isMobileSettings = false
 
 
-
-
+    override fun onResume() {
+        super.onResume()
+        updateFlow.tryEmit(0)
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +49,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
+
 
         binding.prostheticSettingsBtn.setOnClickListener {
             main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)

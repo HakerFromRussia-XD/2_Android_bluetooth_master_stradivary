@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.data.local.db
+package com.bailout.stickk.ubi4.data.local.db.entity
 
 import androidx.room.Entity
 import androidx.room.Index

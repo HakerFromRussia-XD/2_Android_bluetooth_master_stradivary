@@ -1,9 +1,10 @@
-package com.bailout.stickk.ubi4.data.local.db
+package com.bailout.stickk.ubi4.data.local.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
 import kotlinx.coroutines.flow.Flow
 
 
@@ -40,4 +41,20 @@ interface WidgetStateDao {
 
     @Query("SELECT COUNT(*) FROM widget_state WHERE device_mac = :mac")
     suspend fun count(mac: String): Long
+
+    @Query(
+        """
+        SELECT * FROM widget_state
+        WHERE device_mac = :mac
+          AND parameter_id = :parameterId
+          AND data_code = :dataCode
+        ORDER BY ts_ms DESC
+        LIMIT 1
+        """
+    )
+    suspend fun getLastByMac(
+        mac: String,
+        parameterId: Long,
+        dataCode: Long
+    ): WidgetStateEntity?
 }

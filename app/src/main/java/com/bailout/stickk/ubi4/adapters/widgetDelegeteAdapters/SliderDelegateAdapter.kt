@@ -15,6 +15,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
@@ -53,6 +54,8 @@ class SliderDelegateAdapter(
 
 
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
         Log.d("SliderAdapterTest", "onBind RUN")
@@ -66,6 +69,7 @@ class SliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
+
 
         when (val widget = item.widget) {
             is SliderParameterWidgetEStruct -> {
@@ -364,6 +368,7 @@ class SliderDelegateAdapter(
                     // Обновляем отображение
                     widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
                         widgetSlidersInfo[indexWidgetSlider].progress[index] - widgetSlidersInfo[indexWidgetSlider].minProgress
+
                 }
             } catch (e: Exception) {
                 Log.e("SliderDebug", "Ошибка при обработке данных: ${e.message}", e)
@@ -385,6 +390,12 @@ class SliderDelegateAdapter(
 
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
         if (from == to) return
+
+        if (WidgetState.dbSnapshotAppliedWithCrc) {
+            progressBar.progress = to
+            return
+        }
+
         ValueAnimator.ofInt(from, to).apply {
             duration = DURATION_ANIMATION
             addUpdateListener { animator ->

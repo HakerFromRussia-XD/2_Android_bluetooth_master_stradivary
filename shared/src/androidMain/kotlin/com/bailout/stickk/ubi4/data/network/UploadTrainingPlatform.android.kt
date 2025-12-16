@@ -5,7 +5,9 @@ import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.BoardInfoStruct
 import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.data.local.MLModelSettings
 import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.PASSPORT_BASE
 import com.bailout.stickk.ubi4.data.state.BoardInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
@@ -57,49 +59,73 @@ actual suspend fun uploadTrainingDataSsePlatform(
         ?: 10
 
     // запрос информации об оптике
-    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
-        BLECommands.requestOpticsBoardSettings(omgModuleAddress),
-        MAIN_CHANNEL_CHARACTERISTIC,
-        WRITE
-    ) {}
+    var opticsBoardHardwareInfo = BoardInfoStruct()
+    try {
+        BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+            BLECommands.requestOpticsBoardSettings(omgModuleAddress),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
 
-    val opticsBoardHardwareInfo = BoardInfoState.boardInfoFlow.replayCache
-        .lastOrNull()
-        ?: BoardInfoState.boardInfoFlow
-            .timeout(5.seconds)
-            .first()
+        opticsBoardHardwareInfo = BoardInfoState.boardInfoFlow.replayCache
+            .lastOrNull()
+            ?: BoardInfoState.boardInfoFlow
+                .timeout(5.seconds)
+                .first()
+    }
+    catch (e: Exception) {
+        Log.e("modelVersions", "Optics data not received: ${e.message}")
+    }
 
     // запрос параметров оптики
-    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
-        BLECommands.requestProductFWInfoType(omgModuleAddress),
-        MAIN_CHANNEL_CHARACTERISTIC,
-        WRITE
-    ) {}
+    var firmwareInfo = FirmwareInfoStruct()
+    try {
+        BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+            BLECommands.requestProductFWInfoType(omgModuleAddress),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
 
-    val firmwareInfo: FirmwareInfoStruct = FirmwareInfoState.firmwareInfoFlow.replayCache
-        .lastOrNull { it.deviceAddress == omgModuleAddress }
-        ?: FirmwareInfoState.firmwareInfoFlow
-            .filter { it.deviceAddress == omgModuleAddress }
-            .timeout(5.seconds)
-            .first()
+        firmwareInfo = FirmwareInfoState.firmwareInfoFlow.replayCache
+            .lastOrNull { it.deviceAddress == omgModuleAddress }
+            ?: FirmwareInfoState.firmwareInfoFlow
+                .filter { it.deviceAddress == omgModuleAddress }
+                .timeout(5.seconds)
+                .first()
+    }
+    catch (e: Exception) {
+        Log.e("modelVersions", "Optics parameters data not received: ${e.message}")
+    }
 
     // запрос ml параметров
-    BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
-        BLECommands.requestMLModelSettings(omgModuleAddress),
-        MAIN_CHANNEL_CHARACTERISTIC,
-        WRITE
-    ) {}
+    var mlModelSettings = MLModelSettings()
+    try {
+        BleEnvironment.getBleCommandExecutor().bleCommandWithQueue(
+            BLECommands.requestMLModelSettings(omgModuleAddress),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
 
-    val mlModelSettings = MLModelSettingsState.mlModelSettingsFlow.replayCache.lastOrNull()
-        ?: MLModelSettingsState.mlModelSettingsFlow
-            .timeout(5.seconds)
-            .first()
+        mlModelSettings = MLModelSettingsState.mlModelSettingsFlow.replayCache.lastOrNull()
+            ?: MLModelSettingsState.mlModelSettingsFlow
+                .timeout(5.seconds)
+                .first()
+    }
+    catch (e: Exception) {
+        Log.e("modelVersions", "ML parameters data not received: ${e.message}")
+    }
 
     // Версия приложения
-    val appVersion = AndroidContextProvider.context.packageManager
-        .getPackageInfo(AndroidContextProvider.context.packageName, 0)
-        .versionName
-        .toString()
+    var appVersion = ""
+    try {
+        appVersion = AndroidContextProvider.context.packageManager
+            .getPackageInfo(AndroidContextProvider.context.packageName, 0)
+            .versionName
+            .toString()
+    }
+    catch (e: Exception) {
+        Log.e("modelVersions", "App version not received: ${e.message}")
+    }
 
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
         val modelVersions = ModelVersions(

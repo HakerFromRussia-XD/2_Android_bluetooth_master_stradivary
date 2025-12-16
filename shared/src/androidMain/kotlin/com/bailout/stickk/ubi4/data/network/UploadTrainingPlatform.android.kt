@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.network
 
 import android.util.Log
+import android.widget.Toast
 import com.bailout.stickk.ubi4.AndroidContextProvider
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
@@ -16,12 +17,15 @@ import com.bailout.stickk.ubi4.models.network.ModelVersions
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.utility.showToast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.timeout
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -74,7 +78,11 @@ actual suspend fun uploadTrainingDataSsePlatform(
                 .first()
     }
     catch (e: Exception) {
-        Log.e("modelVersions", "Optics data not received: ${e.message}")
+        val errorText = "Optics data not received: ${e.message}"
+        Log.e("modelVersions", errorText)
+        withContext(Dispatchers.Main) {
+            showToast(errorText)
+        }
     }
 
     // запрос параметров оптики
@@ -94,7 +102,11 @@ actual suspend fun uploadTrainingDataSsePlatform(
                 .first()
     }
     catch (e: Exception) {
-        Log.e("modelVersions", "Optics parameters data not received: ${e.message}")
+        val errorText = "Optics parameters data not received: ${e.message}"
+        Log.e("modelVersions", errorText)
+        withContext(Dispatchers.Main) {
+            showToast(errorText)
+        }
     }
 
     // запрос ml параметров
@@ -112,7 +124,11 @@ actual suspend fun uploadTrainingDataSsePlatform(
                 .first()
     }
     catch (e: Exception) {
-        Log.e("modelVersions", "ML parameters data not received: ${e.message}")
+        val errorText = "ML parameters data not received: ${e.message}"
+        Log.e("modelVersions", errorText)
+        withContext(Dispatchers.Main) {
+            showToast(errorText)
+        }
     }
 
     // Версия приложения
@@ -124,7 +140,11 @@ actual suspend fun uploadTrainingDataSsePlatform(
             .toString()
     }
     catch (e: Exception) {
-        Log.e("modelVersions", "App version not received: ${e.message}")
+        val errorText = "App version not received: ${e.message}"
+        Log.e("modelVersions", errorText)
+        withContext(Dispatchers.Main) {
+            showToast(errorText)
+        }
     }
 
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {

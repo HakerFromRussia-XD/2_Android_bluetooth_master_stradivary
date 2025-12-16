@@ -18,7 +18,7 @@ import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
 @Database(
     entities = [WidgetStateEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,
         ListWidgetsEntity::class, DeviceCrcEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true // схемы уже настроены в Gradle
 )
 @ConstructedBy(Ubi4RoomDbConstructor::class)

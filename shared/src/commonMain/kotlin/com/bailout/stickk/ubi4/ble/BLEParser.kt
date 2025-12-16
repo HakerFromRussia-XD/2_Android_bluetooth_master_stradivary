@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.local.BoardInfoStruct
 import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persisListWidgets
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllMasterParams
@@ -63,6 +64,9 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.data.state.MLModelSettingsState
+import com.bailout.stickk.ubi4.data.local.MLModelSettings
+import com.bailout.stickk.ubi4.data.state.BoardInfoState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands
@@ -93,9 +97,13 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
+import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
 
@@ -119,8 +127,6 @@ class BLEParser(
 
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
-
-
 
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             platformLog("BLEParser", "data.size=${data.size}")
@@ -168,7 +174,7 @@ class BLEParser(
                 // парсим команды
                 when (codeRequest) {
                     (0x00).toByte() -> {
-                        platformLog("BLEParser", "TEST parser DEFOULT")
+                        platformLog("BLEParser", "TEST parser DEFAULT")
                     }
                     BaseCommands.DEVICE_INFORMATION.number -> {
                         platformLog("BLEParser", "TEST parser DEVICE_INFORMATION (${packageCodeRequest})")
@@ -579,8 +585,6 @@ class BLEParser(
     }
 
 
-
-
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, deviceAddress: Int, receiveDataString: String) {
         when (packageCodeRequest) {
             (0x00).toByte() -> {
@@ -661,9 +665,10 @@ class BLEParser(
     private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
         platformLog("parseProductInfoType", "packageCodeRequest = $packageCodeRequest")
         platformLog("parseDataManger", "packageCodeRequest = $packageCodeRequest, receiveDataString = $receiveDataString")
+        val deviceAddr = castUnsignedCharToInt(receiveDataString.substring(12, 14).toInt(16).toByte())
         when (packageCodeRequest) {
             (0x00).toByte() -> {
-                platformLog("BLEParser", "TEST parser 2 DEFOULT")
+                platformLog("BLEParser", "TEST parser 2 DEFAULT")
             }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_AVAILABLE_SLOTS")
@@ -672,14 +677,19 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 WRITE_SLOT")
             }
             DataManagerCommand.READ_DATA.number -> {
-                platformLog("receiveDataString", "${receiveDataString.length}")
+                val opticsAddr = baseSubDevicesInfoStructSet.firstOrNull { it.deviceCode == PreferenceKeysUbi4.DeviceCode.OMG_MODULE.id }?.deviceAddress
                 //TODO исправить версию прошивки CPU без мэджик намберс
-                if (receiveDataString.length == 174){
+                if (receiveDataString.length == 174) {
                     parseProductInfoType(receiveDataString)
-
                 }
-                else if (receiveDataString.length == 166){
+                else if (receiveDataString.length == 166) {
                     parseProductFwInfoType(receiveDataString)
+                }
+                else if (deviceAddr == opticsAddr) {
+                    if (receiveDataString.length < 40)
+                        parseMLModelSettings(receiveDataString)
+                    else
+                        parseBoardInfo(receiveDataString)
                 }
             }
             DataManagerCommand.WRITE_DATA.number -> {
@@ -827,7 +837,6 @@ class BLEParser(
         }
 
         persistAllMasterParams(coroutineScope)
-
     }
 
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String, deviceAddress: Int) {
@@ -1251,7 +1260,49 @@ class BLEParser(
 //        )
 //    }
 
+    private fun parseMLModelSettings(hex: String) {
+        val deviceAddr = castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        platformLog("parseDataManger", "deviceAddr=${deviceAddr}")
+        val payload = hex.substring(16, minOf(32, hex.length))
+        platformLog("parseMLModelSettings", "deviceAddr=$deviceAddr, payload=$payload")
+        try {
+            val mlModelSettings = Json.decodeFromString<MLModelSettings>("\"$payload\"")
+            platformLog("parseMLModelSettings", "Parsed: modelCode=${mlModelSettings.modelCode}, modelVersion=${mlModelSettings.modelVersion}")
+            MLModelSettingsState.emitMLModelSettings(mlModelSettings)
+        }
+        catch (e: Exception) {
+            platformLog("parseMLModelSettings", "Error parsing ML_MODEL_SETTINGS: ${e.message}")
+        }
+    }
 
+    private fun parseBoardInfo(hex: String) {
+        // Проверяем минимальную длину: заголовок (16 hex) + структура (90 hex) = 106 hex символов
+        if (hex.length < 106) {
+            platformLog("parseBoardInfo", "Invalid hex length: ${hex.length}, expected at least 106")
+            return
+        }
+
+        // Извлекаем адрес устройства из заголовка (байт 6 = позиция 12-13 в hex)
+        val deviceAddr = if (hex.length >= 14) {
+            castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        } else {
+            0
+        }
+
+        // Данные начинаются с позиции 16 (после 7-байтного заголовка)
+        val payload = hex.substring(16)
+
+        platformLog("parseBoardInfo", "deviceAddr=$deviceAddr, payload length=${payload.length}")
+
+        try {
+            val boardInfo = Json.decodeFromString<BoardInfoStruct>("\"$payload\"")
+            platformLog("parseBoardInfo", "Parsed: boardName=${boardInfo.boardName}, boardVersion=${boardInfo.boardVersionString}, boardCode=${boardInfo.boardCode}, boardBuild=${boardInfo.boardBuild}")
+            BoardInfoState.emitBoardInfo(boardInfo)
+        }
+        catch (e: Exception) {
+            platformLog("parseBoardInfo", "Error parsing BoardInfo: ${e.message}")
+        }
+    }
 
     private fun getNextIDParameter(ID: Int): Int {
         for (item in baseParametrInfoStructArray.indices) {
@@ -1720,7 +1771,6 @@ class BLEParser(
             }
         }
         if (canAdd) {
-
             val added = listWidgets.add(widget)
             if (added) {
                 val safeTotal = widgetsProgressTotal.coerceAtLeast(1)

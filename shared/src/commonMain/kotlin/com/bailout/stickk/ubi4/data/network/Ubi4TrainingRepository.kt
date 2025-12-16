@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.errors.IOException
+import android.util.Log
 
 class Ubi4TrainingRepository(
     private val api: Ubi4RequestsApi
@@ -19,6 +20,7 @@ class Ubi4TrainingRepository(
     ): String {
         platformLog("Repo", "→ loginBySerial with serial='$serial'")
         val req = SerialTokenRequest(serialNumber = serial, password = password)
+        Log.i("uploadPassport", req.toString())
         return when (val result = api.loginBySerial(apiKey, req)) {
             is NetworkResult.Success -> {
                 val body = result.value

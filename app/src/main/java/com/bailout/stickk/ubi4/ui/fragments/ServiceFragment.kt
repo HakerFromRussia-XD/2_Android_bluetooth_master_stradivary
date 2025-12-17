@@ -34,6 +34,7 @@ class ServiceFragment: BaseWidgetsFragment() {
         return binding.root
     }
 
+
     private fun setupRecycler() {
         binding.serviceFragmentRv.layoutManager = LinearLayoutManager(requireContext())
         adapterWidgets.swapData(mDataFactory.prepareData(display))

@@ -8,22 +8,22 @@ import androidx.room.RoomDatabaseConstructor
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
-import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.dao.DataParameterDao
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.DeviceCrcEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
-import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.DataParameterEntity
 
 @Database(
-    entities = [WidgetStateEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,
+    entities = [DataParameterEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,
         ListWidgetsEntity::class, DeviceCrcEntity::class],
     version = 1,
     exportSchema = true // схемы уже настроены в Gradle
 )
 @ConstructedBy(Ubi4RoomDbConstructor::class)
 abstract class Ubi4RoomDb : RoomDatabase() {
-    abstract fun widgetStateDao(): WidgetStateDao
+    abstract fun widgetStateDao(): DataParameterDao
     abstract fun baseParameterInfoDao(): BaseParameterInfoDao
     abstract fun baseSubDeviceInfoDao(): BaseSubDeviceInfoDao
     abstract fun listWidgetsDao(): ListWidgetsDao

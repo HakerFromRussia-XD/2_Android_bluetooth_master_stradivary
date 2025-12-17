@@ -4,17 +4,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.DataParameterEntity
 import kotlinx.coroutines.flow.Flow
 
 
 @Dao
-interface WidgetStateDao {
+interface DataParameterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(e: WidgetStateEntity)
+    suspend fun upsert(e: DataParameterEntity)
 
     @Query("SELECT * FROM widget_state WHERE device_mac = :mac AND widget_id = :widgetId ORDER BY ts_ms DESC")
-    fun observeByWidget(mac: String, widgetId: Long): Flow<List<WidgetStateEntity>>
+    fun observeByWidget(mac: String, widgetId: Long): Flow<List<DataParameterEntity>>
 
     @Query("""
         SELECT * FROM widget_state
@@ -27,14 +27,14 @@ interface WidgetStateDao {
         mac: String,
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
-    ): Flow<WidgetStateEntity?>
+    ): Flow<DataParameterEntity?>
 
     @Query("""
     SELECT * FROM widget_state
     WHERE device_mac = :mac
     ORDER BY ts_ms DESC
 """)
-    fun observeAll(mac: String): Flow<List<WidgetStateEntity>>
+    fun observeAll(mac: String): Flow<List<DataParameterEntity>>
 
     @Query("DELETE FROM widget_state WHERE device_mac = :mac AND device_addr = :deviceAddr")
     suspend fun clearByDevice(mac: String, deviceAddr: Long)
@@ -56,5 +56,5 @@ interface WidgetStateDao {
         mac: String,
         parameterId: Long,
         dataCode: Long
-    ): WidgetStateEntity?
+    ): DataParameterEntity?
 }

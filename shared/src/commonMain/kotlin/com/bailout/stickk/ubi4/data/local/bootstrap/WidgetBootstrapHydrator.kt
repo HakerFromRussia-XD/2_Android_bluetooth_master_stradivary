@@ -328,7 +328,7 @@ object WidgetBootstrapHydrator {
         )
     }
 
-    fun requestWidgetsCommandKmm(
+    fun requestParametersDataKmm(
         sendCommand: (ByteArray) -> Unit
     ) {
         // чтобы не долбить один и тот же параметр по 10 раз

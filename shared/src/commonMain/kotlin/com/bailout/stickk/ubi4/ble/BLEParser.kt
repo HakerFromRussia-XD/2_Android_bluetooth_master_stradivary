@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -1149,7 +1148,7 @@ class BLEParser(
                 listWidgets = listWidgets.toList()
             )
 
-            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+            WidgetBootstrapHydrator.requestParametersDataKmm { cmd ->
                 bleManager.sendBytesKmm(
                     cmd,
                     MAIN_CHANNEL_CHARACTERISTIC,

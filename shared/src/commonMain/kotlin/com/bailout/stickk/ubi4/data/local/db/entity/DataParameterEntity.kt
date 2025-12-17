@@ -18,7 +18,7 @@ import androidx.room.Index
         )
     ]
 )
-data class WidgetStateEntity(
+data class DataParameterEntity(
     val device_mac: String,
     val device_addr: Long,
     val widget_id: Long,

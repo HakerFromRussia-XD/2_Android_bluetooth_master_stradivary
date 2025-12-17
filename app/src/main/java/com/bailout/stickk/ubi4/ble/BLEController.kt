@@ -41,15 +41,12 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -317,6 +314,8 @@ class BLEController() {
         // Включаем NOTIFY и запрашиваем CRC
         bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
         delay(150)
+        //TODO переписать без delay
+//        main.bleCommandWithQueue(null, MAIN_CHANNEL_CHARACTERISTIC,NOTIFY) {}
 
         Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
         main.bleCommandWithQueue(
@@ -362,7 +361,6 @@ class BLEController() {
                 total = 0
             )
 
-            // На всякий случай гасим диалог
             UiState.widgetsLoadingFlow.tryEmit(Unit)
 
             // Гидратация из кеша
@@ -379,7 +377,7 @@ class BLEController() {
                 WRITE
             ) {}
 
-            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+            WidgetBootstrapHydrator.requestParametersDataKmm { cmd ->
                 bleCommand(cmd, MAIN_CHANNEL_CHARACTERISTIC, WRITE)
             }
 

@@ -8,9 +8,9 @@ import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
-import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.dao.DataParameterDao
 import com.bailout.stickk.ubi4.data.local.db.entity.DeviceCrcEntity
-import com.bailout.stickk.ubi4.data.local.db.entity.WidgetStateEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.DataParameterEntity
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterInfoPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseParameterWidgetPayload
 import com.bailout.stickk.ubi4.data.local.db.payload.BaseSubDeviceInfoPayload
@@ -25,7 +25,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 interface WidgetRepository {
-    suspend fun upsert(entity: WidgetStateEntity)
+    suspend fun upsert(entity: DataParameterEntity)
     suspend fun upsertState(
         deviceAddr: Int,
         widgetId: Int,
@@ -54,13 +54,13 @@ interface WidgetRepository {
         tsMs: Long
     )
 
-    fun observeByWidget(widgetId: Long): Flow<List<WidgetStateEntity>>
+    fun observeByWidget(widgetId: Long): Flow<List<DataParameterEntity>>
     fun observeByKey(
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
-    ): Flow<WidgetStateEntity?>
+    ): Flow<DataParameterEntity?>
     suspend fun count(): Long
-    fun observeAll(): Flow<List<WidgetStateEntity>>
+    fun observeAll(): Flow<List<DataParameterEntity>>
 
     suspend fun upsertWidgetsSnapshot(
         deviceAddr: Int,
@@ -77,7 +77,7 @@ interface WidgetRepository {
         deviceAddr: Int,
         parameterId: Int,
         dataCode: Int
-    ): WidgetStateEntity?
+    ): DataParameterEntity?
 
     suspend fun loadDeviceCrc(
         mac: String,
@@ -94,15 +94,8 @@ interface WidgetRepository {
 
 
 
-
-
-
-
-
-
-
 class WidgetRepositoryImpl(
-    private val dao: WidgetStateDao,
+    private val dao: DataParameterDao,
     private val parameterInfoDao: BaseParameterInfoDao,
     private val subDeviceDao: BaseSubDeviceInfoDao?,
     private val listWidgetsDao: ListWidgetsDao,
@@ -114,7 +107,7 @@ class WidgetRepositoryImpl(
     }
     private fun mac() = WidgetRepoProvider.mac()
 
-    override suspend fun upsert(entity: WidgetStateEntity) = withContext(Dispatchers.IO) {
+    override suspend fun upsert(entity: DataParameterEntity) = withContext(Dispatchers.IO) {
         val e = entity.copy(device_mac = mac())
         dao.upsert(e)
     }
@@ -125,7 +118,7 @@ class WidgetRepositoryImpl(
         parameterId: Int, dataCode: Int, dataOffset: Int,
         tsMs: Long, valueText: String?, valueI1: Long?, valueI2: Long?, valueI3: Long?
     ) = upsert(
-        WidgetStateEntity(
+        DataParameterEntity(
             device_mac = mac(),
             device_addr = deviceAddr.toLong(),
             widget_id = widgetId.toLong(),
@@ -180,16 +173,16 @@ class WidgetRepositoryImpl(
         )
     }
 
-    override fun observeByWidget(widgetId: Long): Flow<List<WidgetStateEntity>> =
+    override fun observeByWidget(widgetId: Long): Flow<List<DataParameterEntity>> =
         dao.observeByWidget(mac(), widgetId)
 
     override fun observeByKey(
         deviceAddr: Long, widgetId: Long, widgetCode: Long,
         parameterId: Long, dataCode: Long, dataOffset: Long
-    ): Flow<WidgetStateEntity?> =
+    ): Flow<DataParameterEntity?> =
         dao.observeByKey(mac(), deviceAddr, widgetId, widgetCode, parameterId, dataCode, dataOffset)
 
-    override fun observeAll(): Flow<List<WidgetStateEntity>> =
+    override fun observeAll(): Flow<List<DataParameterEntity>> =
         dao.observeAll(mac())
 
     override suspend fun upsertWidgetsSnapshot(
@@ -268,7 +261,7 @@ class WidgetRepositoryImpl(
         deviceAddr: Int,
         parameterId: Int,
         dataCode: Int
-    ): WidgetStateEntity? =
+    ): DataParameterEntity? =
         withContext(Dispatchers.IO) {
             val mac = mac()
             val row = dao.getLastByMac(

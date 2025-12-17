@@ -37,14 +37,14 @@ class SensorsFragment : BaseWidgetsFragment() {
         super.onResume()
         updateFlow.tryEmit(0)
     }
+
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
-
-//        adapterWidgets.swapData(mDataFactory.prepareData(display))
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -87,9 +87,10 @@ class SensorsFragment : BaseWidgetsFragment() {
                     platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=${mDataFactory.prepareData(display)}")
                     binding.homeRv.post {
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
+//                        adapterWidgets.swapData(mDataFactory.fakeData())
                         main?.refreshBottomNavVisibility()
                     }
-//                    binding.refreshLayout.setRefreshing(false)
+                    binding.refreshLayout.setRefreshing(false)
                 }
             }
         }

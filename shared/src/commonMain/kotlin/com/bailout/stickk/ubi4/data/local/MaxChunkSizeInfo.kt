@@ -29,7 +29,6 @@ fun ByteArray.toMaxChunkSizeInfo(): MaxChunkSizeInfo {
     // 4) Новый формат: минимум 8+2 резерв = 10 байт
     require(this.size >= 10) { "GET_MAX_CHANK_SIZE payload corrupted: ${this.size} B" }
 
-
     val bytesInterval     = (this[2].toUByte().toInt() or (this[3].toUByte().toInt() shl 8))
     val timeoutMs         = (this[6].toUByte().toInt() or (this[7].toUByte().toInt() shl 8))
     val flashClearDelayMs = (this[8].toUByte().toInt() or (this[9].toUByte().toInt() shl 8))

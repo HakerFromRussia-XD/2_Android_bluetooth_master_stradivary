@@ -4,7 +4,7 @@ import BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
-import com.bailout.stickk.ubi4.data.local.db.dao.WidgetStateDao
+import com.bailout.stickk.ubi4.data.local.db.dao.DataParameterDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.concurrent.Volatile
 
@@ -16,14 +16,14 @@ object WidgetRepoProvider {
     fun mac(): String = _currentMac.value
 
     fun init(
-        widgetStateDao: WidgetStateDao,
+        dataParameterDao: DataParameterDao,
         parameterInfoDao: BaseParameterInfoDao,
         listWidgetsDao: ListWidgetsDao,
         subDeviceDao: BaseSubDeviceInfoDao? = null,
         deviceCrcDao: DeviceCrcDao? = null
     ): WidgetRepository {
         return (repo ?: WidgetRepositoryImpl(
-            dao = widgetStateDao,
+            dao = dataParameterDao,
             parameterInfoDao = parameterInfoDao,
             subDeviceDao = subDeviceDao,
             listWidgetsDao = listWidgetsDao,

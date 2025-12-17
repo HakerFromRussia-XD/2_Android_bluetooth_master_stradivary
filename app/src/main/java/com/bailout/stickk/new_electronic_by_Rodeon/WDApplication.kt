@@ -44,7 +44,7 @@ class WDApplication : MultiDexApplication() {
 
     val db = DbProvider.instance()
     WidgetRepoProvider.init(
-      widgetStateDao = db.widgetStateDao(),
+      dataParameterDao = db.widgetStateDao(),
       parameterInfoDao = db.baseParameterInfoDao(),
       listWidgetsDao = db.listWidgetsDao(),
       subDeviceDao = db.baseSubDeviceInfoDao(),

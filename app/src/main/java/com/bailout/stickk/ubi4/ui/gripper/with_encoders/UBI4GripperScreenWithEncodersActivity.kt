@@ -809,6 +809,7 @@ private fun initSelector() {
             // send OPEN command
             gestureState = States.GESTURE_OPEN_DELAY.number
             compileBLEMassage()
+            gestureState = States.GESTURE_STATE_OPEN.number
         }
     }
     binding.gestureCloseBtn.setOnClickListener {
@@ -822,6 +823,8 @@ private fun initSelector() {
             // send CLOSE command
             gestureState = States.GESTURE_CLOSE_DELAY.number
             compileBLEMassage()
+            gestureState = States.GESTURE_STATE_CLOSE.number
+
 
         }
     }

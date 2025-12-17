@@ -210,6 +210,7 @@ object RoomPersistence {
         val repo = WidgetRepoProvider.get()
         val mac = WidgetRepoProvider.mac()
 
+
         platformLog(
             "ROOM_PERSIST",
             "device_crc READ → mac=$mac dev=$deviceAddr"

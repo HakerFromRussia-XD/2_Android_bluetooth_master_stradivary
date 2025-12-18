@@ -114,13 +114,6 @@ final class PlotViewCell: UITableViewCell {
         widgetPlotInfo = nil
         needsThresholdLayout = false
         startTimer()
-        
-        openThreshold = 0
-        closeThreshold = 0
-        openThresholdTv.text = ""
-        closeThresholdTv.text = ""
-        needsThresholdLayout = true
-        applyThresholdLayout(animated: false)
     }
     override func didMoveToWindow() {
         super.didMoveToWindow()
@@ -130,7 +123,14 @@ final class PlotViewCell: UITableViewCell {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        print("updateThreshold    layoutSubviews")
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(viewModel.widget.parameterID))
+        guard !parameter.data.isEmpty else { return }
+        let thresholds = PlotThresholds.decode(from: parameter.data)
+        self.openThreshold = thresholds.threshold1
+        self.closeThreshold = thresholds.threshold2
+//        print("updateThreshold    layoutSubviews   thresholds = \(thresholds)")
+        self.needsThresholdLayout = true
         applyThresholdLayout(animated: true)
     }
     
@@ -391,7 +391,7 @@ final class PlotViewCell: UITableViewCell {
             needsThresholdLayout,
             allCHRl.bounds.height > 0
         else { return }
-        print("updateThreshold    applyThresholdLayout 2")
+        print("updateThreshold    applyThresholdLayout 2 openThreshold = \(openThreshold)")
         
         setLimitPosition(
             limit_CH: limitCH2,

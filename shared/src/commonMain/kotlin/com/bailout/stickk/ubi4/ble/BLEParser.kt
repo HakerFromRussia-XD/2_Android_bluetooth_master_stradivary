@@ -320,8 +320,8 @@ class BLEParser(
                                     ).toInt(16).toByte()
                                 )
                                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                                platformLog("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
-                                platformLog("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
+//                                platformLog("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
+//                                platformLog("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
 
                                 parameter.data = receiveDataString.substringSafe(
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2,

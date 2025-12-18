@@ -48,12 +48,19 @@ import QuartzCore
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModel.items.value)
         DispatchQueue.main.async {
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
+//            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+//                CATransaction.begin()
+//                CATransaction.setDisableActions(true)
+//                UIView.performWithoutAnimation { [weak self] in
+//                    self?.updateTableLayoutWithoutAnimation()
+//                }
+//
+//                CATransaction.commit()
+//            }
 
             let animationsWereEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
-            
+
             UIView.performWithoutAnimation {
                 self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
                     self.updateTableLayoutWithoutAnimation()
@@ -61,6 +68,8 @@ import QuartzCore
                     UIView.setAnimationsEnabled(animationsWereEnabled)
                 }
             }
+            CATransaction.commit()
+            
         }
     }
 

@@ -57,6 +57,7 @@ final class PlotViewCell: UITableViewCell {
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
         selectionStyle = .none
+        print("updateThreshold    requestThresholds")
         viewModel.requestThresholds()
         
         if let plotWidget = viewModel.widget.widget?.value as? AnyObject {
@@ -113,6 +114,13 @@ final class PlotViewCell: UITableViewCell {
         widgetPlotInfo = nil
         needsThresholdLayout = false
         startTimer()
+        
+        openThreshold = 0
+        closeThreshold = 0
+        openThresholdTv.text = ""
+        closeThresholdTv.text = ""
+        needsThresholdLayout = true
+        applyThresholdLayout(animated: false)
     }
     override func didMoveToWindow() {
         super.didMoveToWindow()
@@ -122,7 +130,8 @@ final class PlotViewCell: UITableViewCell {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        applyThresholdLayout(animated: false)
+        print("updateThreshold    layoutSubviews")
+        applyThresholdLayout(animated: true)
     }
     
     
@@ -332,6 +341,7 @@ final class PlotViewCell: UITableViewCell {
         thresholdValue: Int,
         animated: Bool = false
     ) {
+        print("updateThreshold    setLimitPosition")
         let topOffset = CGFloat(12)
         let bottomOffset = CGFloat(10)
 
@@ -355,18 +365,34 @@ final class PlotViewCell: UITableViewCell {
         }
 
         if animated, abs(limit_CH.frame.origin.y - newOriginY) > .ulpOfOne {
-            UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseInOut], animations: applyChanges)
+            let animationsWereEnabled = UIView.areAnimationsEnabled
+            if !animationsWereEnabled {
+                UIView.setAnimationsEnabled(true)
+            }
+
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0,
+                options: [.curveEaseInOut],
+                animations: applyChanges
+            ) { _ in
+                if !animationsWereEnabled {
+                    UIView.setAnimationsEnabled(false)
+                }
+            }
         } else {
             applyChanges()
         }
     }
     
     private func applyThresholdLayout(animated: Bool) {
+        print("updateThreshold    applyThresholdLayout 1 needsThresholdLayout = \(needsThresholdLayout)  allCHRl.bounds.height = \(allCHRl.bounds.height)")
         guard
             needsThresholdLayout,
             allCHRl.bounds.height > 0
         else { return }
-
+        print("updateThreshold    applyThresholdLayout 2")
+        
         setLimitPosition(
             limit_CH: limitCH2,
             thresholdLabel: openThresholdTv,
@@ -407,48 +433,23 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
-        
+        print("updateThreshold    updateThresholdData 1")
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID == viewModel.widget.parameterID else { return }
 
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+        print("updateThreshold    updateThresholdData 2")
+        guard !parameter.data.isEmpty else { return }
+        let thresholds = PlotThresholds.decode(from: parameter.data)
 
-        let hex = parameter.data
-        guard !hex.isEmpty else { return }
-
-        let thresholds = decodeThresholds(from: hex)
-
+        print("updateThreshold    updateThresholdData 3 threshold1 = \(thresholds.threshold1), threshold2 = \(thresholds.threshold2)")
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            if thresholds.indices.contains(0) {
-                let openValue = thresholds[0]
-                self.openThreshold = openValue
-            }
-            if thresholds.indices.contains(1) {
-                let closeValue = thresholds[1]
-                self.closeThreshold = closeValue
-            }
+            self.openThreshold = thresholds.threshold1
+            self.closeThreshold = thresholds.threshold2
             self.needsThresholdLayout = true
             self.applyThresholdLayout(animated: true)
-        }
-    }
-    private func decodeThresholds(from hex: String) -> [Int] {
-        var padded = hex
-        if padded.count < 22 {
-            padded.append(String(repeating: "0", count: 22 - padded.count))
-        }
-
-        let ranges: [(Int, Int)] = [(0, 2), (4, 6), (8, 10), (12, 14), (16, 18), (20, 22)]
-
-        return ranges.map { start, end in
-            guard end <= padded.count,
-                  start < end else { return 0 }
-
-            let startIndex = padded.index(padded.startIndex, offsetBy: start)
-            let endIndex = padded.index(padded.startIndex, offsetBy: end)
-            let substring = padded[startIndex..<endIndex]
-            return Int(substring, radix: 16) ?? 0
         }
     }
     private func startTimer() {

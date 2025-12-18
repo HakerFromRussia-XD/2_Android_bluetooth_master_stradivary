@@ -88,6 +88,7 @@
 		1FFFC832221B0041007D99D2 /* WidgetsQueriesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC828221B0041007D99D2 /* WidgetsQueriesRepository.swift */; };
 		1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */; };
 		1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */; };
+		651DDBA42EF2E2D200199FD8 /* PlotThresholds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */; };
 		652136F62DF82888006AB049 /* SliderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652136F52DF82884006AB049 /* SliderProvider.swift */; };
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
@@ -285,6 +286,7 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ExampleMVVMTests/Info.plist; sourceTree = SOURCE_ROOT; };
+		651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotThresholds.swift; sourceTree = "<group>"; };
 		652136F52DF82884006AB049 /* SliderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderProvider.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
@@ -454,11 +456,11 @@
 		1F5B9E20221D61290051B5F2 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				655830652DD4CA9100744D5C /* Utils */,
 				659A45A22DB928FF002BE2BC /* Bluetooth */,
 				1FFFC824221B0041007D99D2 /* Repositories */,
 				1FA533E0201EF58F00747E55 /* Network */,
 				FC7408122165557500FE52A5 /* PersistentStorages */,
+				655830652DD4CA9100744D5C /* Utils */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -856,6 +858,14 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
+		651DDBA22EF2E29100199FD8 /* Parsers Data */ = {
+			isa = PBXGroup;
+			children = (
+				651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */,
+			);
+			path = "Parsers Data";
+			sourceTree = "<group>";
+		};
 		652136F42DF82876006AB049 /* Providers */ = {
 			isa = PBXGroup;
 			children = (
@@ -936,6 +946,7 @@
 		659A45A22DB928FF002BE2BC /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				651DDBA22EF2E29100199FD8 /* Parsers Data */,
 				659A45A32DB92912002BE2BC /* BluetoothRepositoryImpl.swift */,
 			);
 			path = Bluetooth;
@@ -1351,6 +1362,7 @@
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */,
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,
+				651DDBA42EF2E2D200199FD8 /* PlotThresholds.swift in Sources */,
 				1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */,
 				1F6B521323630016002FCDE9 /* RepositoryTask.swift in Sources */,
 				65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */,

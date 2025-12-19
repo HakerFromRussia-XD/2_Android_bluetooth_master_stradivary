@@ -71,6 +71,5 @@
         app:spinner_divider_color="@color/ubi4_gray_border"
         app:spinner_popup_animation="dropdown"
         app:spinner_popup_background="@drawable/ubi4_view_with_corners_gray_outside"
-        app:spinner_popup_height="176dp"
         app:spinner_popup_width="220dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

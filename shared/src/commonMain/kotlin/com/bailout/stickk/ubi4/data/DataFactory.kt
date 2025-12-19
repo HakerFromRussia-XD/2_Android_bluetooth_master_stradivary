@@ -31,34 +31,18 @@ import com.bailout.stickk.ubi4.utility.logging.systemLang
 
 class DataFactory {
 
-    fun fakeData(): List<Any> = buildList {
-//        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0)))
-//        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1))))
-//        add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
-        add(CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
-        add(CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4))))
-//        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
-//        add(SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 8))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9))))
-//        add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10))))
-//        add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
-//        add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12))))
-//        add(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0)))
-//        add(PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 1))))
-//        add(PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 2))))
-//        add(CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3))))
-//        add(CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4))))
-//        add(SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5))))
-//        add(SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 8))))
-//        add(SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9))))
-//        add(SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10))))
-//        add(OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11))))
-//        add(SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 0))))
 
+    fun fakeData(): List<Any> = buildList {
+        add(OneButtonItem("COMMAND E", "description", CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
+//        add(OneButtonItem("COMMAND S", "description", CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
+//        add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
+//        add(SwitchItem("SWITCH S", SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
+//        add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
+//        add(SliderItem("SLIDER S", SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 8, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
+//        add(PlotItem("PLOT E", PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
+//        add(PlotItem("PLOT S", PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
+//        add(TrainingGestureItem("OPTIC LEARNING", OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11, widgetCode = ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt())))))
+        add(SpinnerItem("Уровень доступа", SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12, widgetCode = ParameterWidgetCode.PWCE_SPINBOX.number.toInt())))))
     }
 
     fun fakeData2(): List<Any> = buildList {

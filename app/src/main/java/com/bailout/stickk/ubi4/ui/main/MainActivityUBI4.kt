@@ -531,7 +531,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         syncShownOnce = true
-        observeSyncProgress()
+//        observeSyncProgress()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {

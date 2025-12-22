@@ -632,6 +632,7 @@
     <string name="add">Добавить</string>
     <string name="organize_the_gestures">Упорядочите жесты</string>
     <string name="select_gesture_from_big_letter">Выберите жест</string>
+    <string name="inference">Инференс</string>
 
 
     <string-array name="numbers">

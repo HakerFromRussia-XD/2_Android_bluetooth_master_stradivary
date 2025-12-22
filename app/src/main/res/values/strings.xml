@@ -635,6 +635,7 @@
     <string name="add">Add</string>
     <string name="organize_the_gestures">Organize the gestures</string>
     <string name="select_gesture_from_big_letter">Select gesture</string>
+    <string name="inference">Inference</string>
 
 
     <string-array name="numbers">

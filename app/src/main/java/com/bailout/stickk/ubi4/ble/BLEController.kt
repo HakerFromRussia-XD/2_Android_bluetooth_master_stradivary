@@ -361,7 +361,7 @@ class BLEController() {
                 total = 0
             )
 
-            UiState.widgetsLoadingFlow.tryEmit(Unit)
+//            UiState.widgetsLoadingFlow.tryEmit(Unit)
 
             // Гидратация из кеша
             WidgetBootstrapHydrator.restoreFromDb(masterAddr)
@@ -369,6 +369,8 @@ class BLEController() {
             WidgetBootstrapHydrator.rebuildParameterLinksFromDb(masterAddr)
             WidgetBootstrapHydrator.replayWidgetEventsFromDb(masterAddr)
             updateFlow.emit(0)
+            UiState.startupInProgress.value = false
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
 
             // Запускаем живой поток
             main.bleCommandWithQueue(
@@ -406,11 +408,11 @@ class BLEController() {
         WidgetState.dbSnapshotAppliedWithCrc = false
 
         UiState.fullInitInProgress.value = true
+        UiState.startupInProgress.value = false
 
         withContext(Dispatchers.Main) {
             onNeedFullInitListener?.invoke()
         }
-
         firstNotificationRequestFull()
     }
 

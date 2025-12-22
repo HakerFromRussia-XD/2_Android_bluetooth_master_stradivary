@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ProgressBar
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -15,9 +16,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
@@ -43,7 +46,12 @@ class SyncProgressDialog(
         val view = inflater.inflate(R.layout.ubi4_dialog_sync_progress, null)
         val lottie = view.findViewById<LottieAnimationView>(R.id.sync_dialog_lottie_av)
         progressBar = view.findViewById(R.id.sync_dialog_progress_pb)
-        progressBar?.progress = 0
+//        progressBar?.progress = 0
+        progressBar?.apply {
+            visibility = View.GONE
+            isIndeterminate = false
+            progress = 0
+        }
 
         dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen).apply {
             setContentView(view)
@@ -61,160 +69,125 @@ class SyncProgressDialog(
         progressBar = null
     }
 
-//    fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {
-//        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress() CALLED | isShowing=$isShowing owner=$owner chromeHidden=$chromeHidden")
-//
-//        // ВАЖНО: больше ничего тут не делаем — НИ show(), НИ setChromeVisible(false)
-//        // Всё это будет решаться только внутри коллектора по факту прихода прогресса.
-//
-//        if (watchJob != null) {
-//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): cancel previous watchJob=$watchJob")
-//        }
-//        watchJob?.cancel()
-//
-//        watchJob = owner.lifecycleScope.launch {
-//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): new watchJob STARTED = $watchJob")
-//
-//            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): enter repeatOnLifecycle(STARTED)")
-//
-//                merge(
-//                    UiState.widgetsLoadingProgressFlow.map { p ->
-//                        val total = p.total.coerceAtLeast(0)
-//                        val current = p.current.coerceAtLeast(0).coerceAtMost(total)
-//                        val percent = if (total > 0) (current * 100 / total).coerceIn(0, 100) else 0
-//
-//                        Log.d(
-//                            "SYNC_DIALOG_DEBUG",
-//                            "FLOW_PROGRESS: current=${p.current}, total=${p.total}, percent=$percent, dialog=$dialog, progressBar=$progressBar"
-//                        )
-//
-//                        val fullInit = UiState.fullInitInProgress.value
-//
-//
-//                        if (!fullInit && !isShowing) {
-//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: skip, fullInitInProgress=false")
-//                            return@map
-//                        }
-//                        // Показываем диалог ТОЛЬКО если реально идёт "незавершённый" прогресс
-//                        val needShow = total > 0 && current < total
-//
-//                        if (needShow && !isShowing) {
-//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: needShow=true → call show()")
-//                            show()
-//                            if (!chromeHidden) {
-//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: hiding chrome (setChromeVisible(false))")
-//                                setChromeVisible(false)
-//                                chromeHidden = true
-//                            }
-//                        }
-//
-//                        // Если диалог открыт — обновляем прогрессбар
-//                        if (isShowing) {
-//                            progressBar?.let { bar ->
-//                                val next = maxOf(bar.progress, percent)
-//                                if (Build.VERSION.SDK_INT >= 24) {
-//                                    bar.setProgress(next, true)
-//                                } else {
-//                                    bar.progress = next
-//                                }
-//                            } ?: run {
-//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: progressBar is NULL, cannot update UI")
-//                            }
-//                        } else {
-//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_PROGRESS: dialog is NOT showing, skip progress update")
-//                        }
-//                    },
-//                    UiState.widgetsLoadingFlow.map {
-//                        Log.d(
-//                            "SYNC_DIALOG_DEBUG",
-//                            "FLOW_DONE: widgetsLoadingFlow event received, isShowing=$isShowing, dialog=$dialog, chromeHidden=$chromeHidden"
-//                        )
-//
-//                        if (isShowing) {
-//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dismiss() called from flow")
-//                            dismiss()
-//                            if (chromeHidden) {
-//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: show chrome (setChromeVisible(true))")
-//                                setChromeVisible(true)
-//                                chromeHidden = false
-//                            } else {
-//                                Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: chrome already visible, skip setChromeVisible(true)")
-//                            }
-//                        } else {
-//                            Log.d("SYNC_DIALOG_DEBUG", "FLOW_DONE: dialog is not showing, skip dismiss()")
-//                        }
-//                    }
-//                ).collect {
-//                    Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): merge collector tick")
-//                }
-//            }
-//
-//            Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): EXIT repeatOnLifecycle(STARTED)")
-//        }
-//
-//        Log.d("SYNC_DIALOG_DEBUG", "observeSyncProgress(): watchJob assigned = $watchJob")
-//    }
-
     fun observeSyncProgress(setChromeVisible: (Boolean) -> Unit) {
         platformLog("SyncProgressDialog", "observeSyncProgress() start, isShowing=$isShowing")
 
         watchJob?.cancel()
         watchJob = owner.lifecycleScope.launch {
             owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                // Храним последние значения, чтобы можно было "перерисоваться"
+                // при изменении startup/fullInit даже без нового прогресса.
+                var p = UiState.widgetsLoadingProgressFlow.value
+
+                fun applyUiState() {
+                    val startup = UiState.startupInProgress.value
+                    val fullInit = UiState.fullInitInProgress.value
+
+                    val total = p.total.coerceAtLeast(0)
+                    val current = p.current.coerceAtLeast(0).coerceAtMost(total)
+                    val percent = if (total > 0) (current * 100 / total).coerceIn(0, 100) else 0
+
+                    val shouldShowDialog = startup || fullInit
+
+                    if (shouldShowDialog && !isShowing) {
+                        show()
+                    }
+
+                    if (shouldShowDialog && !chromeHidden) {
+                        setChromeVisible(false)
+                        chromeHidden = true
+                    }
+
+                    // -------- STARTUP MODE --------
+                    if (startup) {
+                        progressBar?.visibility = View.GONE
+                        progressBar?.isIndeterminate = true
+                        progressBar?.progress = 0
+                        return
+                    }
+
+                    // -------- NOT FULL INIT (WARM READY) --------
+                    if (!fullInit) {
+                        if (isShowing) dismiss()
+                        if (chromeHidden) {
+                            setChromeVisible(true)
+                            chromeHidden = false
+                        }
+                        return
+                    }
+
+                    // -------- FULL INIT MODE --------
+                    // защита от "100% и залип" при возврате из background
+                    if (total > 0 && current >= total) {
+                        if (isShowing) dismiss()
+                        if (chromeHidden) {
+                            setChromeVisible(true)
+                            chromeHidden = false
+                        }
+                        return
+                    }
+
+                    // диалог при full init держим даже когда total=0 (проценты ещё не готовы)
+                    val needShow = (total <= 0) || (current < total)
+                    if (needShow && !isShowing) {
+                        show()
+                        if (!chromeHidden) {
+                            setChromeVisible(false)
+                            chromeHidden = true
+                        }
+                    }
+
+                    // ProgressBar показываем только при реальных процентах
+                    progressBar?.visibility = if (total > 0) View.VISIBLE else View.GONE
+
+                    if (total <= 0) {
+                        progressBar?.isIndeterminate = true
+                        progressBar?.progress = 0
+                        return
+                    }
+
+                    progressBar?.isIndeterminate = false
+                    progressBar?.let { bar ->
+                        val next = maxOf(bar.progress, percent)
+                        if (Build.VERSION.SDK_INT >= 24) bar.setProgress(next, true)
+                        else bar.progress = next
+                    }
+                }
+
                 merge(
-                    UiState.widgetsLoadingProgressFlow.map { p ->
-                        val total = p.total.coerceAtLeast(0)
-                        val current = p.current.coerceAtLeast(0).coerceAtMost(total)
-                        val percent = if (total > 0) (current * 100 / total).coerceIn(0, 100) else 0
-
-                        val fullInit = UiState.fullInitInProgress.value
-
-                        // ЖЁСТКИЙ GUARD: если полной инициализации нет – диалог не нужен
-                        if (!fullInit) {
-                            if (isShowing) {
-                                dismiss()
-                                if (chromeHidden) {
-                                    setChromeVisible(true)
-                                    chromeHidden = false
-                                }
-                            }
-                            return@map
-                        }
-
-                        val needShow = total > 0 && current < total
-
-                        if (needShow && !isShowing) {
-                            show()
-                            if (!chromeHidden) {
-                                setChromeVisible(false)
-                                chromeHidden = true
-                            }
-                        }
-
-                        if (isShowing) {
-                            progressBar?.let { bar ->
-                                val next = maxOf(bar.progress, percent)
-                                if (Build.VERSION.SDK_INT >= 24) bar.setProgress(next, true)
-                                else bar.progress = next
-                            }
-                        }
+                    // прогресс обновился
+                    UiState.widgetsLoadingProgressFlow.map {
+                        p = it
+                        applyUiState()
+                        Unit
                     },
+
+                    // startup/fullInit изменились -> тоже надо перерисоваться
+                    UiState.startupInProgress.map {
+                        applyUiState()
+                        Unit
+                    },
+                    UiState.fullInitInProgress.map {
+                        applyUiState()
+                        Unit
+                    },
+
+                    // "готово" — закрыть диалог и вернуть chrome
                     UiState.widgetsLoadingFlow.map {
-                        if (isShowing) {
-                            dismiss()
-                            if (chromeHidden) {
-                                setChromeVisible(true)
-                                chromeHidden = false
-                            }
+                        if (isShowing) dismiss()
+                        if (chromeHidden) {
+                            setChromeVisible(true)
+                            chromeHidden = false
                         }
+                        Unit
                     }
                 ).collect()
             }
         }
     }
-
 }
+
 
 
 

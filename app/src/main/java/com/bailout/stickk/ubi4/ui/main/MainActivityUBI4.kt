@@ -51,11 +51,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
@@ -138,7 +137,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
-
+        showStartupLoaderIfNeeded()
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
 
 
@@ -273,6 +272,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             platformLog("ROOM_CHECK", "Widget rows = $c")
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -531,7 +531,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         syncShownOnce = true
-//        observeSyncProgress()
+        observeSyncProgress()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
@@ -554,6 +554,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.bottomNavigation.visibility = View.VISIBLE
     }
 
+    private fun showStartupLoaderIfNeeded() {
+        val hasMac = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
+        if (!hasMac) return
+
+        UiState.startupInProgress.value = true
+        // прячем chrome сразу, без ожидания flow-коллекторов
+        setChromeVisible(false)
+        // показываем диалог сразу, чтобы не было фликера
+        syncDialog.show()
+        // подписка на состояние (дальше он сам закроется)
+        ensureSyncDialogShown()
+    }
 
     private fun setChromeVisible(visible: Boolean) {
         val v = if (visible) View.VISIBLE else View.INVISIBLE
@@ -561,6 +573,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.bottomNavigation.visibility = v
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
+
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()

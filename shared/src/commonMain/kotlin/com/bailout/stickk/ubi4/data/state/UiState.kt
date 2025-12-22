@@ -17,7 +17,7 @@ object UiState {
     var widgetsLoadingFlow by Delegates.notNull<MutableSharedFlow<Unit>>()
     var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
     val fullInitInProgress = MutableStateFlow(false)
-
+    val startupInProgress = MutableStateFlow(false)
 //    var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
     val widgetsLoadingProgressFlow = MutableStateFlow(
         WidgetsLoadingProgress(current = 0, total = 0)
@@ -45,6 +45,7 @@ object UiState {
     fun resetWidgetRequests() {
         requestedWidgetParameters.clear()
     }
+
 
 
 }

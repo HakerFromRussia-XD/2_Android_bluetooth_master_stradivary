@@ -281,11 +281,25 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         } else {
             cell.backgroundColor = UIColor(named: "ubi4_gray")
         }
+        cell.onTap = { [weak self, weak tableView, weak cell] in
+            print("[BLE-TAP] indexPath = \(tableView?.indexPath(for: cell!))")
+            guard
+                let self,
+                let tableView,
+                let cell = cell,
+                let currentIndexPath = tableView.indexPath(for: cell)
+            else { return }
+            self.handleDeviceSelection(at: currentIndexPath)
+        }
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("[BLE-CONNECT] selectDeviceToConnect indexPath: \(indexPath)")
         tableView.deselectRow(at: indexPath, animated: true)
+        handleDeviceSelection(at: indexPath)
+    }
+    
+    private func handleDeviceSelection(at indexPath: IndexPath) {
         viewModel.connectToDevice(at: indexPath.row)
 //        tableViewDevices.reloadRows(at: [indexPath], with: .none)
         

@@ -17,7 +17,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="520" height="62"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BAu-ct-Grm">
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BAu-ct-Grm" userInteractionEnabled="NO">
                         <rect key="frame" x="0.0" y="0.0" width="520" height="64"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ToDo Item" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yWT-Kg-8Xg">
@@ -60,6 +60,7 @@
             <connections>
                 <outlet property="deviceNameText" destination="yWT-Kg-8Xg" id="i8C-Lo-hdK"/>
                 <outlet property="rssi" destination="GcN-oK-ZDu" id="UGc-8p-Atx"/>
+                <outlet property="containerView" destination="BAu-ct-Grm" id="rmn-ta-J9i"/>
             </connections>
             <point key="canvasLocation" x="366.41221374045801" y="-14.788732394366198"/>
         </tableViewCell>

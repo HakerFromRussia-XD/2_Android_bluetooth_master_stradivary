@@ -8,7 +8,7 @@ import UIKit
  
 class DeviceCell: UITableViewCell {
     static let identifier = "DeviceCell"
-    var onTap: (() -> Void)?
+//    var onTap: (() -> Void)?
     
     @IBOutlet weak var deviceNameText: UILabel!
     @IBOutlet weak var rssi: UILabel!
@@ -18,15 +18,15 @@ class DeviceCell: UITableViewCell {
         deviceNameText.text = model.name
         rssi.text = String(model.rssi)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tapGesture.cancelsTouchesInView = true
-        contentView.addGestureRecognizer(tapGesture)
-        contentView.isUserInteractionEnabled = true
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+//        tapGesture.cancelsTouchesInView = true
+//        contentView.addGestureRecognizer(tapGesture)
+//        contentView.isUserInteractionEnabled = true
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        onTap = nil
+//        onTap = nil
     }
     
     override func awakeFromNib() {
@@ -42,7 +42,7 @@ class DeviceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
     
-    @objc private func handleTap() {
-        onTap?()
-    }
+//    @objc private func handleTap() {
+//        onTap?()
+//    }
 }

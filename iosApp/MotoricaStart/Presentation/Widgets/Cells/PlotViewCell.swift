@@ -17,6 +17,25 @@ final class PlotViewCell: UITableViewCell {
     }
     var reseve_sensor_1_data: Int = 0
     var reseve_sensor_2_data: Int = 255
+    var old_reseve_sensor_1_data: Int = 0
+    var old_reseve_sensor_2_data: Int = 0
+    
+    // Сколько точек (тиков) нужно, чтобы дойти от old -> target
+    var timerTiks: Int = 9 // зачем: задаёт длительность плавного перехода в тиках
+    
+    // Текущее "рисуемое" значение (переходное)
+    private var current_sensor_1: Double = 0 // зачем: хранит промежуточное значение для прямой
+    private var current_sensor_2: Double = 0 // зачем: хранит промежуточное значение для прямой
+
+    // Старт и цель перехода
+    private var start_sensor_1: Double = 0   // зачем: фиксируем откуда начинаем линию
+    private var start_sensor_2: Double = 0   // зачем: фиксируем откуда начинаем линию
+    private var target_sensor_1: Double = 0  // зачем: фиксируем куда ведём линию
+    private var target_sensor_2: Double = 0  // зачем: фиксируем куда ведём линию
+
+    // Счётчик тиков внутри текущего перехода
+    private var rampTick: Int = 0            // зачем: понимаем на каком шаге (0...timerTiks)
+    
     var count: Int = 0
     
     @IBOutlet private weak var backgroundPlot : UIView!
@@ -144,33 +163,47 @@ final class PlotViewCell: UITableViewCell {
 
         var set1 : LineChartDataSet
         var set2 : LineChartDataSet
+        var set3 : LineChartDataSet
+        var set4 : LineChartDataSet
         
         if (firstInit) {
             set1 = createSet1(values: values)
             set2 = createSet2(values: values)
+            set3 = createSet3(values: values)
+            set4 = createSet4(values: values)
             data.append(set1)
             data.append(set2)
+            data.append(set3)
+            data.append(set4)
             firstInit = false
         } else {
             guard
                 let existingSet1 = data[1] as? LineChartDataSet,
-                let existingSet2 = data[2] as? LineChartDataSet
+                let existingSet2 = data[2] as? LineChartDataSet,
+                let existingSet3 = data[3] as? LineChartDataSet,
+                let existingSet4 = data[4] as? LineChartDataSet
             else { return }
             set1 = existingSet1
             set2 = existingSet2
+            set3 = existingSet3
+            set4 = existingSet4
         }
-        if (set1.count >= 300) {
+        if (set1.count >= 600) {
             zaglushka(bool1: (set1.removeFirst()))
             zaglushka(bool1: (set2.removeFirst()))
+            zaglushka(bool1: (set3.removeFirst()))
+            zaglushka(bool1: (set4.removeFirst()))
         }
         
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens1)), toDataSet: 1)
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens2)), toDataSet: 2)
+        data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(255)), toDataSet: 3)
+        data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(0)), toDataSet: 4)
         
         data.notifyDataChanged()
         lineChartView.notifyDataSetChanged()
-        lineChartView.setVisibleXRangeMaximum(300)
-        lineChartView.moveViewToX(Double(set2.count - 300))
+        lineChartView.setVisibleXRangeMaximum(600)
+        lineChartView.moveViewToX(Double(set2.count - 600))
         self.count += 1
     }
     private func initChart() {
@@ -184,8 +217,16 @@ final class PlotViewCell: UITableViewCell {
         var data2 = lineChartView.data
         let set2 = LineChartDataSet(entries: [], label: "")
         data2 = LineChartData(dataSet: set2)
+        var data3 = lineChartView.data
+        let set3 = LineChartDataSet(entries: [], label: "")
+        data3 = LineChartData(dataSet: set3)
+        var data4 = lineChartView.data
+        let set4 = LineChartDataSet(entries: [], label: "")
+        data4 = LineChartData(dataSet: set4)
         lineChartView.data = data
         lineChartView.data = data2
+        lineChartView.data = data3
+        lineChartView.data = data4
         
         lineChartView.highlightPerTapEnabled = false
         lineChartView.doubleTapToZoomEnabled = false
@@ -222,9 +263,9 @@ final class PlotViewCell: UITableViewCell {
     func createSet1(values: [ChartDataEntry]) -> LineChartDataSet {
         let set1 = LineChartDataSet(entries: [], label: "")
         set1.axisDependency = YAxis.AxisDependency.left
-        set1.lineWidth = 2
+        set1.lineWidth = 3
         set1.setColor(UIColor(named: "ubi4_white")!)
-        set1.mode = LineChartDataSet.Mode.linear
+        set1.mode = LineChartDataSet.Mode.cubicBezier
         set1.drawCirclesEnabled = false
         set1.drawValuesEnabled = false
         
@@ -233,13 +274,29 @@ final class PlotViewCell: UITableViewCell {
     func createSet2(values: [ChartDataEntry]) -> LineChartDataSet {
         let set2 = LineChartDataSet(entries: [], label: "")
         set2.axisDependency = YAxis.AxisDependency.left
-        set2.lineWidth = 2
-        set2.setColor(UIColor(named: "ubi4_active")!)
-        set2.mode = LineChartDataSet.Mode.linear
+        set2.lineWidth = 3
+        set2.setColor(UIColor(named: "ubi4_deactivate_text")!)
+        set2.mode = LineChartDataSet.Mode.cubicBezier
         set2.drawCirclesEnabled = false
         set2.drawValuesEnabled = false
         
         return set2
+    }
+    func createSet3(values: [ChartDataEntry]) -> LineChartDataSet {
+        let set3 = LineChartDataSet(entries: [], label: "")
+        set3.axisDependency = YAxis.AxisDependency.left
+        set3.lineWidth = 0
+        set3.drawCirclesEnabled = false
+        set3.drawValuesEnabled = false
+        return set3
+    }
+    func createSet4(values: [ChartDataEntry]) -> LineChartDataSet {
+        let set4 = LineChartDataSet(entries: [], label: "")
+        set4.axisDependency = YAxis.AxisDependency.left
+        set4.lineWidth = 0
+        set4.drawCirclesEnabled = false
+        set4.drawValuesEnabled = false
+        return set4
     }
     private func zaglushka(bool1: Bool) {    }
     
@@ -456,7 +513,46 @@ final class PlotViewCell: UITableViewCell {
         stopTimer()
         let t = Timer(timeInterval: 0.01, repeats: true) { [weak self] _ in
             guard let self else { return }
-            self.addEntry(sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
+//            self.addEntry(sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
+            
+            // 1) Считываем "сырые" цели (куда хотим прийти)
+            let new1 = Double(self.reseve_sensor_1_data) // зачем: цель для перехода (sens1)
+            let new2 = Double(self.reseve_sensor_2_data) // зачем: цель для перехода (sens2)
+
+            // 2) Если цель изменилась — начинаем новый ramp
+            //    (важно: старт берём от ТЕКУЩЕГО промежуточного значения, чтобы линия не "ломалась")
+            if new1 != self.target_sensor_1 || new2 != self.target_sensor_2 { // зачем: реагируем на новую цель
+                self.start_sensor_1 = self.current_sensor_1 // зачем: новая линия начинается от текущей точки
+                self.start_sensor_2 = self.current_sensor_2 // зачем: новая линия начинается от текущей точки
+
+                self.target_sensor_1 = new1 // зачем: фиксируем новую цель
+                self.target_sensor_2 = new2 // зачем: фиксируем новую цель
+
+                self.rampTick = 0           // зачем: стартуем переход заново на timerTiks тиков
+            }
+
+            // 3) Двигаемся по прямой start -> target за timerTiks тиков
+            let ticks = max(1, self.timerTiks) // зачем: защита от 0
+            let progress = min(1.0, Double(self.rampTick + 1) / Double(ticks)) // зачем: 0..1
+
+            self.current_sensor_1 = self.start_sensor_1 + (self.target_sensor_1 - self.start_sensor_1) * progress
+            self.current_sensor_2 = self.start_sensor_2 + (self.target_sensor_2 - self.start_sensor_2) * progress
+            // зачем: это и есть точки на прямой между old и new
+
+            // 4) Рисуем промежуточные значения (получится прямая из timerTiks точек)
+            self.addEntry(
+                sens1: Int(self.current_sensor_1.rounded()), // зачем: addEntry ждёт Int — даём ближайшее
+                sens2: Int(self.current_sensor_2.rounded())  // зачем: addEntry ждёт Int — даём ближайшее
+            )
+
+            // 5) Переходим к следующему тику, а когда дошли — фиксируем old = target
+            if self.rampTick < ticks - 1 {
+                self.rampTick += 1 // зачем: двигаемся по линии
+            } else {
+                self.old_reseve_sensor_1_data = Int(self.target_sensor_1) // зачем: old становится равен new ПОСЛЕ timerTiks тиков
+                self.old_reseve_sensor_2_data = Int(self.target_sensor_2) // зачем: old становится равен new ПОСЛЕ timerTiks тиков
+                // rampTick можно не трогать — он и так в конце
+            }
         }
         RunLoop.main.add(t, forMode: .common) // явная привязка
         timer = t

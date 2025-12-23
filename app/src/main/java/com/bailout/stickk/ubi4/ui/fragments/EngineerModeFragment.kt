@@ -74,6 +74,15 @@ class EngineerModeFragment : BaseWidgetsFragment() {
         dataCollectionBtn?.setOnClickListener {
             showDataCollectionDialog()
         }
+
+        val inferenceBtn = view.findViewById<View>(R.id.inferenceBtn)
+        inferenceBtn?.setOnClickListener {
+            val inferenceFragment = InferenceFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, inferenceFragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun startAuthAndDownloadPassport(onSuccess: () -> Unit) {

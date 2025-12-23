@@ -131,6 +131,7 @@ dependencies {
     }
 //    runtimeOnly("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
 //    implementation("com.google.guava:guava:33.1.0-android")
+    implementation("com.google.guava:guava:31.1-android")
 
     // rxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")

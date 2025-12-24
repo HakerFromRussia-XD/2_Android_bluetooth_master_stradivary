@@ -76,6 +76,9 @@ class BLEController() {
     private var firstNotificationRequestFlag = true
     private var onNeedFullInitListener: (() -> Unit)? = null
 
+    @Volatile private var isTransferFlowActive = false
+
+
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
     private var mDisconnected = false
@@ -162,6 +165,7 @@ class BLEController() {
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    isTransferFlowActive = false
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
                         System.err.println("Устройство отключено намеренно, не переподключаемся")
@@ -206,15 +210,14 @@ class BLEController() {
 
                         main.lifecycleScope.launch {
 
-                            UiState.fullInitInProgress.value = false
+                            UiState.startupInProgress.value = true
+                            // сброс прогресса ок, но "готово" НЕ эмитим
                             UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
-                            UiState.widgetsLoadingFlow.tryEmit(Unit)
+                            ensureTransferFlowActive()
                             smartInitWithCrc()
-//                            firstNotificationRequest()
 
                         }
                     }
-
 
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
@@ -236,20 +239,6 @@ class BLEController() {
                 }
             }
         }
-
-
-
-    @Volatile
-    private var initStarted = false
-
-    private suspend fun smartInitWithCrcSafe() {
-        if (initStarted) {
-            Log.d("BLE_INIT", "smartInitWithCrc уже стартовал, пропускаем")
-            return
-        }
-        initStarted = true
-        smartInitWithCrc()
-    }
 
     private suspend fun firstNotificationRequestFull() {
         var attempts = 0
@@ -638,6 +627,22 @@ class BLEController() {
         }
     }
 
+    private suspend fun ensureTransferFlowActive() {
+        if (isTransferFlowActive) return
+
+        // 1) Поднимаем NOTIFY
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+
+        // 2) Запрашиваем стрим
+        main.bleCommandWithQueue(
+            BLECommands.requestTransferFlow(1),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
+
+        isTransferFlowActive = true
+    }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener

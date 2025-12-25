@@ -498,13 +498,13 @@ final class PlotViewCell: UITableViewCell {
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         print("updateThreshold    updateThresholdData 2")
         guard !parameter.data.isEmpty else { return }
-        let thresholds = PlotThresholds.decode(from: parameter.data)
+        let thresholds = SerializationProbe.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
 
         print("updateThreshold    updateThresholdData 3 threshold1 = \(thresholds.threshold1), threshold2 = \(thresholds.threshold2)")
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.openThreshold = thresholds.threshold1
-            self.closeThreshold = thresholds.threshold2
+            self.openThreshold = Int(thresholds.threshold1)
+            self.closeThreshold = Int(thresholds.threshold2)
             self.needsThresholdLayout = true
             self.applyThresholdLayout(animated: true)
         }

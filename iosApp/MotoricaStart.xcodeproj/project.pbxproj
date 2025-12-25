@@ -89,6 +89,11 @@
 		1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */; };
 		1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */; };
 		651DDBA42EF2E2D200199FD8 /* PlotThresholds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */; };
+		651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
+		651DDBA92EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+		651DDBAA2EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+		651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
+		651DDBAE2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
 		652136F62DF82888006AB049 /* SliderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652136F52DF82884006AB049 /* SliderProvider.swift */; };
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
@@ -287,6 +292,9 @@
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ExampleMVVMTests/Info.plist; sourceTree = SOURCE_ROOT; };
 		651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotThresholds.swift; sourceTree = "<group>"; };
+		651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorage.swift; sourceTree = "<group>"; };
+		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
+		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
 		652136F52DF82884006AB049 /* SliderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderProvider.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
@@ -806,6 +814,7 @@
 		1FF3242F2229AC780004E6CC /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				651DDBAB2EFC1F7F00199FD8 /* Storage */,
 				1F474F4A223666700092DB4B /* Repositories */,
 			);
 			path = Interfaces;
@@ -864,6 +873,22 @@
 				651DDBA32EF2E2D000199FD8 /* PlotThresholds.swift */,
 			);
 			path = "Parsers Data";
+			sourceTree = "<group>";
+		};
+		651DDBA52EFC1E0200199FD8 /* KeyValueStorage */ = {
+			isa = PBXGroup;
+			children = (
+				651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */,
+			);
+			path = KeyValueStorage;
+			sourceTree = "<group>";
+		};
+		651DDBAB2EFC1F7F00199FD8 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		652136F42DF82876006AB049 /* Providers */ = {
@@ -937,6 +962,7 @@
 		659A459A2DB9282E002BE2BC /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */,
 				659A459F2DB928C5002BE2BC /* BluetoothRepository.swift */,
 				659A459C2DB92863002BE2BC /* BLEDevice.swift */,
 			);
@@ -1097,6 +1123,7 @@
 		FC7408122165557500FE52A5 /* PersistentStorages */ = {
 			isa = PBXGroup;
 			children = (
+				651DDBA52EFC1E0200199FD8 /* KeyValueStorage */,
 				1FFF12A22439F2AF00937EE4 /* WidgetsResponseStorage */,
 				1FFF12A12439F2A300937EE4 /* WidgetsQueriesStorage */,
 				1FFF12A52439F46000937EE4 /* CoreDataStorage */,
@@ -1358,6 +1385,7 @@
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
 				65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
+				651DDBA92EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */,
 				652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */,
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */,
@@ -1389,6 +1417,7 @@
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
 				655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */,
+				651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */,
 				65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */,
 				65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */,
 				1F1CD656222368CA00B0143C /* AppConfigurations.swift in Sources */,
@@ -1403,6 +1432,7 @@
 				652136F62DF82888006AB049 /* SliderProvider.swift in Sources */,
 				65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */,
 				659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
+				651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
@@ -1418,6 +1448,7 @@
 				1F9034C82306FF2D00DEA4BD /* NetworkConfig.swift in Sources */,
 				1F9034C62306FF2D00DEA4BD /* DataTransferService.swift in Sources */,
 				1F9034C42306FDFE00DEA4BD /* NetworkServiceTests.swift in Sources */,
+				651DDBAA2EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */,
 				1F57F8D323C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F9035412307758D00DEA4BD /* PosterImagesRepositoryMock.swift in Sources */,
 				652E6ABC2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */,
@@ -1425,6 +1456,7 @@
 				1F474F2E22356C7F0092DB4B /* WidgetsRepository.swift in Sources */,
 				1F9034DC2307291800DEA4BD /* FetchRecentWidgetQueriesUseCase.swift in Sources */,
 				1FE49D9B230AEC4F00D1D42E /* WidgetsListViewModel.swift in Sources */,
+				651DDBAE2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */,
 				6C0F72E329CF115F0005020A /* DispatchQueueType.swift in Sources */,
 				1F7C1D19242117910014F011 /* Movie+Stub.swift in Sources */,
 				1F90353A2307716300DEA4BD /* MoviesListViewModelTests.swift in Sources */,

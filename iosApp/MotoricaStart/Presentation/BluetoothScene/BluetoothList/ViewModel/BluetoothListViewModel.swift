@@ -17,21 +17,27 @@ final class BluetoothListViewModel {
     @Published private(set) var devices: [BLEDevice] = [] // список устройств для отображения в ViewController
     @Published var connectedDeviceID: UUID? // ID подключенного устройства
     private var selectedFilterIndex: Int = 0 // сохраняем текущий индекс фильтра
-    private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
+//    private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
     let bleManager : BleManagerKmm
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
     
     private let repository: BluetoothRepository
+    private let keyValueStorage: KeyValueStorage
     private var cancellables = Set<AnyCancellable>()
+    
+    var currentFilterIndex: Int { selectedFilterIndex }
     
     init(
         bleManager: BleManagerKmm,
-        repository: BluetoothRepository = BluetoothRepositoryImpl()
+        repository: BluetoothRepository = BluetoothRepositoryImpl(),
+        keyValueStorage: KeyValueStorage
     ) {
         self.bleManager = bleManager
         self.repository = repository
         // При инициализации читаем сохранённый фильтр
-        selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
+//        selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
+        self.keyValueStorage = keyValueStorage
+        restorePersistedState()
         // Подписываемся на поток найденных устройств
 //        repository.scannedDevicesPublisher
 //            .receive(on: DispatchQueue.main)
@@ -79,6 +85,7 @@ final class BluetoothListViewModel {
                 else {
                     // Если устройства с таким UUID нет, добавляем его в список
                     self.allDevices.append(device)
+                    self.persistDevices()
                 }
                 self.applyFilter(index: self.selectedFilterIndex)
             }
@@ -91,7 +98,12 @@ final class BluetoothListViewModel {
     // метод для фильтрации списка по сегменту
     func applyFilter(index: Int) {
         // Сохраняем состояние фильтра между запусками
-        UserDefaults.standard.set(index, forKey: filterKey)
+//        UserDefaults.standard.set(index, forKey: filterKey)
+        do {
+            try keyValueStorage.save(index, for: BluetoothStorageKeys.selectedFilterIndex)
+        } catch {
+            print("[Storage] failed to persist filter index: \(error)")
+        }
         
         selectedFilterIndex = index
         if index == 0 {
@@ -136,9 +148,27 @@ final class BluetoothListViewModel {
 
         if !allDevices.contains(where: { $0.id == fakeDevice.id }) {
             allDevices.append(fakeDevice)
+            persistDevices()
         }
 
         applyFilter(index: selectedFilterIndex)
         return devices.firstIndex(where: { $0.id == fakeDevice.id })
+    }
+    
+    // MARK: - Private
+    private func persistDevices() {
+        do {
+            try keyValueStorage.save(allDevices, for: BluetoothStorageKeys.devices)
+        } catch {
+            print("[Storage] failed to persist devices: \(error)")
+        }
+    }
+
+    private func restorePersistedState() {
+        selectedFilterIndex = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedFilterIndex)) ?? 0
+        if let storedDevices = try? keyValueStorage.load(for: BluetoothStorageKeys.devices) {
+            allDevices = storedDevices
+        }
+        applyFilter(index: selectedFilterIndex)
     }
 }

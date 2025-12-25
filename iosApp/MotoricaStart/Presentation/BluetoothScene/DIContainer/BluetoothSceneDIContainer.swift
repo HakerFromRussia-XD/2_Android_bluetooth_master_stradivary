@@ -14,6 +14,7 @@ final class BluetoothSceneDIContainer {
     struct Dependencies {
         let bleManager: BleManagerKmm
         let bluetoothRepository: BluetoothRepository
+        let keyValueStorage: KeyValueStorage
     }
 
     private let dependencies: Dependencies
@@ -26,7 +27,8 @@ final class BluetoothSceneDIContainer {
     func makeBluetoothListViewController() -> BluetoothListViewController {
         let vm = BluetoothListViewModel(
             bleManager: dependencies.bleManager,
-            repository: dependencies.bluetoothRepository
+            repository: dependencies.bluetoothRepository,
+            keyValueStorage: dependencies.keyValueStorage
         )
         // Будем грузить из сториборда
         let storyboard = UIStoryboard(name: "BluetoothList", bundle: nil)

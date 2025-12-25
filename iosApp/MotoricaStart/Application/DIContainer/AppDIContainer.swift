@@ -42,10 +42,12 @@ final class AppDIContainer {
         return BleEnvironment.shared.getBleManager()
     }()
     lazy var bluetoothRepository: BluetoothRepository = BluetoothRepositoryImpl()
+    private lazy var keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     func makeBluetoothSceneDIContainer() -> BluetoothSceneDIContainer {
         let deps = BluetoothSceneDIContainer.Dependencies(
             bleManager: bleManager,
-            bluetoothRepository: bluetoothRepository
+            bluetoothRepository: bluetoothRepository,
+            keyValueStorage: keyValueStorage
         )
         return BluetoothSceneDIContainer(dependencies: deps)
     }

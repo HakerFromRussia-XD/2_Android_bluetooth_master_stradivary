@@ -24,10 +24,10 @@ class DeviceCell: UITableViewCell {
 //        contentView.isUserInteractionEnabled = true
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-//        onTap = nil
-    }
+//    override func prepareForReuse() {
+//        super.prepareForReuse()
+////        onTap = nil
+//    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

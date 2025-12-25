@@ -145,10 +145,9 @@ final class PlotViewCell: UITableViewCell {
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(viewModel.widget.parameterID))
         guard !parameter.data.isEmpty else { return }
-        let thresholds = PlotThresholds.decode(from: parameter.data)
-        self.openThreshold = thresholds.threshold1
-        self.closeThreshold = thresholds.threshold2
-//        print("updateThreshold    layoutSubviews   thresholds = \(thresholds)")
+        let thresholds = SerializationObjects.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
+        self.openThreshold = Int(thresholds.threshold1)
+        self.closeThreshold = Int(thresholds.threshold2)
         self.needsThresholdLayout = true
         applyThresholdLayout(animated: true)
     }
@@ -490,17 +489,14 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
-        print("updateThreshold    updateThresholdData 1")
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID == viewModel.widget.parameterID else { return }
 
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
-        print("updateThreshold    updateThresholdData 2")
         guard !parameter.data.isEmpty else { return }
-        let thresholds = SerializationProbe.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
+        let thresholds = SerializationObjects.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
 
-        print("updateThreshold    updateThresholdData 3 threshold1 = \(thresholds.threshold1), threshold2 = \(thresholds.threshold2)")
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.openThreshold = Int(thresholds.threshold1)

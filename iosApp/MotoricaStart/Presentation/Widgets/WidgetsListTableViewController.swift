@@ -4,6 +4,7 @@ import QuartzCore
 
 @objc final class WidgetsListTableViewController: UITableViewController {
     @objc public var savingDeviceName: String = "...."
+    private let gestureNamesStorage = CustomGestureNamesStorage.shared
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -156,13 +157,20 @@ import QuartzCore
     }
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
-        
+        let index = numberGesture - 1
+        gestureNamesStorage.updateName(name, at: index)
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)")
+    }
+//    @objc public func getGestureName(numberGesture: Int) -> String { return "Жест №1"; }
+    @objc public func getGestureName(numberGesture: Int) -> String {
+        let index = numberGesture - 1
+        let names = gestureNamesStorage.loadNames()
+        guard names.indices.contains(index) else { return names.first ?? "" }
+        return names[index]
     }
     @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
     @objc public func getStatusConnection() -> Int { return 0; }
     @objc public func getGestureNum() -> Int { return 0; }
-    @objc public func getGestureName(numberGesture: Int) -> String { return "Жест №1"; }
     @objc public func getUseFestX() -> Int { return 0; }
     @objc public func getHandSide() -> Int { return 0; }
     @objc public func getGestureTable() -> String { return "" }

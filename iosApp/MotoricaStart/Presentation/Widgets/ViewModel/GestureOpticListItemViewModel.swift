@@ -450,22 +450,7 @@ struct SprGestureSelectionOption: Identifiable, Hashable {
 }
 private extension GestureListItemViewModel {
     static func makeGestureNames() -> [String] {
-        return [
-            SharedRes.strings().gesture_1_btn,
-            SharedRes.strings().gesture_2_btn,
-            SharedRes.strings().gesture_3_btn,
-            SharedRes.strings().gesture_4_btn,
-            SharedRes.strings().gesture_5_btn,
-            SharedRes.strings().gesture_6_btn,
-            SharedRes.strings().gesture_7_btn,
-            SharedRes.strings().gesture_8_btn,
-            SharedRes.strings().gesture_9_btn,
-            SharedRes.strings().gesture_10_btn,
-            SharedRes.strings().gesture_11_btn,
-            SharedRes.strings().gesture_12_btn,
-            SharedRes.strings().gesture_13_btn,
-            SharedRes.strings().gesture_14_btn
-        ].map { $0.desc().localized() }
+        CustomGestureNamesStorage.shared.loadNames()
     }
 }
 private enum ParameterCode {

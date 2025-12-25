@@ -26,7 +26,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     AAPLOpenGLView *_view;
     AAPLOpenGLRenderer *_openGLRenderer;
     WidgetsListTableViewController *gestureVC;
-//    SampleGattAttributes *sampleGattAtributes;
     PlatformGLContext *_context;
     GLuint _defaultFBOName;
     
@@ -78,9 +77,8 @@ Implementation of the cross-platform view controller and cross-platform view tha
     [super viewDidLoad];
     NSLog(@"Отсюда мы начинаем исполнение программы");
     gestureVC = [[WidgetsListTableViewController alloc]init];
-//    sampleGattAtributes = [[SampleGattAttributes alloc]init];
-    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
-    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
+//    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
+//    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
     [gestureVC savingDeviceName];
 //    if ([gestureVC getStatusConnection] == 1) {
 //        statusConnection.image = connectStatus;

@@ -149,7 +149,7 @@
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sprGesturesSelectBtn">
+        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -182,7 +182,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -1246,7 +1246,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV"
+        app:layout_constraintTop_toBottomOf="@+id/activeGestureNameCl"
         app:layout_constraintVertical_bias="1.0">
 
 
@@ -1344,11 +1344,11 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
+        app:layout_constraintTop_toBottomOf="@+id/activeGestureNameCl">
 
 
         <com.woxthebox.draglistview.DragListView
@@ -1356,7 +1356,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
             android:visibility="visible"

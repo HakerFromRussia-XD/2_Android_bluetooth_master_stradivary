@@ -38,6 +38,11 @@ class OneButtonDelegateAdapter(
                     Log.d("TestButton", "$it")
                     Log.d("TestButton", "deviceId = $addressDevice")
                 }
+                Log.d(
+                    "ONE_BUTTON",
+                    "BIND ESTRUCT: addr=$addressDevice pid=$parameterID " +
+                            "click=$clickCommand pressed=$pressedCommand released=$releasedCommand"
+                )
             }
             is CommandParameterWidgetSStruct -> {
                 addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
@@ -45,6 +50,13 @@ class OneButtonDelegateAdapter(
                 clickCommand = widget.clickCommand
                 pressedCommand = widget.pressedCommand
                 releasedCommand = widget.releasedCommand
+
+                Log.d(
+                    "ONE_BUTTON",
+                    "BIND SSTRUCT: addr=$addressDevice pid=$parameterID " +
+                            "click=$clickCommand pressed=$pressedCommand released=$releasedCommand"
+                )
+
             }
         }
         widget1Button.setOnTouchListener(View.OnTouchListener { _, motionEvent ->

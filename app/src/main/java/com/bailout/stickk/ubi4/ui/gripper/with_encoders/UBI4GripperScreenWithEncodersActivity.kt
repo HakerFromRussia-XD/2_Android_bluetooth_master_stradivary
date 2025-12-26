@@ -33,10 +33,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.jakewharton.rxbinding2.view.RxView
@@ -117,6 +117,9 @@ class UBI4GripperScreenWithEncodersActivity
     private enum class States(val number: Int) {
         GESTURE_STATE_OPEN  (0),
         GESTURE_STATE_CLOSE (1),
+        GESTURE_OPEN_DELAY(128),
+        GESTURE_CLOSE_DELAY(129),
+        GESTURE_SAVE_BUTTON(255)
     }
 
     private var score1 = 0
@@ -154,8 +157,8 @@ class UBI4GripperScreenWithEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
-        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
-        gestureNumber = mSettings!!.getInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, 0)
+        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
 
 
         angleFinger1 = 0
@@ -179,6 +182,11 @@ class UBI4GripperScreenWithEncodersActivity
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
 
 
+
+        //TODO следить за этой строкой если - не передаем дату в кэш
+        ParameterProvider.getParameter(deviceAddress, parameterID).data = ""
+
+
         lifecycleScope.launchWhenStarted {
             BLEState.state.filter { it == BLEState.State.READY }
                 .first()
@@ -196,9 +204,9 @@ class UBI4GripperScreenWithEncodersActivity
         RxUpdateMainEventUbi4.getInstance().uiGestureSettingsObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { dataCode ->
-                Log.d("uiGestureSettingsObservable", "rx dataCode = $dataCode")
-                val parameter = ParameterProvider.getParameterDeprecated(dataCode)
+            .subscribe { parameterRef ->
+//                Log.d("uiGestureSettingsObservable", "rx dataCode = $dataCode")
+                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
                 Log.d("uiGestureSettingsObservable", "data = ${parameter.data}")
                 val gestureSettings = Json.decodeFromString<Gesture>("\"${parameter.data}\"")
                 loadGestureState(gestureSettings)
@@ -217,10 +225,10 @@ class UBI4GripperScreenWithEncodersActivity
                     gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
 
 
-                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                     for (i in 0 until gestureNameList.size) {
-                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                        mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
                     editMode = false
 
@@ -237,6 +245,7 @@ class UBI4GripperScreenWithEncodersActivity
                     editMode = true
                 }
             }
+
         RxUpdateMainEventUbi4.getInstance().fingerAngleObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -279,12 +288,14 @@ class UBI4GripperScreenWithEncodersActivity
         RxView.clicks(findViewById(R.id.gripperSaveBtn))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                gestureState = States.GESTURE_SAVE_BUTTON.number
+                compileBLEMassage()
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
-                    val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "text")
+                    val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
                     System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                     for (i in 0 until gestureNameList.size) {
-                        mySaveText(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                        mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
                 }
                 finish()
@@ -776,11 +787,11 @@ class UBI4GripperScreenWithEncodersActivity
     }
     private fun loadGestureNameList() {
         val text = "load not work"
-        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, text)
+        val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, text)
         gestureNameList.clear()
-        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
+        for (i in 0 until PreferenceKeysUbi4.NUM_GESTURES) {
             gestureNameList.add(
-                mSettings!!.getString((PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i), text).toString()
+                mSettings!!.getString((PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i), text).toString()
             )
         }
     }
@@ -796,10 +807,8 @@ private fun initSelector() {
             isOpenMode = true
             updateSelectorUI(true)
             // send OPEN command
-            gestureState = States.GESTURE_STATE_OPEN.number
-            gestureState += 128
+            gestureState = States.GESTURE_OPEN_DELAY.number
             compileBLEMassage()
-            gestureState -= 128
         }
     }
     binding.gestureCloseBtn.setOnClickListener {
@@ -811,10 +820,9 @@ private fun initSelector() {
             isOpenMode = false
             updateSelectorUI(false)
             // send CLOSE command
-            gestureState = States.GESTURE_STATE_CLOSE.number
-            gestureState += 128
+            gestureState = States.GESTURE_CLOSE_DELAY.number
             compileBLEMassage()
-            gestureState -= 128
+
         }
     }
 }

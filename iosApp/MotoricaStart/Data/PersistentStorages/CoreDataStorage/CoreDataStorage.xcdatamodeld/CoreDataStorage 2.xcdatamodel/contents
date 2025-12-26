@@ -5,13 +5,10 @@
         <attribute name="query" optional="YES" attributeType="String"/>
     </entity>
     <entity name="WidgetResponseEntity" representedClassName="WidgetResponseEntity" syncable="YES" codeGenerationType="class">
-        <attribute name="genre" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="isAd" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="overview" optional="YES" attributeType="String"/>
-        <attribute name="posterPath" optional="YES" attributeType="String"/>
-        <attribute name="releaseDate" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="widgetData" optional="YES" attributeType="Binary"/>
+        <attribute name="widgetType" optional="YES" attributeType="String"/>
         <relationship name="widgetsResponse" maxCount="1" deletionRule="Nullify" destinationEntity="WidgetsResponseEntity" inverseName="widgets" inverseEntity="WidgetsResponseEntity"/>
     </entity>
     <entity name="WidgetsRequestEntity" representedClassName="WidgetsRequestEntity" syncable="YES" codeGenerationType="class">

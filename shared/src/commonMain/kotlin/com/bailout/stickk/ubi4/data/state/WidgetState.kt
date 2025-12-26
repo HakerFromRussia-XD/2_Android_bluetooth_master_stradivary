@@ -4,10 +4,10 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import kotlinx.coroutines.channels.BufferOverflow
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlin.concurrent.Volatile
 import kotlin.properties.Delegates
 
 object WidgetState {
@@ -20,37 +20,41 @@ object WidgetState {
     var selectGestureModeFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
     var spinnerFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
-    var stateOpticTrainingFlow: MutableStateFlow<PreferenceKeysUBI4.TrainingModelState> by Delegates.notNull()
+    var stateOpticTrainingFlow: MutableStateFlow<PreferenceKeysUbi4.TrainingModelState> by Delegates.notNull()
     var rotationGroupGestures: ArrayList<Gesture> by Delegates.notNull()
     var bindingGroupGestures: ArrayList<Pair<Int, Int>> by Delegates.notNull()
     var plotArray by Delegates.notNull<ArrayList<Int>>()
     var bmsStatusFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
     var batteryPercentFlow: MutableSharedFlow<Int> by Delegates.notNull()
     var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+    val activeGestureState = MutableStateFlow<Int?>(null)
+    val selectGestureModeState = MutableStateFlow(false)
+
+    @Volatile
+    var dbSnapshotAppliedWithCrc: Boolean = false
 
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()
 
     init {
-        plotArrayFlow = MutableStateFlow(PlotParameterRef(0, 0, arrayListOf()))
-        rotationGroupFlow = MutableSharedFlow()
+        plotArrayFlow = MutableStateFlow( PlotParameterRef(0, 0, arrayListOf()))
+        rotationGroupFlow = MutableSharedFlow(replay = 1)
         plotArray = arrayListOf()
         slidersFlow = MutableSharedFlow()
         thresholdFlow = MutableSharedFlow()
-        widgetsMergeEventFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
-        bindingGroupFlow = MutableSharedFlow()
-        activeGestureFlow = MutableSharedFlow(replay = 1)
-        selectGestureModeFlow = MutableSharedFlow(replay = 1)
+        bindingGroupFlow = MutableSharedFlow(replay = 1)
+        activeGestureFlow = MutableSharedFlow()
+        selectGestureModeFlow = MutableSharedFlow()
         spinnerFlow = MutableSharedFlow()
-        stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
+        stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUbi4.TrainingModelState.BASE)
         rotationGroupGestures = arrayListOf()
         bindingGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
         bmsStatusFlow = MutableSharedFlow()
         batteryPercentFlow = MutableSharedFlow(replay = 1)
-
+        widgetsMergeEventFlow = MutableSharedFlow()
     }
 }

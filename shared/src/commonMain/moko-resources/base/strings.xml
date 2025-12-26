@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <resources>
-    <string name="choose_the_size_of_the_prostheses">…</string>
     <string name="app_name">Motorica Start</string>
     <string name="helloWorld">open</string>
     <string name="helloWorld2">close</string>
@@ -68,6 +68,7 @@
     <string name="single_channel_by_sensor_2">single channel by sensor 2</string>
     <string name="advanced_settings">Advanced settings</string>
     <string name="ok">OK</string>
+    <string name="cancel" tools:ignore="ButtonCase">cancel</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>
     <string name="number_of_channel">Number of channel:</string>
@@ -141,6 +142,7 @@
     <string name="sensor_settings">sensor settings</string>
     <string name="sensor_settingss">Sensor settings</string>
     <string name="special_settings">Special settings</string>
+    <string name="service_settings">Service settings</string>
     <string name="driver_0_00v">driver: 0.00v</string>
     <string name="driver">"driver: "</string>
     <string name="bms_0_00v">bms: 0.00v</string>
@@ -226,7 +228,7 @@
     <string name="pre_status_5_finger">screw pulled</string>
     <string name="pre_status_6_finger">calibrated</string>
     <string name="pre_status_num">status</string>
-    <string name="status_finger">\nencoder steps: %d \ncurrent: %d mA</string>
+    <string name="status_finger">\nencoder steps: %1$d \ncurrent: %2$d mA</string>
     <string name="serial_number">set serial number</string>
     <string name="changing_the_finger_delay_time">changing the finger delay time</string>
     <string name="finger_delay">finger delay</string>
@@ -246,6 +248,7 @@
     <string name="hold_to_lock_time">hold to lock time</string>
     <string name="debug_screen">debug screen</string>
     <string name="scale">prostheses size:</string>
+    <string name="choose_the_size_of_the_prostheses">Choose the size of the prostheses</string>
     <string name="yes">yes</string>
     <string name="the_size_of_your_prostheses">The size of your prostheses</string>
     <string name="amplitude">amplitude</string>
@@ -456,7 +459,7 @@
     <string name="switch_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Switch activates the menu function to change the start delays of the fingers</string>
     <string name="a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set">A button appears in the Gesture Configurator that allows you to change the start delay timings of the fingers of the grip being set.</string>
     <string name="switch_to_deactivate_the_smart_connection_function">Switch to deactivate the «smart connection» function</string>
-    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prostheses_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices">If the function is active, and it is active «by default», then when you run the application again, the scanning screen analyzes all the scanned devices and when the last device to which the connection was made is found, it automatically connects to it. This makes the connection process faster (about a second) and easier for most users (those with a single prostheses). If the function is disabled, the user is on the device selection screen until a specific device is selected. The feature should be turned off for couples because it is important for them to choose which prostheses to connect to on their own every time. It is also unnecessary for those who frequently connect to different devices.</string>
+    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected">If the function is active, and it is active «by default», then when you run the application again, the scanning screen analyzes all the scanned devices and when the last device to which the connection was made is found, it automatically connects to it. This makes the connection process faster (about a second) and easier for most users (those with a single prostheses). If the function is disabled, the user is on the device selection screen until a specific device is selected. The feature should be turned off for couples because it is important for them to choose which prostheses to connect to on their own every time. It is also unnecessary for those who frequently connect to different devices.</string>
     <string name="reset_button_to_factory_default_settings">Reset button to factory default settings</string>
     <string name="after_pressing_it_all_the_parameters_of_the_prostheses_return_to_the_by_default_state">After pressing it, all the parameters of the prostheses return to the «by default» state.</string>
     <string name="button_to_start_calibration">Button to start calibration</string>
@@ -546,7 +549,7 @@
     <string name="palm_closing">Closing palm</string>
     <string name="ok_pinch">Ok/Pinch Gesture</string>
     <string name="gesture_key">Gesture Key</string>
-    <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
+    <string name="pistol_pointer_gesture">Pointer Gesture</string>
     <string name="flexion">Flexion</string>
     <string name="extension">Extension</string>
     <string name="adduction">Adduction</string>
@@ -578,12 +581,13 @@
     <string name="spppr_is_saving">SPPPR is saving</string>
     <string name="base_line">Baseline</string>
     <string name="no_saved_files">No saved files</string>
-    <string name="select_training_file">Select training file</string>
+    <string name="select_training_file"> Select training file</string>
     <string name="show_files">Show Files</string>
-    <string name="model_training_in_progress_please_wait">Model training in progress, please wait...</string>
+    <string name="model_training_in_progress_please_wait">SPPPR training in progress, please wait...</string>
     <string name="wait_until_the_model_file_is_created">Wait until the model file is created</string>
     <string name="the_model_file_is_saved_to_the_device_memory_please_wait">The model file is saved to the device memory, please wait...</string>
     <string name="file_is_being_downloaded">File is being downloaded</string>
+    <string name="firmware_is_being_downloaded">Firmware is being downloaded</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth connection is disabled</string>
     <string name="there_is_no_bluetooth_connection_check_the_connection">There is no Bluetooth connection. Check the connection.</string>
@@ -620,8 +624,9 @@
     <string name="remaining_gestures_count_placeholder">Gestures left: 0</string>
     <string name="loading_error">Loading error</string>
     <string name="the_file_was_not_successfully_downloaded">The file was not successfully downloaded to the prosthesis. Please try again.</string>
+    <string name="the_firmware_file_was_not_successfully_downloaded">The  firmware file was not successfully downloaded to the prosthesis. Please try again.</string>
     <string name="data_collection">Data collection</string>
-    <string name="active_gesture_is">Active gesture: %1$s</string>
+    <string name="active_gesture_is" formatted="true">Active gesture: %1$s</string>
     <string name="prosthetic_settings">Prosthetic settings</string>
     <string name="mobile_settings">Mobile Settings</string>
     <string name="auto_login">Auto login</string>
@@ -631,6 +636,8 @@
     <string name="organize_the_gestures">Organize the gestures</string>
     <string name="inference">Inference</string>
     <string name="select_gesture_from_big_letter">Select gesture</string>
+    <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
+
 
 
     <string-array name="numbers">

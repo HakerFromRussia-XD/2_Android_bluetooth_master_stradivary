@@ -3,30 +3,30 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.WRITE_FW_COMMAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.INICIALIZE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DATA_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DATA_TRANSFER_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DEVICE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.WRITE_FW_COMMAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_DATA
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.PRELOAD_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.CALCULATE_CRC
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.COMPLETE_UPDATE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.CrcCalc
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -90,6 +90,27 @@ object BLECommands {
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         header[5] = CrcCalc.crcCalc(data)
+        return header + data
+    }
+
+    fun requestSystemCrc(): ByteArray {
+        val header = byteArrayOf(
+            0x20,
+            DEVICE_INFORMATION.number,
+            0x00,
+            0x00, // длина payload → ниже
+            0x00,
+            0x00,
+            0x00
+        )
+
+        val data = byteArrayOf(
+            PreferenceKeysUbi4.DeviceInformationCommand.GET_SYSTEM_CRC.number
+        )
+
+        header[3] = data.size.toByte()
+        header[4] = (data.size ushr 8).toByte()
+
         return header + data
     }
 
@@ -437,7 +458,7 @@ object BLECommands {
         )
 
         val data = byteArrayOf(
-            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number
+            PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number
         ) + fwDesc
 
         val len = data.size
@@ -462,6 +483,7 @@ object BLECommands {
         header[4] = (data.size / 256).toByte()
         return header + data
     }
+
     fun requestBootloaderStatus(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
@@ -472,11 +494,12 @@ object BLECommands {
             0x00,
             deviceAddress
         )
-        val data = byteArrayOf(PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number)
+        val data = byteArrayOf(PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number)
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
         return header + data
     }
+
     fun sendLoadNewFw(deviceAddress: Byte, offset: Int, chunk: ByteArray): ByteArray {
         val header = byteArrayOf(
             0xA0.toByte(),
@@ -494,7 +517,7 @@ object BLECommands {
             ((offset shr 24) and 0xFF).toByte()
         )
         val data = byteArrayOf(
-            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number
+            PreferenceKeysUbi4.FirmwareManagerCommand.LOAD_NEW_FW.number
         ) + offsetBytes + chunk
         header[3] = ( data.size and 0xFF).toByte()
         header[4] = (( data.size / 256) and 0xFF).toByte()
@@ -697,7 +720,45 @@ object BLECommands {
         return header + data
     }
 
+    fun requestMLModelSettings(deviceAddress: Int): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            DATA_MANAGER.number,
+            0x00,
+            0x00, // будет установлено ниже
+            0x00,
+            0x00,
+            deviceAddress.toByte()
+        )
+        val data = byteArrayOf(
+            READ_DATA.number,
+            PreferenceKeysUbi4.DataTableSlotsCode.DTCE_ML_MODEL_SETTINGS.number
+        )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
 
+        return header + data
+    }
+
+    fun requestOpticsBoardSettings(deviceAddress: Int): ByteArray {
+        val header = byteArrayOf(
+            0xA0.toByte(),
+            DATA_MANAGER.number,
+            0x00,
+            0x00, // будет установлено ниже
+            0x00,
+            0x00,
+            deviceAddress.toByte()
+        )
+        val data = byteArrayOf(
+            READ_DATA.number,
+            PreferenceKeysUbi4.DataTableSlotsCode.DTCE_BOARD_INFO_TYPE.number
+        )
+        header[3] = data.size.toByte()
+        header[4] = (data.size / 256).toByte()
+
+        return header + data
+    }
 
     fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
         val code: Byte = (128 + gestureWithAddress.parameterID).toByte()

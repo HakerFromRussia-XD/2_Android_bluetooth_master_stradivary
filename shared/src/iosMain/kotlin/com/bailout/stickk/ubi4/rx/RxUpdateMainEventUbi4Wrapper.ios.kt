@@ -4,8 +4,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAn
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 
 actual object RxUpdateMainEventUbi4Wrapper {
-    actual fun updateUiGestureSettings(data: Int) {
-        println("iOS: updateUiGestureSettings: data=$data")
+    actual fun updateUiGestureSettings(parameterRef: ParameterRef) {
+//        println("iOS: updateUiGestureSettings: data=$data")
     }
 
     actual fun updateUiRotationGroup(parameterRef: ParameterRef) {

@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
@@ -24,11 +23,11 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
@@ -55,6 +54,7 @@ class GesturesDelegateAdapter(
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
+    RotationGroupItemAdapter.OnSelectClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
     private val ANIMATION_DURATION = 200
@@ -75,14 +75,12 @@ class GesturesDelegateAdapter(
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
     private var gestureCastomBtns: ArrayList<View> = ArrayList()
 
-    private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
     // Создаем единственный CoroutineScope с диспетчером, который будет использоваться для потока
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
-        collectionGesturesProvider = CollectionGesturesProvider(AndroidResourceProvider(root.context))
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
 
@@ -180,16 +178,16 @@ class GesturesDelegateAdapter(
                     .get(this) as? ImageView
             gestureCollectionBtn?.let { gestureCollectionBtns.add(it) }
             if (i <= 10) {
-                gestureCollectionTitle?.text = collectionGesturesProvider.getCollectionGestures()[i].gestureName
-                gestureCollectionImage?.setImageResource(collectionGesturesProvider.getCollectionGestures()[i].gestureImage)
+                gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
                 gestureCollectionBtn?.setOnClickListener {
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i + 1} clicked")
                     setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i + 1)
                 }
             } else {
-                gestureCollectionTitle?.text = collectionGesturesProvider.getCollectionGestures()[i + 1].gestureName
-                gestureCollectionImage?.setImageResource(collectionGesturesProvider.getCollectionGestures()[i + 1].gestureImage)
+                gestureCollectionTitle?.text = getCollectionGestures()[i + 1].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i + 1].gestureImage)
                 gestureCollectionBtn?.setOnClickListener {
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i + 2} clicked")
                     setActiveGesture(gestureCollectionBtn)
@@ -221,7 +219,7 @@ class GesturesDelegateAdapter(
                     ),
                     (0x40).toInt() + i
                 )
-                main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
+                main.saveInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
 
@@ -296,7 +294,7 @@ class GesturesDelegateAdapter(
                     rotationGroupGestures.clear()
                     rotationGroupList.forEach { item ->
                         if (item.first != 0)
-                            rotationGroupGestures.add(collectionGesturesProvider.getGesture(item.first))
+                            rotationGroupGestures.add(getGesture(item.first))
                     }
 
                     showIntroduction()
@@ -321,7 +319,7 @@ class GesturesDelegateAdapter(
     private fun synchronizeRotationGroup() {
         rotationGroupGestures.clear()
         itemsGesturesRotationArray?.forEach {
-            rotationGroupGestures.add(collectionGesturesProvider.getGesture(it.second.split("™")[1].toInt()))
+            rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
         }
     }
 
@@ -355,7 +353,9 @@ class GesturesDelegateAdapter(
                 R.id.swapIv,
                 false,
                 this,
+                this,
                 this
+
             )
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
         mRotationGroupDragLv?.setCanDragHorizontally(false)
@@ -492,5 +492,22 @@ class GesturesDelegateAdapter(
     fun onDestroy() {
         Log.d("LifeCycele", "stopCollectingGestureFlow")
         scope.cancel()
+    }
+
+    override fun onRotationGestureClick(
+        position: Int,
+        gestureName: String?,
+        gestureId: Int
+    ) {
+        if (gestureId == 0) return
+
+        Log.d(
+            "GesturesDelegateAdapter",
+            "Rotation item clicked: pos=$position, name=$gestureName, id=$gestureId"
+        )
+
+        // Просто шлём команду активного жеста
+        onSendBLEActiveGesture(gestureId)
+
     }
 }

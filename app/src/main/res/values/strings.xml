@@ -247,7 +247,7 @@
     <string name="hold_to_lock_time">hold to lock time</string>
     <string name="debug_screen">debug screen</string>
     <string name="scale">prostheses size:</string>
-    <string name="сhoose_the_size_of_the_prostheses">Сhoose the size of the prostheses</string>
+    <string name="choose_the_size_of_the_prostheses">Сhoose the size of the prostheses</string>
     <string name="yes">yes</string>
     <string name="the_size_of_your_prostheses">The size of your prostheses</string>
     <string name="amplitude">amplitude</string>
@@ -548,7 +548,6 @@
     <string name="palm_closing">Closing palm</string>
     <string name="ok_pinch">Ok/Pinch Gesture</string>
     <string name="gesture_key">Gesture Key</string>
-    <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
     <string name="flexion">Flexion</string>
     <string name="extension">Extension</string>
     <string name="adduction">Adduction</string>

@@ -24,17 +24,16 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers.Default
@@ -53,14 +52,12 @@ class GesturesFragment : BaseWidgetsFragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private val display = 0
     private var mSettings: SharedPreferences? = null
-    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
-        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
-    }
+
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
-        mSettings = context?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = context?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
         Log.d("LifeCycele", "onCreateView")
 
@@ -75,6 +72,14 @@ class GesturesFragment : BaseWidgetsFragment() {
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.homeRv.layoutManager = LinearLayoutManager(context)
+        binding.homeRv.adapter = adapterWidgets
+
+        val initialData = mDataFactory.prepareData(display)
+        Log.d("GesturesFragment", "initialData size=${initialData.size}")
+        binding.homeRv.post {
+            adapterWidgets.swapData(initialData)
+        }
 
         RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable
             .compose(main?.bindToLifecycle())
@@ -89,23 +94,25 @@ class GesturesFragment : BaseWidgetsFragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
-        binding.homeRv.layoutManager = LinearLayoutManager(context)
-        binding.homeRv.adapter = adapterWidgets
+
         return binding.root
     }
 
     private fun widgetListUpdater() {
-        viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect {
-                    main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        binding.homeRv.post {
-                            adapterWidgets.swapData(mDataFactory.prepareData(display))
-                        }
-                        binding.refreshLayout.setRefreshing(false)
+        viewLifecycleOwner.lifecycleScope.launch { // по умолчанию Main.immediate
+            updateFlow.collect {
+                val data = mDataFactory.prepareData(display)
+                Log.d("GesturesFragment", "updateFlow event, data size=${data.size}")
+
+                if (binding.homeRv.isComputingLayout) {
+                    binding.homeRv.post {
+                        adapterWidgets.swapData(data)
                     }
+                } else {
+                    adapterWidgets.swapData(data)
                 }
+
+                binding.refreshLayout.setRefreshing(false)
             }
         }
     }
@@ -141,7 +148,7 @@ class GesturesFragment : BaseWidgetsFragment() {
 
 
         val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
-            ArrayList(collectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+            ArrayList(getCollectionGestures().map { DialogCollectionGestureItem(it) })
 
         // установка галочек в списке соответственно текущей группе ротации
         for (dialogGesture in dialogCollectionGestures) {

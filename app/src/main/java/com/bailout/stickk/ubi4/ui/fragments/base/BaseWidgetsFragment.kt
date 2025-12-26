@@ -34,22 +34,27 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
-import com.bailout.stickk.ubi4.resources.AndroidResourceProvider
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.ui.fragments.EngineerModeFragment
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import kotlinx.coroutines.launch
 import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -59,9 +64,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
-    private val collectionGesturesProvider: CollectionGesturesProvider by lazy {
-        CollectionGesturesProvider(AndroidResourceProvider(requireContext()))
-    }
+
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
@@ -133,13 +136,11 @@ abstract class BaseWidgetsFragment : Fragment() {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
                     // Получаем ссылку на текущий SprTrainingFragment
                     val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
-                    spr.startAuthAndDownloadPassport{
-                        showConfirmTrainingDialog {
-                            navigator().showMotionTrainingScreen {
-                                parentFragmentManager.beginTransaction()
-                                    .replace(R.id.fragmentContainer, spr)
-                                    .commit()
-                            }
+                    spr.showConfirmTrainingDialogWithLoader {
+                        navigator().showMotionTrainingScreen {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.fragmentContainer, spr)
+                                .commit()
                         }
                     }
 
@@ -233,7 +234,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
         val sprGestureDialogList: ArrayList<SprDialogCollectionGestureItem> =
             ArrayList(
-                SprGestureItemsProvider(AndroidResourceProvider(requireContext())).getSprGestureItemList()
+                SprGestureItemsProvider(requireContext()).getSprGestureItemList()
                     .map { SprDialogCollectionGestureItem(it) })
 
         for (sprDialogCollectionGestureItem in sprGestureDialogList) {
@@ -318,7 +319,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         titleText.setText(R.string.assign_gesture)
 
         val collectionGestureDialogList: ArrayList<DialogCollectionGestureItem> = ArrayList(
-            collectionGesturesProvider.getCollectionGestures().map { gesture ->
+            getCollectionGestures().map { gesture ->
                 DialogCollectionGestureItem(
                     gesture = gesture,
                     check = (gesture.gestureId == bindingItem.second)
@@ -419,8 +420,13 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     open fun refreshWidgetsList() {
+        UiState.fullInitInProgress.value = true
+        main?.observeSyncProgress()
+        UiState.widgetsLoadingFlow.tryEmit(Unit)
+        UiState.widgetsLoadingProgressFlow.tryEmit(WidgetsLoadingProgress(1, 0))
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
+        adapterWidgets.swapData(emptyList())
         listWidgets.clear()
         transmitter().bleCommandWithQueue(BLECommands.requestInicializeInformation(), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
@@ -466,10 +472,20 @@ abstract class BaseWidgetsFragment : Fragment() {
         Log.d("sendSwitcherState", "addressDevice: $addressDevice, parameterID: $parameterID, switchState: $switchState")
         transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
+        val packet = BLECommands.sendSliderCommand(addressDevice, parameterID, progress)
+        platformLog("BLE_SEND_CALLSITE",
+            "from Fragment → addr=$addressDevice pid=$parameterID progress=$progress hex=${EncodeByteToHex.bytesToHexString(packet)}")
         Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+
+
+    protected open fun syncWidgetsFromDb() {
+
+    }
+
     open fun clearSwitcherCache() {
         Log.d("clearSwitcherCache", "clearSwitcherCache run")
         onClearSwitcherCache.invoke()
@@ -477,12 +493,12 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     //Others fun
     private fun loadGestureNameList() {
-        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)
+        val macKey = navigator().getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4)
         gestureNameList.clear()
-        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
-            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+        for (i in 0 until PreferenceKeysUbi4.NUM_GESTURES) {
+            System.err.println("loadGestureNameList: " + PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(
-                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+                navigator().getString(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             )
         }
     }

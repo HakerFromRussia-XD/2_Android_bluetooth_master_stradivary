@@ -1,0 +1,21 @@
+/* 
+  Localizable.strings
+  App
+
+  Created by Oleh Kudinov on 01.12.19.
+  
+*/
+
+"Gestures" = "Жесты";
+"Sensors" = "Датчики";
+"Training" = "Обучение";
+"Special settings" = "Спецнастройки";
+"Service settings" = "Сервисные настройки";
+
+"Search results" = "Поиск результата";
+"Release Date" = "Дата выхода";
+"To be announced" = "Аннотация";
+"Error" = "Ошибка";
+"No internet connection" = "Нет сети";
+"Failed loading widgets" = "Ошибка загрузки виджетов";
+"Search Widgets" = "Поиск виджетов";

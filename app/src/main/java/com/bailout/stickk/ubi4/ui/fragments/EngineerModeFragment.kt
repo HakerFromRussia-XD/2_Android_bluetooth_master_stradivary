@@ -37,7 +37,7 @@ import com.bailout.stickk.ubi4.data.network.BaseUrlUtilsUBI4.API_KEY
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
 import com.bailout.stickk.ubi4.data.network.sharedFile
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment.Companion.PASSWORD_DEFAULT
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.TrainingUploadManager
@@ -312,16 +312,16 @@ class EngineerModeFragment : BaseWidgetsFragment() {
 
     private suspend fun uploadPassport() {
         val repo = Ubi4TrainingRepository(Ubi4RequestsApi())
-        val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUBI4.NAME, MODE_PRIVATE) }
-        var token = prefs.getString(PreferenceKeysUBI4.KEY_TOKEN, "") ?: ""
-        var serial = prefs.getString(PreferenceKeysUBI4.KEY_SERIAL, "") ?: ""
+        val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, MODE_PRIVATE) }
+        var token = prefs.getString(PreferenceKeysUbi4.KEY_TOKEN, "") ?: ""
+        var serial = prefs.getString(PreferenceKeysUbi4.KEY_SERIAL, "") ?: ""
 
         if (token.isBlank() || serial.isBlank()) {
             serial = main.getCurrentSerial() ?: ""
             token = repo.fetchTokenBySerial(API_KEY, serial, PASSWORD_DEFAULT)
             prefs.edit()
-                .putString(PreferenceKeysUBI4.KEY_TOKEN, token)
-                .putString(PreferenceKeysUBI4.KEY_SERIAL, serial)
+                .putString(PreferenceKeysUbi4.KEY_TOKEN, token)
+                .putString(PreferenceKeysUbi4.KEY_SERIAL, serial)
                 .apply()
         }
         try {

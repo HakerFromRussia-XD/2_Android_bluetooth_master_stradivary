@@ -10,7 +10,12 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.local.BoardInfoStruct
 import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persisListWidgets
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllMasterParams
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistAllSubDevices
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence.persistParamUpdate
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
@@ -18,8 +23,13 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
+import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.bmsStatusFlow
@@ -27,6 +37,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
@@ -53,20 +64,28 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
+import com.bailout.stickk.ubi4.data.state.MLModelSettingsState
+import com.bailout.stickk.ubi4.data.local.MLModelSettings
+import com.bailout.stickk.ubi4.data.state.BoardInfoState
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.AdditionalParameterInfoType
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
+import com.bailout.stickk.ubi4.utility.BleHexUtils
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -75,11 +94,16 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
+import io.ktor.util.date.getTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
 
@@ -95,6 +119,8 @@ class BLEParser(
     private var subDeviceChankParametersCounter = 0
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
+    private val fwResponseReceived = mutableMapOf<Int, Boolean>()
+    private var widgetsProgressTotal: Int = 0
 
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
@@ -115,7 +141,9 @@ class BLEParser(
                 if (data.size > 3) {
                     castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4]) * 256
                 } else 0
+
             val CRC = if (data.size > 5) castUnsignedCharToInt(data[5]) else 0
+
             val deviceAddress = if (data.size > 6) castUnsignedCharToInt(data[6]) else 0
             val packageCodeRequest = if (data.size > 7) data[7] else 0
             val ID = if (data.size > 8) castUnsignedCharToInt(data[8]) else 0
@@ -146,7 +174,7 @@ class BLEParser(
                 // парсим команды
                 when (codeRequest) {
                     (0x00).toByte() -> {
-                        platformLog("BLEParser", "TEST parser DEFOULT")
+                        platformLog("BLEParser", "TEST parser DEFAULT")
                     }
                     BaseCommands.DEVICE_INFORMATION.number -> {
                         platformLog("BLEParser", "TEST parser DEVICE_INFORMATION (${packageCodeRequest})")
@@ -174,50 +202,50 @@ class BLEParser(
                                 .uppercase()
                         }
 
-                       platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
+                        platformLog("FW_FLOW_PARSER ", "NOTIFY ← cmd=0x$cmdHex rawData=[$rawHex]")
                         when (packageCodeRequest) {
-                            PreferenceKeysUBI4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 startSystemUpdateFlow.tryEmit(statusCode)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 1) читаем первый payload-байт (или 0, если пришло меньше)
                                 val statusByte = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // 2) пробуем найти в enum, иначе дефолтим на MAIN_APP
-                                val runType = PreferenceKeysUBI4.RunProgramType.values()
+                                val runType = PreferenceKeysUbi4.RunProgramType.values()
                                     .firstOrNull { it.code == statusByte }
-                                    ?: PreferenceKeysUBI4.RunProgramType.MAIN_APP
+                                    ?: PreferenceKeysUbi4.RunProgramType.MAIN_APP
                                 platformLog("FW_FLOW", "GET_RUN_PROGRAM_TYPE ← addr=$deviceAddress  runType=$runType")
                                 runProgramTypeFlow.tryEmit(Pair(deviceAddress, runType))
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_STATUS.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 2) Безопасно достаём байт (или 0, если данных меньше)
                                 val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // 3) Мапим в enum, дефолтим в IDLE
-                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                val status = PreferenceKeysUbi4.BootloaderStatus.values()
                                     .firstOrNull { it.code == statusCode }
-                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                    ?: PreferenceKeysUbi4.BootloaderStatus.IDLE
                                 bootloaderStatusFlow.tryEmit(status)
                             }
 
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_BOOTLOADER_INFO.number -> {
                                 val start = HEADER_BLE_OFFSET + 1
                                 val payload = data.drop(start).map { it.toInt().and(0xFF) }
 //                                platformLog("FW_FLOW", "GET_BOOTLOADER_INFO ← $payload")
                                 bootloaderInfoFlow.tryEmit(payload)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number -> {
                                 val rawHex = data.joinToString(" ")
                                 platformLog("FW_FLOW", "CHECK_NEW_FW raw data = [$rawHex]")
-                                    val payloadIndex = HEADER_BLE_OFFSET + 1
-                                    val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
-                                    platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
-                                    FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
+                                val payloadIndex = HEADER_BLE_OFFSET + 1
+                                val statusCode = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
+                                platformLog("FW_FLOW", "CHECK_NEW_FW ← statusCode=$statusCode")
+                                FirmwareInfoState.checkNewFwFlow.tryEmit(statusCode)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val payload = data.copyOfRange(payloadIndex, data.size)
                                 val rawHex = data.joinToString(" ") { byte ->
@@ -228,17 +256,17 @@ class BLEParser(
                                 FirmwareInfoState.maxChunkSizeFlow.tryEmit(Pair(deviceAddress, info))
 
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.PRELOAD_INFO.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.PRELOAD_INFO.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 val code = data.getOrNull(payloadIndex)?.toInt()?.and(0xFF) ?: 0
                                 // мапим в enum BootloaderStatus
-                                val status = PreferenceKeysUBI4.BootloaderStatus.values()
+                                val status = PreferenceKeysUbi4.BootloaderStatus.values()
                                     .firstOrNull { it.code == code }
-                                    ?: PreferenceKeysUBI4.BootloaderStatus.IDLE
+                                    ?: PreferenceKeysUbi4.BootloaderStatus.IDLE
                                 platformLog("FW_FLOW", "PRELOAD_INFO ← status=$status")
                                 FirmwareInfoState.preloadInfoFlow.tryEmit(status)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.LOAD_NEW_FW.number -> {
                                 val payloadIndex = HEADER_BLE_OFFSET + 1
                                 // 2) читаем 2-байт little-endian ответ (сколько записано)
                                 val lo = data.getOrNull(payloadIndex    )?.toInt()?.and(0xFF) ?: 0
@@ -248,21 +276,21 @@ class BLEParser(
                                 platformLog("FW_FLOW_PARSER", "parsed writtenBytes=$writtenBytes")
                                 FirmwareInfoState.chunkWrittenFlow.tryEmit(deviceAddress to writtenBytes)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.CALCULATE_CRC.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.CALCULATE_CRC.number -> {
                                 platformLog("FW_FLOW_PARSER", "CALCULATE_CRC response received — расчёт запущен, ждём DONE_CRC")
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.COMPLETE_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.COMPLETE_UPDATE.number -> {
                                 val idx = HEADER_BLE_OFFSET + 1
                                 val raw = data.getOrNull(idx)?.toInt()?.and(0xFF) ?: 0
-                                val result = PreferenceKeysUBI4.CrcResult.from(raw)
-                                val isGood = (result == PreferenceKeysUBI4.CrcResult.GOOD_CRC_FIRMWARE)
+                                val result = PreferenceKeysUbi4.CrcResult.from(raw)
+                                val isGood = (result == PreferenceKeysUbi4.CrcResult.GOOD_CRC_FIRMWARE)
                                 platformLog("FW_FLOW_PARSER", "COMPLETE_UPDATE ← raw=0x${raw.toString(16)} result=$result good=$isGood")
                                 // эмитим именно сюда
                                 FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
                                 // по необходимости можно оставить updateCompleteFlow для других слушателей:
                                 FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
                             }
-                            PreferenceKeysUBI4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE.number -> {
+                            PreferenceKeysUbi4.FirmwareManagerCommand.FINISH_SYSTEM_UPDATE.number -> {
                                 platformLog("FW_FLOW_PARSER", "FINISH_SYSTEM_UPDATE ← OK")
                                 FirmwareInfoState.finishSystemUpdateFlow.tryEmit(Unit)
                             }
@@ -311,8 +339,8 @@ class BLEParser(
                                     ).toInt(16).toByte()
                                 )
                                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                                platformLog("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
-                                platformLog("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
+//                                platformLog("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
+//                                platformLog("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
 
                                 parameter.data = receiveDataString.substringSafe(
                                     (HEADER_BLE_OFFSET + (dataLengthMax - dataLength) + 2) * 2,
@@ -332,7 +360,7 @@ class BLEParser(
             }
 
             if (requestType == 1 || codeRequest != BaseCommands.COMPLEX_PARAMETER_TRANSFER.number)
-                bleCommandExecutor.getQueueUBI4().allowNext()
+                bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = deviceAddress,   parameterID = codeRequest.toInt(), receiveDataString = receiveDataString)
         }
     }
 
@@ -341,9 +369,17 @@ class BLEParser(
             .toString(16)
             .uppercase()
             .padStart(2, '0')
+
+
+
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
+        val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+        var bmsHandled = false
+
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
+            //ROOM DB
+            persistParamUpdate(scope = coroutineScope, deviceAddr = deviceAddress, parameterId = parameterID, dataCode = dataCode, listWidgets = listWidgets.toList())
 
             platformLog("updateAllUITest", "widgetCode = ${it.widgetCode}")
             when (it.widgetCode) {
@@ -383,10 +419,9 @@ class BLEParser(
                 ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                     coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-                platformLog("updateAllUITestSlider", "slider update")
+                    platformLog("[BLE-COMMUNICATION]", "slider update")
                 }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-                    val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data
                     val paddedData: String = data.padEnd(12, '0')
                     platformLog("updateAllUITest", "data = $data")
@@ -443,14 +478,21 @@ class BLEParser(
                                 // ↓ здесь же можно парсить остальные байты настройки, если протокол известен
                             }
                             platformLog("uiGestureSettingsObservable", "перед RX dataCode = $dataCode")
-                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(dataCode)
+                            val parameterRef = ParameterRef(deviceAddress,parameterID,dataCode)
+                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(parameterRef)
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
                             val idHex = paramData.substringSafe(0, 2)
                             val idDec = idHex.toInt(16)
+                            platformLog(
+                                "ACTIVE_TRACE",
+                                "PDCE_SELECT_GESTURE from BLE → addr=$deviceAddress pid=$parameterID raw=$paramData id=$idDec"
+                            )
+
                             platformLog("ActiveGesture‑RX", "byte=0x$idHex  ->  id=$idDec (i=${idDec - 0x3F})")
                             platformLog("parameter PDCE_SELECT_GESTURE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            activeGestureState.value = idDec
                             coroutineScope.launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
@@ -459,46 +501,87 @@ class BLEParser(
                         }
                         ParameterDataCodeEnum.PDCE_OPTIC_MODE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            val mode = (paramData.takeLast(2).toIntOrNull(16) == 1)
                             platformLog("BorderAnimator", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            selectGestureModeState.value = mode
                             coroutineScope.launch { selectGestureModeFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                         }
                     }
                 }
+
                 ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
                     when (dataCode) {
                         ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                             //TODO проверить!
                             platformLog("TestOptic", " dataCode: $dataCode")
                             platformLog("FileInfoWriteFile", "recive ok")
-                            RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(ParameterRef(deviceAddress, parameterID, dataCode))
+                            RxUpdateMainEventUbi4Wrapper.updateUiOpticTraining(
+                                ParameterRef(
+                                    deviceAddress,
+                                    parameterID,
+                                    dataCode
+                                )
+                            )
                         }
 
                     }
                 }
+
                 ParameterWidgetCode.PWCE_SERVICE_INFO.number.toInt() -> {
                     platformLog("updateAllUITest", "here!")
 
-                    when(dataCode){
+
+                    when (dataCode) {
                         ParameterDataCodeEnum.PDCE_BMS_STATUS_COMBINED_PARAM.number -> {
-                            val paramData = ParameterProvider.getParameter(deviceAddress,parameterID).data
-                            platformLog("updateAllUITest", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
+                            val paramData =
+                                ParameterProvider.getParameter(deviceAddress, parameterID).data
+                            platformLog(
+                                "updateAllUITest",
+                                "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData"
+                            )
                             val percent = paramData.hexToBatteryPercent()
                             platformLog(
                                 "BatteryParser",
                                 "raw=$paramData → percent=$percent%"
                             )
-                            coroutineScope.launch { bmsStatusFlow.emit(ParameterRef(deviceAddress,parameterID, dataCode))
+                            coroutineScope.launch {
+                                bmsStatusFlow.emit(
+                                    ParameterRef(
+                                        deviceAddress,
+                                        parameterID,
+                                        dataCode
+                                    )
+                                )
                             }
                             coroutineScope.launch { batteryPercentFlow.emit(percent) }
-
+                            bmsHandled = true
                         }
-
                     }
 
                 }
-
             }
         }
+
+        //для работы батки из кэша
+        if (!bmsHandled && dataCode == ParameterDataCodeEnum.PDCE_BMS_STATUS_COMBINED_PARAM.number) {
+            val paramData = parameter.data
+            val percent = paramData.hexToBatteryPercent()
+            platformLog(
+                "BatteryParser",
+                "raw=$paramData → percent=$percent% (fallback)"
+            )
+            coroutineScope.launch {
+                bmsStatusFlow.emit(
+                    ParameterRef(
+                        deviceAddress,
+                        parameterID,
+                        dataCode
+                    )
+                )
+            }
+            coroutineScope.launch { batteryPercentFlow.emit(percent) }
+        }
+
     }
 
 
@@ -566,15 +649,26 @@ class BLEParser(
             DeviceInformationCommand.SET_DEVICE_ROLE.number -> {
                 platformLog("BLEParser", "TEST parser 2 SET_DEVICE_ROLE")
             }
+
+            DeviceInformationCommand.GET_SYSTEM_CRC.number -> {
+                parseProductCRCInfo(receiveDataString)
+            }
+
+            DeviceInformationCommand.GET_DEVICE_CRC.number -> {
+//                parseProductCRCInfo(receiveDataString)
+            }
+
+
         }
     }
 
     private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
         platformLog("parseProductInfoType", "packageCodeRequest = $packageCodeRequest")
         platformLog("parseDataManger", "packageCodeRequest = $packageCodeRequest, receiveDataString = $receiveDataString")
+        val deviceAddr = castUnsignedCharToInt(receiveDataString.substring(12, 14).toInt(16).toByte())
         when (packageCodeRequest) {
             (0x00).toByte() -> {
-                platformLog("BLEParser", "TEST parser 2 DEFOULT")
+                platformLog("BLEParser", "TEST parser 2 DEFAULT")
             }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_AVAILABLE_SLOTS")
@@ -583,13 +677,19 @@ class BLEParser(
                 platformLog("BLEParser", "TEST parser 2 WRITE_SLOT")
             }
             DataManagerCommand.READ_DATA.number -> {
-                platformLog("receiveDataString", "${receiveDataString.length}")
-                if (receiveDataString.length == 174){
+                val opticsAddr = baseSubDevicesInfoStructSet.firstOrNull { it.deviceCode == PreferenceKeysUbi4.DeviceCode.OMG_MODULE.id }?.deviceAddress
+                //TODO исправить версию прошивки CPU без мэджик намберс
+                if (receiveDataString.length == 174) {
                     parseProductInfoType(receiveDataString)
-
                 }
-                else if (receiveDataString.length == 166){
+                else if (receiveDataString.length == 166) {
                     parseProductFwInfoType(receiveDataString)
+                }
+                else if (deviceAddr == opticsAddr) {
+                    if (receiveDataString.length < 40)
+                        parseMLModelSettings(receiveDataString)
+                    else
+                        parseBoardInfo(receiveDataString)
                 }
             }
             DataManagerCommand.WRITE_DATA.number -> {
@@ -606,17 +706,94 @@ class BLEParser(
 
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =
-            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+            Json.decodeFromString<FullInicializeConnectionStruct>(
+                "\"${receiveDataString.substring(18, receiveDataString.length)}\""
+            )
+
+        val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
+
+        // 1) Сбрасываем состояние запросов и label-маппинг
+        UiState.resetWidgetRequests()
+        UiState.labelCodesByOffset.clear()
+
+        // 2) Холодный / тёплый старт
+        if (!hadWidgetsFromCache) {
+            platformLog("INIT_TEST_LOG", "COLD START: clear widgets list")
+            listWidgets.clear()
+        } else {
+            platformLog("INIT_TEST_LOG", "WARM START: keep widgets from cache")
+        }
+
+        // 3) Считаем прогресс
+        val total = fullInicializeConnectionStruct.parametrsNum *
+                fullInicializeConnectionStruct.subDeviceNum
+        widgetsProgressTotal = total.coerceAtLeast(1)
+
+        val currentFromCache = listWidgets.size.coerceAtMost(widgetsProgressTotal)
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = currentFromCache,
+            total = widgetsProgressTotal
+        )
+
+
+        // 4) Шлём info + стартовый прогресс (current = уже имеющиеся виджеты из кеша)
+        coroutineScope.launch {
+            initializationInfoFlow.emit(fullInicializeConnectionStruct)
+
+        }
+
         platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
+
+        // 5) Запрашиваем базовые параметры мастера
         bleManager.sendBytesKmm(
-            BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
+            BLECommands.requestBaseParametrInfo(
+                0x00,
+                fullInicializeConnectionStruct.parametrsNum.toByte()
+            ),
             MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
+
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
+        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
     }
 
+//    private fun parseInitializeInformation(receiveDataString: String) {
+//        fullInicializeConnectionStruct =
+//            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
+//        val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
+//
+//        UiState.resetWidgetRequests()
+//        UiState.labelCodesByOffset.clear()
+//
+//        if (!hadWidgetsFromCache) {
+//            // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
+//            platformLog("INIT_TEST_LOG", "COLD START: clear widgets list")
+//            listWidgets.clear()
+//
+//        } else {
+//            // ТЁПЛЫЙ СТАРТ — виджеты уже подняты из БД, их НЕ ТРОГАЕМ
+//            platformLog("INIT_TEST_LOG", "WARM START: keep widgets from cache")
+//        }
+//
+//        val progressTotal  =
+//            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
+//        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
+//        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
+//        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
+//        platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
+//
+//        bleManager.sendBytesKmm(
+//            BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
+//            MAIN_CHANNEL_CHARACTERISTIC,
+//            WRITE
+//        ) {}
+//        platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
+//        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
+//    }
+
     private fun parseReadDeviceParameters(receiveDataString: String) {
+        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 2")
         platformLog("BLEParserTest", "▶️ parseReadDeviceParameters start, raw=${receiveDataString.take(40)}…")
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
         platformLog("BLEParser", "TEST parser 2 READ_DEVICE_PARAMETRS $receiveDataString")
@@ -638,7 +815,7 @@ class BLEParser(
         if (baseParametrInfoStructArray.size != 0) {
             platformLog("getNextIDParameter", "запрос адшнл параметра")
             if (baseParametrInfoStructArray[0].additionalInfoSize != 0) {
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[0].ID.toByte()),
                     MAIN_CHANNEL_CHARACTERISTIC,
                     WRITE
@@ -647,18 +824,19 @@ class BLEParser(
                 val ID = getNextIDParameter(0)
                 if (ID != 0) {
                     platformLog("getNextIDParameter", "запроса адшнл параметра")
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[ID].ID.toByte()),
                         MAIN_CHANNEL_CHARACTERISTIC,
                         WRITE
                     ) {}
                 } else {
                     platformLog("getNextIDParameter", "конец запроса параметров")
-                    bleCommandExecutor.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+                    bleManager.sendBytesKmm(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
                 }
             }
         }
 
+        persistAllMasterParams(coroutineScope)
     }
 
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String, deviceAddress: Int) {
@@ -680,14 +858,18 @@ class BLEParser(
                 dataOffset = additionalInfoSizeStruct.infoSize
 
                 when (additionalInfoSizeStruct.infoType) {
-                    AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                        val parsedWidget = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
-                        platformLog("parsedWidget", "▶️widgetcode - ${parsedWidget.widgetCode}")
-                        baseParametrInfoStructArray[ID].additionalInfoRefSet.add(parsedWidget)
+                    AdditionalParameterInfoType.WIDGET.number -> {
+                        val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
+                        val widgetDisplay = widgetStruct.display
+                        platformLog("widgetStruct", "▶️widgetcode - ${widgetStruct.widgetCode}")
+                        //TODO проверить зачем!
+//                        baseParametrInfoStructArray[ID].additionalInfoRefSet.add(parsedWidget)
                         coroutineScope.launch {
                             platformLog("BLEParserTest", "▶️ sendWidgetsArray() called, total widgets=${listWidgets.size}")
                             platformLog("sendWidgetsArray", "▶️ sendWidgetsArray()  called, total widgets=${listWidgets.size}")
-                            bleCommandExecutor.sendWidgetsArray()
+                            //TODO проверить оба варианта!
+                            //bleCommandExecutor.sendWidgetsArray()
+                            updateFlow.emit(widgetDisplay)
                         }
                     }
                 }
@@ -697,14 +879,14 @@ class BLEParser(
         ID = getNextIDParameter(ID)
         if (ID != 0) {
             platformLog("getNextIDParameter", "запроса адшнл параметра")
-            bleCommandExecutor.bleCommandWithQueue(
+            bleManager.sendBytesKmm(
                 BLECommands.requestAdditionalParametrInfo(baseParametrInfoStructArray[ID].ID.toByte()),
                 MAIN_CHANNEL_CHARACTERISTIC,
                 WRITE
             ) {}
         } else {
             platformLog("getNextIDParameter", "конец запроса адшнл параметров")
-            bleCommandExecutor.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            bleManager.sendBytesKmm(BLECommands.requestSubDevices(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
         }
     }
 
@@ -734,7 +916,7 @@ class BLEParser(
                     numberCount = parametrsNum - subDeviceChankParametersCounter * 10
                 }
                 if (numberCount != 0) {
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestSubDeviceParametrs(
                             baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
                             subDeviceChankParametersCounter * 10,
@@ -746,13 +928,12 @@ class BLEParser(
                 }
 
 
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestProductInfoType(),
                     MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 
-
                 baseSubDevicesInfoStructSet.forEach { sub ->
-                    bleCommandExecutor.bleCommandWithQueue(
+                    bleManager.sendBytesKmm(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),
                         MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 
@@ -767,7 +948,6 @@ class BLEParser(
         } else {
             showToast("Сабдевайсов нет")
         }
-
     }
 
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
@@ -856,7 +1036,7 @@ class BLEParser(
             }
 
             if (numberCount != 0){
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestSubDeviceParametrs(_deviceAddress, subDeviceChankParametersCounter * 10, numberCount),
                     MAIN_CHANNEL_CHARACTERISTIC,
                     WRITE
@@ -881,7 +1061,7 @@ class BLEParser(
                 subDeviceAdditionalCounter = 1
             } else {
                 platformLog("SubDeviceAdditionalParameterss", "запроса адишнл параметра")
-                bleCommandExecutor.bleCommandWithQueue(
+                bleManager.sendBytesKmm(
                     BLECommands.requestSubDeviceAdditionalParametrs(
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
@@ -926,9 +1106,10 @@ class BLEParser(
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number -> {
                                     val widgetStruct = parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode, addressSubDevice)
+                                    val widgetDisplay = widgetStruct.display
                                     if (widgetStruct.widgetCode == 16){
                                         platformLog("parsedWidget", "▶️ parsedWidget run")
-                                        bleCommandExecutor.bleCommandWithQueue(
+                                        bleManager.sendBytesKmm(
                                             BLECommands.requestBatteryStatus(7,0),
                                             MAIN_CHANNEL_CHARACTERISTIC,
                                             WRITE
@@ -937,7 +1118,7 @@ class BLEParser(
                                     parametrSubDevice.additionalInfoRefSet.add(widgetStruct)
                                     coroutineScope.launch {
                                         platformLog("sendWidgetsArray", "▶\uFE0F sendWidgetsArray() called, total widgets=${listWidgets.size}")
-                                        bleCommandExecutor.sendWidgetsArray()
+                                        updateFlow.emit(widgetDisplay)
                                     }
                                 }
                             }
@@ -949,7 +1130,7 @@ class BLEParser(
 
         if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third != 0) {
             platformLog("parseReadSubDeviceAdditionalParameters", "запроса адишнл параметра")
-            bleCommandExecutor.bleCommandWithQueue(
+            bleManager.sendBytesKmm(
                 BLECommands.requestSubDeviceAdditionalParametrs(
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
@@ -959,9 +1140,32 @@ class BLEParser(
             ) {}
             subDeviceAdditionalCounter++
         } else {
-            bleCommandExecutor.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            bleManager.sendBytesKmm(BLECommands.requestTransferFlow(1), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+            val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
+            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                current = safeTotal,
+                total = safeTotal
+            )
+            coroutineScope.launch { widgetsLoadingFlow.emit(Unit) }
             subDeviceAdditionalCounter = 1
             platformLog("parseReadSubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
+
+
+            persistAllSubDevices(coroutineScope)
+            persisListWidgets(
+                scope = coroutineScope,
+                deviceAddr = fullInicializeConnectionStruct.deviceAddress,
+                listWidgets = listWidgets.toList()
+            )
+
+            WidgetBootstrapHydrator.requestWidgetsCommandKmm { cmd ->
+                bleManager.sendBytesKmm(
+                    cmd,
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
+            }
+
         }
     }
 
@@ -989,13 +1193,116 @@ class BLEParser(
         val fw = Json.decodeFromString<FirmwareInfoStruct>("\"$payload\"")
             .copy(deviceAddress = deviceAddr)
 
-    platformLog("PAYLOAD_FW", "payload = ${fw.fwName}")
-    platformLog("parseProductInfoTypefw", "fw = $fw")
-    platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
+        platformLog("parseProductInfoTypefw", "fw = $fw")
+        platformLog("FW_INFO_RX", "addr=$deviceAddr code=${fw.fwCode} ver=${fw.fwVersion}")
+
         FirmwareInfoState.emitFirmwareInfo(fw)
+        fwFlag(deviceAddr, true)
+
     }
 
 
+    private fun parseProductCRCInfo(receiveDataString: String) {
+        // Текущий MAC (уже должен быть установлен в ACTION_GATT_SERVICES_DISCOVERED)
+        val mac = WidgetRepoProvider.mac()
+
+        // 1) Адрес устройства из хедера (мастер / саб-девайс)
+        val addrHex = receiveDataString.substringSafe(12, 14)
+        val deviceAddr = castUnsignedCharToInt(
+            addrHex.toInt(16).toByte()
+        )
+
+        // 2) CRC в payload — 4 байта, little-endian, начиная с (HEADER_BLE_OFFSET + 1)
+        val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
+        val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
+
+        if (payloadHex.length < 8) {
+            platformLog(
+                "parseProductCRCInfo",
+                "SKIP: payload too short mac=$mac addr=$deviceAddr hex='$payloadHex'"
+            )
+            return
+        }
+
+        val crc = BleHexUtils.crc32FromHexLE(payloadHex)
+
+        platformLog(
+            "parseProductCRCInfo",
+            "READ: mac=$mac addr=$deviceAddr payload=$payloadHex crc=$crc"
+        )
+
+        // 3) Сохраняем CRC в БД (привязка по mac + deviceAddr внутри RoomPersistence)
+        RoomPersistence.persistDeviceCrc(
+            scope      = coroutineScope,
+            deviceAddr = deviceAddr,
+            crc        = crc
+        )
+    }
+//
+//    private fun parseProductCRCInfo(receiveDataString: String) {
+//        // addr мастера / сабдевайса из хедера
+//        val deviceAddr = castUnsignedCharToInt(
+//            receiveDataString.substringSafe(12, 14).toInt(16).toByte()
+//        )
+//
+//        // payload CRC начинается с байта (HEADER_BLE_OFFSET + 1)
+//        val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
+//        val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
+//
+//        val crc = BleHexUtils.crc32FromHexLE(payloadHex)
+//
+//        platformLog("parseProductCRCInfo", "addr=$deviceAddr payload=$payloadHex crc=$crc")
+//
+//        RoomPersistence.persistDeviceCrc(
+//            scope = coroutineScope,
+//            deviceAddr = deviceAddr,
+//            crc = crc
+//        )
+//    }
+
+    private fun parseMLModelSettings(hex: String) {
+        val deviceAddr = castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        platformLog("parseDataManger", "deviceAddr=${deviceAddr}")
+        val payload = hex.substring(16, minOf(32, hex.length))
+        platformLog("parseMLModelSettings", "deviceAddr=$deviceAddr, payload=$payload")
+        try {
+            val mlModelSettings = Json.decodeFromString<MLModelSettings>("\"$payload\"")
+            platformLog("parseMLModelSettings", "Parsed: modelCode=${mlModelSettings.modelCode}, modelVersion=${mlModelSettings.modelVersion}")
+            MLModelSettingsState.emitMLModelSettings(mlModelSettings)
+        }
+        catch (e: Exception) {
+            platformLog("parseMLModelSettings", "Error parsing ML_MODEL_SETTINGS: ${e.message}")
+        }
+    }
+
+    private fun parseBoardInfo(hex: String) {
+        // Проверяем минимальную длину: заголовок (16 hex) + структура (90 hex) = 106 hex символов
+        if (hex.length < 106) {
+            platformLog("parseBoardInfo", "Invalid hex length: ${hex.length}, expected at least 106")
+            return
+        }
+
+        // Извлекаем адрес устройства из заголовка (байт 6 = позиция 12-13 в hex)
+        val deviceAddr = if (hex.length >= 14) {
+            castUnsignedCharToInt(hex.substring(12, 14).toInt(16).toByte())
+        } else {
+            0
+        }
+
+        // Данные начинаются с позиции 16 (после 7-байтного заголовка)
+        val payload = hex.substring(16)
+
+        platformLog("parseBoardInfo", "deviceAddr=$deviceAddr, payload length=${payload.length}")
+
+        try {
+            val boardInfo = Json.decodeFromString<BoardInfoStruct>("\"$payload\"")
+            platformLog("parseBoardInfo", "Parsed: boardName=${boardInfo.boardName}, boardVersion=${boardInfo.boardVersionString}, boardCode=${boardInfo.boardCode}, boardBuild=${boardInfo.boardBuild}")
+            BoardInfoState.emitBoardInfo(boardInfo)
+        }
+        catch (e: Exception) {
+            platformLog("parseBoardInfo", "Error parsing BoardInfo: ${e.message}")
+        }
+    }
 
     private fun getNextIDParameter(ID: Int): Int {
         for (item in baseParametrInfoStructArray.indices) {
@@ -1007,6 +1314,7 @@ class BLEParser(
         }
         return 0
     }
+
 
     private fun getNextSubDevice(subDeviceCounter: Int): Int {
         for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
@@ -1332,16 +1640,6 @@ class BLEParser(
                         platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
-//                        if (deviceAddress == 34 && parameterID == 3) {
-//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
-//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
-//                        }
-//                        if (deviceAddress == 6 && parameterID == 3) {
-//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
-//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
-//                        }
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
                             canAdd = false
                             platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
@@ -1362,23 +1660,17 @@ class BLEParser(
                         }
                     }
                     is SliderParameterWidgetEStruct -> {
-//                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetEStruct.baseParameterWidgetStruct.dataOffset)
-                            )
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-                        }
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
                             canAdd = false
-                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-
+                            val set = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
                         }
+                        coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+
                     }
                     is SwitchParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
@@ -1432,25 +1724,19 @@ class BLEParser(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
                             )
                         }
-//                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                     }
                     is SliderParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
                         platformLog("parseWidgets SLIDER", "Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)}  $combineWidgetId = $combineWidgetIdIterated")
-                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-                            canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-                            )
-                        }
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-                                ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)
-                            )
+                            val set = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
                         }
-//                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                     }
                     is ThresholdParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
@@ -1485,29 +1771,82 @@ class BLEParser(
             }
         }
         if (canAdd) {
-            listWidgets.add(widget)
+            val added = listWidgets.add(widget)
+            if (added) {
+                val safeTotal = widgetsProgressTotal.coerceAtLeast(1)
+                val safeCurrent = listWidgets.size.coerceAtMost(safeTotal)
+                platformLog(
+                    "WIDGET_LOG_ADD",
+                    "addToListWidgets: FROM_BLE widget=${widget::class.simpleName} dev=$deviceAddress pid=$parameterID code=$dataCode offset=$dataOffset totalWidgets=${listWidgets.size}"
+                )
+                UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+                    current = safeCurrent,
+                    total = safeTotal
+                )
+            }
         }
-        listWidgets.forEachIndexed { index, widget ->
-           platformLog("WIDGET_LIST", "#$index → ${widget::class.simpleName}: $widget")
-        }
-platformLog("WIDGET_LIST", "Всего виджетов: ${UiState.listWidgets.size}")
-}
-
-internal fun getStatusConnected(): Boolean {
-    return mConnected
-}
-
-private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
-    // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
-    if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
-        val s = substring(startIndex, endIndex)
-        return if (s.length % 2 == 1) "0$s" else s
     }
-    // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
-    platformLog(
-        "substringSafe",
-        "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
-    )
-    return "00"
-}
+
+    internal fun getStatusConnected(): Boolean {
+        return mConnected
+    }
+
+    private fun fwFlag(addr: Int, value: Boolean? = null): Boolean {
+        if (value != null) fwResponseReceived[addr] = value
+        return fwResponseReceived.getOrPut(addr) { false }
+    }
+
+
+    fun sendFwInfoRequestsWithRetry() {
+        // CPU (адрес 0)
+        fwFlag(0, false)   // сбрасываем флаг перед серией запросов
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                bleCommandExecutor.bleCommandWithQueue(
+                    BLECommands.requestProductFWInfoType(0),
+                    MAIN_CHANNEL_CHARACTERISTIC,
+                    WRITE
+                ) {}
+            },
+            isResponseReceived = { fwFlag(0) },
+            maxRetries = 5,
+            delayMillis = 1000L,
+            scope = coroutineScope
+        )
+
+        // Сабдевайсы
+        baseSubDevicesInfoStructSet.forEach { sub ->
+            val addr = sub.deviceAddress
+            fwFlag(addr, false)
+
+            RetryUtils.sendRequestWithRetry(
+                request = {
+                    bleCommandExecutor.bleCommandWithQueue(
+                        BLECommands.requestProductFWInfoType(addr),
+                        MAIN_CHANNEL_CHARACTERISTIC,
+                        WRITE
+                    ) {}
+                },
+                isResponseReceived = { fwFlag(addr) },
+                maxRetries = 5,
+                delayMillis = 1000L,
+                scope = coroutineScope
+            )
+        }
+    }
+    private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
+        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
+        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+            val s = substring(startIndex, endIndex)
+            return if (s.length % 2 == 1) "0$s" else s
+        }
+        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
+        platformLog(
+            "substringSafe",
+            "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+        )
+        return "00"
+    }
+
+
 }

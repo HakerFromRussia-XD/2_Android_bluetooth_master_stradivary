@@ -274,7 +274,8 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
 //        tableViewDevices.reloadRows(at: [indexPath], with: .none)
         
         // Запрос на открытие WidgetsListViewController через координатор
-        openWidgetsList()
+//        openWidgetsList()
+        openMainTabBar()
     }
     private func openWidgetsList() {
         // 1. DI‑контейнер Widgets‑сцены
@@ -291,6 +292,11 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         
         let widgetsVC = widgetsDI.makeWidgetsListViewController(actions: actions)
         navigationController?.pushViewController(widgetsVC, animated: true)
+    }
+    private func openMainTabBar() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let tabBarController = MainTabBarController(appDIContainer: appDelegate.appDIContainer)
+        navigationController?.setViewControllers([tabBarController], animated: true)
     }
     private func makeWidgetsDependencies() -> WidgetsSceneDIContainer.Dependencies {                   // Assistant
         // -------- единый сетевой слой (можно разделить при желании) -------
@@ -310,7 +316,8 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         // ---------- возвращаем Dependencies контейнеру WidgetsScene -----------
          return WidgetsSceneDIContainer.Dependencies(
             apiDataTransferService:   dataTransfer,
-            imageDataTransferService: dataTransfer
+            imageDataTransferService: dataTransfer,
+            bleManager: viewModel.bleManager
          )
     }
 }

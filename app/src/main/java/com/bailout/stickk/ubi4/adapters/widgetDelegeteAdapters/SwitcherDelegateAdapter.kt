@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Switch
-import android.widget.Toast
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -14,14 +13,15 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.MobileSettingsKey
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -92,9 +92,18 @@ class SwitcherDelegateAdapter(
         }
 
 
+        val isMobileSetting = keyMobileSettings.isNotEmpty()
+        if (isMobileSetting) {
+            // Мобильная настройка — источник правды SharedPreferences
+            val saved = main.getBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false)
+            updateSwitchState(saved, widgetSwitchSc)
+        } else {
+            // Обычный свитчер от железа / кеша — берём из модели
+            updateSwitchState(switchChecked, widgetSwitchSc)
+        }
 
         // Здесь происходит начальная конфигурация UI
-        setUIMobileSettings(keyMobileSettings, widgetSwitchSc)
+//        setUIMobileSettings(keyMobileSettings, widgetSwitchSc)
         widgetDescriptionTv.text = item.title
         Log.d("TestTitle", "${item.title}")
         if (item.title.contains("START LERNING")) {
@@ -105,8 +114,17 @@ class SwitcherDelegateAdapter(
 
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
             if (programmaticChange) return@setOnCheckedChangeListener
-            Log.d("sendSwitcherState", "setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}")
-            onSwitchClick(addressDevice, parameterID, isChecked)
+
+            Log.d("sendSwitcherState",
+                "setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}"
+            )
+
+            if (!isMobileSetting) {
+                // Только девайсные свитчеры шлём на протез
+                onSwitchClick(addressDevice, parameterID, isChecked)
+            }
+
+            // Мобильные настройки сохраняем в префы (и только их)
             processingMobileSettings(keyMobileSettings, widgetSwitchSc)
         }
 
@@ -114,35 +132,31 @@ class SwitcherDelegateAdapter(
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
-        responseReceived.set(false)
-        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)){
-            RetryUtils.sendRequestWithRetry(
-                request = {
-                    Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
-                    main.bleCommandWithQueue(
-                        BLECommands.requestSwitcher(addressDevice, parameterID),
-                        MAIN_CHANNEL_CHARACTERISTIC,
-                        WRITE
-                    ){}
-                },
-                isResponseReceived = {
-                    responseReceived.get()
-                },
-                maxRetries = 5,
-                delayMillis = 1000L,
-                scope = scope
-            )
-            Log.d("RequestUtilsSwitch",  "IF Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+        if (!isMobileSetting) {
+            responseReceived.set(false)
+            if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addressDevice, parameterID)) {
+                RetryUtils.sendRequestWithRetry(
+                    request = {
+                        Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                        main.bleCommandWithQueue(
+                            BLECommands.requestSwitcher(addressDevice, parameterID),
+                            MAIN_CHANNEL_CHARACTERISTIC,
+                            WRITE
+                        ) {}
+                    },
+                    isResponseReceived = {
+                        responseReceived.get()
+                    },
+                    maxRetries = 5,
+                    delayMillis = 1000L,
+                    scope = scope
+                )
+            } else {
+                setUI(ParameterRef(addressDevice, parameterID, dataCode))
+            }
 
-        } else {
-            setUI(ParameterRef(addressDevice,parameterID, dataCode))
-            Log.d("RequestUtilsSwitch",  "ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID")
+            switchCollect()
         }
-
-
-         switchCollect()
-
-
     }
 
     private fun clearCache() {
@@ -151,12 +165,17 @@ class SwitcherDelegateAdapter(
     private fun updateSwitchState(newState: Boolean, switch: Switch) {
         programmaticChange = true
         switch.isChecked = newState
+
+        if (WidgetState.dbSnapshotAppliedWithCrc) {
+            switch.jumpDrawablesToCurrentState()
+        }
+
         programmaticChange = false
     }
     private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION, switch.isChecked) }
+                MobileSettingsKey.AUTO_LOGIN.key -> { main.saveBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, switch.isChecked) }
             }
         }
     }
@@ -164,7 +183,8 @@ class SwitcherDelegateAdapter(
     private fun setUIMobileSettings(keyMobileSettings: String, @SuppressLint("UseSwitchCompatOrMaterialCode") switch: Switch) {
         if (keyMobileSettings != ""){
             when (keyMobileSettings) {
-                MobileSettingsKey.AUTO_LOGIN.key -> { switch.isChecked = main.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false) }
+                MobileSettingsKey.AUTO_LOGIN.key -> { switch.isChecked = main.getBoolean(
+                    PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false) }
             }
         }
     }
@@ -266,5 +286,4 @@ data class WidgetSwitchInfo (
     var isChecked: Boolean = false,
     var widgetSwitch: Switch,
     var isMobileSettings: Boolean = false
-    //TODO добавить информацию - чей виджет? наш/не наш
 )

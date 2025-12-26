@@ -11,9 +11,9 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.preloadInfoFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CheckNewFwStatus
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.StartSystemUpdateStatus
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CheckNewFwStatus
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.StartSystemUpdateStatus
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.MaxChunkSizeInfo
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
@@ -60,7 +60,7 @@ class BleFirmwareUpdater {
         val initial = readRunType()
         Log.d("FW_FLOW", "RX initial status = $initial")
 
-        if (initial != PreferenceKeysUBI4.RunProgramType.BOOTLOADER) {
+        if (initial != PreferenceKeysUbi4.RunProgramType.BOOTLOADER) {
             Log.d("FW_FLOW", "TX JUMP_TO_BOOTLOADER")
             main?.bleCommandWithQueue(
                 BLECommands.jumpToBootloader(addr.toByte()),
@@ -118,7 +118,7 @@ class BleFirmwareUpdater {
         return info
     }
 
-    suspend fun preloadFlash(addr: Int): PreferenceKeysUBI4.BootloaderStatus {
+    suspend fun preloadFlash(addr: Int): PreferenceKeysUbi4.BootloaderStatus {
         Log.d("FW_FLOW", "TX PRELOAD_INFO")
         main?.bleCommandWithQueue(
             BLECommands.requestPreloadInfo(addr.toByte()),
@@ -129,13 +129,13 @@ class BleFirmwareUpdater {
         return status
     }
 
-    suspend fun waitForDoneClear(addr: Int): PreferenceKeysUBI4.BootloaderStatus {
+    suspend fun waitForDoneClear(addr: Int): PreferenceKeysUbi4.BootloaderStatus {
         Log.d("FW_FLOW", "TX GET_BOOTLOADER_STATUS")
         main?.bleCommandWithQueue(
             BLECommands.requestBootloaderStatus(addr.toByte()),
             MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ) {}
-        val status = bootloaderStatusFlow.first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CLEAR }
+        val status = bootloaderStatusFlow.first { it == PreferenceKeysUbi4.BootloaderStatus.DONE_CLEAR }
         Log.d("FW_FLOW", "RX DONE_CLEAR status=$status")
         return status
     }
@@ -223,7 +223,7 @@ class BleFirmwareUpdater {
 
         bootloaderStatusFlow
             .onEach { status ->
-                if (status != PreferenceKeysUBI4.BootloaderStatus.DONE_CRC) {
+                if (status != PreferenceKeysUbi4.BootloaderStatus.DONE_CRC) {
                     Log.d("FW_FLOW", "RX $status — повтор TX GET_BOOTLOADER_STATUS → addr=$addr")
                     main?.bleCommandWithQueue(
                         BLECommands.requestBootloaderStatus(addr.toByte()),
@@ -231,7 +231,7 @@ class BleFirmwareUpdater {
                     ) {}
                 }
             }
-            .first { it == PreferenceKeysUBI4.BootloaderStatus.DONE_CRC }
+            .first { it == PreferenceKeysUbi4.BootloaderStatus.DONE_CRC }
             .also { Log.d("FW_FLOW", "RX DONE_CRC for addr=$addr") }
 
         Log.d("FW_FLOW", "TX COMPLETE_UPDATE → addr=$addr")

@@ -8,6 +8,8 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.usePinned
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -20,9 +22,11 @@ import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
 import platform.Foundation.create
-import kotlinx.cinterop.refTo
-import kotlinx.cinterop.usePinned
 import platform.darwin.NSObject
+import platform.posix.memcpy
+import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.utility.synchronized
+import kotlin.collections.ArrayDeque
 
 
 /** Информация об обнаруженном устройстве */
@@ -56,14 +60,10 @@ actual class BleManagerKmm actual constructor() {
     private val characteristicsMass = mutableListOf<CBCharacteristic>()
     private var selectedDevice: CBPeripheral? = null
 
-    private var onChunkSent: (() -> Unit)? = null
-//    private data class PendingWrite(
-//        val peripheral: CBPeripheral,
-//        val serviceUuid: String,
-//        val characteristicUuid: String,
-//        val data: ByteArray
-//    )
-//    private var pendingWrite: PendingWrite? = null
+    private val chunkCallbackLock = Any()
+    private val onChunkSentQueue = ArrayDeque<() -> Unit>()
+    private var onCharacteristicsReady: (() -> Unit)? = null
+    private var didNotifyCharacteristicsReady = false
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -75,7 +75,7 @@ actual class BleManagerKmm actual constructor() {
             didFailToConnectPeripheral: CBPeripheral,
             error: NSError?
         ) {
-            print("BLE-CONNECT подключение не удалось!!!")
+            platformLog("[BLE-CONNECT]","подключение не удалось!!!")
         }
 
         @ObjCSignatureOverride
@@ -84,7 +84,7 @@ actual class BleManagerKmm actual constructor() {
             didDisconnectPeripheral: CBPeripheral,
             error: NSError?
         ) {
-            print("BLE-CONNECT устройство отключено!!!")
+            platformLog("[BLE-CONNECT]","устройство отключено!!!")
         }
 
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
@@ -110,10 +110,11 @@ actual class BleManagerKmm actual constructor() {
             central: CBCentralManager,
             didConnectPeripheral: CBPeripheral
         ) {
-            print("BLE-CONNECT коннект состоялся!!!")
+            platformLog("[BLE-CONNECT]","коннект состоялся!!!")
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             didConnectPeripheral.delegate = this
+            didNotifyCharacteristicsReady = false
             didConnectPeripheral.discoverServices(null)
         }
 
@@ -121,7 +122,7 @@ actual class BleManagerKmm actual constructor() {
             peripheral: CBPeripheral,
             didDiscoverServices: NSError?
         ) {
-            print("BLE-CONNECT начало процесса поиска сервисов")
+            platformLog("[BLE-CONNECT]","начало процесса поиска сервисов")
             (peripheral.services as? List<*>)?.forEach { any ->
                 val service = any as CBService
                 servicesMass.add(service)
@@ -134,24 +135,15 @@ actual class BleManagerKmm actual constructor() {
             didDiscoverCharacteristicsForService: CBService,
             error: NSError?
         ) {
-            print("BLE-CONNECT начало процесса поиска характеристик")
+            platformLog("[BLE-CONNECT]","начало процесса поиска характеристик")
             (didDiscoverCharacteristicsForService.characteristics as? List<*>)?.forEach {
                 val c = it as CBCharacteristic
                 characteristicsMass.add(c); peripheral.setNotifyValue(true, forCharacteristic = c)
             }
-        }
 
-        @ObjCSignatureOverride
-        override fun peripheral(
-            peripheral: CBPeripheral,
-            didUpdateValueForCharacteristic: CBCharacteristic,
-            error: NSError?
-        ) {
-            print("BLE-CONNECT приём по идее")
-            var dataCount = 0
-            didUpdateValueForCharacteristic.value?.let { data: NSData ->
-                dataCount = data.length.toInt()
-                print("BLE-CONNECT приём dataCount = $dataCount")
+            if (!didNotifyCharacteristicsReady) {
+                didNotifyCharacteristicsReady = true
+                onCharacteristicsReady?.invoke()
             }
         }
 
@@ -165,8 +157,30 @@ actual class BleManagerKmm actual constructor() {
             if (error != null) {
                 println("Ошибка записи: ${error.localizedDescription}")
             } else {
-                println("sendBytesKmm Запись завершена успешно для характеристики: $didWriteValueForCharacteristic")
-                onChunkSent?.invoke()
+                didWriteValueForCharacteristic.value?.let { data: NSData ->
+                    platformLog("sendBytesKmm", "Тут запись завершена успешно: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
+                }
+//                onChunkSent?.invoke()
+                val callback = synchronized(chunkCallbackLock) {
+                    if (onChunkSentQueue.isNotEmpty()) onChunkSentQueue.removeFirst() else null
+                }
+                callback?.invoke()
+            }
+        }
+
+        @ObjCSignatureOverride
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didUpdateValueForCharacteristic: CBCharacteristic,
+            error: NSError?
+        ) {
+            var dataCount = 0
+            didUpdateValueForCharacteristic.value?.let { data: NSData ->
+                dataCount = data.length.toInt()
+                platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
+                platformLog("sendBytesKmm", "А тут мы обрабатываем принятые данные: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
+                val bytes = data.toByteArray()
+                BLEState.bleParser.parseReceivedData(bytes)
             }
         }
     }
@@ -185,11 +199,16 @@ actual class BleManagerKmm actual constructor() {
         var connectedDevice: CBPeripheral?
         discovered.forEach {
             if (it.value.identifier.UUIDString == uuid) {
-                print("BLE-CONNECT from kmm ALL DEVICES $it сравниваем с ${uuid}")
+                platformLog("[BLE-CONNECT]","from kmm ALL DEVICES $it сравниваем с ${uuid}")
                 connectedDevice = it.value
                 manager.connectPeripheral(connectedDevice!!, options = null)
             }
         }
+    }
+
+    actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
+        onCharacteristicsReady = onReady
+        didNotifyCharacteristicsReady = false
     }
 
     @Suppress("unused")
@@ -199,7 +218,7 @@ actual class BleManagerKmm actual constructor() {
     }
 
 
-    private val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
+    internal val bleCommandExecutor = BleCommandExecutorIos { byteArray, command, type, onChunkSent ->
         dispatchSendBytesKmm(byteArray, command, type, onChunkSent)
     }
 
@@ -210,7 +229,10 @@ actual class BleManagerKmm actual constructor() {
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
-        this.onChunkSent = onChunkSent
+//        this.onChunkSent = onChunkSent
+        synchronized(chunkCallbackLock) {
+            onChunkSentQueue.addLast(onChunkSent)
+        }
         bleCommandExecutor.bleCommandWithQueue(data, command, typeCommand, onChunkSent)
     }
 
@@ -222,11 +244,11 @@ actual class BleManagerKmm actual constructor() {
     ) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         characteristicsMass.forEach { c ->
-            platformLog(
-                "sendBytesKmm",
-                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с $command"
-            )
-            if (c.UUID.UUIDString() == command) {
+//            platformLog(
+//                "sendBytesKmm",
+//                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с ${command.uppercase()}"
+//            )
+            if (c.UUID.UUIDString() == command.uppercase()) {
                 when (typeCommand) {
                     READ -> {
                         platformLog("sendBytesKmm", "читаем данные: $receiveDataString")
@@ -250,6 +272,18 @@ actual class BleManagerKmm actual constructor() {
         return this.usePinned { pinned ->
             // Печатаем CPointer<Byte> в качестве указателя на данные
             NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
+        }
+    }
+
+
+    @OptIn(ExperimentalForeignApi::class)
+    fun NSData.toByteArray(): ByteArray {
+        val length = this.length.toInt()
+        val bytes = this.bytes ?: return ByteArray(0)
+        return ByteArray(length).also { array ->
+            array.usePinned { pinned ->
+                memcpy(pinned.addressOf(0), bytes, length.convert())
+            }
         }
     }
 }

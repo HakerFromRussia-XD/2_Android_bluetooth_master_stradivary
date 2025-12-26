@@ -24,40 +24,28 @@ extension DefaultWidgetsRepository: WidgetsRepository {
     func fetchWidgetsList(
         query: WidgetQuery,
         page: Int,
-        cached: @escaping (WidgetsPage) -> Void,
-        completion: @escaping (Result<WidgetsPage, Error>) -> Void
+        requestID: Int,
+        cached: @escaping (_ requestID: Int, _ page: WidgetsPage) -> Void,
+        completion: @escaping (_ requestID: Int, _ result: Result<WidgetsPage, Error>) -> Void
     ) -> Cancellable? {
 
         let requestDTO = WidgetsRequestDTO(query: query.query, page: page)
         let task = RepositoryTask()
 
         cache.getResponse(for: requestDTO) { [weak self] result in
-            
             guard self != nil else { return } // Защищаем от слабой ссылки на self
+            guard !task.isCancelled else { return }
 
-            if case let .success(responseDTO?) = result {
-                cached(responseDTO.toDomain())
-                completion(.success(responseDTO.toDomain()))
-                return // если нет этого ретёрна то выполняется ещё и сетевой запрос
-            }
-            guard !task.isCancelled else {
-                completion(.failure(URLError.cancelled as! any Error as Error))
+            switch result {
+            case let .success(responseDTO?):
+                cached(requestID, responseDTO.toDomain())
                 return
+            case let .failure(error):
+                completion(requestID, .failure(error))
+                return
+            case .success(nil):
+                break
             }
-
-//            let endpoint = APIEndpoints.getWidgets(with: requestDTO)
-//            task.networkTask = self?.dataTransferService.request(
-//                with: endpoint,
-//                on: backgroundQueue
-//            ) { result in
-//                switch result {
-//                case .success(let responseDTO):
-//                    self?.cache.save(response: responseDTO, for: requestDTO)
-//                    completion(.success(responseDTO.toDomain()))
-//                case .failure(let error):
-//                    completion(.failure(error))
-//                }
-//            }
         }
         return task
     }

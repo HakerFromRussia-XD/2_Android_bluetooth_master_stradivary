@@ -7,10 +7,12 @@
 
 import UIKit
 import Combine
+import shared
 
 final class BluetoothSceneDIContainer {
 
     struct Dependencies {
+        let bleManager: BleManagerKmm
         let bluetoothRepository: BluetoothRepository
     }
 
@@ -22,7 +24,10 @@ final class BluetoothSceneDIContainer {
 
     // MARK: - View & ViewModel
     func makeBluetoothListViewController() -> BluetoothListViewController {
-        let vm = BluetoothListViewModel(repository: dependencies.bluetoothRepository)
+        let vm = BluetoothListViewModel(
+            bleManager: dependencies.bleManager,
+            repository: dependencies.bluetoothRepository
+        )
         // Будем грузить из сториборда
         let storyboard = UIStoryboard(name: "BluetoothList", bundle: nil)
         let vc = storyboard.instantiateViewController(

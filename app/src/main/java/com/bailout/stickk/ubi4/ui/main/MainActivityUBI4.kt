@@ -12,6 +12,7 @@ import android.content.SharedPreferences
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RotateDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -21,7 +22,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -39,23 +42,30 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
+import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.selectGestureModeFlow
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
+import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.EngineerModeFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -72,32 +82,38 @@ import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.BorderAnimator
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
+import kotlin.time.Duration.Companion.seconds
 
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
     TransmitterUBI4, BleCommandExecutor {
     private lateinit var binding: Ubi4ActivityMainBinding
+    private var dialogBinding: View? = null
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
     private var activeFragment: Fragment? = null
     var dialogManager: DialogManager? = null
-
     private var currentSerial: String? = null
-
-
+    private var syncShownOnce = false
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
     private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач
@@ -112,18 +128,23 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private val bleManager = BleManagerKmm()
 
-    private var testAnimator: BorderAnimator? = null
+    private lateinit var syncDialog: SyncProgressDialog
+    private var chromeHidden = false
+
+    private var job: Job? = null
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
 
 
+
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        syncDialog = SyncProgressDialog(this, layoutInflater, this)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
         val window = this.window
@@ -132,10 +153,23 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
+
+        WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+
+
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        refreshBottomNavVisibility()
         observeBattery()
         // инициализация блютуз
-        mBLEController = BLEController()
+
+        //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
+        mBLEController = BLEController().also { controller ->
+            controller.setOnNeedFullInitListener {
+                // этот колбэк всегда будет на main-потоке (мы так сделали в smartInitWithCrc)
+                ensureSyncDialogShown()
+            }
+        }
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
         bluetoothLeService = BluetoothLeService()
@@ -161,13 +195,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 bluetoothLeService = null
             }
         }
-        showSensorsScreen()
-
 
 
         if (savedInstanceState == null) {
-//            showOpticGesturesScreen()
+            binding.bottomNavigation.selectedItemId = R.id.page_2
+            showSensorsScreen()
         }
+
+
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
@@ -188,12 +223,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             sendFwInfoRequests()
             sendRunProgramTypeRequests()
             showAccountScreen()
+            binding.bottomNavigation.visibility = View.INVISIBLE
         }
 
-
-        binding.runCommandBtn.setOnClickListener {
-//            toggleGestureModeLocal()
-        }
+//        main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+//        binding.runCommandBtn.setOnClickListener {
+//            bleCommandWithQueue(
+//                BLECommands.requestTransferFlow(1),
+//                MAIN_CHANNEL_CHARACTERISTIC,
+//                WRITE
+//            ) {}
+//        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -215,11 +255,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             true
         }
 
+
         val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
         lifecycle.addObserver(bleStatusController)
         ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
-
-
     }
 
 
@@ -239,10 +278,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
+        lifecycleScope.launch {
+            val c = WidgetRepoProvider.get().count()
+            platformLog("ROOM_CHECK", "Widget rows = $c")
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        job?.cancel()
+        if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
     }
 
@@ -317,7 +362,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         finish()
     }
     private fun resetLastMAC() {
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, "null")
+        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "null")
     }
 
     fun setPercentProgressLearningModel(p: Int) {
@@ -329,7 +374,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
 
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+        saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
     }
     override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
@@ -341,6 +386,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
+        BleEnvironment.register(
+            manager = bleManager,
+            executor = this,
+            parser = bleParser
+        )
     }
 
     // сохранение и загрузка данных
@@ -383,18 +433,25 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
+        Log.d("BLE_INIT", "bleCommandWithQueue 1")
         if (byteArray != null) {
+            Log.d("BLE_INIT", "bleCommandWithQueue 2")
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
+            platformLog("bleCommandWithQueue_Test", "очередь команд - ${queue.size()}")
             remainingTasks.incrementAndGet()
+        } else {
+            Log.d("BLE_INIT", "bleCommandWithQueue 3")
         }
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
+            Log.d("BLE_INIT", "getBleCommandWithQueue")
             writeData(byteArray, command, typeCommand)
             onChunkSent() } }
     val writeLock = Any()
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
+            Log.d("BLE_INIT", "writeData")
             canSendFlag = false
             bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
@@ -402,6 +459,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 writeLock.wait()    // ждём, пока кто-то вызовет notify()
             }
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
+            platformLog("bleCommandWithQueue_Test", "очередь команд исполнение - ${queue.size()}")
+
         }
     }
 
@@ -429,15 +488,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     private fun sendFwInfoRequests() {
-        // CPU
-        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-        // Sub-devices (если уже известны)
-        baseSubDevicesInfoStructSet.forEach { sub ->
-            bleCommandWithQueue(
-                BLECommands.requestProductFWInfoType(sub.deviceAddress),
-                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-            ) {}
-        }
+        bleParser.sendFwInfoRequestsWithRetry()
+//        // CPU
+//        bleCommandWithQueue(BLECommands.requestProductFWInfoType(0), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+//        // Sub-devices (если уже известны)
+//        baseSubDevicesInfoStructSet.forEach { sub ->
+//            bleCommandWithQueue(
+//                BLECommands.requestProductFWInfoType(sub.deviceAddress),
+//                MAIN_CHANNEL_CHARACTERISTIC, WRITE
+//            ) {}
+//        }
     }
 
     private fun sendRunProgramTypeRequests() {
@@ -449,7 +509,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    private fun observeBattery(){
+    fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
         val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
         val shapeDrawable = rotate.drawable as GradientDrawable
@@ -468,49 +528,54 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    fun observeSyncProgress() {
+        platformLog("SyncProgressDialog","Main observeSyncProgress run ")
+        syncDialog.observeSyncProgress { visible ->
+            setChromeVisible(visible)
+        }
+    }
+
+    fun ensureSyncDialogShown() {
+        // уже показывали — больше не трогаем
+        if (syncShownOnce) return
+
+        // если активити уже закрывается / закрыта — просто выходим
+        if (isFinishing || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed)) {
+            Log.w("SyncProgressDialog", "ensureSyncDialogShown: activity is finishing/destroyed, skip")
+            return
+        }
+
+        syncShownOnce = true
+        observeSyncProgress()
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
 
+    private fun computeVisibleDisplays(): Set<Int> {
+        val factory = DataFactory()
+        return (0..4)
+            .filter { display -> factory.prepareData(display).isNotEmpty() }
+            .toSet()
+    }
 
-    private var isSelectGestureModeOn = false
+    fun refreshBottomNavVisibility() {
+        bottomNavigationController.applyVisibility(computeVisibleDisplays())
+    }
+
+    fun showBottomNavigation() {
+        binding.bottomNavigation.visibility = View.VISIBLE
+    }
 
 
-//    private fun toggleGestureModeLocal() {
-//        isSelectGestureModeOn = !isSelectGestureModeOn
-//        val modeHex = if (isSelectGestureModeOn) "01" else "00"
-//        val dataCode = PreferenceKeysUBI4.ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number
-//
-//        val addrId = ParameterProvider.findAddressAndIdByDataCode(dataCode)
-//        if (addrId == null) {
-//            Log.e("GestureModeToggle", "Не найден параметр selectGestureMode по dataCode=$dataCode")
-//            showToast("selectGestureMode не найден")
-//            return
-//        }
-//
-//        val (addressDevice, parameterID) = addrId
-//        val ok = ParameterProvider.setParameterData(addressDevice, parameterID, modeHex)
-//        if (!ok) {
-//            Log.e("GestureModeToggle", "Не удалось записать data для address=$addressDevice id=$parameterID")
-//            showToast("Ошибка записи selectGestureMode")
-//            return
-//        }
-//
-//        // Эмитим ссылку на ТОТ ЖЕ параметр, который мы только что обновили
-//        lifecycleScope.launch {
-//            selectGestureModeFlow.emit(
-//                ParameterRef(
-//                    addressDevice = addressDevice,
-//                    parameterID = parameterID,
-//                    dataCode = dataCode
-//                )
-//            )
-//        }
-//
-//        Log.e("BorderAnimator", "Parameter =$modeHex") // для сравнения с твоим логом
-//        Log.d("GestureModeToggle", "Local _selectGestureMode=${if (isSelectGestureModeOn) 1 else 0}, addr=$addressDevice id=$parameterID")
-//    }
+    private fun setChromeVisible(visible: Boolean) {
+        val v = if (visible) View.VISIBLE else View.INVISIBLE
+        binding.statusBar.visibility = v
+        binding.bottomNavigation.visibility = v
+        binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+    }
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()

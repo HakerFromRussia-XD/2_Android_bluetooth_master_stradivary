@@ -2,12 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
-import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,24 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSpecialSettingsBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.WidgetSwitchInfo
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.activeSettingsFragmentFilterFlow
-import com.bailout.stickk.ubi4.data.state.UiState.isMobileSettings
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlow
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
@@ -44,8 +28,10 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private var isMobileSettings = false
 
 
-
-
+    override fun onResume() {
+        super.onResume()
+        updateFlow.tryEmit(0)
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,12 +46,13 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isMobileSettings = main.getBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, false)
+        isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
 
+
         binding.prostheticSettingsBtn.setOnClickListener {
-            main.saveBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, false)
+            main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
             activeSettingsFragmentFilterFlow.value = 1
             if (isMobileSettings) {
                 isMobileSettings = false
@@ -76,7 +63,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
 
         binding.mobileSettingsBtn.setOnClickListener {
-            main.saveBoolean(PreferenceKeysUBI4.LAST_ACTIVE_SETTINGS_FILTER, true)
+            main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, true)
             activeSettingsFragmentFilterFlow.value = 2
             if (!isMobileSettings) {
                 isMobileSettings = true

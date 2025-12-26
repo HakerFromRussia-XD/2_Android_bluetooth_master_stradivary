@@ -215,5 +215,9 @@ class BorderAnimator(
         loopTimer?.cancel()           // NEW
         isAnimating = false           // NEW
     }
+    fun toggle(isSelectMode: Boolean) {
+        if (isSelectMode) startGestureSelectionAnimation()
+        else cancelAnimation()
+    }
 }
 

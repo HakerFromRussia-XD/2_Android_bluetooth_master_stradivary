@@ -17,6 +17,10 @@ import androidx.multidex.MultiDexApplication
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
 import com.bailout.stickk.ubi4.AndroidContextProvider
+import com.bailout.stickk.ubi4.data.local.db.AndroidCtx
+import com.bailout.stickk.ubi4.data.local.db.DbProvider
+import com.bailout.stickk.ubi4.data.local.db.RoomInit
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
@@ -30,10 +34,22 @@ class WDApplication : MultiDexApplication() {
     app = this
     instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()
-        .applicationModule(ApplicationModule1(this))
-        .build()
+      .applicationModule(ApplicationModule1(this))
+      .build()
     bluetoothModule = BluetoothModule(this)
     AndroidContextProvider.init(applicationContext)
+    AndroidCtx.appContext = applicationContext
+    DbProvider.setInstance(RoomInit.init())
+
+
+    val db = DbProvider.instance()
+    WidgetRepoProvider.init(
+      widgetStateDao = db.widgetStateDao(),
+      parameterInfoDao = db.baseParameterInfoDao(),
+      listWidgetsDao = db.listWidgetsDao(),
+      subDeviceDao = db.baseSubDeviceInfoDao(),
+      deviceCrcDao = db.deviceCrcDao(),
+    )
   }
 
   companion object {

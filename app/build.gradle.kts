@@ -1,7 +1,5 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
-import com.android.build.api.dsl.Packaging
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -31,7 +29,7 @@ android {
         minSdk = 28
         targetSdk = 33
         versionCode = 11
-        versionName = "3.2.1148"
+        versionName = "3.2.1327"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 //        signingConfig = signingConfigs.getByName("release")
@@ -131,7 +129,6 @@ dependencies {
     }
 //    runtimeOnly("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
 //    implementation("com.google.guava:guava:33.1.0-android")
-    implementation("com.google.guava:guava:31.1-android")
 
     // rxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")
@@ -205,8 +202,12 @@ dependencies {
 
     // Ktor
     implementation("io.ktor:ktor-client-core:2.3.1")
-    implementation("io.ktor:ktor-client-okhttp:2.3.1") 
+    implementation("io.ktor:ktor-client-okhttp:2.3.1")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.1")
     implementation("io.ktor:ktor-client-logging:2.3.1")
+
+
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
 }

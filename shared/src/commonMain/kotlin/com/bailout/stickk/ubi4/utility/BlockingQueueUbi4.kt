@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.utility
 
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Runnable
 
 
@@ -15,12 +16,13 @@ class BlockingQueueUbi4 {
                 if (tasks.isNotEmpty() && canTake) {
                     val task = tasks.first()
                     tasks.removeAt(0)
+                    lastAllowTime = currentTimeMillis()
                     canTake = false
                     return task
                 } else if (tasks.isNotEmpty() && !canTake) {
                     val elapsed = currentTimeMillis() - lastAllowTime
                     if (elapsed >= 1000) {
-                        canTake = true // Автоматическая разблокировка спустя 1 секунду
+                        canTake = true // Автоматическая разблокировка спустя 10 секунд
                     }
                 }
             }
@@ -47,8 +49,9 @@ class BlockingQueueUbi4 {
         }
     }
 
-    fun allowNext() {
+    fun allowNext(deviceAddress: Int, parameterID: Int,  receiveDataString: String) {
         synchronized(this) {
+            platformLog("sendBytesKmm", "А тут разрешаем протолкнуть следующую команду allowNext  deviceAddress = $deviceAddress   parameterID = $parameterID   data = $receiveDataString")
             canTake = true
             lastAllowTime = currentTimeMillis() // Фиксируем время события
         }

@@ -133,7 +133,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
         widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
-            guard let self = self, self.display == Int32(updatedDisplay) else { return }
+            guard let self = self, self.display == Int32(truncating: updatedDisplay) else { return }
             self.reloadWidgetsFromShared()
         }
         

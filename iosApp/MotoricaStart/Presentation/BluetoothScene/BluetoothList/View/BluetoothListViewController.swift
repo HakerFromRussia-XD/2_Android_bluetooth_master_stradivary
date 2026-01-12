@@ -78,7 +78,6 @@ final class BluetoothListViewController: UIViewController {
         segmentedConrol.layer.borderColor = UIColor(named: "ubi4_filter_gray_border")?.cgColor
         segmentedConrol.backgroundColor = UIColor(named: "ubi4_filter_back")
         // применяем фильтр при загрузке контроллера
-//        segmentedConrol.selectedSegmentIndex = UserDefaults.standard.integer(forKey: "selectedFilterIndex")
         segmentedConrol.selectedSegmentIndex = viewModel.currentFilterIndex
         segmentedConrol.addTarget(self, action: #selector(filterChange), for: .valueChanged)
         

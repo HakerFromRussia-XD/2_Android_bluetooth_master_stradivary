@@ -159,6 +159,7 @@ import QuartzCore
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 1
         gestureNamesStorage.updateName(name, at: index)
+//        viewModel.refreshGestureNames()
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)")
     }
 //    @objc public func getGestureName(numberGesture: Int) -> String { return "Жест №1"; }
@@ -166,11 +167,12 @@ import QuartzCore
         let index = numberGesture - 1
         let names = gestureNamesStorage.loadNames()
         guard names.indices.contains(index) else { return names.first ?? "" }
+        print("Вызвана функция getGestureName numberGesture = \(numberGesture) names = \(names)")
         return names[index]
     }
     @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
     @objc public func getStatusConnection() -> Int { return 0; }
-    @objc public func getGestureNum() -> Int { return 0; }
+    @objc public func getGestureNum() -> Int { return 64; }
     @objc public func getUseFestX() -> Int { return 0; }
     @objc public func getHandSide() -> Int { return 0; }
     @objc public func getGestureTable() -> String { return "" }

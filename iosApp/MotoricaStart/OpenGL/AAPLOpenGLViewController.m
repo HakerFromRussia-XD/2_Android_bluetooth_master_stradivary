@@ -26,6 +26,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     AAPLOpenGLView *_view;
     AAPLOpenGLRenderer *_openGLRenderer;
     WidgetsListTableViewController *gestureVC;
+//    GestureListItemViewModel *testVC;
     PlatformGLContext *_context;
     GLuint _defaultFBOName;
     
@@ -77,6 +78,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     [super viewDidLoad];
     NSLog(@"Отсюда мы начинаем исполнение программы");
     gestureVC = [[WidgetsListTableViewController alloc]init];
+//    testVC = [[GestureListItemViewModel alloc]init];
 //    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
 //    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
     [gestureVC savingDeviceName];
@@ -100,9 +102,13 @@ Implementation of the cross-platform view controller and cross-platform view tha
     closeStage6 = 0;
     
     _gestureNumber = [gestureVC getGestureNum];
+//    _gestureNumber = [GestureListItemViewModel getGestureNum];
+//    _gestureNumber = [testVC getGestureNum];
     if (_gestureNumber == 0) {
+        NSLog(@"Вызвана функция getGestureName 0 _gestureNumber == 0");
         deviceName.text = [gestureVC getGestureNameWithNumberGesture: _gestureNumber];
     } else {
+        NSLog(@"Вызвана функция getGestureName 0 _gestureNumber != 0");
         deviceName.text = [gestureVC getGestureNameWithNumberGesture: _gestureNumber];
         NSString *newStr = [deviceName.text substringFromIndex:4];
         deviceName.text = newStr;

@@ -15,7 +15,7 @@ final class GestureViewCell: UITableViewCell {
     private var bindingJob: Kotlinx_coroutines_coreJob?
     private var activeGestureJob: Kotlinx_coroutines_coreJob?
     private let rotationDebouncer = Debouncer(delay: 1.0)
-    var onOpenSettings: (() -> Void)?
+    var onOpenSettings: ((Int) -> Void)?
     
     
     // Реализуем обязательный инициализатор для создания ячейки из кода
@@ -66,8 +66,7 @@ final class GestureViewCell: UITableViewCell {
                 },
                 onCustomGestureSettingsTap: { [weak self] item in
                     self?.viewModel.openGestureSettings(for: item)
-//                    performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
-                    self?.onOpenSettings?()
+                    self?.onOpenSettings?(item.id)
                     print("onCustomGestureSettingsTap \(item)")
                 },
                 onRotationGestureRemove: { [weak self] index in

@@ -17,9 +17,9 @@ struct GestureListItemViewModel: Equatable, Hashable {
     private let gestureNameList: [String]
     private let parameterInfoSet: Set<ParameterInfoData>
     
-    private let openCustomGestureSettings: (() -> Void)?
+    private let openCustomGestureSettings: ((Int) -> Void)?
 
-    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: (() -> Void)? = nil) {
+    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: ((Int) -> Void)? = nil) {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
@@ -86,7 +86,8 @@ extension GestureListItemViewModel {
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
-        openCustomGestureSettings?()
+        //TODO: тут нужно передать item.id нажатой кнопки настройки определённого жеста
+        openCustomGestureSettings?(64)
         requestGestureSettings(gestureId: item.id)
     }
 

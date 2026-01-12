@@ -94,7 +94,9 @@
 		651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
 		651DDBAE2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
 		651DDBB12EFD7E1C00199FD8 /* CustomGestureNamesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBB02EFD7E1700199FD8 /* CustomGestureNamesStorage.swift */; };
-		651DDBB42EFEBF3500199FD8 /* GestureListItemViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBB32EFEBF3400199FD8 /* GestureListItemViewModelBridge.swift */; };
+		651DDBB62F14F3DB00199FD8 /* GestureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBB52F14F3C000199FD8 /* GestureService.swift */; };
+		651DDBB72F14F3DB00199FD8 /* GestureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBB52F14F3C000199FD8 /* GestureService.swift */; };
+		651DDBB82F14F3DB00199FD8 /* GestureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBB52F14F3C000199FD8 /* GestureService.swift */; };
 		652136F62DF82888006AB049 /* SliderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652136F52DF82884006AB049 /* SliderProvider.swift */; };
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
@@ -296,7 +298,7 @@
 		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
 		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
 		651DDBB02EFD7E1700199FD8 /* CustomGestureNamesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomGestureNamesStorage.swift; sourceTree = "<group>"; };
-		651DDBB32EFEBF3400199FD8 /* GestureListItemViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureListItemViewModelBridge.swift; sourceTree = "<group>"; };
+		651DDBB52F14F3C000199FD8 /* GestureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureService.swift; sourceTree = "<group>"; };
 		652136F52DF82884006AB049 /* SliderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderProvider.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
@@ -893,14 +895,6 @@
 			path = Storage;
 			sourceTree = "<group>";
 		};
-		651DDBB22EFEBF2100199FD8 /* Bridges */ = {
-			isa = PBXGroup;
-			children = (
-				651DDBB32EFEBF3400199FD8 /* GestureListItemViewModelBridge.swift */,
-			);
-			path = Bridges;
-			sourceTree = "<group>";
-		};
 		652136F42DF82876006AB049 /* Providers */ = {
 			isa = PBXGroup;
 			children = (
@@ -1101,11 +1095,11 @@
 				1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */,
 				65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */,
 				1FE49D74230AA7C200D1D42E /* WidgetsListTableViewController.swift */,
+				651DDBB52F14F3C000199FD8 /* GestureService.swift */,
 				654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */,
 				65F27F032E672F2B00AD5DFD /* ViewModel */,
 				1FE49D72230AA7C200D1D42E /* Cells */,
 				65B52B0D2DF704F100FE1430 /* CustomUI */,
-				651DDBB22EFEBF2100199FD8 /* Bridges */,
 			);
 			path = Widgets;
 			sourceTree = "<group>";
@@ -1346,6 +1340,7 @@
 				65588F9B2EA0E344005CF5BA /* LoadingContainerView.swift in Sources */,
 				1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				65F27F082E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */,
+				651DDBB82F14F3DB00199FD8 /* GestureService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1375,7 +1370,6 @@
 				65682FCE2EB2575100BF2D7A /* SliderRowView.swift in Sources */,
 				65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */,
 				65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */,
-				651DDBB42EFEBF3500199FD8 /* GestureListItemViewModelBridge.swift in Sources */,
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
@@ -1444,6 +1438,7 @@
 				652136F62DF82888006AB049 /* SliderProvider.swift in Sources */,
 				65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */,
 				659A45A02DB928C6002BE2BC /* BluetoothRepository.swift in Sources */,
+				651DDBB62F14F3DB00199FD8 /* GestureService.swift in Sources */,
 				651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
@@ -1487,6 +1482,7 @@
 				1F9034D32307161D00DEA4BD /* NetworkSessionManagerMock.swift in Sources */,
 				1FFF1C10243B9ABB00937EE4 /* PlotListItemViewModel.swift in Sources */,
 				659A459E2DB92866002BE2BC /* BLEDevice.swift in Sources */,
+				651DDBB72F14F3DB00199FD8 /* GestureService.swift in Sources */,
 				1F84DECE2300677B00139F73 /* Observable.swift in Sources */,
 				1F474F3022356C7F0092DB4B /* WidgetsQueriesRepository.swift in Sources */,
 				1F9034D1230714B900DEA4BD /* NetworkConfigurableMock.swift in Sources */,

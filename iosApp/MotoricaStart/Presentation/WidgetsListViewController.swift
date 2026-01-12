@@ -42,10 +42,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var currentLoadingMessage: String?
     private var lastKnownLoadingState: LoadingView.State?
     private var isViewVisible = false
+    private var selectedGestureId: Int?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
-
+    
     // MARK: - Lifecycle
     static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
 //        let view = WidgetsListViewController.instantiateViewController()
@@ -63,13 +64,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        viewModel.setCustomGestureSettingsOpener { [weak self] in
+        viewModel.setCustomGestureSettingsOpener { [weak self] gestureId in
             DispatchQueue.main.async {
                 let animationsWereEnabled = UIView.areAnimationsEnabled
                 if !animationsWereEnabled {
                     UIView.setAnimationsEnabled(true)
                 }
                 
+                self?.selectedGestureId = gestureId
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
                 
 //                if !animationsWereEnabled {
@@ -175,12 +177,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
-        let kotlinWidgets = dataFactory.prepareData(display: display)
+//        let kotlinWidgets = dataFactory.prepareData(display: display)
         
 
 //        let kotlinWidgets = dataFactory.fakeData()
-//        let kotlinWidgets = dataFactory.fakeData2()
-//        handleWidgetsLoadingCompletion()
+        let kotlinWidgets = dataFactory.fakeData2()
+        handleWidgetsLoadingCompletion()
         
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
@@ -442,7 +444,7 @@ private extension WidgetsListViewController {
         lastKnownLoadingState = state
         guard isViewVisible else { return }
         //TODO: тут можно отключать лоадер (3)
-        LoadingView.show(state: state)
+//        LoadingView.show(state: state)
     }
     
     var isSynchronizationCompleted: Bool {

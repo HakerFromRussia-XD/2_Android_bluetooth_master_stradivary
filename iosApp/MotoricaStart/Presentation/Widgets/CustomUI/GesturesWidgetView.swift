@@ -859,15 +859,14 @@ private struct CustomGestureTile: View {
 
             Button(action: onSettingsTap) {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(Color("ubi4_back"))
-                    .padding(10)
+                    .font(.system(size: 16))
+                    .foregroundColor(Color("ubi4_white"))
+                    .padding(16)
                     .background(
-                        Circle()
-                            .fill(Color.white.opacity(0.9))
-                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                        Rectangle()
+                            .fill(Color.white.opacity(0))
                     )
-                    .padding(.trailing, 8)
+                    .padding(.trailing, 0)
             }
             .buttonStyle(.plain)
         }

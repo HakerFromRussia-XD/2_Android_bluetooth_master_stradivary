@@ -4,7 +4,7 @@ import QuartzCore
 
 @objc final class WidgetsListTableViewController: UITableViewController {
     @objc public var savingDeviceName: String = "...."
-    private let gestureNamesStorage = CustomGestureNamesStorage.shared
+    
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -99,7 +99,7 @@ import QuartzCore
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
-            guard let self = self else {return nil}
+            guard self != nil else {return nil}
             print("[DEBUG] Dequeueing cell for \(indexPath): \(item)")
             switch item {
                 case .command(let vm):
@@ -154,39 +154,5 @@ import QuartzCore
         if indexPath.row == itemsCount - 1 {
             viewModel.didLoadNextPage()
         }
-    }
-    
-    @objc public func setNameGesture(numberGesture: Int, name: String) {
-        let index = numberGesture - 1
-        gestureNamesStorage.updateName(name, at: index)
-//        viewModel.refreshGestureNames()
-        print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)")
-    }
-//    @objc public func getGestureName(numberGesture: Int) -> String { return "Жест №1"; }
-    @objc public func getGestureName(numberGesture: Int) -> String {
-        let index = numberGesture - 1
-        let names = gestureNamesStorage.loadNames()
-        guard names.indices.contains(index) else { return names.first ?? "" }
-        print("Вызвана функция getGestureName numberGesture = \(numberGesture) names = \(names)")
-        return names[index]
-    }
-    @objc public func getDeviceName() -> String { var textName: String = ""; return textName }
-    @objc public func getStatusConnection() -> Int { return 0; }
-    @objc public func getGestureNum() -> Int { return 64; }
-    @objc public func getUseFestX() -> Int { return 0; }
-    @objc public func getHandSide() -> Int { return 0; }
-    @objc public func getGestureTable() -> String { return "" }
-    @objc public func getGestureTableBig() -> String {return "" }
-    @objc public func getFingersDelay() -> String {
-        var data: String = ""
-        return data
-    }
-    @objc public func getFingersDelaySwitch() -> Int { return 0; }
-    @objc public func getVersionDriverGreaterThan237() -> Bool { return true; }
-    @objc public func sendDataToFest (dataForWrite: Data, characteristic: String, typeFestX: Bool) {
-        print("Вызвана функция sendDataToFest  typeFestX = \(typeFestX)")
-    }
-    @objc func saveDataString(key: String, value: String) {
-        print("save   key: \(key) value: \(value)")
     }
 }

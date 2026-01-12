@@ -25,8 +25,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 {
     AAPLOpenGLView *_view;
     AAPLOpenGLRenderer *_openGLRenderer;
-    WidgetsListTableViewController *gestureVC;
-//    GestureListItemViewModel *testVC;
+    GestureService *gestureService;
     PlatformGLContext *_context;
     GLuint _defaultFBOName;
     
@@ -77,11 +76,13 @@ Implementation of the cross-platform view controller and cross-platform view tha
 {
     [super viewDidLoad];
     NSLog(@"Отсюда мы начинаем исполнение программы");
-    gestureVC = [[WidgetsListTableViewController alloc]init];
+//    gestureVC = [[WidgetsListTableViewController alloc]init];
+    gestureService = [[GestureService alloc] init];
 //    testVC = [[GestureListItemViewModel alloc]init];
-//    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
-//    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
-    [gestureVC savingDeviceName];
+    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
+    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
+//    [gestureVC savingDeviceName];
+    [gestureService getDeviceName];
 //    if ([gestureVC getStatusConnection] == 1) {
 //        statusConnection.image = connectStatus;
 //    } else {
@@ -101,20 +102,20 @@ Implementation of the cross-platform view controller and cross-platform view tha
     closeStage5 = 0;
     closeStage6 = 0;
     
-    _gestureNumber = [gestureVC getGestureNum];
+//    _gestureNumber = [gestureVC getGestureNum];
 //    _gestureNumber = [GestureListItemViewModel getGestureNum];
 //    _gestureNumber = [testVC getGestureNum];
+    _gestureNumber = [gestureService getGestureNum];
     if (_gestureNumber == 0) {
-        NSLog(@"Вызвана функция getGestureName 0 _gestureNumber == 0");
-        deviceName.text = [gestureVC getGestureNameWithNumberGesture: _gestureNumber];
+        NSLog(@"Вызвана функция _gestureNumber == 0");
+        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     } else {
-        NSLog(@"Вызвана функция getGestureName 0 _gestureNumber != 0");
-        deviceName.text = [gestureVC getGestureNameWithNumberGesture: _gestureNumber];
-        NSString *newStr = [deviceName.text substringFromIndex:4];
-        deviceName.text = newStr;
+        NSLog(@"Вызвана функция _gestureNumber = %d", _gestureNumber);
+        NSLog(@"Вызвана функция getGestureNameWithNumberGesture _gestureNumber = %@", [gestureService getGestureNameWithNumberGesture: _gestureNumber]);
+        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     }
-    _gestureTableStr = [gestureVC getGestureTable];
-    _typeMultigribNewVM = [gestureVC getUseFestX];
+    _gestureTableStr = [gestureService getGestureTable];
+    _typeMultigribNewVM = [gestureService getUseFestX];
     
     
     state = 0;
@@ -170,9 +171,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
     [_openGLRenderer stopVC];
     
     if (showRenameTextField) {
-        NSString *result = @"    ";
+        NSString *result = @"";
         result = [result stringByAppendingString:text_field.text];
-        [gestureVC setNameGestureWithNumberGesture: _gestureNumber name:result];
+        [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
     }
 }
 
@@ -198,9 +199,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
         [text_field resignFirstResponder];
         showRenameTextField = false;
         deviceName.text = text_field.text;
-        NSString *result = @"    ";
+        NSString *result = @"";
         result = [result stringByAppendingString:text_field.text];
-        [gestureVC setNameGestureWithNumberGesture: _gestureNumber name:result];
+        [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
         [renameBtn setImage:[UIImage imageNamed:@"rename.png"]   forState:UIControlStateNormal];
     } else {
         text_field.hidden = NO;
@@ -261,7 +262,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     // Set the display link to run on the default run loop (and the main thread).
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
-    if ([gestureVC getFingersDelaySwitch] && [gestureVC getUseFestX]) {
+    if ([gestureService getFingersDelaySwitch] && [gestureService getUseFestX]) {
         [fingers_delay_btn setAlpha:1];
     } else { [fingers_delay_btn setAlpha:0]; }
     
@@ -346,11 +347,16 @@ Implementation of the cross-platform view controller and cross-platform view tha
 - (void)sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
     if (_typeMultigribNewVM) {
-        [gestureVC sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
+        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
     } else{
-        [gestureVC sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:false];
+        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:false];
         
     }
+}
+
+- (void)setNumberGesture:(NSInteger)number {
+    _gestureNumber = (int)number;
+    NSLog(@"gestureNumber=%ld", (long)number);
 }
 
 @end

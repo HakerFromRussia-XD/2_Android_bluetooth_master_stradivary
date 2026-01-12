@@ -15,5 +15,6 @@ Header for the cross-platform view controller and cross-platform view that displ
 @interface AAPLOpenGLViewController : PlatformViewController
 
 - (NSInteger) someMethod;
+- (void)setNumberGesture:(NSInteger)number;
 
 @end

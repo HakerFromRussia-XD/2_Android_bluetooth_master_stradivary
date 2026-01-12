@@ -109,7 +109,8 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     // Open GL Objects to select meshes
     GLuint _selectionMVPUniformLocation;
     
-    WidgetsListTableViewController *gestureVC;
+//    WidgetsListTableViewController *gestureVC;
+    GestureService *gestureService;
 //    SampleGattAttributes *sampleGattAtributes;
     NSString *_gestureTableStr;
     NSInteger _fingersDelayTable[12];
@@ -142,11 +143,15 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     self = [super init];
     if(self)
     {
-        gestureVC = [[WidgetsListTableViewController alloc]init];
+//        gestureVC = [[WidgetsListTableViewController alloc]init];
 //        sampleGattAtributes = [[SampleGattAttributes alloc]init];
-        _typeMultigribNewVM = [gestureVC getUseFestX];
-        _gestureNumber = [gestureVC getGestureNum];
-        _handSide = [gestureVC getHandSide];
+//        _typeMultigribNewVM = [gestureService getUseFestX];
+//        _gestureNumber = [gestureVC getGestureNum];
+//        _handSide = [gestureService getHandSide];
+        gestureService = [[GestureService alloc] init];
+        _typeMultigribNewVM = [gestureService getUseFestX];
+        _gestureNumber = [gestureService getGestureNum];
+        _handSide = [gestureService getHandSide];
         
         if (_handSide == 1) {
             NSLog(@"Сторона руки правая");
@@ -154,7 +159,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
             NSLog(@"Сторона руки левая");
         }
         
-        _gestureTableStr = [gestureVC getGestureTable];
+        _gestureTableStr = [gestureService getGestureTable];
         NSArray *_gestureTableSecond = [_gestureTableStr componentsSeparatedByString:@" "];
         if (_gestureTableSecond.count > 84) {
             for  (int i = 0; i <= 86; i++) {
@@ -168,7 +173,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         }
         
         
-        _gestureTableBigStr = [gestureVC getGestureTableBig];
+        _gestureTableBigStr = [gestureService getGestureTableBig];
         NSArray *_gestureTableSecondBig = [_gestureTableBigStr componentsSeparatedByString:@" "];
         NSLog(@"Парсинг 00 _gestureTableSecondBig.count: %lu", (unsigned long)_gestureTableSecondBig.count);
         if (_gestureTableSecondBig.count > 157) {
@@ -180,7 +185,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         }
         
         
-        if ([gestureVC getVersionDriverGreaterThan237]) {
+        if ([gestureService getVersionDriverGreaterThan237]) {
             NSLog(@"Парсинг 1 _gestureNumber: %ld", (long)_gestureNumber);
             openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
             openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
@@ -253,7 +258,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
         
         
-        if (_typeMultigribNewVM == 1 || [gestureVC getVersionDriverGreaterThan237]) {
+        if (_typeMultigribNewVM == 1 || [gestureService getVersionDriverGreaterThan237]) {
             uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
 //            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
             [self sendGestureNumberFestX];
@@ -530,9 +535,10 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
     glViewport(0, 0, _viewSize.width, _viewSize.height);
     
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.023, 0.023, 0.023, 0);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     // Use the program that renders the temple.
     glUseProgram(_templeProgram);
     
@@ -1233,6 +1239,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
 -(int) selectObject
 {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(_selectProgram);
@@ -1446,8 +1453,10 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 
 - (void)touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY
 {
-    _deltaX = deltaX;
-    _deltaY = deltaY;
+//    _deltaX = deltaX;
+//    _deltaY = deltaY;
+    _deltaX += deltaX;
+    _deltaY += deltaY;
     _X = X;
     _Y = Y;
 }
@@ -1859,11 +1868,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 
 - (void)sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
-    [gestureVC sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
+    [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
 }
 
 - (void) saveAllData {
-    if ([gestureVC getVersionDriverGreaterThan237]) {
+    if ([gestureService getVersionDriverGreaterThan237]) {
         _gestureTableBig[12*(_gestureNumber-2)+0] = openStage4;
         _gestureTableBig[12*(_gestureNumber-2)+1] = openStage3;
         _gestureTableBig[12*(_gestureNumber-2)+2] = openStage2;

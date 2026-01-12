@@ -43,6 +43,7 @@ final class CustomGestureNamesStorage {
         var names = loadNames()
         guard names.indices.contains(index) else { return names }
         names[index] = name
+        print("Вызвана функция updateName names = \(names)")
         try? storage.save(names, for: storageKey)
         return names
     }
@@ -51,7 +52,7 @@ final class CustomGestureNamesStorage {
         if stored.count >= defaults.count {
             return Array(stored.prefix(defaults.count))
         }
-        return stored + defaults[stored.count...]
+        return stored + Array(defaults[stored.count...])
     }
 
     private static func defaultNames() -> [String] {

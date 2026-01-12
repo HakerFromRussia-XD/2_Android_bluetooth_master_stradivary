@@ -29,6 +29,7 @@ final class UserDefaultsKeyValueStorage: KeyValueStorage {
     }
 
     func save<Value: Codable>(_ value: Value, for key: TypedStorageKey<Value>) throws {
+        print("Вызвана функция SAVE  value =", value.self, "  key =", key.rawValue)
         do {
             let payload = try encoder.encode(value)
             let container = StoredValueContainer(typeName: key.typeName, payload: payload)

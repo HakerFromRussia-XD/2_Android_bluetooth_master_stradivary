@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -133,8 +134,10 @@ abstract class BaseWidgetsFragment : Fragment() {
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
-                    // Получаем ссылку на текущий SprTrainingFragment
-                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
+
+                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment
+                        ?: return@TrainingFragmentDelegateAdapter
+
                     spr.showConfirmTrainingDialogWithLoader {
                         navigator().showMotionTrainingScreen {
                             parentFragmentManager.beginTransaction()
@@ -142,23 +145,56 @@ abstract class BaseWidgetsFragment : Fragment() {
                                 .commit()
                         }
                     }
-
                 },
-                onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
+
+                onShowFileClick = { addressDevice, parameterId ->
+                    showFilesDialog(addressDevice, parameterId)
+                },
+
                 onShowEmg8Files = {
-                    if (isAdded) {
-                        val spr = this@BaseWidgetsFragment as? SprTrainingFragment
-                        if (spr != null) {
-                            spr.showModelEmg8FilesDialog(preselectName = null) { selectedFiles ->
-                                spr.startUploadSelectedTrainingFiles(selectedFiles)
-                            }
+                    if (!isAdded) return@TrainingFragmentDelegateAdapter
 
+                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment
+                        ?: return@TrainingFragmentDelegateAdapter
 
-                        }
+                    spr.showModelEmg8FilesDialogWithLoader(preselectName = null) { selectedFiles ->
+                        spr.startUploadSelectedTrainingFiles(selectedFiles)
                     }
                 },
-                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
+
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
             ),
+//            TrainingFragmentDelegateAdapter(
+//                onConfirmClick = {
+//                    if (!isAdded) return@TrainingFragmentDelegateAdapter
+//                    // Получаем ссылку на текущий SprTrainingFragment
+//                    val spr = this@BaseWidgetsFragment as? SprTrainingFragment ?: return@TrainingFragmentDelegateAdapter
+//                    spr.showConfirmTrainingDialogWithLoader {
+//                        navigator().showMotionTrainingScreen {
+//                            parentFragmentManager.beginTransaction()
+//                                .replace(R.id.fragmentContainer, spr)
+//                                .commit()
+//                        }
+//                    }
+//
+//                },
+//                onShowFileClick = { addressDevice, parameterId -> showFilesDialog(addressDevice,parameterId) },
+//                onShowEmg8Files = {
+//                    if (isAdded) {
+//                        val spr = this@BaseWidgetsFragment as? SprTrainingFragment
+//                        if (spr != null) {
+//                            spr.showModelEmg8FilesDialog(preselectName = null) { selectedFiles ->
+//                                spr.startUploadSelectedTrainingFiles(selectedFiles)
+//                            }
+//
+//
+//                        }
+//                    }
+//                },
+//                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) },
+//            ),
             SwitcherDelegateAdapter(
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
@@ -171,6 +207,14 @@ abstract class BaseWidgetsFragment : Fragment() {
                     Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            ToggleSliderDelegateAdapter(
+                onSetProgress = { addressDevice, parameterID, packedProgress ->
+                    sendToggleSliderProgress(addressDevice, parameterID, packedProgress)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
             ),
             SliderDelegateAdapter(
                 onSetProgress = { addressDevice, parameterID, progress ->
@@ -475,6 +519,18 @@ abstract class BaseWidgetsFragment : Fragment() {
             "from Fragment → addr=$addressDevice pid=$parameterID progress=$progress hex=${EncodeByteToHex.bytesToHexString(packet)}")
         Log.d("sendSliderProgress", "addressDevice: $addressDevice, parameterID: $parameterID, progress: $progress")
         transmitter().bleCommandWithQueue(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+    }
+    private fun sendToggleSliderProgress(addressDevice: Int, parameterID: Int, packedProgress: ArrayList<Int>) {
+        val safe = ArrayList(packedProgress.map { it.coerceIn(0, 255) })
+
+        val packet = BLECommands.sendSliderCommand(addressDevice, parameterID, safe)
+
+        platformLog(
+            "BLE_SEND_CALLSITE",
+            "from Fragment (ToggleSlider) → addr=$addressDevice pid=$parameterID packed=$safe hex=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+
+        transmitter().bleCommandWithQueue(packet, MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
     }
 
 

@@ -31,6 +31,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -206,6 +207,7 @@ class SwitcherDelegateAdapter(
         }
     }
 
+
     private fun setUI(parameterRef: ParameterRef){
         val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
         Log.d(
@@ -272,11 +274,14 @@ class SwitcherDelegateAdapter(
 
     override fun isForViewType(item: Any): Boolean = item is SwitchItem
     override fun SwitchItem.getItemId(): Any = title
+
+
     fun onDestroy() {
         scope.cancel()
         disposables.clear()
         Log.d("onDestroy" , "onDestroy swich")
     }
+
 }
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")

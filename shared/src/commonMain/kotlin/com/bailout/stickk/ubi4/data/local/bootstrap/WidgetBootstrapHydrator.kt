@@ -253,7 +253,8 @@ object WidgetBootstrapHydrator {
                 )
 
                 when (base.widgetCode) {
-                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+                    PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
                         WidgetState.slidersFlow.tryEmit(ref)
                     }
 

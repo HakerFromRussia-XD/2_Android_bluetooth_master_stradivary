@@ -51,8 +51,8 @@ class SensorsFragment : BaseWidgetsFragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-//        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
-        binding.refreshLayout.isEnabled = false
+        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+//        binding.refreshLayout.isEnabled = false
 
         widgetListUpdater()
         binding.homeRv.layoutManager = LinearLayoutManager(context)

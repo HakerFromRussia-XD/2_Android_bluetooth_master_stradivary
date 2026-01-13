@@ -132,7 +132,6 @@ object PreferenceKeysUbi4 {
         PWCE_SLIDER                         (0x04),
         PWCE_PLOT                           (0x05),
         PWCE_SPINBOX                        (0x06), //окно ввода цифр со стрелочками инкриментации/декрементации
-
         PWCE_EMG_GESTURE_CHANGE_SETTINGS    (0x07),
         PWCE_GESTURE_SETTINGS               (0x08),
         PWCE_CALIB_STATUS                   (0x09),
@@ -140,10 +139,10 @@ object PreferenceKeysUbi4 {
         PWCE_OPEN_CLOSE_THRESHOLD           (0x0b),
         PWCE_PLOT_AND_1_THRESHOLD           (0x0c),
         PWCE_PLOT_AND_2_THRESHOLD           (0x0d),
-
         PWCE_GESTURES_WINDOW                (0x0e),
         PWCE_OPTIC_LEARNING_WIDGET          (0x0f),
         PWCE_SERVICE_INFO                   (0x10),
+        PWCE_TOGGLE_SLIDER                  (0x11)
     }
 
 

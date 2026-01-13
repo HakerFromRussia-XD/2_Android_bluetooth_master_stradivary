@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.BleHexUtils
@@ -404,7 +405,7 @@ class BLEParser(
                 }
                 ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {}
                 ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
-                    //TODO проверить!
+                    //TODO проверить!ок
                     ParameterProvider.getParameter(deviceAddress, parameterID)
                     platformLog("parameter swichCollect PDCE_ENERGY_SAVE_MODE", "deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data}")
                     coroutineScope.launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
@@ -413,6 +414,9 @@ class BLEParser(
                 ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                     coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                     platformLog("[BLE-COMMUNICATION]", "slider update")
+                }
+                ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+                    coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                 }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                     val data = parameter.data
@@ -1032,12 +1036,6 @@ class BLEParser(
                     WRITE
                 ) {}
             }
-
-//            val test = subDeviceChankParametersCounter*10
-//            val test2 = numberCount
-//            val test3 = _deviceAddress
-//            platformLog("requestSubDeviceParametrs","")
-//            platformLog("requestSubDeviceParametrs", "startIndex = ${subDeviceChankParametersCounter*10}   numberCount = $numberCount  subDeviceCounter=$subDeviceCounter из $numberSubDevice  parametrsNum = ${_parametrsNum}")
         } else {
             platformLog("SubDeviceAdditionalParameterss", "закончили чтение всех параметров во всех сабдевайсах")
             platformLog("SubDeviceAdditionalParameterss", "subDeviceCounter = $subDeviceCounter")
@@ -1348,6 +1346,14 @@ class BLEParser(
                         )
                         addToListWidgets(sliderParameterWidgetEStruct, sliderParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
+                    ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+                        platformLog("BLEParser", "parseWidgets SLIDER")
+                        val toggleSliderParameterWidgetEStruct = Json.decodeFromString<ToggleSliderParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        toggleSliderParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
+                        addToListWidgets(toggleSliderParameterWidgetEStruct, toggleSliderParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                    }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         platformLog("BLEParser", "parseWidgets PLOT CODE_LABEL")
                         val plotParameterWidgetEStruct = Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
@@ -1445,6 +1451,14 @@ class BLEParser(
                         )
                         addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
+                    ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+                        platformLog("BLEParser", "parseWidgets SLIDER S dataOffset = ${baseParameterWidgetStruct.dataOffset} dataCode = $dataCode  deviceAddress = $deviceAddress    parameterID = $parameterID")
+                        val toggleSliderParameterWidgetSStruct = Json.decodeFromString<SliderParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
+                            ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                        )
+                        addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
+                    }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         platformLog("BLEParser", "parseWidgets PLOT STRING_LABEL")
                         val plotParameterWidgetSStruct = Json.decodeFromString<PlotParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
@@ -1533,6 +1547,18 @@ class BLEParser(
     }
 
     private fun addToListWidgets(widget: Any, baseParameterWidgetStruct: Any, parameterID: Int, dataCode: Int, deviceAddress: Int, dataOffset: Int) {
+        if (deviceAddress == 9) {
+            val code = when (baseParameterWidgetStruct) {
+                is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.baseParameterWidgetStruct.widgetCode
+                is BaseParameterWidgetSStruct -> baseParameterWidgetStruct.baseParameterWidgetStruct.widgetCode
+                else -> null
+            }
+            platformLog(
+                "WIDGET_FROM_ADDR9",
+                "FROM_BLE addr=9 type=${baseParameterWidgetStruct::class.simpleName} widgetCode=$code pid=$parameterID offset=$dataOffset"
+            )
+        }
+
         platformLog("BLEParserTest", "▶️ addToListWidgets widgetCode=${baseParameterWidgetStruct} dataOffset=$dataOffset")
         var canAdd = true
         platformLog("addToListWidgets", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")

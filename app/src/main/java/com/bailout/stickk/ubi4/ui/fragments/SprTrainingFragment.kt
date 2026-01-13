@@ -103,8 +103,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-//        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
-        binding.refreshLayout.isEnabled = false
+        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+//        binding.refreshLayout.isEnabled = false
 
 
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
@@ -143,7 +143,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(display))
                         main?.refreshBottomNavVisibility()
-//                        binding.refreshLayout.setRefreshing(false)
+                        binding.refreshLayout.setRefreshing(false)
                     }
                 }
             }
@@ -714,6 +714,34 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
+
+    fun showModelEmg8FilesDialogWithLoader(
+        preselectName: String? = null,
+        onSendClick: (selectedFiles: List<File>) -> Unit
+    ) {
+        // 1) мгновенно показываем лоадер
+        if (loaderDialog?.isShowing != true) {
+            loaderDialog = showLoaderDialog()
+        }
+
+        // 2) форсим auth + паспорт (как "Сбор данных")
+        startAuthAndDownloadPassport {
+            if (!isAdded) {
+                loaderDialog?.dismiss()
+                loaderDialog = null
+                return@startAuthAndDownloadPassport
+            }
+
+            // 3) закрываем лоадер
+            loaderDialog?.dismiss()
+            loaderDialog = null
+
+            // 4) показываем окно выбора emg8
+            showModelEmg8FilesDialog(preselectName) { selected ->
+                onSendClick(selected)
+            }
+        }
+    }
 
     companion object {
         fun newInstance(lastEmg8: String): SprTrainingFragment =

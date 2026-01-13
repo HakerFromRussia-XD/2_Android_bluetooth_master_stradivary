@@ -78,21 +78,43 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
 
+//    private fun updateUI() {
+//        binding.settingsRecyclerView.post {
+//            clearSwitcherCache()
+//            if (isMobileSettings) {
+//                adapterWidgets.swapData(mDataFactory.mobileWidgets())
+//            } else {
+//                adapterWidgets.swapData(mDataFactory.prepareData(display))
+//            }
+//            if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
+//                updateSelectorUI()
+//                previousMobileSettings = isMobileSettings
+//            }
+//        }
+//
+//    }
+
     private fun updateUI() {
         binding.settingsRecyclerView.post {
-            clearSwitcherCache()
+            val dataSetChanged = (previousMobileSettings == null || previousMobileSettings != isMobileSettings)
+
+            if (dataSetChanged) {
+                clearSwitcherCache()
+            }
+
             if (isMobileSettings) {
                 adapterWidgets.swapData(mDataFactory.mobileWidgets())
             } else {
                 adapterWidgets.swapData(mDataFactory.prepareData(display))
             }
-            if (previousMobileSettings == null || previousMobileSettings != isMobileSettings) {
+
+            if (dataSetChanged) {
                 updateSelectorUI()
                 previousMobileSettings = isMobileSettings
             }
         }
-
     }
+
 
 
 

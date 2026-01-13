@@ -7,14 +7,50 @@
     android:id="@+id/ubi4_pin_dialog_cv"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
+    android:backgroundTint="@color/ubi4_gray"
     app:cardCornerRadius="16dp"
-    app:cardUseCompatPadding="true"
-    android:backgroundTint="@color/ubi4_gray">
+    app:cardUseCompatPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ubi4_pin_dialog_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <!-- Guideline как в образце (ничего не меняют, пока к ним не привязать View) -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_left1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.15" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_left2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.35" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_right1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.65" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_right2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="286dp" />
 
         <TextView
             android:id="@+id/ubi4_pin_dialog_title_tv"

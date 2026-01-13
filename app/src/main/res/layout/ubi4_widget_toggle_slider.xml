@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ubi4_back">
+
+    <!-- Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ubi4_view_with_corners_back_inside"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Inner container (как в Slider) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- ===== Title row 1 ===== -->
+            <TextView
+                android:id="@+id/toggleSliderTitleTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="TOGGLE SLIDER"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/toggleSliderNumTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/toggleSliderTitleTv" />
+
+            <!-- ===== TurnOff (1) ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toggleTurnOffBtnCl1"
+                android:layout_width="48dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/toggleSliderSb"
+                app:layout_constraintBottom_toBottomOf="@id/toggleSliderSb">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                <ImageView
+                    android:id="@+id/toggleTurnOffBtnIv1"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:elevation="4dp"
+                    android:src="@drawable/ubi4_turn_off"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:ignore="ContentDescription" />
+
+                <View
+                    android:id="@+id/toggleTurnOffBtnRipple1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_ripple_corners"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipToOutline="true"
+                    android:elevation="4dp"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                    tools:targetApi="s" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ===== Minus (1) ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toggleMinusBtnCl1"
+                android:layout_width="48dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toEndOf="@id/toggleTurnOffBtnCl1"
+                app:layout_constraintTop_toTopOf="@id/toggleSliderSb"
+                app:layout_constraintBottom_toBottomOf="@id/toggleSliderSb">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                <TextView
+                    android:id="@+id/toggleMinusBtnTv1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="2dp"
+                    android:elevation="4dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="-"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <View
+                    android:id="@+id/toggleMinusBtnRipple1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_ripple_corners"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipToOutline="true"
+                    android:elevation="4dp"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                    tools:targetApi="s" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ===== Seek (1) ===== -->
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/toggleSliderSb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:max="100"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:progress="30"
+                android:progressDrawable="@drawable/ubi4_track"
+                android:thumb="@drawable/thumb_le"
+                app:layout_constraintStart_toEndOf="@id/toggleMinusBtnCl1"
+                app:layout_constraintTop_toBottomOf="@id/toggleSliderTitleTv"
+                app:layout_constraintEnd_toStartOf="@id/togglePlusBtnCl1" />
+
+            <!-- ===== Plus (1) ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/togglePlusBtnCl1"
+                android:layout_width="48dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toTopOf="@id/toggleSliderSb"
+                app:layout_constraintBottom_toBottomOf="@id/toggleSliderSb"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                <TextView
+                    android:id="@+id/togglePlusBtnTv1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginBottom="3dp"
+                    android:elevation="4dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="+"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <View
+                    android:id="@+id/togglePlusBtnRipple1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ubi4_ripple_corners"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipToOutline="true"
+                    android:elevation="4dp"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                    tools:targetApi="s" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ===== Second slider block (как Slider) ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toggleSecondSliderCl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toggleSliderSb">
+
+                <TextView
+                    android:id="@+id/toggleSliderTitle2Tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="close sensitivity"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/toggleSliderNum2Tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="0"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/toggleSliderTitle2Tv" />
+
+                <!-- TURN OFF (2) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/toggleTurnOffBtnCl2"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/toggleSlider2Sb"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleSlider2Sb">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                    <ImageView
+                        android:id="@+id/toggleTurnOffBtnIv2"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:elevation="4dp"
+                        android:src="@drawable/ubi4_turn_off"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:ignore="ContentDescription" />
+
+                    <View
+                        android:id="@+id/toggleTurnOffBtnRipple2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- MINUS (2) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/toggleMinusBtnCl2"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintStart_toEndOf="@id/toggleTurnOffBtnCl2"
+                    app:layout_constraintTop_toTopOf="@id/toggleSlider2Sb"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleSlider2Sb">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                    <TextView
+                        android:id="@+id/toggleMinusBtnTv2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="-"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/toggleMinusBtnRipple2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Seek (2) -->
+                <androidx.appcompat.widget.AppCompatSeekBar
+                    android:id="@+id/toggleSlider2Sb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="100"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progress="30"
+                    android:progressDrawable="@drawable/ubi4_track"
+                    android:thumb="@drawable/thumb_le"
+                    app:layout_constraintStart_toEndOf="@id/toggleMinusBtnCl2"
+                    app:layout_constraintTop_toBottomOf="@id/toggleSliderTitle2Tv"
+                    app:layout_constraintEnd_toStartOf="@id/togglePlusBtnCl2" />
+
+                <!-- PLUS (2) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/togglePlusBtnCl2"
+                    android:layout_width="48dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintTop_toTopOf="@id/toggleSlider2Sb"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleSlider2Sb"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside" />
+
+                    <TextView
+                        android:id="@+id/togglePlusBtnTv2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginBottom="3dp"
+                        android:elevation="4dp"
+                        android:fontFamily="@font/sf_pro_display_light"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <View
+                        android:id="@+id/togglePlusBtnRipple2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ubi4_ripple_corners"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:clipToOutline="true"
+                        android:elevation="4dp"
+                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck"
+                        tools:targetApi="s" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Divider (как Slider) -->
+            <View
+                android:id="@+id/toggleDividerView"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/ubi4_gray_border"
+                app:layout_constraintTop_toBottomOf="@id/toggleSecondSliderCl"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -150,7 +150,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 //        _handSide = [gestureService getHandSide];
         gestureService = [[GestureService alloc] init];
         _typeMultigribNewVM = [gestureService getUseFestX];
-        _gestureNumber = [gestureService getGestureNum];
+//        _gestureNumber = [gestureService getGestureNum];
         _handSide = [gestureService getHandSide];
         
         if (_handSide == 1) {

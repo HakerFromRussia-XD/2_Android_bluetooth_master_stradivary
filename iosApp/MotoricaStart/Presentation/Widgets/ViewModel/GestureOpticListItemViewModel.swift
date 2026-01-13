@@ -86,8 +86,7 @@ extension GestureListItemViewModel {
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
-        //TODO: тут нужно передать item.id нажатой кнопки настройки определённого жеста
-        openCustomGestureSettings?(64)
+        openCustomGestureSettings?(item.id)
         requestGestureSettings(gestureId: item.id)
     }
 

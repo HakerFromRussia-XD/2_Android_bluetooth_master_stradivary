@@ -105,13 +105,17 @@ Implementation of the cross-platform view controller and cross-platform view tha
 //    _gestureNumber = [gestureVC getGestureNum];
 //    _gestureNumber = [GestureListItemViewModel getGestureNum];
 //    _gestureNumber = [testVC getGestureNum];
-    _gestureNumber = [gestureService getGestureNum];
+//    _gestureNumber = [gestureService getGestureNum];
+    NSInteger selectedGestureNumber = self.gestureNumber;
+//    NSLog(@"Вызвана функция ПОУЧИЛИ gestureNumber == %ld", (long)self.gestureNumber);
+    if (selectedGestureNumber == 0) { selectedGestureNumber = 64; }
+    _gestureNumber = selectedGestureNumber;
     if (_gestureNumber == 0) {
-        NSLog(@"Вызвана функция _gestureNumber == 0");
+//        NSLog(@"Вызвана функция _gestureNumber == 0");
         deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     } else {
-        NSLog(@"Вызвана функция _gestureNumber = %d", _gestureNumber);
-        NSLog(@"Вызвана функция getGestureNameWithNumberGesture _gestureNumber = %@", [gestureService getGestureNameWithNumberGesture: _gestureNumber]);
+//        NSLog(@"Вызвана функция _gestureNumber = %d", _gestureNumber);
+//        NSLog(@"Вызвана функция getGestureNameWithNumberGesture _gestureNumber = %@", [gestureService getGestureNameWithNumberGesture: _gestureNumber]);
         deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     }
     _gestureTableStr = [gestureService getGestureTable];
@@ -319,6 +323,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    NSLog(@"Дебаг касания touchesBegan");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];
     [_openGLRenderer touchIvent:newCoords.x :newCoords.y :0 :0];
@@ -329,10 +334,11 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    NSLog(@"Дебаг касания touchesMoved");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];
-    float deltaX = (newCoords.x - _previousX) / 6.0f;
-    float deltaY = (newCoords.y - _previousY) / 6.0f;
+    float deltaX = (newCoords.x - _previousX) / 7.0f;
+    float deltaY = (newCoords.y - _previousY) / 7.0f;
     
     [_openGLRenderer touchIvent:newCoords.x :newCoords.y :deltaX :deltaY];
     
@@ -341,6 +347,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    NSLog(@"Дебаг касания touchesEnded");
     [_openGLRenderer endTouchIvent];
 }
 

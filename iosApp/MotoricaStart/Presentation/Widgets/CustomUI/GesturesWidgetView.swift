@@ -864,7 +864,7 @@ private struct CustomGestureTile: View {
                     .padding(16)
                     .background(
                         Rectangle()
-                            .fill(Color.white.opacity(0))
+                            .fill(Color.white.opacity(0.001))
                     )
                     .padding(.trailing, 0)
             }

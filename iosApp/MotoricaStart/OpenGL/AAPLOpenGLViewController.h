@@ -16,5 +16,6 @@ Header for the cross-platform view controller and cross-platform view that displ
 
 - (NSInteger) someMethod;
 - (void)setNumberGesture:(NSInteger)number;
+@property (nonatomic, assign) NSInteger gestureNumber;
 
 @end

@@ -18,7 +18,7 @@ final class GestureService: NSObject {
     }
 
     @objc public func getGestureName(numberGesture: Int) -> String {
-        let index = numberGesture
+        let index = numberGesture - 64
         let names = gestureNamesStorage.loadNames()
         guard names.indices.contains(index) else { return names.first ?? "" }
         print("Вызвана функция getGestureName numberGesture = \(numberGesture)  names = \(names)")
@@ -27,13 +27,13 @@ final class GestureService: NSObject {
     }
     @objc public func getDeviceName() -> String { "" }
     @objc public func getStatusConnection() -> Int { 0 }
-    @objc public func getGestureNum() -> Int {
-        let index = 64
-        let names = gestureNamesStorage.loadNames()
-//        let testVal = names.indices.contains(index)
-        print("Вызвана функция getGestureNum names = \(names)")
-        return 64
-    }
+//    @objc public func getGestureNum() -> Int {
+//        let index = 64
+//        let names = gestureNamesStorage.loadNames()
+////        let testVal = names.indices.contains(index)
+//        print("Вызвана функция getGestureNum names = \(names)")
+//        return 64
+//    }
     @objc public func getUseFestX() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }
     @objc public func getGestureTable() -> String { "" }

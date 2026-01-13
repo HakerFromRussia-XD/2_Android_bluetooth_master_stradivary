@@ -63,6 +63,7 @@ final class BluetoothListViewModel {
     
     func onAppear() {
         print("BLE-CONNECT onAppear")
+        resetDevices()
         bleManager.startScanKmm { [weak self] bleDevice in
             guard let self = self else { return }
             // Фильтруем устройства без имени или с "Unknown"
@@ -85,7 +86,7 @@ final class BluetoothListViewModel {
                 else {
                     // Если устройства с таким UUID нет, добавляем его в список
                     self.allDevices.append(device)
-                    self.persistDevices()
+//                    self.persistDevices()
                 }
                 self.applyFilter(index: self.selectedFilterIndex)
             }
@@ -148,7 +149,7 @@ final class BluetoothListViewModel {
 
         if !allDevices.contains(where: { $0.id == fakeDevice.id }) {
             allDevices.append(fakeDevice)
-            persistDevices()
+//            persistDevices()
         }
 
         applyFilter(index: selectedFilterIndex)
@@ -156,19 +157,26 @@ final class BluetoothListViewModel {
     }
     
     // MARK: - Private
-    private func persistDevices() {
-        do {
-            try keyValueStorage.save(allDevices, for: BluetoothStorageKeys.devices)
-        } catch {
-            print("[Storage] failed to persist devices: \(error)")
-        }
-    }
+//    private func persistDevices() {
+//        do {
+//            try keyValueStorage.save(allDevices, for: BluetoothStorageKeys.devices)
+//        } catch {
+//            print("[Storage] failed to persist devices: \(error)")
+//        }
+//    }
 
     private func restorePersistedState() {
         selectedFilterIndex = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedFilterIndex)) ?? 0
-        if let storedDevices = try? keyValueStorage.load(for: BluetoothStorageKeys.devices) {
-            allDevices = storedDevices
-        }
+//        if let storedDevices = try? keyValueStorage.load(for: BluetoothStorageKeys.devices) {
+//            allDevices = storedDevices
+//        }
+        applyFilter(index: selectedFilterIndex)
+    }
+    
+    private func resetDevices() {
+        allDevices.removeAll()
+        devices.removeAll()
+        keyValueStorage.removeValue(for: BluetoothStorageKeys.devices)
         applyFilter(index: selectedFilterIndex)
     }
 }

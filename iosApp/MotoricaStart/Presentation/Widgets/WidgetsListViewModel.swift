@@ -110,7 +110,6 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
                 case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
                 case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
                 case .switchWidget: return ListItemType.switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
-//                case .gestureOpticWidget: return ListItemType.gestureOptic(GestureListItemViewModel(widget: widget, bleManager: bleManager))
                 case .gestureOpticWidget:
                     return ListItemType.gestureOptic(
                         GestureListItemViewModel(

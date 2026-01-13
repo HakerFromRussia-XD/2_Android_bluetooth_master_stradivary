@@ -138,8 +138,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSTimer *timer;
 }
 
-- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName
-{
+- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName {
     self = [super init];
     if(self)
     {
@@ -280,8 +279,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     return self;
 }
 
-- (void) buildTempleObjects: (int)numberMesh :(NSString*)nameLoadMesh;  //num1 secondNumber:int
-{
+- (void) buildTempleObjects: (int)numberMesh :(NSString*)nameLoadMesh; {
     NSLog(@"Доставание данных из obj файла");
     // Load the mesh data from a file.
     NSError *error;
@@ -446,8 +444,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     _selectionMVPUniformLocation = glGetUniformLocation(_selectProgram, "u_MVPMatrix");
 }
 
-- (void)updateFrameState
-{
+- (void)updateFrameState {
 //    NSLog(@"Вызываем функцию обновления состояния кадра");
     
     const vector_float3 ambientLightColor = {0.2, 0.2, 0.2};
@@ -500,8 +497,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     _deltaY = 0;
 }
 
-- (void)resize:(CGSize)size
-{
+- (void)resize:(CGSize)size {
     NSLog(@"Вызываем функцию изменения размера прямоугольника отрисовки");
     // Handle the resize of the draw rectangle. In particular, update the perspective projection matrix
     // with a new aspect ratio because the view orientation, layout, or size has changed.
@@ -1237,8 +1233,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     }
 }
 
--(int) selectObject
-{
+-(int) selectObject {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1268,8 +1263,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     return pixels[0];
 }
 
-matrix_float4x4 matrix_perspective_left_hand_gl(float fovyRadians, float aspect, float nearZ, float farZ)
-{
+matrix_float4x4 matrix_perspective_left_hand_gl(float fovyRadians, float aspect, float nearZ, float farZ) {
     float ys = 1 / tanf(fovyRadians * 0.5);
     float xs = ys / aspect;
     float zs = (farZ + nearZ) / (farZ - nearZ);
@@ -1281,8 +1275,7 @@ matrix_float4x4 matrix_perspective_left_hand_gl(float fovyRadians, float aspect,
                              0,  0,  1,  0);
 }
 
-matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect, float nearZ, float farZ)
-{
+matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect, float nearZ, float farZ) {
     float ys = 1 / tanf(fovyRadians * 0.5);
     float xs = ys / aspect;
     float zs = (farZ + nearZ) / (farZ - nearZ);
@@ -1294,7 +1287,6 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
                              0,  0,  1,  0);
 }
    
-
 + (GLuint)buildProgramWithVertexSourceURL:(NSURL*)vertexSourceURL
                     withFragmentSourceURL:(NSURL*)fragmentSourceURL
                                hasNormals:(BOOL)hasNormals
@@ -1347,10 +1339,10 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         glBindAttribLocation(prgName, AAPLVertexAttributeNormal, "inNormal");
     }
 
+    
     /*
      * Specify and compile a vertex shader.
      */
-
     GLchar *vertexSourceCString = (GLchar*)vertSourceString.UTF8String;
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, (const GLchar **)&(vertexSourceCString), NULL);
@@ -1451,8 +1443,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 
 - (void)beginTouchIvent { _selectedObject = [self selectObject]; }
 
-- (void)touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY
-{
+- (void)touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY {
 //    _deltaX = deltaX;
 //    _deltaY = deltaY;
     _deltaX += deltaX;
@@ -1687,8 +1678,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     [self saveAllData];
 }
 //Функция для очистки памяти, выделенной под отрисовку
-- (void) deallocAll
-{
+- (void) deallocAll {
     glDeleteProgram(_templeProgram);
 
     glDeleteVertexArrays(1, &_templeVAO);
@@ -1707,8 +1697,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     free(_templeTextures);
 }
 
-- (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height
-{
+- (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height {
     _xCoefficient = _viewSize.width/width;
     _yCoefficient = _viewSize.height/height;
 }

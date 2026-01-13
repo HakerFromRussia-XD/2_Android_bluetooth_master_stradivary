@@ -71,17 +71,12 @@ Implementation of the cross-platform view controller and cross-platform view tha
     NSLog(@"viewWillDisappear");
 }
 
-
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"Отсюда мы начинаем исполнение программы");
-//    gestureVC = [[WidgetsListTableViewController alloc]init];
     gestureService = [[GestureService alloc] init];
-//    testVC = [[GestureListItemViewModel alloc]init];
     UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
     UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
-//    [gestureVC savingDeviceName];
     [gestureService getDeviceName];
 //    if ([gestureVC getStatusConnection] == 1) {
 //        statusConnection.image = connectStatus;
@@ -102,22 +97,11 @@ Implementation of the cross-platform view controller and cross-platform view tha
     closeStage5 = 0;
     closeStage6 = 0;
     
-//    _gestureNumber = [gestureVC getGestureNum];
-//    _gestureNumber = [GestureListItemViewModel getGestureNum];
-//    _gestureNumber = [testVC getGestureNum];
-//    _gestureNumber = [gestureService getGestureNum];
+    
     NSInteger selectedGestureNumber = self.gestureNumber;
-//    NSLog(@"Вызвана функция ПОУЧИЛИ gestureNumber == %ld", (long)self.gestureNumber);
     if (selectedGestureNumber == 0) { selectedGestureNumber = 64; }
     _gestureNumber = selectedGestureNumber;
-    if (_gestureNumber == 0) {
-//        NSLog(@"Вызвана функция _gestureNumber == 0");
-        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
-    } else {
-//        NSLog(@"Вызвана функция _gestureNumber = %d", _gestureNumber);
-//        NSLog(@"Вызвана функция getGestureNameWithNumberGesture _gestureNumber = %@", [gestureService getGestureNameWithNumberGesture: _gestureNumber]);
-        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
-    }
+    deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     _gestureTableStr = [gestureService getGestureTable];
     _typeMultigribNewVM = [gestureService getUseFestX];
     
@@ -154,8 +138,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     
     [_openGLRenderer saveStateData: @"0"];
 }
-
-
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {
     
@@ -222,8 +204,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     state_btn.layer.borderColor = UIColor.whiteColor.CGColor;
 }
 
-- (void)prepareView
-{
+- (void)prepareView {
     NSLog(@"1 - Подготавливаем вью");
     CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.view.layer;
 
@@ -272,14 +253,12 @@ Implementation of the cross-platform view controller and cross-platform view tha
     
 }
 
-- (void)makeCurrentContext
-{
+- (void)makeCurrentContext {
     NSLog(@"2 - Создаём контекст этого вью");
     [EAGLContext setCurrentContext:_context];
 }
 
-- (CGSize)drawableSize
-{
+- (CGSize)drawableSize {
     GLint backingWidth, backingHeight;
     glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
@@ -289,8 +268,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     return drawableSize;
 }
 
-- (void)resizeDrawable
-{
+- (void)resizeDrawable {
     [self makeCurrentContext];
 
     // First, ensure that you have a render buffer.
@@ -310,8 +288,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     [_openGLRenderer resize:self.drawableSize];
 }
 
-- (void)draw:(id)sender
-{
+- (void)draw:(id)sender {
     if (!_stop) {
         [EAGLContext setCurrentContext:_context];
             [_openGLRenderer draw];
@@ -321,8 +298,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     }
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     NSLog(@"Дебаг касания touchesBegan");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];
@@ -332,8 +308,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     _previousY = newCoords.y;
 }
 
-- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     NSLog(@"Дебаг касания touchesMoved");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];

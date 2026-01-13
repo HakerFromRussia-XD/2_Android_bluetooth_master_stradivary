@@ -27,7 +27,7 @@ final class GestureService: NSObject {
     }
     @objc public func getDeviceName() -> String { "" }
     @objc public func getStatusConnection() -> Int { 0 }
-//    @objc public func getGestureNum() -> Int {
+//    @objc public func () -> Int {
 //        let index = 64
 //        let names = gestureNamesStorage.loadNames()
 ////        let testVal = names.indices.contains(index)

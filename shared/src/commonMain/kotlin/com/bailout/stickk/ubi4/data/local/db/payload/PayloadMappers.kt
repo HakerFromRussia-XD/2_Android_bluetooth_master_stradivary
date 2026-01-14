@@ -15,6 +15,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetE
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
@@ -203,6 +205,23 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
                     label = null
                 )
 
+        // -------- TOGGLE SLIDER --------
+        is ToggleSliderParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress
+            )
+
+        is ToggleSliderParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress
+            )
+
 
 
         else -> null
@@ -334,12 +353,30 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
         }
 
     return when (widgetCode) {
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
-        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> sliderStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> sliderStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt()    -> plotStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt()  -> switchStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt()  -> commandStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> spinnerStruct()
+        // ---------- TOGGLE SLIDER ----------
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+            val min = minProgress ?: 0
+            val max = maxProgress ?: 100
+
+            if (isStringLabel) {
+                ToggleSliderParameterWidgetSStruct(
+                    baseParameterWidgetSStruct = baseSStruct,
+                    minProgress = min,
+                    maxProgress = max
+                )
+            } else {
+                ToggleSliderParameterWidgetEStruct(
+                    baseParameterWidgetEStruct = baseEStruct,
+                    minProgress = min,
+                    maxProgress = max
+                )
+            }
+        }
 
         else -> if (isStringLabel) {
             BaseParameterWidgetSStruct(
@@ -353,6 +390,7 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
             )
         }
     }
+
 }
 
 internal fun BaseParameterInfoPayload.toModel(): BaseParameterInfoStruct =

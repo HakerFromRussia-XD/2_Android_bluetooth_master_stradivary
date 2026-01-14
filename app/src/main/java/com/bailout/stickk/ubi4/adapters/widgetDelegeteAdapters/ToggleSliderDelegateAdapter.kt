@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.CountDownTimer
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -10,6 +11,7 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetToggleSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -42,6 +44,10 @@ class ToggleSliderDelegateAdapter(
     private val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetToggleSliderBinding>(Ubi4WidgetToggleSliderBinding::inflate) {
 
+    private companion object {
+        private const val PENDING_WINDOW_MS = 800L
+    }
+
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSlidersInfo: ArrayList<WidgetToggleSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
@@ -55,6 +61,31 @@ class ToggleSliderDelegateAdapter(
     private fun pack(value0_127: Int, enabled: Boolean): Int {
         val v = value0_127.coerceIn(0, 127)
         return (if (enabled) 0x80 else 0x00) or (v and 0x7F)
+    }
+
+    private fun markPending(info: WidgetToggleSliderInfo, sliderIndex: Int, packed: Int) {
+        if (sliderIndex !in 0..1) return
+        val now = SystemClock.elapsedRealtime()
+        info.pendingPacked[sliderIndex] = packed
+        info.pendingUntilMs[sliderIndex] = now + PENDING_WINDOW_MS
+    }
+
+    private fun shouldApplyDevicePacked(info: WidgetToggleSliderInfo, sliderIndex: Int, packedFromDevice: Int): Boolean {
+        if (sliderIndex !in 0..1) return true
+
+        val now = SystemClock.elapsedRealtime()
+        val until = info.pendingUntilMs[sliderIndex]
+        val pending = info.pendingPacked[sliderIndex]
+
+        // Пока окно активно — не даём девайсу перезатереть UI любым другим значением
+        if (now < until && pending != -1 && packedFromDevice != pending) return false
+
+        // Пришло то же самое — считаем ACK и чистим pending
+        if (pending != -1 && packedFromDevice == pending) {
+            info.pendingPacked[sliderIndex] = -1
+            info.pendingUntilMs[sliderIndex] = 0L
+        }
+        return true
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -135,7 +166,7 @@ class ToggleSliderDelegateAdapter(
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice, parameterID)
         if (indexWidgetSlider == -1) return
 
-        // setup UI (как в SliderDelegateAdapter)
+        // setup UI
         toggleSliderSb.max = range
 
         toggleSecondSliderCl.visibility = if (paramCount > 1) View.VISIBLE else View.GONE
@@ -145,7 +176,6 @@ class ToggleSliderDelegateAdapter(
         } else {
             toggleSlider2Sb.setOnSeekBarChangeListener(null)
         }
-
 
         val sliderE = item.widget as? ToggleSliderParameterWidgetEStruct
         if (sliderE != null) {
@@ -183,13 +213,13 @@ class ToggleSliderDelegateAdapter(
                 val oldPacked = info.packedProgress[0]
                 val enabled = unpackEnabled(oldPacked)
                 if (!enabled) {
-                    // запрещаем менять значение если выключено
                     seekBar.progress = unpackValue(oldPacked).coerceIn(0, range)
                     return
                 }
 
                 val value0_127 = seekBar.progress.coerceIn(0, range)
                 info.packedProgress[0] = pack(value0_127, enabled = true)
+                markPending(info, 0, info.packedProgress[0])
 
                 applyToggleVisuals(indexWidgetSlider, 0)
 
@@ -219,6 +249,7 @@ class ToggleSliderDelegateAdapter(
 
                     val value0_127 = seekBar.progress.coerceIn(0, range)
                     info.packedProgress[1] = pack(value0_127, enabled = true)
+                    markPending(info, 1, info.packedProgress[1])
 
                     applyToggleVisuals(indexWidgetSlider, 1)
 
@@ -230,7 +261,7 @@ class ToggleSliderDelegateAdapter(
             toggleSlider2Sb.setOnSeekBarChangeListener(null)
         }
 
-
+        // +/-
         toggleMinusBtnRipple1.setOnClickListener {
             updateSliderProgress(widgetPosition, sliderIndex = 0, step = -1, indexWidgetSlider = indexWidgetSlider)
         }
@@ -291,6 +322,7 @@ class ToggleSliderDelegateAdapter(
         val enabled = unpackEnabled(packed)
 
         info.packedProgress[sliderIndex] = pack(value, !enabled)
+        markPending(info, sliderIndex, info.packedProgress[sliderIndex])
 
         applyToggleVisuals(idx, sliderIndex)
         debounceSend(info)
@@ -316,6 +348,7 @@ class ToggleSliderDelegateAdapter(
         val next = (current + step).coerceIn(0, range)
 
         info.packedProgress[sliderIndex] = pack(next, enabled = true)
+        markPending(info, sliderIndex, info.packedProgress[sliderIndex])
 
         info.widgetSlidersSb.getOrNull(sliderIndex)?.progress = next
         info.widgetSliderNumTv.getOrNull(sliderIndex)?.text = (next + info.minProgress).toString()
@@ -381,18 +414,19 @@ class ToggleSliderDelegateAdapter(
 
                 // packed лежит в ПЕРВОМ байте элемента
                 val packedByteIndex = elementStartByte
-
                 val packedByte = readByteFromHex(hex, packedByteIndex) ?: return@forEachIndexed
+                val packedFromDevice = packedByte and 0xFF
 
-                val enabled = (packedByte and 0x80) != 0
-                val value0_127 = (packedByte and 0x7F).coerceIn(0, range)
+                // анти-мигание: игнорируем "чужие" значения пока ждём ACK своего действия
+                if (!shouldApplyDevicePacked(info, sliderIndex, packedFromDevice)) return@forEachIndexed
 
-                // храним packed у себя как 0..255 (bit7=enabled, bits0..6=value)
+                val enabled = (packedFromDevice and 0x80) != 0
+                val value0_127 = (packedFromDevice and 0x7F).coerceIn(0, range)
+
                 if (sliderIndex < info.packedProgress.size) {
                     info.packedProgress[sliderIndex] = pack(value0_127, enabled)
                 }
 
-                // UI: SeekBar = 0..range, TextView = абсолютное значение
                 animateProgressBar(sb, oldProgress, value0_127)
                 tv.text = (value0_127 + info.minProgress).toString()
 
@@ -406,48 +440,6 @@ class ToggleSliderDelegateAdapter(
         }
     }
 
-//    private fun applyToggleVisuals(indexWidgetSlider: Int, sliderIndex: Int) {
-//        val info = widgetSlidersInfo.getOrNull(indexWidgetSlider) ?: return
-//        val sb = info.widgetSlidersSb.getOrNull(sliderIndex) as? SeekBar ?: return
-//        val ctx = sb.context
-//
-//        // ===== ДО ПЕРВОГО РЕАЛЬНОГО ОТВЕТА: ничего "активного" не рисуем =====
-//        if (!info.responseReceived.get()) {
-//            sb.isEnabled = false
-//            sb.progressDrawable = AppCompatResources.getDrawable(ctx, R.drawable.ubi4_track_disabled)?.mutate()
-//            sb.thumb = null                      // важно: убираем thumb, чтобы не выглядело интерактивно
-//            sb.setOnTouchListener { _, _ -> true } // блокируем тач
-//            // можно ещё и кнопку тоггла сделать серой (см. ниже), но это уже опционально
-//            return
-//        } else {
-//            sb.setOnTouchListener(null)          // разблокируем тач после получения данных
-//            if (sb.thumb == null) {
-//                sb.thumb = AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
-//            }
-//        }
-//
-//        // дальше — твой текущий код
-//        val packed = info.packedProgress.getOrNull(sliderIndex) ?: return
-//        val enabled = unpackEnabled(packed)
-//        val value = unpackValue(packed)
-//
-//        info.turnOffBtnIv.getOrNull(sliderIndex)?.background =
-//            if (value == 0) AppCompatResources.getDrawable(ctx, R.drawable.ubi4_view_with_corners_gray_outside)
-//            else null
-//
-//        val drawableRes = if (enabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
-//        sb.progressDrawable = AppCompatResources.getDrawable(ctx, drawableRes)?.mutate()
-//        sb.thumb = AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
-//        sb.isEnabled = enabled
-//
-//        val colorRes = if (enabled) R.color.ubi4_active else R.color.ubi4_gray_border
-//        info.turnOffBtnIv.getOrNull(sliderIndex)?.setColorFilter(
-//            androidx.core.content.ContextCompat.getColor(ctx, colorRes),
-//            android.graphics.PorterDuff.Mode.SRC_IN
-//        )
-//
-//    }
-
     private fun applyToggleVisuals(indexWidgetSlider: Int, sliderIndex: Int) {
         val info = widgetSlidersInfo.getOrNull(indexWidgetSlider) ?: return
         val sb = info.widgetSlidersSb.getOrNull(sliderIndex) as? SeekBar ?: return
@@ -459,36 +451,26 @@ class ToggleSliderDelegateAdapter(
             .coerceAtLeast(0)
             .coerceAtMost(127)
 
-        //  единая формула доступности
-        val enabled =
-            info.responseReceived.get() &&
-                    range > 0 &&
-                    unpackEnabled(packed)
+        val enabled = info.responseReceived.get() && range > 0 && unpackEnabled(packed)
 
-        // ===== SeekBar =====
-        val trackRes =
-            if (enabled) R.drawable.ubi4_track
-            else R.drawable.ubi4_track_disabled
-
-        sb.progressDrawable =
-            AppCompatResources.getDrawable(ctx, trackRes)?.mutate()
-
-        sb.thumb =
-            AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
-
+        // SeekBar
+        val trackRes = if (enabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
+        sb.progressDrawable = AppCompatResources.getDrawable(ctx, trackRes)?.mutate()
+        sb.thumb = AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
         sb.isEnabled = enabled
 
-        // ===== Toggle icon =====
-        val colorRes =
-            if (enabled) R.color.ubi4_active
-            else R.color.ubi4_gray_border
+        // Toggle icon: серый если value == 0, иначе зависит от enabled
+        val value = unpackValue(packed)
+        val colorRes = if (value == 0) {
+            R.color.ubi4_gray_border
+        } else {
+            if (enabled) R.color.ubi4_active else R.color.ubi4_gray_border
+        }
 
-        info.turnOffBtnIv
-            .getOrNull(sliderIndex)
-            ?.setColorFilter(
-                androidx.core.content.ContextCompat.getColor(ctx, colorRes),
-                android.graphics.PorterDuff.Mode.SRC_IN
-            )
+        info.turnOffBtnIv.getOrNull(sliderIndex)?.setColorFilter(
+            ContextCompat.getColor(ctx, colorRes),
+            android.graphics.PorterDuff.Mode.SRC_IN
+        )
     }
 
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
@@ -558,5 +540,7 @@ data class WidgetToggleSliderInfo(
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),
-    var loadingAnimators: ArrayList<ValueAnimator?> = ArrayList()
+    var loadingAnimators: ArrayList<ValueAnimator?> = ArrayList(),
+    var pendingPacked: IntArray = IntArray(2) { -1 },
+    var pendingUntilMs: LongArray = LongArray(2) { 0L }
 )

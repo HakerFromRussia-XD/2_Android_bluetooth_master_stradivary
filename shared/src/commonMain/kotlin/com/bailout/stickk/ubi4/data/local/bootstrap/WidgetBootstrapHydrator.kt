@@ -28,6 +28,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
@@ -359,12 +361,14 @@ object WidgetBootstrapHydrator {
 
                 // ---------- SLIDER ----------
                 is SliderParameterWidgetEStruct,
-                is SliderParameterWidgetSStruct -> {
+                is SliderParameterWidgetSStruct,
+                is ToggleSliderParameterWidgetEStruct,
+                is ToggleSliderParameterWidgetSStruct -> {
                     val cmd = BLECommands.requestSlider(primary.deviceAddr, primary.parameterId)
                     sendCommand(cmd)
                     platformLog(
                         "WIDGET_REQ",
-                        "SLIDER: dev=${primary.deviceAddr} pid=${primary.parameterId}"
+                        "SLIDER/TOGGLE_SLIDER: dev=${primary.deviceAddr} pid=${primary.parameterId}"
                     )
                 }
 
@@ -499,6 +503,8 @@ object WidgetBootstrapHydrator {
             is SpinnerParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
             is OpticStartLearningWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
             is ThresholdParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            is ToggleSliderParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+
 
             // STRING_LABEL виджеты
             is CommandParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
@@ -508,6 +514,7 @@ object WidgetBootstrapHydrator {
             is SpinnerParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
             is OpticStartLearningWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
             is ThresholdParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            is ToggleSliderParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
             // На всякий случай — чистые Base-виджеты, если они вдруг лежат напрямую
             is BaseParameterWidgetStruct -> this
             else -> null

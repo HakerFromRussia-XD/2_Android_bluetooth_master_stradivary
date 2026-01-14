@@ -66,7 +66,6 @@ final class GestureViewCell: UITableViewCell {
                 },
                 onCustomGestureSettingsTap: { [weak self] item in
                     self?.viewModel.openGestureSettings(for: item)
-//                    self?.onOpenSettings?(item.id)
                     print("onCustomGestureSettingsTap \(item)")
                 },
                 onRotationGestureRemove: { [weak self] index in

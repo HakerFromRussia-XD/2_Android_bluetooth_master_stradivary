@@ -6,36 +6,70 @@
 //
 
 import Foundation
+import shared
+
+extension Notification.Name {
+    static let gestureSettingsDidUpdate = Notification.Name("GestureSettingsDidUpdate")
+    static let gestureSettingsViewModelDidUpdate = Notification.Name("GestureSettingsViewModelDidUpdate")
+}
+
+@objcMembers
+final class GestureSettingsViewModel: NSObject {
+    static let shared = GestureSettingsViewModel()
+
+    private(set) var latestData: Int = 0
+
+    private override init() {
+        super.init()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleGestureSettingsUpdate(_:)),
+            name: .gestureSettingsDidUpdate,
+            object: nil
+        )
+    }
+
+    @objc private func handleGestureSettingsUpdate(_ notification: Notification) {
+        guard let data = notification.userInfo?["data"] as? Int else { return }
+        latestData = data
+        NotificationCenter.default.post(
+            name: .gestureSettingsViewModelDidUpdate,
+            object: self,
+            userInfo: ["data": data]
+        )
+    }
+}
 
 @objcMembers
 final class GestureService: NSObject {
-    private let gestureNamesStorage = CustomGestureNamesStorage.shared
+    static let shared = GestureService()
+    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
 
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
-        let names = gestureNamesStorage.updateName(name, at: index)
+        let names = updateName(name, at: index)
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)  names = \(names)")
     }
 
     @objc public func getGestureName(numberGesture: Int) -> String {
         let index = numberGesture - 64
-        let names = gestureNamesStorage.loadNames()
+        let names = loadNames()
         guard names.indices.contains(index) else { return names.first ?? "" }
         print("Вызвана функция getGestureName numberGesture = \(numberGesture)  names = \(names)")
         print("Вызвана функция getGestureName name = \(names[index])")
         return names[index]
     }
-    @objc public func getDeviceName() -> String { "" }
+    @objc public func getDeviceName() -> String {
+        do {
+            return try keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey) ?? ""
+        } catch {
+            print("[Storage] failed to load selected device name: \(error)")
+            return ""
+        }
+    }
     @objc public func getStatusConnection() -> Int { 0 }
-//    @objc public func () -> Int {
-//        let index = 64
-//        let names = gestureNamesStorage.loadNames()
-////        let testVal = names.indices.contains(index)
-//        print("Вызвана функция getGestureNum names = \(names)")
-//        return 64
-//    }
-    @objc public func getUseFestX() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }
+    
     @objc public func getGestureTable() -> String { "" }
     @objc public func getGestureTableBig() -> String { "" }
 
@@ -53,5 +87,65 @@ final class GestureService: NSObject {
 
     @objc func saveDataString(key: String, value: String) {
         print("save   key: \(key) value: \(value)")
+    }
+    
+    func loadNames() -> [String] {
+        let defaults = Self.defaultNames()
+        let key = TypedStorageKey<[String]>(
+            rawValue: BluetoothStorageKeys.customGestureNameStorageKey.rawValue + getDeviceName()
+        )
+        do {
+            
+            if var stored = try keyValueStorage.load(for: key) {
+                if stored.count != defaults.count {
+                    stored = Self.mergedNames(stored, defaults: defaults)
+                    try? keyValueStorage.save(stored, for: key)
+                }
+                print ("loadNames 3")
+                return stored
+            }
+        } catch {
+            print ("loadNames 1")
+        }
+
+        try? keyValueStorage.save(defaults, for: key)
+        print ("loadNames 2")
+        return defaults
+    }
+    @discardableResult
+    func updateName(_ name: String, at index: Int) -> [String] {
+        let key = TypedStorageKey<[String]>(
+            rawValue: BluetoothStorageKeys.customGestureNameStorageKey.rawValue + getDeviceName()
+        )
+        var names = loadNames()
+        guard names.indices.contains(index) else { return names }
+        names[index] = name
+        print("Вызвана функция updateName names = \(names)")
+        try? keyValueStorage.save(names, for: key)
+        return names
+    }
+    private static func mergedNames(_ stored: [String], defaults: [String]) -> [String] {
+        if stored.count >= defaults.count {
+            return Array(stored.prefix(defaults.count))
+        }
+        return stored + Array(defaults[stored.count...])
+    }
+    private static func defaultNames() -> [String] {
+        return [
+            SharedRes.strings().gesture_1_btn,
+            SharedRes.strings().gesture_2_btn,
+            SharedRes.strings().gesture_3_btn,
+            SharedRes.strings().gesture_4_btn,
+            SharedRes.strings().gesture_5_btn,
+            SharedRes.strings().gesture_6_btn,
+            SharedRes.strings().gesture_7_btn,
+            SharedRes.strings().gesture_8_btn,
+            SharedRes.strings().gesture_9_btn,
+            SharedRes.strings().gesture_10_btn,
+            SharedRes.strings().gesture_11_btn,
+            SharedRes.strings().gesture_12_btn,
+            SharedRes.strings().gesture_13_btn,
+            SharedRes.strings().gesture_14_btn
+        ].map { $0.desc().localized() }
     }
 }

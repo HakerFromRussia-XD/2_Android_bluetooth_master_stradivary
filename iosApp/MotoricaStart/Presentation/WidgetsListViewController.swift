@@ -177,12 +177,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
-//        let kotlinWidgets = dataFactory.prepareData(display: display)
+        let kotlinWidgets = dataFactory.prepareData(display: display)
         
-
-//        let kotlinWidgets = dataFactory.fakeData()
-        let kotlinWidgets = dataFactory.fakeData2()
-        handleWidgetsLoadingCompletion()
+//        let kotlinWidgets = dataFactory.fakeData2()
+//        handleWidgetsLoadingCompletion()
         
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
@@ -447,7 +445,7 @@ private extension WidgetsListViewController {
         lastKnownLoadingState = state
         guard isViewVisible else { return }
         //TODO: тут можно отключать лоадер (3)
-//        LoadingView.show(state: state)
+        LoadingView.show(state: state)
     }
     
     var isSynchronizationCompleted: Bool {

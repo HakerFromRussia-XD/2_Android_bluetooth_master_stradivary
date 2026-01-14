@@ -15,7 +15,9 @@ static const CGSize AAPLInteropTextureSize = {1024, 1024};
 
 @interface AAPLOpenGLRenderer : NSObject
 
-- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName;
+//- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName;
+- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName
+                        gestureNumber:(NSInteger)gestureNumber;
 
 - (void)draw;
 
@@ -30,5 +32,6 @@ static const CGSize AAPLInteropTextureSize = {1024, 1024};
 
 - (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height;
 - (void)saveStateData:(NSString*) dataForWrite;
+- (void)updateGestureSettingsData:(NSInteger)data;
 //- (void)loadFingersDelayTable;
 @end

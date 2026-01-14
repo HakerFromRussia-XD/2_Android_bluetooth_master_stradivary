@@ -101,7 +101,7 @@ final class BluetoothListViewModel {
         // Сохраняем состояние фильтра между запусками
 //        UserDefaults.standard.set(index, forKey: filterKey)
         do {
-            try keyValueStorage.save(index, for: BluetoothStorageKeys.selectedFilterIndex)
+            try keyValueStorage.save(index, for: BluetoothStorageKeys.selectedFilterIndexStorageKey)
         } catch {
             print("[Storage] failed to persist filter index: \(error)")
         }
@@ -121,6 +121,11 @@ final class BluetoothListViewModel {
         let device = devices[index]
         print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.name)")
         print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.uuid )")
+        do {
+            try keyValueStorage.save(device.name, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+        } catch {
+            print("[Storage] failed to persist selected device name: \(error)")
+        }
         bleManager.stopScanKmm()
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
@@ -159,15 +164,15 @@ final class BluetoothListViewModel {
     // MARK: - Private
 //    private func persistDevices() {
 //        do {
-//            try keyValueStorage.save(allDevices, for: BluetoothStorageKeys.devices)
+//            try keyValueStorage.save(allDevices, for: BluetoothStorageKeys.devicesStorageKey)
 //        } catch {
 //            print("[Storage] failed to persist devices: \(error)")
 //        }
 //    }
 
     private func restorePersistedState() {
-        selectedFilterIndex = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedFilterIndex)) ?? 0
-//        if let storedDevices = try? keyValueStorage.load(for: BluetoothStorageKeys.devices) {
+        selectedFilterIndex = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedFilterIndexStorageKey)) ?? 0
+//        if let storedDevices = try? keyValueStorage.load(for: BluetoothStorageKeys.devicesStorageKey) {
 //            allDevices = storedDevices
 //        }
         applyFilter(index: selectedFilterIndex)
@@ -176,7 +181,7 @@ final class BluetoothListViewModel {
     private func resetDevices() {
         allDevices.removeAll()
         devices.removeAll()
-        keyValueStorage.removeValue(for: BluetoothStorageKeys.devices)
+        keyValueStorage.removeValue(for: BluetoothStorageKeys.devicesStorageKey)
         applyFilter(index: selectedFilterIndex)
     }
 }

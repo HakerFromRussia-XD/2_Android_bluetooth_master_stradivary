@@ -53,7 +53,6 @@ class BLEController() {
     private val mContext: Context = main.applicationContext
     private var mBLEParser: BLEParser? = null
 
-
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var mBluetoothLeService: BluetoothLeService? = null
     private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
@@ -117,7 +116,6 @@ class BLEController() {
             mBluetoothLeService = null
         }
     }
-
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
@@ -213,10 +211,6 @@ class BLEController() {
             }
         }
 
-
-
-
-
     private suspend fun firstNotificationRequest() {
         var attempts = 0
         while (firstNotificationRequestFlag && attempts < 5) {
@@ -245,7 +239,7 @@ class BLEController() {
         }
     }
 
-private fun parseReceivedData(data: ByteArray?) {
+    private fun parseReceivedData(data: ByteArray?) {
     val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
     Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
     val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1

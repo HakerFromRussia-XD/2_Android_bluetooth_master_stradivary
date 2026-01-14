@@ -118,8 +118,9 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSString *_gestureTableBigStr;
     NSInteger _gestureTableBig[160];
     NSInteger _gestureNumber;
-    NSInteger _typeMultigribNewVM;
+//    NSInteger _typeMultigribNewVM;
     NSInteger _handSide;
+    NSInteger _gestureSettingsData;
     
     NSInteger openStage1;
     NSInteger openStage2;
@@ -138,17 +139,19 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSTimer *timer;
 }
 
-- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName {
+- (instancetype) initWithDefaultFBOName:(GLuint)defaultFBOName
+                        gestureNumber:(NSInteger)gestureNumber {
     self = [super init];
     if(self)
     {
 //        gestureVC = [[WidgetsListTableViewController alloc]init];
 //        sampleGattAtributes = [[SampleGattAttributes alloc]init];
 //        _typeMultigribNewVM = [gestureService getUseFestX];
-//        _gestureNumber = [gestureVC getGestureNum];
+        _gestureNumber = gestureNumber;
+        NSLog(@"gestureNumber from AAPLOpenGLRenderer = %ld", (long)_gestureNumber);
 //        _handSide = [gestureService getHandSide];
         gestureService = [[GestureService alloc] init];
-        _typeMultigribNewVM = [gestureService getUseFestX];
+//        _typeMultigribNewVM = [gestureService getUseFestX];
 //        _gestureNumber = [gestureService getGestureNum];
         _handSide = [gestureService getHandSide];
         
@@ -184,52 +187,21 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         }
         
         
-        if ([gestureService getVersionDriverGreaterThan237]) {
-            NSLog(@"Парсинг 1 _gestureNumber: %ld", (long)_gestureNumber);
-            openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
-            openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
-            openStage2 = _gestureTableBig[12*(_gestureNumber-2)+2];
-            openStage1 = _gestureTableBig[12*(_gestureNumber-2)+3];
-            openStage5 = _gestureTableBig[12*(_gestureNumber-2)+4];
-            openStage6 = _gestureTableBig[12*(_gestureNumber-2)+5];
-            
-            closeStage4 = _gestureTableBig[12*(_gestureNumber-2)+6];
-            closeStage3 = _gestureTableBig[12*(_gestureNumber-2)+7];
-            closeStage2 = _gestureTableBig[12*(_gestureNumber-2)+8];
-            closeStage1 = _gestureTableBig[12*(_gestureNumber-2)+9];
-            closeStage5 = _gestureTableBig[12*(_gestureNumber-2)+10];
-            closeStage6 = _gestureTableBig[12*(_gestureNumber-2)+11];
-        } else {
-            if (_typeMultigribNewVM) {
-                openStage4 = _gestureTable[12*(_gestureNumber-1)+0];
-                openStage3 = _gestureTable[12*(_gestureNumber-1)+1];
-                openStage2 = _gestureTable[12*(_gestureNumber-1)+2];
-                openStage1 = _gestureTable[12*(_gestureNumber-1)+3];
-                openStage5 = _gestureTable[12*(_gestureNumber-1)+4];
-                openStage6 = _gestureTable[12*(_gestureNumber-1)+5];
-                
-                closeStage4 = _gestureTable[12*(_gestureNumber-1)+6];
-                closeStage3 = _gestureTable[12*(_gestureNumber-1)+7];
-                closeStage2 = _gestureTable[12*(_gestureNumber-1)+8];
-                closeStage1 = _gestureTable[12*(_gestureNumber-1)+9];
-                closeStage5 = _gestureTable[12*(_gestureNumber-1)+10];
-                closeStage6 = _gestureTable[12*(_gestureNumber-1)+11];
-            } else {
-                openStage1 = _gestureTable[12*(_gestureNumber-2)+0];
-                openStage2 = _gestureTable[12*(_gestureNumber-2)+1];
-                openStage3 = _gestureTable[12*(_gestureNumber-2)+2];
-                openStage4 = _gestureTable[12*(_gestureNumber-2)+3];
-                openStage5 = _gestureTable[12*(_gestureNumber-2)+4];
-                openStage6 = _gestureTable[12*(_gestureNumber-2)+5];
-                
-                closeStage1 = _gestureTable[12*(_gestureNumber-2)+6];
-                closeStage2 = _gestureTable[12*(_gestureNumber-2)+7];
-                closeStage3 = _gestureTable[12*(_gestureNumber-2)+8];
-                closeStage4 = _gestureTable[12*(_gestureNumber-2)+9];
-                closeStage5 = _gestureTable[12*(_gestureNumber-2)+10];
-                closeStage6 = _gestureTable[12*(_gestureNumber-2)+11];
-            }
-        }
+        NSLog(@"Парсинг 1 _gestureNumber: %ld", (long)_gestureNumber);
+        openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
+        openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
+        openStage2 = _gestureTableBig[12*(_gestureNumber-2)+2];
+        openStage1 = _gestureTableBig[12*(_gestureNumber-2)+3];
+        openStage5 = _gestureTableBig[12*(_gestureNumber-2)+4];
+        openStage6 = _gestureTableBig[12*(_gestureNumber-2)+5];
+        
+        closeStage4 = _gestureTableBig[12*(_gestureNumber-2)+6];
+        closeStage3 = _gestureTableBig[12*(_gestureNumber-2)+7];
+        closeStage2 = _gestureTableBig[12*(_gestureNumber-2)+8];
+        closeStage1 = _gestureTableBig[12*(_gestureNumber-2)+9];
+        closeStage5 = _gestureTableBig[12*(_gestureNumber-2)+10];
+        closeStage6 = _gestureTableBig[12*(_gestureNumber-2)+11];
+        
         
         _accumulateRotationGeneral       = matrix4x4_identity();
         _accumulateRotationForeFinger    = matrix4x4_identity();
@@ -257,14 +229,14 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
         
         
-        if (_typeMultigribNewVM == 1 || [gestureService getVersionDriverGreaterThan237]) {
-            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            [self sendGestureNumberFestX];
-        } else {
-            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-        }
+//        if (_typeMultigribNewVM == 1 || [gestureService getVersionDriverGreaterThan237]) {
+//            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            [self sendGestureNumberFestX];
+//        } else {
+//            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//        }
         
         
         _startAngle = 1.55f;//1.55f;
@@ -444,7 +416,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     _selectionMVPUniformLocation = glGetUniformLocation(_selectProgram, "u_MVPMatrix");
 }
 
-- (void)updateFrameState {
+- (void) updateFrameState {
 //    NSLog(@"Вызываем функцию обновления состояния кадра");
     
     const vector_float3 ambientLightColor = {0.2, 0.2, 0.2};
@@ -497,7 +469,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     _deltaY = 0;
 }
 
-- (void)resize:(CGSize)size {
+- (void) resize:(CGSize)size {
     NSLog(@"Вызываем функцию изменения размера прямоугольника отрисовки");
     // Handle the resize of the draw rectangle. In particular, update the perspective projection matrix
     // with a new aspect ratio because the view orientation, layout, or size has changed.
@@ -513,7 +485,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
 }
 
-- (void)draw
+- (void) draw
 {
     glUniform3fv(_ambientLightColorUniformLocation, 1, (GLvoid*)&_ambientLightColor);
     glUniform3fv(_directionalLightInvDirectionUniformLocation, 1, (GLvoid*)&_directionalLightInvDirection);
@@ -1287,7 +1259,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
                              0,  0,  1,  0);
 }
    
-+ (GLuint)buildProgramWithVertexSourceURL:(NSURL*)vertexSourceURL
++ (GLuint) buildProgramWithVertexSourceURL:(NSURL*)vertexSourceURL
                     withFragmentSourceURL:(NSURL*)fragmentSourceURL
                                hasNormals:(BOOL)hasNormals
                           hasBaseColorMap:(BOOL)hasBaseColorMap
@@ -1441,9 +1413,9 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     return prgName;
 }
 
-- (void)beginTouchIvent { _selectedObject = [self selectObject]; }
+- (void) beginTouchIvent { _selectedObject = [self selectObject]; }
 
-- (void)touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY {
+- (void) touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY {
 //    _deltaX = deltaX;
 //    _deltaY = deltaY;
     _deltaX += deltaX;
@@ -1452,7 +1424,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _Y = Y;
 }
 
-- (void)endTouchIvent {
+- (void) endTouchIvent {
     NSLog(@"Закончили возюкать пальцем по экрану");
     NSLog(@"Маленький палец: %d", _angleLittleFingerTransfer);
     if (_angleLittleFingerTransferOld != _angleLittleFingerTransfer) {
@@ -1460,29 +1432,29 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage1 = _angleLittleFingerTransfer;
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage1 = _angleLittleFingerTransfer;
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleLittleFingerTransferOld = _angleLittleFingerTransfer;
     }
     NSLog(@"Безымянный палец: %d", _angleRingFingerTransfer);
@@ -1492,30 +1464,30 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             //изменение открытого состояния
             openStage2 = _angleRingFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage2 = _angleRingFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleRingFingerTransferOld = _angleRingFingerTransfer;
     }
     NSLog(@"Средний палец: %d", _angleMiddleFingerTransfer);
@@ -1525,30 +1497,30 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             //изменение открытого состояния
             openStage3 = _angleMiddleFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage3 = _angleMiddleFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleMiddleFingerTransferOld = _angleMiddleFingerTransfer;
     }
     NSLog(@"Указательный палец: %d", _angleForeFingerTransfer);
@@ -1558,30 +1530,30 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             //изменение открытого состояния
             openStage4 = _angleForeFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage4 = _angleForeFingerTransfer;
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleForeFingerTransferOld = _angleForeFingerTransfer;
     }
     NSLog(@"Большой палец: %d", (_angleBigFingerTransfer1+58));
@@ -1591,30 +1563,30 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             //изменение открытого состояния
             openStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleBigFingerTransfer1Old = _angleBigFingerTransfer1;
     }
     NSLog(@"Ротация палец: %d", _angleBigFingerTransfer2);
@@ -1624,30 +1596,30 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             //изменение открытого состояния
             openStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         } else {
             //изменение закрытого состояния
             closeStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
             
-            if (_typeMultigribNewVM == 1) {
-                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-            } else {
-                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-            }
+//            if (_typeMultigribNewVM == 1) {
+//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//            } else {
+//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//            }
         }
-        if (_typeMultigribNewVM == 1) {
-            [self sendSaveComandFestX];
-        } else {
-            [self sendSaveComandFestH];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            [self sendSaveComandFestX];
+//        } else {
+//            [self sendSaveComandFestH];
+//        }
         _angleBigFingerTransfer2Old = _angleBigFingerTransfer2;
     }
 }
@@ -1669,12 +1641,12 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 }
 
 
-- (void)stopVC {
+- (void) stopVC {
     NSLog(@"Переход назад 2");
     [self saveAllData];
     [self deallocAll];
 }
-- (void)savesAllData {
+- (void) savesAllData {
     [self saveAllData];
 }
 //Функция для очистки памяти, выделенной под отрисовку
@@ -1697,12 +1669,12 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     free(_templeTextures);
 }
 
-- (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height {
+- (void) calculationOfCoefficients:(CGFloat) width  :(CGFloat) height {
     _xCoefficient = _viewSize.width/width;
     _yCoefficient = _viewSize.height/height;
 }
 
-- (void)changeState :(BOOL) state {
+- (void) changeState :(BOOL) state {
     NSLog(@"changeState tup %d", state);
     self->stateGesture = state;
     if (state == 1) {
@@ -1723,13 +1695,13 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
         
         
-        if (_typeMultigribNewVM == 1) {
-            uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-        } else {
-            uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-        }
+//        if (_typeMultigribNewVM == 1) {
+//            uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
+////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
+//        } else {
+//            uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
+//        }
         
         
         [self saveStateData :@"1"];
@@ -1751,20 +1723,20 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
         
         
-        if (_typeMultigribNewVM == 1) {
-            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
+//        if (_typeMultigribNewVM == 1) {
+//            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
 //            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-        } else {
-            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
+//        } else {
+//            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
 //            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-        }
+//        }
         
         
         [self saveStateData :@"0"];
     }
 }
 
-- (void)checkingAnglesForValidValues {
+- (void) checkingAnglesForValidValues {
     if(_angleForeFingerFloat < 0.0174) {
         NSLog(@"пофиксили _angleForeFingerFloat было: %f  стало: %f", _angleForeFingerFloat, 0.02);
         _angleForeFingerFloat = 0.02;
@@ -1817,7 +1789,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     }
 }
 
-- (void)animateChangeState{
+- (void) animateChangeState{
     if (stateGesture == 1) {
         //закрываем
         if (_directionForeFinger) {
@@ -1855,7 +1827,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     }
 }
 
-- (void)sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
+- (void) sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
     [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
 }
@@ -1883,35 +1855,20 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             }
 //        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
     } else {
-        if (_typeMultigribNewVM) {
-            _gestureTable[12*(_gestureNumber-1)+0] = openStage4;
-            _gestureTable[12*(_gestureNumber-1)+1] = openStage3;
-            _gestureTable[12*(_gestureNumber-1)+2] = openStage2;
-            _gestureTable[12*(_gestureNumber-1)+3] = openStage1;
-            _gestureTable[12*(_gestureNumber-1)+4] = openStage5;
-            _gestureTable[12*(_gestureNumber-1)+5] = openStage6;
-            
-            _gestureTable[12*(_gestureNumber-1)+6] = closeStage4;
-            _gestureTable[12*(_gestureNumber-1)+7] = closeStage3;
-            _gestureTable[12*(_gestureNumber-1)+8] = closeStage2;
-            _gestureTable[12*(_gestureNumber-1)+9] = closeStage1;
-            _gestureTable[12*(_gestureNumber-1)+10] = closeStage5;
-            _gestureTable[12*(_gestureNumber-1)+11] = closeStage6;
-        } else {
-            _gestureTable[12*(_gestureNumber-2)+0] = openStage1;
-            _gestureTable[12*(_gestureNumber-2)+1] = openStage2;
-            _gestureTable[12*(_gestureNumber-2)+2] = openStage3;
-            _gestureTable[12*(_gestureNumber-2)+3] = openStage4;
-            _gestureTable[12*(_gestureNumber-2)+4] = openStage5;
-            _gestureTable[12*(_gestureNumber-2)+5] = openStage6;
-            
-            _gestureTable[12*(_gestureNumber-2)+6] = closeStage1;
-            _gestureTable[12*(_gestureNumber-2)+7] = closeStage2;
-            _gestureTable[12*(_gestureNumber-2)+8] = closeStage3;
-            _gestureTable[12*(_gestureNumber-2)+9] = closeStage4;
-            _gestureTable[12*(_gestureNumber-2)+10] = closeStage5;
-            _gestureTable[12*(_gestureNumber-2)+11] = closeStage6;
-        }
+        _gestureTable[12*(_gestureNumber-1)+0] = openStage4;
+        _gestureTable[12*(_gestureNumber-1)+1] = openStage3;
+        _gestureTable[12*(_gestureNumber-1)+2] = openStage2;
+        _gestureTable[12*(_gestureNumber-1)+3] = openStage1;
+        _gestureTable[12*(_gestureNumber-1)+4] = openStage5;
+        _gestureTable[12*(_gestureNumber-1)+5] = openStage6;
+        
+        _gestureTable[12*(_gestureNumber-1)+6] = closeStage4;
+        _gestureTable[12*(_gestureNumber-1)+7] = closeStage3;
+        _gestureTable[12*(_gestureNumber-1)+8] = closeStage2;
+        _gestureTable[12*(_gestureNumber-1)+9] = closeStage1;
+        _gestureTable[12*(_gestureNumber-1)+10] = closeStage5;
+        _gestureTable[12*(_gestureNumber-1)+11] = closeStage6;
+        
         
         NSString *dataStr = @"";
             for (int i = 0; i <= 86; i++) {
@@ -1929,5 +1886,9 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 //    [gestureVC saveDataStringWithKey:sampleGattAtributes.STATE_GESTURE
 //                               value:dataForWrite];
 }
-
+- (void) updateGestureSettingsData:(NSInteger)data {
+    _gestureSettingsData = data;
+//    [gestureService getDeviceName];
+    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: %ld  getDeviceName: %@", (long)data,  [gestureService getDeviceName]);
+}
 @end

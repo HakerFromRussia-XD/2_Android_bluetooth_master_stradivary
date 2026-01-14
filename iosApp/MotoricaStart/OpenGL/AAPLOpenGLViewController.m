@@ -41,7 +41,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     UIImage *connectStatus;
     UIImage *disconnectStatus;
     
-    NSInteger _typeMultigribNewVM;
     NSInteger _gestureNumber;
     NSInteger _gestureTable[84];
     NSString *_gestureTableStr;
@@ -66,9 +65,15 @@ Implementation of the cross-platform view controller and cross-platform view tha
     int closeStage6;
 }
 
+
+static NSString *const GestureSettingsViewModelDidUpdateNotification = @"GestureSettingsViewModelDidUpdate";
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     NSLog(@"viewWillDisappear");
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                          name:GestureSettingsViewModelDidUpdateNotification
+                                          object:nil];
 }
 
 - (void)viewDidLoad {
@@ -103,7 +108,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     _gestureNumber = selectedGestureNumber;
     deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     _gestureTableStr = [gestureService getGestureTable];
-    _typeMultigribNewVM = [gestureService getUseFestX];
+//    _typeMultigribNewVM = [gestureService getUseFestX];
     
     
     state = 0;
@@ -119,10 +124,10 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
     [self makeCurrentContext];
 
-    _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName];
+    _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
+                                                              gestureNumber:_gestureNumber];
 
-    if(!_openGLRenderer)
-    {
+    if(!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");
         return;
     }
@@ -137,6 +142,13 @@ Implementation of the cross-platform view controller and cross-platform view tha
     [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
     
     [_openGLRenderer saveStateData: @"0"];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(handleGestureSettingsUpdate:)
+                                          name:GestureSettingsViewModelDidUpdateNotification
+                                          object:nil];
+    NSInteger initialData = [GestureSettingsViewModel shared].latestData;
+    [_openGLRenderer updateGestureSettingsData:initialData];
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {
@@ -148,11 +160,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     NSLog(@"Переход назад 1");
     // возобновляем работу протеза от датчиков
     uint8_t data[]   = { 0x01 };
-//    if (_typeMultigribNewVM) {
-////        [self sendDataToFest:data :sampleGattAtributes.SENS_ENABLED_NEW_VM :sizeof(data)];
-//    } else {
-////        [self sendDataToFest:data :sampleGattAtributes.SENS_ENABLED_NEW :sizeof(data)];
-//    }
     
     [_openGLRenderer stopVC];
     
@@ -247,7 +254,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     // Set the display link to run on the default run loop (and the main thread).
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
-    if ([gestureService getFingersDelaySwitch] && [gestureService getUseFestX]) {
+    if ([gestureService getFingersDelaySwitch]) {
         [fingers_delay_btn setAlpha:1];
     } else { [fingers_delay_btn setAlpha:0]; }
     
@@ -328,12 +335,12 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 - (void)sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
-    if (_typeMultigribNewVM) {
-        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
-    } else{
-        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:false];
-        
-    }
+//    if (_typeMultigribNewVM) {
+//        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
+//    } else{
+//        [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:false];
+//        
+//    }
 }
 
 - (void)setNumberGesture:(NSInteger)number {
@@ -341,4 +348,11 @@ Implementation of the cross-platform view controller and cross-platform view tha
     NSLog(@"gestureNumber=%ld", (long)number);
 }
 
+- (void)handleGestureSettingsUpdate:(NSNotification *)notification {
+    NSNumber *dataValue = notification.userInfo[@"data"];
+    if (dataValue == nil) {
+        return;
+    }
+    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue];
+}
 @end

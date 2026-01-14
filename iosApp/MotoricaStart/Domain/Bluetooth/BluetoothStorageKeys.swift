@@ -8,6 +8,8 @@
 import Foundation
 
 enum BluetoothStorageKeys {
-    static let devices = TypedStorageKey<[BLEDevice]>(rawValue: "BLEDevices")
-    static let selectedFilterIndex = TypedStorageKey<Int>(rawValue: "selectedFilterIndex")
+    static let devicesStorageKey = TypedStorageKey<[BLEDevice]>(rawValue: "BLEDevices")
+    static let selectedFilterIndexStorageKey = TypedStorageKey<Int>(rawValue: "selectedFilterIndex")
+    static let selectedDeviceNameStorageKey = TypedStorageKey<String>(rawValue: "selectedDeviceName")
+    static let customGestureNameStorageKey = TypedStorageKey<[String]>(rawValue: "customGestureNames")
 }

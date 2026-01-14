@@ -167,6 +167,7 @@ extension GestureListItemViewModel {
     
     private func requestGestureSettings(gestureId: Int) {
         let parameterID = parameterID(for: ParameterCode.gestureSettings)
+        print("requestGestureSettings deviceAddress: \(widget.deviceAddress)    parameterID: \(parameterID)    gestureId: \(gestureId)")
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestGestureInfo(
             addressDevice: Int32(widget.deviceAddress),
@@ -218,7 +219,6 @@ extension GestureListItemViewModel {
         )
         sendBytes(data)
     }
-    
     
     func updateBindingGroup(provider: GesturesProvider) {
         print("Binding updateBindingGroup")
@@ -349,7 +349,7 @@ private enum GestureCatalog {
         ),
 //        .init(
 //            id: 12,
-//            title: NSLocalizedString("Middle finger", comment: ""),
+//            title: SharedRes.strings().gesture_middle_finger.desc().localized(),
 //            image: SharedRes.images().collection_middle_finger.toUIImage()
 //        ),
         .init(
@@ -450,7 +450,7 @@ struct SprGestureSelectionOption: Identifiable, Hashable {
 }
 private extension GestureListItemViewModel {
     static func makeGestureNames() -> [String] {
-        CustomGestureNamesStorage.shared.loadNames()
+        GestureService.shared.loadNames()
     }
 }
 private enum ParameterCode {

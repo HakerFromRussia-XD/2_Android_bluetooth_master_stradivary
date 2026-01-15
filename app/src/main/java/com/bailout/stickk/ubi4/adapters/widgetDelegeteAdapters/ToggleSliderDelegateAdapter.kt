@@ -65,6 +65,11 @@ class ToggleSliderDelegateAdapter(
         return (if (enabled) 0x80 else 0x00) or (v and 0x7F)
     }
 
+    private fun formatValueForUi(progress: Int, min: Int, range: Int): String {
+        if (range > 0 && progress >= range) return "∞"
+        return (progress + min).toString()
+    }
+
     private fun markPending(info: WidgetToggleSliderInfo, sliderIndex: Int, packed: Int) {
         if (sliderIndex !in 0..1) return
         val now = SystemClock.elapsedRealtime()
@@ -210,7 +215,7 @@ class ToggleSliderDelegateAdapter(
         toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 val info = widgetSlidersInfo[indexWidgetSlider]
-                toggleSliderNumTv.text = (progress + info.minProgress).toString()
+                toggleSliderNumTv.text = formatValueForUi(progress, info.minProgress, range)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
@@ -240,7 +245,7 @@ class ToggleSliderDelegateAdapter(
             toggleSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val info = widgetSlidersInfo[indexWidgetSlider]
-                    toggleSliderNum2Tv.text = (progress + info.minProgress).toString()
+                    toggleSliderNum2Tv.text = formatValueForUi(progress, info.minProgress, range)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
@@ -474,7 +479,7 @@ class ToggleSliderDelegateAdapter(
                 }
 
                 animateProgressBar(sb, oldProgress, value0_127)
-                tv.text = (value0_127 + info.minProgress).toString()
+                tv.text = formatValueForUi(value0_127, info.minProgress, range)
 
                 applyToggleVisuals(indexWidgetSlider, sliderIndex)
             }
@@ -513,7 +518,13 @@ class ToggleSliderDelegateAdapter(
         info.turnOffBtnIv.getOrNull(sliderIndex)?.setColorFilter(
             ContextCompat.getColor(ctx, colorRes),
             android.graphics.PorterDuff.Mode.SRC_IN
+
+
         )
+
+        val progress = (sb as? SeekBar)?.progress ?: return
+        info.widgetSliderNumTv.getOrNull(sliderIndex)?.text =
+            formatValueForUi(progress, info.minProgress, range)
     }
 
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {

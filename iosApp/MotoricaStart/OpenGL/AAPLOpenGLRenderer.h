@@ -9,15 +9,18 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 #include <CoreGraphics/CoreGraphics.h>
 #include "AAPLGLHeaders.h"
 #import <GLKit/GLKTextureLoader.h>
+#import <shared/shared.h>
 
-@class GestureSettingsParameterInfo;
+@interface GestureSettingsParameterInfo : NSObject
+@property (nonatomic, readonly) NSInteger parameterID;
+@property (nonatomic, readonly) NSString * _Nonnull data;
+@end
 
 static const CGSize AAPLInteropTextureSize = {1024, 1024};
 
 @interface AAPLOpenGLRenderer : NSObject
 
-//- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName;
-- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName
+- (instancetype _Nullable )initWithDefaultFBOName:(GLuint)defaultFBOName
                         gestureNumber:(NSInteger)gestureNumber;
 
 - (void)draw;
@@ -32,9 +35,9 @@ static const CGSize AAPLInteropTextureSize = {1024, 1024};
 - (void)changeState :(BOOL) state;
 
 - (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height;
-- (void)saveStateData:(NSString*) dataForWrite;
+- (void)saveStateData:(NSString*_Nullable) dataForWrite;
 //- (void)updateGestureSettingsData:(NSInteger)data;
-- (void)updateGestureSettingsData:(NSInteger)data
-                  parameterInfo:(GestureSettingsParameterInfo *)parameterInfo;
+- (void)updateGestureSettingsData:(SharedParameterRef *_Nullable)parameterRef
+                    parameterInfo:(GestureSettingsParameterInfo *_Nullable)parameterInfo;
 //- (void)loadFingersDelayTable;
 @end

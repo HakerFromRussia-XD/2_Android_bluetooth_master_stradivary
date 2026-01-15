@@ -147,12 +147,20 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                           selector:@selector(handleGestureSettingsUpdate:)
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
-    NSInteger initialData = [GestureSettingsViewModel shared].latestData;
-//    [_openGLRenderer updateGestureSettingsData:initialData];
-    GestureSettingsParameterInfo *initialInfo =
-        [gestureService getParameterInfoWithDataCode:initialData];
-    [_openGLRenderer updateGestureSettingsData:initialData
-                                 parameterInfo:initialInfo];
+//    NSInteger initialData = [GestureSettingsViewModel shared].latestData;
+////    [_openGLRenderer updateGestureSettingsData:initialData];
+//    GestureSettingsParameterInfo *initialInfo =
+//        [gestureService getParameterInfoWithDataCode:initialData];
+//    [_openGLRenderer updateGestureSettingsData:initialData
+//                                 parameterInfo:initialInfo];
+    SharedParameterRef *initialParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+    if (initialParameterRef != nil) {
+        NSInteger initialDataCode = initialParameterRef.dataCode;
+        GestureSettingsParameterInfo *initialInfo =
+            [gestureService getParameterInfoWithDataCode:initialDataCode];
+        [_openGLRenderer updateGestureSettingsData:initialParameterRef
+                                     parameterInfo:initialInfo];
+    }
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {
@@ -353,18 +361,19 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 }
 
 - (void)handleGestureSettingsUpdate:(NSNotification *)notification {
-    NSNumber *dataValue = notification.userInfo[@"data"];
-    if (dataValue == nil) {
+    SharedParameterRef *parameterRef = notification.userInfo[@"data"];
+    if (parameterRef == nil) {
         return;
     }
-//    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue];
+    NSInteger dataCode = parameterRef.dataCode;
     GestureSettingsParameterInfo *parameterInfo =
-        [gestureService getParameterInfoWithDataCode:dataValue.integerValue];
-    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@",
-          (long)dataValue.integerValue,
+        [gestureService getParameterInfoWithDataCode:dataCode];
+    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@ deviceAddress=%ld",
+          (long)dataCode,
           (long)parameterInfo.parameterID,
-          parameterInfo.data);
-    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue
-                                 parameterInfo:parameterInfo];
+          parameterInfo.data,
+          (long)parameterRef.addressDevice);
+          [_openGLRenderer updateGestureSettingsData:parameterRef
+                           parameterInfo:parameterInfo];
 }
 @end

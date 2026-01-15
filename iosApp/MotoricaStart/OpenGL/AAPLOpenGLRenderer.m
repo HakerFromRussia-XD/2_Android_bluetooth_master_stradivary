@@ -1885,18 +1885,19 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 }
 - (void) saveStateData :(NSString*) dataForWrite {
     NSLog(@"changeState saveStateData: %@", dataForWrite);
-//    [gestureVC saveDataStringWithKey:sampleGattAtributes.STATE_GESTURE
-//                               value:dataForWrite];
 }
-- (void) updateGestureSettingsData:(NSInteger)data
+- (void) updateGestureSettingsData:(SharedParameterRef *)parameterRef
                     parameterInfo:(GestureSettingsParameterInfo *)parameterInfo {
-    _gestureSettingsData = data;
-//    _gestureSettingsParameterID = parameterInfo.parameterID;
-//    _gestureSettingsParameterData = [parameterInfo.data copy];
+    if (parameterRef == nil) {
+        return;
+    }
+    _gestureSettingsData = parameterRef.dataCode;
+    _gestureSettingsParameterID = parameterRef.parameterID;
+    _gestureSettingsParameterData = [parameterInfo.data copy];
     NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
-          (long)data,
-          (long)_gestureSettingsParameterID,
-          _gestureSettingsParameterData,
+          (long)parameterRef.dataCode,
+          (long)parameterRef.parameterID,
+          parameterInfo.data,
           [gestureService getDeviceName]);
 }
 @end

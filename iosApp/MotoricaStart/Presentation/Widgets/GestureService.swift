@@ -17,7 +17,9 @@ extension Notification.Name {
 final class GestureSettingsViewModel: NSObject {
     static let shared = GestureSettingsViewModel()
 
-    private(set) var latestData: Int = 0
+//    private(set) var latestData: Int = 0
+    private(set) var latestParameterRef: ParameterRef?
+
 
     private override init() {
         super.init()
@@ -30,12 +32,15 @@ final class GestureSettingsViewModel: NSObject {
     }
 
     @objc private func handleGestureSettingsUpdate(_ notification: Notification) {
-        guard let data = notification.userInfo?["data"] as? Int else { return }
-        latestData = data
+//        guard let data = notification.userInfo?["data"] as? Int else { return }
+//        latestData = data
+        guard let parameterRef = notification.userInfo?["data"] as? ParameterRef else { return }
+        latestParameterRef = parameterRef
         NotificationCenter.default.post(
             name: .gestureSettingsViewModelDidUpdate,
             object: self,
-            userInfo: ["data": data]
+//            userInfo: ["data": data]
+            userInfo: ["data": parameterRef]
         )
     }
 }

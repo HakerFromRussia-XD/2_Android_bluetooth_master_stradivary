@@ -360,10 +360,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 //    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue];
     GestureSettingsParameterInfo *parameterInfo =
         [gestureService getParameterInfoWithDataCode:dataValue.integerValue];
-//    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@",
-//          (long)dataValue.integerValue,
-//          (long)parameterInfo.parameterID,
-//          parameterInfo.data);
+    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@",
+          (long)dataValue.integerValue,
+          (long)parameterInfo.parameterID,
+          parameterInfo.data);
     [_openGLRenderer updateGestureSettingsData:dataValue.integerValue
                                  parameterInfo:parameterInfo];
 }

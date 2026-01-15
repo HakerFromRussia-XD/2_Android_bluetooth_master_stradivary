@@ -156,13 +156,17 @@ object PreferenceKeysUbi4 {
             "5" to "Общая сила",
             "6" to "Чувствительность открытия",
             "7" to "Чувствительность закрытия",
-            "8" to "Выключение дисплея",
-            "9" to "Время выключения дисплея (сек)",
+            "8" to "Не используется",
+            "9" to "Время работы дисплея (сек)",
             "10" to "Ориентация дисплея",
             "11" to "Управление ОМГ",
-            "12" to "Время входа в ОМГ (50мс)",
+            "12" to "Время входа в ОМГ (50 мс)",
             "13" to "Поменять сенсоры",
-            "14" to "Управление моторами с ЕМГ",
+            "14" to "Управление моторами с ЭМГ",
+            "15" to "Пропорциональное управление силой",
+            "16" to "Пропорциональное управление скоростью",
+            "17" to "Пропорциональное управление позицией",
+            "18" to "Блокировка движения с датчиков (сек)",
             "custom_name" to "Кастомное имя"
         ),
         "en" to mapOf(
@@ -174,13 +178,17 @@ object PreferenceKeysUbi4 {
             "5" to "Global force",
             "6" to "Open sensitivity",
             "7" to "Close sensitivity",
-            "8" to "Display off",
-            "9" to "Display off timeout (sec)",
+            "8" to "Not used",
+            "9" to "Display timeout (sec)",
             "10" to "Display orientation",
             "11" to "OMG control",
-            "12" to "OMG timeout (50ms)",
+            "12" to "OMG timeout (50 ms)",
             "13" to "Switch sensors",
-            "14" to "EMG motor control"
+            "14" to "EMG motor control",
+            "15" to "Proportional force control",
+            "16" to "Proportional speed control",
+            "17" to "Proportional position control",
+            "18" to "EMG movement block time (sec)"
         )
     )
 

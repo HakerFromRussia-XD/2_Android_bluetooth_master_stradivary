@@ -42,7 +42,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ToggleSliderDelegateAdapter(
     private val onSetProgress: (addressDevice: Int, parameterID: Int, packedBytes: ArrayList<Int>) -> Unit,
     private val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
-) : ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetToggleSliderBinding>(Ubi4WidgetToggleSliderBinding::inflate) {
+) : ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetToggleSliderBinding>(
+    Ubi4WidgetToggleSliderBinding::inflate
+) {
 
     private companion object {
         private const val PENDING_WINDOW_MS = 800L
@@ -70,7 +72,11 @@ class ToggleSliderDelegateAdapter(
         info.pendingUntilMs[sliderIndex] = now + PENDING_WINDOW_MS
     }
 
-    private fun shouldApplyDevicePacked(info: WidgetToggleSliderInfo, sliderIndex: Int, packedFromDevice: Int): Boolean {
+    private fun shouldApplyDevicePacked(
+        info: WidgetToggleSliderInfo,
+        sliderIndex: Int,
+        packedFromDevice: Int
+    ): Boolean {
         if (sliderIndex !in 0..1) return true
 
         val now = SystemClock.elapsedRealtime()
@@ -192,7 +198,8 @@ class ToggleSliderDelegateAdapter(
 
             val titleViews = listOf(toggleSliderTitleTv, toggleSliderTitle2Tv)
             titleViews.forEachIndexed { idx, tv ->
-                val text = resolve(dataOffset.getOrNull(idx)) ?: if (idx == 0) item.title else tv.text
+                val text =
+                    resolve(dataOffset.getOrNull(idx)) ?: if (idx == 0) item.title else tv.text
                 runCatching { tv.text = text }
             }
         } else {
@@ -263,18 +270,38 @@ class ToggleSliderDelegateAdapter(
 
         // +/-
         toggleMinusBtnRipple1.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 0, step = -1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(
+                widgetPosition,
+                sliderIndex = 0,
+                step = -1,
+                indexWidgetSlider = indexWidgetSlider
+            )
         }
         togglePlusBtnRipple1.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(
+                widgetPosition,
+                sliderIndex = 0,
+                step = +1,
+                indexWidgetSlider = indexWidgetSlider
+            )
         }
 
         if (paramCount > 1) {
             toggleMinusBtnRipple2.setOnClickListener {
-                updateSliderProgress(widgetPosition, sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgress(
+                    widgetPosition,
+                    sliderIndex = 1,
+                    step = -1,
+                    indexWidgetSlider = indexWidgetSlider
+                )
             }
             togglePlusBtnRipple2.setOnClickListener {
-                updateSliderProgress(widgetPosition, sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgress(
+                    widgetPosition,
+                    sliderIndex = 1,
+                    step = +1,
+                    indexWidgetSlider = indexWidgetSlider
+                )
             }
         } else {
             toggleMinusBtnRipple2.setOnClickListener(null)
@@ -283,7 +310,13 @@ class ToggleSliderDelegateAdapter(
 
         // toggle buttons: меняем только enabled-bit
         toggleTurnOffBtnRipple1.setOnClickListener { toggleEnabled(addressDevice, parameterID, 0) }
-        toggleTurnOffBtnRipple2.setOnClickListener { if (paramCount > 1) toggleEnabled(addressDevice, parameterID, 1) }
+        toggleTurnOffBtnRipple2.setOnClickListener {
+            if (paramCount > 1) toggleEnabled(
+                addressDevice,
+                parameterID,
+                1
+            )
+        }
 
         // request if cache empty
         run {
@@ -328,7 +361,12 @@ class ToggleSliderDelegateAdapter(
         debounceSend(info)
     }
 
-    private fun updateSliderProgress(widgetPosition: Int, sliderIndex: Int, step: Int, indexWidgetSlider: Int) {
+    private fun updateSliderProgress(
+        widgetPosition: Int,
+        sliderIndex: Int,
+        step: Int,
+        indexWidgetSlider: Int
+    ) {
         val info = widgetSlidersInfo.find { it.widgetPosition == widgetPosition }
         if (info == null) {
             Log.e("updateToggleSlider", "Не найден sliderInfo для widgetPosition=$widgetPosition")
@@ -379,8 +417,10 @@ class ToggleSliderDelegateAdapter(
     }
 
     private fun setUI(parameterRef: ParameterRef) {
-        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-        val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+        val parameter =
+            ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+        val indexWidgetSlider =
+            getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
         if (indexWidgetSlider == -1 || indexWidgetSlider >= widgetSlidersInfo.size) return
 
         val info = widgetSlidersInfo[indexWidgetSlider]
@@ -404,7 +444,8 @@ class ToggleSliderDelegateAdapter(
                 ?: return
 
             info.dataOffset.forEachIndexed { sliderIndex, off ->
-                val sb = info.widgetSlidersSb.getOrNull(sliderIndex) as? SeekBar ?: return@forEachIndexed
+                val sb =
+                    info.widgetSlidersSb.getOrNull(sliderIndex) as? SeekBar ?: return@forEachIndexed
                 val tv = info.widgetSliderNumTv.getOrNull(sliderIndex) ?: return@forEachIndexed
 
                 val oldProgress = sb.progress
@@ -418,7 +459,12 @@ class ToggleSliderDelegateAdapter(
                 val packedFromDevice = packedByte and 0xFF
 
                 // анти-мигание: игнорируем "чужие" значения пока ждём ACK своего действия
-                if (!shouldApplyDevicePacked(info, sliderIndex, packedFromDevice)) return@forEachIndexed
+                if (!shouldApplyDevicePacked(
+                        info,
+                        sliderIndex,
+                        packedFromDevice
+                    )
+                ) return@forEachIndexed
 
                 val enabled = (packedFromDevice and 0x80) != 0
                 val value0_127 = (packedFromDevice and 0x7F).coerceIn(0, range)
@@ -459,13 +505,10 @@ class ToggleSliderDelegateAdapter(
         sb.thumb = AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
         sb.isEnabled = enabled
 
-        // Toggle icon: серый если value == 0, иначе зависит от enabled
-        val value = unpackValue(packed)
-        val colorRes = if (value == 0) {
-            R.color.ubi4_gray_border
-        } else {
-            if (enabled) R.color.ubi4_active else R.color.ubi4_gray_border
-        }
+
+        val colorRes =
+            if (enabled) R.color.ubi4_active
+            else R.color.ubi4_gray_border
 
         info.turnOffBtnIv.getOrNull(sliderIndex)?.setColorFilter(
             ContextCompat.getColor(ctx, colorRes),
@@ -505,6 +548,7 @@ class ToggleSliderDelegateAdapter(
             val pos = s.widgetPosition
             "toggle-slider-$addr-$pid-$pos"
         }
+
         is ToggleSliderParameterWidgetSStruct -> {
             val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
             val addr = s.parameterInfoSet.elementAt(0).deviceAddress
@@ -512,6 +556,7 @@ class ToggleSliderDelegateAdapter(
             val pos = s.widgetPosition
             "toggle-slider-$addr-$pid-$pos"
         }
+
         else -> title
     }
 

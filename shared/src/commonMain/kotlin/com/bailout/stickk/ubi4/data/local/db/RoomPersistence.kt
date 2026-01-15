@@ -173,38 +173,11 @@ object RoomPersistence {
     }
 
 
-//    suspend fun loadDeviceCrc(deviceAddr: Int): Long? {
-//        val repo = WidgetRepoProvider.get()
-//        return repo.loadDeviceCrc(deviceAddr)
-//    }
-//
 //    /** Безопасно достать байт из hex-строки по смещению (в байтах), вернуть null если не влезает. */
     private fun hexByteAt(raw: String, offset: Int): Int? {
         val i = offset * 2
         return if (i + 2 <= raw.length) raw.substring(i, i + 2).toInt(16) else null
     }
-//
-//    fun persistDeviceCrc(
-//        scope: CoroutineScope,
-//        deviceAddr: Int,
-//        crc: Long
-//    ) {
-//        val repo = WidgetRepoProvider.get()
-//        val ts = getTimeMillis()
-//
-//        platformLog(
-//            "ROOM_PERSIST",
-//            "device_crc WRITE → mac=${WidgetRepoProvider.mac()} dev=$deviceAddr crc=$crc"
-//        )
-//
-//        scope.launch(Dispatchers.IO) {
-//            repo.upsertDeviceCrc(
-//                deviceAddr = deviceAddr,
-//                crc        = crc,
-//                tsMs       = ts
-//            )
-//        }
-//    }
 
     suspend fun loadDeviceCrc(deviceAddr: Int): Long? {
         val repo = WidgetRepoProvider.get()
@@ -246,7 +219,6 @@ object RoomPersistence {
         }
     }
 }
-
 
 
 

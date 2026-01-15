@@ -16,7 +16,7 @@ public class RxUpdateMainEventUbi4 {
   private final PublishSubject<FingerAngle> fingerAngle;
   private final PublishSubject<GestureWithAddress> gestureStateWithEncoders;
   private final PublishSubject<GestureInfo> readCharacteristicBLE;
-  private final PublishSubject<Integer> uiGestureSettings;
+  private final PublishSubject<ParameterRef> uiGestureSettings;
   private final PublishSubject<ParameterRef> uiRotationGroup;
   private final PublishSubject<ParameterRef> uiOpticTraining;
 
@@ -53,7 +53,7 @@ public class RxUpdateMainEventUbi4 {
     readCharacteristicBLE.onNext(parameters);
   }
 
-  public void updateUiGestureSettings(Integer parameters) {
+  public void updateUiGestureSettings(ParameterRef parameters) {
     uiGestureSettings.onNext(parameters);
   }
 
@@ -83,7 +83,7 @@ public class RxUpdateMainEventUbi4 {
     return readCharacteristicBLE;
   }
 
-  public Observable<Integer> getUiGestureSettingsObservable() {
+  public Observable<ParameterRef> getUiGestureSettingsObservable() {
     return uiGestureSettings;
   }
 

@@ -45,6 +45,21 @@ final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
 
+    @objcMembers
+    final class GestureSettingsParameterInfo: NSObject {
+        let parameterID: Int
+        let dataCode: Int
+        let data: String
+        let dataSize: Int
+
+        init(parameterID: Int, dataCode: Int, data: String, dataSize: Int) {
+            self.parameterID = parameterID
+            self.dataCode = dataCode
+            self.data = data
+            self.dataSize = dataSize
+        }
+    }
+    
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
         let names = updateName(name, at: index)
@@ -66,6 +81,15 @@ final class GestureService: NSObject {
             print("[Storage] failed to load selected device name: \(error)")
             return ""
         }
+    }
+    @objc public func getParameterInfo(dataCode: Int) -> GestureSettingsParameterInfo {
+        let parameter = ParameterProvider.Companion().getParameterDeprecated(dataCode: Int32(dataCode))
+        return GestureSettingsParameterInfo(
+            parameterID: Int(parameter.ID),
+            dataCode: Int(parameter.dataCode),
+            data: parameter.data,
+            dataSize: Int(parameter.parameterDataSize)
+        )
     }
     @objc public func getStatusConnection() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }

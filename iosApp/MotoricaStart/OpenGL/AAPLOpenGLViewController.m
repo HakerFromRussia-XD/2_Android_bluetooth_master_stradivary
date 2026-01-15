@@ -148,7 +148,11 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
     NSInteger initialData = [GestureSettingsViewModel shared].latestData;
-    [_openGLRenderer updateGestureSettingsData:initialData];
+//    [_openGLRenderer updateGestureSettingsData:initialData];
+    GestureServiceGestureSettingsParameterInfo *initialInfo =
+        [gestureService getParameterInfoWithDataCode:initialData];
+    [_openGLRenderer updateGestureSettingsData:initialData
+                                 parameterInfo:initialInfo];
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {
@@ -353,6 +357,14 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (dataValue == nil) {
         return;
     }
-    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue];
+//    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue];
+    GestureServiceGestureSettingsParameterInfo *parameterInfo =
+        [gestureService getParameterInfoWithDataCode:dataValue.integerValue];
+    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@",
+          (long)dataValue.integerValue,
+          (long)parameterInfo.parameterID,
+          parameterInfo.data);
+    [_openGLRenderer updateGestureSettingsData:dataValue.integerValue
+                                 parameterInfo:parameterInfo];
 }
 @end

@@ -118,6 +118,8 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSString *_gestureTableBigStr;
     NSInteger _gestureTableBig[160];
     NSInteger _gestureNumber;
+    NSInteger _gestureSettingsParameterID;
+    NSString *_gestureSettingsParameterData;
 //    NSInteger _typeMultigribNewVM;
     NSInteger _handSide;
     NSInteger _gestureSettingsData;
@@ -1886,9 +1888,15 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 //    [gestureVC saveDataStringWithKey:sampleGattAtributes.STATE_GESTURE
 //                               value:dataForWrite];
 }
-- (void) updateGestureSettingsData:(NSInteger)data {
+- (void) updateGestureSettingsData:(NSInteger)data
+                    parameterInfo:(GestureServiceGestureSettingsParameterInfo *)parameterInfo {
     _gestureSettingsData = data;
-//    [gestureService getDeviceName];
-    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: %ld  getDeviceName: %@", (long)data,  [gestureService getDeviceName]);
+    _gestureSettingsParameterID = parameterInfo.parameterID;
+    _gestureSettingsParameterData = [parameterInfo.data copy];
+    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
+          (long)data,
+          (long)_gestureSettingsParameterID,
+          _gestureSettingsParameterData,
+          [gestureService getDeviceName]);
 }
 @end

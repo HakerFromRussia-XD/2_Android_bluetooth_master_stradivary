@@ -9,8 +9,8 @@ private const val GestureSettingsDataKey = "data"
 
 actual object RxUpdateMainEventUbi4Wrapper {
 
-    actual fun updateUiGestureSettings(data: Int) {
-        val userInfo: Map<Any?, Any?> = mapOf(GestureSettingsDataKey to data)
+    actual fun updateUiGestureSettings(parameterRef: ParameterRef) {
+        val userInfo: Map<Any?, Any?> = mapOf(GestureSettingsDataKey to parameterRef)
         NSNotificationCenter.defaultCenter.postNotificationName(
             GestureSettingsDidUpdateNotification,
             null,

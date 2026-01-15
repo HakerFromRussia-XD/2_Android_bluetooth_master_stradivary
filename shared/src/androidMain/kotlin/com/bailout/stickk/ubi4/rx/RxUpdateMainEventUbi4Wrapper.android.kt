@@ -4,8 +4,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAn
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 
 actual object RxUpdateMainEventUbi4Wrapper {
-    actual fun updateUiGestureSettings(data: Int) {
-        RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(data)
+    actual fun updateUiGestureSettings(parameterRef: ParameterRef) {
+        RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(parameterRef)
     }
 
     actual fun updateUiRotationGroup(parameterRef: ParameterRef) {

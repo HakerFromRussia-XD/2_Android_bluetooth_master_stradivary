@@ -1889,10 +1889,10 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 //                               value:dataForWrite];
 }
 - (void) updateGestureSettingsData:(NSInteger)data
-                    parameterInfo:(GestureServiceGestureSettingsParameterInfo *)parameterInfo {
+                    parameterInfo:(GestureSettingsParameterInfo *)parameterInfo {
     _gestureSettingsData = data;
-    _gestureSettingsParameterID = parameterInfo.parameterID;
-    _gestureSettingsParameterData = [parameterInfo.data copy];
+//    _gestureSettingsParameterID = parameterInfo.parameterID;
+//    _gestureSettingsParameterData = [parameterInfo.data copy];
     NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
           (long)data,
           (long)_gestureSettingsParameterID,

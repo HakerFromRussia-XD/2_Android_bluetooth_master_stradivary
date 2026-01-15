@@ -47,10 +47,10 @@ final class GestureService: NSObject {
 
     @objcMembers
     final class GestureSettingsParameterInfo: NSObject {
-        let parameterID: Int
-        let dataCode: Int
-        let data: String
-        let dataSize: Int
+        @objc dynamic let parameterID: Int
+        @objc dynamic let dataCode: Int
+        @objc dynamic let data: String
+        @objc dynamic let dataSize: Int
 
         init(parameterID: Int, dataCode: Int, data: String, dataSize: Int) {
             self.parameterID = parameterID

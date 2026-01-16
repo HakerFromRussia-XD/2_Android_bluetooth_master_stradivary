@@ -498,10 +498,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
     glViewport(0, 0, _viewSize.width, _viewSize.height);
     
-//    glClearColor(0.023, 0.023, 0.023, 0);
     glClearColor(0.023f, 0.023f, 0.023f, 1.0f);
-//    const GLfloat backgroundComponent = 0.023f;
-//    glClearColor(backgroundComponent, backgroundComponent, backgroundComponent, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Use the program that renders the temple.

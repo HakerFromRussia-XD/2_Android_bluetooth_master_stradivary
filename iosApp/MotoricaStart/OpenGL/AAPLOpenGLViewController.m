@@ -74,9 +74,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
-//    [[NSNotificationCenter defaultCenter] removeObserver:self
-//                                          name:UIApplicationWillEnterForegroundNotification
-//                                          object:nil];
 }
 
 - (void)viewDidLoad {
@@ -111,7 +108,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     _gestureNumber = selectedGestureNumber;
     deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     _gestureTableStr = [gestureService getGestureTable];
-//    _typeMultigribNewVM = [gestureService getUseFestX];
     
     
     state = 0;
@@ -123,7 +119,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     
     _view = (AAPLOpenGLView *)self.view;
     
-//    [self applyBackgroundColor];
     [self prepareView];
 
     [self makeCurrentContext];
@@ -151,10 +146,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                           selector:@selector(handleGestureSettingsUpdate:)
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self
-//                                          selector:@selector(handleWillEnterForeground:)
-//                                          name:UIApplicationWillEnterForegroundNotification
-//                                          object:nil];
     SharedParameterRef *parameterRef = [GestureSettingsViewModel shared].latestParameterRef;
     if (parameterRef != nil) {
         NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
@@ -164,14 +155,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     }
 }
 
-//- (void)viewDidAppear:(BOOL)animated {
-//    [super viewDidAppear:animated];
-//    [self applyBackgroundColor];
-//}
-
-- (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {
-    
-}
+- (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
 
 - (IBAction)perehod:(UIButton *)sender {
     _stop = true;
@@ -228,19 +212,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     state_btn.layer.borderWidth = 2;
     state_btn.layer.borderColor = UIColor.whiteColor.CGColor;
 }
-
-//- (void)applyBackgroundColor {
-//    UIColor *backgroundColor = [UIColor colorNamed:@"ubi4_back"];
-//    if (backgroundColor == nil) {
-//        backgroundColor = [UIColor colorWithRed:42.0f / 255.0f
-//                                          green:42.0f / 255.0f
-//                                           blue:42.0f / 255.0f
-//                                          alpha:1.0f];
-//    }
-//    self.view.backgroundColor = backgroundColor;
-//    self.view.layer.backgroundColor = backgroundColor.CGColor;
-//}
-
 
 - (void)prepareView {
     NSLog(@"1 - Подготавливаем вью");
@@ -390,8 +361,4 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [_openGLRenderer updateGestureSettings: parameterRef
                              parameterData: parameterData];
 }
-
-//- (void)handleWillEnterForeground:(NSNotification *)notification {
-//    [self applyBackgroundColor];
-//}
 @end

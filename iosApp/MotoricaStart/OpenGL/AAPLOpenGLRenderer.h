@@ -11,10 +11,9 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 #import <GLKit/GLKTextureLoader.h>
 #import <shared/shared.h>
 
-@interface GestureSettingsParameterInfo : NSObject
-@property (nonatomic, readonly) NSInteger parameterID;
-@property (nonatomic, readonly) NSString * _Nonnull data;
-@end
+//@interface GestureSettingsParameterData : NSObject
+//@property (nonatomic, readonly) NSString * _Nonnull data;
+//@end
 
 static const CGSize AAPLInteropTextureSize = {1024, 1024};
 
@@ -37,7 +36,7 @@ static const CGSize AAPLInteropTextureSize = {1024, 1024};
 - (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height;
 - (void)saveStateData:(NSString*_Nullable) dataForWrite;
 //- (void)updateGestureSettingsData:(NSInteger)data;
-- (void)updateGestureSettingsData:(SharedParameterRef *_Nullable)parameterRef
-                    parameterInfo:(GestureSettingsParameterInfo *_Nullable)parameterInfo;
+- (void)updateGestureSettings:(SharedParameterRef *_Nullable)parameterRef
+                parameterData:(NSString *_Nullable)parameterData;
 //- (void)loadFingersDelayTable;
 @end

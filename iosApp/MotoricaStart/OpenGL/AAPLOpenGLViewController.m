@@ -125,7 +125,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [self makeCurrentContext];
 
     _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
-                                                              gestureNumber:_gestureNumber];
+                                                           gestureNumber:_gestureNumber];
 
     if(!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");
@@ -147,19 +147,12 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                           selector:@selector(handleGestureSettingsUpdate:)
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
-//    NSInteger initialData = [GestureSettingsViewModel shared].latestData;
-////    [_openGLRenderer updateGestureSettingsData:initialData];
-//    GestureSettingsParameterInfo *initialInfo =
-//        [gestureService getParameterInfoWithDataCode:initialData];
-//    [_openGLRenderer updateGestureSettingsData:initialData
-//                                 parameterInfo:initialInfo];
-    SharedParameterRef *initialParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
-    if (initialParameterRef != nil) {
-        NSInteger initialDataCode = initialParameterRef.dataCode;
-        GestureSettingsParameterInfo *initialInfo =
-            [gestureService getParameterInfoWithDataCode:initialDataCode];
-        [_openGLRenderer updateGestureSettingsData:initialParameterRef
-                                     parameterInfo:initialInfo];
+    SharedParameterRef *parameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+    if (parameterRef != nil) {
+        NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
+                                                                        parameterID: parameterRef.parameterID];
+        [_openGLRenderer updateGestureSettings:parameterRef
+                                 parameterData:parameterData];
     }
 }
 
@@ -365,15 +358,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (parameterRef == nil) {
         return;
     }
-    NSInteger dataCode = parameterRef.dataCode;
-    GestureSettingsParameterInfo *parameterInfo =
-        [gestureService getParameterInfoWithDataCode:dataCode];
-    NSLog(@"GestureSettings update (VC) dataCode=%ld parameterID=%ld data=%@ deviceAddress=%ld",
-          (long)dataCode,
-          (long)parameterInfo.parameterID,
-          parameterInfo.data,
-          (long)parameterRef.addressDevice);
-          [_openGLRenderer updateGestureSettingsData:parameterRef
-                           parameterInfo:parameterInfo];
+    NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
+                                                                                parameterID: parameterRef.parameterID];
+//    NSLog(@"GestureSettings update (VC) data=%@", parameterData);
+    [_openGLRenderer updateGestureSettings: parameterRef
+                             parameterData: parameterData];
 }
 @end

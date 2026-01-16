@@ -109,7 +109,7 @@ template<> struct std::hash<AAPLVertexData>
 
     for(NSString* line in lines)
     {
-        if (sscanf(line.UTF8String, " newmtl %256s", scannedString) == 1)
+        if (sscanf(line.UTF8String, " newmtl %255[^\r\n]", scannedString) == 1)
         {
             NSString *materialNameString = [[NSString alloc] initWithUTF8String:scannedString];
 
@@ -117,7 +117,7 @@ template<> struct std::hash<AAPLVertexData>
 
             _submeshes[materialNameString] = currentSubmesh;
         }
-        else if (sscanf(line.UTF8String, " map_Kd %256s", scannedString) == 1)
+        else if (sscanf(line.UTF8String, " map_Kd %255[^\r\n]", scannedString) == 1)
         {
             assert(currentSubmesh);
 
@@ -212,14 +212,14 @@ template<> struct std::hash<AAPLVertexData>
         [_currentSubmesh addIndex:indices[1]];
         [_currentSubmesh addIndex:indices[2]];
     }
-    else if (sscanf(line.UTF8String, " mtllib %256s", scannedString) == 1)
+    else if (sscanf(line.UTF8String, " mtllib %255[^\r\n]", scannedString) == 1)
     {
         NSString *materialFileNameString = [[NSString alloc] initWithUTF8String:scannedString];
         NSURL *materialFileURL = [_OBJURL URLByDeletingLastPathComponent];
         materialFileURL = [materialFileURL URLByAppendingPathComponent:materialFileNameString];
         [self parseMaterialFile:materialFileURL];
     }
-    else if (sscanf(line.UTF8String, " usemtl %256s", scannedString) == 1)
+    else if (sscanf(line.UTF8String, " usemtl %255[^\r\n]", scannedString) == 1)
     {
         NSString *materialNameString = [[NSString alloc] initWithUTF8String:scannedString];
         _currentSubmesh = _submeshes[materialNameString];

@@ -16,8 +16,6 @@ extension Notification.Name {
 @objcMembers
 final class GestureSettingsViewModel: NSObject {
     static let shared = GestureSettingsViewModel()
-
-//    private(set) var latestData: Int = 0
     private(set) var latestParameterRef: ParameterRef?
 
 
@@ -32,14 +30,11 @@ final class GestureSettingsViewModel: NSObject {
     }
 
     @objc private func handleGestureSettingsUpdate(_ notification: Notification) {
-//        guard let data = notification.userInfo?["data"] as? Int else { return }
-//        latestData = data
         guard let parameterRef = notification.userInfo?["data"] as? ParameterRef else { return }
         latestParameterRef = parameterRef
         NotificationCenter.default.post(
             name: .gestureSettingsViewModelDidUpdate,
             object: self,
-//            userInfo: ["data": data]
             userInfo: ["data": parameterRef]
         )
     }
@@ -50,20 +45,14 @@ final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
 
-    @objcMembers
-    final class GestureSettingsParameterInfo: NSObject {
-        @objc dynamic let parameterID: Int
-        @objc dynamic let dataCode: Int
-        @objc dynamic let data: String
-        @objc dynamic let dataSize: Int
-
-        init(parameterID: Int, dataCode: Int, data: String, dataSize: Int) {
-            self.parameterID = parameterID
-            self.dataCode = dataCode
-            self.data = data
-            self.dataSize = dataSize
-        }
-    }
+//    @objcMembers
+//    final class GestureSettingsParameterData: NSObject {
+//        @objc dynamic let parameterData: String
+//
+//        init(parameterData: String) {
+//            self.parameterData = parameterData
+//        }
+//    }
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
@@ -87,14 +76,9 @@ final class GestureService: NSObject {
             return ""
         }
     }
-    @objc public func getParameterInfo(dataCode: Int) -> GestureSettingsParameterInfo {
-        let parameter = ParameterProvider.Companion().getParameterDeprecated(dataCode: Int32(dataCode))
-        return GestureSettingsParameterInfo(
-            parameterID: Int(parameter.ID),
-            dataCode: Int(parameter.dataCode),
-            data: parameter.data,
-            dataSize: Int(parameter.parameterDataSize)
-        )
+    @objc public func getParameterData(deviceAddress: Int, parameterID: Int) -> NSString {
+        let parameter = ParameterProvider.Companion().getParameter(deviceAddress: Int32(deviceAddress), parameterID: Int32(parameterID))
+        return parameter.data as NSString
     }
     @objc public func getStatusConnection() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }

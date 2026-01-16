@@ -109,14 +109,12 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     // Open GL Objects to select meshes
     GLuint _selectionMVPUniformLocation;
     
-//    WidgetsListTableViewController *gestureVC;
     GestureService *gestureService;
-//    SampleGattAttributes *sampleGattAtributes;
     NSString *_gestureTableStr;
     NSInteger _fingersDelayTable[12];
     NSInteger _gestureTable[87];
-    NSString *_gestureTableBigStr;
-    NSInteger _gestureTableBig[160];
+//    NSString *_gestureTableBigStr;
+//    NSInteger _gestureTableBig[160];
     NSInteger _gestureNumber;
     NSInteger _gestureSettingsParameterID;
     NSString *_gestureSettingsParameterData;
@@ -177,32 +175,32 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         }
         
         
-        _gestureTableBigStr = [gestureService getGestureTableBig];
-        NSArray *_gestureTableSecondBig = [_gestureTableBigStr componentsSeparatedByString:@" "];
-        NSLog(@"Парсинг 00 _gestureTableSecondBig.count: %lu", (unsigned long)_gestureTableSecondBig.count);
-        if (_gestureTableSecondBig.count > 157) {
-            for  (int i = 0; i <= 159; i++) {
-                _gestureTableBig[i] = [[_gestureTableSecondBig objectAtIndex:i] intValue];
-            }
-        } else {
-            for  (int i = 0; i <= 159; i++) { _gestureTableBig[i] = 0; }
-        }
+//        _gestureTableBigStr = [gestureService getGestureTableBig];
+//        NSArray *_gestureTableSecondBig = [_gestureTableBigStr componentsSeparatedByString:@" "];
+//        NSLog(@"Парсинг 00 _gestureTableSecondBig.count: %lu", (unsigned long)_gestureTableSecondBig.count);
+//        if (_gestureTableSecondBig.count > 157) {
+//            for  (int i = 0; i <= 159; i++) {
+//                _gestureTableBig[i] = [[_gestureTableSecondBig objectAtIndex:i] intValue];
+//            }
+//        } else {
+//            for  (int i = 0; i <= 159; i++) { _gestureTableBig[i] = 0; }
+//        }
         
         
         NSLog(@"Парсинг 1 _gestureNumber: %ld", (long)_gestureNumber);
-        openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
-        openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
-        openStage2 = _gestureTableBig[12*(_gestureNumber-2)+2];
-        openStage1 = _gestureTableBig[12*(_gestureNumber-2)+3];
-        openStage5 = _gestureTableBig[12*(_gestureNumber-2)+4];
-        openStage6 = _gestureTableBig[12*(_gestureNumber-2)+5];
-        
-        closeStage4 = _gestureTableBig[12*(_gestureNumber-2)+6];
-        closeStage3 = _gestureTableBig[12*(_gestureNumber-2)+7];
-        closeStage2 = _gestureTableBig[12*(_gestureNumber-2)+8];
-        closeStage1 = _gestureTableBig[12*(_gestureNumber-2)+9];
-        closeStage5 = _gestureTableBig[12*(_gestureNumber-2)+10];
-        closeStage6 = _gestureTableBig[12*(_gestureNumber-2)+11];
+//        openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
+//        openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
+//        openStage2 = _gestureTableBig[12*(_gestureNumber-2)+2];
+//        openStage1 = _gestureTableBig[12*(_gestureNumber-2)+3];
+//        openStage5 = _gestureTableBig[12*(_gestureNumber-2)+4];
+//        openStage6 = _gestureTableBig[12*(_gestureNumber-2)+5];
+//        
+//        closeStage4 = _gestureTableBig[12*(_gestureNumber-2)+6];
+//        closeStage3 = _gestureTableBig[12*(_gestureNumber-2)+7];
+//        closeStage2 = _gestureTableBig[12*(_gestureNumber-2)+8];
+//        closeStage1 = _gestureTableBig[12*(_gestureNumber-2)+9];
+//        closeStage5 = _gestureTableBig[12*(_gestureNumber-2)+10];
+//        closeStage6 = _gestureTableBig[12*(_gestureNumber-2)+11];
         
         
         _accumulateRotationGeneral       = matrix4x4_identity();
@@ -1835,69 +1833,42 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 }
 
 - (void) saveAllData {
-    if ([gestureService getVersionDriverGreaterThan237]) {
-        _gestureTableBig[12*(_gestureNumber-2)+0] = openStage4;
-        _gestureTableBig[12*(_gestureNumber-2)+1] = openStage3;
-        _gestureTableBig[12*(_gestureNumber-2)+2] = openStage2;
-        _gestureTableBig[12*(_gestureNumber-2)+3] = openStage1;
-        _gestureTableBig[12*(_gestureNumber-2)+4] = openStage5;
-        _gestureTableBig[12*(_gestureNumber-2)+5] = openStage6;
+//        _gestureTableBig[12*(_gestureNumber-2)+0] = openStage4;
+//        _gestureTableBig[12*(_gestureNumber-2)+1] = openStage3;
+//        _gestureTableBig[12*(_gestureNumber-2)+2] = openStage2;
+//        _gestureTableBig[12*(_gestureNumber-2)+3] = openStage1;
+//        _gestureTableBig[12*(_gestureNumber-2)+4] = openStage5;
+//        _gestureTableBig[12*(_gestureNumber-2)+5] = openStage6;
+//        
+//        _gestureTableBig[12*(_gestureNumber-2)+6] = closeStage4;
+//        _gestureTableBig[12*(_gestureNumber-2)+7] = closeStage3;
+//        _gestureTableBig[12*(_gestureNumber-2)+8] = closeStage2;
+//        _gestureTableBig[12*(_gestureNumber-2)+9] = closeStage1;
+//        _gestureTableBig[12*(_gestureNumber-2)+10] = closeStage5;
+//        _gestureTableBig[12*(_gestureNumber-2)+11] = closeStage6;
         
-        _gestureTableBig[12*(_gestureNumber-2)+6] = closeStage4;
-        _gestureTableBig[12*(_gestureNumber-2)+7] = closeStage3;
-        _gestureTableBig[12*(_gestureNumber-2)+8] = closeStage2;
-        _gestureTableBig[12*(_gestureNumber-2)+9] = closeStage1;
-        _gestureTableBig[12*(_gestureNumber-2)+10] = closeStage5;
-        _gestureTableBig[12*(_gestureNumber-2)+11] = closeStage6;
-        
-        NSString *dataStrBig = @"";
-            for (int i = 0; i <= 159; i++) {
-                dataStrBig = [dataStrBig stringByAppendingString:([@(_gestureTableBig[i]) stringValue])];
-                dataStrBig = [dataStrBig stringByAppendingString:(@" ")];
-            }
+//        NSString *dataStrBig = @"";
+//            for (int i = 0; i <= 159; i++) {
+//                dataStrBig = [dataStrBig stringByAppendingString:([@(_gestureTableBig[i]) stringValue])];
+//                dataStrBig = [dataStrBig stringByAppendingString:(@" ")];
+//            }
 //        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
-    } else {
-        _gestureTable[12*(_gestureNumber-1)+0] = openStage4;
-        _gestureTable[12*(_gestureNumber-1)+1] = openStage3;
-        _gestureTable[12*(_gestureNumber-1)+2] = openStage2;
-        _gestureTable[12*(_gestureNumber-1)+3] = openStage1;
-        _gestureTable[12*(_gestureNumber-1)+4] = openStage5;
-        _gestureTable[12*(_gestureNumber-1)+5] = openStage6;
-        
-        _gestureTable[12*(_gestureNumber-1)+6] = closeStage4;
-        _gestureTable[12*(_gestureNumber-1)+7] = closeStage3;
-        _gestureTable[12*(_gestureNumber-1)+8] = closeStage2;
-        _gestureTable[12*(_gestureNumber-1)+9] = closeStage1;
-        _gestureTable[12*(_gestureNumber-1)+10] = closeStage5;
-        _gestureTable[12*(_gestureNumber-1)+11] = closeStage6;
-        
-        
-        NSString *dataStr = @"";
-            for (int i = 0; i <= 86; i++) {
-                dataStr = [dataStr stringByAppendingString:([@(_gestureTable[i]) stringValue])];
-                dataStr = [dataStr stringByAppendingString:(@" ")];
-            }
-//        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW value:dataStr];
-    }
-    
-    
-    
 }
 - (void) saveStateData :(NSString*) dataForWrite {
     NSLog(@"changeState saveStateData: %@", dataForWrite);
 }
-- (void) updateGestureSettingsData:(SharedParameterRef *)parameterRef
-                    parameterInfo:(GestureSettingsParameterInfo *)parameterInfo {
+- (void) updateGestureSettings:(SharedParameterRef *)parameterRef
+                 parameterData:(NSString *)parameterData {
     if (parameterRef == nil) {
         return;
     }
     _gestureSettingsData = parameterRef.dataCode;
     _gestureSettingsParameterID = parameterRef.parameterID;
-    _gestureSettingsParameterData = [parameterInfo.data copy];
+    _gestureSettingsParameterData = parameterData;
     NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
           (long)parameterRef.dataCode,
           (long)parameterRef.parameterID,
-          parameterInfo.data,
+          _gestureSettingsParameterData,
           [gestureService getDeviceName]);
 }
 @end

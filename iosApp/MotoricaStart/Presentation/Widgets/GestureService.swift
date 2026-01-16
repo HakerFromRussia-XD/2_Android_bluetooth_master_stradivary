@@ -77,7 +77,7 @@ final class GestureService: NSObject {
     @objc public func getHandSide() -> Int { 0 }
     @objc public func decodeGestureSettings(raw: String) {
         print("Вызвана функция decodeGestureSettings  raw = \(raw)")
-        latestGestureSettings = SerializationObjects.shared.decodeGesture(raw: raw)
+        latestGestureSettings = SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
     }
     @objc public func getLatestGestureSettings() -> Gesture? {
         return latestGestureSettings

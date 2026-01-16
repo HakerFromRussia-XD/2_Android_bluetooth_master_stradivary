@@ -1860,12 +1860,13 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureSettingsData = parameterRef.dataCode;
     _gestureSettingsParameterID = parameterRef.parameterID;
     _gestureSettingsParameterData = parameterData;
-//    [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
-//    Gesture *latestSettings = [gestureService getLatestGestureSettings];
-    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
-          (long)parameterRef.dataCode,
-          (long)parameterRef.parameterID,
+    [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
+    SharedGesture *gestureSettings = [gestureService getLatestGestureSettings];
+    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: data = %@  openPosition1 = %d",
           _gestureSettingsParameterData,
-          [gestureService getDeviceName]);
+          gestureSettings.openPosition1);
+    (long)parameterRef.dataCode;
+    (long)parameterRef.parameterID;
+    [gestureService getDeviceName];
 }
 @end

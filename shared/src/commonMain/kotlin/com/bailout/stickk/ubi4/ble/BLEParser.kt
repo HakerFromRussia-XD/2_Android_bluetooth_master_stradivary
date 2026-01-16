@@ -79,6 +79,7 @@ import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.utility.EncodeHexToInt.hexToBatteryPercent
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.BleHexUtils
@@ -1453,7 +1454,7 @@ class BLEParser(
                     }
                     ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
                         platformLog("BLEParser", "parseWidgets SLIDER S dataOffset = ${baseParameterWidgetStruct.dataOffset} dataCode = $dataCode  deviceAddress = $deviceAddress    parameterID = $parameterID")
-                        val toggleSliderParameterWidgetSStruct = Json.decodeFromString<SliderParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        val toggleSliderParameterWidgetSStruct = Json.decodeFromString<ToggleSliderParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
                         toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
                             ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                         )
@@ -1646,6 +1647,31 @@ class BLEParser(
                         coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
 
                     }
+
+                    is ToggleSliderParameterWidgetEStruct -> {
+                        val combineWidgetId =
+                            baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 +
+                                    baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+
+                        val combineWidgetIdIterated =
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 +
+                                    it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
+
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+
+                            val set = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
+
+                            coroutineScope.launch {
+                                widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode))
+                            }
+                        }
+                    }
+
                     is SwitchParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
@@ -1709,6 +1735,30 @@ class BLEParser(
                             val boundAddr = set.firstOrNull()?.deviceAddress
                             if (boundAddr == null || boundAddr == deviceAddress) {
                                 set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
+                        }
+                    }
+
+                    is ToggleSliderParameterWidgetSStruct -> {
+                        val combineWidgetId =
+                            baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 +
+                                    baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+
+                        val combineWidgetIdIterated =
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 +
+                                    it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+
+                            val set = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+                            val boundAddr = set.firstOrNull()?.deviceAddress
+                            if (boundAddr == null || boundAddr == deviceAddress) {
+                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
+                            }
+
+                            coroutineScope.launch {
+                                widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode))
                             }
                         }
                     }

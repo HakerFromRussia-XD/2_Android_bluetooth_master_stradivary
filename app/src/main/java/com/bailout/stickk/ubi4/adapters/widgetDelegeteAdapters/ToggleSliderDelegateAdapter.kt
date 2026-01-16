@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
+import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ToggleSliderDelegateAdapter(
     private val onSetProgress: (addressDevice: Int, parameterID: Int, packedBytes: ArrayList<Int>) -> Unit,
     private val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
-) : ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetToggleSliderBinding>(
+) : ViewBindingDelegateAdapter<ToggleSliderItem, Ubi4WidgetToggleSliderBinding>(
     Ubi4WidgetToggleSliderBinding::inflate
 ) {
 
@@ -95,7 +96,7 @@ class ToggleSliderDelegateAdapter(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Ubi4WidgetToggleSliderBinding.onBind(item: SliderItem) {
+    override fun Ubi4WidgetToggleSliderBinding.onBind(item: ToggleSliderItem) {
         Log.d("ToggleSliderAdapter", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
@@ -585,27 +586,23 @@ class ToggleSliderDelegateAdapter(
     }
 
     override fun isForViewType(item: Any): Boolean =
-        item is SliderItem && (item.widget is ToggleSliderParameterWidgetEStruct || item.widget is ToggleSliderParameterWidgetSStruct)
+        item is ToggleSliderItem &&
+                (item.widget is ToggleSliderParameterWidgetEStruct || item.widget is ToggleSliderParameterWidgetSStruct)
 
-    override fun SliderItem.getItemId(): Any = when (val w = widget) {
+    override fun ToggleSliderItem.getItemId(): Any = when (val w = widget) {
         is ToggleSliderParameterWidgetEStruct -> {
             val s = w.baseParameterWidgetEStruct.baseParameterWidgetStruct
-            val addr = s.parameterInfoSet.elementAt(0).deviceAddress
-            val pid = s.parameterInfoSet.elementAt(0).parameterID
-            val pos = s.widgetPosition
-            "toggle-slider-$addr-$pid-$pos"
+            val p = s.parameterInfoSet.first()
+            "toggle-slider-${p.deviceAddress}-${p.parameterID}-${s.widgetPosition}"
         }
-
         is ToggleSliderParameterWidgetSStruct -> {
             val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
-            val addr = s.parameterInfoSet.elementAt(0).deviceAddress
-            val pid = s.parameterInfoSet.elementAt(0).parameterID
-            val pos = s.widgetPosition
-            "toggle-slider-$addr-$pid-$pos"
+            val p = s.parameterInfoSet.first()
+            "toggle-slider-${p.deviceAddress}-${p.parameterID}-${s.widgetPosition}"
         }
-
-        else -> title
+        else -> "toggle-slider-$title"
     }
+
 
     fun onDestroy() {
         Log.d("ToggleSliderAdapter", "onDestroy")

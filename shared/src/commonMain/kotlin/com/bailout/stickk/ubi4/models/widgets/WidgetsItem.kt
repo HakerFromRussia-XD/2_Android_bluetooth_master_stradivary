@@ -34,6 +34,11 @@ data class SliderItem(
     val widget: Any
 )
 
+data class ToggleSliderItem(
+    val title: String,
+    val widget: Any
+)
+
 data class SwitchItem(
     val title: String,
     val widget: Any

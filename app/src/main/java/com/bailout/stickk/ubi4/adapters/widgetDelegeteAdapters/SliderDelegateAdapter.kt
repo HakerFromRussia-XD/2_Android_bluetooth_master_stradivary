@@ -170,7 +170,7 @@ class SliderDelegateAdapter(
         widgetSliderNumTv.text = minProgress.toString()
         currentSliderInfo.progress[0] = minProgress
 
-        // Cache-first draw to avoid showing 0 if the event already arrived earlier
+
         run {
             val ref = ParameterRef(addressDevice, parameterID, dataCode)
             val cached = ParameterProvider.getParameter(addressDevice, parameterID)
@@ -420,7 +420,12 @@ private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
     return idx
 }
 
-    override fun isForViewType(item: Any): Boolean = item is SliderItem
+//    override fun isForViewType(item: Any): Boolean = item is SliderItem
+    override fun isForViewType(item: Any): Boolean =
+        item is SliderItem && (
+                item.widget is SliderParameterWidgetEStruct ||
+                        item.widget is SliderParameterWidgetSStruct
+                )
     override fun SliderItem.getItemId(): Any = when (val w = widget) {
         is SliderParameterWidgetEStruct -> {
             val s = w.baseParameterWidgetEStruct.baseParameterWidgetStruct

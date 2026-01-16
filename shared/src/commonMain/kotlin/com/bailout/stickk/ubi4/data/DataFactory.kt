@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
+import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
@@ -262,11 +263,11 @@ class DataFactory {
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
 
-
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
-            ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
                 SliderItem(resolvedLabel, widget)
-            }
+
+            ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() ->
+                ToggleSliderItem(resolvedLabel, widget)
 
 
             ParameterWidgetCode.PWCE_PLOT.number.toInt() ->

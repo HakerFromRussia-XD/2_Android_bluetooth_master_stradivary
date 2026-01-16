@@ -214,12 +214,28 @@ class ToggleSliderDelegateAdapter(
             toggleSliderTitleTv.text = item.title
         }
 
+        // первичная синхронизация текста с текущим progress
+        run {
+            val info = widgetSlidersInfo[indexWidgetSlider]
+
+            val useInfinity0 = isInfinityLabel(info, 0)
+            toggleSliderNumTv.text =
+                formatValueForUi(toggleSliderSb.progress, info.minProgress, range, useInfinity0)
+
+            if (paramCount > 1) {
+                val useInfinity1 = isInfinityLabel(info, 1)
+                toggleSliderNum2Tv.text =
+                    formatValueForUi(toggleSlider2Sb.progress, info.minProgress, range, useInfinity1)
+            }
+        }
+
         // seekbar 1
         toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 val info = widgetSlidersInfo[indexWidgetSlider]
                 val useInfinity = isInfinityLabel(info, 0)
-                toggleSliderNumTv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)            }
+                toggleSliderNumTv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)
+            }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
@@ -228,12 +244,14 @@ class ToggleSliderDelegateAdapter(
                 val oldPacked = info.packedProgress[0]
                 val enabled = unpackEnabled(oldPacked)
                 if (!enabled) {
-                    seekBar.progress = unpackValue(oldPacked).coerceIn(0, range)
+                    val deviceValue = unpackValue(oldPacked)
+                    seekBar.progress = (deviceValue - info.minProgress).coerceIn(0, range)
                     return
                 }
 
-                val value0_127 = seekBar.progress.coerceIn(0, range)
-                info.packedProgress[0] = pack(value0_127, enabled = true)
+                val uiProgress = seekBar.progress.coerceIn(0, range)
+                val deviceValue = (uiProgress + info.minProgress).coerceIn(0, 127)
+                info.packedProgress[0] = pack(deviceValue, enabled = true)
                 markPending(info, 0, info.packedProgress[0])
 
                 applyToggleVisuals(indexWidgetSlider, 0)
@@ -249,7 +267,8 @@ class ToggleSliderDelegateAdapter(
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val info = widgetSlidersInfo[indexWidgetSlider]
                     val useInfinity = isInfinityLabel(info, 1)
-                    toggleSliderNum2Tv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)                }
+                    toggleSliderNum2Tv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)
+                }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
@@ -258,12 +277,14 @@ class ToggleSliderDelegateAdapter(
                     val oldPacked = info.packedProgress[1]
                     val enabled = unpackEnabled(oldPacked)
                     if (!enabled) {
-                        seekBar.progress = unpackValue(oldPacked).coerceIn(0, range)
+                        val deviceValue = unpackValue(oldPacked)
+                        seekBar.progress = (deviceValue - info.minProgress).coerceIn(0, range)
                         return
                     }
 
-                    val value0_127 = seekBar.progress.coerceIn(0, range)
-                    info.packedProgress[1] = pack(value0_127, enabled = true)
+                    val uiProgress = seekBar.progress.coerceIn(0, range)
+                    val deviceValue = (uiProgress + info.minProgress).coerceIn(0, 127)
+                    info.packedProgress[1] = pack(deviceValue, enabled = true)
                     markPending(info, 1, info.packedProgress[1])
 
                     applyToggleVisuals(indexWidgetSlider, 1)
@@ -399,17 +420,20 @@ class ToggleSliderDelegateAdapter(
 
         if (!unpackEnabled(packed)) return // выключено — ничего не меняем
 
-        val current = unpackValue(packed)
-        val next = (current + step).coerceIn(0, range)
+        val deviceCurrent = unpackValue(packed) // absolute 0..127
+        val uiCurrent = (deviceCurrent - info.minProgress).coerceIn(0, range)
 
-        info.packedProgress[sliderIndex] = pack(next, enabled = true)
+        val uiNext = (uiCurrent + step).coerceIn(0, range)
+        val deviceNext = (uiNext + info.minProgress).coerceIn(0, 127)
+
+        info.packedProgress[sliderIndex] = pack(deviceNext, enabled = true)
         markPending(info, sliderIndex, info.packedProgress[sliderIndex])
 
-        info.widgetSlidersSb.getOrNull(sliderIndex)?.progress = next
+        info.widgetSlidersSb.getOrNull(sliderIndex)?.progress = uiNext
         val useInfinity = isInfinityLabel(info, sliderIndex)
 
         info.widgetSliderNumTv.getOrNull(sliderIndex)?.text =
-            formatValueForUi(next, info.minProgress, range, useInfinity)
+            formatValueForUi(uiNext, info.minProgress, range, useInfinity)
 
         applyToggleVisuals(indexWidgetSlider, sliderIndex)
         debounceSend(info)
@@ -487,15 +511,17 @@ class ToggleSliderDelegateAdapter(
                 ) return@forEachIndexed
 
                 val enabled = (packedFromDevice and 0x80) != 0
-                val value0_127 = (packedFromDevice and 0x7F).coerceIn(0, range)
+                val deviceValue = (packedFromDevice and 0x7F).coerceIn(0, 127)
 
                 if (sliderIndex < info.packedProgress.size) {
-                    info.packedProgress[sliderIndex] = pack(value0_127, enabled)
+                    info.packedProgress[sliderIndex] = pack(deviceValue, enabled)
                 }
 
-                animateProgressBar(sb, oldProgress, value0_127)
+                val uiProgress = (deviceValue - info.minProgress).coerceIn(0, range)
+
+                animateProgressBar(sb, oldProgress, uiProgress)
                 val useInfinity = isInfinityLabel(info, sliderIndex)
-                tv.text = formatValueForUi(value0_127, info.minProgress, range, useInfinity)
+                tv.text = formatValueForUi(uiProgress, info.minProgress, range, useInfinity)
 
                 applyToggleVisuals(indexWidgetSlider, sliderIndex)
             }

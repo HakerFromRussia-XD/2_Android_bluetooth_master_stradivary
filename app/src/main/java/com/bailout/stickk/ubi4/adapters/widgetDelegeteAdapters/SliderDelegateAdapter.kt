@@ -146,14 +146,6 @@ class SliderDelegateAdapter(
         Log.d("SliderMap", "Added widget: addr=$addressDevice pid=$parameterID pos=$widgetPosition; total=${widgetSlidersInfo.size}")
 
         // Cache-first draw to avoid showing 0 if the event already arrived earlier
-        run {
-            val ref = ParameterRef(addressDevice, parameterID, dataCode)
-            val cached = ParameterProvider.getParameter(addressDevice, parameterID)
-            if (cached.data.isNotEmpty()) {
-                setUI(ref)
-            }
-        }
-
         sliderCollect()
 
         // Получаем индекс текущего виджета по значению device и parameter
@@ -165,14 +157,27 @@ class SliderDelegateAdapter(
         if (paramCount > 1) {
             widgetSlider2Sb.max = range
             secondSliderCl.visibility = View.VISIBLE
-            widgetSlider2Sb.progress = currentSliderInfo.progress[1]
-            widgetSliderNum2Tv.text = currentSliderInfo.progress[1].toString()
+
+            widgetSlider2Sb.progress = 0
+            widgetSliderNum2Tv.text = minProgress.toString()
+            currentSliderInfo.progress[1] = minProgress
+
         } else {
             secondSliderCl.visibility = View.GONE
         }
 
-        widgetSliderSb.progress = currentSliderInfo.progress[0]
-        widgetSliderNumTv.text = currentSliderInfo.progress[0].toString()
+        widgetSliderSb.progress = 0
+        widgetSliderNumTv.text = minProgress.toString()
+        currentSliderInfo.progress[0] = minProgress
+
+        // Cache-first draw to avoid showing 0 if the event already arrived earlier
+        run {
+            val ref = ParameterRef(addressDevice, parameterID, dataCode)
+            val cached = ParameterProvider.getParameter(addressDevice, parameterID)
+            if (cached.data.isNotEmpty()) {
+                setUI(ref)
+            }
+        }
 //        widgetSliderTitleTv.text = item.title
         val sliderE = item.widget as? SliderParameterWidgetEStruct
         if (sliderE != null) {

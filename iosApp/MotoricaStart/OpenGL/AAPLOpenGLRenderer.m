@@ -12,6 +12,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
 #import "MotoricaStart-Swift.h"
+//#import "shared.h"
 
 @implementation AAPLOpenGLRenderer
 {
@@ -118,7 +119,6 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSInteger _gestureNumber;
     NSInteger _gestureSettingsParameterID;
     NSString *_gestureSettingsParameterData;
-//    NSInteger _typeMultigribNewVM;
     NSInteger _handSide;
     NSInteger _gestureSettingsData;
     
@@ -144,15 +144,10 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     self = [super init];
     if(self)
     {
-//        gestureVC = [[WidgetsListTableViewController alloc]init];
-//        sampleGattAtributes = [[SampleGattAttributes alloc]init];
-//        _typeMultigribNewVM = [gestureService getUseFestX];
         _gestureNumber = gestureNumber;
         NSLog(@"gestureNumber from AAPLOpenGLRenderer = %ld", (long)_gestureNumber);
 //        _handSide = [gestureService getHandSide];
         gestureService = [[GestureService alloc] init];
-//        _typeMultigribNewVM = [gestureService getUseFestX];
-//        _gestureNumber = [gestureService getGestureNum];
         _handSide = [gestureService getHandSide];
         
         if (_handSide == 1) {
@@ -503,8 +498,8 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
     glViewport(0, 0, _viewSize.width, _viewSize.height);
     
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.023, 0.023, 0.023, 0);
+//    glClearColor(0.023, 0.023, 0.023, 0);
+    glClearColor(0.023f, 0.023f, 0.023f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Use the program that renders the temple.
@@ -1865,6 +1860,8 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureSettingsData = parameterRef.dataCode;
     _gestureSettingsParameterID = parameterRef.parameterID;
     _gestureSettingsParameterData = parameterData;
+//    [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
+//    Gesture *latestSettings = [gestureService getLatestGestureSettings];
     NSLog(@"GestureSettings update from AAPLOpenGLRenderer: dataCode=%ld parameterID=%ld data=%@ getDeviceName=%@",
           (long)parameterRef.dataCode,
           (long)parameterRef.parameterID,

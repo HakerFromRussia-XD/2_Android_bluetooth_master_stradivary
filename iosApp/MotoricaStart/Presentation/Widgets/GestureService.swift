@@ -44,15 +44,8 @@ final class GestureSettingsViewModel: NSObject {
 final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
-
-//    @objcMembers
-//    final class GestureSettingsParameterData: NSObject {
-//        @objc dynamic let parameterData: String
-//
-//        init(parameterData: String) {
-//            self.parameterData = parameterData
-//        }
-//    }
+    private(set) var latestGestureSettings: Gesture?
+    
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
@@ -82,7 +75,13 @@ final class GestureService: NSObject {
     }
     @objc public func getStatusConnection() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }
-    
+    @objc public func decodeGestureSettings(raw: String) {
+        print("Вызвана функция decodeGestureSettings  raw = \(raw)")
+        latestGestureSettings = SerializationObjects.shared.decodeGesture(raw: raw)
+    }
+    @objc public func getLatestGestureSettings() -> Gesture? {
+        return latestGestureSettings
+    }
     @objc public func getGestureTable() -> String { "" }
     @objc public func getGestureTableBig() -> String { "" }
 

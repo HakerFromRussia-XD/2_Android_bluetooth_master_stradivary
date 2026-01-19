@@ -61,10 +61,10 @@ final class BluetoothListViewController: UIViewController {
         segmentContainer.addSubview(segmentedConrol)
         segmentedConrol.translatesAutoresizingMaskIntoConstraints = true
         NSLayoutConstraint.activate([
-           segmentContainer.heightAnchor.constraint(equalToConstant: 60),
+           segmentContainer.heightAnchor.constraint(equalToConstant: 54),
            segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
            segmentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-           segmentContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 80)
+           segmentContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 47)
         ])
         segmentedConrol.translatesAutoresizingMaskIntoConstraints = false
         segmentedConrol.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor).isActive = true
@@ -80,6 +80,18 @@ final class BluetoothListViewController: UIViewController {
         // применяем фильтр при загрузке контроллера
         segmentedConrol.selectedSegmentIndex = viewModel.currentFilterIndex
         segmentedConrol.addTarget(self, action: #selector(filterChange), for: .valueChanged)
+
+        let font = UIFont(name: "SFProDisplay-Light", size: 14)
+
+        segmentedConrol.setTitleTextAttributes([
+            .foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? .white,
+            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .normal)
+
+        segmentedConrol.setTitleTextAttributes([
+            .foregroundColor: UIColor(named: "ubi4_white") ?? .black,
+            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .selected)
         
         
         // настройка внешнего вида списка
@@ -413,7 +425,7 @@ private struct InlineNetworkConfig: NetworkConfigurable {
 }
 
 class CustomSegmentedControl: UISegmentedControl{
-    private let segmentInset: CGFloat = 5       //your inset amount
+    private let segmentInset: CGFloat = 3       //your inset amount
     private let segmentImage: UIImage? = UIImage(color: UIColor(named: "ubi4_back") ?? UIColor.white)
 //    private let segmentImage: UIImage? = UIImage(color: UIColor.white)
 
@@ -421,7 +433,7 @@ class CustomSegmentedControl: UISegmentedControl{
         super.layoutSubviews()
 
         //background
-        layer.cornerRadius = 20
+        layer.cornerRadius = 16
         //foreground
         let foregroundIndex = numberOfSegments
         if subviews.indices.contains(foregroundIndex), let foregroundImageView = subviews[foregroundIndex] as? UIImageView
@@ -432,7 +444,7 @@ class CustomSegmentedControl: UISegmentedControl{
             foregroundImageView.layer.masksToBounds = true
             foregroundImageView.layer.borderWidth = 1
             foregroundImageView.layer.borderColor = UIColor(named: "ubi4_filter_gray_border")?.cgColor
-            foregroundImageView.layer.cornerRadius = 18
+            foregroundImageView.layer.cornerRadius = 14
         }
     }
 }

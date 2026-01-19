@@ -1859,13 +1859,38 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureSettingsData = parameterRef.dataCode;
     _gestureSettingsParameterID = parameterRef.parameterID;
     _gestureSettingsParameterData = parameterData;
-    [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
-    SharedGesture *gestureSettings = [gestureService getLatestGestureSettings];
-    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: data = %@  openPosition1 = %d",
-          _gestureSettingsParameterData,
-          gestureSettings.openPosition1);
+    SharedGesture *gestureSettings = [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
+    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: data = %@",
+          _gestureSettingsParameterData);
+    NSLog(@"\n--- SharedGesture ---\n"
+          "gestureId=%d\n"
+          "gestureName=%@\n"
+          "gestureImage=%d\n"
+          "\nOPEN:\n"
+          "openPosition1=%d openPosition2=%d openPosition3=%d openPosition4=%d openPosition5=%d openPosition6=%d\n"
+          "\nCLOSE:\n"
+          "closePosition1=%d closePosition2=%d closePosition3=%d closePosition4=%d closePosition5=%d closePosition6=%d\n"
+          "\nopenToCloseTimeShift:\n"
+          "1=%d 2=%d 3=%d 4=%d 5=%d 6=%d\n"
+          "\ncloseToOpenTimeShift:\n"
+          "1=%d 2=%d 3=%d 4=%d 5=%d 6=%d\n"
+          "--------------------",
+          gestureSettings.gestureId,
+          gestureSettings.gestureName,
+          gestureSettings.gestureImage,
+
+          gestureSettings.openPosition1, gestureSettings.openPosition2, gestureSettings.openPosition3, gestureSettings.openPosition4, gestureSettings.openPosition5, gestureSettings.openPosition6,
+          gestureSettings.closePosition1, gestureSettings.closePosition2, gestureSettings.closePosition3, gestureSettings.closePosition4, gestureSettings.closePosition5, gestureSettings.closePosition6,
+
+          gestureSettings.openToCloseTimeShift1, gestureSettings.openToCloseTimeShift2, gestureSettings.openToCloseTimeShift3,
+          gestureSettings.openToCloseTimeShift4, gestureSettings.openToCloseTimeShift5, gestureSettings.openToCloseTimeShift6,
+
+          gestureSettings.closeToOpenTimeShift1, gestureSettings.closeToOpenTimeShift2, gestureSettings.closeToOpenTimeShift3,
+          gestureSettings.closeToOpenTimeShift4, gestureSettings.closeToOpenTimeShift5, gestureSettings.closeToOpenTimeShift6
+    );
     (long)parameterRef.dataCode;
     (long)parameterRef.parameterID;
     [gestureService getDeviceName];
+    
 }
 @end

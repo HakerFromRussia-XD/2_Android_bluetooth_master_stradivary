@@ -32,7 +32,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
     GLuint _colorRenderbuffer;
     GLuint _depthRenderbuffer;
     CADisplayLink *_displayLink;
-    __weak IBOutlet UIButton *state_btn;
+//    __weak IBOutlet UIButton *state_btn;
+    UIView *segmentContainer;
+    CustomSegmentedControl *stateSegmentedControl;
     __weak IBOutlet UIButton *fingers_delay_btn;
     __weak IBOutlet UITextField *text_field;
     __weak IBOutlet UILabel *deviceName;
@@ -88,7 +90,9 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 //    } else {
 //        statusConnection.image = disconnectStatus;
 //    }
-    [self stylizationStateBtn];
+//    [self stylizationStateBtn];
+    state = 0;
+    [self setupStateSegmentedControl];
     openStage1 = 0;
     openStage2 = 0;
     openStage3 = 0;
@@ -109,8 +113,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
     _gestureTableStr = [gestureService getGestureTable];
     
-    
-    state = 0;
     showRenameTextField = false;
 
     _stop = false;
@@ -172,16 +174,24 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     }
 }
 
-- (IBAction)chageState:(UIButton *)sender {
-    if (state == 0 ) {
+//- (IBAction)chageState:(UIButton *)sender {
+//    if (state == 0 ) {
+//        state = 1;
+////        [state_btn setTitle:NSLocalizedString(@"close_state", nil) forState:UIControlStateNormal];
+//        [_openGLRenderer changeState:state];
+//    } else {
+//        state = 0;
+////        [state_btn setTitle:NSLocalizedString(@"open_state", nil) forState:UIControlStateNormal];
+//        [_openGLRenderer changeState:state];
+//    }
+//}
+- (void)stateSegmentChanged:(UISegmentedControl *)sender {
+    if (sender.selectedSegmentIndex == 1) {
         state = 1;
-        [state_btn setTitle:NSLocalizedString(@"close_state", nil) forState:UIControlStateNormal];
-        [_openGLRenderer changeState:state];
     } else {
         state = 0;
-        [state_btn setTitle:NSLocalizedString(@"open_state", nil) forState:UIControlStateNormal];
-        [_openGLRenderer changeState:state];
     }
+    [_openGLRenderer changeState:state];
 }
 
 - (IBAction)openFingersDealyDialog:(UIButton *)sender {
@@ -207,10 +217,58 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     }
 }
 
-- (void)stylizationStateBtn {
-    state_btn.layer.cornerRadius = 21;
-    state_btn.layer.borderWidth = 2;
-    state_btn.layer.borderColor = UIColor.whiteColor.CGColor;
+- (void)setupStateSegmentedControl {
+    segmentContainer = [[UIView alloc] init];
+    segmentContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:segmentContainer];
+    segmentContainer.layer.shadowColor = UIColor.blackColor.CGColor;
+    segmentContainer.layer.shadowOpacity = 0.25;
+    segmentContainer.layer.shadowOffset = CGSizeMake(0, 1);
+    segmentContainer.layer.shadowRadius = 3;
+    segmentContainer.layer.cornerRadius = 2;
+    segmentContainer.layer.masksToBounds = NO;
+    
+    stateSegmentedControl = [[CustomSegmentedControl alloc] initWithItems:@[
+        [gestureService gestureStateOpen],
+        [gestureService gestureStateClose]
+    ]];
+    stateSegmentedControl.translatesAutoresizingMaskIntoConstraints = NO;
+    [segmentContainer addSubview:stateSegmentedControl];
+    NSLayoutConstraint *leading = [segmentContainer.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:48];
+    NSLayoutConstraint *trailing = [segmentContainer.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-48];
+    NSLayoutConstraint *bottom = [segmentContainer.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20];
+    NSLayoutConstraint *height = [segmentContainer.heightAnchor constraintEqualToConstant:48];
+    [NSLayoutConstraint activateConstraints:@[leading, trailing, bottom, height]];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [stateSegmentedControl.leadingAnchor constraintEqualToAnchor:segmentContainer.leadingAnchor],
+        [stateSegmentedControl.trailingAnchor constraintEqualToAnchor:segmentContainer.trailingAnchor],
+        [stateSegmentedControl.topAnchor constraintEqualToAnchor:segmentContainer.topAnchor],
+        [stateSegmentedControl.bottomAnchor constraintEqualToAnchor:segmentContainer.bottomAnchor]
+    ]];
+    stateSegmentedControl.layer.cornerRadius = 1;
+    stateSegmentedControl.layer.masksToBounds = YES;
+    stateSegmentedControl.layer.borderWidth = 1;
+    stateSegmentedControl.layer.borderColor = [UIColor colorNamed:@"ubi4_filter_gray_border"].CGColor;
+    stateSegmentedControl.backgroundColor = [UIColor colorNamed:@"ubi4_filter_back"];
+    [stateSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_deactivate_text"] ?: UIColor.whiteColor}
+                                        forState:UIControlStateNormal];
+    [stateSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_white"] ?: UIColor.blackColor}
+                                        forState:UIControlStateSelected];
+    stateSegmentedControl.selectedSegmentIndex = state;
+    [stateSegmentedControl addTarget:self action:@selector(stateSegmentChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    UIFont *font = [UIFont fontWithName:@"SFProDisplay-Light" size: 14];
+
+    [stateSegmentedControl setTitleTextAttributes:@{
+        NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_deactivate_text"] ?: UIColor.whiteColor,
+        NSFontAttributeName: font ?: [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold]
+    } forState:UIControlStateNormal];
+
+    [stateSegmentedControl setTitleTextAttributes:@{
+        NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_white"] ?: UIColor.blackColor,
+        NSFontAttributeName: font ?: [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold]
+    } forState:UIControlStateSelected];
 }
 
 - (void)prepareView {

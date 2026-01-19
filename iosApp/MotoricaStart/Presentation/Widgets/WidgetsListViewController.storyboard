@@ -9,9 +9,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
-        <array key="OpenSans-wght.ttf">
-            <string>OpenSansRoman-Bold</string>
-        </array>
         <array key="sf_pro_display_light.otf">
             <string>SFProDisplay-Light</string>
         </array>
@@ -568,22 +565,6 @@
                                     <constraint firstAttribute="height" constant="10" id="Z4Z-92-bHT"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uqj-w3-j3g">
-                                <rect key="frame" x="117.5" y="605" width="140" height="42"/>
-                                <color key="backgroundColor" name="lineColor_open"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="42" id="2Ti-RT-47T"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="140" id="fZf-Su-7AJ"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" name="OpenSansRoman-Bold" family="Open Sans" pointSize="14"/>
-                                <state key="normal" title="open state">
-                                    <color key="titleColor" name="white"/>
-                                </state>
-                                <connections>
-                                    <action selector="chageState:" destination="tD3-Cp-chy" eventType="touchUpOutside" id="D2F-Zd-0zz"/>
-                                    <action selector="chageState:" destination="tD3-Cp-chy" eventType="touchUpInside" id="YwA-SX-Tc6"/>
-                                </connections>
-                            </button>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="sb0-Fu-PYO">
                                 <rect key="frame" x="265.5" y="26" width="64" height="30"/>
                                 <subviews>
@@ -619,7 +600,6 @@
                         <color key="backgroundColor" name="ubi4_back"/>
                         <constraints>
                             <constraint firstItem="cAr-5O-y8r" firstAttribute="leading" secondItem="kvk-9h-O26" secondAttribute="trailing" constant="8" id="2d0-X5-VGM"/>
-                            <constraint firstItem="Uqj-w3-j3g" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="Ju8-Fy-yUK"/>
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" constant="-2" id="LMw-Ta-g2o"/>
                             <constraint firstItem="cAr-5O-y8r" firstAttribute="leading" secondItem="cBK-JH-c7K" secondAttribute="trailing" constant="8" id="M6I-aj-AOd"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="height" secondItem="cBK-JH-c7K" secondAttribute="height" multiplier="0.809524" id="Muy-wa-3xa"/>
@@ -630,7 +610,6 @@
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="leading" secondItem="HBO-q4-tJ0" secondAttribute="leading" constant="4" id="crB-mP-Olp"/>
                             <constraint firstItem="sb0-Fu-PYO" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="es1-x2-xx6"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="centerX" secondItem="cBK-JH-c7K" secondAttribute="centerX" constant="7" id="jVg-bJ-Wkk"/>
-                            <constraint firstItem="HBO-q4-tJ0" firstAttribute="bottom" secondItem="Uqj-w3-j3g" secondAttribute="bottom" constant="20" id="oyF-r4-UfY"/>
                             <constraint firstItem="cAr-5O-y8r" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="rXu-gG-jry"/>
                         </constraints>
                     </view>
@@ -639,7 +618,6 @@
                         <outlet property="deviceName" destination="cBK-JH-c7K" id="x3v-sm-k0q"/>
                         <outlet property="fingers_delay_btn" destination="Lqb-gf-0y5" id="cC5-7e-b3f"/>
                         <outlet property="renameBtn" destination="90P-ne-5hx" id="y2Y-23-dnb"/>
-                        <outlet property="state_btn" destination="Uqj-w3-j3g" id="0Sc-IY-W8B"/>
                         <outlet property="statusConnection" destination="cAr-5O-y8r" id="0bM-ca-V9i"/>
                         <outlet property="text_field" destination="kvk-9h-O26" id="TYu-oD-sDK"/>
                     </connections>
@@ -675,9 +653,6 @@
         <namedColor name="lineColor_close">
             <color red="0.32899999618530273" green="0.32400000095367432" blue="0.4779999852180481" alpha="0.33000001311302185" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="lineColor_open">
-            <color red="0.32899999618530273" green="0.32400000095367432" blue="0.4779999852180481" alpha="0.33000001311302185" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <namedColor name="ubi4_back">
             <color red="0.16500000655651093" green="0.16500000655651093" blue="0.16500000655651093" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -692,9 +667,6 @@
         </namedColor>
         <namedColor name="ubi4_white">
             <color red="0.9882352941176471" green="0.9882352941176471" blue="0.9882352941176471" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="white">
-            <color red="0.32899999618530273" green="0.32400000095367432" blue="0.4779999852180481" alpha="0.33000001311302185" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

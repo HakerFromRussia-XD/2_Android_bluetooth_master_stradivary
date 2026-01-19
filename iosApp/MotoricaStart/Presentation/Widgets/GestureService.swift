@@ -44,7 +44,6 @@ final class GestureSettingsViewModel: NSObject {
 final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
-    private(set) var latestGestureSettings: Gesture?
     
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
@@ -75,12 +74,10 @@ final class GestureService: NSObject {
     }
     @objc public func getStatusConnection() -> Int { 0 }
     @objc public func getHandSide() -> Int { 0 }
-    @objc public func decodeGestureSettings(raw: String) {
+    @objc public func decodeGestureSettings(raw: String) -> Gesture? {
         print("Вызвана функция decodeGestureSettings  raw = \(raw)")
-        latestGestureSettings = SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
-    }
-    @objc public func getLatestGestureSettings() -> Gesture? {
-        return latestGestureSettings
+        guard !raw.isEmpty else { return nil }
+        return SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
     }
     @objc public func getGestureTable() -> String { "" }
     @objc public func getGestureTableBig() -> String { "" }
@@ -159,5 +156,12 @@ final class GestureService: NSObject {
             SharedRes.strings().gesture_13_btn,
             SharedRes.strings().gesture_14_btn
         ].map { $0.desc().localized() }
+    }
+    
+    @objc func gestureStateOpen() -> String {
+        return SharedRes.strings().gesture_state_open.desc().localized()
+    }
+    @objc func gestureStateClose() -> String {
+        return SharedRes.strings().gesture_state_close.desc().localized()
     }
 }

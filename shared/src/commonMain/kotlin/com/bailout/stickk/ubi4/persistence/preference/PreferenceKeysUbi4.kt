@@ -1,4 +1,5 @@
 package com.bailout.stickk.ubi4.persistence.preference
+import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import kotlin.experimental.ExperimentalObjCName
 import kotlin.native.ObjCName
 
@@ -146,52 +147,55 @@ object PreferenceKeysUbi4 {
     }
 
 
-    val parameterWidgetLabel: Map<String, Map<String, String>> = mapOf(
-        "ru" to mapOf(
-            "0" to "Нет имени",
-            "1" to "Открыть",
-            "2" to "Закрыть",
-            "3" to "Калибровка моторов",
-            "4" to "Общая чувствительность",
-            "5" to "Общая сила",
-            "6" to "Чувствительность открытия",
-            "7" to "Чувствительность закрытия",
-            "8" to "Не используется",
-            "9" to "Время работы дисплея (сек)",
-            "10" to "Ориентация дисплея",
-            "11" to "Управление ОМГ",
-            "12" to "Время входа в ОМГ (50 мс)",
-            "13" to "Поменять сенсоры",
-            "14" to "Управление моторами с датчиков",
-            "15" to "Пропорциональное управление силой",
-            "16" to "Пропорциональное управление скоростью",
-            "17" to "Пропорциональное управление позицией",
-            "18" to "Блокировка движения с датчиков (сек)",
-            "custom_name" to "Кастомное имя"
-        ),
-        "en" to mapOf(
-            "0" to "Unknown",
-            "1" to "Open",
-            "2" to "Close",
-            "3" to "Motor calibration",
-            "4" to "Global sensitivity",
-            "5" to "Global force",
-            "6" to "Open sensitivity",
-            "7" to "Close sensitivity",
-            "8" to "Not used",
-            "9" to "Display timeout (sec)",
-            "10" to "Display orientation",
-            "11" to "OMG control",
-            "12" to "OMG timeout (50 ms)",
-            "13" to "Switch sensors",
-            "14" to "EMG motor control",
-            "15" to "Proportional force control",
-            "16" to "Proportional speed control",
-            "17" to "Proportional position control",
-            "18" to "EMG movement block time (sec)"
-        )
+    val parameterWidgetLabelRu: Map<String, WidgetLabel> = mapOf(
+        "0" to WidgetLabel("Нет имени"),
+        "1" to WidgetLabel("Открыть"),
+        "2" to WidgetLabel("Закрыть"),
+        "3" to WidgetLabel("Калибровка моторов"),
+        "4" to WidgetLabel("Общая чувствительность"),
+        "5" to WidgetLabel("Общая сила"),
+        "6" to WidgetLabel("Чувствительность открытия"),
+        "7" to WidgetLabel("Чувствительность закрытия"),
+        "8" to WidgetLabel("Не используется"),
+        "9" to WidgetLabel("Время работы дисплея", " сек"),
+        "10" to WidgetLabel("Ориентация дисплея"),
+        "11" to WidgetLabel("Управление ОМГ"),
+        "12" to WidgetLabel("Время входа в ОМГ", "*50 мс"),
+        "13" to WidgetLabel("Поменять сенсоры"),
+        "14" to WidgetLabel("Управление моторами с датчиков"),
+        "15" to WidgetLabel("Пропорциональное управление силой"),
+        "16" to WidgetLabel("Пропорциональное управление скоростью"),
+        "17" to WidgetLabel("Пропорциональное управление позицией"),
+        "18" to WidgetLabel("Блокировка движения с датчиков", " сек"),
+        "custom_name" to WidgetLabel("Кастомное имя")
     )
 
+    val parameterWidgetLabelEn: Map<String, WidgetLabel> = mapOf(
+        "0" to WidgetLabel("Unknown"),
+        "1" to WidgetLabel("Open"),
+        "2" to WidgetLabel("Close"),
+        "3" to WidgetLabel("Motor calibration"),
+        "4" to WidgetLabel("Global sensitivity"),
+        "5" to WidgetLabel("Global force"),
+        "6" to WidgetLabel("Open sensitivity"),
+        "7" to WidgetLabel("Close sensitivity"),
+        "8" to WidgetLabel("Not used"),
+        "9" to WidgetLabel("Display timeout", " sec"),
+        "10" to WidgetLabel("Display orientation"),
+        "11" to WidgetLabel("OMG control"),
+        "12" to WidgetLabel("OMG entry time", "*50 ms"),
+        "13" to WidgetLabel("Switch sensors"),
+        "14" to WidgetLabel("EMG motor control"),
+        "15" to WidgetLabel("Proportional force control"),
+        "16" to WidgetLabel("Proportional speed control"),
+        "17" to WidgetLabel("Proportional position control"),
+        "18" to WidgetLabel("EMG movement block time", " sec")
+    )
+
+    val parameterWidgetLabel: Map<String, Map<String, WidgetLabel>> = mapOf(
+        "ru" to parameterWidgetLabelRu,
+        "en" to parameterWidgetLabelEn
+    )
 
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {

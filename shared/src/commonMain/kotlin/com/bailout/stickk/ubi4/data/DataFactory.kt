@@ -236,7 +236,7 @@ class DataFactory {
             else -> "en"
         }
         val langMap = parameterWidgetLabel[langKey] ?: parameterWidgetLabel["en"].orEmpty()
-        return langMap[code] ?: "Unknown"
+        return langMap[code]?.title ?: "Unknown"
     }
 
     // Общие функции преобразования для виджетов (варианты с labelCode и label)
@@ -267,7 +267,7 @@ class DataFactory {
                 SliderItem(resolvedLabel, widget)
 
             ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() ->
-                ToggleSliderItem(resolvedLabel, widget)
+                ToggleSliderItem (resolvedLabel, widget)
 
 
             ParameterWidgetCode.PWCE_PLOT.number.toInt() ->

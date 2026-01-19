@@ -61,6 +61,10 @@ class SliderDelegateAdapter(
         Log.d("SliderAdapterTest", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
+        widgetSliderUnitTv?.text = ""
+        widgetSliderUnitTv?.visibility = View.GONE
+        widgetSliderUnit2Tv?.text = ""
+        widgetSliderUnit2Tv?.visibility = View.GONE
 
         var addressDevice = 0
         var parameterID = 0
@@ -128,6 +132,7 @@ class SliderDelegateAdapter(
             progress = ArrayList(initialProgress),
             widgetSlidersSb = arrayListOf(widgetSliderSb, widgetSlider2Sb),
             widgetSliderNumTv = arrayListOf(widgetSliderNumTv, widgetSliderNum2Tv),
+            widgetSliderUnitTv = arrayListOf(widgetSliderUnitTv, widgetSliderUnit2Tv),
             widgetPosition = widgetPosition
         )
 
@@ -189,15 +194,27 @@ class SliderDelegateAdapter(
             val dict = PreferenceKeysUbi4.parameterWidgetLabel[langKey]
                 ?: PreferenceKeysUbi4.parameterWidgetLabel["en"].orEmpty()
 
-            fun resolve(off: Int?): String? =
+            fun resolveLabel(off: Int?) =
                 off?.let { labelsByOffset?.get(it) }?.let { code -> dict[code.toString()] }
 
             // Поддерживаем столько заголовков, сколько есть TextView
             val titleViews = listOf(widgetSliderTitleTv, widgetSliderTitle2Tv)
+            val unitViews  = listOf(widgetSliderUnitTv, widgetSliderUnit2Tv)
+
             titleViews.forEachIndexed { idx, tv ->
-                val text = resolve(dataOffset.getOrNull(idx))
-                    ?: if (idx == 0) item.title else tv.text
-                runCatching { tv.text = text }
+                val label = resolveLabel(dataOffset.getOrNull(idx))
+
+                tv.text = label?.title ?: if (idx == 0) item.title else tv.text
+
+                val unitTv = unitViews[idx]
+                val unit = label?.unit
+                if (unit.isNullOrBlank() || (idx == 1 && paramCount <= 1)) {
+                    unitTv?.text = ""
+                    unitTv?.visibility = View.GONE
+                } else {
+                    unitTv?.text = unit
+                    unitTv?.visibility = View.VISIBLE
+                }
             }
         } else {
             // S‑структуры: берём заголовок как есть
@@ -464,6 +481,7 @@ data class WidgetSliderInfo (
     var progress: ArrayList<Int> = ArrayList(),
     var widgetSlidersSb: ArrayList<ProgressBar>,
     var widgetSliderNumTv: ArrayList<TextView>,
+    var widgetSliderUnitTv: ArrayList<TextView?>,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),

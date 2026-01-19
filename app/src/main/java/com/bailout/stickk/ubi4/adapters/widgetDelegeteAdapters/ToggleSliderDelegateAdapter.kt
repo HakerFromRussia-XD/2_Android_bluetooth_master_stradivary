@@ -100,6 +100,10 @@ class ToggleSliderDelegateAdapter(
         Log.d("ToggleSliderAdapter", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
+        toggleSliderUnitTv.text = ""
+        toggleSliderUnitTv.visibility = View.GONE
+        toggleSliderUnit2Tv.text = ""
+        toggleSliderUnit2Tv.visibility = View.GONE
 
         var addressDevice = 0
         var parameterID = 0
@@ -152,6 +156,7 @@ class ToggleSliderDelegateAdapter(
             packedProgress = ArrayList(initialPacked),
             widgetSlidersSb = arrayListOf(toggleSliderSb, toggleSlider2Sb),
             widgetSliderNumTv = arrayListOf(toggleSliderNumTv, toggleSliderNum2Tv),
+            widgetSliderUnitTv = arrayListOf(toggleSliderUnitTv, toggleSliderUnit2Tv),
             turnOffBtnIv = arrayListOf(toggleTurnOffBtnIv1, toggleTurnOffBtnIv2),
             widgetPosition = widgetPosition
         )
@@ -194,25 +199,38 @@ class ToggleSliderDelegateAdapter(
             val dict = PreferenceKeysUbi4.parameterWidgetLabel[langKey]
                 ?: PreferenceKeysUbi4.parameterWidgetLabel["en"].orEmpty()
 
-            fun resolve(off: Int?): String? =
-                off?.let { labelsByOffset?.get(it) }?.let { code -> dict[code.toString()] }
 
             val titleViews = listOf(toggleSliderTitleTv, toggleSliderTitle2Tv)
+            val unitViews  = listOf(toggleSliderUnitTv, toggleSliderUnit2Tv)
+
             titleViews.forEachIndexed { idx, tv ->
                 val off = dataOffset.getOrNull(idx)
 
-                // 1) сохраняем labelCode для этого sliderIndex
                 val code = off?.let { labelsByOffset?.get(it) } ?: -1
                 if (idx in 0..1) currentInfo.labelCodes[idx] = code
 
-                // 2) как раньше — ставим текст заголовка
-                val text = off?.let { labelsByOffset?.get(it) }?.let { c -> dict[c.toString()] }
-                    ?: if (idx == 0) item.title else tv.text
+                val label = code.takeIf { it >= 0 }?.let { dict[it.toString()] }
 
-                runCatching { tv.text = text }
+                // title
+                tv.text = label?.title ?: if (idx == 0) item.title else tv.text
+
+                // unit
+                val unitTv = unitViews[idx]
+                val unit = label?.unit
+                if (unit.isNullOrBlank() || (idx == 1 && paramCount <= 1)) {
+                    unitTv.text = ""
+                    unitTv.visibility = View.GONE
+                } else {
+                    unitTv.text = unit
+                    unitTv.visibility = View.VISIBLE
+                }
             }
         } else {
             toggleSliderTitleTv.text = item.title
+            toggleSliderUnitTv.text = ""
+            toggleSliderUnitTv.visibility = View.GONE
+            toggleSliderUnit2Tv.text = ""
+            toggleSliderUnit2Tv.visibility = View.GONE
         }
 
         // первичная синхронизация текста с текущим progress
@@ -625,6 +643,7 @@ data class WidgetToggleSliderInfo(
     var packedProgress: ArrayList<Int> = ArrayList(), // packed bytes
     var widgetSlidersSb: ArrayList<ProgressBar>,
     var widgetSliderNumTv: ArrayList<TextView>,
+    var widgetSliderUnitTv: ArrayList<TextView>,
     var turnOffBtnIv: ArrayList<ImageView>,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,

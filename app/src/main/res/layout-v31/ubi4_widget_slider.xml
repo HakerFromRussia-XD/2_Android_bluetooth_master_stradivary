@@ -49,7 +49,6 @@
                 android:id="@+id/widgetSliderNumTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="123"
                 android:textColor="@color/white"
@@ -62,12 +61,11 @@
                 android:id="@+id/widgetSliderUnitTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
                 android:fontFamily="@font/sf_pro_display_light"
-                android:text="%"
+                android:text=" "
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/plusBtnCl1"
                 app:layout_constraintTop_toTopOf="@id/widgetSliderTitleTv" />
 
             <!-- Кнопка "-" (первый слайдер) -->
@@ -204,7 +202,6 @@
                     android:id="@+id/widgetSliderNum2Tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="123"
                     android:textColor="@color/white"
@@ -217,12 +214,11 @@
                     android:id="@+id/widgetSliderUnit2Tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="2dp"
                     android:fontFamily="@font/sf_pro_display_light"
-                    android:text="%"
+                    android:text=" "
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/plusBtnCl2"
                     app:layout_constraintTop_toTopOf="@id/widgetSliderTitle2Tv" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout

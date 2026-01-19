@@ -49,13 +49,26 @@
                 android:id="@+id/widgetSliderNumTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="4dp"
                 android:fontFamily="@font/sf_pro_display_light"
                 android:text="123"
                 android:textColor="@color/white"
                 android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/widgetSliderUnitTv"
+                app:layout_constraintTop_toTopOf="@id/widgetSliderUnitTv"
+                app:layout_constraintBottom_toBottomOf="@id/widgetSliderUnitTv" />
+
+            <TextView
+                android:id="@+id/widgetSliderUnitTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="%"
+                android:textColor="@color/white"
+                android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/widgetSliderTitleTv" />
+                app:layout_constraintTop_toTopOf="@id/widgetSliderTitleTv" />
 
             <!-- Кнопка "-" (первый слайдер) -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -191,12 +204,26 @@
                     android:id="@+id/widgetSliderNum2Tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
                     android:text="123"
                     android:textColor="@color/white"
                     android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@id/widgetSliderUnit2Tv"
+                    app:layout_constraintTop_toTopOf="@id/widgetSliderUnit2Tv"
+                    app:layout_constraintBottom_toBottomOf="@id/widgetSliderUnit2Tv" />
+
+                <TextView
+                    android:id="@+id/widgetSliderUnit2Tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:fontFamily="@font/sf_pro_display_light"
+                    android:text="%"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/widgetSliderTitle2Tv" />
+                    app:layout_constraintTop_toTopOf="@id/widgetSliderTitle2Tv" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minusBtnCl2"

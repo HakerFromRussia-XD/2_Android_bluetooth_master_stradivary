@@ -86,6 +86,7 @@ extension GestureListItemViewModel {
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
+        _ = GestureSettingsViewModel.shared
         requestGestureSettings(gestureId: item.id)
         openCustomGestureSettings?(item.id)
     }

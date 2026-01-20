@@ -32,6 +32,7 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -209,6 +210,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect { updateEvent ->
@@ -218,6 +220,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
                 binding.sprGesturesRv.post {
                     adapterWidgets.swapData(mDataFactory.prepareData(display))
+                    adapterWidgets.notifyDataSetChanged()
                     main?.refreshBottomNavVisibility()
                 }
 //                binding.refreshLayout.setRefreshing(false)

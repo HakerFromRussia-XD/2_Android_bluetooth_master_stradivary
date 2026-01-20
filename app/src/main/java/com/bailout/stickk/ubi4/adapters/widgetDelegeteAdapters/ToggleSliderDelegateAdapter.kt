@@ -166,14 +166,6 @@ class ToggleSliderDelegateAdapter(
         widgetSlidersInfo.removeAll { it.addressDevice == addressDevice && it.parameterID == parameterID }
         widgetSlidersInfo.add(currentInfo)
 
-        // cache-first draw
-        run {
-            val ref = ParameterRef(addressDevice, parameterID, dataCode)
-            val cached = ParameterProvider.getParameter(addressDevice, parameterID)
-            if (cached.data.isNotEmpty()) setUI(ref)
-        }
-
-        sliderCollect()
 
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice, parameterID)
         if (indexWidgetSlider == -1) return
@@ -232,6 +224,16 @@ class ToggleSliderDelegateAdapter(
             toggleSliderUnit2Tv.text = ""
             toggleSliderUnit2Tv.visibility = View.GONE
         }
+
+        // cache-first draw
+        run {
+            val ref = ParameterRef(addressDevice, parameterID, dataCode)
+            val cached = ParameterProvider.getParameter(addressDevice, parameterID)
+            if (cached.data.isNotEmpty()) setUI(ref)
+        }
+
+        sliderCollect()
+
 
         // первичная синхронизация текста с текущим progress
         run {
@@ -388,7 +390,6 @@ class ToggleSliderDelegateAdapter(
                 currentInfo.responseReceived.set(true)
             }
         }
-
         // первичный визуал
         applyToggleVisuals(indexWidgetSlider, 0)
         if (paramCount > 1) applyToggleVisuals(indexWidgetSlider, 1)

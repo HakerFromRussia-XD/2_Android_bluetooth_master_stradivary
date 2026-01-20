@@ -234,8 +234,7 @@ class UBI4GripperScreenWithEncodersActivity
                     }
 
                     editMode = false
-                    val customIndex = gestureNumber - 1
-                    CollectionGesturesProvider.updateCustomGestureName(customIndex, gestureNameList[customIndex])
+
 
                     UiState.updateFlow.tryEmit(0) // перерисовать виджеты/списки
 
@@ -304,9 +303,6 @@ class UBI4GripperScreenWithEncodersActivity
                     for (i in 0 until gestureNameList.size) {
                         mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
-                    val customIndex = gestureNumber - 1
-                    CollectionGesturesProvider.updateCustomGestureName(customIndex, gestureNameList[customIndex])
-
                     UiState.updateFlow.tryEmit(0)
                 }
                 finish()

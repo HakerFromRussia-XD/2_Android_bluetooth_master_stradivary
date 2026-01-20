@@ -42,7 +42,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var currentLoadingMessage: String?
     private var lastKnownLoadingState: LoadingView.State?
     private var isViewVisible = false
-    private var selectedGestureId: Int?
+    private var open3DGestureId: Int?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -71,7 +71,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     UIView.setAnimationsEnabled(true)
                 }
                 
-//                self?.selectedGestureId = gestureId
+                self?.open3DGestureId = gestureId
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
             }
         }
@@ -296,8 +296,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             widgetsTableViewController?.viewModel = viewModel
             viewModel.viewDidLoad()
         } else if segue.identifier == "go3DGripperSettings",
-                  let destinationVC = segue.destination as? AAPLOpenGLViewController {
-            destinationVC.gestureNumber = selectedGestureId ?? 0
+            let destinationVC = segue.destination as? AAPLOpenGLViewController {
+            destinationVC.gestureNumber = open3DGestureId ?? 0
         }
     }
 

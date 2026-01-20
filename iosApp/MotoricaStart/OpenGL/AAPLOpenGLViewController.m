@@ -83,9 +83,18 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                              selector:@selector(handleGestureSettingsUpdate:)
                                                  name:GestureSettingsViewModelDidUpdateNotification
                                                object:nil];
-    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+//    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+//    if (latestParameterRef != nil) {
+//        [self applyGestureSettingsUpdate:latestParameterRef];
+//    }
+    GestureSettingsViewModel *viewModel = [GestureSettingsViewModel shared];
+    SharedParameterRef *latestParameterRef = viewModel.latestParameterRef;
     if (latestParameterRef != nil) {
-        [self applyGestureSettingsUpdate:latestParameterRef];
+        NSDictionary *userInfo = @{@"data": latestParameterRef};
+        NSNotification *notification = [NSNotification notificationWithName:GestureSettingsViewModelDidUpdateNotification
+                                                                      object:viewModel
+                                                                    userInfo:userInfo];
+        [self handleGestureSettingsUpdate:notification];
     }
 }
 - (void)viewDidLoad {
@@ -95,12 +104,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
     UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
     [gestureService getDeviceName];
-//    if ([gestureVC getStatusConnection] == 1) {
-//        statusConnection.image = connectStatus;
-//    } else {
-//        statusConnection.image = disconnectStatus;
-//    }
-//    [self stylizationStateBtn];
     state = 0;
     [self setupStateSegmentedControl];
     openStage1 = 0;
@@ -121,7 +124,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (selectedGestureNumber == 0) { selectedGestureNumber = 64; }
     _gestureNumber = selectedGestureNumber;
     deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
-//    _gestureTableStr = [gestureService getGestureTable];
     
     showRenameTextField = false;
 
@@ -404,8 +406,9 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 
 - (void)applyGestureSettingsUpdate:(SharedParameterRef *)parameterRef {
     NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
-                                                                                parameterID: parameterRef.parameterID];
-    NSLog(@"GestureSettings update (VC) data=%@", parameterData);
+                                                                    parameterID: parameterRef.parameterID];
+    SharedGesture *gestureSettings = [gestureService decodeGestureSettingsWithRaw:parameterData];
+    NSLog(@"GestureSettings update (VC) requestGestureSettings gestureId=%ld", gestureSettings.gestureId);
     [_openGLRenderer updateGestureSettings: parameterRef
                              parameterData: parameterData];
 }

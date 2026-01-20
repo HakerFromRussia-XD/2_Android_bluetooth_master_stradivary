@@ -83,6 +83,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                              selector:@selector(handleGestureSettingsUpdate:)
                                                  name:GestureSettingsViewModelDidUpdateNotification
                                                object:nil];
+    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+    if (latestParameterRef != nil) {
+        [self applyGestureSettingsUpdate:latestParameterRef];
+    }
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -395,6 +399,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (parameterRef == nil) {
         return;
     }
+    [self applyGestureSettingsUpdate:parameterRef];
+}
+
+- (void)applyGestureSettingsUpdate:(SharedParameterRef *)parameterRef {
     NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
                                                                                 parameterID: parameterRef.parameterID];
     NSLog(@"GestureSettings update (VC) data=%@", parameterData);

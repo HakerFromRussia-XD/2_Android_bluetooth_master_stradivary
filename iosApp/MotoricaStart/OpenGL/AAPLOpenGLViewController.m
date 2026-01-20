@@ -85,17 +85,17 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                                object:nil];
 //    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
 //    if (latestParameterRef != nil) {
-//        [self applyGestureSettingsUpdate:latestParameterRef];
+//        [self applyGestureSettingsUpdate:latestParameterRef];1
 //    }
-    GestureSettingsViewModel *viewModel = [GestureSettingsViewModel shared];
-    SharedParameterRef *latestParameterRef = viewModel.latestParameterRef;
-    if (latestParameterRef != nil) {
-        NSDictionary *userInfo = @{@"data": latestParameterRef};
-        NSNotification *notification = [NSNotification notificationWithName:GestureSettingsViewModelDidUpdateNotification
-                                                                      object:viewModel
-                                                                    userInfo:userInfo];
-        [self handleGestureSettingsUpdate:notification];
-    }
+//    GestureSettingsViewModel *viewModel = [GestureSettingsViewModel shared];
+//    SharedParameterRef *latestParameterRef = viewModel.latestParameterRef;
+//    if (latestParameterRef != nil) {
+//        NSDictionary *userInfo = @{@"data": latestParameterRef};
+//        NSNotification *notification = [NSNotification notificationWithName:GestureSettingsViewModelDidUpdateNotification
+//                                                                      object:viewModel
+//                                                                    userInfo:userInfo];
+//        [self handleGestureSettingsUpdate:notification];
+//    }
 }
 - (void)viewDidLoad {
     [super viewDidLoad];

@@ -42,12 +42,12 @@ class CollectionGesturesProvider {
             list.add(Gesture(GestureEnum.GESTURE_CUSTOM_5.number, gestureName = ctx.getString(SharedRes.strings.gesture_6_btn.resourceId)))
             list.add(Gesture(GestureEnum.GESTURE_CUSTOM_6.number, gestureName = ctx.getString(SharedRes.strings.gesture_7_btn.resourceId)))
             list.add(Gesture(GestureEnum.GESTURE_CUSTOM_7.number, gestureName = ctx.getString(SharedRes.strings.gesture_8_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_8.number, gestureName = ctx.getString(SharedRes.strings.gesture_9_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_9.number, gestureName = ctx.getString(SharedRes.strings.gesture_10_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_10.number, gestureName = ctx.getString(SharedRes.strings.gesture_11_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_11.number, gestureName = ctx.getString(SharedRes.strings.gesture_12_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_12.number, gestureName = ctx.getString(SharedRes.strings.gesture_13_btn.resourceId)))
-            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_13.number, gestureName = ctx.getString(SharedRes.strings.gesture_14_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_8.number, gestureName = ctx.getString(SharedRes.strings.gesture_9_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_9.number, gestureName = ctx.getString(SharedRes.strings.gesture_10_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_10.number, gestureName = ctx.getString(SharedRes.strings.gesture_11_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_11.number, gestureName = ctx.getString(SharedRes.strings.gesture_12_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_12.number, gestureName = ctx.getString(SharedRes.strings.gesture_13_btn.resourceId)))
+//            list.add(Gesture(GestureEnum.GESTURE_CUSTOM_13.number, gestureName = ctx.getString(SharedRes.strings.gesture_14_btn.resourceId)))
 
             cached = list
             return list

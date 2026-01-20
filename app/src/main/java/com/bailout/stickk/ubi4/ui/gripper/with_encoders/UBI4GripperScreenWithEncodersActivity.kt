@@ -49,6 +49,8 @@ import android.animation.ObjectAnimator
 import android.os.Looper
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
@@ -230,7 +232,12 @@ class UBI4GripperScreenWithEncodersActivity
                     for (i in 0 until gestureNameList.size) {
                         mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
+
                     editMode = false
+                    val customIndex = gestureNumber - 1
+                    CollectionGesturesProvider.updateCustomGestureName(customIndex, gestureNameList[customIndex])
+
+                    UiState.updateFlow.tryEmit(0) // перерисовать виджеты/списки
 
                 } else {
                     //переезжаем на binding
@@ -297,6 +304,10 @@ class UBI4GripperScreenWithEncodersActivity
                     for (i in 0 until gestureNameList.size) {
                         mySaveText(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                     }
+                    val customIndex = gestureNumber - 1
+                    CollectionGesturesProvider.updateCustomGestureName(customIndex, gestureNameList[customIndex])
+
+                    UiState.updateFlow.tryEmit(0)
                 }
                 finish()
             }

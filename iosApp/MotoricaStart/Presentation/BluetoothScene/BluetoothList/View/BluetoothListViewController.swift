@@ -212,7 +212,7 @@ final class BluetoothListViewController: UIViewController {
     }
     
     //TODO: тут можно включать автоконнекшн (1)
-    //комментим viewDidAppear если не нужен автоконнекшн
+    //комментим viewDidAppear если не нужен автоконнекшн к fakeData
 //    override func viewDidAppear(_ animated: Bool) {
 //        super.viewDidAppear(animated)
 //        guard !didTriggerFakeConnection else { return }
@@ -221,6 +221,16 @@ final class BluetoothListViewController: UIViewController {
 //            self?.simulateAutoConnection()
 //        }
 //    }
+    //комментим viewDidAppear если не нужен автоконнекшн к UBI4_Roman
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        guard !didTriggerFakeConnection else { return }
+//        didTriggerFakeConnection = true
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//            self?.autoConnection()
+//        }
+//    }
+    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -293,16 +303,6 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         } else {
             cell.backgroundColor = UIColor(named: "ubi4_gray")
         }
-//        cell.onTap = { [weak self, weak tableView, weak cell] in
-//            print("[BLE-TAP] indexPath = \(tableView?.indexPath(for: cell!))")
-//            guard
-//                let self,
-//                let tableView,
-//                let cell = cell,
-//                let currentIndexPath = tableView.indexPath(for: cell)
-//            else { return }
-//            self.handleDeviceSelection(at: currentIndexPath)
-//        }
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -314,27 +314,8 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
     
     private func handleDeviceSelection(at indexPath: IndexPath) {
         viewModel.connectToDevice(at: indexPath.row)
-//        tableViewDevices.reloadRows(at: [indexPath], with: .none)
-        
         // Запрос на открытие WidgetsListViewController через координатор
-//        openWidgetsList()
         openMainTabBar()
-    }
-    private func openWidgetsList() {
-        // 1. DI‑контейнер Widgets‑сцены
-        let widgetsDI = WidgetsSceneDIContainer(
-            dependencies: makeWidgetsDependencies()
-        )
-
-        // 2. Минимальный набор действий (допустимы заглушки)
-        let actions = WidgetsListViewModelActions(
-            showWidgetDetails: { _ in },
-            showWidgetQueriesSuggestions: { _ in },
-            closeWidgetQueriesSuggestions: { }
-        )
-        
-        let widgetsVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        navigationController?.pushViewController(widgetsVC, animated: true)
     }
     private func openMainTabBar() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
@@ -368,6 +349,12 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         tableViewDevices.reloadData()
         viewModel.connectToDevice(at: index)
         openMainTabBar()
+    }
+    private func autoConnection() {
+//        guard let index = viewModel.prepareFakeDeviceForTesting() else { return }
+//        tableViewDevices.reloadData()
+//        viewModel.connectToDevice(at: index)
+//        openMainTabBar()
     }
 }
 extension String {

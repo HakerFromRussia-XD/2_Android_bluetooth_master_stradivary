@@ -32,7 +32,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     GLuint _colorRenderbuffer;
     GLuint _depthRenderbuffer;
     CADisplayLink *_displayLink;
-//    __weak IBOutlet UIButton *state_btn;
+    __weak IBOutlet UIButton *save_btn;
     UIView *segmentContainer;
     CustomSegmentedControl *stateSegmentedControl;
     __weak IBOutlet UIButton *fingers_delay_btn;
@@ -44,8 +44,8 @@ Implementation of the cross-platform view controller and cross-platform view tha
     UIImage *disconnectStatus;
     
     NSInteger _gestureNumber;
-    NSInteger _gestureTable[84];
-    NSString *_gestureTableStr;
+//    NSInteger _gestureTable[84];
+//    NSString *_gestureTableStr;
     float _previousX;
     float _previousY;
     bool _stop;
@@ -77,7 +77,13 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleGestureSettingsUpdate:)
+                                                 name:GestureSettingsViewModelDidUpdateNotification
+                                               object:nil];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"Отсюда мы начинаем исполнение программы");
@@ -111,7 +117,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (selectedGestureNumber == 0) { selectedGestureNumber = 64; }
     _gestureNumber = selectedGestureNumber;
     deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
-    _gestureTableStr = [gestureService getGestureTable];
+//    _gestureTableStr = [gestureService getGestureTable];
     
     showRenameTextField = false;
 
@@ -143,18 +149,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
     
     [_openGLRenderer saveStateData: @"0"];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(handleGestureSettingsUpdate:)
-                                          name:GestureSettingsViewModelDidUpdateNotification
-                                          object:nil];
-    SharedParameterRef *parameterRef = [GestureSettingsViewModel shared].latestParameterRef;
-    if (parameterRef != nil) {
-        NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
-                                                                        parameterID: parameterRef.parameterID];
-        [_openGLRenderer updateGestureSettings:parameterRef
-                                 parameterData:parameterData];
-    }
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
@@ -174,17 +168,9 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     }
 }
 
-//- (IBAction)chageState:(UIButton *)sender {
-//    if (state == 0 ) {
-//        state = 1;
-////        [state_btn setTitle:NSLocalizedString(@"close_state", nil) forState:UIControlStateNormal];
-//        [_openGLRenderer changeState:state];
-//    } else {
-//        state = 0;
-////        [state_btn setTitle:NSLocalizedString(@"open_state", nil) forState:UIControlStateNormal];
-//        [_openGLRenderer changeState:state];
-//    }
-//}
+- (IBAction)saveGesture:(UIButton *)sender {
+    NSLog(@"saveGesture");
+}
 - (void)stateSegmentChanged:(UISegmentedControl *)sender {
     if (sender.selectedSegmentIndex == 1) {
         state = 1;
@@ -236,7 +222,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [segmentContainer addSubview:stateSegmentedControl];
     NSLayoutConstraint *leading = [segmentContainer.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:48];
     NSLayoutConstraint *trailing = [segmentContainer.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-48];
-    NSLayoutConstraint *bottom = [segmentContainer.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20];
+    NSLayoutConstraint *bottom = [segmentContainer.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-48];
     NSLayoutConstraint *height = [segmentContainer.heightAnchor constraintEqualToConstant:48];
     [NSLayoutConstraint activateConstraints:@[leading, trailing, bottom, height]];
     
@@ -251,10 +237,6 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     stateSegmentedControl.layer.borderWidth = 1;
     stateSegmentedControl.layer.borderColor = [UIColor colorNamed:@"ubi4_filter_gray_border"].CGColor;
     stateSegmentedControl.backgroundColor = [UIColor colorNamed:@"ubi4_filter_back"];
-    [stateSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_deactivate_text"] ?: UIColor.whiteColor}
-                                        forState:UIControlStateNormal];
-    [stateSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_white"] ?: UIColor.blackColor}
-                                        forState:UIControlStateSelected];
     stateSegmentedControl.selectedSegmentIndex = state;
     [stateSegmentedControl addTarget:self action:@selector(stateSegmentChanged:) forControlEvents:UIControlEventValueChanged];
     
@@ -415,7 +397,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     }
     NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
                                                                                 parameterID: parameterRef.parameterID];
-//    NSLog(@"GestureSettings update (VC) data=%@", parameterData);
+    NSLog(@"GestureSettings update (VC) data=%@", parameterData);
     [_openGLRenderer updateGestureSettings: parameterRef
                              parameterData: parameterData];
 }

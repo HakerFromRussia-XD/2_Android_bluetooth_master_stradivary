@@ -595,6 +595,26 @@
                                     <constraint firstAttribute="height" constant="30" id="NTt-sX-nl6"/>
                                 </constraints>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cEf-Zf-FeX">
+                                <rect key="frame" x="150" y="633" width="75" height="35"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="save"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="save">
+                                            <attributes>
+                                                <color key="NSColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <font key="NSFont" size="16" name="SFProText-Bold"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="saveGesture:" destination="tD3-Cp-chy" eventType="touchUpInside" id="sHR-zZ-Hpu"/>
+                                    <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="vDv-td-nTS"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="HBO-q4-tJ0"/>
                         <color key="backgroundColor" name="ubi4_back"/>
@@ -603,12 +623,14 @@
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" constant="-2" id="LMw-Ta-g2o"/>
                             <constraint firstItem="cAr-5O-y8r" firstAttribute="leading" secondItem="cBK-JH-c7K" secondAttribute="trailing" constant="8" id="M6I-aj-AOd"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="height" secondItem="cBK-JH-c7K" secondAttribute="height" multiplier="0.809524" id="Muy-wa-3xa"/>
+                            <constraint firstItem="HBO-q4-tJ0" firstAttribute="bottom" secondItem="cEf-Zf-FeX" secondAttribute="bottom" id="SiW-xa-PWi"/>
                             <constraint firstItem="cBK-JH-c7K" firstAttribute="top" secondItem="HBO-q4-tJ0" secondAttribute="top" id="Upg-cR-roN"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="Vqv-PO-0FD"/>
                             <constraint firstItem="cBK-JH-c7K" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="Xow-ub-QlF"/>
                             <constraint firstItem="sb0-Fu-PYO" firstAttribute="leading" secondItem="cAr-5O-y8r" secondAttribute="trailing" constant="8" id="Y2P-ew-7IJ"/>
                             <constraint firstItem="Bmx-AO-BL4" firstAttribute="leading" secondItem="HBO-q4-tJ0" secondAttribute="leading" constant="4" id="crB-mP-Olp"/>
                             <constraint firstItem="sb0-Fu-PYO" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="es1-x2-xx6"/>
+                            <constraint firstItem="cEf-Zf-FeX" firstAttribute="centerX" secondItem="HBO-q4-tJ0" secondAttribute="centerX" id="hWD-Zo-CjZ"/>
                             <constraint firstItem="kvk-9h-O26" firstAttribute="centerX" secondItem="cBK-JH-c7K" secondAttribute="centerX" constant="7" id="jVg-bJ-Wkk"/>
                             <constraint firstItem="cAr-5O-y8r" firstAttribute="centerY" secondItem="cBK-JH-c7K" secondAttribute="centerY" id="rXu-gG-jry"/>
                         </constraints>
@@ -618,6 +640,7 @@
                         <outlet property="deviceName" destination="cBK-JH-c7K" id="x3v-sm-k0q"/>
                         <outlet property="fingers_delay_btn" destination="Lqb-gf-0y5" id="cC5-7e-b3f"/>
                         <outlet property="renameBtn" destination="90P-ne-5hx" id="y2Y-23-dnb"/>
+                        <outlet property="save_btn" destination="cEf-Zf-FeX" id="n79-7n-IQL"/>
                         <outlet property="statusConnection" destination="cAr-5O-y8r" id="0bM-ca-V9i"/>
                         <outlet property="text_field" destination="kvk-9h-O26" id="TYu-oD-sDK"/>
                     </connections>

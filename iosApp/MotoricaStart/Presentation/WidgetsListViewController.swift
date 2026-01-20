@@ -71,12 +71,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                     UIView.setAnimationsEnabled(true)
                 }
                 
-                self?.selectedGestureId = gestureId
+//                self?.selectedGestureId = gestureId
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
-                
-//                if !animationsWereEnabled {
-//                    UIView.setAnimationsEnabled(false)
-//                }
             }
         }
         

@@ -111,11 +111,6 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     GLuint _selectionMVPUniformLocation;
     
     GestureService *gestureService;
-    NSString *_gestureTableStr;
-    NSInteger _fingersDelayTable[12];
-    NSInteger _gestureTable[87];
-//    NSString *_gestureTableBigStr;
-//    NSInteger _gestureTableBig[160];
     NSInteger _gestureNumber;
     NSInteger _gestureSettingsParameterID;
     NSString *_gestureSettingsParameterData;
@@ -145,58 +140,10 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     if(self)
     {
         _gestureNumber = gestureNumber;
-        NSLog(@"gestureNumber from AAPLOpenGLRenderer = %ld", (long)_gestureNumber);
-//        _handSide = [gestureService getHandSide];
+        NSLog(@"AAPLOpenGLRenderer      gestureNumber = %ld", (long)_gestureNumber);
+        _handSide = [gestureService getHandSide];
         gestureService = [[GestureService alloc] init];
         _handSide = [gestureService getHandSide];
-        
-        if (_handSide == 1) {
-            NSLog(@"Сторона руки правая");
-        } else {
-            NSLog(@"Сторона руки левая");
-        }
-        
-        _gestureTableStr = [gestureService getGestureTable];
-        NSArray *_gestureTableSecond = [_gestureTableStr componentsSeparatedByString:@" "];
-        if (_gestureTableSecond.count > 84) {
-            for  (int i = 0; i <= 86; i++) {
-                _gestureTable[i] = [[_gestureTableSecond objectAtIndex:i] intValue];
-                if (i%6 == 0 ) {NSLog(@"------------------------------------");}
-                if (i%12 == 0 ) {NSLog(@"%d  ====================================", (i/12));}
-                NSLog(@"Распаршенные данные по жестам №%d %d", i, [[_gestureTableSecond objectAtIndex:i] intValue]);
-            }
-        } else {
-            for  (int i = 0; i <= 86; i++) { _gestureTable[i] = 0; }
-        }
-        
-        
-//        _gestureTableBigStr = [gestureService getGestureTableBig];
-//        NSArray *_gestureTableSecondBig = [_gestureTableBigStr componentsSeparatedByString:@" "];
-//        NSLog(@"Парсинг 00 _gestureTableSecondBig.count: %lu", (unsigned long)_gestureTableSecondBig.count);
-//        if (_gestureTableSecondBig.count > 157) {
-//            for  (int i = 0; i <= 159; i++) {
-//                _gestureTableBig[i] = [[_gestureTableSecondBig objectAtIndex:i] intValue];
-//            }
-//        } else {
-//            for  (int i = 0; i <= 159; i++) { _gestureTableBig[i] = 0; }
-//        }
-        
-        
-        NSLog(@"Парсинг 1 _gestureNumber: %ld", (long)_gestureNumber);
-//        openStage4 = _gestureTableBig[12*(_gestureNumber-2)+0];
-//        openStage3 = _gestureTableBig[12*(_gestureNumber-2)+1];
-//        openStage2 = _gestureTableBig[12*(_gestureNumber-2)+2];
-//        openStage1 = _gestureTableBig[12*(_gestureNumber-2)+3];
-//        openStage5 = _gestureTableBig[12*(_gestureNumber-2)+4];
-//        openStage6 = _gestureTableBig[12*(_gestureNumber-2)+5];
-//        
-//        closeStage4 = _gestureTableBig[12*(_gestureNumber-2)+6];
-//        closeStage3 = _gestureTableBig[12*(_gestureNumber-2)+7];
-//        closeStage2 = _gestureTableBig[12*(_gestureNumber-2)+8];
-//        closeStage1 = _gestureTableBig[12*(_gestureNumber-2)+9];
-//        closeStage5 = _gestureTableBig[12*(_gestureNumber-2)+10];
-//        closeStage6 = _gestureTableBig[12*(_gestureNumber-2)+11];
-        
         
         _accumulateRotationGeneral       = matrix4x4_identity();
         _accumulateRotationForeFinger    = matrix4x4_identity();
@@ -480,8 +427,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
 }
 
-- (void) draw
-{
+- (void) draw {
     glUniform3fv(_ambientLightColorUniformLocation, 1, (GLvoid*)&_ambientLightColor);
     glUniform3fv(_directionalLightInvDirectionUniformLocation, 1, (GLvoid*)&_directionalLightInvDirection);
     glUniform3fv(_directionalLightColorUniformLocation, 1, (GLvoid*)&_directionalLightColor);
@@ -1618,51 +1564,6 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     }
 }
 
-- (void) sendGestureNumberFestX {
-    uint8_t data2[]   = { (_gestureNumber-1)};
-//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
-    NSLog(@"");
-}
-- (void) sendSaveComandFestX {
-    uint8_t data2[]   = { (_gestureNumber-1),openStage4,openStage3,openStage2,openStage1,openStage5,openStage6,
-                            closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6};
-//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
-}
-- (void) sendSaveComandFestH {
-    uint8_t data2[]   = { (_gestureNumber-1),openStage1,openStage2,openStage3,openStage4,openStage5,openStage6,
-                                        closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW :sizeof(data2)];
-}
-
-
-- (void) stopVC {
-    NSLog(@"Переход назад 2");
-    [self saveAllData];
-    [self deallocAll];
-}
-- (void) savesAllData {
-    [self saveAllData];
-}
-//Функция для очистки памяти, выделенной под отрисовку
-- (void) deallocAll {
-    glDeleteProgram(_templeProgram);
-
-    glDeleteVertexArrays(1, &_templeVAO);
-
-    glDeleteBuffers(1, &_templeVertexPositions);
-    glDeleteBuffers(1, &_templeVertexGenerics);
-
-    for(int i = 0; i < _numTempleSubmeshes; i++)
-    {
-        glDeleteTextures(1, &_templeTextures[i]);
-        glDeleteBuffers(1, &_templeIndexBuffers[i]);
-    }
-
-    free(_templeIndexBufferCounts);
-    free(_templeIndexBuffers);
-    free(_templeTextures);
-}
-
 - (void) calculationOfCoefficients:(CGFloat) width  :(CGFloat) height {
     _xCoefficient = _viewSize.width/width;
     _yCoefficient = _viewSize.height/height;
@@ -1821,6 +1722,21 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     }
 }
 
+- (void) sendGestureNumberFestX {
+    uint8_t data2[]   = { (_gestureNumber-1)};
+//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
+    NSLog(@"");
+}
+- (void) sendSaveComandFestX {
+    uint8_t data2[]   = { (_gestureNumber-1),openStage4,openStage3,openStage2,openStage1,openStage5,openStage6,
+                            closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6};
+//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
+}
+- (void) sendSaveComandFestH {
+    uint8_t data2[]   = { (_gestureNumber-1),openStage1,openStage2,openStage3,openStage4,openStage5,openStage6,
+                                        closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
+//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW :sizeof(data2)];
+}
 - (void) sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
     [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
@@ -1851,6 +1767,32 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 - (void) saveStateData :(NSString*) dataForWrite {
     NSLog(@"changeState saveStateData: %@", dataForWrite);
 }
+- (void) stopVC {
+    NSLog(@"Переход назад 2");
+    [self saveAllData];
+    [self deallocAll];
+}
+- (void) savesAllData {
+    [self saveAllData];
+}
+- (void) deallocAll {
+    glDeleteProgram(_templeProgram);
+
+    glDeleteVertexArrays(1, &_templeVAO);
+
+    glDeleteBuffers(1, &_templeVertexPositions);
+    glDeleteBuffers(1, &_templeVertexGenerics);
+
+    for(int i = 0; i < _numTempleSubmeshes; i++)
+    {
+        glDeleteTextures(1, &_templeTextures[i]);
+        glDeleteBuffers(1, &_templeIndexBuffers[i]);
+    }
+
+    free(_templeIndexBufferCounts);
+    free(_templeIndexBuffers);
+    free(_templeTextures);
+}
 - (void) updateGestureSettings:(SharedParameterRef *)parameterRef
                  parameterData:(NSString *)parameterData {
     if (parameterRef == nil) {
@@ -1860,37 +1802,57 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureSettingsParameterID = parameterRef.parameterID;
     _gestureSettingsParameterData = parameterData;
     SharedGesture *gestureSettings = [gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
-    NSLog(@"GestureSettings update from AAPLOpenGLRenderer: data = %@",
-          _gestureSettingsParameterData);
-    NSLog(@"\n--- SharedGesture ---\n"
-          "gestureId=%d\n"
-          "gestureName=%@\n"
-          "gestureImage=%d\n"
-          "\nOPEN:\n"
-          "openPosition1=%d openPosition2=%d openPosition3=%d openPosition4=%d openPosition5=%d openPosition6=%d\n"
-          "\nCLOSE:\n"
-          "closePosition1=%d closePosition2=%d closePosition3=%d closePosition4=%d closePosition5=%d closePosition6=%d\n"
-          "\nopenToCloseTimeShift:\n"
-          "1=%d 2=%d 3=%d 4=%d 5=%d 6=%d\n"
-          "\ncloseToOpenTimeShift:\n"
-          "1=%d 2=%d 3=%d 4=%d 5=%d 6=%d\n"
-          "--------------------",
-          gestureSettings.gestureId,
-          gestureSettings.gestureName,
-          gestureSettings.gestureImage,
-
-          gestureSettings.openPosition1, gestureSettings.openPosition2, gestureSettings.openPosition3, gestureSettings.openPosition4, gestureSettings.openPosition5, gestureSettings.openPosition6,
-          gestureSettings.closePosition1, gestureSettings.closePosition2, gestureSettings.closePosition3, gestureSettings.closePosition4, gestureSettings.closePosition5, gestureSettings.closePosition6,
-
-          gestureSettings.openToCloseTimeShift1, gestureSettings.openToCloseTimeShift2, gestureSettings.openToCloseTimeShift3,
-          gestureSettings.openToCloseTimeShift4, gestureSettings.openToCloseTimeShift5, gestureSettings.openToCloseTimeShift6,
-
-          gestureSettings.closeToOpenTimeShift1, gestureSettings.closeToOpenTimeShift2, gestureSettings.closeToOpenTimeShift3,
-          gestureSettings.closeToOpenTimeShift4, gestureSettings.closeToOpenTimeShift5, gestureSettings.closeToOpenTimeShift6
-    );
-    (long)parameterRef.dataCode;
-    (long)parameterRef.parameterID;
-    [gestureService getDeviceName];
+    openStage4 = gestureSettings.openPosition1;
+    openStage3 = gestureSettings.openPosition2;
+    openStage2 = gestureSettings.openPosition3;
+    openStage1 = gestureSettings.openPosition4;
+    openStage5 = gestureSettings.openPosition5;
+    openStage6 = gestureSettings.openPosition6;
     
+    closeStage4 = gestureSettings.closePosition1;
+    closeStage3 = gestureSettings.closePosition2;
+    closeStage2 = gestureSettings.closePosition3;
+    closeStage1 = gestureSettings.closePosition4;
+    closeStage5 = gestureSettings.closePosition5;
+    closeStage6 = gestureSettings.closePosition6;
+    [self changeState: stateGesture];
+    
+    NSLog(@"AAPLOpenGLRenderer from updateGestureSettings     gestureNumber = %ld   openPosition1 = %ld", (long)_gestureNumber, gestureSettings.openPosition1);
+    
+//    gestureSettings.gestureId;
+//    gestureSettings.gestureName;
+//    gestureSettings.gestureImage;
+//    
+//    gestureSettings.openPosition1;
+//    gestureSettings.openPosition2;
+//    gestureSettings.openPosition3;
+//    gestureSettings.openPosition4;
+//    gestureSettings.openPosition5;
+//    gestureSettings.openPosition6;
+//    
+//    gestureSettings.closePosition1;
+//    gestureSettings.closePosition2;
+//    gestureSettings.closePosition3;
+//    gestureSettings.closePosition4;
+//    gestureSettings.closePosition5;
+//    gestureSettings.closePosition6;
+//    
+//    gestureSettings.openToCloseTimeShift1;
+//    gestureSettings.openToCloseTimeShift2;
+//    gestureSettings.openToCloseTimeShift3;
+//    gestureSettings.openToCloseTimeShift4;
+//    gestureSettings.openToCloseTimeShift5;
+//    gestureSettings.openToCloseTimeShift6;
+//    
+//    gestureSettings.closeToOpenTimeShift1;
+//    gestureSettings.closeToOpenTimeShift2;
+//    gestureSettings.closeToOpenTimeShift3;
+//    gestureSettings.closeToOpenTimeShift4;
+//    gestureSettings.closeToOpenTimeShift5;
+//    gestureSettings.closeToOpenTimeShift6;
+//
+//    (long)parameterRef.dataCode;
+//    (long)parameterRef.parameterID;
+//    [gestureService getDeviceName];
 }
 @end

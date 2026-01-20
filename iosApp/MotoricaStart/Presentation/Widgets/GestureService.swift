@@ -45,6 +45,10 @@ final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     
+    override init() {
+        super.init()
+        _ = GestureSettingsViewModel.shared
+    }
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
         let index = numberGesture - 64
@@ -72,24 +76,19 @@ final class GestureService: NSObject {
         let parameter = ParameterProvider.Companion().getParameter(deviceAddress: Int32(deviceAddress), parameterID: Int32(parameterID))
         return parameter.data as NSString
     }
-    @objc public func getStatusConnection() -> Int { 0 }
-    @objc public func getHandSide() -> Int { 0 }
+    @objc public func getStatusConnection() -> Int { 1 }
+    @objc public func getHandSide() -> Int { 1 }
     @objc public func decodeGestureSettings(raw: String) -> Gesture? {
-        print("Вызвана функция decodeGestureSettings  raw = \(raw)")
+//        print("Вызвана функция decodeGestureSettings  raw = \(raw)")
         guard !raw.isEmpty else { return nil }
         return SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
     }
-    @objc public func getGestureTable() -> String { "" }
-    @objc public func getGestureTableBig() -> String { "" }
-
     @objc public func getFingersDelay() -> String {
         let data: String = ""
         return data
     }
 
-    @objc public func getFingersDelaySwitch() -> Int { 0 }
-    @objc public func getVersionDriverGreaterThan237() -> Bool { true }
-
+    @objc public func getFingersDelaySwitch() -> Int { 1 }
     @objc public func sendDataToFest(dataForWrite: Data, characteristic: String, typeFestX: Bool) {
         print("Вызвана функция sendDataToFest  typeFestX = \(typeFestX)")
     }
@@ -97,7 +96,6 @@ final class GestureService: NSObject {
     @objc func saveDataString(key: String, value: String) {
         print("save   key: \(key) value: \(value)")
     }
-    
     func loadNames() -> [String] {
         let defaults = Self.defaultNames()
         let key = TypedStorageKey<[String]>(

@@ -86,8 +86,8 @@ extension GestureListItemViewModel {
     }
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
-        openCustomGestureSettings?(item.id)
         requestGestureSettings(gestureId: item.id)
+        openCustomGestureSettings?(item.id)
     }
 
     func removeRotationGesture(at index: Int, provider: GesturesProvider) {

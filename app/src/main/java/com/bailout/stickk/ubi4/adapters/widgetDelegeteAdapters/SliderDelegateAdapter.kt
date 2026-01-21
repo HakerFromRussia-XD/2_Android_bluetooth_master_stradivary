@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import java.util.Locale
 
 
 class SliderDelegateAdapter(
@@ -52,9 +53,13 @@ class SliderDelegateAdapter(
 
     private var collectJob: kotlinx.coroutines.Job? = null
 
-
-
-
+    private fun formatSliderValue(value: Int, increment: Float): String {
+        return if (increment == 1.0f) {
+            value.toString()
+        } else {
+            String.format(Locale.US, "%.1f", value * increment)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
@@ -73,6 +78,7 @@ class SliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
+        var increment = 1.0f
 
 
         when (val widget = item.widget) {
@@ -92,6 +98,7 @@ class SliderDelegateAdapter(
                 }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
+                increment = widget.increment
                 widgetPosition = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
 
                 Log.d(
@@ -112,6 +119,7 @@ class SliderDelegateAdapter(
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
+                increment = widget.increment
 
                 Log.d(
                     "addressDevice",
@@ -129,6 +137,7 @@ class SliderDelegateAdapter(
             dataOffset = dataOffset,
             minProgress = minProgress,
             maxProgress = maxProgress,
+            increment = increment,
             progress = ArrayList(initialProgress),
             widgetSlidersSb = arrayListOf(widgetSliderSb, widgetSlider2Sb),
             widgetSliderNumTv = arrayListOf(widgetSliderNumTv, widgetSliderNum2Tv),
@@ -164,7 +173,7 @@ class SliderDelegateAdapter(
             secondSliderCl.visibility = View.VISIBLE
 
             widgetSlider2Sb.progress = 0
-            widgetSliderNum2Tv.text = minProgress.toString()
+            widgetSliderNum2Tv.text = formatSliderValue(minProgress, increment)
             currentSliderInfo.progress[1] = minProgress
 
         } else {
@@ -172,7 +181,7 @@ class SliderDelegateAdapter(
         }
 
         widgetSliderSb.progress = 0
-        widgetSliderNumTv.text = minProgress.toString()
+        widgetSliderNumTv.text = formatSliderValue(minProgress, increment)
         currentSliderInfo.progress[0] = minProgress
 
 
@@ -228,7 +237,8 @@ class SliderDelegateAdapter(
         // Обработчик первого слайдера
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                widgetSliderNumTv.text = (seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress).toString()
+                val info = widgetSlidersInfo[indexWidgetSlider]
+                widgetSliderNumTv.text = formatSliderValue(seekBar.progress + info.minProgress, info.increment)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) { }
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -244,8 +254,9 @@ class SliderDelegateAdapter(
                 @SuppressLint("SetTextI18n")
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val idx = getIndexWidgetSlider(addressDevice, parameterID)
-                    if (idx != -1 && widgetSlidersInfo.getOrNull(idx)?.progress?.size ?: 0 > 1) {
-                        widgetSliderNum2Tv.text = (seekBar.progress + widgetSlidersInfo[idx].minProgress).toString()
+                    val info = widgetSlidersInfo.getOrNull(idx)
+                    if (info != null && info.progress.size > 1) {
+                        widgetSliderNum2Tv.text = formatSliderValue(seekBar.progress + info.minProgress, info.increment)
                     }
                 }
                 override fun onStartTrackingTouch(seekBar: SeekBar) { }
@@ -329,7 +340,7 @@ class SliderDelegateAdapter(
         newValue = newValue.coerceIn(minProgress, effectiveMax)
         sliderInfo.progress[sliderIndex] = newValue
         sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newValue - minProgress
-        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = (newValue).toString()
+        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = formatSliderValue(newValue, sliderInfo.increment)
         timer?.cancel()
         timer = object : CountDownTimer(300, 300) {
             override fun onTick(millisUntilFinished: Long) = Unit
@@ -372,10 +383,11 @@ class SliderDelegateAdapter(
         if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
             try {
                 val sizeOf = PreferenceKeysUbi4.ParameterTypeEnum.entries[parameter.type].sizeOf
-                widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, dataOffset ->
+                val info = widgetSlidersInfo[indexWidgetSlider]
+                info.dataOffset.forEachIndexed { index, dataOffset ->
                     Log.d("SliderDebug", "Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}")
                     if (parameter.data.isNotEmpty()) {
-                        val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress
+                        val oldProgress = info.widgetSlidersSb[index].progress
 
                         var newValue = castUnsignedCharToInt(
                             parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte()
@@ -383,13 +395,13 @@ class SliderDelegateAdapter(
                         if (parameter.type == PreferenceKeysUbi4.ParameterTypeEnum.PARTE_INT8_TYPE.number){
                             newValue = parameter.data.substring((sizeOf * dataOffset) * 2, sizeOf * (dataOffset + 1) * 2).toInt(16).toByte().toInt()
                         }
-                        widgetSlidersInfo[indexWidgetSlider].progress[index] = newValue
-                        animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index], oldProgress, newValue - widgetSlidersInfo[indexWidgetSlider].minProgress)
-                        widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = newValue.toString()
+                        info.progress[index] = newValue
+                        animateProgressBar(info.widgetSlidersSb[index], oldProgress, newValue - info.minProgress)
+                        info.widgetSliderNumTv[index].text = formatSliderValue(newValue, info.increment)
                     }
                     // Обновляем отображение
-                    widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress =
-                        widgetSlidersInfo[indexWidgetSlider].progress[index] - widgetSlidersInfo[indexWidgetSlider].minProgress
+                    info.widgetSlidersSb[index].progress =
+                        info.progress[index] - info.minProgress
 
                 }
             } catch (e: Exception) {
@@ -478,6 +490,7 @@ data class WidgetSliderInfo (
     var dataOffset: ArrayList<Int> = ArrayList(),
     var minProgress: Int = 0,
     var maxProgress: Int = 0,
+    var increment: Float = 1.0f,
     var progress: ArrayList<Int> = ArrayList(),
     var widgetSlidersSb: ArrayList<ProgressBar>,
     var widgetSliderNumTv: ArrayList<TextView>,

@@ -17,7 +17,8 @@ data class ToggleSliderParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct =
         BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID"),
     val minProgress: Int = 0,
-    val maxProgress: Int = 0
+    val maxProgress: Int = 0,
+    val increment: Float = 1.0f
 )
 
 object ToggleSliderParameterWidgetSSerializer : KSerializer<ToggleSliderParameterWidgetSStruct> {
@@ -30,8 +31,8 @@ object ToggleSliderParameterWidgetSSerializer : KSerializer<ToggleSliderParamete
         var base = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID")
         var minProgress = 0
         var maxProgress = 0
+        var increment = 1.0f
 
-        // base(80) + min(2) + max(2) = 84
         if (string.length >= 84) {
             base = Json.decodeFromString(
                 BaseParameterWidgetSStruct.serializer(),
@@ -40,12 +41,25 @@ object ToggleSliderParameterWidgetSSerializer : KSerializer<ToggleSliderParamete
 
             minProgress = string.substring(80, 82).toInt(16).toByte().toInt()
             maxProgress = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
+            
+            if (string.length >= 86) {
+                val incByte = string.substring(84, 86).toInt(16)
+                val isDiv = (incByte and 0x80) != 0
+                val value = (incByte and 0x7F).toFloat()
+                
+                increment = if (isDiv) {
+                    if (value != 0f) 1.0f / value else 1.0f
+                } else {
+                    if (value != 0f) value else 1.0f
+                }
+            }
         }
 
         return ToggleSliderParameterWidgetSStruct(
             baseParameterWidgetSStruct = base,
             minProgress = minProgress,
-            maxProgress = maxProgress
+            maxProgress = maxProgress,
+            increment = increment
         )
     }
 

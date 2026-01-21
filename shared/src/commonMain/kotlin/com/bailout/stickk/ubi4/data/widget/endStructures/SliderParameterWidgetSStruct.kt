@@ -17,7 +17,8 @@ import kotlinx.serialization.json.Json
 data class SliderParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID"),
     val minProgress: Int = 0,
-    val maxProgress: Int = 0
+    val maxProgress: Int = 0,
+    val increment: Float = 1.0f
 )
 
 object SliderParameterWidgetSSerializer : KSerializer<SliderParameterWidgetSStruct> {
@@ -29,25 +30,36 @@ object SliderParameterWidgetSSerializer : KSerializer<SliderParameterWidgetSStru
         var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID")
         var minProgress = 0
         var maxProgress = 0
+        var increment = 1.0f
 
         if (string.length >= 84) {
             baseParameterWidgetSStruct = Json.decodeFromString(
                 BaseParameterWidgetSStruct.serializer(),
                 "\"${string.substring(0, 80)}\""
             )
-            // Если нужно перевести minProgress в signed, доработай здесь:
             minProgress = string.substring(80, 82).toInt(16).toByte().toInt()
-//            minProgress = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
             maxProgress = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
-            platformLog("TestMinProgress", "minProgress -S = $minProgress")
-            platformLog("TestMinProgress", "maxProgress -S = $maxProgress")
-            platformLog("TestMinProgress", "substring  = ${string.substring(80,82)}")
+            
+            if (string.length >= 86) {
+                val incByte = string.substring(84, 86).toInt(16)
+                val isDiv = (incByte and 0x80) != 0
+                val value = (incByte and 0x7F).toFloat()
+                
+                increment = if (isDiv) {
+                    if (value != 0f) 1.0f / value else 1.0f
+                } else {
+                    if (value != 0f) value else 1.0f
+                }
+            }
+            
+            platformLog("TestMinProgress", "minProgress -S = $minProgress, inc = $increment")
         }
 
         return SliderParameterWidgetSStruct(
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             minProgress = minProgress,
-            maxProgress = maxProgress
+            maxProgress = maxProgress,
+            increment = increment
         )
     }
 

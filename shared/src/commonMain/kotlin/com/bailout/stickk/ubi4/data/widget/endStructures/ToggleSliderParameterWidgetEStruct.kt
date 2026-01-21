@@ -15,7 +15,8 @@ import kotlinx.serialization.json.Json
 data class ToggleSliderParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct = BaseParameterWidgetEStruct(),
     val minProgress: Int = 0,
-    val maxProgress: Int = 0
+    val maxProgress: Int = 0,
+    val increment: Float = 1.0f
 )
 
 object ToggleSliderParameterWidgetESerializer : KSerializer<ToggleSliderParameterWidgetEStruct> {
@@ -28,8 +29,8 @@ object ToggleSliderParameterWidgetESerializer : KSerializer<ToggleSliderParamete
         var base = BaseParameterWidgetEStruct()
         var minProgress = 0
         var maxProgress = 0
+        var increment = 1.0f
 
-        // base(18) + min(2) + max(2) = 22
         if (string.length >= 22) {
             base = Json.decodeFromString(
                 BaseParameterWidgetEStruct.serializer(),
@@ -38,12 +39,25 @@ object ToggleSliderParameterWidgetESerializer : KSerializer<ToggleSliderParamete
 
             minProgress = string.substring(18, 20).toInt(16).toByte().toInt()
             maxProgress = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+            
+            if (string.length >= 24) {
+                val incByte = string.substring(22, 24).toInt(16)
+                val isDiv = (incByte and 0x80) != 0
+                val value = (incByte and 0x7F).toFloat()
+                
+                increment = if (isDiv) {
+                    if (value != 0f) 1.0f / value else 1.0f
+                } else {
+                    if (value != 0f) value else 1.0f
+                }
+            }
         }
 
         return ToggleSliderParameterWidgetEStruct(
             baseParameterWidgetEStruct = base,
             minProgress = minProgress,
-            maxProgress = maxProgress
+            maxProgress = maxProgress,
+            increment = increment
         )
     }
 

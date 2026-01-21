@@ -39,6 +39,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.Locale
 
 class ToggleSliderDelegateAdapter(
     private val onSetProgress: (addressDevice: Int, parameterID: Int, packedBytes: ArrayList<Int>) -> Unit,
@@ -112,6 +113,7 @@ class ToggleSliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
+        var increment = 1.0f
 
         when (val widget = item.widget) {
             is ToggleSliderParameterWidgetEStruct -> {
@@ -122,6 +124,7 @@ class ToggleSliderDelegateAdapter(
                 s.parameterInfoSet.forEach { dataOffset.add(it.dataOffset) }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
+                increment = widget.increment
                 widgetPosition = s.widgetPosition
             }
 
@@ -133,6 +136,7 @@ class ToggleSliderDelegateAdapter(
                 s.parameterInfoSet.forEach { dataOffset.add(it.dataOffset) }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
+                increment = widget.increment
                 widgetPosition = s.widgetPosition
             }
 
@@ -153,6 +157,7 @@ class ToggleSliderDelegateAdapter(
             dataOffset = dataOffset,
             minProgress = minProgress,
             maxProgress = maxProgress,
+            increment = increment,
             packedProgress = ArrayList(initialPacked),
             widgetSlidersSb = arrayListOf(toggleSliderSb, toggleSlider2Sb),
             widgetSliderNumTv = arrayListOf(toggleSliderNumTv, toggleSliderNum2Tv),
@@ -241,12 +246,12 @@ class ToggleSliderDelegateAdapter(
 
             val useInfinity0 = isInfinityLabel(info, 0)
             toggleSliderNumTv.text =
-                formatValueForUi(toggleSliderSb.progress, info.minProgress, range, useInfinity0)
+                formatValueForUi(toggleSliderSb.progress, info.minProgress, range, useInfinity0, info.increment)
 
             if (paramCount > 1) {
                 val useInfinity1 = isInfinityLabel(info, 1)
                 toggleSliderNum2Tv.text =
-                    formatValueForUi(toggleSlider2Sb.progress, info.minProgress, range, useInfinity1)
+                    formatValueForUi(toggleSlider2Sb.progress, info.minProgress, range, useInfinity1, info.increment)
             }
         }
 
@@ -255,7 +260,7 @@ class ToggleSliderDelegateAdapter(
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 val info = widgetSlidersInfo[indexWidgetSlider]
                 val useInfinity = isInfinityLabel(info, 0)
-                toggleSliderNumTv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)
+                toggleSliderNumTv.text = formatValueForUi(progress, info.minProgress, range, useInfinity, info.increment)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
@@ -288,7 +293,7 @@ class ToggleSliderDelegateAdapter(
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val info = widgetSlidersInfo[indexWidgetSlider]
                     val useInfinity = isInfinityLabel(info, 1)
-                    toggleSliderNum2Tv.text = formatValueForUi(progress, info.minProgress, range, useInfinity)
+                    toggleSliderNum2Tv.text = formatValueForUi(progress, info.minProgress, range, useInfinity, info.increment)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
@@ -399,9 +404,14 @@ class ToggleSliderDelegateAdapter(
         return sliderIndex in 0..1 && info.labelCodes[sliderIndex] == 9
     }
 
-    private fun formatValueForUi(progress: Int, min: Int, range: Int, useInfinity: Boolean): String {
+    private fun formatValueForUi(progress: Int, min: Int, range: Int, useInfinity: Boolean, increment: Float): String {
         if (useInfinity && range > 0 && progress >= range) return "∞"
-        return (progress + min).toString()
+        val value = progress + min
+        return if (increment == 1.0f) {
+            value.toString()
+        } else {
+            String.format(Locale.US, "%.1f", value * increment)
+        }
     }
 
     private fun toggleEnabled(addressDevice: Int, parameterID: Int, sliderIndex: Int) {
@@ -453,7 +463,7 @@ class ToggleSliderDelegateAdapter(
         val useInfinity = isInfinityLabel(info, sliderIndex)
 
         info.widgetSliderNumTv.getOrNull(sliderIndex)?.text =
-            formatValueForUi(uiNext, info.minProgress, range, useInfinity)
+            formatValueForUi(uiNext, info.minProgress, range, useInfinity, info.increment)
 
         applyToggleVisuals(indexWidgetSlider, sliderIndex)
         debounceSend(info)
@@ -541,7 +551,7 @@ class ToggleSliderDelegateAdapter(
 
                 animateProgressBar(sb, oldProgress, uiProgress)
                 val useInfinity = isInfinityLabel(info, sliderIndex)
-                tv.text = formatValueForUi(uiProgress, info.minProgress, range, useInfinity)
+                tv.text = formatValueForUi(uiProgress, info.minProgress, range, useInfinity, info.increment)
 
                 applyToggleVisuals(indexWidgetSlider, sliderIndex)
             }
@@ -641,6 +651,7 @@ data class WidgetToggleSliderInfo(
     var dataOffset: ArrayList<Int> = ArrayList(),
     var minProgress: Int = 0,
     var maxProgress: Int = 0,
+    var increment: Float = 1.0f,
     var packedProgress: ArrayList<Int> = ArrayList(), // packed bytes
     var widgetSlidersSb: ArrayList<ProgressBar>,
     var widgetSliderNumTv: ArrayList<TextView>,

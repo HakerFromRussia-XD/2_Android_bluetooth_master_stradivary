@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="vEg-F4-qS5">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="vEg-F4-qS5">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -130,12 +130,12 @@
                                                     <rect key="frame" x="0.0" y="298" width="344" height="15"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1KY-iF-G1p">
-                                                            <rect key="frame" x="30" y="6" width="61.5" height="11"/>
+                                                            <rect key="frame" x="30" y="6" width="61" height="10"/>
                                                             <attributedString key="attributedText">
                                                                 <fragment content="close threshold">
                                                                     <attributes>
                                                                         <color key="NSColor" name="ubi4_white"/>
-                                                                        <font key="NSFont" size="8" name="OpenSansRoman-Bold"/>
+                                                                        <font key="NSFont" metaFont="system" size="8"/>
                                                                         <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                     </attributes>
                                                                 </fragment>
@@ -153,12 +153,12 @@
                                                             <rect key="frame" x="0.0" y="0.0" width="30" height="15"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kZQ-IQ-j7F">
-                                                                    <rect key="frame" x="9" y="1" width="10.5" height="12.5"/>
+                                                                    <rect key="frame" x="8" y="2" width="12" height="11"/>
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="30">
                                                                             <attributes>
                                                                                 <color key="NSColor" name="ubi4_white"/>
-                                                                                <font key="NSFont" size="9" name="OpenSansRoman-Bold"/>
+                                                                                <font key="NSFont" metaFont="miniSystem"/>
                                                                                 <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                             </attributes>
                                                                         </fragment>
@@ -196,12 +196,12 @@
                                                     <rect key="frame" x="0.0" y="4" width="344" height="15"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lvo-7I-dm5">
-                                                            <rect key="frame" x="253" y="6" width="61" height="11"/>
+                                                            <rect key="frame" x="254" y="6" width="60" height="10"/>
                                                             <attributedString key="attributedText">
                                                                 <fragment content="open threshold">
                                                                     <attributes>
                                                                         <color key="NSColor" name="ubi4_white"/>
-                                                                        <font key="NSFont" size="8" name="OpenSansRoman-Bold"/>
+                                                                        <font key="NSFont" metaFont="system" size="8"/>
                                                                         <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                     </attributes>
                                                                 </fragment>
@@ -219,12 +219,12 @@
                                                             <rect key="frame" x="314" y="0.0" width="30" height="15"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vts-ce-daj">
-                                                                    <rect key="frame" x="9" y="1.5" width="10.5" height="12.5"/>
+                                                                    <rect key="frame" x="8" y="2" width="12" height="11"/>
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="30">
                                                                             <attributes>
                                                                                 <color key="NSColor" name="ubi4_deactivate_text"/>
-                                                                                <font key="NSFont" size="9" name="OpenSansRoman-Bold"/>
+                                                                                <font key="NSFont" metaFont="miniSystem"/>
                                                                                 <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                             </attributes>
                                                                         </fragment>
@@ -324,19 +324,19 @@
                                             <rect key="frame" x="16" y="0.0" width="343" height="140"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="widget slider description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vZi-V1-DEa">
-                                                    <rect key="frame" x="10" y="9.5" width="119" height="14.5"/>
+                                                    <rect key="frame" x="10" y="5.5" width="119" height="14.5"/>
                                                     <fontDescription key="fontDescription" name="SFProDisplay-Light" family="SF Pro Display" pointSize="12"/>
                                                     <color key="textColor" name="ubi4_white"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="123" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2KJ-30-AGB">
-                                                    <rect key="frame" x="314" y="9.5" width="19" height="14.5"/>
+                                                    <rect key="frame" x="314" y="5.5" width="19" height="14.5"/>
                                                     <fontDescription key="fontDescription" name="SFProDisplay-Light" family="SF Pro Display" pointSize="12"/>
                                                     <color key="textColor" name="ubi4_white"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="xme-s7-vb4">
-                                                    <rect key="frame" x="6" y="28" width="331" height="31"/>
+                                                    <rect key="frame" x="8" y="24" width="327" height="34"/>
                                                 </slider>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="widget slider description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="h1k-sr-2uQ">
                                                     <rect key="frame" x="11" y="74" width="119" height="14.5"/>
@@ -519,6 +519,7 @@
                                     <color key="baseForegroundColor" name="ubi4_white"/>
                                 </buttonConfiguration>
                                 <connections>
+                                    <action selector="perehod:" destination="tD3-Cp-chy" eventType="touchUpOutside" id="SNW-46-ptt"/>
                                     <action selector="perehod:" destination="tD3-Cp-chy" eventType="touchUpInside" id="s03-0E-6il"/>
                                     <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="k7V-Bw-8ak"/>
                                 </connections>
@@ -611,7 +612,8 @@
                                     </attributedString>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="saveGesture:" destination="tD3-Cp-chy" eventType="touchUpInside" id="sHR-zZ-Hpu"/>
+                                    <action selector="perehodWithSaveData:" destination="tD3-Cp-chy" eventType="touchUpOutside" id="3QM-v7-0P1"/>
+                                    <action selector="perehodWithSaveData:" destination="tD3-Cp-chy" eventType="touchUpInside" id="tJc-LT-L1U"/>
                                     <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="vDv-td-nTS"/>
                                 </connections>
                             </button>

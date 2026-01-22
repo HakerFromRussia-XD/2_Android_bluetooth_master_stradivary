@@ -153,18 +153,12 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     CGFloat screenHeight = screenRect.size.height;
     NSLog(@"Размер экрана   screenWidth: %f   screenHeight: %f", screenWidth, screenHeight);
     [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
-    
-    [_openGLRenderer saveStateData: @"0"];
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
 
 - (IBAction)perehod:(UIButton *)sender {
     _stop = true;
-    NSLog(@"Переход назад 1");
-    // возобновляем работу протеза от датчиков
-    uint8_t data[]   = { 0x01 };
-    
     [_openGLRenderer stopVC];
     
     if (showRenameTextField) {
@@ -173,10 +167,11 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
         [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
     }
 }
-
-- (IBAction)saveGesture:(UIButton *)sender {
-    NSLog(@"saveGesture");
+- (IBAction)perehodWithSaveData:(UIButton *)sender {
+    _stop = true;
+    [_openGLRenderer stopVCWithSaveData];
 }
+
 - (void)stateSegmentChanged:(UISegmentedControl *)sender {
     if (sender.selectedSegmentIndex == 1) {
         state = 1;

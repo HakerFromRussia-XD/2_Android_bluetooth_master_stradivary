@@ -81,6 +81,12 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     float _angleBigFingerFloat;
     float _angle_2_BigFingerFloat;
 
+    float _targetForeFingerAngle;
+    float _targetMiddleFingerAngle;
+    float _targetRingFingerAngle;
+    float _targetLittleFingerAngle;
+    float _targetBigFingerAngle;
+    float _targetBigFingerRotationAngle;
 
     int _angleForeFingerTransfer;
     int _angleMiddleFingerTransfer;
@@ -140,6 +146,14 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     if(self)
     {
         _gestureNumber = gestureNumber;
+        //TODO: тут можно включить фейковые положения пальцев (4)
+        closeStage1 = 100;
+        closeStage2 = 100;
+        closeStage3 = 100;
+        closeStage4 = 100;
+        closeStage5 = 100;
+        closeStage6 = 100;
+        
         NSLog(@"AAPLOpenGLRenderer      gestureNumber = %ld", (long)_gestureNumber);
         _handSide = [gestureService getHandSide];
         gestureService = [[GestureService alloc] init];
@@ -169,16 +183,6 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
         _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
         _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
-        
-        
-//        if (_typeMultigribNewVM == 1 || [gestureService getVersionDriverGreaterThan237]) {
-//            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            [self sendGestureNumberFestX];
-//        } else {
-//            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//        }
         
         
         _startAngle = 1.55f;//1.55f;
@@ -1372,24 +1376,13 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage1 = _angleLittleFingerTransfer;
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage1 = %ld  stateGesture = %d", openStage1, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage1 = _angleLittleFingerTransfer;
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage1 = %ld  stateGesture = %d", closeStage1, stateGesture);
         }
+        
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
 //        } else {
@@ -1403,26 +1396,13 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage2 = _angleRingFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage2 = %ld  stateGesture = %d", openStage2, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage2 = _angleRingFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage2 = %ld  stateGesture = %d", closeStage2, stateGesture);
         }
+        
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
 //        } else {
@@ -1436,26 +1416,13 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage3 = _angleMiddleFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage3 = %ld  stateGesture = %d", openStage3, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage3 = _angleMiddleFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage3 = %ld  stateGesture = %d", closeStage3, stateGesture);
         }
+        
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
 //        } else {
@@ -1469,25 +1436,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage4 = _angleForeFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage4 = %ld  stateGesture = %d", openStage4, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage4 = _angleForeFingerTransfer;
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage4 = %ld  stateGesture = %d", closeStage4, stateGesture);
         }
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
@@ -1502,25 +1455,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage5 = %ld  stateGesture = %d", openStage5, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage5 = %ld  stateGesture = %d", closeStage5, stateGesture);
         }
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
@@ -1535,25 +1474,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         if (stateGesture == 0) {
             //изменение открытого состояния
             openStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage6 = %ld  stateGesture = %d", openStage6, stateGesture);
         } else {
             //изменение закрытого состояния
             closeStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
-            
-//            if (_typeMultigribNewVM == 1) {
-//                uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//            } else {
-//                uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////                [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//            }
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage6 = %ld  stateGesture = %d", closeStage6, stateGesture);
         }
 //        if (_typeMultigribNewVM == 1) {
 //            [self sendSaveComandFestX];
@@ -1572,63 +1497,69 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 - (void) changeState :(BOOL) state {
     NSLog(@"changeState tup %d", state);
     self->stateGesture = state;
+    if (timer != nil) {
+        [timer invalidate];
+        timer = nil;
+    }
     if (state == 1) {
         //код перехода в закрытое состояние
-        _angleForeFingerFloat = (closeStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
-        _angleMiddleFingerFloat = (closeStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
-        _angleRingFingerFloat = (closeStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
-        _angleLittleFingerFloat = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _angleBigFingerFloat = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;                        //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _angle_2_BigFingerFloat = (closeStage6*1.0f/100*90)/180*M_PI;                           //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        [self checkingAnglesForValidValues];
-
-        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
-        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
-        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
-        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
-        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
+        _targetForeFingerAngle = (closeStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
+        _targetMiddleFingerAngle = (closeStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
+        _targetRingFingerAngle = (closeStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
+        _targetLittleFingerAngle = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
+        _targetBigFingerAngle = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;                  //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
+        _targetBigFingerRotationAngle = (closeStage6*1.0f/100*90)/180*M_PI;                      //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
         
-        
-//        if (_typeMultigribNewVM == 1) {
-//            uint8_t data[]   = { closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6 };
-////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//        } else {
-//            uint8_t data[]   = { closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-////            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//        }
-        
-        
-        [self saveStateData :@"1"];
+//        _angleForeFingerFloat = (closeStage4*1.0f/100*97.9)/180*M_PI+0.0175;                     //  <0.0174 _angleForeFingerFloat   >1.727
+//        _angleMiddleFingerFloat = (closeStage3*1.0f/100*97.9)/180*M_PI+0.0175;                   //  <0.0174 _angleMiddleFingerFloat >1.727
+//        _angleRingFingerFloat = (closeStage2*1.0f/100*97.9)/180*M_PI+0.0175;                     //  <0.0174 _angleRingFingerFloat   >1.727
+//        _angleLittleFingerFloat = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;                   //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
+//        _angleBigFingerFloat = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;                   //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
+//        _angle_2_BigFingerFloat = (closeStage6*1.0f/100*90)/180*M_PI;                            //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+//        [self checkingAnglesForValidValues];
+//
+//        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
+//        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
+//        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
+//        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
+//        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
+//        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     } else {
         //код перехода в открытое состояние
-        _angleForeFingerFloat = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
-        _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
-        _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
-        _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;                        //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;                           //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        [self checkingAnglesForValidValues];
-
-        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
-        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
-        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
-        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
-        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
+        _targetForeFingerAngle = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
+        _targetMiddleFingerAngle = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
+        _targetRingFingerAngle = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
+        _targetLittleFingerAngle = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
+        _targetBigFingerAngle = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;                        //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
+        _targetBigFingerRotationAngle = (openStage6*1.0f/100*90)/180*M_PI;                           //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
         
-        
-//        if (_typeMultigribNewVM == 1) {
-//            uint8_t data[]   = { openStage4,openStage3,openStage2,openStage1,openStage5,openStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW_VM :sizeof(data)];
-//        } else {
-//            uint8_t data[]   = { openStage1,openStage2,openStage3,openStage4,openStage5,openStage6 };
-//            [self sendDataToFest :data :sampleGattAtributes.MOVE_ALL_FINGERS_NEW :sizeof(data)];
-//        }
-        
-        
-        [self saveStateData :@"0"];
+//        _angleForeFingerFloat = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
+//        _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
+//        _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
+//        _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
+//        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;                        //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
+//        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;                           //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+//        [self checkingAnglesForValidValues];
+//
+//        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
+//        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
+//        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
+//        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
+//        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
+//        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     }
+    NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   stateGesture = %d", stateGesture);
+    _targetForeFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetForeFingerAngle));
+    _targetMiddleFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetMiddleFingerAngle));
+    _targetRingFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetRingFingerAngle));
+    _targetLittleFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetLittleFingerAngle));
+    _targetBigFingerAngle = fmaxf(-1.0f, fminf(0.5f, _targetBigFingerAngle));
+    _targetBigFingerRotationAngle = fmaxf(0.01f, fminf(1.58f, _targetBigFingerRotationAngle));
+    timer = [NSTimer scheduledTimerWithTimeInterval:0.0003
+                                             target:self
+                                           selector:@selector(animateChangeState)
+                                           userInfo:nil
+                                            repeats:YES];
 }
 
 - (void) checkingAnglesForValidValues {
@@ -1685,40 +1616,66 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 }
 
 - (void) animateChangeState{
-    if (stateGesture == 1) {
-        //закрываем
-        if (_directionForeFinger) {
-            _angleForeFingerFloat += 0.001;
-            if (_angleForeFingerTransfer >= closeStage4) {
-                [self->timer invalidate];
-                self->timer = nil;
-                _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-            }
-        } else {
-            _angleForeFingerFloat -= 0.001;
-            if (_angleForeFingerTransfer <= closeStage4) {
-                [self->timer invalidate];
-                self->timer = nil;
-                _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-            }
-        }
+    const float step = 0.001f;
+    BOOL isForeFingerDone = NO;
+    BOOL isMiddleFingerDone = NO;
+    BOOL isRingFingerDone = NO;
+    BOOL isLittleFingerDone = NO;
+    BOOL isBigFingerDone = NO;
+    BOOL isBigFingerRotationDone = NO;
+
+    if (fabsf(_angleForeFingerFloat - _targetForeFingerAngle) <= step) {
+        _angleForeFingerFloat = _targetForeFingerAngle;
+        isForeFingerDone = YES;
     } else {
-        //открываем
-        if (_directionForeFinger) {
-            _angleForeFingerFloat += 0.001;
-            if (_angleForeFingerTransfer >= openStage4) {
-                [self->timer invalidate];
-                self->timer = nil;
-                _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-            }
-        } else {
-            _angleForeFingerFloat -= 0.001;
-            if (_angleForeFingerTransfer <= openStage4) {
-                [self->timer invalidate];
-                self->timer = nil;
-                _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-            }
-        }        
+        _angleForeFingerFloat += (_targetForeFingerAngle > _angleForeFingerFloat) ? step : -step;
+    }
+
+    if (fabsf(_angleMiddleFingerFloat - _targetMiddleFingerAngle) <= step) {
+        _angleMiddleFingerFloat = _targetMiddleFingerAngle;
+        isMiddleFingerDone = YES;
+    } else {
+        _angleMiddleFingerFloat += (_targetMiddleFingerAngle > _angleMiddleFingerFloat) ? step : -step;
+    }
+
+    if (fabsf(_angleRingFingerFloat - _targetRingFingerAngle) <= step) {
+        _angleRingFingerFloat = _targetRingFingerAngle;
+        isRingFingerDone = YES;
+    } else {
+        _angleRingFingerFloat += (_targetRingFingerAngle > _angleRingFingerFloat) ? step : -step;
+    }
+
+    if (fabsf(_angleLittleFingerFloat - _targetLittleFingerAngle) <= step) {
+        _angleLittleFingerFloat = _targetLittleFingerAngle;
+        isLittleFingerDone = YES;
+    } else {
+        _angleLittleFingerFloat += (_targetLittleFingerAngle > _angleLittleFingerFloat) ? step : -step;
+    }
+
+    if (fabsf(_angleBigFingerFloat - _targetBigFingerAngle) <= step) {
+        _angleBigFingerFloat = _targetBigFingerAngle;
+        isBigFingerDone = YES;
+    } else {
+        _angleBigFingerFloat += (_targetBigFingerAngle > _angleBigFingerFloat) ? step : -step;
+    }
+
+    if (fabsf(_angle_2_BigFingerFloat - _targetBigFingerRotationAngle) <= step) {
+        _angle_2_BigFingerFloat = _targetBigFingerRotationAngle;
+        isBigFingerRotationDone = YES;
+    } else {
+        _angle_2_BigFingerFloat += (_targetBigFingerRotationAngle > _angle_2_BigFingerFloat) ? step : -step;
+    }
+
+    if (isForeFingerDone && isMiddleFingerDone && isRingFingerDone && isLittleFingerDone
+        && isBigFingerDone && isBigFingerRotationDone) {
+        [self->timer invalidate];
+        self->timer = nil;
+        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
+        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
+        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
+        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
+        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
+        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     }
 }
 
@@ -1727,53 +1684,22 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 //    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
     NSLog(@"");
 }
-- (void) sendSaveComandFestX {
-    uint8_t data2[]   = { (_gestureNumber-1),openStage4,openStage3,openStage2,openStage1,openStage5,openStage6,
-                            closeStage4,closeStage3,closeStage2,closeStage1,closeStage5,closeStage6};
-//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW_VM :sizeof(data2)];
-}
-- (void) sendSaveComandFestH {
-    uint8_t data2[]   = { (_gestureNumber-1),openStage1,openStage2,openStage3,openStage4,openStage5,openStage6,
-                                        closeStage1,closeStage2,closeStage3,closeStage4,closeStage5,closeStage6 };
-//    [self sendDataToFest :data2 :sampleGattAtributes.CHANGE_GESTURE_NEW :sizeof(data2)];
-}
 - (void) sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
     NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
     [gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
 }
 
-- (void) saveAllData {
-//        _gestureTableBig[12*(_gestureNumber-2)+0] = openStage4;
-//        _gestureTableBig[12*(_gestureNumber-2)+1] = openStage3;
-//        _gestureTableBig[12*(_gestureNumber-2)+2] = openStage2;
-//        _gestureTableBig[12*(_gestureNumber-2)+3] = openStage1;
-//        _gestureTableBig[12*(_gestureNumber-2)+4] = openStage5;
-//        _gestureTableBig[12*(_gestureNumber-2)+5] = openStage6;
-//        
-//        _gestureTableBig[12*(_gestureNumber-2)+6] = closeStage4;
-//        _gestureTableBig[12*(_gestureNumber-2)+7] = closeStage3;
-//        _gestureTableBig[12*(_gestureNumber-2)+8] = closeStage2;
-//        _gestureTableBig[12*(_gestureNumber-2)+9] = closeStage1;
-//        _gestureTableBig[12*(_gestureNumber-2)+10] = closeStage5;
-//        _gestureTableBig[12*(_gestureNumber-2)+11] = closeStage6;
-        
-//        NSString *dataStrBig = @"";
-//            for (int i = 0; i <= 159; i++) {
-//                dataStrBig = [dataStrBig stringByAppendingString:([@(_gestureTableBig[i]) stringValue])];
-//                dataStrBig = [dataStrBig stringByAppendingString:(@" ")];
-//            }
-//        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
-}
-- (void) saveStateData :(NSString*) dataForWrite {
-    NSLog(@"changeState saveStateData: %@", dataForWrite);
-}
 - (void) stopVC {
-    NSLog(@"Переход назад 2");
+    NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход без сохраниения данных)");
+    [self deallocAll];
+}
+- (void) stopVCWithSaveData {
+    NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход с сохраниением данных)");
     [self saveAllData];
     [self deallocAll];
 }
-- (void) savesAllData {
-    [self saveAllData];
+- (void) saveAllData {
+//        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
 }
 - (void) deallocAll {
     glDeleteProgram(_templeProgram);

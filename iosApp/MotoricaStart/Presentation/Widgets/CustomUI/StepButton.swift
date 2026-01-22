@@ -5,7 +5,7 @@
 //  Created by Motorica LLC on 22.08.2025.
 //
 
-import SwiftUICore
+//import SwiftUICore
 import SwiftUI
 
 

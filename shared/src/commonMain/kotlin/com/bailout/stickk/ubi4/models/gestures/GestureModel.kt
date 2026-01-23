@@ -10,10 +10,10 @@ data class GestureInfo(
 )
 
 data class GestureWithAddress(
-    val addressDevice: Int,
-    val parameterID: Int,
-    val gesture: Gesture,
-    val gestureState: Int
+    var addressDevice: Int,
+    var parameterID: Int,
+    var gesture: Gesture,
+    var gestureState: Int
 )
 
 // Конфигурация жеста: для анимированного 3D-конфигуратора

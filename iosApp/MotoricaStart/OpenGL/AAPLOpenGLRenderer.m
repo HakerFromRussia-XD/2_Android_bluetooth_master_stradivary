@@ -1532,6 +1532,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         //        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
         //        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     }
+    NSLog(@"CLASS=%@", NSStringFromClass([_gestureWithAddress class]));
+    IMP getImp = [_gestureWithAddress methodForSelector:@selector(gestureState)];
+    IMP setImp = [_gestureWithAddress methodForSelector:@selector(setGestureState:)];
+    NSLog(@"IMP get=%p set=%p", getImp, setImp);
+    
     NSLog(@"SET: BEFORE gestureState=%ld", (long)_gestureWithAddress.gestureState);
     _gestureWithAddress.gestureState = stateGesture+128;
     NSLog(@"SET: AFTER  gestureState=%ld (expected=%ld)",

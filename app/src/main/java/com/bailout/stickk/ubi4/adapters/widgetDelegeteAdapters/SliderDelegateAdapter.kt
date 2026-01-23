@@ -38,6 +38,7 @@ import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import java.util.Locale
+import kotlin.math.roundToInt
 
 
 class SliderDelegateAdapter(
@@ -54,11 +55,20 @@ class SliderDelegateAdapter(
     private var collectJob: kotlinx.coroutines.Job? = null
 
     private fun formatSliderValue(value: Int, increment: Float): String {
-        return if (increment == 1.0f) {
-            value.toString()
-        } else {
-            String.format(Locale.US, "%.1f", value * increment)
+        val result = value * increment
+
+        // Режим множителя (increment >= 1.0) -> 0 знаков
+        if (increment >= 1.0f) {
+            return result.toInt().toString()
         }
+        // Режим делителя (increment < 1.0)
+        val divisor = (1.0f / increment).roundToInt()
+        val pattern = when (divisor) {
+            2, 5, 10 -> "%.1f"
+            else -> "%.2f"
+        }
+
+        return String.format(Locale.US, pattern, result)
     }
 
     @SuppressLint("ClickableViewAccessibility")

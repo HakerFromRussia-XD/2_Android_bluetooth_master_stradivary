@@ -40,6 +40,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class ToggleSliderDelegateAdapter(
     private val onSetProgress: (addressDevice: Int, parameterID: Int, packedBytes: ArrayList<Int>) -> Unit,
@@ -404,14 +405,23 @@ class ToggleSliderDelegateAdapter(
         return sliderIndex in 0..1 && info.labelCodes[sliderIndex] == 9
     }
 
+
+
     private fun formatValueForUi(progress: Int, min: Int, range: Int, useInfinity: Boolean, increment: Float): String {
         if (useInfinity && range > 0 && progress >= range) return "∞"
-        val value = progress + min
-        return if (increment == 1.0f) {
-            value.toString()
-        } else {
-            String.format(Locale.US, "%.1f", value * increment)
+        val result = (progress + min) * increment
+
+        if (increment >= 1.0f) {
+            return result.toInt().toString()
         }
+
+        val divisor = (1.0f / increment).roundToInt()
+        val pattern = when (divisor) {
+            2, 5, 10 -> "%.1f"
+            else -> "%.2f"
+        }
+
+        return String.format(Locale.US, pattern, result)
     }
 
     private fun toggleEnabled(addressDevice: Int, parameterID: Int, sliderIndex: Int) {

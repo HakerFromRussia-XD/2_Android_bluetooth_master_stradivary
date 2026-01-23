@@ -146,16 +146,36 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
             this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
                 labelCode = baseParameterWidgetEStruct.labelCode
             ).copy(
-                    minProgress = minProgress,
-                    maxProgress = maxProgress
-                )
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                increment = increment
+            )
 
         is SliderParameterWidgetSStruct ->
             this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
                 label = baseParameterWidgetSStruct.label
             ).copy(
                 minProgress = minProgress,
-                maxProgress = maxProgress
+                maxProgress = maxProgress,
+                increment = increment
+            )
+
+        is ToggleSliderParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                increment = increment
+            )
+
+        is ToggleSliderParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                increment = increment
             )
 
         // -------- SWITCH --------
@@ -221,7 +241,23 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
                 minProgress = minProgress,
                 maxProgress = maxProgress
             )
+        is SliderParameterWidgetEStruct ->
+            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
+                labelCode = baseParameterWidgetEStruct.labelCode
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                increment = increment // ✅
+            )
 
+        is SliderParameterWidgetSStruct ->
+            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
+                label = baseParameterWidgetSStruct.label
+            ).copy(
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                increment = increment // ✅
+            )
 
 
         else -> null
@@ -280,18 +316,21 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
     fun sliderStruct(): Any {
         val min = minProgress ?: 0
         val max = maxProgress ?: 100
+        val inc = increment ?: 1.0f
 
         return if (isStringLabel) {
             SliderParameterWidgetSStruct(
                 baseParameterWidgetSStruct = baseSStruct,
                 minProgress = min,
-                maxProgress = max
+                maxProgress = max,
+                increment = inc
             )
         } else {
             SliderParameterWidgetEStruct(
                 baseParameterWidgetEStruct = baseEStruct,
                 minProgress = min,
-                maxProgress = max
+                maxProgress = max,
+                increment = inc
             )
         }
     }
@@ -362,18 +401,21 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
             val min = minProgress ?: 0
             val max = maxProgress ?: 100
+            val inc = increment ?: 1.0f
 
             if (isStringLabel) {
                 ToggleSliderParameterWidgetSStruct(
                     baseParameterWidgetSStruct = baseSStruct,
                     minProgress = min,
-                    maxProgress = max
+                    maxProgress = max,
+                    increment = inc
                 )
             } else {
                 ToggleSliderParameterWidgetEStruct(
                     baseParameterWidgetEStruct = baseEStruct,
                     minProgress = min,
-                    maxProgress = max
+                    maxProgress = max,
+                    increment = inc
                 )
             }
         }

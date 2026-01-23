@@ -760,13 +760,11 @@ object BLECommands {
             gestureWithAddress.gesture.closeToOpenTimeShift5.toByte(),
             gestureWithAddress.gesture.closeToOpenTimeShift6.toByte(),
             gestureWithAddress.gestureState.toByte()
-
         )
 
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()
 
-//        platformLog("SendCommandTest", "packet = " + data.contentToString())
         platformLog(
             "SendCommandTest",
             "packet = " + data.joinToString(" ") { byte ->

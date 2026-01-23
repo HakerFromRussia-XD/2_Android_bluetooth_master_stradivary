@@ -163,3 +163,20 @@ final class GestureService: NSObject {
         return SharedRes.strings().gesture_state_close.desc().localized()
     }
 }
+
+
+@objcMembers
+final class GestureWithAddress: NSObject {
+    @objc dynamic var addressDevice: Int = 0
+    @objc dynamic var parameterID: Int = 0
+    @objc dynamic var gesture: Gesture
+    @objc dynamic var gestureState: Int = 0
+
+    init(addressDevice: Int, parameterID: Int, gesture: Gesture, gestureState: Int) {
+        self.addressDevice = addressDevice
+        self.parameterID = parameterID
+        self.gesture = gesture
+        self.gestureState = gestureState
+        super.init()
+    }
+}

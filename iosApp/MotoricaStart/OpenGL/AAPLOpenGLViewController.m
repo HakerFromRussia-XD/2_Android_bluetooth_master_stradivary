@@ -32,11 +32,11 @@ Implementation of the cross-platform view controller and cross-platform view tha
     GLuint _colorRenderbuffer;
     GLuint _depthRenderbuffer;
     CADisplayLink *_displayLink;
-    __weak IBOutlet UIButton *save_btn;
+    __weak IBOutlet UIButton *saveBtn;
     UIView *segmentContainer;
     CustomSegmentedControl *stateSegmentedControl;
-    __weak IBOutlet UIButton *fingers_delay_btn;
-    __weak IBOutlet UITextField *text_field;
+    __weak IBOutlet UIButton *fingersDelayBtn;
+    __weak IBOutlet UITextField *textField;
     __weak IBOutlet UILabel *deviceName;
     __weak IBOutlet UIImageView *statusConnection;
     __weak IBOutlet UIButton *renameBtn;
@@ -44,8 +44,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     UIImage *disconnectStatus;
     
     NSInteger _gestureNumber;
-//    NSInteger _gestureTable[84];
-//    NSString *_gestureTableStr;
     float _previousX;
     float _previousY;
     bool _stop;
@@ -163,7 +161,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     
     if (showRenameTextField) {
         NSString *result = @"";
-        result = [result stringByAppendingString:text_field.text];
+        result = [result stringByAppendingString:textField.text];
         [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
     }
 }
@@ -187,19 +185,19 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 
 - (IBAction)renameGesture:(UIButton *)sender {
     if (showRenameTextField) {
-        text_field.hidden = YES;
-        [text_field resignFirstResponder];
+        textField.hidden = YES;
+        [textField resignFirstResponder];
         showRenameTextField = false;
-        deviceName.text = text_field.text;
+        deviceName.text = textField.text;
         NSString *result = @"";
-        result = [result stringByAppendingString:text_field.text];
+        result = [result stringByAppendingString:textField.text];
         [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
         [renameBtn setImage:[UIImage imageNamed:@"rename.png"]   forState:UIControlStateNormal];
     } else {
-        text_field.hidden = NO;
-        [text_field becomeFirstResponder];
+        textField.hidden = NO;
+        [textField becomeFirstResponder];
         showRenameTextField = true;
-        text_field.text = deviceName.text;
+        textField.text = deviceName.text;
         [renameBtn setImage:[UIImage imageNamed:@"ok.png"]   forState:UIControlStateNormal];
     }
 }
@@ -298,8 +296,8 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
     if ([gestureService getFingersDelaySwitch]) {
-        [fingers_delay_btn setAlpha:1];
-    } else { [fingers_delay_btn setAlpha:0]; }
+        [fingersDelayBtn setAlpha:1];
+    } else { [fingersDelayBtn setAlpha:0]; }
     
 }
 

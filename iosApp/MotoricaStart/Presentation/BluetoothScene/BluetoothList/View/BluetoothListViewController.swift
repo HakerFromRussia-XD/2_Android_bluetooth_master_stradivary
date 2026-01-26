@@ -213,14 +213,14 @@ final class BluetoothListViewController: UIViewController {
     
     //TODO: тут можно включать автоконнекшн (1)
     //комментим viewDidAppear если не нужен автоконнекшн к fakeData
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        guard !didTriggerFakeConnection else { return }
-        didTriggerFakeConnection = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.simulateAutoConnection()
-        }
-    }
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        guard !didTriggerFakeConnection else { return }
+//        didTriggerFakeConnection = true
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//            self?.simulateAutoConnection()
+//        }
+//    }
     //комментим viewDidAppear если не нужен автоконнекшн к UBI4_Roman (недоделано)
 //    override func viewDidAppear(_ animated: Bool) {
 //        super.viewDidAppear(animated)

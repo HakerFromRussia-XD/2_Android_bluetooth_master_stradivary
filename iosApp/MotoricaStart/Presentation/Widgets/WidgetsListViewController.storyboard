@@ -640,11 +640,11 @@
                     <navigationItem key="navigationItem" id="crF-tW-yST"/>
                     <connections>
                         <outlet property="deviceName" destination="cBK-JH-c7K" id="x3v-sm-k0q"/>
-                        <outlet property="fingers_delay_btn" destination="Lqb-gf-0y5" id="cC5-7e-b3f"/>
+                        <outlet property="fingersDelayBtn" destination="Lqb-gf-0y5" id="fjc-2O-jWB"/>
                         <outlet property="renameBtn" destination="90P-ne-5hx" id="y2Y-23-dnb"/>
-                        <outlet property="save_btn" destination="cEf-Zf-FeX" id="n79-7n-IQL"/>
+                        <outlet property="saveBtn" destination="cEf-Zf-FeX" id="e04-D0-bV8"/>
                         <outlet property="statusConnection" destination="cAr-5O-y8r" id="0bM-ca-V9i"/>
-                        <outlet property="text_field" destination="kvk-9h-O26" id="TYu-oD-sDK"/>
+                        <outlet property="textField" destination="kvk-9h-O26" id="jt0-Qe-yto"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ka1-3a-Yw2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

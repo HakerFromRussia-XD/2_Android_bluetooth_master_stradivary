@@ -11,7 +11,8 @@ final class MainTabBarController: UITabBarController {
     private var didUpdateTabBarFonts = false
     
     private let tabItemTopPadding: CGFloat = 4
-
+    private let tabTransitionDuration: TimeInterval = 0.2
+    
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
         super.init(nibName: nil, bundle: nil)
@@ -44,6 +45,7 @@ final class MainTabBarController: UITabBarController {
         tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")
         tabBar.tintColor = UIColor(named: "ubi4_white")
         tabBar.unselectedItemTintColor = UIColor(named: "ubi4_deactivate_text")
+        delegate = self
         
         applyTabBarContentInsets(topPadding: tabItemTopPadding)
         
@@ -129,5 +131,67 @@ final class MainTabBarController: UITabBarController {
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }
+    }
+}
+
+extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController,
+                          animationControllerForTransitionFrom fromVC: UIViewController,
+                          to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        TabBarFadeAnimator(duration: tabTransitionDuration)
+    }
+}
+
+private final class TabBarFadeAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+    private let duration: TimeInterval
+
+    init(duration: TimeInterval) {
+        self.duration = duration
+        super.init()
+    }
+
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        duration
+    }
+
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        guard let fromView = transitionContext.view(forKey: .from),
+              let toView = transitionContext.view(forKey: .to),
+              let toViewController = transitionContext.viewController(forKey: .to) else {
+            transitionContext.completeTransition(false)
+            return
+        }
+
+        let container = transitionContext.containerView
+        let dimmingView = UIView(frame: container.bounds)
+        dimmingView.backgroundColor = UIColor.black
+        dimmingView.alpha = 0
+
+        toView.frame = transitionContext.finalFrame(for: toViewController)
+        toView.alpha = 0
+
+        container.insertSubview(toView, aboveSubview: fromView)
+        container.addSubview(dimmingView)
+
+        UIView.animateKeyframes(withDuration: duration, delay: 0, options: [.calculationModeCubic], animations: {
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.5) {
+                dimmingView.alpha = 0.18
+            }
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 1) {
+                toView.alpha = 1
+                fromView.alpha = 0.6
+            }
+            UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.5) {
+                dimmingView.alpha = 0
+            }
+        }, completion: { finished in
+            fromView.alpha = 1
+            dimmingView.removeFromSuperview()
+            let completed = finished && !transitionContext.transitionWasCancelled
+            if !completed {
+                toView.removeFromSuperview()
+            }
+            transitionContext.completeTransition(completed)
+        })
     }
 }

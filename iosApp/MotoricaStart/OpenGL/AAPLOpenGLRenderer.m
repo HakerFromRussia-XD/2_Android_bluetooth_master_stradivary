@@ -146,17 +146,23 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     {
         _gestureNumber = gestureNumber;
         //TODO: тут можно включить фейковые положения пальцев (4)
-        closeStage1 = 100;
-        closeStage2 = 100;
-        closeStage3 = 100;
-        closeStage4 = 100;
-        closeStage5 = 100;
-        closeStage6 = 100;
+//        closeStage1 = 100;
+//        closeStage2 = 100;
+//        closeStage3 = 100;
+//        closeStage4 = 100;
+//        closeStage5 = 100;
+//        closeStage6 = 100;
         
         NSLog(@"AAPLOpenGLRenderer      gestureNumber = %ld", (long)_gestureNumber);
-        _handSide = [_gestureService getHandSide];
         _gestureService = [[GestureService alloc] init];
         _handSide = [_gestureService getHandSide];
+        
+        NSString *emptyGestureData = @"00000000000000000000000000000000000000000000000000";
+        SharedGesture *emptyGesture = [_gestureService decodeGestureSettingsWithRaw:emptyGestureData];
+        _gestureWithAddress = [[GestureWithAddress alloc] initWithAddressDevice: 0
+                                                          parameterID: 0
+                                                          gesture: emptyGesture
+                                                          gestureState: 0];
         
         _accumulateRotationGeneral       = matrix4x4_identity();
         _accumulateRotationForeFinger    = matrix4x4_identity();
@@ -168,12 +174,12 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _accumulateRotationBigFinger     = matrix4x4_identity();
         _accumulateRotationBigFinger2    = matrix4x4_identity();
         
-        _angleForeFingerFloat = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleForeFingerFloat   >1.727
-        _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleMiddleFingerFloat >1.727
-        _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;                    //  <0.0174 _angleRingFingerFloat   >1.727
-        _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;                  //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;                        //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;                           //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+        _angleForeFingerFloat = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;         //  <0.0174 _angleForeFingerFloat   >1.727
+        _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;       //  <0.0174 _angleMiddleFingerFloat >1.727
+        _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;         //  <0.0174 _angleRingFingerFloat   >1.727
+        _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;       //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
+        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;       //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
+        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;                //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
         [self checkingAnglesForValidValues];
         
         _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);

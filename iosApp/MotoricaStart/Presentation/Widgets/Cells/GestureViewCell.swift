@@ -51,9 +51,15 @@ final class GestureViewCell: UITableViewCell {
                     case .collection:
                         break
                     case .rotationGroup:
-                        self.viewModel.requestRotationGroup()
+//                        self.viewModel.requestRotationGroup()
+                        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                            self?.viewModel.requestRotationGroup()
+                        }
                     case .sprGroup:
-                        self.viewModel.requestBindingGroup()
+//                        self.viewModel.requestBindingGroup()
+                        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                            self?.viewModel.requestBindingGroup()
+                        }
                     }
                 },
                 onFactoryGestureTap: { [weak self] item in

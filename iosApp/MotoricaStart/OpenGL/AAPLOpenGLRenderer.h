@@ -23,7 +23,7 @@ static const CGSize AAPLInteropTextureSize = {1024, 1024};
 
 - (void)stopVC;
 - (void)stopVCWithSaveData;
-- (void)savesAllData;
+- (void)openFingersDelayDialog;
 - (void)beginTouchIvent;
 - (void)touchIvent:(CGFloat) X  :(CGFloat) Y :(CGFloat) deltaX :(CGFloat) deltaY;
 - (void)endTouchIvent;

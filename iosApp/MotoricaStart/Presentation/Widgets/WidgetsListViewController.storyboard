@@ -588,7 +588,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="settings"/>
                                         <connections>
-                                            <action selector="openFingersDealyDialog:" destination="tD3-Cp-chy" eventType="touchUpInside" id="FYm-ML-suP"/>
+                                            <action selector="openFingersDelayDialog:" destination="tD3-Cp-chy" eventType="touchUpInside" id="4AJ-kg-xqn"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -640,7 +640,7 @@
                     <navigationItem key="navigationItem" id="crF-tW-yST"/>
                     <connections>
                         <outlet property="deviceName" destination="cBK-JH-c7K" id="x3v-sm-k0q"/>
-                        <outlet property="fingersDelayBtn" destination="Lqb-gf-0y5" id="fjc-2O-jWB"/>
+                        <outlet property="fingersDelayBtn" destination="Lqb-gf-0y5" id="hHR-WD-3Ef"/>
                         <outlet property="renameBtn" destination="90P-ne-5hx" id="y2Y-23-dnb"/>
                         <outlet property="saveBtn" destination="cEf-Zf-FeX" id="e04-D0-bV8"/>
                         <outlet property="statusConnection" destination="cAr-5O-y8r" id="0bM-ca-V9i"/>

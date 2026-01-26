@@ -146,12 +146,14 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     {
         _gestureNumber = gestureNumber;
         //TODO: тут можно включить фейковые положения пальцев (4)
-//        closeStage1 = 100;
-//        closeStage2 = 100;
-//        closeStage3 = 100;
-//        closeStage4 = 100;
-//        closeStage5 = 100;
-//        closeStage6 = 100;
+        closeStage1 = 100;
+        closeStage2 = 100;
+        closeStage3 = 100;
+        closeStage4 = 100;
+        closeStage5 = 100;
+        closeStage6 = 100;
+        
+        
         
         NSLog(@"AAPLOpenGLRenderer      gestureNumber = %ld", (long)_gestureNumber);
         _gestureService = [[GestureService alloc] init];
@@ -1699,6 +1701,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     [self saveAllData];
     [self deallocAll];
 }
+- (void) openFingersDelayDialog {}
 - (void) saveAllData {
 //        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
 }

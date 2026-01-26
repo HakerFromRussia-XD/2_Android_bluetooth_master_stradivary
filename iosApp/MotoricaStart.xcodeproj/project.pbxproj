@@ -100,6 +100,7 @@
 		65267E872D848DC3005CB7A5 /* SliderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E862D848DC3005CB7A5 /* SliderViewCell.swift */; };
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
 		65267E8A2D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
+		652E2BC92F2791400084F557 /* FingersDelayDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E2BC82F27912B0084F557 /* FingersDelayDialog.swift */; };
 		652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */; };
 		652E6ABC2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
 		652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
@@ -300,6 +301,7 @@
 		652136F52DF82884006AB049 /* SliderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderProvider.swift; sourceTree = "<group>"; };
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
+		652E2BC82F27912B0084F557 /* FingersDelayDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FingersDelayDialog.swift; sourceTree = "<group>"; };
 		652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsTabContainerViewController.swift; sourceTree = "<group>"; };
 		652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchListItemViewModel.swift; sourceTree = "<group>"; };
 		652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchViewCell.swift; sourceTree = "<group>"; };
@@ -1061,6 +1063,7 @@
 		65EAF49D2EE8232500B3C49D /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				652E2BC82F27912B0084F557 /* FingersDelayDialog.swift */,
 				65EAF4902EE8232500B3C49D /* AAPLOpenGLViewController.h */,
 				65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */,
 				65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */,
@@ -1418,6 +1421,7 @@
 				1FB0903A2437651700DBE132 /* UIViewController+AddBehaviors.swift in Sources */,
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
+				652E2BC92F2791400084F557 /* FingersDelayDialog.swift in Sources */,
 				655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */,
 				651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */,
 				65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */,

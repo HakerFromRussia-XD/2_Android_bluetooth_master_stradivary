@@ -221,7 +221,9 @@ struct GesturesWidgetView: View {
     private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
         provider.selectedSegment = segment
-        onSegmentChange(segment)
+        DispatchQueue.main.async {
+            onSegmentChange(segment)
+        }
     }
 
     

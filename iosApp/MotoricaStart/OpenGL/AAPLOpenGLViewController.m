@@ -63,6 +63,14 @@ Implementation of the cross-platform view controller and cross-platform view tha
     int closeStage4;
     int closeStage5;
     int closeStage6;
+    
+    
+    int fingersDelay1;
+    int fingersDelay2;
+    int fingersDelay3;
+    int fingersDelay4;
+    int fingersDelay5;
+    int fingersDelay6;
 }
 
 
@@ -116,6 +124,13 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     closeStage4 = 0;
     closeStage5 = 0;
     closeStage6 = 0;
+    
+    fingersDelay1 = 50;
+    fingersDelay2 = 50;
+    fingersDelay3 = 50;
+    fingersDelay4 = 50;
+    fingersDelay5 = 50;
+    fingersDelay6 = 50;
     
     
     NSInteger selectedGestureNumber = self.gestureNumber;
@@ -179,8 +194,32 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [_openGLRenderer changeState:state];
 }
 
-- (IBAction)openFingersDealyDialog:(UIButton *)sender {
-    [_openGLRenderer savesAllData];
+- (IBAction)openFingersDelayDialog:(UIButton *)sender {
+    [_openGLRenderer openFingersDelayDialog];
+    NSArray<NSNumber *> *delayValues = @[
+        @(fingersDelay1),
+        @(fingersDelay2),
+        @(fingersDelay3),
+        @(fingersDelay4),
+        @(fingersDelay5),
+        @(fingersDelay6)
+    ];
+    __weak typeof(self) weakSelf = self;
+    [FingersDelayDialogPresenter presentFrom:self
+                                       title:@"Задержка пальцев"
+                                    saveTitle:@"Сохранить"
+                                  cancelTitle:@"Отмена"
+                                  delayValues:delayValues
+                                       onSave:^(NSArray<NSNumber *> *updatedValues) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf || updatedValues.count < 6) { return; }
+        strongSelf->fingersDelay1 = updatedValues[0].intValue;
+        strongSelf->fingersDelay2 = updatedValues[1].intValue;
+        strongSelf->fingersDelay3 = updatedValues[2].intValue;
+        strongSelf->fingersDelay4 = updatedValues[3].intValue;
+        strongSelf->fingersDelay5 = updatedValues[4].intValue;
+        strongSelf->fingersDelay6 = updatedValues[5].intValue;
+    }];
 }
 
 - (IBAction)renameGesture:(UIButton *)sender {

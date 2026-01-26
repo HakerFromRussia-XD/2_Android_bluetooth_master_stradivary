@@ -20,7 +20,7 @@ final class FingersDelayDialogPresenter: NSObject {
     ) {
         let initialValues = delayValues.map { $0.floatValue }
         let dismiss = {
-            viewController.dismiss(animated: true)
+            viewController.dismiss(animated: false)
         }
         let dialogView = FingersDelayDialogOverlay(
             title: title,
@@ -47,7 +47,10 @@ private struct FingersDelayDialogOverlay: View {
     let initialValues: [Float]
     var onSave: ([Float]) -> Void
     var onCancel: () -> Void
+    @State private var isVisible = false
 
+    private var animationDuration: Double { 0.3 }
+    
     var body: some View {
         ZStack {
             Color.black.opacity(0.65)
@@ -58,10 +61,31 @@ private struct FingersDelayDialogOverlay: View {
                 saveTitle: saveTitle,
                 cancelTitle: cancelTitle,
                 initialValues: initialValues,
-                onSave: onSave,
-                onCancel: onCancel
+                onSave: { values in
+                    performDismiss {
+                        onSave(values)
+                    }
+                },
+                onCancel: {
+                    performDismiss(onCancel)
+                }
             )
             .padding(.horizontal, 8)
+        }
+        .opacity(isVisible ? 1 : 0)
+        .onAppear {
+            withAnimation(.easeInOut(duration: animationDuration)) {
+                isVisible = true
+            }
+        }
+    }
+
+    private func performDismiss(_ action: @escaping () -> Void) {
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            isVisible = false
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
+            action()
         }
     }
 }

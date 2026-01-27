@@ -35,6 +35,7 @@ final class FingersDelayDialogPresenter: NSObject {
         )
         let hostingController = UIHostingController(rootView: dialogView)
         hostingController.modalPresentationStyle = .overFullScreen
+        hostingController.modalTransitionStyle = .crossDissolve
         hostingController.view.backgroundColor = .clear
         viewController.present(hostingController, animated: true)
     }
@@ -99,6 +100,13 @@ private struct FingersDelayDialog: View {
     var onCancel: () -> Void
 
     @State private var values: [Float]
+    private let rowHeight: CGFloat = 72
+    private let separatorHeight: CGFloat = 1
+    private let rowsCount: CGFloat = 6
+
+    private var slidersBlockHeight: CGFloat {
+        rowsCount * rowHeight + (rowsCount - 1) * separatorHeight
+    }
 
     init(
         title: String,
@@ -137,7 +145,7 @@ private struct FingersDelayDialog: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 16)
 
-            ScrollView {
+            VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     ForEach(0..<6, id: \.self) { index in
                         if index > 0 {
@@ -154,7 +162,7 @@ private struct FingersDelayDialog: View {
                     }
                 }
             }
-            .frame(maxHeight: 360)
+            .frame(height: slidersBlockHeight)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))

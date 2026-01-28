@@ -12,7 +12,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
 #import "MotoricaStart-Swift.h"
-//#import "shared.h"
+#import <shared/shared.h>
 
 @implementation AAPLOpenGLRenderer
 {
@@ -117,7 +117,8 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     GLuint _selectionMVPUniformLocation;
     
     GestureService *_gestureService;
-    GestureWithAddress *_gestureWithAddress;
+//    GestureWithAddress *_gestureWithAddress;
+    SharedGestureWithAddress *_gestureWithAddress;
     NSInteger _gestureNumber;
     NSString *_gestureSettingsParameterData;
     NSInteger _handSide;
@@ -136,6 +137,20 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     NSInteger closeStage5;
     NSInteger closeStage6;
     
+    NSInteger openToCloseTimeShift1;
+    NSInteger openToCloseTimeShift2;
+    NSInteger openToCloseTimeShift3;
+    NSInteger openToCloseTimeShift4;
+    NSInteger openToCloseTimeShift5;
+    NSInteger openToCloseTimeShift6;
+    
+    NSInteger closeToOpenTimeShift1;
+    NSInteger closeToOpenTimeShift2;
+    NSInteger closeToOpenTimeShift3;
+    NSInteger closeToOpenTimeShift4;
+    NSInteger closeToOpenTimeShift5;
+    NSInteger closeToOpenTimeShift6;
+    
     NSTimer *timer;
 }
 
@@ -146,14 +161,26 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     {
         _gestureNumber = gestureNumber;
         //TODO: тут можно включить фейковые положения пальцев (4)
-        closeStage1 = 100;
-        closeStage2 = 100;
-        closeStage3 = 100;
-        closeStage4 = 100;
-        closeStage5 = 100;
-        closeStage6 = 100;
-        
-        
+//        closeStage1 = 100;
+//        closeStage2 = 100;
+//        closeStage3 = 100;
+//        closeStage4 = 100;
+//        closeStage5 = 100;
+//        closeStage6 = 100;
+//        
+//        openToCloseTimeShift1 = 50;
+//        openToCloseTimeShift2 = 60;
+//        openToCloseTimeShift3 = 70;
+//        openToCloseTimeShift4 = 80;
+//        openToCloseTimeShift5 = 90;
+//        openToCloseTimeShift6 = 100;
+//        
+//        closeToOpenTimeShift1 = 10;
+//        closeToOpenTimeShift2 = 20;
+//        closeToOpenTimeShift3 = 30;
+//        closeToOpenTimeShift4 = 40;
+//        closeToOpenTimeShift5 = 50;
+//        closeToOpenTimeShift6 = 60;
         
         NSLog(@"AAPLOpenGLRenderer      gestureNumber = %ld", (long)_gestureNumber);
         _gestureService = [[GestureService alloc] init];
@@ -161,10 +188,10 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         
         NSString *emptyGestureData = @"00000000000000000000000000000000000000000000000000";
         SharedGesture *emptyGesture = [_gestureService decodeGestureSettingsWithRaw:emptyGestureData];
-        _gestureWithAddress = [[GestureWithAddress alloc] initWithAddressDevice: 0
-                                                          parameterID: 0
-                                                          gesture: emptyGesture
-                                                          gestureState: 0];
+        _gestureWithAddress = [[SharedGestureWithAddress alloc] initWithAddressDevice:0
+                                                                parameterID:0
+                                                                gesture:emptyGesture
+                                                                gestureState:0];
         
         _accumulateRotationGeneral       = matrix4x4_identity();
         _accumulateRotationForeFinger    = matrix4x4_identity();
@@ -1684,7 +1711,14 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
 }
 
 - (void) sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
-    NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
+//    SharedKotlinByteArray *command = [[SharedBLECommands shared] requestInicializeInformation];
+//    NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
+//    NSData *nsdataObj = [_gestureService dataForGestureInfoWithGestureWithAddress:_gestureWithAddress];
+    SharedKotlinByteArray *command = [[SharedBLECommands shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
+//    if (!nsdataObj) {
+//        nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
+//    }
+    
     [_gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
 }
 
@@ -1701,7 +1735,72 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     [self saveAllData];
     [self deallocAll];
 }
-- (void) openFingersDelayDialog {}
+- (void) openFingersDelayDialog {
+
+}
+- (BOOL) currentGestureState {
+    return stateGesture;
+}
+- (NSArray<NSNumber *> *)currentOpenToCloseShifts {
+    return @[
+        @(openToCloseTimeShift1),
+        @(openToCloseTimeShift2),
+        @(openToCloseTimeShift3),
+        @(openToCloseTimeShift4),
+        @(openToCloseTimeShift5),
+        @(openToCloseTimeShift6)
+    ];
+}
+- (void)applyOpenToCloseShifts:(NSArray<NSNumber *> *)values {
+    if (values.count < 6) {
+        return;
+    }
+    
+    openToCloseTimeShift1 = values[0].intValue;
+    openToCloseTimeShift2 = values[1].intValue;
+    openToCloseTimeShift3 = values[2].intValue;
+    openToCloseTimeShift4 = values[3].intValue;
+    openToCloseTimeShift5 = values[4].intValue;
+    openToCloseTimeShift6 = values[5].intValue;
+    
+    // синхронизация с моделью жеста (KMM / Swift)
+    _gestureWithAddress.gesture.openToCloseTimeShift1 = (int32_t)openToCloseTimeShift1;
+    _gestureWithAddress.gesture.openToCloseTimeShift2 = (int32_t)openToCloseTimeShift2;
+    _gestureWithAddress.gesture.openToCloseTimeShift3 = (int32_t)openToCloseTimeShift3;
+    _gestureWithAddress.gesture.openToCloseTimeShift4 = (int32_t)openToCloseTimeShift4;
+    _gestureWithAddress.gesture.openToCloseTimeShift5 = (int32_t)openToCloseTimeShift5;
+    _gestureWithAddress.gesture.openToCloseTimeShift6 = (int32_t)openToCloseTimeShift6;
+}
+- (NSArray<NSNumber *> *)currentCloseToOpenShifts {
+    return @[
+        @(closeToOpenTimeShift1),
+        @(closeToOpenTimeShift2),
+        @(closeToOpenTimeShift3),
+        @(closeToOpenTimeShift4),
+        @(closeToOpenTimeShift5),
+        @(closeToOpenTimeShift6)
+    ];
+}
+- (void)applyCloseToOpenShifts:(NSArray<NSNumber *> *)values {
+    if (values.count < 6) {
+        return;
+    }
+    
+    closeToOpenTimeShift1 = values[0].intValue;
+    closeToOpenTimeShift2 = values[1].intValue;
+    closeToOpenTimeShift3 = values[2].intValue;
+    closeToOpenTimeShift4 = values[3].intValue;
+    closeToOpenTimeShift5 = values[4].intValue;
+    closeToOpenTimeShift6 = values[5].intValue;
+    
+    // синхронизация с моделью жеста
+    _gestureWithAddress.gesture.closeToOpenTimeShift1 = (int32_t)closeToOpenTimeShift1;
+    _gestureWithAddress.gesture.closeToOpenTimeShift2 = (int32_t)closeToOpenTimeShift2;
+    _gestureWithAddress.gesture.closeToOpenTimeShift3 = (int32_t)closeToOpenTimeShift3;
+    _gestureWithAddress.gesture.closeToOpenTimeShift4 = (int32_t)closeToOpenTimeShift4;
+    _gestureWithAddress.gesture.closeToOpenTimeShift5 = (int32_t)closeToOpenTimeShift5;
+    _gestureWithAddress.gesture.closeToOpenTimeShift6 = (int32_t)closeToOpenTimeShift6;
+}
 - (void) saveAllData {
 //        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
 }
@@ -1745,9 +1844,23 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     closeStage1 = _gestureWithAddress.gesture.closePosition4;
     closeStage5 = _gestureWithAddress.gesture.closePosition5;
     closeStage6 = _gestureWithAddress.gesture.closePosition6;
+    
+    openToCloseTimeShift1 = _gestureWithAddress.gesture.openToCloseTimeShift1;
+    openToCloseTimeShift2 = _gestureWithAddress.gesture.openToCloseTimeShift2;
+    openToCloseTimeShift3 = _gestureWithAddress.gesture.openToCloseTimeShift3;
+    openToCloseTimeShift4 = _gestureWithAddress.gesture.openToCloseTimeShift4;
+    openToCloseTimeShift5 = _gestureWithAddress.gesture.openToCloseTimeShift5;
+    openToCloseTimeShift6 = _gestureWithAddress.gesture.openToCloseTimeShift6;
+    
+    closeToOpenTimeShift1 = _gestureWithAddress.gesture.closeToOpenTimeShift1;
+    closeToOpenTimeShift2 = _gestureWithAddress.gesture.closeToOpenTimeShift2;
+    closeToOpenTimeShift3 = _gestureWithAddress.gesture.closeToOpenTimeShift3;
+    closeToOpenTimeShift4 = _gestureWithAddress.gesture.closeToOpenTimeShift4;
+    closeToOpenTimeShift5 = _gestureWithAddress.gesture.closeToOpenTimeShift5;
+    closeToOpenTimeShift6 = _gestureWithAddress.gesture.closeToOpenTimeShift6;
+    
     [self changeState: stateGesture];
     [self printGestureSettingsWithAddress];
-//    NSLog(@"AAPLOpenGLRenderer from updateGestureSettings     gestureNumber = %ld   openPosition1 = %ld", (long)_gestureNumber, _gestureWithAddress.gesture.openPosition1);
 }
 
 - (void) printGestureSettingsWithAddress {

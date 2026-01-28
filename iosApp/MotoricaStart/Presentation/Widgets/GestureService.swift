@@ -55,7 +55,6 @@ final class GestureService: NSObject {
         let names = updateName(name, at: index)
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)  names = \(names)")
     }
-
     @objc public func getGestureName(numberGesture: Int) -> String {
         let index = numberGesture - 64
         let names = loadNames()
@@ -83,19 +82,27 @@ final class GestureService: NSObject {
         guard !raw.isEmpty else { return nil }
         return SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
     }
-    @objc public func getFingersDelay() -> String {
-        let data: String = ""
-        return data
-    }
 
     @objc public func getFingersDelaySwitch() -> Int { 1 }
     @objc public func sendDataToFest(dataForWrite: Data, characteristic: String, typeFestX: Bool) {
         print("Вызвана функция sendDataToFest  typeFestX = \(typeFestX)")
+        GestureListItemViewModel.sendFestData(
+            data: dataForWrite,
+            characteristic: characteristic
+        )
     }
+//    @objc public func dataForGestureInfo(gestureWithAddress: GestureWithAddress) -> Data {
+//        let byteArray = BLECommands.shared.sendGestureInfo(gestureWithAddress: gestureWithAddress)
+//        var result = Data(capacity: Int(byteArray.size))
+//
+//        for index in 0..<byteArray.size {
+//            let int8Value = byteArray.get(index: index)
+//            result.append(UInt8(bitPattern: int8Value))
+//        }
+//
+//        return result
+//    }
 
-    @objc func saveDataString(key: String, value: String) {
-        print("save   key: \(key) value: \(value)")
-    }
     func loadNames() -> [String] {
         let defaults = Self.defaultNames()
         let key = TypedStorageKey<[String]>(

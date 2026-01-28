@@ -38,6 +38,19 @@ struct GestureListItemViewModel: Equatable, Hashable {
 }
 
 extension GestureListItemViewModel {
+    func sendFestData(data: Data, characteristic: String) {
+        let bytes = [UInt8](data)
+        let kotlinBytes = KotlinByteArray(bytes)
+        let gatt = SampleGattAttributes()
+        print("[BLE-COMMUNICATION] sendDataToFest data: \(kotlinBytes.hex) characteristic: \(characteristic)")
+        bleManager.sendBytesKmm(
+            data: kotlinBytes,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+    
     func makeProvider() -> GesturesProvider {
         let factory = GestureCatalog.factoryGestures
         let custom = GestureCatalog.customGestures(withTitles: gestureNameList)

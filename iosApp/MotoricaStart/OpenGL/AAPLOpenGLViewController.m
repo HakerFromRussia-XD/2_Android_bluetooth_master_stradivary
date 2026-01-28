@@ -50,27 +50,27 @@ Implementation of the cross-platform view controller and cross-platform view tha
     bool state;
     bool showRenameTextField;
     
-    int openStage1;
-    int openStage2;
-    int openStage3;
-    int openStage4;
-    int openStage5;
-    int openStage6;
+//    int openStage1;
+//    int openStage2;
+//    int openStage3;
+//    int openStage4;
+//    int openStage5;
+//    int openStage6;
+//    
+//    int closeStage1;
+//    int closeStage2;
+//    int closeStage3;
+//    int closeStage4;
+//    int closeStage5;
+//    int closeStage6;
     
-    int closeStage1;
-    int closeStage2;
-    int closeStage3;
-    int closeStage4;
-    int closeStage5;
-    int closeStage6;
     
-    
-    int fingersDelay1;
-    int fingersDelay2;
-    int fingersDelay3;
-    int fingersDelay4;
-    int fingersDelay5;
-    int fingersDelay6;
+//    int fingersDelay1;
+//    int fingersDelay2;
+//    int fingersDelay3;
+//    int fingersDelay4;
+//    int fingersDelay5;
+//    int fingersDelay6;
 }
 
 
@@ -112,25 +112,7 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [gestureService getDeviceName];
     state = 0;
     [self setupStateSegmentedControl];
-    openStage1 = 0;
-    openStage2 = 0;
-    openStage3 = 0;
-    openStage4 = 0;
-    openStage5 = 0;
-    openStage6 = 0;
-    closeStage1 = 0;
-    closeStage2 = 0;
-    closeStage3 = 0;
-    closeStage4 = 0;
-    closeStage5 = 0;
-    closeStage6 = 0;
-    
-    fingersDelay1 = 50;
-    fingersDelay2 = 50;
-    fingersDelay3 = 50;
-    fingersDelay4 = 50;
-    fingersDelay5 = 50;
-    fingersDelay6 = 50;
+
     
     
     NSInteger selectedGestureNumber = self.gestureNumber;
@@ -196,30 +178,37 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 
 - (IBAction)openFingersDelayDialog:(UIButton *)sender {
     [_openGLRenderer openFingersDelayDialog];
-    NSArray<NSNumber *> *delayValues = @[
-        @(fingersDelay1),
-        @(fingersDelay2),
-        @(fingersDelay3),
-        @(fingersDelay4),
-        @(fingersDelay5),
-        @(fingersDelay6)
-    ];
-    __weak typeof(self) weakSelf = self;
-    [FingersDelayDialogPresenter presentFrom:self
-                                       title:@"Задержка пальцев"
-                                    saveTitle:@"Сохранить"
-                                  cancelTitle:@"Отмена"
-                                  delayValues:delayValues
-                                       onSave:^(NSArray<NSNumber *> *updatedValues) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf || updatedValues.count < 6) { return; }
-        strongSelf->fingersDelay1 = updatedValues[0].intValue;
-        strongSelf->fingersDelay2 = updatedValues[1].intValue;
-        strongSelf->fingersDelay3 = updatedValues[2].intValue;
-        strongSelf->fingersDelay4 = updatedValues[3].intValue;
-        strongSelf->fingersDelay5 = updatedValues[4].intValue;
-        strongSelf->fingersDelay6 = updatedValues[5].intValue;
-    }];
+    
+    
+    if ([_openGLRenderer currentGestureState]) {
+        // закрытое состояние
+        NSArray<NSNumber *> *delayValues = [_openGLRenderer currentOpenToCloseShifts];
+        __weak typeof(self) weakSelf = self;
+        [FingersDelayDialogPresenter presentFrom:self
+                                           title:@"Задержка пальцев из закрытого состояния в открытое"
+                                        saveTitle:@"Сохранить"
+                                      cancelTitle:@"Отмена"
+                                      delayValues:delayValues
+                                           onSave:^(NSArray<NSNumber *> *updatedValues) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf || updatedValues.count < 6) { return; }
+            [strongSelf->_openGLRenderer applyOpenToCloseShifts:updatedValues];
+        }];
+    } else {
+        // открытое состояние
+        NSArray<NSNumber *> *delayValues = [_openGLRenderer currentCloseToOpenShifts];
+        __weak typeof(self) weakSelf = self;
+        [FingersDelayDialogPresenter presentFrom:self
+                                           title:@"Задержка пальцев из открытого состояния в закрытое"
+                                        saveTitle:@"Сохранить"
+                                      cancelTitle:@"Отмена"
+                                      delayValues:delayValues
+                                           onSave:^(NSArray<NSNumber *> *updatedValues) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf || updatedValues.count < 6) { return; }
+            [strongSelf->_openGLRenderer applyCloseToOpenShifts:updatedValues];
+        }];
+    }
 }
 
 - (IBAction)renameGesture:(UIButton *)sender {

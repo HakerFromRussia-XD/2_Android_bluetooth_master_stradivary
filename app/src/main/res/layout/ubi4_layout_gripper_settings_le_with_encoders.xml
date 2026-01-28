@@ -124,7 +124,7 @@
     <!-- Кнопка редактирования имени -->
     <ImageButton
         android:id="@+id/editGestureNameBtn"
-        android:layout_width="42dp"
+        android:layout_width="41dp"
         android:layout_height="42dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="81dp"
@@ -133,7 +133,6 @@
         android:src="@drawable/ic_edit_24"
         tools:ignore="ContentDescription,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
-    <!-- Настройки задержки -->
     <Button
         android:id="@+id/fingersDelayBtn"
         android:layout_width="42dp"
@@ -141,10 +140,9 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="123dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/ic_baseline_settings_24"
-        android:backgroundTint="@android:color/white"
-        android:scaleX="0.7"
-        android:scaleY="0.7"
+        android:background="@drawable/ubi4_delay_time_inset_top_1dp"
+        android:scaleX="0.6"
+        android:scaleY="0.6"
         android:visibility="visible"
         tools:ignore="MissingConstraints,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 </FrameLayout>

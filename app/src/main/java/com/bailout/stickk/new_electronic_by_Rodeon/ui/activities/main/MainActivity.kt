@@ -352,7 +352,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 //              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. STATUS_CALIBRATION_NEW_DATA")
 //              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CHANGE_GESTURE_NEW_DATA")
 //              if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SHUTDOWN_CURRENT_NEW_DATA")
-//              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ROTATION_GESTURE_NEW_VM_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.rotation_gesture_new_vm_data) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ROTATION_GESTURE_NEW_VM_DATA")
 //              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. DRIVER_VERSION_NEW_DATA")
 
 

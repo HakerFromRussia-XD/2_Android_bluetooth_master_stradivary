@@ -62,6 +62,11 @@ final class GestureViewCell: UITableViewCell {
                         }
                     }
                 },
+                onActiveGestureRequest: { [weak self] in
+                    DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                        self?.viewModel.requestActiveGesture()
+                    }
+                },
                 onFactoryGestureTap: { [weak self] item in
                     guard let self, let provider = self.provider else { return }
                     self.viewModel.selectFactoryGesture(item, provider: provider)

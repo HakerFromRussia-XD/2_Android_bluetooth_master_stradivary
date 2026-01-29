@@ -7,12 +7,14 @@
 
 import SwiftUI
 import UIKit
+import shared
 
 @objcMembers
 final class FingersDelayDialogPresenter: NSObject {
     @objc static func present(
         from viewController: UIViewController,
         title: String,
+        subTitle: String,
         saveTitle: String,
         cancelTitle: String,
         delayValues: [NSNumber],
@@ -24,6 +26,7 @@ final class FingersDelayDialogPresenter: NSObject {
         }
         let dialogView = FingersDelayDialogOverlay(
             title: title,
+            subTitle: subTitle,
             saveTitle: saveTitle,
             cancelTitle: cancelTitle,
             initialValues: initialValues,
@@ -43,6 +46,7 @@ final class FingersDelayDialogPresenter: NSObject {
 
 private struct FingersDelayDialogOverlay: View {
     let title: String
+    let subTitle: String
     let saveTitle: String
     let cancelTitle: String
     let initialValues: [Float]
@@ -59,6 +63,7 @@ private struct FingersDelayDialogOverlay: View {
 
             FingersDelayDialog(
                 title: title,
+                subTitle: subTitle,
                 saveTitle: saveTitle,
                 cancelTitle: cancelTitle,
                 initialValues: initialValues,
@@ -93,6 +98,7 @@ private struct FingersDelayDialogOverlay: View {
 
 private struct FingersDelayDialog: View {
     let title: String
+    let subTitle: String
     let saveTitle: String
     let cancelTitle: String
     let initialValues: [Float]
@@ -110,6 +116,7 @@ private struct FingersDelayDialog: View {
 
     init(
         title: String,
+        subTitle: String,
         saveTitle: String,
         cancelTitle: String,
         initialValues: [Float],
@@ -117,6 +124,7 @@ private struct FingersDelayDialog: View {
         onCancel: @escaping () -> Void
     ) {
         self.title = title
+        self.subTitle = subTitle
         self.saveTitle = saveTitle
         self.cancelTitle = cancelTitle
         self.initialValues = initialValues
@@ -144,6 +152,13 @@ private struct FingersDelayDialog: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal, 16)
+            
+            Text(subTitle)
+                .font(.custom("SFProText-Bold", size: 14))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 16)
 
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
@@ -155,7 +170,7 @@ private struct FingersDelayDialog: View {
                         }
 
                         FingersDelaySliderRow(
-                            title: "Палец \(index + 1)",
+                            title: fingerDelayTitles[safe: index] ?? "",
                             value: binding(for: index),
                             range: 0...100
                         )
@@ -215,6 +230,17 @@ private struct FingersDelayDialog: View {
         )
     }
 
+    private var fingerDelayTitles: [String] {
+        [
+            SharedRes.strings()._1_finger_delay.desc().localized(),
+            SharedRes.strings()._2_finger_delay.desc().localized(),
+            SharedRes.strings()._3_finger_delay.desc().localized(),
+            SharedRes.strings()._4_finger_delay.desc().localized(),
+            SharedRes.strings()._5_finger_delay.desc().localized(),
+            SharedRes.strings()._6_finger_delay.desc().localized()
+        ]
+    }
+    
     private func binding(for index: Int) -> Binding<Float> {
         Binding(
             get: { values[safe: index] ?? 0 },
@@ -223,6 +249,33 @@ private struct FingersDelayDialog: View {
                 values[index] = newValue
             }
         )
+    }
+}
+
+@objcMembers
+final class KmmLocalizedStrings: NSObject {
+    static func delayStateTitle() -> String {
+        SharedRes.strings().delay_state.desc().localized()
+    }
+
+    static func delayStateOpenDescription() -> String {
+        SharedRes.strings().delay_state_open_description.desc().localized()
+    }
+
+    static func delayStateCloseDescription() -> String {
+        SharedRes.strings().delay_state_close_description.desc().localized()
+    }
+
+    static func dialogSave() -> String {
+        SharedRes.strings().save.desc().localized()
+    }
+
+    static func dialogCancel() -> String {
+        SharedRes.strings().cancel.desc().localized()
+    }
+    
+    static func measureType() -> String {
+        SharedRes.strings().measure_ms.desc().localized()
     }
 }
 
@@ -239,15 +292,15 @@ private struct FingersDelaySliderRow: View {
                     .padding(.top, 8)
                     .padding(.leading, 12)
                 Spacer()
-                Text("\(Int(value))")
+                Text(verbatim: "\(Int(value*10)) \(KmmLocalizedStrings.measureType())")
                     .font(.custom("SFProDisplay-Light", size: 14))
                     .padding(.top, 8)
                     .padding(.trailing, 12)
             }
 
             HStack {
-                StepButton(label: "-", action: decrement)
-                    .padding(.leading, 8)
+//                StepButton(label: "-", action: decrement)
+//                    .padding(.leading, 8)
                 CustomSlider(
                     value: $value,
                     range: range,
@@ -259,10 +312,10 @@ private struct FingersDelaySliderRow: View {
                     borderColor: Color("ubi4_gray_border"),
                     editingDidEnd: { _ in }
                 )
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 8)
-                StepButton(label: "+", action: increment)
-                    .padding(.trailing, 8)
+//                StepButton(label: "+", action: increment)
+//                    .padding(.trailing, 8)
             }
             .padding(.bottom, 4)
         }
@@ -278,6 +331,8 @@ private struct FingersDelaySliderRow: View {
         value = max(range.lowerBound, min(nextValue, range.upperBound))
     }
 }
+
+//measure_ms
 
 private extension Array {
     subscript(safe index: Int) -> Element? {

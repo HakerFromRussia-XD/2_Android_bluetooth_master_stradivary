@@ -117,7 +117,6 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     GLuint _selectionMVPUniformLocation;
     
     GestureService *_gestureService;
-//    GestureWithAddress *_gestureWithAddress;
     SharedGestureWithAddress *_gestureWithAddress;
     NSInteger _gestureNumber;
     NSString *_gestureSettingsParameterData;
@@ -1419,6 +1418,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage1 = %ld  stateGesture = %d", closeStage1, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleLittleFingerTransferOld = _angleLittleFingerTransfer;
     }
     NSLog(@"Безымянный палец: %d", _angleRingFingerTransfer);
@@ -1436,6 +1436,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage2 = %ld  stateGesture = %d", closeStage2, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleRingFingerTransferOld = _angleRingFingerTransfer;
     }
     NSLog(@"Средний палец: %d", _angleMiddleFingerTransfer);
@@ -1453,6 +1454,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage3 = %ld  stateGesture = %d", closeStage3, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleMiddleFingerTransferOld = _angleMiddleFingerTransfer;
     }
     NSLog(@"Указательный палец: %d", _angleForeFingerTransfer);
@@ -1470,6 +1472,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage4 = %ld  stateGesture = %d", closeStage4, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleForeFingerTransferOld = _angleForeFingerTransfer;
     }
     NSLog(@"Большой палец: %d", (_angleBigFingerTransfer1+58));
@@ -1487,6 +1490,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage5 = %ld  stateGesture = %d", closeStage5, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleBigFingerTransfer1Old = _angleBigFingerTransfer1;
     }
     NSLog(@"Ротация палец: %d", _angleBigFingerTransfer2);
@@ -1504,6 +1508,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
             NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage6 = %ld  stateGesture = %d", closeStage6, stateGesture);
         }
         [self printGestureSettingsWithAddress];
+        [self sendDataToFest];
         _angleBigFingerTransfer2Old = _angleBigFingerTransfer2;
     }
 }
@@ -1528,21 +1533,6 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         _targetLittleFingerAngle = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
         _targetBigFingerAngle = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;    //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
         _targetBigFingerRotationAngle = (closeStage6*1.0f/100*90)/180*M_PI;        //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        
-        //        _angleForeFingerFloat = (closeStage4*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleForeFingerFloat   >1.727
-        //        _angleMiddleFingerFloat = (closeStage3*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleMiddleFingerFloat >1.727
-        //        _angleRingFingerFloat = (closeStage2*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleRingFingerFloat   >1.727
-        //        _angleLittleFingerFloat = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        //        _angleBigFingerFloat = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;    //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        //        _angle_2_BigFingerFloat = (closeStage6*1.0f/100*90)/180*M_PI;             //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        //        [self checkingAnglesForValidValues];
-        //
-        //        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-        //        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
-        //        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
-        //        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
-        //        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
-        //        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     } else {
         //код перехода в открытое состояние
         _targetForeFingerAngle = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleForeFingerFloat   >1.727
@@ -1551,35 +1541,11 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
         _targetLittleFingerAngle = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
         _targetBigFingerAngle = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;    //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
         _targetBigFingerRotationAngle = (openStage6*1.0f/100*90)/180*M_PI;        //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        
-        //        _angleForeFingerFloat = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;        //  <0.0174 _angleForeFingerFloat   >1.727
-        //        _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleMiddleFingerFloat >1.727
-        //        _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;        //  <0.0174 _angleRingFingerFloat   >1.727
-        //        _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        //        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;      //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        //        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;               //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
-        //        [self checkingAnglesForValidValues];
-        //
-        //        _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
-        //        _angleMiddleFingerTransferOld   = (int) (_angleMiddleFingerFloat/M_PI*180);
-        //        _angleRingFingerTransferOld     = (int) (_angleRingFingerFloat/M_PI*180);
-        //        _angleLittleFingerTransferOld   = (int) (_angleLittleFingerFloat/M_PI*180);
-        //        _angleBigFingerTransfer1Old     = (int) (_angleBigFingerFloat/M_PI*180);
-        //        _angleBigFingerTransfer2Old     = (int) (_angle_2_BigFingerFloat/M_PI*180);
     }
-    NSLog(@"CLASS=%@", NSStringFromClass([_gestureWithAddress class]));
-    IMP getImp = [_gestureWithAddress methodForSelector:@selector(gestureState)];
-    IMP setImp = [_gestureWithAddress methodForSelector:@selector(setGestureState:)];
-    NSLog(@"IMP get=%p set=%p", getImp, setImp);
-    
-    NSLog(@"SET: BEFORE gestureState=%ld", (long)_gestureWithAddress.gestureState);
     _gestureWithAddress.gestureState = stateGesture+128;
-    NSLog(@"SET: AFTER  gestureState=%ld (expected=%ld)",
-          (long)_gestureWithAddress.gestureState,
-          (long)((NSInteger)stateGesture + 128));
-    NSLog(@"Gesture object: gestureId = %d ", stateGesture+128);
     [self printGestureSettingsWithAddress];
-//    NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   stateGesture = %d", stateGesture);
+    [self sendDataToFest];
+    
     _targetForeFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetForeFingerAngle));
     _targetMiddleFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetMiddleFingerAngle));
     _targetRingFingerAngle = fmaxf(0.01f, fminf(1.7f, _targetRingFingerAngle));
@@ -1710,29 +1676,23 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     }
 }
 
-- (void) sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
-//    SharedKotlinByteArray *command = [[SharedBLECommands shared] requestInicializeInformation];
-//    NSData *nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
-//    NSData *nsdataObj = [_gestureService dataForGestureInfoWithGestureWithAddress:_gestureWithAddress];
+- (void) sendDataToFest {
     SharedKotlinByteArray *command = [[SharedBLECommands shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
-//    if (!nsdataObj) {
-//        nsdataObj = [NSData dataWithBytes:dataForWrite length:lenght];
-//    }
-    
-    [_gestureService sendDataToFestWithDataForWrite:nsdataObj characteristic:characteristic typeFestX:true];
+    [_gestureService sendDataToFestWithDataForWrite:command];
 }
 
 - (void) stopVC {
     NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход без сохраниения данных)");
     _gestureWithAddress.gestureState = 0;
     [self printGestureSettingsWithAddress];
+    [self sendDataToFest];
     [self deallocAll];
 }
 - (void) stopVCWithSaveData {
     NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход с сохраниением данных)");
     _gestureWithAddress.gestureState = 255;
     [self printGestureSettingsWithAddress];
-    [self saveAllData];
+    [self sendDataToFest];
     [self deallocAll];
 }
 - (void) openFingersDelayDialog {
@@ -1770,6 +1730,8 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureWithAddress.gesture.openToCloseTimeShift4 = (int32_t)openToCloseTimeShift4;
     _gestureWithAddress.gesture.openToCloseTimeShift5 = (int32_t)openToCloseTimeShift5;
     _gestureWithAddress.gesture.openToCloseTimeShift6 = (int32_t)openToCloseTimeShift6;
+    
+    [self sendDataToFest];
 }
 - (NSArray<NSNumber *> *)currentCloseToOpenShifts {
     return @[
@@ -1800,9 +1762,8 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     _gestureWithAddress.gesture.closeToOpenTimeShift4 = (int32_t)closeToOpenTimeShift4;
     _gestureWithAddress.gesture.closeToOpenTimeShift5 = (int32_t)closeToOpenTimeShift5;
     _gestureWithAddress.gesture.closeToOpenTimeShift6 = (int32_t)closeToOpenTimeShift6;
-}
-- (void) saveAllData {
-//        [gestureVC saveDataStringWithKey:sampleGattAtributes.ADD_GESTURE_NEW_BIG value:dataStrBig];
+    
+    [self sendDataToFest];
 }
 - (void) deallocAll {
     glDeleteProgram(_templeProgram);
@@ -1861,6 +1822,7 @@ matrix_float4x4 matrix_perspective_right_hand_gl(float fovyRadians, float aspect
     
     [self changeState: stateGesture];
     [self printGestureSettingsWithAddress];
+    [self sendDataToFest];
 }
 
 - (void) printGestureSettingsWithAddress {

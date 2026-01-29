@@ -44,6 +44,10 @@ final class GestureSettingsViewModel: NSObject {
 final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
+    private lazy var bleManager: BleManagerKmm = {
+        _ = BLEComponents.shared
+        return BleEnvironment.shared.getBleManager()
+    }()
     
     override init() {
         super.init()
@@ -84,24 +88,12 @@ final class GestureService: NSObject {
     }
 
     @objc public func getFingersDelaySwitch() -> Int { 1 }
-    @objc public func sendDataToFest(dataForWrite: Data, characteristic: String, typeFestX: Bool) {
-        print("Вызвана функция sendDataToFest  typeFestX = \(typeFestX)")
+    @objc public func sendDataToFest(dataForWrite: KotlinByteArray) {
         GestureListItemViewModel.sendFestData(
             data: dataForWrite,
-            characteristic: characteristic
+            bleManager: bleManager
         )
     }
-//    @objc public func dataForGestureInfo(gestureWithAddress: GestureWithAddress) -> Data {
-//        let byteArray = BLECommands.shared.sendGestureInfo(gestureWithAddress: gestureWithAddress)
-//        var result = Data(capacity: Int(byteArray.size))
-//
-//        for index in 0..<byteArray.size {
-//            let int8Value = byteArray.get(index: index)
-//            result.append(UInt8(bitPattern: int8Value))
-//        }
-//
-//        return result
-//    }
 
     func loadNames() -> [String] {
         let defaults = Self.defaultNames()
@@ -168,22 +160,5 @@ final class GestureService: NSObject {
     }
     @objc func gestureStateClose() -> String {
         return SharedRes.strings().gesture_state_close.desc().localized()
-    }
-}
-
-
-@objcMembers
-final class GestureWithAddress: NSObject {
-    @objc dynamic var addressDevice: Int = 0
-    @objc dynamic var parameterID: Int = 0
-    @objc dynamic var gesture: Gesture
-    @objc dynamic var gestureState: Int = 0
-
-    init(addressDevice: Int, parameterID: Int, gesture: Gesture, gestureState: Int) {
-        self.addressDevice = addressDevice
-        self.parameterID = parameterID
-        self.gesture = gesture
-        self.gestureState = gestureState
-        super.init()
     }
 }

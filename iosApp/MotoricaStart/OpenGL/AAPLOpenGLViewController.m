@@ -185,9 +185,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
         NSArray<NSNumber *> *delayValues = [_openGLRenderer currentOpenToCloseShifts];
         __weak typeof(self) weakSelf = self;
         [FingersDelayDialogPresenter presentFrom:self
-                                           title:@"Задержка пальцев из закрытого состояния в открытое"
-                                        saveTitle:@"Сохранить"
-                                      cancelTitle:@"Отмена"
+                                           title:[KmmLocalizedStrings delayStateTitle]
+                                        subTitle:[KmmLocalizedStrings delayStateCloseDescription]
+                                       saveTitle:[KmmLocalizedStrings dialogSave]
+                                     cancelTitle:[KmmLocalizedStrings dialogCancel]
                                       delayValues:delayValues
                                            onSave:^(NSArray<NSNumber *> *updatedValues) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -199,9 +200,10 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
         NSArray<NSNumber *> *delayValues = [_openGLRenderer currentCloseToOpenShifts];
         __weak typeof(self) weakSelf = self;
         [FingersDelayDialogPresenter presentFrom:self
-                                           title:@"Задержка пальцев из открытого состояния в закрытое"
-                                        saveTitle:@"Сохранить"
-                                      cancelTitle:@"Отмена"
+                                           title:[KmmLocalizedStrings delayStateTitle]
+                                        subTitle:[KmmLocalizedStrings delayStateOpenDescription]
+                                       saveTitle:[KmmLocalizedStrings dialogSave]
+                                     cancelTitle:[KmmLocalizedStrings dialogCancel]
                                       delayValues:delayValues
                                            onSave:^(NSArray<NSNumber *> *updatedValues) {
             __strong typeof(weakSelf) strongSelf = weakSelf;

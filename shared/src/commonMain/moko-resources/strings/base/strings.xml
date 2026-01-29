@@ -201,7 +201,7 @@
     <string name="delay_state">Setting delays</string>
     <string name="delay_state_open_description">Finger delays when moving from open to closed state</string>
     <string name="gesture_state_close">close state</string>
-    <string name="delay_state_close_description">Setting close finger delays</string>
+    <string name="delay_state_close_description">Finger delays when moving from closed to open state</string>
     <string name="prostheses_calibrating">Prostheses calibrating</string>
     <string name="waiting">waiting…</string>
     <string name="get">get</string>
@@ -276,6 +276,7 @@
     <string name="all_devices">All devices</string>
     <string name="prostheses">Prostheses</string>
     <string name="need_help">Need help?</string>
+    <string name="measure_ms">ms</string>
 
     <string name="help_massage_2_1_title">Software versions and synchronization</string>
     <string name="help_massage_2_2_title">Sensitivity control</string>

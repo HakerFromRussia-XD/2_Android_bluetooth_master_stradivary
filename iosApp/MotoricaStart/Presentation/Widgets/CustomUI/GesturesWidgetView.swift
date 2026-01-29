@@ -41,6 +41,7 @@ struct GesturesWidgetView: View {
     
     var animationDuration: Double { 0.3 }
     var onSegmentChange: (GesturesProvider.Segment) -> Void
+    var onActiveGestureRequest: () -> Void
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
@@ -80,6 +81,7 @@ struct GesturesWidgetView: View {
         }
         .onAppear {
             onSegmentChange(provider.selectedSegment)
+            onActiveGestureRequest()
         }
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(

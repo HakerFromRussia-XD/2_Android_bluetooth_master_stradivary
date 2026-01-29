@@ -275,6 +275,7 @@
     <string name="all_devices">Все устройства</string>
     <string name="prostheses">Протезы</string>
     <string name="need_help">Нужна помощь?</string>
+    <string name="measure_ms">мс</string>
 
 
     <string name="help_massage_2_1_title">Версии ПО и \nсинхронизация</string>

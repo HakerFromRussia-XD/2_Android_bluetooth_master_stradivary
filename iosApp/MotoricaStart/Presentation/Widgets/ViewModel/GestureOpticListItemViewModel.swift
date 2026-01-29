@@ -38,13 +38,11 @@ struct GestureListItemViewModel: Equatable, Hashable {
 }
 
 extension GestureListItemViewModel {
-    func sendFestData(data: Data, characteristic: String) {
-        let bytes = [UInt8](data)
-        let kotlinBytes = KotlinByteArray(bytes)
+    static func sendFestData(data: KotlinByteArray, bleManager: BleManagerKmm,) {
         let gatt = SampleGattAttributes()
-        print("[BLE-COMMUNICATION] sendDataToFest data: \(kotlinBytes.hex) characteristic: \(characteristic)")
+        print("[BLE-COMMUNICATION] sendDataToFest data: \(data.hex)")
         bleManager.sendBytesKmm(
-            data: kotlinBytes,
+            data: data,
             command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
             typeCommand: gatt.WRITE,
             onChunkSent: {}
@@ -228,6 +226,17 @@ extension GestureListItemViewModel {
         let parameterID = parameterID(for: ParameterCode.bindingGroup)
         guard parameterID != 0 else { return }
         let data = BLECommands.shared.requestBindingGroup(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(parameterID)
+        )
+        sendBytes(data)
+    }
+    
+    func requestActiveGesture() {
+        let parameterID = parameterID(for: ParameterCode.selectGesture)
+        print("ActiveGesture requestActiveGesture deviceAddress: \(widget.deviceAddress) parameterID: \(parameterID)")
+        guard parameterID != 0 else { return }
+        let data = BLECommands.shared.requestActiveGesture(
             addressDevice: Int32(widget.deviceAddress),
             parameterID: Int32(parameterID)
         )

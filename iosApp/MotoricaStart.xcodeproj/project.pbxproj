@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		65A1B0022F9A111100123456 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1B0012F9A111100123456 /* StatusBarView.swift */; };
 		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
 		1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0CEFCE23436B67004141FA /* ConnectionError.swift */; };
@@ -101,6 +102,7 @@
 		65267E892D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
 		65267E8A2D8490EC005CB7A5 /* SliderListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */; };
 		652E2BC92F2791400084F557 /* FingersDelayDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E2BC82F27912B0084F557 /* FingersDelayDialog.swift */; };
+		652E2BCC2F2B92C00084F557 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E2BCB2F2B92BE0084F557 /* StatusBarView.swift */; };
 		652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */; };
 		652E6ABC2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
 		652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
@@ -302,6 +304,8 @@
 		65267E862D848DC3005CB7A5 /* SliderViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCell.swift; sourceTree = "<group>"; };
 		65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderListItemViewModel.swift; sourceTree = "<group>"; };
 		652E2BC82F27912B0084F557 /* FingersDelayDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FingersDelayDialog.swift; sourceTree = "<group>"; };
+		652E2BCB2F2B92BE0084F557 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		65A1B0012F9A111100123456 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsTabContainerViewController.swift; sourceTree = "<group>"; };
 		652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchListItemViewModel.swift; sourceTree = "<group>"; };
 		652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchViewCell.swift; sourceTree = "<group>"; };
@@ -765,14 +769,24 @@
 			children = (
 				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
+				65A1B0102F9A111100123456 /* StatusBar */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65F27F022E672EFD00AD5DFD /* Widgets */,
 				659A45A52DB929A9002BE2BC /* BluetoothScene */,
 				1FC8B6E4230AF89A005DBF44 /* Utils */,
+				652E2BCA2F2B92920084F557 /* StatusBar */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
 		};
+        65A1B0102F9A111100123456 /* StatusBar */ = {
+            isa = PBXGroup;
+            children = (
+                65A1B0012F9A111100123456 /* StatusBarView.swift */,
+            );
+            path = StatusBar;
+            sourceTree = "<group>";
+        };
 		1FE49D72230AA7C200D1D42E /* Cells */ = {
 			isa = PBXGroup;
 			children = (
@@ -902,6 +916,14 @@
 				652136F52DF82884006AB049 /* SliderProvider.swift */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		652E2BCA2F2B92920084F557 /* StatusBar */ = {
+			isa = PBXGroup;
+			children = (
+				652E2BCB2F2B92BE0084F557 /* StatusBarView.swift */,
+			);
+			path = StatusBar;
 			sourceTree = "<group>";
 		};
 		6547845D2DEDA4B0005AF8A3 /* Frameworks */ = {
@@ -1372,6 +1394,7 @@
 				65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */,
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
+				652E2BCC2F2B92C00084F557 /* StatusBarView.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
 				659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */,
 				1FF53EB423688893008D6CCC /* DataTransferError+ConnectionError.swift in Sources */,
@@ -1393,6 +1416,7 @@
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
 				651DDBA92EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */,
 				652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */,
+				65A1B0022F9A111100123456 /* StatusBarView.swift in Sources */,
 				65F27E982E66057700AD5DFD /* CommandListItemViewModel.swift in Sources */,
 				1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */,
 				65F27ED02E67077B00AD5DFD /* CommandViewCell.swift in Sources */,

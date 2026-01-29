@@ -182,7 +182,7 @@ class GesturesOpticDelegateAdapter(
         onDestroyParent { onDestroy() }
 
         // >>> changed <<< Инициализируем scope для RetryUtils / корутин
-        scope = coroutineScope ?: MainActivityUBI4.main.lifecycleScope
+        scope = coroutineScope ?: main.lifecycleScope
 
         // Инициируем View-поля для удобства
         _annotationTv = annotationTv

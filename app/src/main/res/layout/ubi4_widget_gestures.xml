@@ -34,7 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="2dp"
-        android:background="@drawable/ubi4_view_with_corners_back_inside"
+        android:background="@drawable/ubi4_view_with_corners_back_outside"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
@@ -95,6 +95,47 @@
         app:layout_constraintVertical_bias="1.0"
         tools:ignore="SpeakableTextPresentCheck" />
 
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activeGestureNameCl"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ubi4_view_with_corners_back_active_gesture"
+        android:elevation="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ubi4GesturesSelectorV">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/activeGestureNameTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:maxLines="2"
+                android:text="@string/active_gesture_is"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/collectionGesturesCl"
         android:layout_width="match_parent"
@@ -105,7 +146,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
+        app:layout_constraintTop_toBottomOf="@id/activeGestureNameCl">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidline_mid_2"
@@ -1068,6 +1109,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rotationGroupCl"
         android:layout_width="match_parent"
@@ -1078,7 +1120,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
+        app:layout_constraintTop_toBottomOf="@id/activeGestureNameCl">
 
 
         <com.woxthebox.draglistview.DragListView
@@ -1086,8 +1128,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ubi4_view_with_corners_gray_outside"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="16dp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"

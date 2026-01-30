@@ -7,63 +7,61 @@
 
 import SwiftUI
 
-final class StatusBarViewModel: ObservableObject {
-    static let shared = StatusBarViewModel()
-
-    @Published var serialNumber: String = "—"
-    @Published var batteryLevel: Double = 0.0
-    @Published var isConnected: Bool = false
-
-    private init() { }
-}
-
 struct StatusBarView: View {
-    static let height: CGFloat = 44
+    enum Constants {
+        static let height: CGFloat = 44
+        static let iconSize: CGFloat = 22
+        static let statusDotSize: CGFloat = 10
+        static let batteryRingSize: CGFloat = 28
+    }
 
     @ObservedObject var viewModel: StatusBarViewModel
 
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "person.crop.circle")
-                .font(.system(size: 22, weight: .medium))
-                .foregroundColor(.white)
+                .font(.system(size: Constants.iconSize, weight: .regular))
+                .foregroundColor(Color("ubi4_white"))
+                .accessibilityLabel(Text("Вход в личный кабинет"))
 
-            Spacer(minLength: 12)
+            Spacer()
 
-            Text(viewModel.serialNumber)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
-                .lineLimit(1)
-
-            Spacer(minLength: 12)
-
-            HStack(spacing: 10) {
-                BatteryLevelIndicatorView(level: viewModel.batteryLevel)
-
+            HStack(spacing: 8) {
                 Image(viewModel.isConnected ? "connect_status" : "disconnect_status")
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 12, height: 12)
-                    .accessibilityLabel(viewModel.isConnected ? "Connected" : "Disconnected")
+                    .frame(width: Constants.statusDotSize, height: Constants.statusDotSize)
+                    .accessibilityLabel(Text(viewModel.isConnected ? "Соединение установлено" : "Соединение потеряно"))
+
+                Text(viewModel.serialNumber)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color("ubi4_white"))
+                    .lineLimit(1)
+                    .accessibilityLabel(Text("Серийный номер устройства"))
             }
+
+            Spacer()
+
+            BatteryRingView(level: viewModel.batteryLevel)
+                .frame(width: Constants.batteryRingSize, height: Constants.batteryRingSize)
+                .accessibilityLabel(Text("Уровень заряда"))
         }
         .padding(.horizontal, 16)
-        .frame(height: Self.height)
-        .background(Color("ubi4_dark_back"))
+        .frame(height: Constants.height)
+        .background(Color("ubi4_back"))
     }
 }
 
-private struct BatteryLevelIndicatorView: View {
-    let level: Double
+private struct BatteryRingView: View {
+    private let normalizedLevel: Double
 
-    private var normalizedLevel: Double {
-        min(max(level, 0), 1)
+    init(level: Double) {
+        normalizedLevel = min(max(level, 0.0), 1.0)
     }
 
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.2), lineWidth: 3)
+                .stroke(Color("ubi4_gray_border"), lineWidth: 3)
 
             Circle()
                 .trim(from: 0, to: normalizedLevel)
@@ -74,21 +72,8 @@ private struct BatteryLevelIndicatorView: View {
                 .rotationEffect(.degrees(-90))
 
             Text("\(Int(normalizedLevel * 100))%")
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(.white)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(Color("ubi4_white"))
         }
-        .frame(width: 28, height: 28)
-    }
-}
-
-final class StatusBarHostingController: UIHostingController<StatusBarView> {
-    init(viewModel: StatusBarViewModel = .shared) {
-        super.init(rootView: StatusBarView(viewModel: viewModel))
-        view.backgroundColor = .clear
-    }
-
-    @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }

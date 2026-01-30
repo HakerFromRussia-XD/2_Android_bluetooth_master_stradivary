@@ -39,13 +39,14 @@ final class SwitchViewCell: UITableViewCell {
         )
         self.provider = provider
         cancellable?.cancel()
-        isProgrammaticUpdate = true
+//        isProgrammaticUpdate = true
         cancellable = provider.$isOn
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] isOn in
                 self?.handleSwitchChange(isOn: isOn)
             }
+        isProgrammaticUpdate = false
         
         // 2. Вклеиваем SwiftUI контент
         var configuration = UIHostingConfiguration {

@@ -49,28 +49,6 @@ Implementation of the cross-platform view controller and cross-platform view tha
     bool _stop;
     bool state;
     bool showRenameTextField;
-    
-//    int openStage1;
-//    int openStage2;
-//    int openStage3;
-//    int openStage4;
-//    int openStage5;
-//    int openStage6;
-//    
-//    int closeStage1;
-//    int closeStage2;
-//    int closeStage3;
-//    int closeStage4;
-//    int closeStage5;
-//    int closeStage6;
-    
-    
-//    int fingersDelay1;
-//    int fingersDelay2;
-//    int fingersDelay3;
-//    int fingersDelay4;
-//    int fingersDelay5;
-//    int fingersDelay6;
 }
 
 

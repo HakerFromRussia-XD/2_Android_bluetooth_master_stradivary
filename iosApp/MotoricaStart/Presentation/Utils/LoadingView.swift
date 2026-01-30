@@ -25,7 +25,6 @@ final class LoadingView {
                 containerView = container
                 window.addSubview(container)
                 container.frame = window.bounds
-                startObservingOrientationChanges()
             }
             
             guard let container = containerView else { return }
@@ -54,7 +53,6 @@ final class LoadingView {
                 container.alpha = 1
                 containerView = nil
                 currentState = nil
-                stopObservingOrientationChanges()
             })
         }
     }
@@ -67,18 +65,6 @@ final class LoadingView {
                 container.apply(state: state)
             }
         }
-    }
-    
-    private static func startObservingOrientationChanges() {
-        guard !isObservingOrientationChanges else { return }
-        NotificationCenter.default.addObserver(self, selector: #selector(update), name: UIDevice.orientationDidChangeNotification, object: nil)
-        isObservingOrientationChanges = true
-    }
-
-    private static func stopObservingOrientationChanges() {
-        guard isObservingOrientationChanges else { return }
-        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-        isObservingOrientationChanges = false
     }
     
     private static func getKeyWindow() -> UIWindow? {

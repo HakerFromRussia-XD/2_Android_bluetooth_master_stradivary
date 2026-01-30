@@ -119,9 +119,6 @@ class UBI4GripperScreenWithEncodersActivity
     private enum class States(val number: Int) {
         GESTURE_STATE_OPEN  (0),
         GESTURE_STATE_CLOSE (1),
-        GESTURE_OPEN_DELAY(128),
-        GESTURE_CLOSE_DELAY(129),
-        GESTURE_SAVE_BUTTON(255)
     }
 
     private var score1 = 0
@@ -182,11 +179,6 @@ class UBI4GripperScreenWithEncodersActivity
         deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
         parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
-
-
-
-        //TODO следить за этой строкой если - не передаем дату в кэш
-        ParameterProvider.getParameter(deviceAddress, parameterID).data = ""
 
 
         lifecycleScope.launchWhenStarted {

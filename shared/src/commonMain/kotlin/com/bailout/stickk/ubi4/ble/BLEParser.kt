@@ -26,6 +26,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
+import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -420,6 +422,7 @@ class BLEParser(
                     coroutineScope.launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
                 }
                 ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                    val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                     val data = parameter.data
                     val paddedData: String = data.padEnd(12, '0')
                     platformLog("updateAllUITest", "data = $data")
@@ -476,8 +479,7 @@ class BLEParser(
                                 // ↓ здесь же можно парсить остальные байты настройки, если протокол известен
                             }
                             platformLog("uiGestureSettingsObservable", "перед RX dataCode = $dataCode")
-                            val parameterRef = ParameterRef(deviceAddress,parameterID,dataCode)
-                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(parameterRef)
+                            RxUpdateMainEventUbi4Wrapper.updateUiGestureSettings(ParameterRef(deviceAddress, parameterID, dataCode))
                         }
                         ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                             val paramData = ParameterProvider.getParameter(deviceAddress, parameterID).data
@@ -747,44 +749,9 @@ class BLEParser(
             MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
-
         platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
         platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
     }
-
-//    private fun parseInitializeInformation(receiveDataString: String) {
-//        fullInicializeConnectionStruct =
-//            Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18, receiveDataString.length)}\"")
-//        val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
-//
-//        UiState.resetWidgetRequests()
-//        UiState.labelCodesByOffset.clear()
-//
-//        if (!hadWidgetsFromCache) {
-//            // ЧИСТЫЙ СТАРТ (нет кеша) — ведём себя как раньше
-//            platformLog("INIT_TEST_LOG", "COLD START: clear widgets list")
-//            listWidgets.clear()
-//
-//        } else {
-//            // ТЁПЛЫЙ СТАРТ — виджеты уже подняты из БД, их НЕ ТРОГАЕМ
-//            platformLog("INIT_TEST_LOG", "WARM START: keep widgets from cache")
-//        }
-//
-//        val progressTotal  =
-//            fullInicializeConnectionStruct.parametrsNum * fullInicializeConnectionStruct.subDeviceNum
-//        widgetsLoadingProgressTotal = progressTotal.coerceAtLeast(1)
-//        coroutineScope.launch { initializationInfoFlow.emit(fullInicializeConnectionStruct) }
-//        widgetsLoadingProgressTotal = if (progressTotal > 0) progressTotal else 0
-//        platformLog("BLEParser", "TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct")
-//
-//        bleManager.sendBytesKmm(
-//            BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()),
-//            MAIN_CHANNEL_CHARACTERISTIC,
-//            WRITE
-//        ) {}
-//        platformLog("BLEParser", "parametrsNum = ${fullInicializeConnectionStruct.parametrsNum}")
-//        platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 1")
-//    }
 
     private fun parseReadDeviceParameters(receiveDataString: String) {
         platformLog("[BLE-COMMUNICATION]", " ОТВЕТ НА ЗАПРОС!!! 2")
@@ -1615,6 +1582,16 @@ class BLEParser(
                         platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
+//                        if (deviceAddress == 34 && parameterID == 3) {
+//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
+//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
+//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
+//                        }
+//                        if (deviceAddress == 6 && parameterID == 3) {
+//                            platformLog("areEqualExcludingSetIdE", "dataCode  = $dataCode  deviceAddress = $deviceAddress  parameterID = $parameterID  dataOffset = $dataOffset  parseWidgets")
+//                            platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
+//                            platformLog("areEqualExcludingSetIdE", "combineWidgetId = $combineWidgetId    combineWidgetIdIterated = $combineWidgetIdIterated")
+//                        }
                         if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
                             canAdd = false
                             platformLog("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "2 Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)} ")
@@ -1724,6 +1701,7 @@ class BLEParser(
                                 ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
                             )
                         }
+//                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                     }
                     is SliderParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
@@ -1761,6 +1739,7 @@ class BLEParser(
                                 widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode))
                             }
                         }
+//                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
                     }
                     is ThresholdParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId

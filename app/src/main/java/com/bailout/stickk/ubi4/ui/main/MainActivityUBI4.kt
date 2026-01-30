@@ -159,7 +159,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
-
         bluetoothLeService = BluetoothLeService()
         mServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -214,16 +213,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-//        main.bleCommandWithQueue(BLECommands.requestSystemCrc(), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 //        binding.runCommandBtn.setOnClickListener {
-//            bleCommandWithQueue(
-//                BLECommands.requestTransferFlow(1),
-//                MAIN_CHANNEL_CHARACTERISTIC,
-//                WRITE
-//            ) {}
+//
 //        }
-
-
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -243,7 +235,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             bottomNavigationController.toggleSecretItem()
             true
         }
-
 
         val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
         lifecycle.addObserver(bleStatusController)
@@ -272,7 +263,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             platformLog("ROOM_CHECK", "Widget rows = $c")
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
@@ -417,25 +407,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
-        Log.d("BLE_INIT", "bleCommandWithQueue 1")
         if (byteArray != null) {
-            Log.d("BLE_INIT", "bleCommandWithQueue 2")
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
-            platformLog("bleCommandWithQueue_Test", "очередь команд - ${queue.size()}")
             remainingTasks.incrementAndGet()
-        } else {
-            Log.d("BLE_INIT", "bleCommandWithQueue 3")
         }
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
-            Log.d("BLE_INIT", "getBleCommandWithQueue")
             writeData(byteArray, command, typeCommand)
             onChunkSent() } }
     val writeLock = Any()
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
-            Log.d("BLE_INIT", "writeData")
             canSendFlag = false
             bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
@@ -443,8 +426,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 writeLock.wait()    // ждём, пока кто-то вызовет notify()
             }
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
-            platformLog("bleCommandWithQueue_Test", "очередь команд исполнение - ${queue.size()}")
-
         }
     }
 
@@ -574,9 +555,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
-
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
     }
-
 }

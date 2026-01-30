@@ -15,7 +15,7 @@ data class BaseParameterWidgetStruct(
     val widgetType: Int = 0,      // младшие 7 бит
     val widgetLabelType: Int = 0, // старший 1 бит
     var widgetCode: Int = 0,
-    val display: Int = 0,         // номер экрана, на котором располагается виджет
+    val display: Int = 1,         // номер экрана, на котором располагается виджет
     var widgetPosition: Int = 0,  // позиция виджета
     var deviceId: Int = 0,
     val widgetId: Int = 0,

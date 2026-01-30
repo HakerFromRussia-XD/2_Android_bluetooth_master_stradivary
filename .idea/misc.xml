@@ -10,15 +10,17 @@
     <option name="linkedExternalProjectsSettings">
       <SwiftPackageManagerProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/iosApp" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/iosApp" />
-          </set>
-        </option>
       </SwiftPackageManagerProjectSettings>
     </option>
   </component>
   <component name="SwiftPackageManagerWorkspace" PROJECT_DIR="$PROJECT_DIR$/iosApp">
     <contentRoot DIR="$PROJECT_DIR$" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.23462890625" />
+      </ProjectState>
+    </option>
   </component>
 </project>

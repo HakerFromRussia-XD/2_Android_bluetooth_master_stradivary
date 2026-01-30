@@ -197,10 +197,10 @@
     <string name="we_need_these_permissions">Для корректной работы необходимо разрешение на использование блютуз и геолокации…</string>
     <string name="rotation_state_open">наружу</string>
     <string name="rotation_state_close">внутрь</string>
-    <string name="gesture_state_open">Открытое положение</string>
+    <string name="gesture_state_open">открытое положение</string>
     <string name="delay_state">Задержки пальцев</string>
     <string name="delay_state_open_description">Настройка задержек пальцев при переходе из открытого состояния в закрытое</string>
-    <string name="gesture_state_close">Закрытое положение</string>
+    <string name="gesture_state_close">закрытое положение</string>
     <string name="delay_state_close_description">Настройка задержек пальцев при переходе из закрытого состояния в отрытое</string>
     <string name="prostheses_calibrating">Калибровка протеза</string>
     <string name="waiting">ожидайте…</string>
@@ -275,6 +275,7 @@
     <string name="all_devices">Все устройства</string>
     <string name="prostheses">Протезы</string>
     <string name="need_help">Нужна помощь?</string>
+    <string name="measure_ms">мс</string>
 
 
     <string name="help_massage_2_1_title">Версии ПО и \nсинхронизация</string>
@@ -459,7 +460,7 @@
     <string name="switch_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Свич активации меню функции изменения стартовых задержек пальцев</string>
     <string name="a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set">В конфигураторе настройки жестов появляется кнопка, позволяющая изменять тайминги стартовых задержек пальцев настраиваемого схвата.</string>
     <string name="switch_to_deactivate_the_smart_connection_function">Свич деактивации функции «умного подключения»</string>
-    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected">Если функция активна, а активна она «по умолчанию», то при повторном запуске приложения, на экране сканирования производится аналитика всех отсканированных устройств и при нахождении последнего к которому осуществлялось  подключение, осуществляется автоматическое подключение к нему. Это позволяет ускорить (около секунды) и облегчить процесс подключения для большинства пользователей (у кого один протез). Если функция отключена, то пользователь находится на экране выбора устройств до тех пор, пока не выберет конкретное устройство. Функцию нужно отключать для парников, потому что им важно каждый раз самостоятельно делать выбор к какому протезу подключиться. Так же  эта функция не нужна тем, кто часто подключается к разным устройствам.</string>
+    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected">При включённой по умолчанию опции экран сканирования автоматически переподключается к последнему протезу, как только он найден. Это экономит около секунды и удобно пользователям с одним устройством. Отключите параметр, чтобы каждый раз выбирать протез вручную. Эта функция не нужна тем, кто часто переключается между разными устройствами.</string>
     <string name="reset_button_to_factory_default_settings">Кнопка сброса настроек протеза к заводским параметрам</string>
     <string name="after_pressing_it_all_the_parameters_of_the_prostheses_return_to_the_by_default_state">После её нажатия все параметры протеза возвращаются к состоянию «по умолчанию».</string>
     <string name="button_to_start_calibration">Кнопка начала калибровки</string>
@@ -630,6 +631,7 @@
     <string name="prosthetic_settings">Hастройки протеза</string>
     <string name="mobile_settings">Мобильные настройки</string>
     <string name="auto_login">Автоматический вход</string>
+    <string name="push_me">Нажми меня</string>
 
 
     <string-array name="numbers">

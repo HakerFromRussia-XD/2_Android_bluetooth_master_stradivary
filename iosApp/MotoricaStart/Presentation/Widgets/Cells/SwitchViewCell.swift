@@ -29,6 +29,8 @@ final class SwitchViewCell: UITableViewCell {
     @available(iOS 16.0, *)
     func configure(with viewModel: SwitchListItemViewModel) {
         self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
         
         // 1. Создаём провайдер
         let provider = SwitchProvider(
@@ -37,18 +39,21 @@ final class SwitchViewCell: UITableViewCell {
         )
         self.provider = provider
         cancellable?.cancel()
-        isProgrammaticUpdate = true
+//        isProgrammaticUpdate = true
         cancellable = provider.$isOn
             .dropFirst()
             .removeDuplicates()
             .sink { [weak self] isOn in
                 self?.handleSwitchChange(isOn: isOn)
             }
+        isProgrammaticUpdate = false
         
         // 2. Вклеиваем SwiftUI контент
-        contentConfiguration = UIHostingConfiguration {
+        var configuration = UIHostingConfiguration {
             SwitchRowView(provider: provider)
         }
+        configuration = configuration.margins(.vertical, 4)
+        contentConfiguration = configuration
         numberCancellable?.cancel()
             
         // 3. Запускаем подписку на поток

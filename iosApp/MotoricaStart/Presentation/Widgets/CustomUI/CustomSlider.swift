@@ -63,7 +63,7 @@ struct CustomSlider: View {
             // Ползунок
             Circle()
                 .fill(Color.white)
-                .shadow(radius: 2)
+                .shadow(radius: 3)
                 .frame(width: trackHeight, height: trackHeight)//это размеры пипки за которую тянем
                 .offset(x: (CGFloat((displayedValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))//чтобы пипка двигалась под пальцем
                 .gesture(

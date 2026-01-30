@@ -47,4 +47,33 @@ object WidgetStateBridge {
         coroutineScope.launch {
             WidgetState.thresholdFlow.collect { callback(it) }
         }
+
+
+    /**
+     * Подписка на rotationGroupFlow.
+     * @param callback вызывается с каждым новым значением группы ротации.
+     */
+    fun observeRotationGroup(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.rotationGroupFlow.collect { callback(it) }
+        }
+
+
+    /**
+     * Подписка на activeGestureFlow.
+     * @param callback вызывается с каждым обновлением активного жеста.
+     */
+    fun observeActiveGesture(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.activeGestureFlow.collect { callback(it) }
+        }
+
+    /**
+     * Подписка на bindingGroupGestures.
+     * @param callback вызывается с каждым обновлением активного жеста.
+     */
+    fun observeBindingGroup(callback: (ParameterRef) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.bindingGroupFlow.collect { callback(it) }
+        }
 }

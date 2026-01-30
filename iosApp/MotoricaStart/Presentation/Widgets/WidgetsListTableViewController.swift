@@ -1,9 +1,10 @@
 import UIKit
 import ObjectiveC
+import QuartzCore
 
-final class WidgetsListTableViewController: UITableViewController {
-    @IBOutlet weak var tableViewMy: UITableView!
-//    private var hasAppliedInitialSnapshot = false
+@objc final class WidgetsListTableViewController: UITableViewController {
+    @objc public var savingDeviceName: String = "...."
+    
     
     // Assistant: Добавляем enum Section и свойство dataSource для Diffable Data Source
     private enum Section {
@@ -37,7 +38,6 @@ final class WidgetsListTableViewController: UITableViewController {
         applySnapshot(animatingDifferences: false)
 //        applySnapshot(animatingDifferences: hasAppliedInitialSnapshot)
     }
-
     
     // Assistant: Общая функция для обновления таблицы через DiffableDataSource
     private func applySnapshot(animatingDifferences: Bool) {
@@ -49,16 +49,37 @@ final class WidgetsListTableViewController: UITableViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModel.items.value)
         DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
-                print("[DEBUG] snapshot applied")
-//                self.hasAppliedInitialSnapshot = true
+//            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+//                CATransaction.begin()
+//                CATransaction.setDisableActions(true)
+//                UIView.performWithoutAnimation { [weak self] in
+//                    self?.updateTableLayoutWithoutAnimation()
+//                }
+//
+//                CATransaction.commit()
+//            }
+
+            let animationsWereEnabled = UIView.areAnimationsEnabled
+            UIView.setAnimationsEnabled(false)
+
+            UIView.performWithoutAnimation {
+                self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+                    self.updateTableLayoutWithoutAnimation()
+                    CATransaction.commit()
+                    UIView.setAnimationsEnabled(animationsWereEnabled)
+                }
             }
+            CATransaction.commit()
+            
         }
-//        if !hasAppliedInitialSnapshot {
-//            hasAppliedInitialSnapshot = true
-//        }
     }
 
+    private func updateTableLayoutWithoutAnimation() {
+        self.tableView.beginUpdates()
+        self.tableView.endUpdates()
+        self.tableView.layoutIfNeeded()
+//        CATransaction.commit()
+    }
 
     func updateLoading(_ loading: WidgetsListViewModelLoading?) {
         tableView.tableFooterView = nil
@@ -78,7 +99,7 @@ final class WidgetsListTableViewController: UITableViewController {
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
         ) { [weak self] tableView, indexPath, item in
-            guard let self = self else {return nil}
+            guard self != nil else {return nil}
             print("[DEBUG] Dequeueing cell for \(indexPath): \(item)")
             switch item {
                 case .command(let vm):
@@ -117,10 +138,10 @@ final class WidgetsListTableViewController: UITableViewController {
                 
                 case .gestureOptic(let vm):
                     let cell = tableView.dequeueReusableCell(
-                        withIdentifier: GestureOpticViewCell.reuseIdentifier,
+                        withIdentifier: GestureViewCell.reuseIdentifier,
                         for: indexPath
-                    ) as! GestureOpticViewCell
-                    print("requestGestureOptic title = \(vm.title)")
+                    ) as! GestureViewCell
+                    print("requestGesture title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
             }

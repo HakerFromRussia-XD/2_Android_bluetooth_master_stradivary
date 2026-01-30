@@ -41,6 +41,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 
+
 class SliderDelegateAdapter(
     val onSetProgress: (addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,

@@ -612,6 +612,7 @@ class BLEController() {
     }
 
     fun cleanup() {
+        // Отменяем запущенные корутины
         bleJob.cancel()
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

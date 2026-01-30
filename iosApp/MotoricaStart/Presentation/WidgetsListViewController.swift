@@ -2,12 +2,20 @@ import UIKit
 import DGCharts
 import shared
 
+
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     static var defaultFileName: String { "WidgetsListViewController" }
     @IBOutlet private var contentView: UIView!
     @IBOutlet private var widgetsListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
+    private let tableView = UITableView()
+    @IBOutlet private weak var tableViewWidgets: UITableView!
+    @IBAction func unwindToThisGestureViewController (sender: UIStoryboardSegue){
+//        loadDataString()
+//        initUI()
+        print("sGRG initUI() unwindToThisGestureViewController()")
+    }
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Нажми меня", for: .normal)
@@ -34,13 +42,21 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var currentLoadingMessage: String?
     private var lastKnownLoadingState: LoadingView.State?
     private var isViewVisible = false
+    private var open3DGestureId: Int?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
-
+    
     // MARK: - Lifecycle
     static func create(with viewModel: WidgetsListViewModel) -> WidgetsListViewController {
-        let view = WidgetsListViewController.instantiateViewController()
+//        let view = WidgetsListViewController.instantiateViewController()
+        let storyboard = UIStoryboard(name: defaultFileName, bundle: nil)
+
+        // ищем КОНКРЕТНО твой VC по ID
+        let view = storyboard.instantiateViewController(
+            withIdentifier: String(describing: WidgetsListViewController.self)
+        ) as! WidgetsListViewController
+        
         view.viewModel = viewModel
         return view
     }
@@ -48,6 +64,18 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+        viewModel.setCustomGestureSettingsOpener { [weak self] gestureId in
+            DispatchQueue.main.async {
+                let animationsWereEnabled = UIView.areAnimationsEnabled
+                if !animationsWereEnabled {
+                    UIView.setAnimationsEnabled(true)
+                }
+                
+                self?.open3DGestureId = gestureId
+                self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+            }
+        }
+        
         bind(to: viewModel)
         if !isSynchronizationCompleted {
             hideWidgetsContentForSynchronization()
@@ -103,7 +131,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] startObservingWidgetUpdates")
         widgetsUpdateJob?.cancel(cause: nil)
         widgetsUpdateJob = UiStateBridge.shared.observeUpdates { [weak self] updatedDisplay in
-            guard let self = self, self.display == Int32(updatedDisplay) else { return }
+            guard let self = self, self.display == Int32(truncating: updatedDisplay) else { return }
             self.reloadWidgetsFromShared()
         }
         
@@ -144,8 +172,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func reloadWidgetsFromShared() {
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
+        //TODO: тут можно включать фейковые виджеты (2)
         let kotlinWidgets = dataFactory.prepareData(display: display)
-//        let kotlinWidgets = dataFactory.fakeData()
+        
+//        let kotlinWidgets = dataFactory.fakeData2()
+//        handleWidgetsLoadingCompletion()
+        
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
         // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
@@ -263,6 +295,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             widgetsTableViewController = destinationVC
             widgetsTableViewController?.viewModel = viewModel
             viewModel.viewDidLoad()
+        } else if segue.identifier == "go3DGripperSettings",
+            let destinationVC = segue.destination as? AAPLOpenGLViewController {
+            destinationVC.gestureNumber = open3DGestureId ?? 0
         }
     }
 
@@ -357,7 +392,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let normalized = min(max(Float(currentValue) / widgetsLoadingMax, 0), 1)
         let message = currentLoadingMessage ?? defaultLoadingState.message
         currentLoadingMessage = message
-//        LoadingView.show(state: LoadingView.State(message: message, progress: normalized))
         presentLoading(with: LoadingView.State(message: message, progress: normalized))
     }
     
@@ -406,6 +440,7 @@ private extension WidgetsListViewController {
     func presentLoading(with state: LoadingView.State) {
         lastKnownLoadingState = state
         guard isViewVisible else { return }
+        //TODO: тут можно отключать лоадер (3)
         LoadingView.show(state: state)
     }
     
@@ -417,5 +452,28 @@ private extension WidgetsListViewController {
     var isSynchronizationInProgress: Bool {
         get { Self.globalSynchronizationInProgress }
         set { Self.globalSynchronizationInProgress = newValue }
+    }
+}
+
+
+enum WidgetsSynchronizationLoadingConfiguration {
+    private static let userDefaultsKey = "widgetsSynchronizationLoadingEnabled"
+
+    /// Controls whether the fullscreen LoadingView should be shown during widgets synchronization.
+    /// - Note: The value is persisted in `UserDefaults` so it can be toggled from debug utilities
+    ///         or other parts of the application and remembered between launches.
+    static var isEnabled: Bool {
+        get {
+            guard UserDefaults.standard.object(forKey: userDefaultsKey) != nil else { return true }
+            return UserDefaults.standard.bool(forKey: userDefaultsKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: userDefaultsKey)
+        }
+    }
+
+    /// Removes the persisted preference forcing the controller to fallback to the default behaviour.
+    static func reset() {
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 }

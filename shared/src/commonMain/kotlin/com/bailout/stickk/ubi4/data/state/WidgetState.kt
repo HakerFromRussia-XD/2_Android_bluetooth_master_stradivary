@@ -7,7 +7,6 @@ import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.concurrent.Volatile
 import kotlin.properties.Delegates
 
 object WidgetState {
@@ -45,7 +44,7 @@ object WidgetState {
         thresholdFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow(replay = 1)
-        activeGestureFlow = MutableSharedFlow()
+        activeGestureFlow = MutableSharedFlow(replay = 1)
         selectGestureModeFlow = MutableSharedFlow()
         spinnerFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUbi4.TrainingModelState.BASE)

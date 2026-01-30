@@ -151,6 +151,10 @@ enum WidgetMetadataExtractor {
     }
 
     static func extractBaseStruct(from widget: Any?) -> BaseParameterWidgetStruct? {
+        if let any = widget as? AnyCodable {
+            return extractBaseStruct(from: any.value)
+        }
+        
         switch widget {
         case let baseStruct as BaseParameterWidgetStruct:
             return baseStruct

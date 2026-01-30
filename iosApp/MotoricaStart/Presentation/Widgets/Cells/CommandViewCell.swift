@@ -31,7 +31,7 @@ final class CommandViewCell: UITableViewCell {
         backgroundColor = UIColor(named: "ubi4_back")
         
         // 2. Вклеиваем SwiftUI контент
-        contentConfiguration = UIHostingConfiguration {
+        var configuration = UIHostingConfiguration {
             CustomButton(
                 title: viewModel.title,
                 onPress: {
@@ -43,6 +43,8 @@ final class CommandViewCell: UITableViewCell {
             )
 //            CustomSwitcher(title: viewModel.title, isOn: $isOn)
         }
+        configuration = configuration.margins(.vertical, 4)
+        contentConfiguration = configuration
         numberCancellable?.cancel()
     }
     

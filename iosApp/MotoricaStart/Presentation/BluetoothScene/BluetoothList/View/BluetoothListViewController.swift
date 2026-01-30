@@ -11,6 +11,8 @@ import Foundation
 final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
     
+    private var didTriggerFakeConnection = false
+    
     lazy var segmentedConrol: CustomSegmentedControl = {
         let items = ["Все устройства", "Протезы"]
         let control = CustomSegmentedControl(items: items)
@@ -28,7 +30,7 @@ final class BluetoothListViewController: UIViewController {
     @IBOutlet private weak var tableViewDevices: UITableView!
     @IBOutlet private weak var tableHeightConstraint: NSLayoutConstraint!
 //    @IBOutlet private weak var tableBottomOfsetConstraint: NSLayoutConstraint!
-    private var devices = [BLEDevice]()
+//    private var devices = [BLEDevice]()
     
     private let viewModel: BluetoothListViewModel
     private var cancellables = Set<AnyCancellable>()
@@ -46,12 +48,12 @@ final class BluetoothListViewController: UIViewController {
         // Скрываем навигационную панель (верхнюю строку)
         navigationController?.navigationBar.isHidden = true
         
-        // настройка внешнего вида списка фильтра устройств
+        // настройка внешнего вида фильтра списка устройств
         let segmentContainer = UIView()
         segmentContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentContainer)
         segmentContainer.layer.shadowColor = UIColor.black.cgColor
-        segmentContainer.layer.shadowOpacity = 0.24
+        segmentContainer.layer.shadowOpacity = 0.25
         segmentContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         segmentContainer.layer.shadowRadius = 3
         segmentContainer.layer.cornerRadius = 22
@@ -59,10 +61,10 @@ final class BluetoothListViewController: UIViewController {
         segmentContainer.addSubview(segmentedConrol)
         segmentedConrol.translatesAutoresizingMaskIntoConstraints = true
         NSLayoutConstraint.activate([
-           segmentContainer.heightAnchor.constraint(equalToConstant: 60),
+           segmentContainer.heightAnchor.constraint(equalToConstant: 54),
            segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
            segmentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-           segmentContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 80)
+           segmentContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 47)
         ])
         segmentedConrol.translatesAutoresizingMaskIntoConstraints = false
         segmentedConrol.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor).isActive = true
@@ -76,8 +78,20 @@ final class BluetoothListViewController: UIViewController {
         segmentedConrol.layer.borderColor = UIColor(named: "ubi4_filter_gray_border")?.cgColor
         segmentedConrol.backgroundColor = UIColor(named: "ubi4_filter_back")
         // применяем фильтр при загрузке контроллера
-        segmentedConrol.selectedSegmentIndex = UserDefaults.standard.integer(forKey: "selectedFilterIndex")
+        segmentedConrol.selectedSegmentIndex = viewModel.currentFilterIndex
         segmentedConrol.addTarget(self, action: #selector(filterChange), for: .valueChanged)
+
+        let font = UIFont(name: "SFProDisplay-Light", size: 14)
+
+        segmentedConrol.setTitleTextAttributes([
+            .foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? .white,
+            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .normal)
+
+        segmentedConrol.setTitleTextAttributes([
+            .foregroundColor: UIColor(named: "ubi4_white") ?? .black,
+            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .selected)
         
         
         // настройка внешнего вида списка
@@ -85,7 +99,7 @@ final class BluetoothListViewController: UIViewController {
         tableContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableContainer)
         tableContainer.layer.shadowColor = UIColor.black.cgColor
-        tableContainer.layer.shadowOpacity = 0.24
+        tableContainer.layer.shadowOpacity = 0.25
         tableContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         tableContainer.layer.shadowRadius = 3
         tableContainer.layer.cornerRadius = 20
@@ -156,17 +170,18 @@ final class BluetoothListViewController: UIViewController {
                 }
                 UIView.performWithoutAnimation {
                     self.tableViewDevices.reloadData()
-                    self.updateTableHeight()
                 }
+                self.updateTableHeight()
             }
             .store(in: &cancellables)
         viewModel.onAppear()
         
         
+
 //        for family in UIFont.familyNames {
-//            print(family)
-//            for font in UIFont.fontNames(forFamilyName: family) {
-//                print("ШРИФТЫ:  \(font)")
+//            print("Family: \(family)")
+//            for name in UIFont.fontNames(forFamilyName: family) {
+//                print("Font: \(name)")
 //            }
 //        }
     }
@@ -195,10 +210,33 @@ final class BluetoothListViewController: UIViewController {
                         },
                        completion: nil)
     }
+    
+    //TODO: тут можно включать автоконнекшн (1)
+    //комментим viewDidAppear если не нужен автоконнекшн к fakeData
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        guard !didTriggerFakeConnection else { return }
+//        didTriggerFakeConnection = true
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//            self?.simulateAutoConnection()
+//        }
+//    }
+    //комментим viewDidAppear если не нужен автоконнекшн к UBI4_Roman (недоделано)
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        guard !didTriggerFakeConnection else { return }
+//        didTriggerFakeConnection = true
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+//            self?.autoConnection()
+//        }
+//    }
+    
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.onDisappear()
     }
+    
     
     // Функция обновления высоты таблицы
     private func updateTableHeight() {
@@ -269,29 +307,15 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("[BLE-CONNECT] selectDeviceToConnect indexPath: \(indexPath)")
+        print("[BLE-TAP] 2 indexPath: \(indexPath)")
         tableView.deselectRow(at: indexPath, animated: true)
-        viewModel.connectToDevice(at: indexPath.row)
-//        tableViewDevices.reloadRows(at: [indexPath], with: .none)
-        
-        // Запрос на открытие WidgetsListViewController через координатор
-//        openWidgetsList()
-        openMainTabBar()
+        handleDeviceSelection(at: indexPath)
     }
-    private func openWidgetsList() {
-        // 1. DI‑контейнер Widgets‑сцены
-        let widgetsDI = WidgetsSceneDIContainer(
-            dependencies: makeWidgetsDependencies()
-        )
-
-        // 2. Минимальный набор действий (допустимы заглушки)
-        let actions = WidgetsListViewModelActions(
-            showWidgetDetails: { _ in },
-            showWidgetQueriesSuggestions: { _ in },
-            closeWidgetQueriesSuggestions: { }
-        )
-        
-        let widgetsVC = widgetsDI.makeWidgetsListViewController(actions: actions)
-        navigationController?.pushViewController(widgetsVC, animated: true)
+    
+    private func handleDeviceSelection(at indexPath: IndexPath) {
+        viewModel.connectToDevice(at: indexPath.row)
+        // Запрос на открытие WidgetsListViewController через координатор
+        openMainTabBar()
     }
     private func openMainTabBar() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
@@ -319,6 +343,18 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             imageDataTransferService: dataTransfer,
             bleManager: viewModel.bleManager
          )
+    }
+    private func simulateAutoConnection() {
+        guard let index = viewModel.prepareFakeDeviceForTesting() else { return }
+        tableViewDevices.reloadData()
+        viewModel.connectToDevice(at: index)
+        openMainTabBar()
+    }
+    private func autoConnection() {
+//        guard let index = viewModel.prepareFakeDeviceForTesting() else { return }
+//        tableViewDevices.reloadData()
+//        viewModel.connectToDevice(at: index)
+//        openMainTabBar()
     }
 }
 extension String {
@@ -376,7 +412,7 @@ private struct InlineNetworkConfig: NetworkConfigurable {
 }
 
 class CustomSegmentedControl: UISegmentedControl{
-    private let segmentInset: CGFloat = 5       //your inset amount
+    private let segmentInset: CGFloat = 3       //your inset amount
     private let segmentImage: UIImage? = UIImage(color: UIColor(named: "ubi4_back") ?? UIColor.white)
 //    private let segmentImage: UIImage? = UIImage(color: UIColor.white)
 
@@ -384,7 +420,7 @@ class CustomSegmentedControl: UISegmentedControl{
         super.layoutSubviews()
 
         //background
-        layer.cornerRadius = 20
+        layer.cornerRadius = 16
         //foreground
         let foregroundIndex = numberOfSegments
         if subviews.indices.contains(foregroundIndex), let foregroundImageView = subviews[foregroundIndex] as? UIImageView
@@ -395,7 +431,7 @@ class CustomSegmentedControl: UISegmentedControl{
             foregroundImageView.layer.masksToBounds = true
             foregroundImageView.layer.borderWidth = 1
             foregroundImageView.layer.borderColor = UIColor(named: "ubi4_filter_gray_border")?.cgColor
-            foregroundImageView.layer.cornerRadius = 18
+            foregroundImageView.layer.cornerRadius = 14
         }
     }
 }

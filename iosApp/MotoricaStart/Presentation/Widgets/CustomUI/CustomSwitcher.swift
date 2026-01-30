@@ -47,7 +47,7 @@ struct CustomSwitcher: View {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(stroke, lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
         )
         .padding(.horizontal, 0)
         .padding(.vertical, 0)

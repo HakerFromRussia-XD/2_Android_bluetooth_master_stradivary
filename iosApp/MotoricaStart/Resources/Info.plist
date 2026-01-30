@@ -38,10 +38,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-wght.ttf</string>
-		<string>Assets/OpenSans-wght.ttf</string>
-		<string>Assets/Inter.ttf</string>
-		<string>Assets/SFProDisplay-Lightotf</string>
-		<string>Assets/sf_pro_text_bold.otf</string>
+		<string>sf_pro_text_bold.otf</string>
+		<string>sf_pro_display_light.otf</string>
+		<string>Inter.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -54,15 +53,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>

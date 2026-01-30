@@ -9,7 +9,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv"
-        android:layout_width="270dp"
+        android:layout_width="310dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="14dp"
         android:backgroundTint="@color/ubi4_back"

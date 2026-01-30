@@ -119,6 +119,9 @@ class UBI4GripperScreenWithEncodersActivity
     private enum class States(val number: Int) {
         GESTURE_STATE_OPEN  (0),
         GESTURE_STATE_CLOSE (1),
+        GESTURE_OPEN_DELAY(128),
+        GESTURE_CLOSE_DELAY(129),
+        GESTURE_SAVE_BUTTON(255)
     }
 
     private var score1 = 0

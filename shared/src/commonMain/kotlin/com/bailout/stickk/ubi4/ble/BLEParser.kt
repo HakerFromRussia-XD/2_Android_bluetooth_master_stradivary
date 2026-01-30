@@ -27,7 +27,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressTotal
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow

@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlin.concurrent.Volatile
 import kotlin.properties.Delegates
 
 object WidgetState {

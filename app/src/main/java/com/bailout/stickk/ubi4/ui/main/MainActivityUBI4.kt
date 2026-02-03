@@ -69,6 +69,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
@@ -204,6 +205,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 
+        binding.helpView.setOnClickListener {
+            showHelpScreen()
+            binding.bottomNavigation.visibility = View.INVISIBLE
+        }
+
 
         binding.accountBtn.setOnClickListener {
             sendFwInfoRequests()
@@ -297,6 +303,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun showSecretScreen() {
         launchFragmentWithStack(ServiceFragment())
+    }
+
+    override fun showHelpScreen() {
+        if (activeFragment is HelpFragmentUBI4) return
+
+        val sourceFragment = activeFragment?.javaClass?.name.orEmpty()
+
+        val helpFragment = HelpFragmentUBI4().apply {
+            arguments = Bundle().apply {
+                putString("sourceFragmentClass", sourceFragment)
+            }
+        }
+
+        launchFragmentWithStack(helpFragment)
     }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {

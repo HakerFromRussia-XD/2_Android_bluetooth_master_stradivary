@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.data.local.db
 
-import BaseSubDeviceInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.BaseSubDeviceInfoDao
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase

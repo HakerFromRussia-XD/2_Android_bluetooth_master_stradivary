@@ -796,7 +796,14 @@ class BLEParser(
             }
         }
 
-        persistAllMasterParams(coroutineScope)
+        try {
+            persistAllMasterParams(coroutineScope)
+        }
+        catch (t: Throwable) {
+            println("ROOM FAIL: ${t::class.simpleName} msg=${t.message}")
+            throw t
+        }
+
 
     }
 

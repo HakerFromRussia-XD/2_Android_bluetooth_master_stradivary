@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
+
+    <View
+        android:id="@+id/ubi4TitleClickBlockBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/ubi4MainSv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/ubi4_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ubi4ImageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/ubi4BackBtn"
+        android:layout_alignTop="@+id/ubi4BackBtn"
+        android:layout_alignEnd="@+id/ubi4BackBtn"
+        android:layout_alignBottom="@+id/ubi4BackBtn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_arrow_left"
+        app:tint="@color/ubi4_white"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4BackBtn"
+        app:layout_constraintEnd_toEndOf="@+id/ubi4BackBtn"
+        app:layout_constraintStart_toStartOf="@+id/ubi4BackBtn"
+        app:layout_constraintTop_toTopOf="@+id/ubi4BackBtn"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/ubi4BackBtn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/ubi4HelpTitleTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ubi4ImageView33"
+        android:layout_alignBottom="@+id/ubi4ImageView33"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toEndOf="@+id/ubi4BackBtn"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
+        android:text="@string/prostheses_care"
+        android:textColor="@color/ubi4_white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4ImageView33"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ubi4ImageView33"
+        app:layout_constraintTop_toTopOf="@+id/ubi4ImageView33" />
+
+
+    <ScrollView
+        android:id="@+id/ubi4MainSv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ubi4ImageView33"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/ubi4_back"
+        tools:ignore="UselessParent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4BeginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4EndGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4MidGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4CardView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4BeginGuideline2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4EndGuideline2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4TopGuideline2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="20dp" />
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4BottomGuideline2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_end="20dp" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView16"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/prostheses_care"
+                        android:textSize="24sp"
+                        android:textColor="@color/ubi4_white"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4TopGuideline2" />
+
+
+                    <TextView
+                        android:id="@+id/ubi4TextView17"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/check_the_technical_condition_of_your_prostheses_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView16" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView22"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/regular_maintenance_of_the_prostheses_is_required_refer_to_service_and_warranty_for_service_intervals"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView17" />
+
+
+
+                    <TextView
+                        android:id="@+id/ubi4TextView26"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView22" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView21"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_semi_bold"
+                        android:text="@string/do_not_use_aggressive_detergents"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView26" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView71"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/if_you_have_a_cosmetic_shell_installed_check_it_regularly_for_through_damage_try_to_avoid_contact_with_sharp_or_pointed_objects_if_the_cosmetic_shell_needs_to_be_replaced_please_contact_your_prosthetic_company"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView21" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView23"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/important_do_not_try_to_repair_your_prosthetic_arm_yourself_it_may_cause_more_serious_damage_and_void_your_warranty"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toTopOf="@+id/ubi4BottomGuideline2"
+                        app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4TextView71" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/ubi4AppProsthesesUseTitleTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                android:text="@string/prostheses_use"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/ubi4CardView1" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4CardView2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/ubi4AppProsthesesUseTitleTv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4Sfwjkebfjahwnfkjnedflkqwd"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/how_prostheses_works"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4HowProsthesesWorksBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/how_to_put_on_a_prostheses_socket"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4HowToPutOnAProsthesesSocketBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/complete_set"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ComplectationBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/prostheses_charge"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ProsthesesChargeBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_semi_bold"
+                                    android:text="@string/prostheses_care"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:background="@color/ubi4_gray_border" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/ubi4ProsthesesCareBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/service_warranty"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+
+                        <View
+                            android:id="@+id/ubi4ServiceAndWarrantyBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</RelativeLayout>

@@ -1,0 +1,1214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
+
+    <View
+        android:id="@+id/ubi4TitleClickBlockBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/ubi4MainSv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/ubi4_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ubi4ImageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/ubi4BackBtn"
+        android:layout_alignTop="@+id/ubi4BackBtn"
+        android:layout_alignEnd="@+id/ubi4BackBtn"
+        android:layout_alignBottom="@+id/ubi4BackBtn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_arrow_left"
+        app:tint="@color/ubi4_white"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4BackBtn"
+        app:layout_constraintEnd_toEndOf="@+id/ubi4BackBtn"
+        app:layout_constraintStart_toStartOf="@+id/ubi4BackBtn"
+        app:layout_constraintTop_toTopOf="@+id/ubi4BackBtn"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/ubi4BackBtn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/ubi4HelpTitleTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ubi4ImageView33"
+        android:layout_alignBottom="@+id/ubi4ImageView33"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toEndOf="@+id/ubi4BackBtn"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
+        android:text="@string/service_warranty"
+        android:textColor="@color/ubi4_white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ubi4ImageView33"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ubi4ImageView33"
+        app:layout_constraintTop_toTopOf="@+id/ubi4ImageView33" />
+
+    <ScrollView
+        android:id="@+id/ubi4MainSv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ubi4ImageView33"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/ubi4_back"
+        tools:ignore="UselessParent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4BeginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4EndGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4MidGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4CardView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4BeginGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4EndGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4TopGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="20dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4BottomGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_end="20dp" />
+
+                    <TextView
+                        android:id="@+id/ubi4ServiceTitleTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/service"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="24sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4TopGuideline_2" />
+
+                    <TextView
+                        android:id="@+id/ubi4LawInfoTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_product_is_sold_in_accordance_with_federal_law_2300_1_of_february_7_1992_on_protection_of_consumer_rights"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4ServiceTitleTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4ServiceCenterInfoTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/when_you_contact_the_service_department_an_examination_is_performed_to_determine_if_there_is_a_warranty_claim_any_repair_or_maintenance_is_performed_by_a_certified_service_center_self_repair_is_not_allowed"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4LawInfoTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4MaintenanceIntervalTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/preventive_maintenance_should_be_performed_every_6_months_or_every_50_000_cycles_whichever_comes_first"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4ServiceCenterInfoTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4WarrantyTitleTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/service_warranty"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4MaintenanceIntervalTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4WarrantyCoverageTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_warranty_covers_any_defects_in_materials_or_workmanship_under_normal_use_during_the_warranty_period"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4WarrantyTitleTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4WarrantyPeriodTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_warranty_period_is_2_years_and_is_calculated_from_the_beginning_of_exploitation"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4WarrantyCoverageTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4StartDateExploitationTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_start_date_of_use_is_the_date_the_prostheses_is_handed_over_to_the_user"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4WarrantyPeriodTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4ManualWarrantyRequirementTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_prosthetic_arm_is_accepted_under_warranty_only_together_with_this_manual"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4StartDateExploitationTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4WarrantyExclusionsTitleTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_semi_bold"
+                        android:text="@string/the_warranty_does_not_apply_to"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4ManualWarrantyRequirementTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion1LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="1. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Exclusion1DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion1DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/battery_pack"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Exclusion1LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4WarrantyExclusionsTitleTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion2LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="2. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Exclusion2DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion2DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/stem_sleeve_if_not_included_in_the_package"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Exclusion2LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Exclusion1DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion3LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="3. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Exclusion3DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Exclusion3DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/charger"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Exclusion3LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Exclusion2DescTv" />
+
+
+                    <TextView
+                        android:id="@+id/ubi4WarrantyVoidTitleTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/warning_the_warranty_does_not_apply_in_the_following_cases"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Exclusion3DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void1LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="1. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void1DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void1DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/violations_of_storage_and_operating_conditions_specified_in_this_passport_and_operating_manual"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void1LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4WarrantyVoidTitleTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void2LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="2. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void2DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void2DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_presence_of_traces_of_unauthorized_by_the_manufacturer_disassembly_of_the_product_violation_of_the_integrity_of_the_product_and_or_direct_changes_in_the_equipment_of_the_product_without_the_consent_of_the_manufacturer"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void2LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void1DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void3LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="3. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void3DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void3DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/violations_of_the_integrity_of_protective_seals_and_or_indicator_varnish_coatings"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void3LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void2DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void4LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="4. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void4DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void4DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/failure_to_complete_routine_maintenance_in_a_timely_manner"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void4LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void3DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void5LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="5. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void5DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void5DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_presence_of_traces_of_exposure_to_corrosive_substances"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void5LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void4DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void6LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="6. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void6DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void6DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/presence_of_traces_of_damage_to_the_product_by_the_user_and_or_third_parties_chips_dents_falling_from_a_height_of_more_than_1_m_on_a_hard_surface_etc"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void6LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void5DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void7LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="7. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void7DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void7DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/any_damage_caused_by_foreign_particles_and_water_entering_the_hand_module_the_sensor_or_the_battery_pack"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void7LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void6DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void8LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="8. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void8DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void8DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_presence_of_damage_caused_by_fire_natural_disasters_and_other_force_majeure_circumstances"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void8LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void7DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void9LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="9. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4Void9DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4Void9DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/self_detaching_the_hand_module_from_the_elbow_module"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4Void9LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void8DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowedTitleTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/not_allowed"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4Void9DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed1LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="1. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed1DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed1DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/connect_the_product_to_damaged_electrical_power_or_source_not_specified_by_the_manufacturer"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed1LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowedTitleTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed2LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="2. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed2DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed2DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/charge_the_user_s_prostheses"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed2LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed1DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed3LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="3. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed3DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed3DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/if_the_prostheses_has_not_been_charged_for_more_than_2_months_it_is_necessary_to_contact_the_service"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed3LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed2DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed4LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="4. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed4DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed4DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/use_a_defective_denture"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed4LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed3DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed5LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="5. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed5DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed5DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/use_the_product_to_operate_vehicles_dangerous_machinery_and_weapons"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed5LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed4DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed6LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="6. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed6DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed6DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/use_the_product_to_carry_dangerous_loads_that_can_cause_damage_if_dropped_pressured_or_ignited"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed6LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed5DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed7LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="7. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed7DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed7DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/do_not_use_the_product_for_purposes_other_than_those_for_which_it_is_intended_or_in_cases_that_could_cause_any_damage_to_the_prostheses"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed7LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed6DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed8LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="8. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed8DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed8DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/immersion_in_water_and_washing_the_prostheses_under_water_jets_is_prohibited_the_prostheses_is_ip_54_which_means_it_can_be_used_in_the_rain"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed8LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed7DescTv" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed9LabelTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="9. "
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/ubi4NotAllowed9DescTv"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/ubi4NotAllowed9DescTv"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/disassemble_and_repair_the_product_yourself"
+                        android:textColor="@color/ubi4_deactivate_text"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toTopOf="@+id/ubi4BottomGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@+id/ubi4EndGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/ubi4NotAllowed9LabelTv"
+                        app:layout_constraintTop_toBottomOf="@+id/ubi4NotAllowed8DescTv" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/ubi4AppProsthesesUseTitleTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                android:text="@string/prostheses_use"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/ubi4CardView1" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4CardView2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ubi4EndGuideline"
+                app:layout_constraintStart_toStartOf="@+id/ubi4BeginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/ubi4AppProsthesesUseTitleTv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4HowWorksNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/how_prostheses_works"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4HowProsthesesWorksBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4HowPutOnNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/how_to_put_on_a_prostheses_socket"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4HowToPutOnAProsthesesSocketBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4CompleteSetNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/complete_set"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ComplectationBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4ChargeNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/prostheses_charge"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ProsthesesChargeBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4CareNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/prostheses_care"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ProsthesesCareBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:id="@+id/ubi4ServiceNavTv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:fontFamily="@font/font_open_sans_semi_bold"
+                                    android:text="@string/service_warranty"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+
+                        <View
+                            android:id="@+id/ubi4ServiceAndWarrantyBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</RelativeLayout>

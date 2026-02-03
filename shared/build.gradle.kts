@@ -194,7 +194,7 @@ kotlin {
 }
 
 dependencies {
-    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
+//    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
     add("kspAndroid", "androidx.room:room-compiler:2.7.2")
     add("kspIosArm64", "androidx.room:room-compiler:2.7.2")
     add("kspIosSimulatorArm64", "androidx.room:room-compiler:2.7.2")

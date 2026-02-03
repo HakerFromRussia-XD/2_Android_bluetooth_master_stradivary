@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.data.local.repository
 
-import BaseSubDeviceInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao

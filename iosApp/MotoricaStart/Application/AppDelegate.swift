@@ -8,12 +8,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var appFlowCoordinator: AppFlowCoordinator?
     var window: UIWindow?
     
+    
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         
+        SharedBootstrapper.shared.initialize()
         AppAppearance.setupAppearance()
+    
+        
+        
         
         
         let navigationController = UINavigationController()

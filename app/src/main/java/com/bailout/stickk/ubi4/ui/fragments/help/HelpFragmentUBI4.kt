@@ -5,15 +5,21 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHelpBinding
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
+import com.bailout.stickk.ubi4.data.widget.endStructures.*
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import kotlinx.coroutines.launch
 
 class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
@@ -26,7 +32,12 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
         setupSystemBack()
         initUi()
+
+        // 1) сразу применяем видимость
         renderVisibility()
+
+        // 2) и обновляем при любых изменениях виджетов
+        observeWidgetsUpdates()
     }
 
     private fun setupSystemBack() {
@@ -39,52 +50,92 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     }
 
     private fun initUi() = with(binding) {
-        // заглушка на “клик по заголовку”
         ubi4TitleClickBlockBtn.setOnClickListener { }
-
-        // Back в шапке
         ubi4BackBtn.setOnClickListener { handleBackPress() }
 
         // App control
-        ubi4SensorsSettingsBtn.setOnClickListener { openScreen(SensorsFragment()) }
-        ubi4SettingsGestureBtn.setOnClickListener { openScreen(GesturesFragment()) }
-        ubi4AdvancedSettingsBtn.setOnClickListener { openScreen(AdvancedFragment()) }
+        ubi4SensorsSettingsBtn.setOnClickListener {  }
+        ubi4SettingsGestureBtn.setOnClickListener {  }
+        ubi4TrainingBtn.setOnClickListener { }
+        ubi4AdvancedSettingsBtn.setOnClickListener { }
 
-        // Prostheses use (подставь свои реальные фрагменты)
-        ubi4HowProsthesesWorksBtn.setOnClickListener {
-            openScreen(HowProsthesesWorksFragmentUBI4())
-        }
-        ubi4HowToPutOnAProsthesesSocketBtn.setOnClickListener {
-            openScreen(HowToPutOnProsthesesSocketFragmentUBI4())
-        }
-
-        ubi4ComplectationBtn.setOnClickListener {
-            openScreen(CompleteSetFragmentUBI4())
-        }
-        ubi4ProsthesesChargeBtn.setOnClickListener {
-            openScreen(ChargingFragmentUBI4())
-        }
-        ubi4ProsthesesCareBtn.setOnClickListener {
-            openScreen(CareFragmentUBI4())
-        }
-        ubi4ServiceAndWarrantyBtn.setOnClickListener {
-            openScreen(ServiceWarrantyFragmentUBI4())
-        }
+        // Prostheses use
+        ubi4HowProsthesesWorksBtn.setOnClickListener { openScreen(HowProsthesesWorksFragmentUBI4()) }
+        ubi4HowToPutOnAProsthesesSocketBtn.setOnClickListener { openScreen(HowToPutOnProsthesesSocketFragmentUBI4()) }
+        ubi4ComplectationBtn.setOnClickListener { openScreen(CompleteSetFragmentUBI4()) }
+        ubi4ProsthesesChargeBtn.setOnClickListener { openScreen(ChargingFragmentUBI4()) }
+        ubi4ProsthesesCareBtn.setOnClickListener { openScreen(CareFragmentUBI4()) }
+        ubi4ServiceAndWarrantyBtn.setOnClickListener { openScreen(ServiceWarrantyFragmentUBI4()) }
 
         // Contact us
         ubi4ContactSupportBtn.setOnClickListener { openDialer("88007077197") }
         ubi4VkBtn.setOnClickListener { openUrl("https://vk.com/motorica") }
         ubi4TelegrammBtn.setOnClickListener { openUrl("https://t.me/motoricans") }
 
-        // чтобы Back отрабатывал при фокусе внутри ScrollView
         root.isFocusableInTouchMode = true
         root.requestFocus()
     }
 
+    private fun observeWidgetsUpdates() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            UiState.updateFlow.collect {
+                renderVisibility()
+            }
+        }
+    }
+
     private fun renderVisibility() = with(binding) {
-        // если нужно — сюда правила видимости
-        // ubi4AdvancedSettingsRl.visibility = View.VISIBLE
-        // ubi4GestureCustomizationRl.visibility = View.VISIBLE
+        val widgets = UiState.listWidgets
+
+        if (widgets.isEmpty()) {
+
+            ubi4SensorsSettingsBtn.isVisible = false
+            ubi4GestureCustomizationRl.isVisible = false
+            ubi4AdvancedSettingsRl.isVisible = false
+            ubi4TrainingRl.isVisible = false
+            return@with
+        }
+
+        val displays = widgets.mapNotNull { it.extractDisplayOrNull() }.toSet()
+
+        val hasSensors = 1 in displays
+        val hasGestures = (0 in displays)
+        val hasTraining = 3 in displays
+        val hasSpecialSettings = 2 in displays
+
+        // Sensors: у строки нет id контейнера, поэтому минимум — убрать кликабельную кнопку.
+        // Идеально: добавь android:id="@+id/ubi4SensorsSettingsRl" и скрывай именно его.
+        ubi4SensorsSettingsBtn.isVisible = hasSensors
+
+        // Gestures: строка контейнер есть -> скрываем красиво
+        ubi4GestureCustomizationRl.isVisible = hasGestures
+
+        // Training: строка контейнер есть -> скрываем красиво
+        ubi4TrainingRl.isVisible = hasTraining
+
+        ubi4AdvancedSettingsRl.isVisible = hasSpecialSettings    }
+
+    private fun Any.extractDisplayOrNull(): Int? = when (this) {
+        is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
+
+        is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
+        is PlotParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is PlotParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
+        is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
+        is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
+        is ToggleSliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is ToggleSliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
+        else -> null
     }
 
     private fun openScreen(fragment: Fragment) {
@@ -115,9 +166,10 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
             return
         }
 
-        // Важно: мы “возвращаемся” на экран-источник без Navigator.
-        // Чтобы не плодить back stack — чистим до корня и ставим target как текущий.
-        parentFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        parentFragmentManager.popBackStack(
+            null,
+            androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, target)
             .commit()

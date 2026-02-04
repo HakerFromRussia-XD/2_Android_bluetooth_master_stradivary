@@ -632,6 +632,7 @@
     <string name="mobile_settings">Мобильные настройки</string>
     <string name="auto_login">Автоматический вход</string>
     <string name="push_me">Нажми меня</string>
+    <string name="training_model">Обучение</string>
 
 
     <string-array name="numbers">

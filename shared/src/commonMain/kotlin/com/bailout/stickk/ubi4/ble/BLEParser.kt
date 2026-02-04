@@ -705,6 +705,12 @@ class BLEParser(
                 "\"${receiveDataString.substring(18, receiveDataString.length)}\""
             )
 
+
+        if (UiState.isNewInterfaceDevice) {
+            platformLog("INIT_TEST_LOG", "SKIP DEVICE INIT: isNewInterfaceDevice=true")
+            return
+        }
+
         val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 
         // 1) Сбрасываем состояние запросов и label-маппинг

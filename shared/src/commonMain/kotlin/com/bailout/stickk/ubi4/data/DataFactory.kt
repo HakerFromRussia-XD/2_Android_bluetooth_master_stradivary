@@ -39,7 +39,7 @@ class DataFactory {
     fun fakeData(): List<Any> = buildList {
 //        add(OneButtonItem("COMMAND E", "description", CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
 //        add(OneButtonItem("COMMAND S", "description", CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
-//        add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
+        add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
 //        add(SwitchItem("SWITCH S", SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
         add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
 //        add(SliderItem("SLIDER S", SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 8, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
@@ -47,16 +47,16 @@ class DataFactory {
 //        add(PlotItem("PLOT S", PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
 //        add(TrainingGestureItem("OPTIC LEARNING", OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11, widgetCode = ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt())))))
 //        add(SpinnerItem("Уровень доступа", SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12, widgetCode = ParameterWidgetCode.PWCE_SPINBOX.number.toInt())))))
-        add(SliderItem("TOGGLE SLIDER",
-            ToggleSliderParameterWidgetEStruct(
-                BaseParameterWidgetEStruct(
-                    BaseParameterWidgetStruct(
-                        widgetPosition = 6,
-                        widgetCode = ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt()
-                    )
-                )
-            )
-        ))
+//        add(SliderItem("TOGGLE SLIDER",
+//            ToggleSliderParameterWidgetEStruct(
+//                BaseParameterWidgetEStruct(
+//                    BaseParameterWidgetStruct(
+//                        widgetPosition = 6,
+//                        widgetCode = ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt()
+//                    )
+//                )
+//            )
+//        ))
     }
 
 
@@ -306,6 +306,29 @@ class DataFactory {
 
             else -> OneButtonItem(resolvedLabel, "description", widget)
         }
+    }
+
+    fun Any.extractDisplayOrNull(): Int? = when (this) {
+        is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
+
+        is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+        is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is PlotParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+        is PlotParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+        is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+        is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        is ToggleSliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+        is ToggleSliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+
+        else -> null
     }
 
 

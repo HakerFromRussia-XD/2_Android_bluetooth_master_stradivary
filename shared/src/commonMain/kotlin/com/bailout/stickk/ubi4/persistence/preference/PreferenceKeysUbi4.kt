@@ -220,6 +220,8 @@ object PreferenceKeysUbi4 {
         PLTE_LIMIT_NUM      (0x04)
     }
 
+
+
     @ObjCName("ParameterTypeEnum", exact = true)
     enum class ParameterTypeEnum (val number: Int, val sizeOf: Int) {
         PARTE_UNKNOW            (0,0),

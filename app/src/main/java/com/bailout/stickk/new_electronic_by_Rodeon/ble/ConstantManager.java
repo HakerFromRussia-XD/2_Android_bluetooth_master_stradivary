@@ -30,6 +30,32 @@ public interface ConstantManager {
     String NEW_DEVICE_TYPE_FEST_EB = "FTEB"; //FEST-EB локоть бионический
 
 
+    enum NewInterfaceSerialName {
+
+        FEST_F("FTFS"),
+        FEST_F_O("FTFO"),
+        FEST_H("FTHS"),
+        FEST_H_O("FTHO"),
+        FEST_EP("FTEP"),
+        FEST_EB("FTEB");
+
+        private static final String INTERFACE_VERSION = "3";
+
+        private final String baseValue;
+
+        NewInterfaceSerialName(String baseValue) {
+            this.baseValue = baseValue;
+        }
+
+        public String getSerialWithVersion() {
+            return baseValue + INTERFACE_VERSION;
+        }
+
+        public String getBaseValue() {
+            return baseValue;
+        }
+    }
+
     int REQUEST_ENABLE_BT = 1;
     String SECRET_PIN = "0889";
 

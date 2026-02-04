@@ -21,6 +21,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Reactivat
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
+import com.bailout.stickk.ubi4.data.state.UiState
 
 @Suppress("DEPRECATION")
 class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
@@ -59,11 +60,16 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
         return  binding.root
     }
 
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         initializeUI()
+
     }
+
+
 
 
     @SuppressLint("QueryPermissionsNeeded")

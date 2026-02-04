@@ -203,6 +203,48 @@
                             android:background="@color/ubi4_gray_border" />
                     </RelativeLayout>
 
+                    <!-- Training -->
+                    <RelativeLayout
+                        android:id="@+id/ubi4TrainingRl"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="18dp"
+                            android:fontFamily="@font/font_open_sans_regular"
+                            android:text="@string/training_model"
+                            android:textColor="@color/ubi4_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_navigate_next"
+                            app:tint="@color/ubi4_white"
+                            tools:ignore="ContentDescription" />
+
+                        <View
+                            android:id="@+id/ubi4TrainingBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                        <!-- divider (если это не последний пункт) -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+                    </RelativeLayout>
+
                     <!-- Advanced Settings -->
                     <RelativeLayout
                         android:id="@+id/ubi4AdvancedSettingsRl"

@@ -781,6 +781,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                     deviceName.contains("BT05") ||
                     deviceName.contains("FEST") ||
                     deviceName.contains("UBIv4") ||
+                    deviceName.contains("FTFS3") ||
+                    deviceName.contains("FTFO3") ||
+                    deviceName.contains("FTHS3") ||
+                    deviceName.contains("FTHO3") ||
+                    deviceName.contains("FTEP3") ||
+                    deviceName.contains("FTEB3") ||
+
                     !filteringOursDevices;
         } else {
             return false;

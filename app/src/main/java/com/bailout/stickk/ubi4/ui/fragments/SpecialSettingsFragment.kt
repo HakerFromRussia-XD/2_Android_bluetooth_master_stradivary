@@ -32,6 +32,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         super.onResume()
         updateFlow.tryEmit(0)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

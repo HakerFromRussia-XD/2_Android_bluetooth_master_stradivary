@@ -47,6 +47,7 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -118,8 +119,6 @@ class BLEController() {
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") //fest FO3
 
-
-                WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
                 mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
@@ -201,50 +200,42 @@ class BLEController() {
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
 
-
-
                     WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
-
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
                         main.lifecycleScope.launch {
-
-                            UiState.startupInProgress.value = true
-                            // сброс прогресса ок, но "готово" НЕ эмитим
-                            UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
-                            ensureTransferFlowActive()
-                            smartInitWithCrc()
-
+                            //TODO UI с захардкоженными виджетами
+                            if (UiState.isInterfaceV3Activated) {
+                                platformLog("INIT_TEST_LOG", "UBIv4 с захадкоженными виджетами")
+                                UiState.startupInProgress.value = false
+                            } else {
+                                platformLog("INIT_TEST_LOG", "UBIv4")
+                                //ветка инициализации протокола UBIv4
+                                UiState.startupInProgress.value = true
+                                // сброс прогресса ок, но "готово" НЕ эмитим
+                                UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
+                                ensureTransferFlowActive()
+                                smartInitWithCrc()
+                            }
                         }
                     }
-
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                 }
-//                BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-//                    val raw = intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL)
-//                    if (raw != null) {
-//                        val hex = EncodeByteToHex.bytesToHexString(raw)
-//                        Log.d("BLE_RX", "▶ DATA_AVAILABLE size=${raw.size}, data=$hex")
-//                    } else {
-//                        Log.d("BLE_RX", "▶ DATA_AVAILABLE, но MAIN_CHANNEL extra = null")
-//                    }
-//                    parseReceivedData(raw)
-//                }
-
-                }
             }
         }
+    }
 
     private suspend fun firstNotificationRequestFull() {
         var attempts = 0
 
         while (firstNotificationRequestFlag && attempts < 5) {
             Log.d("BLE_INIT", "▶ firstNotificationRequestFull попытка #${attempts + 1}")
+
             bleCommand(
                 BLECommands.requestInicializeInformation(),
                 MAIN_CHANNEL_CHARACTERISTIC,
@@ -293,8 +284,8 @@ class BLEController() {
         }
     }
 
-
     private suspend fun smartInitWithCrc() {
+        Log.d("smartInitWithCrc", "▶ smartInitWithCrc")
         val masterAddr = 0
 
         val oldCrc: Long? = RoomPersistence.loadDeviceCrc(masterAddr)
@@ -506,7 +497,6 @@ class BLEController() {
                 // Если уже зарегистрирован, игнорируем
                 Log.w("BLEController", "Ресивер уже зарегистрирован")
             }
-            WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
             mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }
@@ -629,20 +619,21 @@ class BLEController() {
     }
 
     private suspend fun ensureTransferFlowActive() {
-        if (isTransferFlowActive) return
-
-        // 1) Поднимаем NOTIFY
-        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
-
-        // 2) Запрашиваем стрим
-        main.bleCommandWithQueue(
-            BLECommands.requestTransferFlow(1),
-            MAIN_CHANNEL_CHARACTERISTIC,
-            WRITE
-        ) {}
-
-        isTransferFlowActive = true
+        //старый вариант подключения для UBIv4
+//        if (isTransferFlowActive) return
+//
+//        // 1) Поднимаем NOTIFY
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+//
+//        // 2) Запрашиваем стрим
+//        main.bleCommandWithQueue(
+//            BLECommands.requestTransferFlow(1),
+//            MAIN_CHANNEL_CHARACTERISTIC,
+//            WRITE
+//        ) {}
+//
+//        isTransferFlowActive = true
     }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {

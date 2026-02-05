@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -705,12 +704,6 @@ class BLEParser(
                 "\"${receiveDataString.substring(18, receiveDataString.length)}\""
             )
 
-
-        if (UiState.isNewInterfaceDevice) {
-            platformLog("INIT_TEST_LOG", "SKIP DEVICE INIT: isNewInterfaceDevice=true")
-            return
-        }
-
         val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 
         // 1) Сбрасываем состояние запросов и label-маппинг
@@ -879,15 +872,19 @@ class BLEParser(
         subDeviceCounter = 0
         subDeviceChankParametersCounter = 0
         subDeviceAdditionalCounter = 1
-        val parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+        if (baseSubDevicesInfoStructSet.isEmpty()) {
+            showToast("Сабдевайсов нет")
+            return
+        }
+        val parametersNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
 
 
         if (baseSubDevicesInfoStructSet.size != 0) {
             platformLog("getNextSubDevice", "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet")
             if (getNextSubDevice(subDeviceCounter) != -1) {
                 var numberCount = 10
-                if (subDeviceChankParametersCounter == (parametrsNum / 10)) {
-                    numberCount = parametrsNum - subDeviceChankParametersCounter * 10
+                if (subDeviceChankParametersCounter == (parametersNum / 10)) {
+                    numberCount = parametersNum - subDeviceChankParametersCounter * 10
                 }
                 if (numberCount != 0) {
                     bleManager.sendBytesKmm(

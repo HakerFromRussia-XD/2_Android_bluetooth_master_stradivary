@@ -4,7 +4,6 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.concurrent.Volatile
 import kotlin.properties.Delegates
 
 object UiState {
@@ -18,20 +17,13 @@ object UiState {
     var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
     val fullInitInProgress = MutableStateFlow(false)
     val startupInProgress = MutableStateFlow(false)
-//    var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
     val widgetsLoadingProgressFlow = MutableStateFlow(
         WidgetsLoadingProgress(current = 0, total = 0)
     )
-    var isNewInterfaceDevice: Boolean = false
+    var isInterfaceV3Activated: Boolean = false
 
-
-//    var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
-    @Volatile
-    var animateState: Boolean = false
-
-
 
     init {
         listWidgets = mutableSetOf()
@@ -41,7 +33,6 @@ object UiState {
         updateFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 64)
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
-//        widgetsLoadingProgressFlow = MutableSharedFlow()
     }
     fun resetWidgetRequests() {
         requestedWidgetParameters.clear()

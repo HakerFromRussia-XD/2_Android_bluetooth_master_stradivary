@@ -456,6 +456,14 @@ class EngineerModeFragment : BaseWidgetsFragment() {
                 gestures.add("Neutral")
                 gestures.addAll(selectedGestures.map { it.name })
                 json.put("gesture_sequence", org.json.JSONArray(gestures))
+
+                val gesturesSet = gestures.toMutableSet()
+                var indInGesturesSet = 0
+                val gesturesIdsObj = JSONObject()
+                gesturesSet.forEach { item ->
+                    gesturesIdsObj.put(item, indInGesturesSet++)
+                }
+                json.put("GESTURES_ID", gesturesIdsObj)
                 configFile!!.writeText(json.toString())
 
                 Log.d("SaveGestures", "Saved ${gestures.size} gestures to config: ${gestures}")

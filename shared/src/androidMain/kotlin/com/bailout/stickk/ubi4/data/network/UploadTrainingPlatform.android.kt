@@ -42,6 +42,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration.Companion.seconds
 
+fun getModelVersionsFileName(): String {
+    return "model_versions.json"
+}
+
 @OptIn(FlowPreview::class, ExperimentalStdlibApi::class)
 actual suspend fun uploadTrainingDataSsePlatform(
     token: String,
@@ -150,6 +154,7 @@ actual suspend fun uploadTrainingDataSsePlatform(
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
         val modelVersions = ModelVersions(
             boardName = opticsBoardHardwareInfo.boardName,
+            // boardCode
             boardHardwareVersion = opticsBoardHardwareInfo.boardVersionString,
             boardSoftwareVersion = firmwareInfo.fwVersion,
             appVersion = appVersion,
@@ -161,7 +166,22 @@ actual suspend fun uploadTrainingDataSsePlatform(
         val json = Json { ignoreUnknownKeys = true }
         val jsonString = json.encodeToString(ModelVersions.serializer(), modelVersions)
         val jsonBody = jsonString.toRequestBody("application/json".toMediaType())
-        addFormDataPart("files", "model_versions.json", jsonBody)
+        addFormDataPart("files", getModelVersionsFileName(), jsonBody)
+
+        try {
+            val externalDir = AndroidContextProvider.context.getExternalFilesDir(null)
+            if (externalDir != null) {
+                val jsonFile = java.io.File(externalDir, getModelVersionsFileName())
+                jsonFile.writeText(jsonString)
+                Log.i("modelVersions", "JSON saved to: ${jsonFile.absolutePath}")
+            }
+            else {
+                Log.w("modelVersions", "External files directory is null")
+            }
+        }
+        catch (e: Exception) {
+            Log.e("modelVersions", "Failed to save JSON file: ${e.message}", e)
+        }
 
         addFormDataPart("serial", serial)
         pairs.flatMap { listOf(it.first, it.second) }

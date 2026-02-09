@@ -49,8 +49,6 @@ import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
-//import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
-//import com.bailout.stickk.ubi4.ble.BleDevice;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
@@ -110,7 +108,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private float scale = 0F;
     private int count = 0;
     private int ANIMATION_DURATION = 200;
-//    private AndroidBleScanner androidBleScanner;
 
 
     private final boolean isAndoird12 = Build.VERSION.SDK_INT>=Build.VERSION_CODES.S;
@@ -162,8 +159,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private ArrayList<BluetoothDevice> mLeDevices  = new ArrayList<>();
     private ArrayList<Integer> mRssisList  = new ArrayList<>();
     private ArrayList<BluetoothDevice> filteringLeDevices  = new ArrayList<>();
-
-//    AndroidBleScanner scanner = new AndroidBleScanner();
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility", "ObsoleteSdkInt"})
     @Override
@@ -266,16 +261,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             mLeDevices.clear();
             mRssisList.clear();
             animateScanList(0);
-//            showScanList(mLeDevices, mRssisList);
             scanLeDevice(true);
-//            scanner.startScan();
-//            presenter.startScanning();
-
-
-//            androidBleScanner.clear(); // Если метод clear() у нас есть (просто _devices.value = emptyList())
-// Запускаем сканирование (свой метод startScan, а также нативное сканирование в BLEController)
-//            androidBleScanner.startScan();
-//            presenter.startScanning(); // Если используешь Presenter
         });
 
         rssiButton.setOnClickListener(v -> {
@@ -490,7 +476,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION_UBI4" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
@@ -509,22 +495,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
 
-//    private void smartConnection(BluetoothDevice device) {
-//        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION: " + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-//        // Если мы сейчас сканируем, не выполнять автоматическое переподключение
-//        if (mScanning) {
-//            Log.d("smartConnection", "Сканирование активно, пропускаем smartConnection для устройства: " + device.getAddress());
-//            return;
-//        }
-//        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
-//            String lastMac1 = loadString(PreferenceKeys.LAST_CONNECTION_MAC);
-//            String lastMac2 = loadString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4);
-//            if (device.getAddress().equals(lastMac1) || device.getAddress().equals(lastMac2)) {
-//                Log.d("smartConnection", "Устройство совпадает со сохранённым MAC, выполняем переход: " + device.getAddress());
-//                navigateToLEChart("device", device);
-//            }
-//        }
-//    }
     @Override
     public void setScanStatus(String status, boolean enabled) {
         try {
@@ -556,7 +526,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         presenter.setStartFlags(extraDevice.getName());
         Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
         if (extraDevice.getName().contains("NEMO") ||
-            extraDevice.getName().contains("STAND") ) {
+                extraDevice.getName().contains("STAND") ) {
             intent = new Intent(ScanActivity.this, NemoStandActivity.class);
         }
         intent.putExtra(extraName, extraDevice);
@@ -639,8 +609,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 ObjectAnimator.ofFloat(selectView, "x", (18 * displayMetrics.density)).setDuration(ANIMATION_DURATION).start();//53
                 ObjectAnimator colorAnim = ObjectAnimator.ofInt(prosthesesText, "textColor",
                         getColor(R.color.unselected_filter), getColor(R.color.selected_filter));
-                        colorAnim.setEvaluator(new ArgbEvaluator());
-                        colorAnim.start();
+                colorAnim.setEvaluator(new ArgbEvaluator());
+                colorAnim.start();
                 ObjectAnimator colorAnim3 = ObjectAnimator.ofInt(allDevicesText, "textColor",
                         getColor(R.color.selected_filter), getColor(R.color.unselected_filter));
                 colorAnim3.setEvaluator(new ArgbEvaluator());
@@ -650,8 +620,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 ObjectAnimator.ofFloat(selectView, "x", ((filterWidth/2)+18) * displayMetrics.density).setDuration(ANIMATION_DURATION).start();//546
                 ObjectAnimator colorAnim2 = ObjectAnimator.ofInt(prosthesesText, "textColor",
                         getColor(R.color.selected_filter), getColor(R.color.unselected_filter));
-                        colorAnim2.setEvaluator(new ArgbEvaluator());
-                        colorAnim2.start();
+                colorAnim2.setEvaluator(new ArgbEvaluator());
+                colorAnim2.start();
                 ObjectAnimator colorAnim4 = ObjectAnimator.ofInt(allDevicesText, "textColor",
                         getColor(R.color.unselected_filter), getColor(R.color.selected_filter));
                 colorAnim4.setEvaluator(new ArgbEvaluator());
@@ -691,19 +661,19 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                     .start();
         }
 //        if (countItems <= 3) {
-            DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-            ValueAnimator anim = ValueAnimator.ofInt(scanDeviceList.getMeasuredHeight(), (int) (57 * displayMetrics.density * countItems));
-            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    int val = (Integer) valueAnimator.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = scanDeviceList.getLayoutParams();
-                    layoutParams.height = val;
-                    scanDeviceList.setLayoutParams(layoutParams);
-                }
-            });
-            anim.setDuration(ANIMATION_DURATION);
-            anim.start();
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        ValueAnimator anim = ValueAnimator.ofInt(scanDeviceList.getMeasuredHeight(), (int) (57 * displayMetrics.density * countItems));
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = scanDeviceList.getLayoutParams();
+                layoutParams.height = val;
+                scanDeviceList.setLayoutParams(layoutParams);
+            }
+        });
+        anim.setDuration(ANIMATION_DURATION);
+        anim.start();
 //        }
     }
     @Override
@@ -726,8 +696,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             protocolType = deviceName.substring(0, 6);
         } // FEST-X
         if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_A)
-            || protocolType.contains(ConstantManager.DEVICE_TYPE_BT05)
-            || protocolType.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
+                || protocolType.contains(ConstantManager.DEVICE_TYPE_BT05)
+                || protocolType.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
 //            showToast("getProtocolType:"+ConstantManager.DEVICE_TYPE_FEST_A+".");
             return ConstantManager.DEVICE_TYPE_FEST_A;
         } else {

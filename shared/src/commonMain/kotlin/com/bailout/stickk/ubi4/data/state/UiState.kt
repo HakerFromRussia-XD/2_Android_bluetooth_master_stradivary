@@ -22,7 +22,7 @@ object UiState {
     val widgetsLoadingProgressFlow = MutableStateFlow(
         WidgetsLoadingProgress(current = 0, total = 0)
     )
-    var isNewInterfaceDevice: Boolean = false
+    var isInterfaceV3Activated: Boolean = false
 
 
 //    var widgetsLoadingProgressTotal: Int = 0

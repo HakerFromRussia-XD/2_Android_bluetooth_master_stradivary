@@ -64,6 +64,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
         gson = Gson()
         myRequests = Requests()
         //TODO Узнать у Ромы нужно ли перенести encryptionManager = EncryptionManagerUtils.instance в UBI4
+        // ответ от Ромы: можно использовать старый из UBI3 как тут и сделано
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
         System.err.println("Aesserial $encryptionResult")
@@ -71,6 +72,9 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
         accountCustomerServiceList = ArrayList()
 //        requestToken()
         //TODO  так же проверить что данные от UBI4
+        // ответ от Ромы: А почему тут requestToken выпилен? Полезно же при рефреше перезапрашивать
+        // его во избежание ситуации, которая у нас была при отправке файлов для старта обучения
+        // модели на сервере (тогда тоже сначала не перезапрашивали токен)
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -82,7 +86,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
         initializeUI()
 
 
-        //TODO изменить кнстанты val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
+        //TODO изменить константы val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
         val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
         var warrantyDate: String? = null
         if (dateOfReceipt.length > 7 ) {
@@ -104,7 +108,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
         initAdapter(binding.accountCustomerServiceRv)
     }
 
-//    private fun requestToken() {
+    //    private fun requestToken() {
 //        CoroutineScope(Dispatchers.Main).launch {
 //            myRequests!!.getRequestToken(
 //                { token ->

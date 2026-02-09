@@ -1,5 +1,7 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.ble;
 
+import java.util.List;
+
 public interface ConstantManager {
 
     boolean SHOW_EVERYONE_RECEIVE_BYTE = false;
@@ -28,33 +30,22 @@ public interface ConstantManager {
     String NEW_DEVICE_TYPE_FEST_H_O = "FTHO"; //FEST-H с оптикой
     String NEW_DEVICE_TYPE_FEST_EP = "FTEP"; //FEST-EP локоть пассивный
     String NEW_DEVICE_TYPE_FEST_EB = "FTEB"; //FEST-EB локоть бионический
+    String UBI4 = "UBIv4"; //UBIv4 новый бионический стек
+    String V3_DEVICE_TYPE_FEST_F = "FTFS3"; //FEST-F без оптики вместо UBIv4
+    String V3_DEVICE_TYPE_FEST_F_O = "FTFO3"; //FEST-F с оптикой вместо UBIv4
+    String V3_DEVICE_TYPE_FEST_H = "FTHS3"; //FEST-H без оптики вместо UBIv4
+    String V3_DEVICE_TYPE_FEST_H_O = "FTHO3"; //FEST-H с оптикой вместо UBIv4
+    String V3_DEVICE_TYPE_FEST_EP = "FTEP3"; //FEST-EP локоть пассивный вместо UBIv4
+    String V3_DEVICE_TYPE_FEST_EB = "FTEB3"; //FEST-EB локоть бионический вместо UBIv4
 
-
-    enum NewInterfaceSerialName {
-
-        FEST_F("FTFS"),
-        FEST_F_O("FTFO"),
-        FEST_H("FTHS"),
-        FEST_H_O("FTHO"),
-        FEST_EP("FTEP"),
-        FEST_EB("FTEB");
-
-        private static final String INTERFACE_VERSION = "3";
-
-        private final String baseValue;
-
-        NewInterfaceSerialName(String baseValue) {
-            this.baseValue = baseValue;
-        }
-
-        public String getSerialWithVersion() {
-            return baseValue + INTERFACE_VERSION;
-        }
-
-        public String getBaseValue() {
-            return baseValue;
-        }
-    }
+    static final List<String> V3_TYPES = List.of(
+            V3_DEVICE_TYPE_FEST_F,
+            V3_DEVICE_TYPE_FEST_F_O,
+            V3_DEVICE_TYPE_FEST_H,
+            V3_DEVICE_TYPE_FEST_H_O,
+            V3_DEVICE_TYPE_FEST_EP,
+            V3_DEVICE_TYPE_FEST_EB
+    );
 
     int REQUEST_ENABLE_BT = 1;
     String SECRET_PIN = "0889";

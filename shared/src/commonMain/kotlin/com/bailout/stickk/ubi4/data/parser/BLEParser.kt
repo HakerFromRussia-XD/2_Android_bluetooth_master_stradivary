@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -704,12 +703,6 @@ class BLEParser(
             Json.decodeFromString<FullInicializeConnectionStruct>(
                 "\"${receiveDataString.substring(18, receiveDataString.length)}\""
             )
-
-
-        if (UiState.isNewInterfaceDevice) {
-            platformLog("INIT_TEST_LOG", "SKIP DEVICE INIT: isNewInterfaceDevice=true")
-            return
-        }
 
         val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 

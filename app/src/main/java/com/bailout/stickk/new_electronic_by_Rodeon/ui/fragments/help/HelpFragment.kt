@@ -21,7 +21,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Reactivat
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
-import com.bailout.stickk.ubi4.data.state.UiState
 
 @Suppress("DEPRECATION")
 class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {

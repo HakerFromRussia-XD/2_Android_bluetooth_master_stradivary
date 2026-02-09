@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingFlow
-import com.bailout.stickk.ubi4.data.state.UiState.widgetsLoadingProgressFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.activeGestureState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
@@ -115,15 +114,14 @@ class BLEParser(
     private var countErrors = 0
     private val fwResponseReceived = mutableMapOf<Int, Boolean>()
     private var widgetsProgressTotal: Int = 0
-
-
-    private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
+    private fun Byte.toHex(): String =
+        (this.toInt() and 0xFF)
+            .toString(16)
+            .uppercase()
+            .padStart(2, '0')
 
     fun parseReceivedData(data: ByteArray?) {
         if (data != null) {
-
-
-
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             platformLog("BLEParser", "data.size=${data.size}")
             platformLog("BLEParser", "dataString=$receiveDataString")
@@ -360,14 +358,6 @@ class BLEParser(
         }
     }
 
-    fun Byte.toHex(): String =
-        (this.toInt() and 0xFF)
-            .toString(16)
-            .uppercase()
-            .padStart(2, '0')
-
-
-
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
         var bmsHandled = false
@@ -583,9 +573,6 @@ class BLEParser(
 
     }
 
-
-
-
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, deviceAddress: Int, receiveDataString: String) {
         when (packageCodeRequest) {
             (0x00).toByte() -> {
@@ -704,12 +691,6 @@ class BLEParser(
             Json.decodeFromString<FullInicializeConnectionStruct>(
                 "\"${receiveDataString.substring(18, receiveDataString.length)}\""
             )
-
-
-        if (UiState.isNewInterfaceDevice) {
-            platformLog("INIT_TEST_LOG", "SKIP DEVICE INIT: isNewInterfaceDevice=true")
-            return
-        }
 
         val hadWidgetsFromCache = UiState.listWidgets.isNotEmpty()
 
@@ -879,15 +860,19 @@ class BLEParser(
         subDeviceCounter = 0
         subDeviceChankParametersCounter = 0
         subDeviceAdditionalCounter = 1
-        val parametrsNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+        if (baseSubDevicesInfoStructSet.isEmpty()) {
+            showToast("Сабдевайсов нет")
+            return
+        }
+        val parametersNum = baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
 
 
         if (baseSubDevicesInfoStructSet.size != 0) {
             platformLog("getNextSubDevice", "baseSubDevicesInfoStructSet.size=${baseSubDevicesInfoStructSet.size} baseSubDevicesInfoStructSet=$baseSubDevicesInfoStructSet")
             if (getNextSubDevice(subDeviceCounter) != -1) {
                 var numberCount = 10
-                if (subDeviceChankParametersCounter == (parametrsNum / 10)) {
-                    numberCount = parametrsNum - subDeviceChankParametersCounter * 10
+                if (subDeviceChankParametersCounter == (parametersNum / 10)) {
+                    numberCount = parametersNum - subDeviceChankParametersCounter * 10
                 }
                 if (numberCount != 0) {
                     bleManager.sendBytesKmm(
@@ -1042,7 +1027,6 @@ class BLEParser(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun parseReadSubDeviceAdditionalParameters(addressSubDevice: Int, parameterID: Int, receiveDataString: String) {
         val offset = HEADER_BLE_OFFSET * 2 + READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
         var dataOffset = 0
@@ -1153,7 +1137,6 @@ class BLEParser(
         bleCommandExecutor.updateSerialNumber(deviceInfoStructs)
     }
 
-
     private fun parseProductFwInfoType(hex: String) {
         val deviceAddr = castUnsignedCharToInt(hex.substringSafe(12, 14).toInt(16).toByte())
         val payload = hex.substring(16)
@@ -1168,7 +1151,6 @@ class BLEParser(
         fwFlag(deviceAddr, true)
 
     }
-
 
     private fun parseProductCRCInfo(receiveDataString: String) {
         // Текущий MAC (уже должен быть установлен в ACTION_GATT_SERVICES_DISCOVERED)
@@ -1206,29 +1188,6 @@ class BLEParser(
             crc        = crc
         )
     }
-//
-//    private fun parseProductCRCInfo(receiveDataString: String) {
-//        // addr мастера / сабдевайса из хедера
-//        val deviceAddr = castUnsignedCharToInt(
-//            receiveDataString.substringSafe(12, 14).toInt(16).toByte()
-//        )
-//
-//        // payload CRC начинается с байта (HEADER_BLE_OFFSET + 1)
-//        val payloadStart = (HEADER_BLE_OFFSET + 1) * 2
-//        val payloadHex = receiveDataString.substringSafe(payloadStart, payloadStart + 8)
-//
-//        val crc = BleHexUtils.crc32FromHexLE(payloadHex)
-//
-//        platformLog("parseProductCRCInfo", "addr=$deviceAddr payload=$payloadHex crc=$crc")
-//
-//        RoomPersistence.persistDeviceCrc(
-//            scope = coroutineScope,
-//            deviceAddr = deviceAddr,
-//            crc = crc
-//        )
-//    }
-
-
 
     private fun getNextIDParameter(ID: Int): Int {
         for (item in baseParametrInfoStructArray.indices) {
@@ -1240,7 +1199,6 @@ class BLEParser(
         }
         return 0
     }
-
 
     private fun getNextSubDevice(subDeviceCounter: Int): Int {
         for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
@@ -1863,6 +1821,4 @@ class BLEParser(
         )
         return "00"
     }
-
-
 }

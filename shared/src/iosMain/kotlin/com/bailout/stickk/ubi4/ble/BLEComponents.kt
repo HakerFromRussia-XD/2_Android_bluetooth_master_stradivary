@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -33,9 +34,18 @@ object BLEComponents {
         bleManager = bleManager
     )
 
+    /** Parser that works with the same manager and command executor. */
+    @OptIn(ExperimentalForeignApi::class)
+    val bleParserV3: BLEParserV3 = BLEParserV3(
+        coroutineScope = MainScope(),
+        bleCommandExecutor = commandExecutor,
+        bleManager = bleManager
+    )
+
     init {
         // Expose parser globally so notifications from BleManager can be handled.
         BLEState.bleParser = bleParser
-        BleEnvironment.register(bleManager, commandExecutor, bleParser)
+        BLEState.bleParserV3 = bleParserV3
+        BleEnvironment.register(bleManager, commandExecutor, bleParser, bleParserV3)
     }
 }

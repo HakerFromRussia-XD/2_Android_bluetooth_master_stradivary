@@ -529,4 +529,91 @@ object PreferenceKeysUbi4 {
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),
     }
+
+
+    /** //////////////////////////////////////////////////////////////////////////////////// */
+    /**                     Протокол V3 (то что стало поле UBIv4)                            */
+    /** //////////////////////////////////////////////////////////////////////////////////// */
+    enum class BaseCommandsV3(val number: Byte) {
+        DEVICE_INFORMATION          (0x01), /**< 1 Запрос базовой информации девайса */
+        DATA_MANAGER                (0x02), /**< 2 Работа с Data Table */
+        WRITE_FW_COMMAND            (0x03), /**< 3 Запись прошивки */
+        DEVICE_ACCESS_COMMAND       (0x04), /**< 4 Доступ к устройству */
+        ECHO_COMMAND                (0x05), /**< 5 Эхо-команда для проверки связи */
+        SUB_DEVICE_MANAGER          (0x06), /**< 6 Управление подустройствами */
+        GET_DEVICE_STATUS           (0x07), /**< 7 Запрос статуса устройства */
+        DATA_TRANSFER_SETTINGS      (0x08), /**< 8 Настройки передачи данных */
+        COMPLEX_PARAMETER_TRANSFER  (0x09), /**< 9 Передача сложных параметров */
+        POWER_CONTROL               (0x10), /**< 10 Управление питанием */
+        PROTOCOL_PING               (0x11), /**< 11 Проверка соединения по протоколу */
+        SYSTEM_MODE                 (0x12),
+        COMPLEX_RUNTIME_LOG_TRANSFER(0x13), /**< 13 Передача лога в реальном времени */
+        MOVEMENT_CONTROL            (0x14),
+        PROSTHESIS_MODULE_CONTROL   (0x15)
+    }
+
+    enum class ProsthesisModuleControlEnum (val number: Int) {
+        PMCE_STOP_COMMAND                 (0x00),
+        PMCE_OPEN_COMMAND                 (0x01),
+        PMCE_CLOSE_COMMAND                (0x02),
+        PMCE_START_CALIBRATE_COMMAND      (0x03),
+        PMCE_GET_CALIBRATION_STATUS       (0x04),
+        PMCE_GET_CALIBRATION_RESULT       (0x05),
+
+        PWCE_MOVE_AXIS_TO_POSITION        (0x06),
+        PWCE_MOVE_AXIS_SPEED              (0x07),
+        PWCE_MOVE_AXIS_FORCE              (0x08),
+        PWCE_SET_AXIS_MAX_CURRENT         (0x09),
+        PWCE_STOP_AXIS                    (0x0A),
+
+        PWCE_GET_AXIS_TARGET_POSITION     (0x0B),
+        PWCE_GET_AXIS_TARGET_SPEED        (0x0C),
+        PWCE_GET_AXIS_TARGET_FORCE        (0x0D),
+        PWCE_GET_AXIS_MAX_CURRENT         (0x0E),
+
+        PWCE_GET_AXIS_CURRENT_POSITION    (0x0F),
+        PWCE_GET_AXIS_CURRENT_SPEED       (0x10),
+        PWCE_GET_AXIS_CURRENT_FORCE       (0x11),
+        PWCE_GET_AXIS_CURRENT_CURRENT     (0x12),
+
+        PWCE_GET_CURRENT_PRESSURE         (0x13),
+        PWCE_SET_TARGET_PRESSURE          (0x14),
+
+        PWCE_ENABLE_EMG_BLOCKED           (0x15),
+        PWCE_ENABLE_EMG_CHANGE_GESTURE    (0x16),
+
+        PWCE_MOVE_FINGER_TO_POSITION      (0x17),
+        PWCE_MOVE_FINGER_BY_SPEED         (0x18),
+        PWCE_MOVE_FINGER_BY_FORCE         (0x19),
+        PWCE_SET_FINGER_MAX_CURRENT       (0x1A),
+        PWCE_STOP_FINGER                  (0x1B),
+
+        PWCE_GET_FINGER_TARGET_POSITION   (0x1C),
+        PWCE_GET_FINGER_TARGET_SPEED      (0x1D),
+        PWCE_GET_FINGER_TARGET_FORCE      (0x1E),
+        PWCE_GET_FINGER_MAX_CURRENT       (0x1F),
+
+        PWCE_GET_FINGER_CURRENT_POSITION  (0x20),
+        PWCE_GET_FINGER_CURRENT_SPEED     (0x21),
+        PWCE_GET_FINGER_CURRENT_FORCE     (0x22),
+        PWCE_GET_FINGER_CURRENT_CURRENT   (0x23),
+
+        PWCE_GET_CURRENT_GESTURE_NUM      (0x24),
+        PWCE_SET_CURRENT_GESTURE_NUM      (0x25),
+
+        PWCE_GET_GESTURE_SETTING          (0x26),
+        PWCE_SET_GESTURE_SETTING          (0x27),
+        PWCE_SAVE_GESTURE                 (0x28),
+
+        PWCE_GET_GESTURE_COUNT            (0x29),
+        PWCE_SET_GESTURE_COUNT            (0x2A),
+
+        PWCE_GET_COLLECTION_GESTURE_INFO  (0x2B),
+        PWCE_GET_USER_GESTURE_INFO        (0x2C)
+    }
+    enum class SubDeviceManager (val number: Byte) {
+        GET_ALL_SUB_DEVICE      (0x01),        /** Получить список всех подустройств */
+        ADD_SUB_DEVICE          (0x02),        /** Добавить подустройство */
+        REMOVE_SUB_DEVICE       (0x03)
+    }
 }

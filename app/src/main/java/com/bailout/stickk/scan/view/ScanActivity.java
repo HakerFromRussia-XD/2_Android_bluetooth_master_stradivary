@@ -49,8 +49,6 @@ import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
-//import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
-//import com.bailout.stickk.ubi4.ble.BleDevice;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
@@ -110,7 +108,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private float scale = 0F;
     private int count = 0;
     private int ANIMATION_DURATION = 200;
-//    private AndroidBleScanner androidBleScanner;
 
 
     private final boolean isAndoird12 = Build.VERSION.SDK_INT>=Build.VERSION_CODES.S;
@@ -162,8 +159,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private ArrayList<BluetoothDevice> mLeDevices  = new ArrayList<>();
     private ArrayList<Integer> mRssisList  = new ArrayList<>();
     private ArrayList<BluetoothDevice> filteringLeDevices  = new ArrayList<>();
-
-//    AndroidBleScanner scanner = new AndroidBleScanner();
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility", "ObsoleteSdkInt"})
     @Override
@@ -266,16 +261,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             mLeDevices.clear();
             mRssisList.clear();
             animateScanList(0);
-//            showScanList(mLeDevices, mRssisList);
             scanLeDevice(true);
-//            scanner.startScan();
-//            presenter.startScanning();
-
-
-//            androidBleScanner.clear(); // Если метод clear() у нас есть (просто _devices.value = emptyList())
-// Запускаем сканирование (свой метод startScan, а также нативное сканирование в BLEController)
-//            androidBleScanner.startScan();
-//            presenter.startScanning(); // Если используешь Presenter
         });
 
         rssiButton.setOnClickListener(v -> {

@@ -385,7 +385,6 @@ object BLECommands {
         return header + data
     }
 
-
     //TODO сделать параметр для бриджа
     fun requestRunProgramType(deviceAddress: Byte): ByteArray {
         val header = byteArrayOf(

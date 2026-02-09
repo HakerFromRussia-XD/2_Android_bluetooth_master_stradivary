@@ -87,7 +87,10 @@ public class BluetoothLeService extends Service {
 
     //ubi4
     //TODO ЗАЧЕМ??!? public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
+    // ответ от Ромы: чтоб прокинуть данные механизмом интента в сервис
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
+    public final static String MAIN_CHANNEL_V3 = "com.example.bluetooth.le.MAIN_CHANNEL_V3";
+    public final static String MAIN_CHANNEL_V3_SERIALPORTCHAR = "com.example.bluetooth.le.MAIN_CHANNEL_V3_SERIALPORTCHAR";
     public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
     ///////////////////////////// самая быстрая передача данных
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -117,10 +120,15 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC)){
-                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
-                   // Log.d("TestSendByteArray","BleCommand was send");
-                }
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC)){
+                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");  }
+                if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL_V3, data);  }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)){
+                System.err.println("BLEParserV3 RECEIVE ALL DATA SERIALPORTCHAR_UUID state: "+state);
+                if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL_V3_SERIALPORTCHAR, data); }
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.MIO_MEASUREMENT)){

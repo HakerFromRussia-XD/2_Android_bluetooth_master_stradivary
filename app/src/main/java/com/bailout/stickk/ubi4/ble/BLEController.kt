@@ -30,22 +30,25 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
+import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
+import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
+import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
-import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
-import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
-import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +62,7 @@ import okhttp3.internal.notifyAll
 class BLEController() {
     private val mContext: Context = main.applicationContext
     private var mBLEParser: BLEParser? = null
+    private var mBLEParserV3: BLEParserV3? = null
 
 
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -152,6 +156,7 @@ class BLEController() {
             mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
         }
         mBLEParser = bleParser
+        mBLEParserV3 = bleParserV3
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -205,12 +210,11 @@ class BLEController() {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
                         main.lifecycleScope.launch {
-                            //TODO UI с захардкоженными виджетами
                             if (UiState.isInterfaceV3Activated) {
-                                platformLog("INIT_TEST_LOG", "UBIv4 с захадкоженными виджетами")
+                                //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
+                                ensureTransferFlowV3Active()
                             } else {
-                                platformLog("INIT_TEST_LOG", "UBIv4")
                                 //ветка инициализации протокола UBIv4
                                 UiState.startupInProgress.value = true
                                 // сброс прогресса ок, но "готово" НЕ эмитим
@@ -224,6 +228,12 @@ class BLEController() {
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
+                    }
+                    if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3) != null) {//стрим сенсоров, полностью совпадает с FEST-X
+                        parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3))
+                    }
+                    if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR) != null) {//используем как порт в UBIv4
+                        parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR))
                     }
                 }
             }
@@ -295,7 +305,6 @@ class BLEController() {
         bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
         delay(150)
         //TODO переписать без delay
-//        main.bleCommandWithQueue(null, MAIN_CHANNEL_CHARACTERISTIC,NOTIFY) {}
 
         Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
         main.bleCommandWithQueue(
@@ -396,20 +405,22 @@ class BLEController() {
         firstNotificationRequestFull()
     }
 
-    // WidgetBootstrapHydrator.kt (над object WidgetBootstrapHydrator)
-
     private fun parseReceivedData(data: ByteArray?) {
-        val hex = data?.let { EncodeByteToHex.bytesToHexString(it) } ?: "null"
-        Log.d("BLE_GOGO", "▶ parseReceivedData(data=$hex)")
-        val requestType = data?.let { ((it[0].toInt() and 0x40) shr 6) } ?: -1
-        val codeRequest = data?.getOrNull(1)?.toInt() ?: -1
-        Log.d(
-            "BLE_PARSER",
-            "▶ parseReceivedData: type=$requestType code=$codeRequest size=${data?.size ?: 0} data=$hex"
-        )
-        if (data != null) {
-            firstNotificationRequestFlag = false
+        if (data == null) { return }
+        firstNotificationRequestFlag = false
+        runCatching {
             mBLEParser?.parseReceivedData(data)
+        }.onFailure { t ->
+            main.showToast("ошибка парсинга в mBLEParser")
+        }
+    }
+    private fun parseReceivedDataV3(data: ByteArray?) {
+        if (data == null) { return }
+        firstNotificationRequestFlag = false
+        runCatching {
+            mBLEParserV3?.parseReceivedData(data)
+        }.onFailure { t ->
+            main.showToast("ошибка парсинга в mBLEParserV3")
         }
     }
 
@@ -559,12 +570,12 @@ class BLEController() {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        Log.d("BLEController", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
-        System.err.println("BLE debug")
+        Log.d("bleCommand", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
-                Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid}")
+                Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid} ищем: UUID = $uuid")
                 if(mGattCharacteristics[i][j].uuid.toString().equals(uuid, ignoreCase = true)){
+                    Log.d("bleCommand", "НАШЛИ!!! UUID = $uuid")
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
@@ -620,20 +631,42 @@ class BLEController() {
 
     private suspend fun ensureTransferFlowActive() {
         //старый вариант подключения для UBIv4
-//        if (isTransferFlowActive) return
-//
-//        // 1) Поднимаем NOTIFY
-//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        if (isTransferFlowActive) return
+
+        // 1) Поднимаем NOTIFY
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+
+        // 2) Запрашиваем стрим
+        main.bleCommandWithQueue(
+            BLECommands.requestTransferFlow(1),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
+
+        isTransferFlowActive = true
+    }
+    private suspend fun ensureTransferFlowV3Active() {
+        //старый вариант подключения для UBIv4
+        if (isTransferFlowActive) return
+
+        // 1) Поднимаем NOTIFY 1
+        bleCommand(null, SERIALPORTCHAR_UUID, NOTIFY)
 //        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
-//
-//        // 2) Запрашиваем стрим
-//        main.bleCommandWithQueue(
-//            BLECommands.requestTransferFlow(1),
-//            MAIN_CHANNEL_CHARACTERISTIC,
-//            WRITE
-//        ) {}
-//
-//        isTransferFlowActive = true
+
+        // 2) Поднимаем NOTIFY 2
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(3000)
+
+        platformLog("BLEParserV3", "send command requestDeviceData")
+        // 3) Запрашиваем информацию по девайсам
+        main.bleCommandWithQueue(
+            BLECommandsV3.requestDeviceData(),
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {}
+
+        isTransferFlowActive = true
     }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {

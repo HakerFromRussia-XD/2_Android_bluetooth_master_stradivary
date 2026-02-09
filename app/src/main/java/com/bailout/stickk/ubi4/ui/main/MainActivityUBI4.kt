@@ -581,4 +581,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
     }
+
+    //TODO Нужно изучить Git, нужно изучить Git, нужно изучить Git!
 }

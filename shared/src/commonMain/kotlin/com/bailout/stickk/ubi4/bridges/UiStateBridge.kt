@@ -42,6 +42,7 @@ object UiStateBridge {
     fun resetWidgetsState() {
         UiState.listWidgets.clear()
         UiState.resetWidgetRequests()
+//        UiState.widgetsLoadingProgressTotal = 0
         UiState.labelCodesByOffset.clear()
     }
 }

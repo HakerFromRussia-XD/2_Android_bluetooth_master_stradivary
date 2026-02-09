@@ -41,6 +41,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -50,9 +51,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.data.parser.BLEParserV3
-import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
@@ -158,7 +156,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         mBLEController.initBLEStructure()
-        mBLEController.connectToSavedDeviceNow()
+        mBLEController.scanLeDevice(true)
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
@@ -195,9 +193,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         }
         //получение серийного номера
-//        val requestData = BLECommands.requestProductInfoType()
-//        Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
-//        main.bleCommandWithQueue(BLECommands.requestProductInfoType(0x00.toByte()), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+        val requestData = BLECommands.requestProductInfoType()
+        Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
+        main.bleCommandWithQueue(BLECommands.requestProductInfoType(0x00.toByte()), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
 
         dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
             mBLEController.disconnect()
@@ -387,7 +385,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         bleManager.setBleCommandExecutor(this)
         bleParser = BLEParser(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
-        bleParserV3 = BLEParserV3(lifecycleScope, bleCommandExecutor = this, bleManager = bleManager)
     }
 
     // сохранение и загрузка данных

@@ -49,6 +49,8 @@ import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
+//import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
+//import com.bailout.stickk.ubi4.ble.BleDevice;
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.intro.StartActivity;
@@ -108,6 +110,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private float scale = 0F;
     private int count = 0;
     private int ANIMATION_DURATION = 200;
+//    private AndroidBleScanner androidBleScanner;
 
 
     private final boolean isAndoird12 = Build.VERSION.SDK_INT>=Build.VERSION_CODES.S;
@@ -159,6 +162,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private ArrayList<BluetoothDevice> mLeDevices  = new ArrayList<>();
     private ArrayList<Integer> mRssisList  = new ArrayList<>();
     private ArrayList<BluetoothDevice> filteringLeDevices  = new ArrayList<>();
+
+//    AndroidBleScanner scanner = new AndroidBleScanner();
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility", "ObsoleteSdkInt"})
     @Override
@@ -261,7 +266,16 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             mLeDevices.clear();
             mRssisList.clear();
             animateScanList(0);
+//            showScanList(mLeDevices, mRssisList);
             scanLeDevice(true);
+//            scanner.startScan();
+//            presenter.startScanning();
+
+
+//            androidBleScanner.clear(); // Если метод clear() у нас есть (просто _devices.value = emptyList())
+// Запускаем сканирование (свой метод startScan, а также нативное сканирование в BLEController)
+//            androidBleScanner.startScan();
+//            presenter.startScanning(); // Если используешь Presenter
         });
 
         rssiButton.setOnClickListener(v -> {
@@ -476,7 +490,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION_UBI4" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
@@ -495,6 +509,22 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
 
+//    private void smartConnection(BluetoothDevice device) {
+//        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION: " + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+//        // Если мы сейчас сканируем, не выполнять автоматическое переподключение
+//        if (mScanning) {
+//            Log.d("smartConnection", "Сканирование активно, пропускаем smartConnection для устройства: " + device.getAddress());
+//            return;
+//        }
+//        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
+//            String lastMac1 = loadString(PreferenceKeys.LAST_CONNECTION_MAC);
+//            String lastMac2 = loadString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4);
+//            if (device.getAddress().equals(lastMac1) || device.getAddress().equals(lastMac2)) {
+//                Log.d("smartConnection", "Устройство совпадает со сохранённым MAC, выполняем переход: " + device.getAddress());
+//                navigateToLEChart("device", device);
+//            }
+//        }
+//    }
     @Override
     public void setScanStatus(String status, boolean enabled) {
         try {

@@ -87,15 +87,8 @@ public class BluetoothLeService extends Service {
 
     //ubi4
     //TODO ЗАЧЕМ??!? public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
-    // ответ от Ромы: чтоб прокинуть данные механизмом интента в сервис
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
-    public final static String SENSORS_STREAM_V3 = "com.example.bluetooth.le.SENSORS_STREAM_V3";
-    public final static String MAIN_CHANNEL_V3_SERIALPORTCHAR = "com.example.bluetooth.le.MAIN_CHANNEL_V3_SERIALPORTCHAR";
     public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
-    public final static String ACTION_NOTIFICATION_SUBSCRIBED = "com.example.bluetooth.le.ACTION_NOTIFICATION_SUBSCRIBED";
-    public final static String EXTRA_NOTIFICATION_UUID = "com.example.bluetooth.le.EXTRA_NOTIFICATION_UUID";
-    public final static String EXTRA_NOTIFICATION_ENABLED = "com.example.bluetooth.le.EXTRA_NOTIFICATION_ENABLED";
-    public final static String EXTRA_GATT_STATUS = "com.example.bluetooth.le.EXTRA_GATT_STATUS";
     ///////////////////////////// самая быстрая передача данных
     private final Handler handler = new Handler(Looper.getMainLooper());
     public ReceiverCallback receiverCallback;
@@ -124,14 +117,10 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC)){
+                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
+                   // Log.d("TestSendByteArray","BleCommand was send");
+                }
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID)){
-                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");  }
-                if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(SENSORS_STREAM_V3, data);  }
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID)){
-                if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL_V3_SERIALPORTCHAR, data); }
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.MIO_MEASUREMENT)){
@@ -354,32 +343,6 @@ public class BluetoothLeService extends Service {
                     EncodeByteToHex.Companion.bytesToHexString(characteristic.getValue()));
             broadcastUpdate(characteristic, SampleGattAttributes.NOTIFY);
         }
-
-
-        @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            super.onDescriptorWrite(gatt, descriptor, status);
-
-            final BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
-            final Intent intent = new Intent(ACTION_NOTIFICATION_SUBSCRIBED);
-            intent.putExtra(EXTRA_NOTIFICATION_UUID, String.valueOf(characteristic.getUuid()));
-            intent.putExtra(EXTRA_GATT_STATUS, status);
-            intent.putExtra(
-                    EXTRA_NOTIFICATION_ENABLED,
-                    BluetoothGatt.GATT_SUCCESS == status
-                            && java.util.Arrays.equals(
-                            descriptor.getValue(),
-                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    )
-            );
-
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            }
-            else {
-                sendBroadcast(intent);
-            }
-        }
     };
 
     private void broadcastUpdate(final String action) {
@@ -569,10 +532,6 @@ public class BluetoothLeService extends Service {
 
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                 UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-        if (descriptor == null) {
-            Log.w("BLEController", "Descriptor CCCD not found for " + characteristic.getUuid());
-            return;
-        }
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         mBluetoothGatt.writeDescriptor(descriptor);
     }

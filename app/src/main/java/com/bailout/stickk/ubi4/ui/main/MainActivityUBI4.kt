@@ -584,4 +584,5 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     //TODO Нужно изучить Git, нужно изучить Git, нужно изучить Git!
     //TODO Аааааааа!!Оооооооо!!Уууууу
+    //комментарий от Ромы
 }

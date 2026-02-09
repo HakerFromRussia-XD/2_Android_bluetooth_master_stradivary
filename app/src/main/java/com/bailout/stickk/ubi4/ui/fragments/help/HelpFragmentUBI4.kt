@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHelpBinding
+import com.bailout.stickk.databinding.Ubi4FragmentSensorSettingsBinding
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -54,7 +55,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         ubi4BackBtn.setOnClickListener { handleBackPress() }
 
         // App control
-        ubi4SensorsSettingsBtn.setOnClickListener {  }
+        ubi4SensorsSettingsBtn.setOnClickListener { openScreen(SensorsFragmentHelpUBI4()) }
         ubi4SettingsGestureBtn.setOnClickListener {  }
         ubi4TrainingBtn.setOnClickListener { }
         ubi4AdvancedSettingsBtn.setOnClickListener { }

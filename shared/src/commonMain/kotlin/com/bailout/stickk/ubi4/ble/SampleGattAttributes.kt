@@ -9,6 +9,8 @@ object SampleGattAttributes {
 
     const val MAIN_CHANNEL_SERVICE =        "43686172-4d74-1001-726b-526f64696f6e"
     const val MAIN_CHANNEL_CHARACTERISTIC = "43680201-4d74-1001-726b-526f64696f6e"
+
+    const val SENSORS_STREAM_UUID =         "43680201-4d74-1001-726b-526f64696f6e"
     const val SERIALPORTCHAR_UUID =         "43681000-4d74-1001-726b-526f64696f6e"
 
     var showEveryoneReceiveByte: Boolean = false

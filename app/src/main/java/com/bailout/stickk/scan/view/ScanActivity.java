@@ -476,7 +476,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
     private void smartConnection(BluetoothDevice device) {
         Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
+        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION_UBI4" + loadBool(String.valueOf(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION)));
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
                 navigateToLEChart("device", device);
@@ -495,22 +495,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
 
-//    private void smartConnection(BluetoothDevice device) {
-//        Log.d("smartConnection", "SET_MODE_SMART_CONNECTION: " + loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-//        // Если мы сейчас сканируем, не выполнять автоматическое переподключение
-//        if (mScanning) {
-//            Log.d("smartConnection", "Сканирование активно, пропускаем smartConnection для устройства: " + device.getAddress());
-//            return;
-//        }
-//        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
-//            String lastMac1 = loadString(PreferenceKeys.LAST_CONNECTION_MAC);
-//            String lastMac2 = loadString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4);
-//            if (device.getAddress().equals(lastMac1) || device.getAddress().equals(lastMac2)) {
-//                Log.d("smartConnection", "Устройство совпадает со сохранённым MAC, выполняем переход: " + device.getAddress());
-//                navigateToLEChart("device", device);
-//            }
-//        }
-//    }
     @Override
     public void setScanStatus(String status, boolean enabled) {
         try {

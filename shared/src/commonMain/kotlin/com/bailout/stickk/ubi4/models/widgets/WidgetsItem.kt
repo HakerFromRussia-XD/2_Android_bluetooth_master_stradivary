@@ -18,10 +18,16 @@ data class GesturesItem(
     val widget: Any
 )
 
+data class ButtonConfig(
+    val title: String,
+    val widget: Any
+)
+
 data class OneButtonItem(
     val title: String,
     val description: String,
-    val widget: Any
+    val widget: Any,
+    val buttons: List<ButtonConfig> = emptyList()
 )
 
 data class PlotItem(

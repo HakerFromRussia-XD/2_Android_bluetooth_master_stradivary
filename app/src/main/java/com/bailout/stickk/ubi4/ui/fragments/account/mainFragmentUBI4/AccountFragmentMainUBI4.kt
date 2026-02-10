@@ -236,43 +236,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
         }
     }
-
-//    private fun requestUserData() {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            myRequests!!.getRequestUserV2(
-//                { user ->
-//                    fname = user.userInfo?.fname ?: ""
-//                    sname = user.userInfo?.sname ?: ""
-//                    binding.apply {
-//                        val item = AccountMainUBI4Item(
-//                            avatarUrl      = "avatarUrl",
-//                            name           = fname,
-//                            surname        = sname,
-//                            patronymic     = "Ivanovich",
-//                            versionDriver  = driverVersion,
-//                            versionBms     = bmsVersion,
-//                            versionSensors = sensorsVersion
-//                        )
-//                        updateAccountSafe(item)
-//                        binding.refreshLayout.setRefreshing(false)
-//                    }
-//                    clientId = user.userInfo?.clientId ?: 0
-//                    System.err.println("clientId: ${clientId}")
-//                    System.err.println("Manager name: ${user.userInfo?.manager?.fio}")
-//                    System.err.println("Manager phone: ${user.userInfo?.manager?.phone}")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio ?: "")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone ?: "")
-//                    requestDeviceList()
-//                },
-//                { error ->
-//                    binding.refreshLayout.setRefreshing(false)
-//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-//                },
-//                token = this@AccountFragmentMainUBI4.token,
-//                lang = locate
-//            )
-//        }
-//    }
     private fun requestUserData() {
         viewLifecycleOwner.lifecycleScope.launch {
             when (val res = api.getUserInfoV2(token, locate)) {
@@ -297,29 +260,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, manager?.phone.orEmpty())
     }
 
-
-//    private fun requestDeviceList() {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            myRequests!!.getRequestUser(
-//                { user ->
-//                    System.err.println("Device list size: ${user.devices.size}")
-//                    for (device in user.devices) {
-//                        System.err.println("Device id = ${device.id} serialNumber = ${device.serialNumber}")
-//                        if (device.serialNumber == serialNumber) {
-//                            System.err.println("Found target device: ${device.id}")
-//                            device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
-//                        }
-//                    }
-//                },
-//                { error ->
-//                    binding.refreshLayout.setRefreshing(false)
-//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-//                },
-//                token = this@AccountFragmentMainUBI4.token,
-//                lang = locate
-//            )
-//        }
-//    }
     private fun requestDeviceList() {
         viewLifecycleOwner.lifecycleScope.launch {
             when (val res = api.getDevicesList(clientId, token, locate)) {
@@ -356,29 +296,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
     }
 
-//    private fun requestDeviceInfo(deviceId: Int) {
-//        CoroutineScope(Dispatchers.Main).launch {
-//            myRequests!!.getRequestDeviceInfo(
-//                { deviceInfo ->
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name ?: ""))
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name ?: "")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name ?: "")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name ?: "")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer ?: "")
-//                    main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod ?: "")
-//                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
-//                    // ... (другие логи)
-//                },
-//                { error ->
-//                    binding.refreshLayout.setRefreshing(false)
-//                    main?.runOnUiThread { Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() }
-//                },
-//                token = this@AccountFragmentMainUBI4.token,
-//                deviceId = deviceId,
-//                lang = locate
-//            )
-//        }
-//    }
     private fun requestDeviceInfo(deviceId: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
             when (val res = api.getDeviceInfo(deviceId, token, locate)) {

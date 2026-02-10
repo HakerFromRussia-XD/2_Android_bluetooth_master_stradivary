@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.models.widgets.ButtonConfig
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
@@ -254,6 +255,16 @@ class DataFactory {
         }
         return when (widgetCode) {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
+//            ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
+//                OneButtonItem(
+//                    title = resolvedLabel,
+//                    description = "description",widget = widget,
+//                    buttons = listOf(
+//                        ButtonConfig("Кнопка 1", widget),
+//                        ButtonConfig("Кнопка 2", widget),
+//                        ButtonConfig("Кнопка 3", widget)
+//                    )
+//                )
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
                 OneButtonItem(resolvedLabel, "description", widget)
 

@@ -194,10 +194,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         }
-        //получение серийного номера
-//        val requestData = BLECommands.requestProductInfoType()
-//        Log.d("MainActivity", "Отправка команды запроса серийного номера: ${EncodeByteToHex.bytesToHexString(requestData)}")
-//        main.bleCommandWithQueue(BLECommands.requestProductInfoType(0x00.toByte()), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
 
         dialogManager = DialogManager(this, layoutInflater, viewLifecycleOwner = this) {
             mBLEController.disconnect()

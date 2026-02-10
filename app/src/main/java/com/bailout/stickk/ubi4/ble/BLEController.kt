@@ -85,6 +85,7 @@ class BLEController() {
     private var onNeedFullInitListener: (() -> Unit)? = null
 
     @Volatile private var isTransferFlowActive = false
+    @Volatile private var productInfoRequested = false
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -224,6 +225,7 @@ class BLEController() {
                                 // сброс прогресса ок, но "готово" НЕ эмитим
                                 UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
                                 ensureTransferFlowActive()
+                                requestProductInfoTypeOnceForUbiV4()
                                 smartInitWithCrc()
                             }
                         }
@@ -251,6 +253,16 @@ class BLEController() {
                 }
             }
         }
+    }
+    private fun requestProductInfoTypeOnceForUbiV4() {
+        if (productInfoRequested) return
+        productInfoRequested = true
+
+        main.bleCommandWithQueue(
+            BLECommands.requestProductInfoType(0x00.toByte()),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
     }
     private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L): Boolean {
         val key = uuid.lowercase()
@@ -394,11 +406,7 @@ class BLEController() {
                 bleCommand(cmd, MAIN_CHANNEL_CHARACTERISTIC, WRITE)
             }
 
-            main.bleCommandWithQueue(
-                BLECommands.requestProductInfoType(0x00.toByte()),
-                MAIN_CHANNEL_CHARACTERISTIC,
-                WRITE
-            ) {}
+
 
             main.bleCommandWithQueue(
                 BLECommands.requestBatteryStatus(7, 0),

@@ -27,12 +27,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import org.json.JSONObject
 import java.io.File
 
 class InferenceFragment : Fragment() {
     private lateinit var contentTextView: TextView
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var configFile: File? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -87,12 +89,26 @@ class InferenceFragment : Fragment() {
                         val afterPrb = 2
                         if (modelVersions.modelVersion.takeLast(1) == "1")
                             prbCount = 11
+                        val gestures: MutableList<String> = mutableListOf()
+                        configFile = File(requireContext().getExternalFilesDir(null), "config.json")
+                        if (configFile?.exists() == true) {
+                            val configFileJson = JSONObject(configFile!!.readText())
+                            val gesturesIdJson = configFileJson.optJSONObject("GESTURES_ID")
+                            if (gesturesIdJson != null) {
+                                for (name in gesturesIdJson.keys()) {
+                                    gestures.add(name)
+                                }
+                            }
+                        }
                         val dataStringArr = dataString.split(" ")
                         val prbArr = dataStringArr.dropLast(afterPrb).takeLast(prbCount)
+                        val gesturePrbLines = gestures.zip(prbArr) { gesture, prb ->
+                            "$gesture: $prb"
+                        }.joinToString("\n")
 
                         lifecycleScope.launch(Dispatchers.Main) {
                             if (isAdded && view != null)
-                                contentTextView.text = "${prbArr}\n${dataString}"
+                                contentTextView.text = "${gesturePrbLines}\n\n${dataString}"
                         }
                     }
                     catch (e: Exception) {

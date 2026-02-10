@@ -374,7 +374,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func handleInitializationInfo(_ info: FullInicializeConnectionStruct) {
-        let totalSteps = info.parametrsNum * info.subDeviceNum
+        let totalSteps = info.parametersNum * info.subDeviceNum
         widgetsLoadingMax = totalSteps > 0 ? Float(totalSteps) : 0
     }
 

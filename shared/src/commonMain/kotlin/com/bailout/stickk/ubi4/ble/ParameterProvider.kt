@@ -1,18 +1,17 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 class ParameterProvider {
     companion object {
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
-            if (baseParametrInfoStructArray.size != 0) {
+            if (baseParameterInfoStructArray.size != 0) {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
                 if (deviceAddress == 0) {
                     // значит мы ищем параметр на мастере
-                    baseParametrInfoStructArray.forEach {
+                    baseParameterInfoStructArray.forEach {
                         if (it.ID == parameterID) return it
                     }
                 } else {
@@ -32,7 +31,7 @@ class ParameterProvider {
         }
 
         fun getParameterDeprecated(dataCode: Int): BaseParameterInfoStruct {
-            baseParametrInfoStructArray.forEach { parameter ->
+            baseParameterInfoStructArray.forEach { parameter ->
                 if (parameter.dataCode == dataCode) return parameter
             }
             baseSubDevicesInfoStructSet.forEach { subDevice ->

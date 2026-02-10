@@ -69,7 +69,7 @@ data class BaseSubDeviceInfoPayload(
     val deviceVersion: Int,
     val deviceSubVersion: Int,
     val deviceAddress: Int,
-    val parametrsNum: Int,
+    val parametersNum: Int,
     val subDeviceNum: Int,
     val defaultPort: Int,
     val parametersList: List<BaseParameterInfoPayload>

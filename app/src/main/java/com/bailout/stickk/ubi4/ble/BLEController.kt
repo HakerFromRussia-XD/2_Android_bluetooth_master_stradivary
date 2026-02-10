@@ -216,6 +216,7 @@ class BLEController() {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
+                                mBLEParserV3?.generatedHardcodeWidgets()
                                 ensureTransferFlowV3Active()
                             } else {
                                 //ветка инициализации протокола UBIv4
@@ -232,11 +233,13 @@ class BLEController() {
                     if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
-                    if (intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3) != null) {//стрим сенсоров, полностью совпадает с FEST-X
-                        parseReceivedSensorsDataV3(intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3))
-                    }
-                    if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR) != null) {//используем как порт в UBIv4
-                        parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR))
+                    if (UiState.isInterfaceV3Activated) {
+                        if (intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3) != null) {//стрим сенсоров, полностью совпадает с FEST-X
+                            parseReceivedSensorsDataV3(intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3))
+                        }
+                        if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR) != null) {//используем как порт в UBIv4
+                            parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR))
+                        }
                     }
                 }
                 BluetoothLeService.ACTION_NOTIFICATION_SUBSCRIBED == action -> {
@@ -444,7 +447,7 @@ class BLEController() {
     private fun parseReceivedSensorsDataV3(data: ByteArray?) {
         if (data == null) { return }
         runCatching {
-            mBLEParserV3?.parseReceivedData(data)
+            mBLEParserV3?.parseReceivedSensorsData(data)
         }.onFailure { t ->
             main.showToast("ошибка парсинга в mBLEParserV3")
         }
@@ -694,12 +697,12 @@ class BLEController() {
         }
 
         // 2) Поднимаем NOTIFY 2
-        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
-        if (!mainChannelNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-            return
-        }
+//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+//        if (!mainChannelNotifyEnabled) {
+//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+//            return
+//        }
 
         platformLog("BLEParserV3", "send command requestDeviceData")
         // 3) Запрашиваем информацию по девайсам

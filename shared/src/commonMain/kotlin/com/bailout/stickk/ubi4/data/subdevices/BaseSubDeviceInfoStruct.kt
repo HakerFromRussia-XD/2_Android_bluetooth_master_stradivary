@@ -12,17 +12,17 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = BaseSubDeviceInfoSerializer::class)
 data class BaseSubDeviceInfoStruct(
-    val deviceType: Int,
-    val deviceCode: Int,
-    val deviceRole: Int,
+    val deviceType: Int = 0,
+    val deviceCode: Int = 0,
+    val deviceRole: Int = 0,
 
-    val deviceVersion: Int,
-    val deviceSubVersion: Int,
+    val deviceVersion: Int = 0,
+    val deviceSubVersion: Int = 0,
 
-    val deviceAddress: Int,
-    val parametrsNum: Int,
-    val subDeviceNum: Int,
-    val defaultPort: Int,
+    val deviceAddress: Int = 0,
+    val parametersNum: Int = 0,
+    val subDeviceNum: Int = 0,
+    val defaultPort: Int = 0,
 
     var parametersList: ArrayList<BaseParameterInfoStruct>
 )
@@ -41,11 +41,11 @@ object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
         var deviceSubVersion = 0
 
         var deviceAddress = 0
-        var parametrsNum = 0
+        var parametersNum = 0
         var subDeviceNum = 0
         var defaultPort = 0
 
-        val parametrsList = ArrayList<BaseParameterInfoStruct>()
+        val parametersList = ArrayList<BaseParameterInfoStruct>()
 
         if (string.length >= 18) {
             deviceType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
@@ -56,7 +56,7 @@ object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
             deviceSubVersion = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte())
 
             deviceAddress = castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte())
-            parametrsNum = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
+            parametersNum = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
             subDeviceNum = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
             defaultPort = castUnsignedCharToInt(string.substring(16, 18).toInt(16).toByte())
         }
@@ -68,10 +68,10 @@ object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
             deviceVersion = deviceVersion,
             deviceSubVersion = deviceSubVersion,
             deviceAddress = deviceAddress,
-            parametrsNum = parametrsNum,
+            parametersNum = parametersNum,
             subDeviceNum = subDeviceNum,
             defaultPort = defaultPort,
-            parametersList = parametrsList
+            parametersList = parametersList
         )
     }
 

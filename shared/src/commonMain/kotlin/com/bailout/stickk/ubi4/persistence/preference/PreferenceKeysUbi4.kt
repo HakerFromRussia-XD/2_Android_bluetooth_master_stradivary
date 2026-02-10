@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.persistence.preference
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
-import kotlin.experimental.ExperimentalObjCName
 import kotlin.native.ObjCName
 
 //@file:OptIn(kotlin.experimental.ExperimentalObjCName::class)
@@ -73,8 +72,8 @@ object PreferenceKeysUbi4 {
 
     enum class DeviceInformationCommand(val number: Byte) {
         INICIALIZE_INFORMATION                  (0x01),
-        READ_DEVICE_PARAMETRS                   (0x02),
-        READ_DEVICE_ADDITIONAL_PARAMETRS        (0x03),
+        READ_DEVICE_PARAMETERS                  (0x02),
+        READ_DEVICE_ADDITIONAL_PARAMETERS       (0x03),
 
         READ_SUB_DEVICES_FIRST_INFO             (0x04),
         READ_SUB_DEVICE_INFO                    (0x05),

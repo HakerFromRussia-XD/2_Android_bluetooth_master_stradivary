@@ -4,7 +4,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.subStructures.*
 import com.bailout.stickk.ubi4.data.widget.endStructures.*
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParametrInfoStructArray
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.util.date.getTimeMillis
@@ -22,7 +22,7 @@ object RoomPersistence {
 
         scope.launch(Dispatchers.IO) {
             var saved = 0
-            baseParametrInfoStructArray.forEach { info ->
+            baseParameterInfoStructArray.forEach { info ->
                 repo.upsertParameterInfo(
                     deviceAddr  = 0,
                     parameterId = info.ID,

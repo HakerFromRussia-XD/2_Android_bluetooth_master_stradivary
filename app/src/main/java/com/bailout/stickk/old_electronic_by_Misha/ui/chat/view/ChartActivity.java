@@ -1158,7 +1158,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                                          "SKIP \n"+
 //                                          "isEnable="+isEnable+" должно быть true \n"+
 //                                          "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
-//                                          "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
+//                                          "flagReadStartParametersHDLC="+flagReadStartParametersHDLC+" должен быть false \n"+
 //                                          "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
 //                                          "numberCycle="+numberCycle+" должен быть от 1 до 4 \n" );
 //                            }

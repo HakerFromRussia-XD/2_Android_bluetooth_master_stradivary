@@ -73,8 +73,8 @@ object WidgetBootstrapHydrator {
         val paramsFromDb = repo.loadAllMasterParams(deviceAddr)
         RestoredState.baseParamsFromDb = paramsFromDb.toMutableList()
 
-        GlobalParameters.baseParametrInfoStructArray.clear()
-        GlobalParameters.baseParametrInfoStructArray.addAll(paramsFromDb)
+        GlobalParameters.baseParameterInfoStructArray.clear()
+        GlobalParameters.baseParameterInfoStructArray.addAll(paramsFromDb)
 
         // 2. Сабдевайсы
         val subsFromDb = repo.loadAllSubDevices(deviceAddr)
@@ -116,7 +116,7 @@ object WidgetBootstrapHydrator {
             deviceAddress = deviceAddr,
             deviceUUID_Prefix = "",
             deviceUUID = 0L,
-            parametrsNum = paramsFromDb.size,
+            parametersNum = paramsFromDb.size,
             subDeviceNum = subsFromDb.size,
             programType = 0,
             defaultPort = 0

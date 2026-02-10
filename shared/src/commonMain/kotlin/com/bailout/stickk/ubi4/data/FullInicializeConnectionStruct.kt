@@ -22,7 +22,7 @@ data class FullInicializeConnectionStruct(
     val deviceUUID_Prefix: String,
     val deviceUUID: Long,
 
-    val parametrsNum: Int,
+    val parametersNum: Int,
     val subDeviceNum: Int,
     val programType: Int,
     val defaultPort: Int
@@ -46,7 +46,7 @@ object FullInicializeConnectionSerializer : KSerializer<FullInicializeConnection
         var deviceUUID_Prefix = ""
         var deviceUUID = 0L
 
-        var parametrsNum = 0
+        var parametersNum = 0
         var subDeviceNum = 0
         var programType = 0
         var defaultPort = 0
@@ -67,7 +67,7 @@ object FullInicializeConnectionSerializer : KSerializer<FullInicializeConnection
                     castUnsignedCharToInt(string.substring(142, 144).toInt(16).toByte()).toLong() * 256 * 256 +
                     castUnsignedCharToInt(string.substring(144, 146).toInt(16).toByte()).toLong() * 256 * 256 * 256)
 
-            parametrsNum = castUnsignedCharToInt(string.substring(146, 148).toInt(16).toByte())
+            parametersNum = castUnsignedCharToInt(string.substring(146, 148).toInt(16).toByte())
             subDeviceNum = castUnsignedCharToInt(string.substring(148, 150).toInt(16).toByte())
             programType = castUnsignedCharToInt(string.substring(150, 152).toInt(16).toByte())
             defaultPort = castUnsignedCharToInt(string.substring(152, 154).toInt(16).toByte())
@@ -83,7 +83,7 @@ object FullInicializeConnectionSerializer : KSerializer<FullInicializeConnection
             deviceAddress = deviceAddress,
             deviceUUID_Prefix = deviceUUID_Prefix,
             deviceUUID = deviceUUID,
-            parametrsNum = parametrsNum,
+            parametersNum = parametersNum,
             subDeviceNum = subDeviceNum,
             programType = programType,
             defaultPort = defaultPort

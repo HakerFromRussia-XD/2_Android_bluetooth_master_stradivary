@@ -14,8 +14,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTab
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_ML_MODEL_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
@@ -68,7 +68,7 @@ object BLECommands {
         return header + data
     }
 
-    fun requestSubDeviceParametrs(
+    fun requestSubDeviceParameters(
         subDeviceAddress: Int,
         startIndex: Int,
         quantitiesReadParameters: Int
@@ -115,7 +115,7 @@ object BLECommands {
         return header + data
     }
 
-    fun requestSubDeviceAdditionalParametrs(subDeviceAddress: Int, idParameter: Int): ByteArray {
+    fun requestSubDeviceAdditionalParameters(subDeviceAddress: Int, idParameter: Int): ByteArray {
         val header = byteArrayOf(
             0x20,
             DEVICE_INFORMATION.number,
@@ -179,7 +179,7 @@ object BLECommands {
             0x00,
             0x00,
             0x00,
-            READ_DEVICE_PARAMETRS.number,
+            READ_DEVICE_PARAMETERS.number,
             startParametrNum,
             countReadParameters
         )
@@ -199,7 +199,7 @@ object BLECommands {
             0x00
         )
         val data = byteArrayOf(
-            READ_DEVICE_ADDITIONAL_PARAMETRS.number,
+            READ_DEVICE_ADDITIONAL_PARAMETERS.number,
             idParameter
         )
         header[3] = data.size.toByte()

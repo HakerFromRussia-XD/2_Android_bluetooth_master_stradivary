@@ -53,7 +53,7 @@ object BaseParameterInfoSerializer : KSerializer<BaseParameterInfoStruct> {
         var broadcastID = 0
         var dataCode = 0
         var dataInstance = 0
-        var parametrSize = 0
+        var parameterSize = 0
         var flagShift = 0
         var optimisation = 0
         var valueLimit = 0
@@ -84,7 +84,7 @@ object BaseParameterInfoSerializer : KSerializer<BaseParameterInfoStruct> {
             broadcastID = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
             dataCode = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
             dataInstance = castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte())
-            parametrSize = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte()) +
+            parameterSize = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte()) +
                     castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte()) * 256
             flagShift = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
             optimisation = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
@@ -111,7 +111,7 @@ object BaseParameterInfoSerializer : KSerializer<BaseParameterInfoStruct> {
             broadcastID = broadcastID,
             dataCode = dataCode,
             dataInstance = dataInstance,
-            parameterDataSize = parametrSize,
+            parameterDataSize = parameterSize,
 
             flagShift = flagShift,
             optimisation = optimisation,

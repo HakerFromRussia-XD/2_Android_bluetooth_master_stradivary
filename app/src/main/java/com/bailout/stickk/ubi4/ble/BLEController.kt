@@ -264,15 +264,22 @@ class BLEController() {
             WRITE
         ) {}
     }
-    private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L): Boolean {
+    private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L, attempts: Int = 10, baseDelayMs: Long = 100L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
         val key = uuid.lowercase()
-        val ack = CompletableDeferred<Boolean>()
-        pendingNotifyAcks[key] = ack
-        bleCommand(null, uuid, NOTIFY)
+        repeat(attempts) { index ->
+            val attemptNo = index + 1
+            val ack = CompletableDeferred<Boolean>()
+            pendingNotifyAcks[key] = ack
+            bleCommand(null, uuid, NOTIFY)
+            val success = withTimeoutOrNull(timeoutMs) { ack.await() } ?: false
+            pendingNotifyAcks.remove(key, ack)
 
-        val success = withTimeoutOrNull(timeoutMs) { ack.await() } ?: false
-        pendingNotifyAcks.remove(key, ack)
-        return success
+            if (success) return true
+            if (attemptNo < attempts) {
+                kotlinx.coroutines.delay(baseDelayMs * attemptNo) // 250, 500, 750, 1000...
+            }
+        }
+        return false
     }
     private suspend fun firstNotificationRequestFull() {
         var attempts = 0
@@ -615,8 +622,9 @@ class BLEController() {
             }
         }
     }
-    internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+    internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String): Boolean  {
         Log.d("bleCommand", "Отправка команды: тип = $typeCommand, UUID = $uuid, данные = ${byteArray?.let { EncodeByteToHex.bytesToHexString(it) }}")
+        var commandDispatched = false
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
                 Log.d("bleCommand", "Характеристика $i-$j UUID: ${mGattCharacteristics[i][j].uuid} ищем: UUID = $uuid")
@@ -633,25 +641,31 @@ class BLEController() {
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                            commandDispatched = true
+//                            commandDispatched = mBluetoothLeService?.writeCharacteristic(mCharacteristic) == true
+                            if (!commandDispatched) {
+                                Log.w("bleCommand", "writeCharacteristic вернул false для UUID=$uuid")
+                            }
                         }
                     }
                     if (typeCommand == READ){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
                             mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                            commandDispatched = true
                         }
                     }
-
                     if (typeCommand == NOTIFY){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
                             System.err.println("BLE debug попытка подписки на нотификацию")
                             mNotifyCharacteristic = mCharacteristic
                             mBluetoothLeService?.setCharacteristicNotification(mCharacteristic, true)
+                            commandDispatched = true
                         }
                     }
-
                 }
             }
         }
+        return commandDispatched
     }
     fun setOnDisconnectedListener(listener: () -> Unit) {
         // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
@@ -704,21 +718,25 @@ class BLEController() {
             return
         }
 
-        // 2) Поднимаем NOTIFY 2
-//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
-//        if (!mainChannelNotifyEnabled) {
-//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-//            return
-//        }
-
         platformLog("BLEParserV3", "send command requestDeviceData")
-        // 3) Запрашиваем информацию по девайсам
+        // 2) Запрашиваем информацию по девайсам
         main.bleCommandWithQueue(
             BLECommandsV3.requestDeviceData(),
             SERIALPORTCHAR_UUID,
             WRITE
         ) {}
+
+        delay(200)
+        // 3) Поднимаем NOTIFY 2
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+        }
+        if (!mainChannelNotifyEnabled) {
+            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+            return
+        }
 
         isTransferFlowActive = true
     }

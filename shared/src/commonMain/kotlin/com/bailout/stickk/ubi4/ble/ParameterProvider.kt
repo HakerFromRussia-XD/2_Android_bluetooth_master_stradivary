@@ -26,6 +26,13 @@ class ParameterProvider {
                 }
             } else {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
+                baseSubDevicesInfoStructSet.forEach { subDevice ->
+                    if (subDevice.deviceAddress == deviceAddress) {
+                        subDevice.parametersList.forEach { parameter ->
+                            if (parameter.ID == parameterID) return parameter
+                        }
+                    }
+                }
             }
             return BaseParameterInfoStruct()
         }

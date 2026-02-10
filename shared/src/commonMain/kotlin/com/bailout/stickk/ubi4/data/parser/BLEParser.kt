@@ -1830,6 +1830,4 @@ class BLEParser(
         )
         return "00"
     }
-
-
 }

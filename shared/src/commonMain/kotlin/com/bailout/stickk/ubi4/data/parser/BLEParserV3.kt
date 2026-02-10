@@ -2,10 +2,13 @@ package com.bailout.stickk.ubi4.data.parser
 
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
+import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
@@ -29,13 +32,17 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetLabelType
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -64,7 +71,26 @@ class BLEParserV3(
 
     fun parseReceivedSensorsData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        platformLog("BLEParserV3", "parseReceivedSensorsData=$receiveDataString")
+//        platformLog("BLEParserV3", "parseReceivedSensorsData=$receiveDataString")
+
+        val parameter = ParameterProvider.getParameter(1, 1)
+        parameter.data = receiveDataString
+        val paddedData: String = receiveDataString.padEnd(12, '0')
+        platformLog("updateAllUITest", "data = $data")
+        try {
+            plotArray = arrayListOf(
+                castUnsignedCharToInt(paddedData.substringSafe(0, 2).toInt(16).toByte()),
+                castUnsignedCharToInt(paddedData.substringSafe(2, 4).toInt(16).toByte()),
+                castUnsignedCharToInt(paddedData.substringSafe(4, 6).toInt(16).toByte()),
+                castUnsignedCharToInt(paddedData.substringSafe(6, 8).toInt(16).toByte()),
+                castUnsignedCharToInt(paddedData.substringSafe(8, 10).toInt(16).toByte()),
+                castUnsignedCharToInt(paddedData.substringSafe(10, 12).toInt(16).toByte())
+            )
+        } catch (e: Exception) {
+            showToast("Ошибка 113")
+            plotArray = arrayListOf(0, 0, 0, 0, 0, 0)
+        }
+        coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
@@ -149,10 +175,15 @@ class BLEParserV3(
 
     private fun parseWidgets(baseParameterWidgetStruct: BaseParameterWidgetStruct) {
         when (baseParameterWidgetStruct.widgetCode) {
+            ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {}
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                 val plotParameterWidgetEStruct = PlotParameterWidgetEStruct(baseParameterWidgetEStruct = BaseParameterWidgetEStruct(baseParameterWidgetStruct, 0))
                 addToListWidgets(plotParameterWidgetEStruct, plotParameterWidgetEStruct.baseParameterWidgetEStruct)
             }
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {}
+            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {}
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {}
         }
     }
 
@@ -353,29 +384,17 @@ class BLEParserV3(
 
         else -> null
     }
-
-    //    when (baseParameterWidgetStruct.widgetCode) {
-//        ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
-//            addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//        ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-//            addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//        ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
-//            addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//        ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
-//
-//            addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//
-//        ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
-//
-//            addToListWidgets(gesturesParameterWidgetSStruct, gesturesParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//        ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
-//
-//            addToListWidgets(opticParameterWidgetSStruct, opticParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
-//        }
-//    }
+    private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
+        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
+        if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
+            val s = substring(startIndex, endIndex)
+            return if (s.length % 2 == 1) "0$s" else s
+        }
+        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
+        platformLog(
+            "substringSafe",
+            "Невалидные индексы: ожидали [$startIndex, $endIndex), но длина строки = $length"
+        )
+        return "00"
+    }
 }

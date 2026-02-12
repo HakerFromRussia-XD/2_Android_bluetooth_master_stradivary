@@ -208,6 +208,7 @@ object BLECommands {
     }
 
     fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {
+        platformLog("BLEParserV3", "1 1")
         return byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -220,6 +221,7 @@ object BLECommands {
     }
 
     fun requestBindingGroup(addressDevice: Int, parameterID: Int): ByteArray {
+        platformLog("BLEParserV3", "1 2")
         return byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -233,6 +235,7 @@ object BLECommands {
 
     fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
         platformLog("uiGestureSettingsObservable", "addressDevice = $addressDevice parameterID = $parameterID  gestureId = $gestureId")
+        platformLog("BLEParserV3", "1 3")
         val header = byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -270,6 +273,7 @@ object BLECommands {
     }
 
     fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
+        platformLog("BLEParserV3", "1 4")
         return byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -294,6 +298,7 @@ object BLECommands {
     }
 
     fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
+        platformLog("BLEParserV3", "1 5")
         return byteArrayOf(
             0xE0.toByte(),
             parameterID.toByte(),
@@ -306,6 +311,7 @@ object BLECommands {
     }
 
     fun requestThresholds(addressDevice: Int, parameterID: Int): ByteArray {
+        platformLog("BLEParserV3", "1")
         return byteArrayOf(
             0x40.toByte(),
             parameterID.toByte(),
@@ -613,6 +619,7 @@ object BLECommands {
         minutes: Int,
         seconds: Int
     ): ByteArray {
+        platformLog("BLEParserV3", "2")
         val code: Byte = (128 + parameterID).toByte()
         val header = byteArrayOf(
             0x40,
@@ -643,6 +650,7 @@ object BLECommands {
         parameterID: Int,
         rotationGroup: RotationGroup
     ): ByteArray {
+        platformLog("BLEParserV3", "3")
         val code: Byte = (128 + parameterID).toByte()
         val header = byteArrayOf(
             0x40,
@@ -681,6 +689,7 @@ object BLECommands {
         parameterID: Int,
         bindingGestureGroup: BindingGestureGroup
     ): ByteArray {
+        platformLog("BLEParserV3", "4")
         val code: Byte = (128 + parameterID).toByte()
         val header = byteArrayOf(
             0x40.toByte(),
@@ -727,6 +736,7 @@ object BLECommands {
         parameterID: Int,
         activeGesture: Int
     ): ByteArray {
+        platformLog("BLEParserV3", "5")
         val code: Byte = (128 + parameterID).toByte()
         val header = byteArrayOf(
             0x40,
@@ -889,6 +899,7 @@ object BLECommands {
         parameterID: Int,
         indexPackage: Int
     ): ByteArray {
+        platformLog("BLEParserV3", "6")
         val header = byteArrayOf(
             0x40.toByte(),
             (128 + parameterID).toByte(),
@@ -918,6 +929,7 @@ object BLECommands {
         parameterID: Int,
         indexPackage: Int
     ): ByteArray {
+        platformLog("BLEParserV3", "7")
         val header = byteArrayOf(
             0x40.toByte(),
             (128 + parameterID).toByte(),
@@ -945,6 +957,7 @@ object BLECommands {
         parameterID: Int,
         indexPackage: Int
     ): ByteArray {
+        platformLog("BLEParserV3", "8")
         val header = byteArrayOf(
             0x40.toByte(),
             (128 + parameterID).toByte(),

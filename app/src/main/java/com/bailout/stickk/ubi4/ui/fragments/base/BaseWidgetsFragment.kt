@@ -7,9 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -20,16 +18,17 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SpinnerDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.ToggleSliderDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -47,7 +46,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -55,7 +53,6 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getC
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
-import kotlinx.coroutines.launch
 import java.io.File
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -84,6 +81,18 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
+            ButtonsDelegateAdapterV3(
+                onButtonPressedNewV3 = { command ->
+                    oneButtonPressedNewV3(command)
+                },
+                onButtonReleasedNewV3 = { command ->
+                    oneButtonReleasedNewV3(command)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
+            ),
+
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
 //            GesturesDelegateAdapter(
 //                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
@@ -276,7 +285,12 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
-
+    }
+    open fun oneButtonPressedNewV3(command: Byte) {
+        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
+    }
+    open fun oneButtonReleasedNewV3(command: Byte) {
+        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")

@@ -142,7 +142,9 @@ object PreferenceKeysUbi4 {
         PWCE_GESTURES_WINDOW                (0x0e),
         PWCE_OPTIC_LEARNING_WIDGET          (0x0f),
         PWCE_SERVICE_INFO                   (0x10),
-        PWCE_TOGGLE_SLIDER                  (0x11)
+        PWCE_TOGGLE_SLIDER                  (0x11),
+
+        PWCE_BUTTON_V3                      (0x12)
     }
 
 
@@ -543,15 +545,15 @@ object PreferenceKeysUbi4 {
         GET_DEVICE_STATUS           (0x07), /**< 7 Запрос статуса устройства */
         DATA_TRANSFER_SETTINGS      (0x08), /**< 8 Настройки передачи данных */
         COMPLEX_PARAMETER_TRANSFER  (0x09), /**< 9 Передача сложных параметров */
-        POWER_CONTROL               (0x10), /**< 10 Управление питанием */
-        PROTOCOL_PING               (0x11), /**< 11 Проверка соединения по протоколу */
-        SYSTEM_MODE                 (0x12),
-        COMPLEX_RUNTIME_LOG_TRANSFER(0x13), /**< 13 Передача лога в реальном времени */
-        MOVEMENT_CONTROL            (0x14),
-        PROSTHESIS_MODULE_CONTROL   (0x15)
+        POWER_CONTROL               (0x0A), /**< 10 Управление питанием */
+        PROTOCOL_PING               (0x0B), /**< 11 Проверка соединения по протоколу */
+        SYSTEM_MODE                 (0x0C),
+        COMPLEX_RUNTIME_LOG_TRANSFER(0x0D), /**< 13 Передача лога в реальном времени */
+        MOVEMENT_CONTROL            (0x0E),
+        PROSTHESIS_MODULE_CONTROL   (0x0F)
     }
 
-    enum class ProsthesisModuleControlEnum (val number: Int) {
+    enum class ProsthesisModuleControlEnum (val number: Byte) {
         PMCE_STOP_COMMAND                 (0x00),
         PMCE_OPEN_COMMAND                 (0x01),
         PMCE_CLOSE_COMMAND                (0x02),
@@ -608,8 +610,16 @@ object PreferenceKeysUbi4 {
         PWCE_SET_GESTURE_COUNT            (0x2A),
 
         PWCE_GET_COLLECTION_GESTURE_INFO  (0x2B),
-        PWCE_GET_USER_GESTURE_INFO        (0x2C)
+        PWCE_GET_USER_GESTURE_INFO        (0x2C),
+
+        PWCE_SET_EMG_GAIN_VALUE           (0X2D),
+        PWCE_GET_EMG_GAIN_VALUE           (0X2E),
+
+        PWCE_SET_THRESHOLD_VALUE          (0X2F),
+        PWCE_GET_THRESHOLD_VALUE          (0X30)
     }
+
+
     enum class SubDeviceManager (val number: Byte) {
         GET_ALL_SUB_DEVICE      (0x01),        /** Получить список всех подустройств */
         ADD_SUB_DEVICE          (0x02),        /** Добавить подустройство */

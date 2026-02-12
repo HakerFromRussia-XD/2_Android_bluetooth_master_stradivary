@@ -3,13 +3,12 @@ package com.bailout.stickk.ubi4.ui.fragments
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentServiceBinding
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SpinnerDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment

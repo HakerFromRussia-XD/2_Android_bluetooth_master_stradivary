@@ -3,49 +3,36 @@ package com.bailout.stickk.ubi4.data.parser
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
-import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetLabelType
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class BLEParserV3(
     private val coroutineScope: CoroutineScope,
@@ -55,6 +42,7 @@ class BLEParserV3(
     private var mConnected = false
     private var countErrors = 0
     private val deviceSize = 7
+    var baseParameterWidgetSStruct: MutableSet<Any> = mutableSetOf()
     data class SubDeviceInfo(
         val address: Int,        // 0..255
         val deviceType: Int,     // 0..255
@@ -71,12 +59,10 @@ class BLEParserV3(
 
     fun parseReceivedSensorsData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-//        platformLog("BLEParserV3", "parseReceivedSensorsData=$receiveDataString")
 
         val parameter = ParameterProvider.getParameter(1, 1)
         parameter.data = receiveDataString
         val paddedData: String = receiveDataString.padEnd(12, '0')
-        platformLog("updateAllUITest", "data = $data")
         try {
             plotArray = arrayListOf(
                 castUnsignedCharToInt(paddedData.substringSafe(0, 2).toInt(16).toByte()),
@@ -94,10 +80,11 @@ class BLEParserV3(
     }
     fun parseReceivedData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-
+        platformLog("BLEParserV3", "data = $receiveDataString")
         parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size)).forEach { item ->
             platformLog("BLEParserV3", "item=$item")
         }
+        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
     }
 
     private fun parseSubDeviceManagerGetAllSubDevice(payload: ByteArray?): List<SubDeviceInfo> {
@@ -154,36 +141,174 @@ class BLEParserV3(
     }
 
     suspend fun generatedHardcodeWidgets() {
-        val widget1 = BaseSubDeviceInfoStruct(
-            deviceAddress = 1,
-            parametersList = arrayListOf(BaseParameterInfoStruct(
-                dataCode = 1,
-                additionalInfoRefSet = mutableSetOf(BaseParameterWidgetStruct(
-                    display = 1,
-                    widgetPosition = 0,
-                    widgetType = 1,
-                    widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt(),
-                    deviceId = 1,
-                    widgetId = 1,
-                    parameterInfoSet = mutableSetOf(ParameterInfo(1, 1, 1, 1))
-                ))
-            )))
-        baseSubDevicesInfoStructSet.add(widget1)
-        parseWidgets(baseSubDevicesInfoStructSet.firstOrNull()?.parametersList?.firstOrNull()?.additionalInfoRefSet?.firstOrNull()!!)
+        baseParameterWidgetSStruct.add(
+            BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 0,
+                widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+                deviceId = 1,
+                widgetId = 1,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfo(1, 1, 1, 0),
+                    ParameterInfo(2, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+                    ParameterInfo(3, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+            )
+                ,"Графики"
+            )
+        )
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 1,
+                widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+                deviceId = 2,
+                widgetId = 2,
+                parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+            )
+                ,"Чувствительность датчика открытия"
+            )
+        )
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 2,
+                widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+                deviceId = 3,
+                widgetId = 3,
+                parameterInfoSet = mutableSetOf(ParameterInfo(3, 3, 3, 0))
+            )
+                ,"Чувствительность датчика закрытия"
+            )
+        )
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 3,
+                widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
+                deviceId = 4,
+                widgetId = 4,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfo(4, 4, 4, 0),
+                    ParameterInfo(5, 4, 4, 0),
+                    ParameterInfo(6, 4, 4, 0)
+                )
+            )
+                ,"Калибровка протеза"
+            )
+        )
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 0,
+                widgetCode = ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt(),
+                deviceId = 1,
+                widgetId = 1,
+                parameterInfoSet = mutableSetOf(ParameterInfo(1, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+            )
+                ,"Пороги"
+            )
+        )
+        baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
+            clickCommand = 1,
+            pressedCommand = 1,
+            releasedCommand = 0,
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 1,
+                widgetPosition = 4,
+                widgetCode = ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt(),
+                deviceId = 5,
+                widgetId = 5,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfo(5, ProsthesisModuleControlEnum.PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
+                    ParameterInfo(6, ProsthesisModuleControlEnum.PMCE_CLOSE_COMMAND.number.toInt(), 6, 0)
+                )
+            )
+                ,"Открыть%Закрыть"
+            )
+        ))
+        baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
+
+//        val widget1 = BaseSubDeviceInfoStruct(
+//            deviceAddress = 1,
+//            parametersList = arrayListOf(BaseParameterInfoStruct(
+//                dataCode = 1,
+//                additionalInfoRefSet = mutableSetOf(BaseParameterWidgetStruct(
+//                    display = 1,
+//                    widgetPosition = 0,
+//                    widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+//                    deviceId = 1,
+//                    widgetId = 1,
+//                    parameterInfoSet = mutableSetOf(ParameterInfo(1, 1, 1, 0))
+//                ))
+//            )))
+//        val widget2 = BaseSubDeviceInfoStruct(
+//            deviceAddress = 2,
+//            parametersList = arrayListOf(BaseParameterInfoStruct(
+//                dataCode = 2,
+//                additionalInfoRefSet = mutableSetOf(BaseParameterWidgetStruct(
+//                    display = 1,
+//                    widgetPosition = 1,
+//                    widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+//                    deviceId = 2,
+//                    widgetId = 2,
+//                    parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+//                ))
+//            )))
+//        baseSubDevicesInfoStructSet.add(widget1)
+//        baseSubDevicesInfoStructSet.add(widget2)
+//        baseSubDevicesInfoStructSet.forEach { widget ->
+//            widget.parametersList
+//                .firstOrNull()
+//                ?.additionalInfoRefSet
+//                ?.firstOrNull()
+//                ?.let { baseParameterWidgetStruct ->
+//                    val baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+//                        baseParameterWidgetStruct = baseParameterWidgetStruct,
+//                        label = "Тестовое описание"
+//                    )
+//                    parseWidgets(baseParameterWidgetSStruct)
+//                }
+//        }
     }
 
-    private fun parseWidgets(baseParameterWidgetStruct: BaseParameterWidgetStruct) {
-        when (baseParameterWidgetStruct.widgetCode) {
-            ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {}
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
-                val plotParameterWidgetEStruct = PlotParameterWidgetEStruct(baseParameterWidgetEStruct = BaseParameterWidgetEStruct(baseParameterWidgetStruct, 0))
-                addToListWidgets(plotParameterWidgetEStruct, plotParameterWidgetEStruct.baseParameterWidgetEStruct)
+    private fun parseWidgets(widget: Any) {
+        when (widget) {
+            is BaseParameterWidgetSStruct -> {
+                when (widget.baseParameterWidgetStruct.widgetCode) {
+                    ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                        val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                        val switchParameterWidgetSStruct = SwitchParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(switchParameterWidgetSStruct, switchParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
+                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                        val sliderParameterWidgetSStruct = SliderParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+                        val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                        val plotParameterWidgetSStruct = PlotParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                        val spinnerParameterWidgetSStruct = SpinnerParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
+                    ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
+                    ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {}
+                }
             }
-            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {}
-            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {}
-            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {}
+            is CommandParameterWidgetSStruct -> {
+                val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(
+                    clickCommand = widget.clickCommand,
+                    pressedCommand = widget.pressedCommand,
+                    releasedCommand = widget.releasedCommand,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
         }
     }
 
@@ -197,14 +322,15 @@ class BLEParserV3(
                         val combineWidgetIdIterated = it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(1, 1, 1)) }
+//                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(1, 1, 1)) }
                         }
                     }
                     is CommandParameterWidgetEStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-                        if (combineWidgetId == it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId) {
+                        val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(2, 2, 2)) }
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(2, 2, 2)) }
                         }
                     }
                     is PlotParameterWidgetEStruct -> {
@@ -212,7 +338,7 @@ class BLEParserV3(
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(3, 3, 3)) }
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(3, 3, 3)) }
                         }
                     }
                     is SliderParameterWidgetEStruct -> {
@@ -220,7 +346,7 @@ class BLEParserV3(
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(4, 4, 4)) }
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(4, 4, 4)) }
                         }
                     }
                     is ToggleSliderParameterWidgetEStruct -> {
@@ -228,7 +354,7 @@ class BLEParserV3(
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(5, 5, 5)) }
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(5, 5, 5)) }
                         }
                     }
                     is SwitchParameterWidgetEStruct -> {
@@ -236,119 +362,61 @@ class BLEParserV3(
                         val combineWidgetIdIterated = it.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetId
                         if (combineWidgetId == combineWidgetIdIterated) {
                             canAdd = false
-                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(6, 6, 6)) }
+//                            coroutineScope.launch { widgetsMergeEventFlow.emit(ParameterRef(6, 6, 6)) }
                         }
-                        platformLog("SwitchParameterWidgetEStruct_addToListWidgets", "combineWidgetId = $combineWidgetId")
                     }
-                    else -> {
-                        platformLog("addToListWidgets", "E it = $it")
-                    }
+                    else -> {}
                 }
             }
         } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
-//            listWidgets.forEach {
-//                when (it) {
-//                    is CommandParameterWidgetSStruct -> {
-//                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                        }
-//                        if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                        }
-////                        platformLog("areEqualExcludingSetIdE", "${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                    }
-//                    is PlotParameterWidgetSStruct -> {
-//                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                        }
-//                        if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                        }
-////                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                    }
-//                    is SliderParameterWidgetSStruct -> {
-//                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
-//                        platformLog("parseWidgets SLIDER", "Quadruple = ${ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.baseParameterWidgetStruct.dataOffset)}  $combineWidgetId = $combineWidgetIdIterated")
-//                        if (combineWidgetId == combineWidgetIdIterated) {
-//                            canAdd = false
-//                            val set = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-//                            val boundAddr = set.firstOrNull()?.deviceAddress
-//                            if (boundAddr == null || boundAddr == deviceAddress) {
-//                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
-//                            }
-//                        }
-//                    }
-//
-//                    is ToggleSliderParameterWidgetSStruct -> {
-//                        val combineWidgetId =
-//                            baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 +
-//                                    baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//
-//                        val combineWidgetIdIterated =
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 +
-//                                    it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
-//
-//                        if (combineWidgetId == combineWidgetIdIterated) {
-//                            canAdd = false
-//
-//                            val set = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-//                            val boundAddr = set.firstOrNull()?.deviceAddress
-//                            if (boundAddr == null || boundAddr == deviceAddress) {
-//                                set.add(ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset))
-//                            }
-//
-//                            coroutineScope.launch {
-//                                widgetsMergeEventFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode))
-//                            }
-//                        }
-////                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                    }
-//                    is ThresholdParameterWidgetSStruct -> {
-//                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
-//                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-//                            )
-//                        }
-//                        if (combineWidgetId == combineWidgetIdIterated) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-//                            )
-//                        }
-////                        platformLog("areEqualExcludingSetIdE", "ThresholdParameterWidgetSStruct ${areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)}  baseParameterWidgetStruct = $baseParameterWidgetStruct")
-//                    }
-//                    is SwitchParameterWidgetSStruct -> {
-//                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
-//                        if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
-//                            canAdd = false
-//                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(
-//                                ParameterInfo(parameterID, dataCode, deviceAddress, it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataOffset)
-//                            )
-//                        }
-//                        platformLog("SwitchParameterWidgetEStruct_addToListWidgets не E а S", "combineWidgetId = $combineWidgetId")
-//                    }
-//                    else -> {
-//                    }
-//                }
-//            }
+            listWidgets.forEach {
+                when (it) {
+                    is CommandParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+                        }
+                    }
+                    is PlotParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+                        }
+                    }
+                    is SliderParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+                        }
+                    }
+
+                    is ToggleSliderParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+
+                        }
+                    }
+                    is ThresholdParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+                        }
+                    }
+                    is SwitchParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId) {
+                            canAdd = false
+                        }
+                   }
+                    else -> {}
+                }
+            }
         }
         if (canAdd) {
             listWidgets.add(widget)
@@ -356,16 +424,6 @@ class BLEParserV3(
                 platformLog("listWidgets", "listWidgets: $it")
             }
         }
-    }
-    private fun areEqualExcludingSetIdS(obj1: BaseParameterWidgetSStruct, obj2: BaseParameterWidgetSStruct): Boolean {
-        val baseParameterWidgetStruct1 = obj1.baseParameterWidgetStruct.copy(parameterInfoSet = obj2.baseParameterWidgetStruct.parameterInfoSet)
-        val baseParameterWidgetStruct2 = obj2.baseParameterWidgetStruct
-        return baseParameterWidgetStruct1 == baseParameterWidgetStruct2
-    }
-    private fun areEqualExcludingSetIdE(obj1: BaseParameterWidgetEStruct, obj2: BaseParameterWidgetEStruct): Boolean {
-        val baseParameterWidgetStruct1 = obj1.baseParameterWidgetStruct.copy(parameterInfoSet = obj2.baseParameterWidgetStruct.parameterInfoSet)
-        val baseParameterWidgetStruct2 = obj2.baseParameterWidgetStruct
-        return baseParameterWidgetStruct1 == baseParameterWidgetStruct2
     }
     private fun Any.baseStructOrNull(): BaseParameterWidgetStruct? = when (this) {
         is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct

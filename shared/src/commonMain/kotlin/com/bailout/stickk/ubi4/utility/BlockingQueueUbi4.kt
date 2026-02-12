@@ -21,6 +21,17 @@ class BlockingQueueUbi4 {
         // Используем цикл с коротким сном, чтобы избежать busy loop
         while (true) {
             synchronized(this) {
+                if (!canTake) {
+                    val elapsed = currentTimeMillis() - lastAllowTime
+                    if (elapsed >= autoUnlockMs) {
+                        canTake = true // Автоматическая разблокировка спустя задержку
+                        platformLog(
+                            "sendBytesKmm",
+                            "BlockingQueueUbi4: авто-разблокировка через ${elapsed}мс, в очереди ${tasks.size}"
+                        )
+                    }
+                }
+
                 if (tasks.isNotEmpty() && canTake) {
                     val entry = tasks.removeAt(0)
                     val waitMs = currentTimeMillis() - entry.enqueuedAt
@@ -47,9 +58,16 @@ class BlockingQueueUbi4 {
     }
 
     fun put(task: Runnable, byteArray: ByteArray) {
+        val now = currentTimeMillis()
         synchronized(this) {
             val description = "len=${byteArray.size} hex=${EncodeByteToHex.bytesToHexString(byteArray)}"
             tasks.add(QueueEntry(task = task, enqueuedAt = currentTimeMillis(), description = description))
+
+            val lockedForMs = if (canTake) 0L else (now - lastAllowTime)
+            platformLog(
+                "sendBytesKmm",
+                "BlockingQueueUbi4: put +1, size=${tasks.size}, canTake=$canTake, lockedFor=${lockedForMs}ms, data=$description"
+            )
         }
     }
 

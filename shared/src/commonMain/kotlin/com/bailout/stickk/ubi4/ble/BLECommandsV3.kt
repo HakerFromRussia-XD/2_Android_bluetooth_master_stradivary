@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.HEADER_BLE_OFFSET
 
@@ -8,8 +10,30 @@ object BLECommandsV3 {
     fun requestDeviceData(): ByteArray {
         val header = byteArrayOf(
             0x00,
-            PreferenceKeysUbi4.BaseCommandsV3.SUB_DEVICE_MANAGER.number,
-            PreferenceKeysUbi4.SubDeviceManager.GET_ALL_SUB_DEVICE.number,
+            BaseCommandsV3.SUB_DEVICE_MANAGER.number,
+            SubDeviceManager.GET_ALL_SUB_DEVICE.number,
+            0x00,
+            0x00
+        )
+        header[4] = calculationCRC(header).toByte()
+        return header
+    }
+    fun requestThresholdValue(): ByteArray {
+        val header = byteArrayOf(
+            0x00,
+            BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number,
+            ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number,
+            0x00,
+            0x00
+        )
+        header[4] = calculationCRC(header).toByte()
+        return header
+    }
+    fun sendMovementCommand(command: Byte): ByteArray {
+        val header = byteArrayOf(
+            0x00,
+            BaseCommandsV3.MOVEMENT_CONTROL.number,
+            command,
             0x00,
             0x00
         )

@@ -31,11 +31,14 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -151,7 +154,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         // инициализация блютуз
 
         //это для того что бы сразу показывать диалог лоудер и не отображать боттом навигацию
-        mBLEController = BLEController().also { controller ->
+        mBLEController = BLEController(bleManager).also { controller ->
             controller.setOnNeedFullInitListener {
                 // этот колбэк всегда будет на main-потоке (мы так сделали в smartInitWithCrc)
                 ensureSyncDialogShown()
@@ -217,9 +220,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            bleManager.sendBytesKmm(
+                requestThresholdValue(),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
+//            platformLog("BLEParserV3", "runCommandBtn")
+            platformLog("BLEParserV3", "send command requestDeviceData")
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.requestDeviceData(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE
+//            ) {}
+        }
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -535,8 +548,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
+    }
+
+    override fun bleCommandV3(byteArray: ByteArray?) {
+        mBLEController.bleCommand( byteArray, SERIALPORTCHAR_UUID, WRITE)
     }
 
     private fun computeVisibleDisplays(): Set<Int> {

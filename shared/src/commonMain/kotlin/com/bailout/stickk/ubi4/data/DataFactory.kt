@@ -18,7 +18,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.models.widgets.ButtonConfig
+import com.bailout.stickk.ubi4.models.widgets.ButtonsItem
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
@@ -247,11 +247,13 @@ class DataFactory {
     }
 
 
-    private fun toWidgetItemS(widgetCode: Int, label: String = "no name", widget: Any): Any? {
-        val resolvedLabel = if (label.startsWith('%')) {
-            labelBy(label.substring(1).trimEnd('\u0000'))
+    private fun toWidgetItemS(widgetCode: Int, label: String = "no name%no name%no name", widget: Any): Any? {
+        val partsLabel = label.split("%").map { it.trim() }
+
+        val resultLabel = if (partsLabel.size < 3) {
+            partsLabel + List(3 - partsLabel.size) { "no name" }
         } else {
-            label
+            partsLabel
         }
         return when (widgetCode) {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
@@ -266,56 +268,59 @@ class DataFactory {
 //                    )
 //                )
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() ->
-                SwitchItem(resolvedLabel, widget)
+                SwitchItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() ->
-                SliderItem(resolvedLabel, widget)
+                SliderItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() ->
-                ToggleSliderItem (resolvedLabel, widget)
+                ToggleSliderItem (resultLabel[0], widget)
 
 
             ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
-                PlotItem(resolvedLabel, widget)
+                PlotItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() ->
-                OneButtonItem(resolvedLabel, "description", widget)
+                OneButtonItem(resultLabel[0], "description", widget)
 
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() ->
-                GesturesItem(resolvedLabel, widget)
+                GesturesItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() ->
-                TrainingGestureItem(resolvedLabel, widget)
+                TrainingGestureItem(resultLabel[0], widget)
 
 
-            else -> OneButtonItem(resolvedLabel, "description", widget)
+            ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt() ->
+                ButtonsItem(resultLabel[0], resultLabel[1], resultLabel[2], "description", widget)
+
+            else -> OneButtonItem(resultLabel[0], "description", widget)
         }
     }
 

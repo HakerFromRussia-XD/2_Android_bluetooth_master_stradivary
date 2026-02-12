@@ -62,7 +62,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
 import java.util.concurrent.ConcurrentHashMap
 
-class BLEController() {
+class BLEController(private val bleManager: BleManagerKmm) {
     private val mContext: Context = main.applicationContext
     private var mBLEParser: BLEParser? = null
     private var mBLEParserV3: BLEParserV3? = null
@@ -720,23 +720,23 @@ class BLEController() {
 
         platformLog("BLEParserV3", "send command requestDeviceData")
         // 2) Запрашиваем информацию по девайсам
-        main.bleCommandWithQueue(
+        bleManager.sendBytesKmm(
             BLECommandsV3.requestDeviceData(),
             SERIALPORTCHAR_UUID,
             WRITE
         ) {}
 
-        delay(200)
+//        delay(200)
         // 3) Поднимаем NOTIFY 2
-        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
-            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-        }
-        if (!mainChannelNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-            return
-        }
+//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+//            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+//            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+//        }
+//        if (!mainChannelNotifyEnabled) {
+//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+//            return
+//        }
 
         isTransferFlowActive = true
     }

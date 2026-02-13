@@ -144,7 +144,11 @@ object PreferenceKeysUbi4 {
         PWCE_SERVICE_INFO                   (0x10),
         PWCE_TOGGLE_SLIDER                  (0x11),
 
-        PWCE_BUTTON_V3                      (0x12)
+        PWCE_BUTTON_V3                      (0x12),
+        PWCE_SWITCH_V3                      (0x13),
+        PWCE_COMBOBOX_V3                    (0x14),
+        PWCE_SLIDER_V3                      (0x15),
+        PWCE_PLOT_V3                        (0x16)
     }
 
 

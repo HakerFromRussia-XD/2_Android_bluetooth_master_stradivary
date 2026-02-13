@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/buttonsContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,90 +9,147 @@
     android:paddingHorizontal="10dp"
     android:paddingVertical="4dp">
 
-    <!-- Кнопка 1 -->
-    <FrameLayout
+    <!-- Кнопка 1 (полностью совместима со старой логикой по id) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/btn1Container"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="6dp"
-        android:layout_weight="1"
-        android:background="@drawable/ubi4_view_with_corners_gray_outside"
-        android:elevation="3dp">
-
-        <TextView
-            android:id="@+id/btn1Tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
-            android:textSize="12sp" />
+        android:layout_weight="1">
 
         <View
-            android:id="@+id/btn1Ripple"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/backgroundBtn"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ubi4_view_with_corners_gray_outside"
+            android:elevation="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/widget1ButtonTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
+
+        <View
+            android:id="@+id/widget1Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@drawable/ubi4_ripple_corners"
             android:clickable="true"
-            android:focusable="true" />
-    </FrameLayout>
+            android:focusable="true"
+            android:clipToOutline="true"
+            android:elevation="4dp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Кнопка 2 -->
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/btn2Container"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="6dp"
         android:layout_weight="1"
-        android:background="@drawable/ubi4_view_with_corners_gray_outside"
-        android:elevation="3dp"
         android:visibility="gone">
 
+        <View
+            android:id="@+id/backgroundBtn2"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ubi4_view_with_corners_gray_outside"
+            android:elevation="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
         <TextView
-            android:id="@+id/btn2Tv"
+            android:id="@+id/widget2ButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
             android:textColor="@color/white"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
 
         <View
-            android:id="@+id/btn2Ripple"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/widget2Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@drawable/ubi4_ripple_corners"
             android:clickable="true"
-            android:focusable="true" />
-    </FrameLayout>
+            android:focusable="true"
+            android:clipToOutline="true"
+            android:elevation="4dp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn2"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn2"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn2"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn2" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Кнопка 3 -->
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/btn3Container"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="6dp"
         android:layout_weight="1"
-        android:background="@drawable/ubi4_view_with_corners_gray_outside"
-        android:elevation="3dp"
         android:visibility="gone">
 
+        <View
+            android:id="@+id/backgroundBtn3"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ubi4_view_with_corners_gray_outside"
+            android:elevation="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
         <TextView
-            android:id="@+id/btn3Tv"
+            android:id="@+id/widget3ButtonTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
             android:textColor="@color/white"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
 
         <View
-            android:id="@+id/btn3Ripple"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/widget3Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@drawable/ubi4_ripple_corners"
             android:clickable="true"
-            android:focusable="true" />
-    </FrameLayout>
+            android:focusable="true"
+            android:clipToOutline="true"
+            android:elevation="4dp"
+            app:layout_constraintStart_toStartOf="@+id/backgroundBtn3"
+            app:layout_constraintEnd_toEndOf="@+id/backgroundBtn3"
+            app:layout_constraintTop_toTopOf="@+id/backgroundBtn3"
+            app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn3" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

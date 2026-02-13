@@ -29,10 +29,10 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun sendCommand(baseCommandsV3: Int, moduleControlCommand: Int): ByteArray {
+    fun sendCommand( moduleControlCommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
-            baseCommandsV3.toByte(),
+            BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number,
             moduleControlCommand.toByte(),
             0x00,
             0x00

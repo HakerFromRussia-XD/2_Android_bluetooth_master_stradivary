@@ -1,35 +1,31 @@
-package com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters
+package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
-import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class OneButtonDelegateAdapter(
+    val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
+    val onButtonReleased: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit) :
     ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4Widget1ButtonBinding.onBind(item: OneButtonItem) {
         onDestroyParent{ onDestroy() }
-        platformLog("[Ubi4Widget1ButtonBinding]","работает OneButtonDelegateAdapter для ${item.title}")
-        btn1Tv.text = item.title
+        widget1ButtonTv.text = item.title
         var addressDevice = 0
         var parameterID = 0
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
+
 
         when (val widget = item.widget) {
             is CommandParameterWidgetEStruct -> {
@@ -63,34 +59,24 @@ class OneButtonDelegateAdapter(
 
             }
         }
-        btn1Tv.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
+
+        //ripple btn
+        widget1Button.setOnTouchListener { v, event ->
+            v.onTouchEvent(event)
             if (clickCommand == 0) {
-                when (motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> {
-                        main.bleCommandWithQueue(
-                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, pressedCommand),
-                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        main.bleCommandWithQueue(
-                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, releasedCommand),
-                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> onButtonPressed(addressDevice, parameterID, pressedCommand)
+                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_CANCEL -> onButtonReleased(addressDevice, parameterID, releasedCommand)
                 }
             } else {
-                when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> {
-                        main.bleCommandWithQueue(
-                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, clickCommand),
-                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                if (event.action == MotionEvent.ACTION_UP) {
+                    onButtonReleased(addressDevice, parameterID, clickCommand)
                 }
             }
-            return@OnTouchListener true
-        })
+            true
+        }
+
     }
 
     override fun isForViewType(item: Any): Boolean = item is OneButtonItem

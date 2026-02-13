@@ -19,7 +19,6 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
@@ -27,6 +26,8 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -68,10 +69,28 @@ abstract class BaseWidgetsFragment : Fragment() {
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-            OneButtonDelegateAdapter(
+            PlotDelegateAdapterV3(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
+            OneButtonDelegateAdapter(
+                onButtonPressed = { device, param, command ->
+                    oneButtonPressed(device, param, command)
+                },
+                onButtonReleased = { device, param, command ->
+                    oneButtonReleased(device, param, command)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
+            ),
+
             ButtonsDelegateAdapterV3(
+                onButtonPressedV3 = { moduleControlCommand ->
+                    oneButtonPressedNewV3(moduleControlCommand)
+                },
+                onButtonReleasedV3 = { moduleControlCommand ->
+                    oneButtonReleasedNewV3(moduleControlCommand)
+                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
@@ -267,12 +286,12 @@ abstract class BaseWidgetsFragment : Fragment() {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
-//    open fun oneButtonPressedNewV3(baseCommandsV3: Byte, command: Byte) {
-//        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
-//    }
-//    open fun oneButtonReleasedNewV3(command: Byte) {
-//        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
-//    }
+    open fun oneButtonPressedNewV3( moduleControlCommand: Int) {
+        transmitter().bleCommandV3(BLECommandsV3.sendCommand(moduleControlCommand))
+    }
+    open fun oneButtonReleasedNewV3( moduleControlCommand: Int) {
+        transmitter().bleCommandV3(BLECommandsV3.sendCommand(moduleControlCommand))
+    }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")
         val dialogBinding =

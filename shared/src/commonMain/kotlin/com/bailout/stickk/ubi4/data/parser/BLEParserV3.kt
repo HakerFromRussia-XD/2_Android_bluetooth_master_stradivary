@@ -146,7 +146,7 @@ class BLEParserV3(
             BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
                 widgetPosition = 0,
-                widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+                widgetCode = ParameterWidgetCode.PWCE_PLOT_V3.number.toInt(),
                 deviceId = 1,
                 widgetId = 1,
                 parameterInfoSet = mutableSetOf(

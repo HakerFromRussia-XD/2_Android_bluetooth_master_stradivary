@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data
 
-import androidx.compose.material.Slider
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -9,7 +8,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
@@ -18,12 +16,12 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.models.widgets.ButtonsItem
+import com.bailout.stickk.ubi4.models.widgets.ButtonsItemV3
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
+import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
-import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
@@ -318,7 +316,10 @@ class DataFactory {
 
 
             ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt() ->
-                ButtonsItem(resultLabel[0], resultLabel[1], resultLabel[2], "description", widget)
+                ButtonsItemV3(resultLabel[0], resultLabel[1], resultLabel[2], "description", widget)
+
+            ParameterWidgetCode.PWCE_PLOT_V3.number.toInt() ->
+                PlotItemV3(resultLabel[0], widget)
 
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }

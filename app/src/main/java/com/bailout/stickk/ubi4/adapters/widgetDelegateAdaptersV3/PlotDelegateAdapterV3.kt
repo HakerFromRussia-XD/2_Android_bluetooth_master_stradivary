@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters
+package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -19,7 +19,6 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
@@ -30,7 +29,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.models.widgets.PlotItem
+import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -62,18 +61,14 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
-class PlotDelegateAdapter (
+class PlotDelegateAdapterV3 (
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
-    ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
+    ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
     private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
-
-    private val requestedThresholdRefs = mutableSetOf<Pair<Int, Int>>()
-
-
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
     private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
 
@@ -86,9 +81,9 @@ class PlotDelegateAdapter (
     private val responseReceived = AtomicBoolean(false)
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
+    override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItemV3) {
         onDestroyParent { onDestroy() }
-        platformLog("[Ubi4WidgetPlotBinding]","работает PlotDelegateAdapter")
+        platformLog("[Ubi4WidgetPlotBinding]","работает PlotDelegateAdapterV3")
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 
@@ -263,8 +258,8 @@ class PlotDelegateAdapter (
         scope?.cancel()
         scope = null
     }
-    override fun isForViewType(item: Any): Boolean = item is PlotItem
-    override fun PlotItem.getItemId(): Any = title
+    override fun isForViewType(item: Any): Boolean = item is PlotItemV3
+    override fun PlotItemV3.getItemId(): Any = title
     private fun plotArrayFlowCollect() {
         scope?.launch(Dispatchers.IO) {
             try {
@@ -304,42 +299,7 @@ class PlotDelegateAdapter (
                         platformLog("Test_PLOT", "thresholdFlowCollect Run")
                     },
                     // 3) (опционально) если хочешь реагировать на событие мерджа виджетов
-                    widgetsMergeEventFlow.map { parameterRef ->
-                        // фильтруем только наш виджет
-                        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-                        if (idx == -1) return@map
-                        // на случай, если после мерджа появился новый threshold-параметр
-                        val firstThresholdRef = firstThresholdRefFrom(widgetPlotsInfo[idx].parameterInfoSet)
-                        if (firstThresholdRef != null && requestedThresholdRefs.add(firstThresholdRef)) {
-                            val (addr, pid) = firstThresholdRef
-                            responseReceived.set(false)
-                            if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
-                                RetryUtils.sendRequestWithRetry(
-                                    request = {
-                                        if (UiState.isInterfaceV3Activated) {} else {
-                                            main.bleCommandWithQueue(
-                                                BLECommands.requestThresholds(addr, pid),
-                                                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                                            ) {}
-                                        }
-                                    },
-                                    isResponseReceived = { responseReceived.get() },
-                                    maxRetries = 5,
-                                    delayMillis = 1000L,
-                                    scope = GlobalScope
-                                )
-                            } else {
-                                setUI(
-                                    ParameterRef(
-                                        addr,
-                                        pid,
-                                        ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
-                                    )
-                                )
-                            }
-                        }
-                    }
-
+                    widgetsMergeEventFlow.map { parameterRef -> }
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -749,12 +709,12 @@ class PlotDelegateAdapter (
         if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
             RetryUtils.sendRequestWithRetry(
                 request = {
-                    if (UiState.isInterfaceV3Activated) {} else {
-                        main.bleCommandWithQueue(
-                            BLECommands.requestThresholds(addr, pid),
-                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+//                    if (UiState.isInterfaceV3Activated) {} else {
+//                        main.bleCommandWithQueue(
+//                            BLECommands.requestThresholds(addr, pid),
+//                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+//                        ) {}
+//                    }
                 },
                 isResponseReceived = { responseReceived.get() },
                 maxRetries = 5,

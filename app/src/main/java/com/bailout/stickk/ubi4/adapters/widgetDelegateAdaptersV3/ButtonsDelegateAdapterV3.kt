@@ -53,7 +53,8 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
-                MotionEvent.ACTION_UP -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
             }
             true
         }
@@ -63,7 +64,8 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
-                MotionEvent.ACTION_UP -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
             }
             true
         }
@@ -73,7 +75,8 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
-                MotionEvent.ACTION_UP -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
             }
             true
         }

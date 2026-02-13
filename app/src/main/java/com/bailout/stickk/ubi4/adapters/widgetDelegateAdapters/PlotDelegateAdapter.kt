@@ -316,12 +316,10 @@ class PlotDelegateAdapter (
                             if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
                                 RetryUtils.sendRequestWithRetry(
                                     request = {
-                                        if (UiState.isInterfaceV3Activated) {} else {
-                                            main.bleCommandWithQueue(
-                                                BLECommands.requestThresholds(addr, pid),
-                                                MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                                            ) {}
-                                        }
+                                        main.bleCommandWithQueue(
+                                            BLECommands.requestThresholds(addr, pid),
+                                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                                        ) {}
                                     },
                                     isResponseReceived = { responseReceived.get() },
                                     maxRetries = 5,
@@ -749,12 +747,10 @@ class PlotDelegateAdapter (
         if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
             RetryUtils.sendRequestWithRetry(
                 request = {
-                    if (UiState.isInterfaceV3Activated) {} else {
-                        main.bleCommandWithQueue(
-                            BLECommands.requestThresholds(addr, pid),
-                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                    main.bleCommandWithQueue(
+                        BLECommands.requestThresholds(addr, pid),
+                        MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                    ) {}
                 },
                 isResponseReceived = { responseReceived.get() },
                 maxRetries = 5,

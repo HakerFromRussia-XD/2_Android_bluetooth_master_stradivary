@@ -3,10 +3,12 @@ package com.bailout.stickk.ubi4.data.parser
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
@@ -28,6 +30,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -80,6 +83,7 @@ class BLEParserV3(
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
+        val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         val devices = parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size))
 
         coroutineScope.launch {
@@ -202,13 +206,11 @@ class BLEParserV3(
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
                 widgetPosition = 3,
-                widgetCode = ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt(),
+                widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
                 deviceId = 4,
                 widgetId = 4,
                 parameterInfoSet = mutableSetOf(
-                    ParameterInfo(4, 4, 4, 0),
-                    ParameterInfo(5, 4, 4, 0),
-                    ParameterInfo(6, 4, 4, 0)
+                    ParameterInfo(4, 4, 4, 0)
                 )
             )
                 ,"Калибровка протеза"
@@ -273,7 +275,8 @@ class BLEParserV3(
         when (widget) {
             is BaseParameterWidgetSStruct -> {
                 when (widget.baseParameterWidgetStruct.widgetCode) {
-                    ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                    ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
+                    ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt()-> {
                         val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
@@ -290,7 +293,8 @@ class BLEParserV3(
                         val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                    ParameterWidgetCode.PWCE_PLOT.number.toInt(),
+                    ParameterWidgetCode.PWCE_PLOT_V3.number.toInt() -> {
                         val plotParameterWidgetSStruct = PlotParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }

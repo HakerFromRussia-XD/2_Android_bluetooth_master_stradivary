@@ -451,6 +451,33 @@ object PreferenceKeysUbi4 {
         }
     }
 
+    enum class SubDeviceBoard(
+        val address: Int,
+        private val baseTitle: String
+    ) {
+        CPU                 (0,  "Cpu module"),
+        INDEX_FINGER        (32, "Index finger"),
+        MIDDLE_FINGER       (33, "Middle finger"),
+        RING_FINGER         (34, "Ring finger"),
+        LITTLE_FINGER       (35, "Little finger"),
+        THUMB               (36, "Thumb finger"),
+        ROTATION            (37, "Rotation"),
+        EMG_HUB             (8,  "Emg hub"),
+        EMG_CHANNEL_1       (16, "Emg channel 1"),
+        EMG_CHANNEL_2       (17, "Emg channel 2"),
+
+        UNKNOWN             (-1, "Unknown");
+
+        val title: String
+            get() = "$baseTitle board"
+
+        companion object {
+            /** Быстрый поиск по address */
+            fun from(address: Int): SubDeviceBoard =
+                values().firstOrNull { it.address == address } ?: UNKNOWN
+        }
+    }
+
     enum class FirmwareManagerCommand(val number: Byte) {
         GET_RUN_PROGRAM_TYPE   (0x01),
         JUMP_TO_BOOTLOADER     (0x02),
@@ -630,3 +657,15 @@ object PreferenceKeysUbi4 {
         REMOVE_SUB_DEVICE       (0x03)
     }
 }
+
+//
+//(address=0, ) //CPU
+//(address=32) //Указательный
+//(address=33) //Срединй
+//(address=34) // Безымянный
+//(address=35) // Мизинец
+//(address=36) // Большой палец
+//(address=37) // Ротация
+//(address=8, // ЕМГ хаб
+//(address=16) // ЕМГ 1
+//(address=17) // ЕМГ 2

@@ -226,6 +226,11 @@ class SprGestureFragment: BaseWidgetsFragment() {
 //                binding.refreshLayout.setRefreshing(false)
             }
         }
+
+
+
+
+
     }
 
 

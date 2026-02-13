@@ -73,6 +73,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
@@ -294,16 +295,22 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showAccountScreen() {
-        if (activeFragment is AccountFragmentMainUBI4)
+        if (activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3)
             return
+            
         val sourceFragment = activeFragment?.javaClass?.name ?: ""
-        val accountFragment = AccountFragmentMainUBI4().apply {
+        
+        val fragment: Fragment = if (UiState.isInterfaceV3Activated) {
+            AccountFragmentMainV3()
+        } else {
+            AccountFragmentMainUBI4()
+        }.apply {
             arguments = Bundle().apply {
                 putString("sourceFragmentClass", sourceFragment)
             }
         }
-        launchFragmentWithStack(accountFragment)
-//        launchFragmentWithStack(AccountFragmentMainUBI4())
+        
+        launchFragmentWithStack(fragment)
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
         AccountFragmentCustomerServiceUBI4()

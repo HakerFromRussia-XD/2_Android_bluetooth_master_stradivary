@@ -191,7 +191,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                         spr.startUploadSelectedTrainingFiles(selectedFiles)
                     }
                 },
-
                 onDestroyParent = { onDestroyParent ->
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }

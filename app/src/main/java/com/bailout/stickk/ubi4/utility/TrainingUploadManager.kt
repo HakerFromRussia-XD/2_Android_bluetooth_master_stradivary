@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.utility
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.bailout.stickk.ubi4.AndroidContextProvider.context
 import com.bailout.stickk.ubi4.data.network.SharedFile
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
@@ -30,6 +31,7 @@ object TrainingUploadManager {
         extraBufferCapacity = 64,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
+
 
     fun launch(
         context: Context,
@@ -132,6 +134,8 @@ object TrainingUploadManager {
             }
         }
     }
+
+
 
     private fun getNextCheckpointNumber(ctx: Context): Int =
         ctx.getSharedPreferences(PreferenceKeysUbi4.TRAINING_PREFS, Context.MODE_PRIVATE).run {

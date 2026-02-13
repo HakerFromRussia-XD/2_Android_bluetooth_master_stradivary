@@ -80,8 +80,28 @@ class BLEParserV3(
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
-        val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        platformLog("BLEParserV3", "data = $receiveDataString")
+        val devices = parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size))
+
+        coroutineScope.launch {
+            baseSubDevicesInfoStructSet.clear()
+
+            devices.forEach { d ->
+                baseSubDevicesInfoStructSet.add(
+                    BaseSubDeviceInfoStruct(
+                        deviceAddress = d.address,
+                        deviceType = d.deviceType,
+                        deviceCode = d.deviceCode,
+                        parametersList = arrayListOf()
+                    )
+                )
+            }
+
+            // ВАЖНО: один снапшот версий на все платы
+            val versionsByAddr: Map<Int, String> = devices.associate { it.address to it.fwVersion }
+            FirmwareInfoState.emitFirmwareInfoV3(versionsByAddr)
+
+            updateFlow.emit(1)
+        }
         parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size)).forEach { item ->
             platformLog("BLEParserV3", "item=$item")
         }

@@ -66,33 +66,14 @@ abstract class BaseWidgetsFragment : Fragment() {
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             OneButtonDelegateAdapter(
-                onButtonPressed = { device, param, command ->
-                    oneButtonPressed(device, param, command)
-                },
-                onButtonReleased = { device, param, command ->
-                    oneButtonReleased(device, param, command)
-                },
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             ButtonsDelegateAdapterV3(
-                onButtonPressedNewV3 = { command ->
-                    oneButtonPressedNewV3(command)
-                },
-                onButtonReleasedNewV3 = { command ->
-                    oneButtonReleasedNewV3(command)
-                },
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
 //            GesturesDelegateAdapter(
 //                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
@@ -286,12 +267,12 @@ abstract class BaseWidgetsFragment : Fragment() {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
-    open fun oneButtonPressedNewV3(command: Byte) {
-        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
-    }
-    open fun oneButtonReleasedNewV3(command: Byte) {
-        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
-    }
+//    open fun oneButtonPressedNewV3(baseCommandsV3: Byte, command: Byte) {
+//        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
+//    }
+//    open fun oneButtonReleasedNewV3(command: Byte) {
+//        transmitter().bleCommandV3(BLECommandsV3.sendMovementCommand(command))
+//    }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")
         val dialogBinding =

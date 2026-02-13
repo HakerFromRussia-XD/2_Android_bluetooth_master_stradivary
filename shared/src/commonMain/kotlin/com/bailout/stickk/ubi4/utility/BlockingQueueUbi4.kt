@@ -15,7 +15,7 @@ class BlockingQueueUbi4 {
     private val tasks = mutableListOf<QueueEntry>()
     private var canTake: Boolean = true // Флаг, разрешающий извлечение задачи
     private var lastAllowTime: Long = 0L // Время последнего события (например, dataReceive)
-    private val autoUnlockMs = 1000L
+    private val autoUnlockMs = 200L
 
     fun get(): Runnable {
         // Используем цикл с коротким сном, чтобы избежать busy loop
@@ -42,15 +42,6 @@ class BlockingQueueUbi4 {
                         "BlockingQueueUbi4: берём задачу спустя ${waitMs}мс, в очереди осталось ${tasks.size}. data=${entry.description}"
                     )
                     return entry.task
-                } else if (tasks.isNotEmpty() && !canTake) {
-                    val elapsed = currentTimeMillis() - lastAllowTime
-                    if (elapsed >= autoUnlockMs) {
-                        canTake = true // Автоматическая разблокировка спустя задержку
-                        platformLog(
-                            "sendBytesKmm",
-                            "BlockingQueueUbi4: авто-разблокировка через ${elapsed}мс, в очереди ${tasks.size}"
-                        )
-                    }
                 }
             }
             sleep(50) // Короткий сон (50 мс) для экономии ресурсов

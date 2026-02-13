@@ -5,16 +5,18 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class OneButtonDelegateAdapter(
-    val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
-    val onButtonReleased: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit) :
     ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
@@ -64,16 +66,29 @@ class OneButtonDelegateAdapter(
         btn1Tv.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
             if (clickCommand == 0) {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> { onButtonPressed(addressDevice, parameterID, pressedCommand) }
-                    MotionEvent.ACTION_UP -> { onButtonReleased(addressDevice, parameterID, releasedCommand) }
+                    MotionEvent.ACTION_DOWN -> {
+                        main.bleCommandWithQueue(
+                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, pressedCommand),
+                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                        ) {}
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        main.bleCommandWithQueue(
+                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, releasedCommand),
+                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                        ) {}
+                    }
                 }
             } else {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> { onButtonReleased(addressDevice, parameterID, clickCommand) }
+                    MotionEvent.ACTION_UP -> {
+                        main.bleCommandWithQueue(
+                            BLECommands.sendOneButtonCommand(addressDevice, parameterID, clickCommand),
+                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
+                        ) {}
+                    }
                 }
             }
-
-
             return@OnTouchListener true
         })
     }

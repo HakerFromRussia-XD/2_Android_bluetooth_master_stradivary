@@ -5,16 +5,20 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.ButtonsItem
-import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class ButtonsDelegateAdapterV3(
-    val onButtonPressedNewV3: (parameter: Byte) -> Unit,
-    val onButtonReleasedNewV3: (parameter: Byte) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit) :
     ViewBindingDelegateAdapter<ButtonsItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
@@ -25,83 +29,130 @@ class ButtonsDelegateAdapterV3(
         btn1Tv.text = item.title
         btn2Tv.text = item.title2
         btn3Tv.text = item.title3
-        var addressDevice = 0
-        var parameterID = 0
+        var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0))
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
+        var countOfButtons = 1
 
 
         when (val widget = item.widget) {
             is CommandParameterWidgetEStruct -> {
-                addressDevice = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
-                parameterID = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterInfoSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 clickCommand = widget.clickCommand
                 pressedCommand = widget.pressedCommand
                 releasedCommand = widget.releasedCommand
-                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    Log.d("TestButton", "$it")
-                    Log.d("TestButton", "deviceId = $addressDevice")
-                }
-                Log.d(
-                    "ONE_BUTTON",
-                    "BIND ESTRUCT: addr=$addressDevice pid=$parameterID " +
-                            "click=$clickCommand pressed=$pressedCommand released=$releasedCommand"
-                )
+                countOfButtons = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.size
             }
             is CommandParameterWidgetSStruct -> {
-                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).deviceAddress
-                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 clickCommand = widget.clickCommand
                 pressedCommand = widget.pressedCommand
                 releasedCommand = widget.releasedCommand
-
-                Log.d(
-                    "ONE_BUTTON",
-                    "BIND SSTRUCT: addr=$addressDevice pid=$parameterID " +
-                            "click=$clickCommand pressed=$pressedCommand released=$releasedCommand"
-                )
-
+                countOfButtons = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.size
             }
         }
-        btn1Tv.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
+
+        btn1Container.visibility = View.VISIBLE
+        btn2Container.visibility = if (countOfButtons >= 2) View.VISIBLE else View.GONE
+        btn3Container.visibility = if (countOfButtons >= 3) View.VISIBLE else View.GONE
+        btn1Ripple.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
+            val baseCommandsV3 = parameterInfoSet.firstOrNull { it.dataOffset == 0 }?.parameterID
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 0 }?.dataCode
+
             if (clickCommand == 0) {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> { onButtonPressedNewV3 (0) }
-                    MotionEvent.ACTION_UP -> { onButtonReleasedNewV3 (0) }
+                    MotionEvent.ACTION_DOWN -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_DOWN command - ${
+                            EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, moduleControlCommand!!))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, moduleControlCommand!!),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_UP command - ${EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, 0))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             } else {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> { onButtonReleasedNewV3 (0) }
+                    MotionEvent.ACTION_UP -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_UP command - ${EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, 0))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             }
-
-
             return@OnTouchListener true
         })
-        btn2Tv.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
+        btn2Ripple.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
+            val baseCommandsV3 = parameterInfoSet.firstOrNull { it.dataOffset == 1 }?.parameterID
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 1 }?.dataCode
+
             if (clickCommand == 0) {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> onButtonPressedNewV3(1)
-                    MotionEvent.ACTION_UP -> onButtonReleasedNewV3(0)
+                    MotionEvent.ACTION_DOWN -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_DOWN command - ${
+                            EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, moduleControlCommand!!))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, moduleControlCommand!!),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_UP command - ${EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, 0))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             } else {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> onButtonReleasedNewV3(0)
+                    MotionEvent.ACTION_UP -> {
+                        platformLog("ButtonsDelegateAdapterV3", "ACTION_UP command - ${EncodeByteToHex.bytesToHexString(BLECommandsV3.sendCommand(baseCommandsV3!!, 0))}")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             }
-
             return@OnTouchListener true
         })
-        btn3Tv.setOnTouchListener(View.OnTouchListener { _,  motionEvent ->
+        btn3Ripple.setOnTouchListener(View.OnTouchListener { _,  motionEvent ->
+            val baseCommandsV3 = parameterInfoSet.firstOrNull { it.dataOffset == 2 }?.parameterID
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 2 }?.dataCode
+
             if (clickCommand == 0) {
-                when (motionEvent.action) {
-                    MotionEvent.ACTION_DOWN -> onButtonPressedNewV3(2)
-                    MotionEvent.ACTION_UP -> onButtonReleasedNewV3(0)
+                when (motionEvent.action){
+                    MotionEvent.ACTION_DOWN -> {
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, moduleControlCommand!!),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             } else {
                 when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> onButtonReleasedNewV3(0)
+                    MotionEvent.ACTION_UP -> {
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.sendCommand(baseCommandsV3!!, 0),
+                            SERIALPORTCHAR_UUID, WRITE
+                        ) {}
+                    }
                 }
             }
             return@OnTouchListener true
@@ -109,7 +160,7 @@ class ButtonsDelegateAdapterV3(
 
     }
 
-    override fun isForViewType(item: Any): Boolean = item is OneButtonItem
+    override fun isForViewType(item: Any): Boolean = item is ButtonsItem
     override fun ButtonsItem.getItemId():  Any = title
     fun onDestroy() { Log.d("onDestroy" , "onDestroy button") }
 }

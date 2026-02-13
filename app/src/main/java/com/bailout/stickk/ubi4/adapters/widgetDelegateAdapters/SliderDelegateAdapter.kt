@@ -13,6 +13,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
@@ -313,7 +314,7 @@ class SliderDelegateAdapter(
                             main.bleCommandWithQueue(
                                 BLECommands.requestSlider(addressDevice, parameterID),
                                 MAIN_CHANNEL_CHARACTERISTIC,
-                                SampleGattAttributes.WRITE
+                                WRITE
                             ) {}
                         }
                     },

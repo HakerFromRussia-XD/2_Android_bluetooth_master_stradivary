@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -181,7 +182,7 @@ class BLEParserV3(
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
                 widgetPosition = 3,
-                widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
+                widgetCode = ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt(),
                 deviceId = 4,
                 widgetId = 4,
                 parameterInfoSet = mutableSetOf(
@@ -205,8 +206,8 @@ class BLEParserV3(
             )
         )
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
-            clickCommand = 1,
-            pressedCommand = 1,
+            clickCommand = 0,
+            pressedCommand = 0,
             releasedCommand = 0,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
@@ -215,57 +216,37 @@ class BLEParserV3(
                 deviceId = 5,
                 widgetId = 5,
                 parameterInfoSet = mutableSetOf(
-                    ParameterInfo(5, ProsthesisModuleControlEnum.PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
-                    ParameterInfo(6, ProsthesisModuleControlEnum.PMCE_CLOSE_COMMAND.number.toInt(), 6, 0)
+                    ParameterInfo(BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number.toInt(), ProsthesisModuleControlEnum.PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
+                    ParameterInfo(BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number.toInt(), ProsthesisModuleControlEnum.PMCE_CLOSE_COMMAND.number.toInt(), 6, 1)
                 )
             )
                 ,"Открыть%Закрыть"
             )
         ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetPosition = 0,
+            widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+            deviceId = 6,
+            widgetId = 6,
+            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+        )
+            ,"Чувствительность датчика открытия"
+        )
+        )
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 3,
+            widgetPosition = 0,
+            widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+            deviceId = 7,
+            widgetId = 7,
+            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+        )
+            ,"Чувствительность датчика открытия"
+        )
+        )
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
-
-//        val widget1 = BaseSubDeviceInfoStruct(
-//            deviceAddress = 1,
-//            parametersList = arrayListOf(BaseParameterInfoStruct(
-//                dataCode = 1,
-//                additionalInfoRefSet = mutableSetOf(BaseParameterWidgetStruct(
-//                    display = 1,
-//                    widgetPosition = 0,
-//                    widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt(),
-//                    deviceId = 1,
-//                    widgetId = 1,
-//                    parameterInfoSet = mutableSetOf(ParameterInfo(1, 1, 1, 0))
-//                ))
-//            )))
-//        val widget2 = BaseSubDeviceInfoStruct(
-//            deviceAddress = 2,
-//            parametersList = arrayListOf(BaseParameterInfoStruct(
-//                dataCode = 2,
-//                additionalInfoRefSet = mutableSetOf(BaseParameterWidgetStruct(
-//                    display = 1,
-//                    widgetPosition = 1,
-//                    widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
-//                    deviceId = 2,
-//                    widgetId = 2,
-//                    parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
-//                ))
-//            )))
-//        baseSubDevicesInfoStructSet.add(widget1)
-//        baseSubDevicesInfoStructSet.add(widget2)
-//        baseSubDevicesInfoStructSet.forEach { widget ->
-//            widget.parametersList
-//                .firstOrNull()
-//                ?.additionalInfoRefSet
-//                ?.firstOrNull()
-//                ?.let { baseParameterWidgetStruct ->
-//                    val baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
-//                        baseParameterWidgetStruct = baseParameterWidgetStruct,
-//                        label = "Тестовое описание"
-//                    )
-//                    parseWidgets(baseParameterWidgetSStruct)
-//                }
-//        }
     }
 
     private fun parseWidgets(widget: Any) {

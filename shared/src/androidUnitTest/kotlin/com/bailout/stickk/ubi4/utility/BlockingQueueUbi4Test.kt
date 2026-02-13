@@ -52,4 +52,39 @@ class BlockingQueueUbi4Test {
         val secondStart = secondStartedAt.get()
         assertTrue(secondStart >= firstCompletedAt, "Second task should start no earlier than first completion")
     }
+
+    @Test
+    fun `second task starts automatically when allowNext does not arrive`() {
+        val queue = BlockingQueueUbi4()
+        val executionLog = mutableListOf<String>()
+
+        queue.put(Runnable { executionLog += "first" }, byteArrayOf(1))
+        queue.put(Runnable { executionLog += "second" }, byteArrayOf(2))
+
+        val firstTask = queue.get()
+        firstTask.run()
+
+        val secondStartedAt = AtomicLong(-1L)
+        val latch = CountDownLatch(1)
+        val executor = Executors.newSingleThreadExecutor()
+        val waitingStartedAt = currentTimeMillis()
+
+        try {
+            executor.execute {
+                val nextTask = queue.get()
+                secondStartedAt.set(currentTimeMillis())
+                nextTask.run()
+                latch.countDown()
+            }
+
+            assertTrue(latch.await(3, TimeUnit.SECONDS), "Second task should auto-start after timeout")
+        } finally {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+        }
+
+        assertEquals(listOf("first", "second"), executionLog, "Tasks should run sequentially")
+        val autoUnlockDelay = secondStartedAt.get() - waitingStartedAt
+        assertTrue(autoUnlockDelay >= 950, "Second task should start around auto-unlock timeout, delay=$autoUnlockDelay")
+    }
 }

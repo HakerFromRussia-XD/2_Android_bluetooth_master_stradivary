@@ -24,10 +24,12 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -294,12 +296,9 @@ class PlotDelegateAdapterV3 (
                             }
                         }
                     },
-                    thresholdFlow.map { parameterRef ->
-                        setUI(parameterRef)
-                        platformLog("Test_PLOT", "thresholdFlowCollect Run")
-                    },
+                    thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
                     // 3) (опционально) если хочешь реагировать на событие мерджа виджетов
-                    widgetsMergeEventFlow.map { parameterRef -> }
+//                    widgetsMergeEventFlow.map { parameterRef -> }
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -312,26 +311,17 @@ class PlotDelegateAdapterV3 (
             }
         }
     }
-
-    private fun setUI(parameterRef: ParameterRef) {
-        responseReceived.set(true) // чтобы RetryUtils понимал, что ответ получен
-
-        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-        if (idx == -1) return
-        val info = widgetPlotsInfo[idx]
-
-        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-        if (parameter.data.isBlank()) return
-
-        val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
+    private fun setUI(thresholdResult: ThresholdResult) {
+        responseReceived.set(true)
+        val info = widgetPlotsInfo[0]
 
         info.apply {
-            openThreshold   = plotThresholds.threshold1
-            closeThreshold  = plotThresholds.threshold2
-            threshold3      = plotThresholds.threshold3
-            threshold4      = plotThresholds.threshold4
-            threshold5      = plotThresholds.threshold5
-            threshold6      = plotThresholds.threshold6
+            openThreshold   = thresholdResult.openThreshold
+            closeThreshold  = thresholdResult.closeThreshold
+            threshold3      = 0
+            threshold4      = 0
+            threshold5      = 0
+            threshold6      = 0
         }
 
         info.openThresholdTv.text  = info.openThreshold.toString()
@@ -621,6 +611,7 @@ class PlotDelegateAdapterV3 (
         }
         return -1
     }
+
     private fun setLimitPosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
         var y = event.y
         if (y < 0)
@@ -631,9 +622,6 @@ class PlotDelegateAdapterV3 (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-
-
-
     private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int, duration: Long = DURATION_ANIMATION) {
         // Выполняем вычисления после того, как layout уже измерен
         allCHRl.post {
@@ -679,7 +667,6 @@ class PlotDelegateAdapterV3 (
             delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         }
     }
-
     private fun firstThresholdRefFrom(set: Set<ParameterInfo<Int, Int, Int, Int>>): Pair<Int, Int>? {
         return set.firstOrNull { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
             ?.let { it.deviceAddress to it.parameterID }
@@ -693,8 +680,6 @@ class PlotDelegateAdapterV3 (
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }
-
-
     private fun requestThresholdsOnce() {
         val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
             ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
@@ -723,11 +708,7 @@ class PlotDelegateAdapterV3 (
             )
         } else {
             setUI(
-                ParameterRef(
-                    addr,
-                    pid,
-                    ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number
-                )
+                ThresholdResult()
             )
         }
     }

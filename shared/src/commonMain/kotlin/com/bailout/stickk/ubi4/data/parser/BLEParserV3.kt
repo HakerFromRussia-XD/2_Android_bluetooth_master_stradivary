@@ -9,6 +9,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -25,9 +27,11 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
+import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
@@ -82,7 +86,7 @@ class BLEParserV3(
         val receivePacket = parseUbiPacketZeroAlloc(data)
         val payload = receivePacket.payload
 //        platformLog("[parseReceivedData]", "data.size: ${data.size}  receiveDataString = $receiveDataString")
-//        platformLog("[parseReceivedData]", "data.size: ${data.size}  command = ${receivePacket.command}")
+        platformLog("[parseReceivedData]", "command = ${receivePacket.command}")
         when (receivePacket.command) {
             SUB_DEVICE_MANAGER.number.toInt() -> {
                 val devices = parseSubDeviceManagerGetAllSubDevice(payload)
@@ -109,9 +113,12 @@ class BLEParserV3(
             }
             PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
                 val subcommand = payload[0]
+                platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
                     PWCE_GET_THRESHOLD_VALUE.number -> {
                         val thresholds = parseThresholdParserZeroAlloc(receivePacket.payload)
+                        coroutineScope.launch { thresholdFlowV3.emit(thresholds) }
+                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {}
                 }
@@ -233,8 +240,8 @@ class BLEParserV3(
             fwVersion = fwVersion
         )
     }
-    private fun parseThresholdParserZeroAlloc(payload: ByteArrayView?): ThresholdResult? {
-        if (payload == null || payload.length < 3) { return null }
+    private fun parseThresholdParserZeroAlloc(payload: ByteArrayView?): ThresholdResult {
+        if (payload == null || payload.length < 3) { return ThresholdResult() }
 
         val subcommand = payload.u8(0)
         val openThreshold = payload.u8(1)
@@ -245,10 +252,6 @@ class BLEParserV3(
             closeThreshold = closeThreshold
         )
     }
-    data class ThresholdResult(
-        val openThreshold: Int,
-        val closeThreshold: Int
-    )
 
 
     suspend fun generatedHardcodeWidgets() {
@@ -260,8 +263,8 @@ class BLEParserV3(
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfo(1, 1, 1, 0),
-                ParameterInfo(2, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
-                ParameterInfo(3, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+                ParameterInfo(2, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+                ParameterInfo(3, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
         )
             ,"Графики"
         ))
@@ -301,7 +304,7 @@ class BLEParserV3(
             widgetCode = PWCE_OPEN_CLOSE_THRESHOLD.number.toInt(),
             deviceId = 1,
             widgetId = 1,
-            parameterInfoSet = mutableSetOf(ParameterInfo(1, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfo(1, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
         )
             ,"Пороги"
         ))

@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
+import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,8 @@ object WidgetState {
     var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
     val activeGestureState = MutableStateFlow<Int?>(null)
     val selectGestureModeState = MutableStateFlow(false)
+
+    var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ThresholdResult>>()
 
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false
@@ -56,5 +59,7 @@ object WidgetState {
         bmsStatusFlow = MutableSharedFlow()
         batteryPercentFlow = MutableSharedFlow(replay = 1)
         widgetsMergeEventFlow = MutableSharedFlow()
+
+        thresholdFlowV3 = MutableSharedFlow()
     }
 }

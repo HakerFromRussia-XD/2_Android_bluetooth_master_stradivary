@@ -12,3 +12,8 @@ data class PlotParameterRef(
     val parameterID: Int,
     val dataPlots: ArrayList<Int>
 )
+
+data class ThresholdResult(
+    val openThreshold: Int = 0,
+    val closeThreshold: Int = 0
+)

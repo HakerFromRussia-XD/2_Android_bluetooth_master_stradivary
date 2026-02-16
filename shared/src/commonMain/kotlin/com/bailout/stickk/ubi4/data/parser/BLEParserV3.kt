@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.parser
 
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.calculationCRCRange
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -27,9 +28,9 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -55,12 +56,6 @@ class BLEParserV3(
         val fwVersion: String    // "major.minor.quickfix"
     )
 
-    private fun Byte.toHex(): String =
-        (this.toInt() and 0xFF)
-            .toString(16)
-            .uppercase()
-            .padStart(2, '0')
-
     fun parseReceivedSensorsData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
 
@@ -84,75 +79,149 @@ class BLEParserV3(
     }
     fun parseReceivedData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        val devices = parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size))
+        val receivePacket = parseUbiPacketZeroAlloc(data)
+        val payload = receivePacket.payload
+//        platformLog("[parseReceivedData]", "data.size: ${data.size}  receiveDataString = $receiveDataString")
+//        platformLog("[parseReceivedData]", "data.size: ${data.size}  command = ${receivePacket.command}")
+        when (receivePacket.command) {
+            SUB_DEVICE_MANAGER.number.toInt() -> {
+                val devices = parseSubDeviceManagerGetAllSubDevice(payload)
+                coroutineScope.launch {
+                    baseSubDevicesInfoStructSet.clear()
 
-        coroutineScope.launch {
-            baseSubDevicesInfoStructSet.clear()
+                    devices.forEach { d ->
+                        baseSubDevicesInfoStructSet.add(
+                            BaseSubDeviceInfoStruct(
+                                deviceAddress = d.address,
+                                deviceType = d.deviceType,
+                                deviceCode = d.deviceCode,
+                                parametersList = arrayListOf()
+                            )
+                        )
+                    }
 
-            devices.forEach { d ->
-                baseSubDevicesInfoStructSet.add(
-                    BaseSubDeviceInfoStruct(
-                        deviceAddress = d.address,
-                        deviceType = d.deviceType,
-                        deviceCode = d.deviceCode,
-                        parametersList = arrayListOf()
-                    )
-                )
+                    // ВАЖНО: один снапшот версий на все платы
+                    val versionsByAddr: Map<Int, String> = devices.associate { it.address to it.fwVersion }
+                    FirmwareInfoState.emitFirmwareInfoV3(versionsByAddr)
+
+                    updateFlow.emit(1)
+                }
             }
-
-            // ВАЖНО: один снапшот версий на все платы
-            val versionsByAddr: Map<Int, String> = devices.associate { it.address to it.fwVersion }
-            FirmwareInfoState.emitFirmwareInfoV3(versionsByAddr)
-
-            updateFlow.emit(1)
-        }
-        parseSubDeviceManagerGetAllSubDevice(data.copyOfRange(5, data.size)).forEach { item ->
-            platformLog("BLEParserV3", "item=$item")
+            PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
+                val subcommand = payload[0]
+                when(subcommand) {
+                    PWCE_GET_THRESHOLD_VALUE.number -> {
+                        val thresholds = parseThresholdParserZeroAlloc(receivePacket.payload)
+                    }
+                    PWCE_GET_EMG_GAIN_VALUE.number -> {}
+                }
+            }
         }
         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
     }
 
-    private fun parseSubDeviceManagerGetAllSubDevice(payload: ByteArray?): List<SubDeviceInfo> {
+    private fun parseUbiPacketZeroAlloc(data: ByteArray): UbiPacketView {
+        require(data.size >= 5) { "Пакет слишком короткий" }
+
+        val b0 = data[0].toInt() and 0xFF
+        val typeBit = (b0 shr 7) and 0x01
+        val type = if (typeBit == 1) UbiPacketType.LONG else UbiPacketType.SHORT
+        val address = b0 and 0x7F
+        val command = data[1].toInt() and 0xFF
+
+        val headerCrc = data[4].toInt() and 0xFF
+        val expectedHeaderCrc = calculationCRCRange(data, 0, 4)
+        val headerCrcError = headerCrc != expectedHeaderCrc
+
+        return if (type == UbiPacketType.SHORT) {
+            val payloadOffset = 2
+            val payloadSize = 2
+
+            // SHORT по твоей логике всегда полный (5 байт)
+            val payloadView = ByteArrayView(data, payloadOffset, payloadSize)
+
+            UbiPacketView(
+                type = type,
+                address = address,
+                command = command,
+                payloadSize = payloadSize,
+                payloadOffset = payloadOffset,
+                payloadLength = payloadSize,
+                headerCrcError = headerCrcError,
+                payloadCrcError = false,
+                payload = payloadView
+            )
+        } else {
+            val sizeLow = data[2].toInt() and 0xFF
+            val sizeHigh = data[3].toInt() and 0xFF
+            val payloadSize = (sizeHigh shl 8) or sizeLow
+
+            require(payloadSize >= 3) { "LONG пакет: payloadSize < 3: $payloadSize" }
+
+            val payloadOffset = 5
+
+            // ✅ Строго требуем полный LONG: header(5) + payload + payloadCRC(1)
+            val needed = payloadOffset + payloadSize + 1
+            require(data.size >= needed) {
+                "LONG пакет неполный: size=${data.size}, нужно минимум=$needed (payloadSize=$payloadSize)"
+            }
+
+            val payloadView = ByteArrayView(data, payloadOffset, payloadSize)
+
+            val payloadCrcIndex = payloadOffset + payloadSize
+            val payloadCrc = data[payloadCrcIndex].toInt() and 0xFF
+            val expectedPayloadCrc = calculationCRCRange(data, payloadOffset, payloadSize)
+            val payloadCrcError = payloadCrc != expectedPayloadCrc
+
+            UbiPacketView(
+                type = type,
+                address = address,
+                command = command,
+                payloadSize = payloadSize,
+                payloadOffset = payloadOffset,
+                payloadLength = payloadSize,
+                headerCrcError = headerCrcError,
+                payloadCrcError = payloadCrcError,
+                payload = payloadView
+            )
+        }
+    }
+    private fun parseSubDeviceManagerGetAllSubDevice(payload: ByteArrayView?): List<SubDeviceInfo> {
         val devices = mutableListOf<SubDeviceInfo>()
 
-        if (payload == null || payload.isEmpty()) {
+        if (payload == null || payload.length == 0) {
             // logger.debug("Ответ SUB_DEVICE_MANAGER: payload пуст")
             return devices
         }
 
-        // Первый байт — подкоманда
-        val subcommand = payload[0].toInt() and 0xFF
 
-        if (payload.size <= 1) {
+        val subcommand = payload.u8(0)
+
+        if (payload.length <= 1) {
             // logger.debug("Ответ SUB_DEVICE_MANAGER: список устройств пуст (подкоманда=$subcommand)")
             return devices
         }
 
-        // logger.debug("Парсим SUB_DEVICE_MANAGER ответ (подкоманда=$subcommand, ${payload.size - 1} байт данных)")
-
         var i = 1 // начинаем после подкоманды
-        while (i + deviceSize <= payload.size) {
+        while (i + deviceSize <= payload.length) {
             val device = parseDevice(payload, i)
-            if (device != null) {
-                devices += device
-                // logger.debug("Найдено устройство: адрес=${device.address}, тип=${device.deviceType}, версия=${device.fwVersion}")
-            }
+            if (device != null) devices += device
             i += deviceSize
         }
 
         return devices
     }
-    private fun parseDevice(bytes: ByteArray, offset: Int): SubDeviceInfo? {
-        if (offset < 0 || offset + deviceSize > bytes.size) return null
+    private fun parseDevice(payload: ByteArrayView, offset: Int): SubDeviceInfo? {
+        if (offset < 0 || offset + deviceSize > payload.length) return null
 
-        val address = bytes[offset + 0].toInt() and 0xFF
-        val deviceType = bytes[offset + 1].toInt() and 0xFF
-        val deviceCode = bytes[offset + 2].toInt() and 0xFF
-        val dfu = bytes[offset + 3].toInt() and 0xFF
+        val address = payload.u8(offset + 0)
+        val deviceType = payload.u8(offset + 1)
+        val deviceCode = payload.u8(offset + 2)
+        val dfu = payload.u8(offset + 3)
 
-        val major = bytes[offset + 4].toInt() and 0xFF
-        val minor = bytes[offset + 5].toInt() and 0xFF
-        val quickfix = bytes[offset + 6].toInt() and 0xFF
+        val major = payload.u8(offset + 4)
+        val minor = payload.u8(offset + 5)
+        val quickfix = payload.u8(offset + 6)
 
         val fwVersion = "$major.$minor.$quickfix"
 
@@ -164,69 +233,78 @@ class BLEParserV3(
             fwVersion = fwVersion
         )
     }
+    private fun parseThresholdParserZeroAlloc(payload: ByteArrayView?): ThresholdResult? {
+        if (payload == null || payload.length < 3) { return null }
+
+        val subcommand = payload.u8(0)
+        val openThreshold = payload.u8(1)
+        val closeThreshold = payload.u8(2)
+
+        return ThresholdResult(
+            openThreshold = openThreshold,
+            closeThreshold = closeThreshold
+        )
+    }
+    data class ThresholdResult(
+        val openThreshold: Int,
+        val closeThreshold: Int
+    )
+
 
     suspend fun generatedHardcodeWidgets() {
-        baseParameterWidgetSStruct.add(
-            BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 1,
-                widgetPosition = 0,
-                widgetCode = ParameterWidgetCode.PWCE_PLOT_V3.number.toInt(),
-                deviceId = 1,
-                widgetId = 1,
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfo(1, 1, 1, 0),
-                    ParameterInfo(2, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
-                    ParameterInfo(3, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
-            )
-                ,"Графики"
-            )
-        )
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 1,
-                widgetPosition = 1,
-                widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
-                deviceId = 2,
-                widgetId = 2,
-                parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
-            )
-                ,"Чувствительность датчика открытия"
-            )
+            display = 1,
+            widgetPosition = 0,
+            widgetCode = PWCE_PLOT_V3.number.toInt(),
+            deviceId = 1,
+            widgetId = 1,
+            parameterInfoSet = mutableSetOf(
+                ParameterInfo(1, 1, 1, 0),
+                ParameterInfo(2, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+                ParameterInfo(3, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
         )
+            ,"Графики"
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 1,
-                widgetPosition = 2,
-                widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
-                deviceId = 3,
-                widgetId = 3,
-                parameterInfoSet = mutableSetOf(ParameterInfo(3, 3, 3, 0))
-            )
-                ,"Чувствительность датчика закрытия"
-            )
+            display = 1,
+            widgetPosition = 1,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            deviceId = 2,
+            widgetId = 2,
+            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
         )
+            ,"Чувствительность датчика открытия"
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 1,
-                widgetPosition = 3,
-                widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
-                deviceId = 4,
-                widgetId = 4,
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfo(4, 4, 4, 0)
-                )
-            )
-                ,"Калибровка протеза"
-            )
+            display = 1,
+            widgetPosition = 2,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            deviceId = 3,
+            widgetId = 3,
+            parameterInfoSet = mutableSetOf(ParameterInfo(3, 3, 3, 0))
         )
+            ,"Чувствительность датчика закрытия"
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 1,
-                widgetPosition = 0,
-                widgetCode = ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt(),
-                deviceId = 1,
-                widgetId = 1,
-                parameterInfoSet = mutableSetOf(ParameterInfo(1, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
-            )
-                ,"Пороги"
-            )
+            display = 1,
+            widgetPosition = 3,
+            widgetCode = PWCE_BUTTON_V3.number.toInt(),
+            deviceId = 4,
+            widgetId = 4,
+            parameterInfoSet = mutableSetOf(ParameterInfo(4, 4, 4, 0))
         )
+            ,"Калибровка протеза"
+        ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 1,
+            widgetPosition = 0,
+            widgetCode = PWCE_OPEN_CLOSE_THRESHOLD.number.toInt(),
+            deviceId = 1,
+            widgetId = 1,
+            parameterInfoSet = mutableSetOf(ParameterInfo(1, PreferenceKeysUbi4.ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+        )
+            ,"Пороги"
+        ))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
             pressedCommand = 0,
@@ -234,76 +312,73 @@ class BLEParserV3(
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
                 widgetPosition = 4,
-                widgetCode = ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt(),
+                widgetCode = PWCE_BUTTON_V3.number.toInt(),
                 deviceId = 5,
                 widgetId = 5,
                 parameterInfoSet = mutableSetOf(
-                    ParameterInfo(BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number.toInt(), ProsthesisModuleControlEnum.PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
-                    ParameterInfo(BaseCommandsV3.PROSTHESIS_MODULE_CONTROL.number.toInt(), ProsthesisModuleControlEnum.PMCE_CLOSE_COMMAND.number.toInt(), 6, 1)
-                )
+                    ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
+                    ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_CLOSE_COMMAND.number.toInt(), 6, 1))
             )
                 ,"Открыть%Закрыть"
-            )
-        ))
+        )))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetPosition = 0,
-            widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 6,
             widgetId = 6,
             parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
         )
             ,"Чувствительность датчика открытия"
-        )
-        )
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 3,
             widgetPosition = 0,
-            widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt(),
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 7,
             widgetId = 7,
             parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
         )
             ,"Чувствительность датчика открытия"
-        )
-        )
+        ))
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
     }
-
     private fun parseWidgets(widget: Any) {
         when (widget) {
             is BaseParameterWidgetSStruct -> {
                 when (widget.baseParameterWidgetStruct.widgetCode) {
-                    ParameterWidgetCode.PWCE_BUTTON.number.toInt(),
-                    ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt()-> {
+                    PWCE_BUTTON.number.toInt(),
+                    PWCE_BUTTON_V3.number.toInt()-> {
                         val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                    PWCE_SWITCH.number.toInt() -> {
                         val switchParameterWidgetSStruct = SwitchParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(switchParameterWidgetSStruct, switchParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> {}
-                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                    PWCE_COMBOBOX.number.toInt() -> {}
+                    PWCE_SLIDER.number.toInt(),
+                    PWCE_SLIDER_V3.number.toInt() -> {
                         val sliderParameterWidgetSStruct = SliderParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {
+                    PWCE_TOGGLE_SLIDER.number.toInt(),
+                    PWCE_TOGGLE_SLIDER_V3.number.toInt()-> {
                         val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_PLOT.number.toInt(),
-                    ParameterWidgetCode.PWCE_PLOT_V3.number.toInt() -> {
+                    PWCE_PLOT.number.toInt(),
+                    PWCE_PLOT_V3.number.toInt() -> {
                         val plotParameterWidgetSStruct = PlotParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                    PWCE_SPINBOX.number.toInt() -> {
                         val spinnerParameterWidgetSStruct = SpinnerParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
-                    ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {}
+                    PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
+                    PWCE_GESTURES_WINDOW.number.toInt() -> {}
                 }
             }
             is CommandParameterWidgetSStruct -> {
@@ -316,7 +391,6 @@ class BLEParserV3(
             }
         }
     }
-
     private fun addToListWidgets(widget: Any, baseParameterWidgetStruct: Any) {
         var canAdd = true
         if (baseParameterWidgetStruct is BaseParameterWidgetEStruct) {
@@ -430,6 +504,13 @@ class BLEParserV3(
             }
         }
     }
+
+    private fun Byte.toHex(): String =
+        (this.toInt() and 0xFF)
+            .toString(16)
+            .uppercase()
+            .padStart(2, '0')
+    private fun ByteArrayView.u8(i: Int): Int = bytes[offset + i].toInt() and 0xFF
     private fun Any.baseStructOrNull(): BaseParameterWidgetStruct? = when (this) {
         is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct
         is CommandParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
@@ -460,4 +541,6 @@ class BLEParserV3(
         )
         return "00"
     }
+
 }
+

@@ -72,6 +72,7 @@ class SliderDelegateAdapter(
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
         Log.d("SliderAdapterTest", "onBind RUN")
+        Log.d("[Ubi4WidgetSliderBinding]", "работает SliderDelegateAdapter")
         onDestroyParent { onDestroy() }
         isAttached = true
         widgetSliderUnitTv?.text = ""

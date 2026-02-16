@@ -22,8 +22,10 @@ import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
+import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
+import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
@@ -255,16 +257,7 @@ class DataFactory {
         }
         return when (widgetCode) {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> null
-//            ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
-//                OneButtonItem(
-//                    title = resolvedLabel,
-//                    description = "description",widget = widget,
-//                    buttons = listOf(
-//                        ButtonConfig("Кнопка 1", widget),
-//                        ButtonConfig("Кнопка 2", widget),
-//                        ButtonConfig("Кнопка 3", widget)
-//                    )
-//                )
+
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() ->
                 OneButtonItem(resultLabel[0], "description", widget)
 
@@ -278,8 +271,7 @@ class DataFactory {
                 SliderItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() ->
-                ToggleSliderItem (resultLabel[0], widget)
-
+                ToggleSliderItem(resultLabel[0], widget)
 
             ParameterWidgetCode.PWCE_PLOT.number.toInt() ->
                 PlotItem(resultLabel[0], widget)
@@ -314,12 +306,20 @@ class DataFactory {
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() ->
                 TrainingGestureItem(resultLabel[0], widget)
 
-
+            ////////////////////////////////////////////////////////////////////////////////////////
+            ///////                                 V3                                     /////////
+            ////////////////////////////////////////////////////////////////////////////////////////
             ParameterWidgetCode.PWCE_BUTTON_V3.number.toInt() ->
                 ButtonsItemV3(resultLabel[0], resultLabel[1], resultLabel[2], "description", widget)
 
             ParameterWidgetCode.PWCE_PLOT_V3.number.toInt() ->
                 PlotItemV3(resultLabel[0], widget)
+
+            ParameterWidgetCode.PWCE_SLIDER_V3.number.toInt() ->
+                SliderItemV3(resultLabel[0], widget)
+
+            ParameterWidgetCode.PWCE_TOGGLE_SLIDER_V3.number.toInt() ->
+                ToggleSliderItemV3(resultLabel[0], widget)
 
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }

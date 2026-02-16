@@ -26,9 +26,6 @@ class ButtonsDelegateAdapterV3(
         widget2ButtonTv.text = item.title2
         widget3ButtonTv.text = item.title3
         var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0))
-        var clickCommand = 0
-        var pressedCommand = 0
-        var releasedCommand = 0
         var countOfButtons = 1
 
 

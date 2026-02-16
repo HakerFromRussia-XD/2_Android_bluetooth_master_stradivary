@@ -54,4 +54,15 @@ object BLECommandsV3 {
         }
         return result
     }
+    fun calculationCRCRange(data: ByteArray, offset: Int, length: Int): Int {
+        var result = 0
+
+        val safeOffset = offset.coerceIn(0, data.size)
+        val endExclusive = (safeOffset + length).coerceIn(safeOffset, data.size)
+
+        for (i in safeOffset until endExclusive) {
+            result = CRC_TABLE[result xor (data[i].toInt() and 0xFF)]
+        }
+        return result
+    }
 }

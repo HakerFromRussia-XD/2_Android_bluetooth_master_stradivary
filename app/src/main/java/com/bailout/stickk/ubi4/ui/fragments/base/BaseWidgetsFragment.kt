@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDeleg
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
@@ -246,6 +247,16 @@ abstract class BaseWidgetsFragment : Fragment() {
                 }
             ),
             SliderDelegateAdapter(
+                onSetProgress = { addressDevice, parameterID, progress ->
+                    sendSliderProgress(
+                        addressDevice,
+                        parameterID,
+                        progress
+                    )
+                },
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            SliderDelegateAdapterV3(
                 onSetProgress = { addressDevice, parameterID, progress ->
                     sendSliderProgress(
                         addressDevice,

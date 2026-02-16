@@ -221,19 +221,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            bleManager.sendBytesKmm(
-//                requestThresholdValue(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-////            platformLog("BLEParserV3", "runCommandBtn")
+        binding.runCommandBtn.setOnClickListener {
+            bleManager.sendBytesKmm(
+                requestThresholdValue(),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
+//            platformLog("BLEParserV3", "runCommandBtn")
 //            platformLog("BLEParserV3", "send command requestDeviceData")
-////            bleManager.sendBytesKmm(
-////                BLECommandsV3.requestDeviceData(),
-////                SERIALPORTCHAR_UUID,
-////                WRITE
-////            ) {}
-//        }
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.requestDeviceData(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE
+//            ) {}
+        }
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE

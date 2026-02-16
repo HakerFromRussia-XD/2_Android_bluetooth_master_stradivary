@@ -148,7 +148,8 @@ object PreferenceKeysUbi4 {
         PWCE_SWITCH_V3                      (0x13),
         PWCE_COMBOBOX_V3                    (0x14),
         PWCE_SLIDER_V3                      (0x15),
-        PWCE_PLOT_V3                        (0x16)
+        PWCE_PLOT_V3                        (0x16),
+        PWCE_TOGGLE_SLIDER_V3               (0x17),
     }
 
 

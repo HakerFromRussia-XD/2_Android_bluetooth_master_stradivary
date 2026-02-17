@@ -265,7 +265,6 @@ class PlotDelegateAdapterV3 (
     private fun plotArrayFlowCollect() {
         scope?.launch(Dispatchers.IO) {
             try {
-                System.err.println("plotArrayFlowCollectttttt")
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
                         val indexWidgetPlot = getIndexWidgetPlot(
@@ -297,8 +296,6 @@ class PlotDelegateAdapterV3 (
                         }
                     },
                     thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
-                    // 3) (опционально) если хочешь реагировать на событие мерджа виджетов
-//                    widgetsMergeEventFlow.map { parameterRef -> }
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")

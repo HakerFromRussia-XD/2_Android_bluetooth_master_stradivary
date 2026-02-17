@@ -726,17 +726,17 @@ class BLEController(private val bleManager: BleManagerKmm) {
             WRITE
         ) {}
 
-//        delay(200)
-        // 3) Поднимаем NOTIFY 2
-//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
-//            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-//            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-//        }
-//        if (!mainChannelNotifyEnabled) {
-//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-//            return
-//        }
+        delay(200)
+//         3) Поднимаем NOTIFY 2
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+        }
+        if (!mainChannelNotifyEnabled) {
+            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+            return
+        }
 
         isTransferFlowActive = true
     }

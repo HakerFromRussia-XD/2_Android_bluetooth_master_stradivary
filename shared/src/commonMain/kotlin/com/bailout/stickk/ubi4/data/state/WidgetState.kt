@@ -60,6 +60,6 @@ object WidgetState {
         batteryPercentFlow = MutableSharedFlow(replay = 1)
         widgetsMergeEventFlow = MutableSharedFlow()
 
-        thresholdFlowV3 = MutableSharedFlow()
+        thresholdFlowV3 = MutableSharedFlow(replay = 1)
     }
 }

@@ -98,6 +98,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
     @Volatile
     private var needReRequestTransferFlow = false
     private val pendingNotifyAcks = ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
+    @Volatile
+    private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -240,6 +242,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             parseReceivedSensorsDataV3(intent.getByteArrayExtra(BluetoothLeService.SENSORS_STREAM_V3))
                         }
                         if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR) != null) {//используем как порт в UBIv4
+                            pendingDeviceDataResponseAck?.complete(true)
                             parseReceivedDataV3(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL_V3_SERIALPORTCHAR))
                         }
                     }
@@ -280,6 +283,21 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
         }
         return false
+    }
+    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 1500L): Boolean {
+        val responseAck = CompletableDeferred<Boolean>()
+        pendingDeviceDataResponseAck = responseAck
+        platformLog( "requestDeviceDataAndAwaitResponse","requestThresholdValue: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestThresholdValue())}")
+        platformLog( "requestDeviceDataAndAwaitResponse","requestDeviceData: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestDeviceData())}")
+        bleManager.sendBytesKmm(
+            BLECommandsV3.requestDeviceData(),
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {}
+
+        val responseReceived = withTimeoutOrNull(timeoutMs) { responseAck.await() } ?: false
+        pendingDeviceDataResponseAck = null
+        return responseReceived
     }
     private suspend fun firstNotificationRequestFull() {
         var attempts = 0
@@ -719,14 +737,19 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
 
         platformLog("BLEParserV3", "send command requestDeviceData")
-        // 2) Запрашиваем информацию по девайсам
-        bleManager.sendBytesKmm(
-            BLECommandsV3.requestDeviceData(),
-            SERIALPORTCHAR_UUID,
-            WRITE
-        ) {}
+        // 2) Запрашиваем информацию по девайсам и дожидаемся первого ответа
+        val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
+        if (!gotDeviceDataResponse) {
+            Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
+            main.showToast("Нет ответа requestDeviceData(), повторяем запрос")
 
-        delay(200)
+            val secondAttemptOk = requestDeviceDataAndAwaitResponse(timeoutMs = 2000L)
+            if (!secondAttemptOk) {
+                Log.w("BLEParserV3", "Повторный requestDeviceData() также без ответа")
+                main.showToast("Нет ответа requestDeviceData()")
+            }
+        }
+
 //         3) Поднимаем NOTIFY 2
         val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
             main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")

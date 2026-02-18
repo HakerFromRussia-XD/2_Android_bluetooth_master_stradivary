@@ -284,7 +284,7 @@ public class BluetoothLeService extends Service {
 
 
         private void requestMTU() {
-            int mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
+            int mtu = 100; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
 
             mBluetoothGatt.requestMtu(mtu);
 

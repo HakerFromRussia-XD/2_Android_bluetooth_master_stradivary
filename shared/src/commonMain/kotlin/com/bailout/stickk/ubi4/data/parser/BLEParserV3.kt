@@ -9,7 +9,6 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -27,7 +26,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -116,7 +114,7 @@ class BLEParserV3(
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
                     PWCE_GET_THRESHOLD_VALUE.number -> {
-                        val thresholds = parseThresholdParserZeroAlloc(receivePacket.payload)
+                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
                         coroutineScope.launch { thresholdFlowV3.emit(thresholds) }
                         platformLog("[parseReceivedData]", "thresholds: $thresholds")
                     }
@@ -240,7 +238,7 @@ class BLEParserV3(
             fwVersion = fwVersion
         )
     }
-    private fun parseThresholdParserZeroAlloc(payload: ByteArrayView?): ThresholdResult {
+    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdResult {
         if (payload == null || payload.length < 3) { return ThresholdResult() }
 
         val subcommand = payload.u8(0)

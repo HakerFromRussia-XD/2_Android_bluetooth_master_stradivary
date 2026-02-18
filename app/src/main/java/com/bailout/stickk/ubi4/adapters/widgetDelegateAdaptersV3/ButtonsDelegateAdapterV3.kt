@@ -49,9 +49,13 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 0 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
+                MotionEvent.ACTION_DOWN -> {
+                    onButtonPressedV3(moduleControlCommand!!)
+                    platformLog("[Ubi4Widget1ButtonBinding]","ACTION_DOWN")
+                }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0)
+                    platformLog("[Ubi4Widget1ButtonBinding]","ACTION_UP ACTION_CANCEL")}
             }
             true
         }

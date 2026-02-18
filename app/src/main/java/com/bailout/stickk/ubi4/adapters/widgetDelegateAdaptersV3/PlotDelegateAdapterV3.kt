@@ -15,8 +15,10 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.state.WidgetState
@@ -67,6 +69,10 @@ class PlotDelegateAdapterV3 (
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
+    private companion object {
+        val thresholdsRequestedOnFirstShow = AtomicBoolean(false)
+    }
+
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
@@ -664,10 +670,6 @@ class PlotDelegateAdapterV3 (
             delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         }
     }
-    private fun firstThresholdRefFrom(set: Set<ParameterInfo<Int, Int, Int, Int>>): Pair<Int, Int>? {
-        return set.firstOrNull { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-            ?.let { it.deviceAddress to it.parameterID }
-    }
 
 
     fun onDestroy() {
@@ -678,35 +680,11 @@ class PlotDelegateAdapterV3 (
         Log.d("onDestroy" , "onDestroy plot")
     }
     private fun requestThresholdsOnce() {
-        val addr = ParameterInfoProvider.getDeviceAddressByDataCode(
-            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
-            parameterInfoSet
-        )
-        val pid = ParameterInfoProvider.getParameterIDByCode(
-            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number,
-            parameterInfoSet
-        )
-
-        responseReceived.set(false)
-        if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
-            RetryUtils.sendRequestWithRetry(
-                request = {
-//                    if (UiState.isInterfaceV3Activated) {} else {
-//                        main.bleCommandWithQueue(
-//                            BLECommands.requestThresholds(addr, pid),
-//                            MAIN_CHANNEL_CHARACTERISTIC, WRITE
-//                        ) {}
-//                    }
-                },
-                isResponseReceived = { responseReceived.get() },
-                maxRetries = 5,
-                delayMillis = 1000L,
-                scope = GlobalScope
-            )
-        } else {
-            setUI(
-                ThresholdResult()
-            )
+        if (thresholdsRequestedOnFirstShow.compareAndSet(false, true)) {
+            main.bleCommandWithQueue(
+                requestThresholdValue(),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
         }
     }
 }

@@ -459,7 +459,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
             canSendFlag = false
-            bleCommand(byteArray, command, typeCommand)
+            mBLEController.bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 writeLock.wait()    // ждём, пока кто-то вызовет notify()
@@ -552,14 +552,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         syncShownOnce = true
         observeSyncProgress()
-    }
-
-    override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        mBLEController.bleCommand( byteArray, uuid, typeCommand )
-    }
-
-    override fun bleCommandV3(byteArray: ByteArray?) {
-        mBLEController.bleCommand( byteArray, SERIALPORTCHAR_UUID, WRITE)
     }
 
     private fun computeVisibleDisplays(): Set<Int> {

@@ -234,7 +234,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    if (intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
+                    if ((intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) && (!UiState.isInterfaceV3Activated)) {
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                     if (UiState.isInterfaceV3Activated) {

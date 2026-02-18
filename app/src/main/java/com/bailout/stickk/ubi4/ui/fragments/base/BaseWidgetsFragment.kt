@@ -74,24 +74,12 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             OneButtonDelegateAdapter(
-                onButtonPressed = { device, param, command ->
-                    oneButtonPressed(device, param, command)
-                },
-                onButtonReleased = { device, param, command ->
-                    oneButtonReleased(device, param, command)
-                },
                 onDestroyParent = { onDestroyParent ->
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
 
             ButtonsDelegateAdapterV3(
-                onButtonPressedV3 = { moduleControlCommand ->
-                    oneButtonPressedNewV3(moduleControlCommand)
-                },
-                onButtonReleasedV3 = { moduleControlCommand ->
-                    oneButtonReleasedNewV3(moduleControlCommand)
-                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
@@ -289,18 +277,12 @@ abstract class BaseWidgetsFragment : Fragment() {
     //CallBacks
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+        transmitter().bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+        transmitter().bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
         Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
-    }
-    open fun oneButtonPressedNewV3( moduleControlCommand: Int) {
-        transmitter().bleCommandV3(BLECommandsV3.sendCommand(moduleControlCommand))
-    }
-    open fun oneButtonReleasedNewV3( moduleControlCommand: Int) {
-        transmitter().bleCommandV3(BLECommandsV3.sendCommand(moduleControlCommand))
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")

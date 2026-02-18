@@ -86,7 +86,7 @@ class GesturesFragment : BaseWidgetsFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
                 Log.d("gestureStateWithEncodersObservable", "parameters = ${parameters.gesture.openPosition1}")
-                transmitter().bleCommand(BLECommands.sendGestureInfo (parameters), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+                transmitter().bleCommandWithQueue(BLECommands.sendGestureInfo (parameters), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
             }
         RxUpdateMainEventUbi4.getInstance().readCharacteristicBLE
             .compose(main?.bindToLifecycle())
@@ -132,7 +132,7 @@ class GesturesFragment : BaseWidgetsFragment() {
         // Проверяем результат
         Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
 
-        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE)
+        transmitter().bleCommandWithQueue(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     override fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {

@@ -2,10 +2,10 @@ package com.bailout.stickk.ubi4.utility
 
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Runnable
+import kotlin.time.TimeSource
 
 
 class BlockingQueueUbi4 {
-//    private val tasks = mutableListOf<Runnable>()
     private data class QueueEntry(
         val task: Runnable,
         val enqueuedAt: Long,
@@ -15,7 +15,7 @@ class BlockingQueueUbi4 {
     private val tasks = mutableListOf<QueueEntry>()
     private var canTake: Boolean = true // Флаг, разрешающий извлечение задачи
     private var lastAllowTime: Long = 0L // Время последнего события (например, dataReceive)
-    private val autoUnlockMs = 1000L
+    private val autoUnlockMs = 50L
 
     fun get(): Runnable {
         // Используем цикл с коротким сном, чтобы избежать busy loop

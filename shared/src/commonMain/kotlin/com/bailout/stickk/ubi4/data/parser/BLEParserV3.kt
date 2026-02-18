@@ -123,6 +123,10 @@ class BLEParserV3(
             }
         }
         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+        platformLog(
+            "sendBytesKmm",
+            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+        )
     }
 
     private fun parseUbiPacketZeroAlloc(data: ByteArray): UbiPacketView {

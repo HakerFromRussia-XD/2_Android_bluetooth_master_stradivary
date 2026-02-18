@@ -5,16 +5,18 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.ButtonsItemV3
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class ButtonsDelegateAdapterV3(
-    val onButtonPressedV3: (moduleControlCommand: Int) -> Unit,
-    val onButtonReleasedV3: (moduleControlCommand: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit) :
     ViewBindingDelegateAdapter<ButtonsItemV3, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
@@ -49,13 +51,9 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 0 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> {
-                    onButtonPressedV3(moduleControlCommand!!)
-                    platformLog("[Ubi4Widget1ButtonBinding]","ACTION_DOWN")
-                }
+                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0)
-                    platformLog("[Ubi4Widget1ButtonBinding]","ACTION_UP ACTION_CANCEL")}
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }
@@ -64,9 +62,9 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 1 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
+                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }
@@ -75,9 +73,9 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 2 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { onButtonPressedV3(moduleControlCommand!!) }
+                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { onButtonReleasedV3(0) }
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }

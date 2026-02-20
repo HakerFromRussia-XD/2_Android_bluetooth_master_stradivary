@@ -224,11 +224,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            bleManager.sendBytesKmm(
-                request(PWCE_GET_EMG_GAIN_VALUE.number),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
+//        binding.runCommandBtn.setOnClickListener {
+//            bleManager.sendBytesKmm(
+//                request(PWCE_GET_EMG_GAIN_VALUE.number),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
 //            platformLog("BLEParserV3", "runCommandBtn")
 //            platformLog("BLEParserV3", "send command requestDeviceData")
 //            bleManager.sendBytesKmm(
@@ -236,7 +236,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE
 //            ) {}
-        }
+//        }
+
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE

@@ -76,7 +76,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
-import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainV3
+import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
@@ -257,9 +257,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             true
         }
 
-        val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
+//        val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
+//        lifecycle.addObserver(bleStatusController)
+//        ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
+        val bleStatusController = ControllerBleStatusConnection(
+            context = this,
+            indicator = binding.bleIndicator,
+            isBleConnected = { mBLEController.getStatusConnected() }
+        )
         lifecycle.addObserver(bleStatusController)
-        ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
     }
 
 

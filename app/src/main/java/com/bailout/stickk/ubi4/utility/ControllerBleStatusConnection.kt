@@ -19,7 +19,8 @@ import kotlin.math.max
 
 class ControllerBleStatusConnection(
     private val context: Context,
-    private val indicator: LottieAnimationView
+    private val indicator: LottieAnimationView,
+    private val isBleConnected: () -> Boolean
 ) : DefaultLifecycleObserver {
 
     // ---- State ----
@@ -137,8 +138,20 @@ class ControllerBleStatusConnection(
         indicator.removeAllAnimatorListeners()
         indicator.addAnimatorListener(animListener)
         indicator.repeatMode = LottieDrawable.RESTART
-        // Стартуем с Reconnecting (луп)
-        play(UiState.Reconnecting, loopOverride = true)
+
+        // сброс хвостов анимации
+        indicator.cancelAnimation()
+        isPlaying = false
+        isLoopingNow = false
+        pendingState = null
+
+        // SNAPSHOT: если реально подключены — не трогаем Disconnected/Reconnecting
+        val connectedNow = runCatching { isBleConnected() }.getOrDefault(false)
+        if (connectedNow) {
+            requestState(UiState.Connected, loopOverride = false)
+        } else {
+            requestState(UiState.Reconnecting, loopOverride = true)
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {

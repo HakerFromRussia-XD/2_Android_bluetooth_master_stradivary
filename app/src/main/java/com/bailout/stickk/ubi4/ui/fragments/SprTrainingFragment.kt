@@ -120,10 +120,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (!autoDialogShown) {
-            val lastEmg8 = arguments?.getString(ARG_LAST_EMG8)
-            if (lastEmg8 != null) {                         // ← ключевое условие
+            arguments?.getString(ARG_LAST_EMG8)?.let {
                 view.post {
-                    showModelEmg8FilesDialog(lastEmg8) { selected ->
+                    showModelEmg8FilesDialog(it) { selected ->
                         startUploadSelectedTrainingFiles(selected)
                     }
                 }

@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
@@ -28,7 +29,6 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentD
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController

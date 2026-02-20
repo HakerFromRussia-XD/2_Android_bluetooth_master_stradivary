@@ -5,5 +5,10 @@ data class ParameterInfo<A, B, C, D>(
     val parameterID: A,
     val dataCode: B,
     val deviceAddress: C,
-    val dataOffset: D
+    val dataOffsets: D
+)
+
+data class ParameterInfoV3<A, B>(
+    val parameterID: A,
+    val dataOffsets: B
 )

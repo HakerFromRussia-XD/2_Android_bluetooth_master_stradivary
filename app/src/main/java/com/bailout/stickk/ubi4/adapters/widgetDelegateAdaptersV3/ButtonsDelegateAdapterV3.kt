@@ -48,7 +48,7 @@ class ButtonsDelegateAdapterV3(
 
         widget1Button.setOnTouchListener { v, event ->
             v.onTouchEvent(event)
-            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 0 }?.dataCode
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 0 }?.dataCode
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
@@ -59,7 +59,7 @@ class ButtonsDelegateAdapterV3(
         }
         widget2Button.setOnTouchListener { v, event ->
             v.onTouchEvent(event)
-            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 1 }?.dataCode
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 1 }?.dataCode
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
@@ -70,7 +70,7 @@ class ButtonsDelegateAdapterV3(
         }
         widget3Button.setOnTouchListener { v, event ->
             v.onTouchEvent(event)
-            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffset == 2 }?.dataCode
+            val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 2 }?.dataCode
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }

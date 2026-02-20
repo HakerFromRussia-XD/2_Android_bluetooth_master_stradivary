@@ -6,6 +6,10 @@ data class ParameterRef(
     val parameterID: Int,
     val dataCode: Int
 )
+data class ParameterRefV3(
+    val parameterID: Int,
+    val dataCode: Int
+)
 
 data class PlotParameterRef(
     val addressDevice: Int,
@@ -16,4 +20,8 @@ data class PlotParameterRef(
 data class ThresholdResult(
     val openThreshold: Int = 0,
     val closeThreshold: Int = 0
+)
+data class EMGGainResult(
+    val openGain: Int = 0,
+    val closeGain: Int = 0
 )

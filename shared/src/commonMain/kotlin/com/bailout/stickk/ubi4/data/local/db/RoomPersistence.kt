@@ -112,14 +112,14 @@ object RoomPersistence {
                 .asSequence()
                 .filter { it.deviceAddress == deviceAddr && it.parameterID == parameterId && it.dataCode == dataCode }
                 .forEach { info ->
-                    val b = hexByteAt(raw, info.dataOffset) ?: 0
+                    val b = hexByteAt(raw, info.dataOffsets) ?: 0
                     rows++
 
                     platformLog(
                         "ROOM_PERSIST",
                         "widget_state WRITE → mac=${WidgetRepoProvider.mac()} dev=$deviceAddr " +
                                 "wid=${base.widgetId} wcode=${base.widgetCode} " +
-                                "pid=$parameterId dcode=$dataCode offset=${info.dataOffset} " +
+                                "pid=$parameterId dcode=$dataCode offset=${info.dataOffsets} " +
                                 "byte=$b raw=$raw"
                     )
 
@@ -130,7 +130,7 @@ object RoomPersistence {
                             widgetCode  = base.widgetCode,
                             parameterId = parameterId,
                             dataCode    = dataCode,
-                            dataOffset  = info.dataOffset,
+                            dataOffset  = info.dataOffsets,
                             tsMs        = ts,
                             valueText   = raw,
                             valueI1     = b.toLong(),
@@ -244,7 +244,7 @@ fun extractKey(widget: Any): String {
     val param = base.parameterInfoSet.firstOrNull()
     return if (param != null) {
         "dev=${param.deviceAddress} wid=${base.widgetId} wcode=${base.widgetCode} " +
-                "pid=${param.parameterID} dcode=${param.dataCode} offset=${param.dataOffset}"
+                "pid=${param.parameterID} dcode=${param.dataCode} offset=${param.dataOffsets}"
     } else {
         "dev=${base.deviceId} wid=${base.widgetId} wcode=${base.widgetCode} NO_PARAM"
     }

@@ -29,7 +29,7 @@ class ParameterInfoProvider {
             dataCode: Int,
             parameterIDSet: Set<ParameterInfo<Int, Int, Int, Int>>
         ): Int {
-            return parameterIDSet.firstOrNull { it.dataCode == dataCode }?.dataOffset ?: 0
+            return parameterIDSet.firstOrNull { it.dataCode == dataCode }?.dataOffsets ?: 0
         }
     }
 }

@@ -81,7 +81,7 @@ internal fun ParameterInfo<Int, Int, Int, Int>.toPayload(): ParameterInfoPayload
         parameterID = parameterID,
         dataCode = dataCode,
         deviceAddress = deviceAddress,
-        dataOffset = dataOffset
+        dataOffset = dataOffsets
     )
 
 internal fun BaseSubDeviceInfoStruct.toPayload(): BaseSubDeviceInfoPayload =
@@ -272,7 +272,7 @@ internal fun ParameterInfoPayload.toModel(): ParameterInfo<Int, Int, Int, Int> =
         parameterID   = parameterID,
         dataCode      = dataCode,
         deviceAddress = deviceAddress,
-        dataOffset    = dataOffset
+        dataOffsets    = dataOffset
     )
 
 internal fun BaseParameterWidgetPayload.toBaseStruct(): BaseParameterWidgetStruct =

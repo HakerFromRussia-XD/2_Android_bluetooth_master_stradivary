@@ -32,6 +32,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestKolbasa
 import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
@@ -50,6 +52,7 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
@@ -223,7 +226,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         binding.runCommandBtn.setOnClickListener {
             bleManager.sendBytesKmm(
-                requestThresholdValue(),
+                request(PWCE_GET_EMG_GAIN_VALUE.number),
                 SERIALPORTCHAR_UUID,
                 WRITE){}
 //            platformLog("BLEParserV3", "runCommandBtn")

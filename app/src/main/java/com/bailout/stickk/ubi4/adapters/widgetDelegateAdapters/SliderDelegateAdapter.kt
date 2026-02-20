@@ -11,7 +11,6 @@ import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -102,7 +101,7 @@ class SliderDelegateAdapter(
                     .parameterInfoSet.elementAt(0).dataCode
                 // Собираем данные для всех параметров (например, dataOffset и dataCode)
                 widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    dataOffset.add(it.dataOffset)
+                    dataOffset.add(it.dataOffsets)
 
                 }
                 minProgress = widget.minProgress
@@ -123,7 +122,7 @@ class SliderDelegateAdapter(
                 dataCode = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
                     .parameterInfoSet.elementAt(0).dataCode
                 widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    dataOffset.add(it.dataOffset)
+                    dataOffset.add(it.dataOffsets)
                 }
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 minProgress = widget.minProgress
@@ -450,7 +449,7 @@ class SliderDelegateAdapter(
         }
     }
 
-private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
+    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
     val idx = widgetSlidersInfo.indexOfFirst {
         it.addressDevice == addressDevice && it.parameterID == parameterID
     }
@@ -460,7 +459,6 @@ private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
     return idx
 }
 
-//    override fun isForViewType(item: Any): Boolean = item is SliderItem
     override fun isForViewType(item: Any): Boolean =
         item is SliderItem && (
                 item.widget is SliderParameterWidgetEStruct ||

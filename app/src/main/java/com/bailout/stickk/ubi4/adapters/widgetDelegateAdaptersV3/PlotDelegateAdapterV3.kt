@@ -84,7 +84,7 @@ class PlotDelegateAdapterV3 (
     private var openThreshold = 0
     private var closeThreshold = 0
 
-
+    private var collectJob: kotlinx.coroutines.Job? = null
 
     private val responseReceived = AtomicBoolean(false)
 
@@ -95,26 +95,9 @@ class PlotDelegateAdapterV3 (
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 
-        var dataCode = 0
-
         when (val widget = plotItem.widget) {
-            is PlotParameterWidgetEStruct -> {
-                parameterInfoSet =
-                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-                dataCode =
-                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
-                        0
-                    ).dataCode
-            }
-
             is PlotParameterWidgetSStruct -> {
-                parameterInfoSet =
-                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
-                dataCode =
-                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(
-                        0
-                    ).dataCode
-
+                parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
             }
         }
 
@@ -169,7 +152,6 @@ class PlotDelegateAdapterV3 (
                     numberOfCharts = 0
                 }
             }
-
         }
         Log.d("PlotDelegateAdapter", "Количество графиков: $numberOfCharts")
 
@@ -269,7 +251,8 @@ class PlotDelegateAdapterV3 (
     override fun isForViewType(item: Any): Boolean = item is PlotItemV3
     override fun PlotItemV3.getItemId(): Any = title
     private fun plotArrayFlowCollect() {
-        scope?.launch(Dispatchers.IO) {
+        if (collectJob?.isActive == true) return
+        collectJob = scope?.launch(Dispatchers.IO) {
             try {
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
@@ -676,6 +659,8 @@ class PlotDelegateAdapterV3 (
         graphThreadFlag = false
         setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
         setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+        collectJob?.cancel()
+        collectJob = null
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }

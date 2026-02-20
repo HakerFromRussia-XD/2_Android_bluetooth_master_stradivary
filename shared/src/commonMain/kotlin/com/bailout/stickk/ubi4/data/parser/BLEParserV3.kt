@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.sliderEMGGainFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
@@ -26,6 +27,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -118,7 +120,10 @@ class BLEParserV3(
                         coroutineScope.launch { thresholdFlowV3.emit(thresholds) }
                         platformLog("[parseReceivedData]", "thresholds: $thresholds")
                     }
-                    PWCE_GET_EMG_GAIN_VALUE.number -> {}
+                    PWCE_GET_EMG_GAIN_VALUE.number -> {
+                        val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
+                        coroutineScope.launch { sliderEMGGainFlowV3.emit(parseEMGGain) }
+                    }
                 }
             }
         }
@@ -243,6 +248,7 @@ class BLEParserV3(
         )
     }
     private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdResult {
+        //парсинг PWCE_GET_THRESHOLD_VALUE
         if (payload == null || payload.length < 3) { return ThresholdResult() }
 
         val subcommand = payload.u8(0)
@@ -254,6 +260,20 @@ class BLEParserV3(
             closeThreshold = closeThreshold
         )
     }
+    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainResult {
+        // парсинг PWCE_GET_EMG_GAIN
+        if (payload == null || payload.length < 3) { return EMGGainResult() }
+
+        val subcommand = payload.u8(0)
+        val openGain = payload.u8(1)
+        val closeGain = payload.u8(2)
+
+        return EMGGainResult(
+            openGain = openGain,
+            closeGain = closeGain
+        )
+    }
+
 
 
     suspend fun generatedHardcodeWidgets() {
@@ -261,7 +281,7 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 0,
             widgetCode = PWCE_PLOT_V3.number.toInt(),
-            deviceId = 1,
+            deviceId = 0,
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfo(1, 1, 1, 0),
@@ -274,9 +294,9 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 2,
+            deviceId = 0,
             widgetId = 2,
-            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfo(2, PDCE_EMG_CH_1_3_VAL.number, 2, 0))
         )
             ,"Чувствительность датчика открытия"
         ))
@@ -284,9 +304,9 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 3,
+            deviceId = 0,
             widgetId = 3,
-            parameterInfoSet = mutableSetOf(ParameterInfo(3, 3, 3, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfo(3, PDCE_EMG_CH_1_3_VAL.number, 3, 1))
         )
             ,"Чувствительность датчика закрытия"
         ))
@@ -294,21 +314,11 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 3,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
-            deviceId = 4,
+            deviceId = 0,
             widgetId = 4,
             parameterInfoSet = mutableSetOf(ParameterInfo(4, 4, 4, 0))
         )
             ,"Калибровка протеза"
-        ))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 1,
-            widgetPosition = 0,
-            widgetCode = PWCE_OPEN_CLOSE_THRESHOLD.number.toInt(),
-            deviceId = 1,
-            widgetId = 1,
-            parameterInfoSet = mutableSetOf(ParameterInfo(1, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
-        )
-            ,"Пороги"
         ))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
@@ -318,7 +328,7 @@ class BLEParserV3(
                 display = 1,
                 widgetPosition = 4,
                 widgetCode = PWCE_BUTTON_V3.number.toInt(),
-                deviceId = 5,
+                deviceId = 0,
                 widgetId = 5,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
@@ -330,7 +340,7 @@ class BLEParserV3(
             display = 2,
             widgetPosition = 0,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 6,
+            deviceId = 0,
             widgetId = 6,
             parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
         )
@@ -340,7 +350,7 @@ class BLEParserV3(
             display = 3,
             widgetPosition = 0,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 7,
+            deviceId = 0,
             widgetId = 7,
             parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
         )

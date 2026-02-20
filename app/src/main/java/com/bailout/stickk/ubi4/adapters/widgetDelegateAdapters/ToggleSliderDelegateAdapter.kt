@@ -120,7 +120,7 @@ class ToggleSliderDelegateAdapter(
                 addressDevice = s.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = s.parameterInfoSet.elementAt(0).parameterID
                 dataCode = s.parameterInfoSet.elementAt(0).dataCode
-                s.parameterInfoSet.forEach { dataOffset.add(it.dataOffset) }
+                s.parameterInfoSet.forEach { dataOffset.add(it.dataOffsets) }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
                 increment = widget.increment
@@ -132,7 +132,7 @@ class ToggleSliderDelegateAdapter(
                 addressDevice = s.parameterInfoSet.elementAt(0).deviceAddress
                 parameterID = s.parameterInfoSet.elementAt(0).parameterID
                 dataCode = s.parameterInfoSet.elementAt(0).dataCode
-                s.parameterInfoSet.forEach { dataOffset.add(it.dataOffset) }
+                s.parameterInfoSet.forEach { dataOffset.add(it.dataOffsets) }
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
                 increment = widget.increment

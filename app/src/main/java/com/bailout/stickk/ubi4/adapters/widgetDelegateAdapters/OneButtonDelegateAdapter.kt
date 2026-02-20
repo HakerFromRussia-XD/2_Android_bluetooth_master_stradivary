@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
+package com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -70,10 +70,14 @@ class OneButtonDelegateAdapter(
                     MotionEvent.ACTION_UP,
                     MotionEvent.ACTION_CANCEL -> main.bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, releasedCommand), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
                 }
+                Log.d("OneButtonTest", " widget1Button run")
+
             } else {
                 if (event.action == MotionEvent.ACTION_UP) {
                     main.bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, clickCommand), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
                 }
+                Log.d("OneButtonTest", " widget1Button else run")
+
             }
             true
         }

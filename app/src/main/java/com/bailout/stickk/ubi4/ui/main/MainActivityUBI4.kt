@@ -342,6 +342,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
         val fragment = MotionTrainingFragment(onFinishTraining)
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()

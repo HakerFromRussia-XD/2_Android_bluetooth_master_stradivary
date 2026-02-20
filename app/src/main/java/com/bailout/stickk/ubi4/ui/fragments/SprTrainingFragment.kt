@@ -100,15 +100,16 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
         canSendNextChunkFlagUpdater()
-        binding.refreshLayout.setLottieAnimation("loader_3.json")
-        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+        binding.apply {
+            refreshLayout.setLottieAnimation("loader_3.json")
+            refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+            refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+            refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+            sprTrainingRv.layoutManager = LinearLayoutManager(context)
+            sprTrainingRv.adapter = adapterWidgets
+        }
 //        binding.refreshLayout.isEnabled = false
 
-
-        binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
-        binding.sprTrainingRv.adapter = adapterWidgets
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         // подписка на прогресс обучения модели
 //        subscribeTrainingUpload()

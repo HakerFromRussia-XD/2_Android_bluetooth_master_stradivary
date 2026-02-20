@@ -814,7 +814,7 @@
         errorLine1="    private fun updateSwitchState(newState: Boolean, switch: Switch) {"
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="149"
             column="54"/>
     </issue>
@@ -825,7 +825,7 @@
         errorLine1="    private fun processingMobileSettings(keyMobileSettings: String, switch: Switch) {"
         errorLine2="                                                                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="154"
             column="69"/>
     </issue>
@@ -1166,7 +1166,7 @@
         errorLine1="        _indicatorOpticStreamIv.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_green))"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="221"
             column="50"/>
     </issue>
@@ -1177,7 +1177,7 @@
         errorLine1="                _indicatorOpticStreamIv.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="228"
             column="58"/>
     </issue>
@@ -1738,7 +1738,7 @@
         errorLine1="                Log.d(&quot;ParamInfo deviceAddress&quot;, &quot;deviceAddress1 : $deviceAddress&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="92"
             column="17"/>
     </issue>
@@ -1749,7 +1749,7 @@
         errorLine1="                Log.d(&quot;ParamInfo deviceAddress&quot;, &quot;deviceAddress2 : $deviceAddress&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="94"
             column="17"/>
     </issue>
@@ -1760,7 +1760,7 @@
         errorLine1="                Log.d(&quot;ParamInfo&quot;, &quot; ParamInfoEStruct parameterIDSet: $parameterIDSet&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="98"
             column="17"/>
     </issue>
@@ -1771,7 +1771,7 @@
         errorLine1="                Log.d(&quot;ParamInfo&quot;, &quot; ParamInfoSStruct parameterIDSet: $parameterIDSet&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="104"
             column="17"/>
     </issue>
@@ -1782,7 +1782,7 @@
         errorLine1="                    Log.d(&quot;GesturesDelegateAdapter&quot;, &quot;GestureCollectionBtn ${i + 1} clicked&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="186"
             column="21"/>
     </issue>
@@ -1793,7 +1793,7 @@
         errorLine1="                    Log.d(&quot;GesturesDelegateAdapter&quot;, &quot;GestureCollectionBtn ${i + 2} clicked&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="194"
             column="21"/>
     </issue>
@@ -1804,7 +1804,7 @@
         errorLine1="                Log.d(&quot;GesturesDelegateAdapter&quot;, &quot;GestureCollectionBtn ${63 + i} clicked&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="210"
             column="17"/>
     </issue>
@@ -1815,7 +1815,7 @@
         errorLine1="                Log.d(&quot;gestureCustomBtn&quot;, &quot;gestureSettingsBtn $i&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="215"
             column="17"/>
     </issue>
@@ -1826,7 +1826,7 @@
         errorLine1="                    Log.d("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="292"
             column="21"/>
     </issue>
@@ -1837,7 +1837,7 @@
         errorLine1="        Log.d(&quot;LifeCycele&quot;, &quot;stopCollectingGestureFlow&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesDelegateAdapter.kt"
             line="493"
             column="9"/>
     </issue>
@@ -1870,7 +1870,7 @@
         errorLine1="        Log.d(&quot;GesturesAdapter&quot;, &quot;onAttachedToWindow run&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="521"
             column="9"/>
     </issue>
@@ -1881,7 +1881,7 @@
         errorLine1="        Log.d(&quot;BorderAnimator&quot;, &quot;collectActiveFlows() started&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="598"
             column="9"/>
     </issue>
@@ -1892,7 +1892,7 @@
         errorLine1="                Log.d(&quot;collectActiveFlows&quot;, &quot;Job was cancelled: ${e.message}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="674"
             column="17"/>
     </issue>
@@ -1903,7 +1903,7 @@
         errorLine1="                    Log.e(&quot;collectActiveFlows&quot;, &quot;ERROR collectActiveFlows: $e&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="678"
             column="21"/>
     </issue>
@@ -1914,7 +1914,7 @@
         errorLine1="                Log.d(&quot;GesturesOpticDelegateAdapter&quot;, &quot;Отправил onRequestBindingGroup&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="706"
             column="17"/>
     </issue>
@@ -1925,7 +1925,7 @@
         errorLine1="                Log.d(&quot;GesturesOpticDelegateAdapter&quot;, &quot;Отправил onRequestRotationGroup&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="720"
             column="17"/>
     </issue>
@@ -1936,7 +1936,7 @@
         errorLine1="        Log.d(&quot;ActiveGestureTest&quot;,"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="734"
             column="9"/>
     </issue>
@@ -1947,7 +1947,7 @@
         errorLine1="        Log.d("
         errorLine2="        ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="737"
             column="9"/>
     </issue>
@@ -1958,7 +1958,7 @@
         errorLine1="        Log.d(&quot;GesturesAdapter&quot;, &quot;Final loaded gesture names: $gestureNameList&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="779"
             column="9"/>
     </issue>
@@ -1969,7 +1969,7 @@
         errorLine1="                Log.e(&quot;GesturesAdapter&quot;, &quot;Ошибка обновления имени жеста $i: ${e.localizedMessage}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="791"
             column="17"/>
     </issue>
@@ -2618,7 +2618,7 @@
         errorLine1="                    Log.d(&quot;TestButton&quot;, &quot;$it&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/OneButtonDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/OneButtonDelegateAdapter.kt"
             line="38"
             column="21"/>
     </issue>
@@ -2629,7 +2629,7 @@
         errorLine1="                    Log.d(&quot;TestButton&quot;, &quot;deviceId = $addressDevice&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/OneButtonDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/OneButtonDelegateAdapter.kt"
             line="39"
             column="21"/>
     </issue>
@@ -2640,7 +2640,7 @@
         errorLine1="        Log.d(&quot;onDestroy&quot; , &quot;onDestroy button&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/OneButtonDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/OneButtonDelegateAdapter.kt"
             line="87"
             column="9"/>
     </issue>
@@ -2651,7 +2651,7 @@
         errorLine1="        Log.d(&quot;PlotDelegateAdapter&quot;, &quot;parameterInfoSet: $parameterInfoSet&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="88"
             column="9"/>
     </issue>
@@ -2662,7 +2662,7 @@
         errorLine1="        Log.d(&quot;PlotDelegateAdapter&quot;, &quot;parameterInfoSet size: ${parameterInfoSet.size}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="130"
             column="9"/>
     </issue>
@@ -2673,7 +2673,7 @@
         errorLine1="            Log.d(&quot;PlotDelegateAdapter&quot;, &quot;ParameterInfo: $it&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="132"
             column="13"/>
     </issue>
@@ -2684,7 +2684,7 @@
         errorLine1="        Log.d(&quot;PlotDelegateAdapter&quot;, &quot;deviceAddress = $addressDevice&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="152"
             column="9"/>
     </issue>
@@ -2695,7 +2695,7 @@
         errorLine1="                    Log.d("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="167"
             column="21"/>
     </issue>
@@ -2706,7 +2706,7 @@
         errorLine1="                    Log.d(&quot;PlotDelegateAdapter&quot;, &quot;Количество графиков: $numberOfCharts&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="173"
             column="21"/>
     </issue>
@@ -2717,7 +2717,7 @@
         errorLine1="                    Log.d("
         errorLine2="                    ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="184"
             column="21"/>
     </issue>
@@ -2728,7 +2728,7 @@
         errorLine1="            Log.d("
         errorLine2="            ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="208"
             column="13"/>
     </issue>
@@ -2739,7 +2739,7 @@
         errorLine1="            Log.d("
         errorLine2="            ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="220"
             column="13"/>
     </issue>
@@ -2750,7 +2750,7 @@
         errorLine1="        Log.d(&quot;PlotDelegateAdapter&quot;, &quot;parametersIDAndDataCodes = $parameterInfoSet&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="230"
             column="9"/>
     </issue>
@@ -2761,7 +2761,7 @@
         errorLine1="                        Log.d(&quot;Plot&quot;, &quot;openThreshold send $openThreshold&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="250"
             column="25"/>
     </issue>
@@ -2772,7 +2772,7 @@
         errorLine1="                        Log.d(&quot;Plot&quot;, &quot;closeThreshold send $closeThreshold&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="277"
             column="25"/>
     </issue>
@@ -2783,7 +2783,7 @@
         errorLine1="        Log.d(&quot;Plot view&quot;,&quot;View attached&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="317"
             column="9"/>
     </issue>
@@ -2794,7 +2794,7 @@
         errorLine1="            Log.d(&quot;Plot view&quot;, &quot;2 Scope already exists, skipping.&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="319"
             column="13"/>
     </issue>
@@ -2805,7 +2805,7 @@
         errorLine1="        Log.d(&quot;Plot view&quot;,&quot;View detached&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="333"
             column="9"/>
     </issue>
@@ -2816,7 +2816,7 @@
         errorLine1="                Log.d(&quot;plotArrayFlowCollect&quot;, &quot;Job was cancelled: ${e.message}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="376"
             column="17"/>
     </issue>
@@ -2827,7 +2827,7 @@
         errorLine1="                Log.e(&quot;plotArrayFlowCollect&quot;, &quot;Exception: ${e.message}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="381"
             column="17"/>
     </issue>
@@ -2838,7 +2838,7 @@
         errorLine1="            Log.d(&quot;Plot view&quot;, &quot;graphThreadFlag&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="537"
             column="13"/>
     </issue>
@@ -2849,7 +2849,7 @@
         errorLine1="            Log.d(&quot;Plot view&quot;, &quot;false graphThreadFlag&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="539"
             column="13"/>
     </issue>
@@ -2860,7 +2860,7 @@
         errorLine1="            Log.d(&quot;Plot view&quot;,&quot;создание новых DataSet  numberOfCharts = $numberOfCharts  countBinding = $countBinding &quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="571"
             column="13"/>
     </issue>
@@ -2871,7 +2871,7 @@
         errorLine1="        Log.d(&quot;onDestroy&quot; , &quot;onDestroy plot&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/PlotDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/PlotDelegateAdapter.kt"
             line="740"
             column="9"/>
     </issue>
@@ -2970,7 +2970,7 @@
         errorLine1="        Log.d(&quot;SliderAdapterTest&quot;, &quot;onBind RUN&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="45"
             column="9"/>
     </issue>
@@ -2981,7 +2981,7 @@
         errorLine1="                Log.d("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="75"
             column="17"/>
     </issue>
@@ -2992,7 +2992,7 @@
         errorLine1="                Log.d("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="94"
             column="17"/>
     </issue>
@@ -3003,7 +3003,7 @@
         errorLine1="                    Log.d(&quot;SliderRequest&quot;, &quot;addressDevice = $addressDevice, parameterID = $parameterID&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="187"
             column="21"/>
     </issue>
@@ -3014,7 +3014,7 @@
         errorLine1="            Log.d(&quot;RequestUtils&quot;, &quot;ВЕТКА IF Запрос выполнен: firstReceiveDataFlag true parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="198"
             column="13"/>
     </issue>
@@ -3025,7 +3025,7 @@
         errorLine1="            Log.d(&quot;RequestUtils&quot;, &quot;ВЕТКА ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="203"
             column="13"/>
     </issue>
@@ -3036,7 +3036,7 @@
         errorLine1="            Log.e(&quot;updateSliderProgress&quot;, &quot;Не найден sliderInfo для widgetPosition = $widgetPosition&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="211"
             column="13"/>
     </issue>
@@ -3047,7 +3047,7 @@
         errorLine1="            Log.e(&quot;updateSliderProgress&quot;, &quot;Нет значения progress для sliderIndex = $sliderIndex&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="216"
             column="13"/>
     </issue>
@@ -3058,7 +3058,7 @@
         errorLine1="        Log.d(&quot;setUITest&quot;, &quot;ParameterRef = $parameterRef, parameter = $parameter&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="243"
             column="9"/>
     </issue>
@@ -3069,7 +3069,7 @@
         errorLine1="        Log.d(&quot;parameter sliderCollect&quot;, &quot;перед обновлением слайдера: addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, data=${parameter.data}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="244"
             column="9"/>
     </issue>
@@ -3080,7 +3080,7 @@
         errorLine1="                    Log.d(&quot;SliderDebug&quot;, &quot;Слайдер[$index]: sizeOf=$sizeOf, data.length=${parameter.data.length}&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="251"
             column="21"/>
     </issue>
@@ -3091,7 +3091,7 @@
         errorLine1="                Log.e(&quot;SliderDebug&quot;, &quot;Ошибка при обработке данных: ${e.message}&quot;, e)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="268"
             column="17"/>
     </issue>
@@ -3102,7 +3102,7 @@
         errorLine1="                Log.d(&quot;SliderDebug&quot;, &quot;Установлен флаг responseReceived=true для слайдера с индексом $indexWidgetSlider&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="273"
             column="17"/>
     </issue>
@@ -3113,7 +3113,7 @@
         errorLine1="            Log.d(&quot;parameter sliderCollect&quot;, &quot;НЕТ слайдера для параметров: addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="276"
             column="13"/>
     </issue>
@@ -3124,7 +3124,7 @@
         errorLine1="                Log.d(&quot;parameter sliderCollect&quot;, &quot;Существующий слайдер: addressDevice = ${it.addressDevice}, parameterID = ${it.parameterID}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="278"
             column="17"/>
     </issue>
@@ -3135,7 +3135,7 @@
         errorLine1="        Log.d(&quot;SliderDebug&quot;, &quot;Received parameter.data = &apos;${parameter.data}&apos;, длина = ${parameter.data.length}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="281"
             column="9"/>
     </issue>
@@ -3146,7 +3146,7 @@
         errorLine1="        Log.d(&quot;SliderAdapterTest&quot;, &quot;onDestroy slider&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SliderDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SliderDelegateAdapter.kt"
             line="303"
             column="9"/>
     </issue>
@@ -3157,7 +3157,7 @@
         errorLine1="                Log.d("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="60"
             column="17"/>
     </issue>
@@ -3168,7 +3168,7 @@
         errorLine1="                Log.d("
         errorLine2="                ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="72"
             column="17"/>
     </issue>
@@ -3179,7 +3179,7 @@
         errorLine1="                Log.w(&quot;SpinnerDelegateAdapter&quot;, &quot;Unknown widget type: ${item.widget}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="78"
             column="17"/>
     </issue>
@@ -3190,7 +3190,7 @@
         errorLine1="        Log.d(&quot;SpinnerDelegateAdapter&quot;, &quot;Bind spinner: address=$addressDevice, param=$parameterID, items=$spinnerItems&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="87"
             column="9"/>
     </issue>
@@ -3201,7 +3201,7 @@
         errorLine1="            Log.d(&quot;SpinnerDelegateAdapter&quot;, &quot;User selected $newItem (pos=$newIndex) from $spinnerItems&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="105"
             column="13"/>
     </issue>
@@ -3212,7 +3212,7 @@
         errorLine1="                        Log.d(&quot;SpinnerCollect&quot;, &quot;Got data = ${parameter.data} for device=${parameterRef.addressDevice}, paramID=${parameterRef.parameterID}&quot;)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="128"
             column="25"/>
     </issue>
@@ -3223,7 +3223,7 @@
         errorLine1="        Log.d(&quot;SpinnerDelegateAdapter&quot;, &quot;onDestroy spinner&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SpinnerDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SpinnerDelegateAdapter.kt"
             line="159"
             column="9"/>
     </issue>
@@ -3465,7 +3465,7 @@
         errorLine1="        Log.d(&quot;TestTitle&quot;, &quot;${item.title}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="97"
             column="9"/>
     </issue>
@@ -3476,7 +3476,7 @@
         errorLine1="            Log.d(&quot;sendSwitcherState&quot;, &quot;setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="106"
             column="13"/>
     </issue>
@@ -3487,7 +3487,7 @@
         errorLine1="                    Log.d(&quot;SwitcherRequest&quot;, &quot;addressDevice = $addressDevice parameterID = $parameterID&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="119"
             column="21"/>
     </issue>
@@ -3498,7 +3498,7 @@
         errorLine1="            Log.d(&quot;RequestUtilsSwitch&quot;,  &quot;IF Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="132"
             column="13"/>
     </issue>
@@ -3509,7 +3509,7 @@
         errorLine1="            Log.d(&quot;RequestUtilsSwitch&quot;,  &quot;ELSE Запрос не выполнен: firstReceiveDataFlag false! parameterData = ${ParameterProvider.getParameter(addressDevice,parameterID).data} deviceAddress = $addressDevice, parameterId = $parameterID&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="136"
             column="13"/>
     </issue>
@@ -3520,7 +3520,7 @@
         errorLine1="        Log.d("
         errorLine2="        ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="182"
             column="9"/>
     </issue>
@@ -3531,7 +3531,7 @@
         errorLine1="        Log.d(&quot;RequestUtilsSwitch&quot;,  &quot;parameterData = ${ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID).data} deviceAddress = ${parameterRef.addressDevice}, parameterId = ${parameterRef.parameterID}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="186"
             column="9"/>
     </issue>
@@ -3542,7 +3542,7 @@
         errorLine1="        Log.d("
         errorLine2="        ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="188"
             column="9"/>
     </issue>
@@ -3553,7 +3553,7 @@
         errorLine1="        Log.d("
         errorLine2="        ^">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="192"
             column="9"/>
     </issue>
@@ -3564,7 +3564,7 @@
         errorLine1="                Log.d(&quot;switchCollect&quot;,&quot;$e&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="203"
             column="17"/>
     </issue>
@@ -3575,7 +3575,7 @@
         errorLine1="                Log.d(&quot;OPTIC DATA&quot;, &quot;data = ${ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID).data}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="214"
             column="17"/>
     </issue>
@@ -3586,7 +3586,7 @@
         errorLine1="        Log.d(&quot;onDestroy&quot; , &quot;onDestroy swich&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/SwitcherDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/SwitcherDelegateAdapter.kt"
             line="247"
             column="9"/>
     </issue>
@@ -3597,7 +3597,7 @@
         errorLine1="        Log.d(&quot;TestWidgetView&quot;, &quot;Start onBind, item: ${item} item.getItemId() = ${item.getItemId()}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="46"
             column="9"/>
     </issue>
@@ -3608,7 +3608,7 @@
         errorLine1="        Log.d(&quot;TestWidgetViewdfsghg&quot;, &quot;test int ${main.getPercentProgressLearningModel()}&quot;)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="55"
             column="9"/>
     </issue>
@@ -3619,7 +3619,7 @@
         errorLine1="            Log.d(&quot;TestWidgetView&quot;, &quot;setOnClickListener OK&quot;)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="73"
             column="13"/>
     </issue>
@@ -3630,7 +3630,7 @@
         errorLine1="                    Log.d(&quot;StateFlowCollector&quot;, &quot;Collected state: $state&quot;)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="83"
             column="21"/>
     </issue>
@@ -3641,7 +3641,7 @@
         errorLine1="                            Log.d(&quot;StateFlowCollector&quot;, &quot;scope 2 run&quot;)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="88"
             column="29"/>
     </issue>
@@ -3652,7 +3652,7 @@
         errorLine1="                Log.d(&quot;StateFlowCollector&quot;, &quot;Job was cancelled: ${e.message}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="95"
             column="17"/>
     </issue>
@@ -3663,7 +3663,7 @@
         errorLine1="                Log.e(&quot;StateFlowCollector&quot;, &quot;Exception: ${e.message}&quot;)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="99"
             column="17"/>
     </issue>
@@ -4064,7 +4064,7 @@
         errorLine1="        listRotationGroupAdapter?.notifyDataSetChanged()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="807"
             column="9"/>
     </issue>
@@ -10562,7 +10562,7 @@
         errorLine1="                activeGestureNameTv.text = &quot;Active gesture is: ${gestureCustomTv?.text ?: &quot;Unknown&quot;}&quot;"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="351"
             column="44"/>
     </issue>
@@ -10573,7 +10573,7 @@
         errorLine1="                activeGestureNameTv.text = &quot;Active gesture is: ${gestureCustomTv?.text ?: &quot;Unknown&quot;}&quot;"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/GesturesOpticDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/GesturesOpticDelegateAdapter.kt"
             line="351"
             column="45"/>
     </issue>
@@ -10584,7 +10584,7 @@
         errorLine1="                            _percentLearning.text = main?.getPercentProgressLearningModel().toString() + &quot; %&quot;"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegeteAdapters/TrainingFragmentDelegateAdapter.kt"
+            file="src/main/java/com/bailout/stickk/ubi4/adapters/widgetDelegateAdapters/TrainingFragmentDelegateAdapter.kt"
             line="87"
             column="53"/>
     </issue>

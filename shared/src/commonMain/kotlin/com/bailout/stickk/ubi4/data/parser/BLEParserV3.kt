@@ -4,10 +4,11 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3.calculationCRCRange
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.sliderEMGGainFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
@@ -35,13 +36,19 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CLOSE_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class BLEParserV3(
     private val coroutineScope: CoroutineScope,
@@ -122,7 +129,12 @@ class BLEParserV3(
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
-                        coroutineScope.launch { sliderEMGGainFlowV3.emit(parseEMGGain) }
+                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD)
+                        var parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        platformLog("baseSubDevicesInfoStructSet", "Json.encodeToString(parseEMGGain) = ${Json.encodeToString(parseEMGGain)}")
+                        parameter.data = Json.encodeToString(parseEMGGain)
+                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
                     }
                 }
             }
@@ -277,6 +289,7 @@ class BLEParserV3(
 
 
     suspend fun generatedHardcodeWidgets() {
+        baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
             widgetPosition = 0,
@@ -284,9 +297,9 @@ class BLEParserV3(
             deviceId = 0,
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
-                ParameterInfo(1, 1, 1, 0),
-                ParameterInfo(2, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
-                ParameterInfo(3, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0))
+                ParameterInfoRegistry.require(P_KEY_PLOT),
+                ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD),
+                ParameterInfoRegistry.require(P_KEY_CLOSE_THRESHOLD))
         )
             ,"Графики"
         ))
@@ -296,7 +309,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 2,
-            parameterInfoSet = mutableSetOf(ParameterInfo(2, PDCE_EMG_CH_1_3_VAL.number, 2, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 0, 0))
         )
             ,"Чувствительность датчика открытия"
         ))
@@ -306,7 +319,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 3,
-            parameterInfoSet = mutableSetOf(ParameterInfo(3, PDCE_EMG_CH_1_3_VAL.number, 3, 1))
+            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 0, 1))
         )
             ,"Чувствительность датчика закрытия"
         ))
@@ -356,9 +369,75 @@ class BLEParserV3(
         )
             ,"Чувствительность датчика открытия"
         ))
+        generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
     }
+    private fun generatedParameters() {
+//        val deviceAddress -> list of BaseParameterInfoStruct (без перетирания по ID)
+        val parametersByDevice = linkedMapOf<Int, ArrayList<BaseParameterInfoStruct>>()
+
+        baseParameterWidgetSStruct.forEach { widget ->
+            val baseStruct = widget.baseStructOrNull() ?: return@forEach
+
+            baseStruct.parameterInfoSet.forEach { parameterInfo ->
+                val deviceAddress = (parameterInfo.deviceAddress as? Number)?.toInt() ?: return@forEach
+                val parameterId = (parameterInfo.parameterID as? Number)?.toInt() ?: return@forEach
+                val dataCode = (parameterInfo.dataCode as? Number)?.toInt() ?: 0
+
+                val list = parametersByDevice.getOrPut(deviceAddress) { arrayListOf() }
+                list.add(
+                    BaseParameterInfoStruct(
+                        ID = parameterId,
+                        dataCode = dataCode
+                    )
+                )
+            }
+        }
+
+        baseSubDevicesInfoStructSet.clear()
+        parametersByDevice.forEach { (deviceAddress, list) ->
+            baseSubDevicesInfoStructSet.add(
+                BaseSubDeviceInfoStruct(
+                    deviceAddress = deviceAddress,
+                    parametersNum = list.size,
+                    parametersList = list
+                )
+            )
+            platformLog("baseSubDevicesInfoStructSet", "device=$deviceAddress count=${list.size} list=$list")
+        }
+    }
+//    private fun generatedParameters() {
+//        val parametersByDevice = linkedMapOf<Int, LinkedHashMap<Int, BaseParameterInfoStruct>>()
+//
+//        baseParameterWidgetSStruct.forEach { widget ->
+//            val baseStruct = widget.baseStructOrNull() ?: return@forEach
+//
+//            baseStruct.parameterInfoSet.forEach { parameterInfo ->
+//                val deviceAddress = (parameterInfo.deviceAddress as? Number)?.toInt() ?: return@forEach
+//                val parameterId = (parameterInfo.parameterID as? Number)?.toInt() ?: return@forEach
+//                val dataCode = (parameterInfo.dataCode as? Number)?.toInt() ?: 0
+//
+//                val parametersForDevice = parametersByDevice.getOrPut(deviceAddress) { linkedMapOf() }
+//                parametersForDevice[parameterId] = BaseParameterInfoStruct(
+//                    ID = parameterId,
+//                    dataCode = dataCode
+//                )
+//            }
+//        }
+//
+//        baseSubDevicesInfoStructSet.clear()
+//        parametersByDevice.forEach { (deviceAddress, paramsById) ->
+//            baseSubDevicesInfoStructSet.add(
+//                BaseSubDeviceInfoStruct(
+//                    deviceAddress = deviceAddress,
+//                    parametersNum = paramsById.size,
+//                    parametersList = ArrayList(paramsById.values)
+//                )
+//            )
+//            platformLog("baseSubDevicesInfoStructSet", "it: $deviceAddress $paramsById")
+//        }
+//    }
     private fun parseWidgets(widget: Any) {
         when (widget) {
             is BaseParameterWidgetSStruct -> {
@@ -556,6 +635,4 @@ class BLEParserV3(
         )
         return "00"
     }
-
 }
-

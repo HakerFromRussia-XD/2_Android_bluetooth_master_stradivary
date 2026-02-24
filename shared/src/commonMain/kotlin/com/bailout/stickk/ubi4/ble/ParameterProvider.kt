@@ -1,11 +1,73 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 
 class ParameterProvider {
     companion object {
+        fun getParameterV3(parameterInfo: ParameterInfo<Int, Int, Int, Int>): BaseParameterInfoStruct {
+            val addressDevice = parameterInfo.deviceAddress
+            val parameterID = parameterInfo.parameterID
+
+            if (baseParameterInfoStructArray.isNotEmpty()) {
+                if (addressDevice == 0) {
+                    baseParameterInfoStructArray.forEach { p ->
+                        if (p.ID == parameterID) return p
+                    }
+                } else {
+                    baseSubDevicesInfoStructSet.forEach { subDevice ->
+                        if (subDevice.deviceAddress == addressDevice) {
+                            subDevice.parametersList.forEach { p ->
+                                if (p.ID == parameterID) return p
+                            }
+                        }
+                    }
+                }
+            } else {
+                baseSubDevicesInfoStructSet.forEach { subDevice ->
+                    if (subDevice.deviceAddress == addressDevice) {
+                        subDevice.parametersList.forEach { p ->
+                            if (p.ID == parameterID) return p
+                        }
+                    }
+                }
+            }
+
+            return BaseParameterInfoStruct()
+        }
+        fun getParameterV3(parameterRef: ParameterRef): BaseParameterInfoStruct {
+            if (baseParameterInfoStructArray.size != 0) {
+//                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
+                if (parameterRef.addressDevice == 0) {
+                    // значит мы ищем параметр на мастере
+                    baseParameterInfoStructArray.forEach {
+                        if (it.ID == parameterRef.parameterID) return it
+                    }
+                } else {
+                    // значит мы ищем параметр на сабдевайсах
+                    baseSubDevicesInfoStructSet.forEach { subDevice ->
+                        if (subDevice.deviceAddress == parameterRef.addressDevice) {
+                            subDevice.parametersList.forEach { parameter ->
+                                if (parameter.ID == parameterRef.parameterID) return parameter
+                            }
+                        }
+                    }
+                }
+            } else {
+//                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
+                baseSubDevicesInfoStructSet.forEach { subDevice ->
+                    if (subDevice.deviceAddress == parameterRef.addressDevice) {
+                        subDevice.parametersList.forEach { parameter ->
+                            if (parameter.ID == parameterRef.parameterID) return parameter
+                        }
+                    }
+                }
+            }
+            return BaseParameterInfoStruct()
+        }
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
             if (baseParameterInfoStructArray.size != 0) {
 //                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")

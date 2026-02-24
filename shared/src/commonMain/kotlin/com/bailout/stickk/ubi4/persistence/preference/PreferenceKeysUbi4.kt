@@ -1,5 +1,10 @@
 package com.bailout.stickk.ubi4.persistence.preference
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CLOSE_THRESHOLD
 import kotlin.native.ObjCName
 
 //@file:OptIn(kotlin.experimental.ExperimentalObjCName::class)
@@ -656,6 +661,17 @@ object PreferenceKeysUbi4 {
         GET_ALL_SUB_DEVICE      (0x01),        /** Получить список всех подустройств */
         ADD_SUB_DEVICE          (0x02),        /** Добавить подустройство */
         REMOVE_SUB_DEVICE       (0x03)
+    }
+
+    object ParameterInfoRegistry {
+        val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> = mapOf(
+            P_KEY_PLOT to ParameterInfo(1, 1, 1, 0),
+            P_KEY_OPEN_THRESHOLD to ParameterInfo(2, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+            P_KEY_CLOSE_THRESHOLD to ParameterInfo(3, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+        )
+
+        fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]
+        fun require(key: String): ParameterInfo<Int, Int, Int, Int> = parameterInfoMapV3.getValue(key)
     }
 }
 

@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.state.WidgetState
-import com.bailout.stickk.ubi4.data.state.WidgetState.sliderEMGGainFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -172,9 +173,12 @@ class SliderDelegateAdapterV3(
         collectJob = scope.launch(Dispatchers.Main) {
             when(widgetSlidersInfo[indexWidgetSlider].parameterID) {
                 PDCE_EMG_CH_1_3_VAL.number -> {
-                    sliderEMGGainFlowV3.collect { emgGainResult ->
-//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 0) updateSliderProgressWithStep(0, emgGainResult.openGain)
-//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 1) updateSliderProgressWithStep(0, emgGainResult.closeGain)
+                    sliderFlowV3.collect { parameterRef ->
+                        val thresholdParameter = ParameterProvider.getParameterV3(parameterRef)
+                        platformLog("baseSubDevicesInfoStructSet", "thresholdParameter = $thresholdParameter")
+//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 0) updateSliderProgress(0, emgGainResult.openGain)
+//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 1) updateSliderProgress(0, emgGainResult.closeGain)
+                        setUI(ParameterRef(2, PDCE_EMG_CH_1_3_VAL.number, 2))
                     }
                 }
             }
@@ -225,16 +229,16 @@ class SliderDelegateAdapterV3(
 
     }
     private fun updateSliderProgress(sliderIndex: Int, newProgress: Int) {
-//        val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
+        val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
 //
-//        sliderInfo.progress[sliderIndex] = newValue
-//        sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newValue - minProgress
-//        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = formatSliderValue(newValue, sliderInfo.increment)
+        sliderInfo.progress[sliderIndex] = newProgress
+        sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newProgress
+        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = formatSliderValue(newProgress, sliderInfo.increment)
     }
     private fun setUI(parameterRef: ParameterRef) {
-//        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-//
-//        val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+
+        val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
 //        if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
 //            try {
 //                animateProgressBar(info.widgetSlidersSb[index], oldProgress, newValue - info.minProgress)
@@ -283,7 +287,6 @@ class SliderDelegateAdapterV3(
         return idx
     }
 
-//    override fun isForViewType(item: Any): Boolean = item is SliderItemV3
     override fun isForViewType(item: Any): Boolean =
         item is SliderItemV3 && (
                 item.widget is SliderParameterWidgetEStruct ||

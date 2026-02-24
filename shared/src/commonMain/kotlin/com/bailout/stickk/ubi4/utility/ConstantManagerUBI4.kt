@@ -24,6 +24,12 @@ interface ConstantManagerUBI4 {
         const val EXTRAS_DEVICE_NAME = "DEVICE_NAME";
         const val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
 
+        //parameters V3
+        const val P_KEY_PLOT = "PI_KEY_1"
+        const val P_KEY_OPEN_THRESHOLD = "PI_KEY_OPEN_CLOSE_2"
+        const val P_KEY_CLOSE_THRESHOLD = "PI_KEY_OPEN_CLOSE_3"
+
+
         val CRC_TABLE = intArrayOf(
             0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
             157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,

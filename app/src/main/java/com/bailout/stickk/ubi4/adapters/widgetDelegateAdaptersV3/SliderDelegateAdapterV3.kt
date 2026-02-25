@@ -15,7 +15,9 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.slidersFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
@@ -26,7 +28,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import kotlinx.serialization.json.Json
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -76,8 +80,7 @@ class SliderDelegateAdapterV3(
         widgetSliderUnit2Tv?.visibility = View.GONE
 
 
-        var addressDevice = 0
-        var parameterID = 0
+        var parameterInfo: ParameterInfo<Int, Int, Int, Int> = ParameterInfo(0, 0, 0, 0)
         val dataOffsets: ArrayList<Int> = ArrayList()
         var minProgress = 0
         var maxProgress = 100
@@ -87,13 +90,7 @@ class SliderDelegateAdapterV3(
 
         when (val widget = item.widget) {
             is SliderParameterWidgetSStruct -> {
-                addressDevice = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).deviceAddress
-                parameterID = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
-                    .parameterInfoSet.elementAt(0).parameterID
-                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    dataOffsets.add(it.dataOffsets)
-                }
+//                parameterInfo = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0)
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
@@ -105,28 +102,29 @@ class SliderDelegateAdapterV3(
         val paramCount = dataOffsets.size
         val initialProgress = MutableList(paramCount) { 0 }
         val currentSliderInfo = WidgetSliderInfo(
-                addressDevice = addressDevice,
-                parameterID = parameterID,
-                dataOffsets = dataOffsets,
-                minProgress = minProgress,
-                maxProgress = maxProgress,
-                increment = increment,
-                progress = ArrayList(initialProgress),
-                widgetSlidersSb = arrayListOf(widgetSliderSb, widgetSlider2Sb),
-                widgetSliderNumTv = arrayListOf(widgetSliderNumTv, widgetSliderNum2Tv),
-                widgetSliderUnitTv = arrayListOf(widgetSliderUnitTv, widgetSliderUnit2Tv),
-                widgetPosition = widgetPosition
-            )
+//            parameterInfo = parameterInfo,
+            minProgress = minProgress,
+            maxProgress = maxProgress,
+            increment = increment,
+            progress = ArrayList(initialProgress),
+            widgetSlidersSb = arrayListOf(widgetSliderSb, widgetSlider2Sb),
+            widgetSliderNumTv = arrayListOf(widgetSliderNumTv, widgetSliderNum2Tv),
+            widgetSliderUnitTv = arrayListOf(widgetSliderUnitTv, widgetSliderUnit2Tv),
+            widgetPosition = widgetPosition
+        )
         currentSliderInfo.instanceId = sliderInfoCounter++
-        widgetSlidersInfo.removeAll {
-            it.addressDevice == addressDevice && it.parameterID == parameterID
-        }
+//        widgetSlidersInfo.removeAll {
+//            it.parameterInfo.deviceAddress == parameterInfo.deviceAddress && it.parameterInfo.parameterID == parameterInfo.parameterID
+//        }
         widgetSlidersInfo.add(currentSliderInfo)
         // Cache-first draw to avoid showing 0 if the event already arrived earlier
         sliderCollect()
 
         // Получаем индекс текущего виджета по значению device и parameter
-        indexWidgetSlider = getIndexWidgetSlider(addressDevice, parameterID)
+        platformLog("SliderDelegateAdapterV3", "getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID) count = ${widgetSlidersInfo.size} ")
+        platformLog("SliderDelegateAdapterV3", "getIndexWidgetSlider = ${getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID)}")
+
+        indexWidgetSlider = getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID)
         val range = if (maxProgress == minProgress) 100 else maxProgress - minProgress
 
         // Настраиваем слайдеры: если параметров больше одного, показываем второй слайдер
@@ -155,7 +153,7 @@ class SliderDelegateAdapterV3(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) { }
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                onSetProgress(addressDevice, parameterID,  widgetSlidersInfo[indexWidgetSlider].progress )
+                onSetProgress(parameterInfo.deviceAddress, parameterInfo.parameterID,  widgetSlidersInfo[indexWidgetSlider].progress )
             }
         })
 
@@ -171,32 +169,17 @@ class SliderDelegateAdapterV3(
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            when(widgetSlidersInfo[indexWidgetSlider].parameterID) {
+            when(widgetSlidersInfo[indexWidgetSlider].parameterInfo.parameterID) {
+//            when(widgetSlidersInfo[0].parameterInfo.parameterID) {
                 PDCE_EMG_CH_1_3_VAL.number -> {
-                    sliderFlowV3.collect { parameterRef ->
-                        val thresholdParameter = ParameterProvider.getParameterV3(parameterRef)
-                        platformLog("baseSubDevicesInfoStructSet", "thresholdParameter = $thresholdParameter")
-//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 0) updateSliderProgress(0, emgGainResult.openGain)
-//                        if (widgetSlidersInfo[indexWidgetSlider].dataOffsets.elementAt(0) == 1) updateSliderProgress(0, emgGainResult.closeGain)
-                        setUI(ParameterRef(2, PDCE_EMG_CH_1_3_VAL.number, 2))
+                    sliderFlowV3.collect { parameterInfo ->
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+//                        platformLog("baseSubDevicesInfoStructSet", "parameter.data 2 = ${parameter.data}")
+//                        Json.decodeFromString<EMGGainResult>(parameter.data)
+                        platformLog("baseSubDevicesInfoStructSet", "EMGGainResult = ${Json.decodeFromString<EMGGainResult>(parameter.data)}")
+//                        setUI(parameterInfo)
                     }
                 }
-            }
-            slidersFlow.collect { parameterRef ->
-                val idx = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
-                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-
-
-                val info = widgetSlidersInfo.getOrNull(idx)
-                Log.d(
-                    "SliderProbe",
-                    "flow addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID} idx=$idx " +
-                            "params=${info?.dataOffsets?.size ?: -1} offsets=${info?.dataOffsets}"
-                )
-
-                Log.d("SliderDebugTest!", "2 - addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID} parameterData = ${parameter.data}")
-                Log.d("SliderFlow", "addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}, data=${parameter.data}, hasIdx=${idx != -1}")
-                if (idx != -1) setUI(parameterRef) else Log.d("SliderFlow", "skip update: adapter doesn't have widget for addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}")
             }
         }
     }
@@ -223,38 +206,35 @@ class SliderDelegateAdapterV3(
             override fun onTick(millisUntilFinished: Long) = Unit
             override fun onFinish() {
                 if (!isAttached) return
-                onSetProgress(sliderInfo.addressDevice, sliderInfo.parameterID, sliderInfo.progress)
+                onSetProgress(sliderInfo.parameterInfo.deviceAddress, sliderInfo.parameterInfo.parameterID, sliderInfo.progress)
             }
         }.start()
 
     }
     private fun updateSliderProgress(sliderIndex: Int, newProgress: Int) {
-        val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
+//        val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
 //
-        sliderInfo.progress[sliderIndex] = newProgress
-        sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newProgress
-        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = formatSliderValue(newProgress, sliderInfo.increment)
+//        sliderInfo.progress[sliderIndex] = newProgress
+//        sliderInfo.widgetSlidersSb.getOrNull(sliderIndex)?.progress = newProgress
+//        sliderInfo.widgetSliderNumTv.getOrNull(sliderIndex)?.text = formatSliderValue(newProgress, sliderInfo.increment)
     }
-    private fun setUI(parameterRef: ParameterRef) {
-        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        val parameter = ParameterProvider.getParameterV3(parameterInfo)
 
-        val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+
 //        if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
+//            val indexWidgetSlider = getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID)
+//            val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[0].progress
+//            val newValue = Json.decodeFromString<EMGGainResult>(parameter.data)
+//
 //            try {
-//                animateProgressBar(info.widgetSlidersSb[index], oldProgress, newValue - info.minProgress)
+//                animateProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[indexWidgetSlider], oldProgress, newValue.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
 //            } catch (e: Exception) {
 //                Log.e("SliderDebug", "Ошибка при обработке данных: ${e.message}", e)
 //            } finally {
 //                widgetSlidersInfo[indexWidgetSlider].responseReceived.set(true)
 //                widgetSlidersInfo[indexWidgetSlider].loadingAnimators.forEach { it?.cancel() }
 //                widgetSlidersInfo[indexWidgetSlider].loadingAnimators.clear()
-//                Log.d("SliderDebug", "Установлен флаг responseReceived=true для слайдера с индексом $indexWidgetSlider")
-//            }
-//        } else {
-//            Log.d("parameter sliderCollect", "НЕТ слайдера для: addr=${parameterRef.addressDevice}, pid=${parameterRef.parameterID}. Всего=${widgetSlidersInfo.size}")
-//            widgetSlidersInfo.forEachIndexed { i, it ->
-//                Log.d("SliderMap", "MISS setUI for addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID}")
-//                Log.d("parameter sliderCollect", "[$i] addr=${it.addressDevice}, pid=${it.parameterID}, pos=${it.widgetPosition}, min=${it.minProgress}, max=${it.maxProgress}")
 //            }
 //        }
 //        Log.d("SliderDebug", "Received parameter.data = '${parameter.data}', длина = ${parameter.data.length}")
@@ -279,7 +259,7 @@ class SliderDelegateAdapterV3(
 
     private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
         val idx = widgetSlidersInfo.indexOfFirst {
-            it.addressDevice == addressDevice && it.parameterID == parameterID
+            it.parameterInfo.deviceAddress == addressDevice && it.parameterInfo.parameterID == parameterID
         }
         if (idx == -1) {
             Log.d("SliderMap", "Not found: addr=$addressDevice pid=$parameterID; listSize=${widgetSlidersInfo.size}")
@@ -322,9 +302,7 @@ class SliderDelegateAdapterV3(
 }
 
 data class WidgetSliderInfo (
-    var addressDevice: Int = 0,
-    var parameterID: Int = 0,
-    var dataOffsets: ArrayList<Int> = ArrayList(),
+    var parameterInfo: ParameterInfo<Int, Int, Int, Int> = ParameterInfo(0, 0, 0, 0),
     var minProgress: Int = 0,
     var maxProgress: Int = 0,
     var increment: Float = 1.0f,

@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.models.ble
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 
 data class ParameterRef(

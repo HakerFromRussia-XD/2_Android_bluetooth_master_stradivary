@@ -229,15 +229,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                request(PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
-//            platformLog("BLEParserV3", "runCommandBtn")
-//            platformLog("BLEParserV3", "send command requestDeviceData")
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.requestDeviceData(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE
-//            ) {}
+////            platformLog("BLEParserV3", "runCommandBtn")
+////            platformLog("BLEParserV3", "send command requestDeviceData")
+////            bleManager.sendBytesKmm(
+////                BLECommandsV3.requestDeviceData(),
+////                SERIALPORTCHAR_UUID,
+////                WRITE
+////            ) {}
 //        }
-
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -261,12 +260,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
 //        lifecycle.addObserver(bleStatusController)
 //        ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
-        val bleStatusController = ControllerBleStatusConnection(
-            context = this,
-            indicator = binding.bleIndicator,
-            isBleConnected = { mBLEController.getStatusConnected() }
-        )
-        lifecycle.addObserver(bleStatusController)
     }
 
 
@@ -448,7 +441,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val worker = Thread {
             while (true) {
                 val task: Runnable = queue.get()
+                Log.d(
+                    "BLE_Q",
+                    "DEQ start thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
+                )
                 task.run()
+                Log.d(
+                    "BLE_Q",
+                    "DEQ done  thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
+                )
                 remainingTasks.decrementAndGet()
             }
         }
@@ -467,9 +468,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             writeData(byteArray, command, typeCommand)
             onChunkSent() } }
     val writeLock = Any()
+
+
+
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
             canSendFlag = false
+            Log.d(
+                "BLE_Q",
+                "SEND cmd=$typeCommand uuid=$command size=${byteArray?.size ?: -1} thread=${Thread.currentThread().name}"
+            )
             mBLEController.bleCommand(byteArray, command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
@@ -478,6 +486,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
     }
+
+
+
 
 
     //не нарушая инкапсуляцию

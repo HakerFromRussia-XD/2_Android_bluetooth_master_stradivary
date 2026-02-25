@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.data.widget.endStructures.*
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import kotlinx.coroutines.launch
 
 class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
@@ -85,6 +86,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         }
     }
 
+
     private fun renderVisibility() = with(binding) {
         val widgets = UiState.listWidgets
 
@@ -147,33 +149,20 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     }
 
     private fun handleBackPress() {
-        val source = arguments?.getString(ARG_SOURCE_FRAGMENT)
+        val main = activity as? MainActivityUBI4
+        main?.showBottomNavigation()
 
-        if (source.isNullOrBlank()) {
-            parentFragmentManager.popBackStack()
-            return
+        val source = arguments?.getString(ARG_SOURCE_FRAGMENT).orEmpty()
+
+        when (source) {
+            SensorsFragment::class.java.name -> main?.showSensorsScreen()
+            SpecialSettingsFragment::class.java.name -> main?.showSpecialScreen()
+            SprTrainingFragment::class.java.name -> main?.showOpticTrainingGesturesScreen()
+            SprGestureFragment::class.java.name -> main?.showOpticGesturesScreen()
+            GesturesFragment::class.java.name -> main?.showGesturesScreen()
+            AdvancedFragment::class.java.name -> main?.showAdvancedScreen()
+            else -> parentFragmentManager.popBackStack()
         }
-
-        val target: Fragment? = when (source) {
-            SensorsFragment::class.java.name -> SensorsFragment()
-            SpecialSettingsFragment::class.java.name -> SpecialSettingsFragment()
-            SprTrainingFragment::class.java.name -> SprTrainingFragment()
-            SprGestureFragment::class.java.name -> SprGestureFragment()
-            else -> null
-        }
-
-        if (target == null) {
-            parentFragmentManager.popBackStack()
-            return
-        }
-
-        parentFragmentManager.popBackStack(
-            null,
-            androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, target)
-            .commit()
     }
 
     private fun openDialer(phone: String) {

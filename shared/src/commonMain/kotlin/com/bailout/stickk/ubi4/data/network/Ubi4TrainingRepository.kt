@@ -7,6 +7,8 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.errors.IOException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class Ubi4TrainingRepository(
     private val api: Ubi4RequestsApi
@@ -71,6 +73,13 @@ class Ubi4TrainingRepository(
         checkpoint: String,
         outputDir: SharedFile
     ): Pair<SharedFile, List<SharedFile>> {
+
+
+        val req = TakeDataRequest(listOf(checkpoint))
+        val json = Json.encodeToString(req)
+        platformLog("TAKE_DATA", "Sending payload = $json")
+
+
         val resp = api.downloadArchive(token, TakeDataRequest(listOf(checkpoint)))
         if (resp.status.value !in 200..299) {
             throw IOException("Download failed ${resp.status.value}")

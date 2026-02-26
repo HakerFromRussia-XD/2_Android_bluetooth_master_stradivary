@@ -15,31 +15,25 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
-import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
-import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
-import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -52,7 +46,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -61,7 +54,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -70,7 +62,7 @@ class PlotDelegateAdapterV3 (
 ) :
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private companion object {
-        val thresholdsRequestedOnFirstShow = AtomicBoolean(false)
+        val requestedOnFirstShow = AtomicBoolean(false)
     }
 
     private var scope: CoroutineScope? = null
@@ -85,8 +77,6 @@ class PlotDelegateAdapterV3 (
     private var closeThreshold = 0
 
     private var collectJob: kotlinx.coroutines.Job? = null
-
-    private val responseReceived = AtomicBoolean(false)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItemV3) {
@@ -158,7 +148,7 @@ class PlotDelegateAdapterV3 (
 
         countBinding += 1
 
-        responseReceived.set(false)
+//        responseReceived.set(false)
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
         // Порог открытия — слушаем openCHV
@@ -237,7 +227,7 @@ class PlotDelegateAdapterV3 (
             plotArrayFlowCollect()
         }
         graphThreadFlag = true
-        requestThresholdsOnce()
+        initRequest()
         scope?.launch {
             //TODO indexWidgetPlot должен вычисляться в этом месте взависимости от того с каким посчету графиком мы работаем в этой функции
             startGraphEnteringDataCoroutine(EMGChartLc, 0)
@@ -298,7 +288,7 @@ class PlotDelegateAdapterV3 (
         }
     }
     private fun setUI(thresholdResult: ThresholdResult) {
-        responseReceived.set(true)
+//        responseReceived.set(true)
         val info = widgetPlotsInfo[0]
 
         info.apply {
@@ -664,12 +654,19 @@ class PlotDelegateAdapterV3 (
 //        scope?.cancel()
         Log.d("onDestroy" , "onDestroy plot")
     }
-    private fun requestThresholdsOnce() {
-        if (thresholdsRequestedOnFirstShow.compareAndSet(false, true)) {
-            main.bleCommandWithQueue(
-                requestThresholdValue(),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
+    private fun initRequest() {
+        if (requestedOnFirstShow.compareAndSet(false, true)) {
+            parameterInfoSet.forEach {
+                when(it.dataCode){
+                    PWCE_GET_THRESHOLD_VALUE.number.toInt() -> {
+                        Log.d("PWCE_GET_THRESHOLD_VALUE", "parameterInfoSet: $it")
+                        main.bleCommandWithQueue(
+                            request(it.parameterID.toByte(), it.dataCode.toByte()),
+                            SERIALPORTCHAR_UUID,
+                            WRITE){}
+                    }
+                }
+            }
         }
     }
 }

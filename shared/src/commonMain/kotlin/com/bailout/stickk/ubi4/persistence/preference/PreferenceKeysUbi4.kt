@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.persistence.preference
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
@@ -167,7 +169,7 @@ object PreferenceKeysUbi4 {
         "5" to WidgetLabel("Общая сила"),
         "6" to WidgetLabel("Чувствительность открытия"),
         "7" to WidgetLabel("Чувствительность закрытия"),
-        "8" to WidgetLabel("Не используется"),
+        "8" to WidgetLabel("Выключение дисплея"),
         "9" to WidgetLabel("Время работы дисплея", " сек"),
         "10" to WidgetLabel("Ориентация дисплея"),
         "11" to WidgetLabel("Управление ОМГ"),
@@ -190,7 +192,7 @@ object PreferenceKeysUbi4 {
         "5" to WidgetLabel("Global force"),
         "6" to WidgetLabel("Open sensitivity"),
         "7" to WidgetLabel("Close sensitivity"),
-        "8" to WidgetLabel("Not used"),
+        "8" to WidgetLabel("Turning off the display"),
         "9" to WidgetLabel("Display timeout", " sec"),
         "10" to WidgetLabel("Display orientation"),
         "11" to WidgetLabel("OMG control"),
@@ -666,8 +668,8 @@ object PreferenceKeysUbi4 {
     object ParameterInfoRegistry {
         val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> = mapOf(
             P_KEY_PLOT to ParameterInfo(1, 1, 1, 0),
-            P_KEY_OPEN_THRESHOLD to ParameterInfo(2, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
-            P_KEY_CLOSE_THRESHOLD to ParameterInfo(3, PDCE_OPEN_CLOSE_THRESHOLD.number, 1, 0),
+            P_KEY_OPEN_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
+            P_KEY_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

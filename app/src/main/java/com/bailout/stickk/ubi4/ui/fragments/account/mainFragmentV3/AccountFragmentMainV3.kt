@@ -208,10 +208,10 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         val sourceFragmentClassName = arguments?.getString("sourceFragmentClass")
         if (sourceFragmentClassName != null) {
             when (sourceFragmentClassName) {
-                SensorsFragment::class.java.name -> { main?.showSensorsScreen() }
-                SpecialSettingsFragment::class.java.name -> { main?.showSpecialScreen() }
                 SprTrainingFragment::class.java.name -> { main?.showOpticTrainingGesturesScreen() }
                 SprGestureFragment::class.java.name -> { main?.showOpticGesturesScreen() }
+                SensorsFragment::class.java.name -> { main?.showSensorsScreen() }
+                SpecialSettingsFragment::class.java.name -> { main?.showSpecialScreen() }
                 // Если будут ещё варианты, их можно добавить здесь
                 else -> {
                     // Если имя фрагмента неизвестно – возвращаемся в back stack

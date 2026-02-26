@@ -129,14 +129,16 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
         is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
 
+        is ToggleSliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
+        is ToggleSliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
         is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
         is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
 
         is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
         is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
 
-        is ToggleSliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is ToggleSliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
+
 
         else -> null
     }

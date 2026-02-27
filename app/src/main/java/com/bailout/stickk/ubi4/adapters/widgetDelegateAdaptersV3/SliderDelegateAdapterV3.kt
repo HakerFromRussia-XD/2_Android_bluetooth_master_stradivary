@@ -9,7 +9,12 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -26,6 +31,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.serialization.json.Json
 import java.util.Locale
@@ -160,24 +167,56 @@ class SliderDelegateAdapterV3(
             updateSliderProgressWithStep( step = +1, indexWidgetSlider = indexWidgetSlider)
         }
 
-        initRequest()
+        run {
+            //достаётся параметр соответствующий определённому слайдеру
+            val cachedNow = ParameterProvider.getParameterV3(parameterInfo)
+            //если данные в параметре пустые, то отправляем запрос
+            if (cachedNow.data.isEmpty()) {
+                currentSliderInfo.responseReceived.set(false)
+                RetryUtils.sendRequestWithRetry(
+                    //отправляется этот реквест с периодичностью 400 мс
+                    //пока флаг responseReceived не станет true в месте приёма
+                    request = {
+                        Log.d("SliderDebugTest!", "=============================================")
+                        Log.d("SliderDebugTest!", "parameterInfo = $parameterInfo")
+                        main.bleCommandWithQueue(
+                            BLECommandsV3.request(parameterInfo.parameterID, parameterInfo.dataCode),
+                            MAIN_CHANNEL_CHARACTERISTIC,
+                            WRITE
+                        ) {}
+                    },
+                    isResponseReceived = { currentSliderInfo.responseReceived.get() },
+                    maxRetries = 5,
+                    delayMillis = 400L,
+                    scope = scope
+                )
+                Log.d("RequestUtils", "Запрос отправлен: кэш пуст. command=${parameterInfo.parameterID}, subcommand=${parameterInfo.dataCode}")
+            } else {
+                // Данные уже есть – убеждаемся, что не будем ретраить зря
+                currentSliderInfo.responseReceived.set(true)
+            }
+        }
+//        initRequest()
     }
 
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            when(widgetSlidersInfo[indexWidgetSlider].parameterInfo.parameterID) {
+            sliderFlowV3.collect { parameterInfo ->
+                setUI(parameterInfo)
+            }
+//            when(widgetSlidersInfo[indexWidgetSlider].parameterInfo.parameterID) {
 //            when(widgetSlidersInfo[0].parameterInfo.parameterID) {
-                PDCE_EMG_CH_1_3_VAL.number -> {
-                    sliderFlowV3.collect { parameterInfo ->
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+//                PDCE_EMG_CH_1_3_VAL.number -> {
+//                    sliderFlowV3.collect { parameterInfo ->
+//                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
 //                        platformLog("baseSubDevicesInfoStructSet", "parameter.data 2 = ${parameter.data}")
 //                        Json.decodeFromString<EMGGainResult>(parameter.data)
-                        platformLog("baseSubDevicesInfoStructSet", "EMGGainResult = ${Json.decodeFromString<EMGGainResult>(parameter.data)}")
-                        setUI(parameterInfo)
-                    }
-                }
-            }
+//                        platformLog("baseSubDevicesInfoStructSet", "EMGGainResult = ${Json.decodeFromString<EMGGainResult>(parameter.data)}")
+//                        setUI(parameterInfo)
+//                    }
+//                }
+//            }
         }
     }
     private fun updateSliderProgressWithStep(step: Int, indexWidgetSlider: Int) {
@@ -230,7 +269,6 @@ class SliderDelegateAdapterV3(
 //                widgetSlidersInfo[indexWidgetSlider].loadingAnimators.clear()
             }
         }
-//        Log.d("SliderDebug", "Received parameter.data = '${parameter.data}', длина = ${parameter.data.length}")
     }
 
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {

@@ -7,11 +7,11 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 
 object BLECommandsV3 {
 
-    fun request(command: Byte, subcommand: Byte): ByteArray {
+    fun request(command: Int, subcommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
-            command,
-            subcommand,
+            command.toByte(),
+            subcommand.toByte(),
             0x00,
             0x00
         )

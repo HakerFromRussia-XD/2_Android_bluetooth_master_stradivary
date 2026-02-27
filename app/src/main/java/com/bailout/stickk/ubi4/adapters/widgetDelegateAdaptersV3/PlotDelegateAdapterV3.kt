@@ -148,7 +148,6 @@ class PlotDelegateAdapterV3 (
 
         countBinding += 1
 
-//        responseReceived.set(false)
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
         // Порог открытия — слушаем openCHV
@@ -227,6 +226,7 @@ class PlotDelegateAdapterV3 (
             plotArrayFlowCollect()
         }
         graphThreadFlag = true
+
         initRequest()
         scope?.launch {
             //TODO indexWidgetPlot должен вычисляться в этом месте взависимости от того с каким посчету графиком мы работаем в этой функции
@@ -274,7 +274,7 @@ class PlotDelegateAdapterV3 (
                             }
                         }
                     },
-                    thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
+//                    thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -287,28 +287,30 @@ class PlotDelegateAdapterV3 (
             }
         }
     }
-    private fun setUI(thresholdResult: ThresholdResult) {
-//        responseReceived.set(true)
-        val info = widgetPlotsInfo[0]
-
-        info.apply {
-            openThreshold   = thresholdResult.openThreshold
-            closeThreshold  = thresholdResult.closeThreshold
-            threshold3      = 0
-            threshold4      = 0
-            threshold5      = 0
-            threshold6      = 0
-        }
-
-        info.openThresholdTv.text  = info.openThreshold.toString()
-        info.closeThresholdTv.text = info.closeThreshold.toString()
-
-        setLimitPosition2(info.limitCH2, info.allCHRl, info.openThreshold)
-        setLimitPosition2(info.limitCH1, info.allCHRl, info.closeThreshold)
-
-        openThreshold  = info.openThreshold
-        closeThreshold = info.closeThreshold
-    }
+//    private fun setUI(parameterInfo: ParameterInfo, thresholdResult: ThresholdResult) {
+//        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+//        val indexWidgetSlider = getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID)
+//        currentSliderInfo.responseReceived.set(true)
+//        val info = widgetPlotsInfo[0]
+//
+//        info.apply {
+//            openThreshold   = thresholdResult.openThreshold
+//            closeThreshold  = thresholdResult.closeThreshold
+//            threshold3      = 0
+//            threshold4      = 0
+//            threshold5      = 0
+//            threshold6      = 0
+//        }
+//
+//        info.openThresholdTv.text  = info.openThreshold.toString()
+//        info.closeThresholdTv.text = info.closeThreshold.toString()
+//
+//        setLimitPosition2(info.limitCH2, info.allCHRl, info.openThreshold)
+//        setLimitPosition2(info.limitCH1, info.allCHRl, info.closeThreshold)
+//
+//        openThreshold  = info.openThreshold
+//        closeThreshold = info.closeThreshold
+//    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
@@ -661,7 +663,7 @@ class PlotDelegateAdapterV3 (
                     PWCE_GET_THRESHOLD_VALUE.number.toInt() -> {
                         Log.d("PWCE_GET_THRESHOLD_VALUE", "parameterInfoSet: $it")
                         main.bleCommandWithQueue(
-                            request(it.parameterID.toByte(), it.dataCode.toByte()),
+                            request(it.parameterID, it.dataCode),
                             SERIALPORTCHAR_UUID,
                             WRITE){}
                     }
@@ -693,4 +695,5 @@ data class WidgetPlotInfo (
     var dataSens4: Int = 0,
     var dataSens5: Int = 0,
     var dataSens6: Int = 0,
+    var responseReceived: AtomicBoolean = AtomicBoolean(false),
 )

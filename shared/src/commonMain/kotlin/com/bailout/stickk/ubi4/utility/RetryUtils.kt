@@ -8,13 +8,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 object RetryUtils {
-
-    @OptIn(DelicateCoroutinesApi::class)
     fun sendRequestWithRetry(
         request: suspend () -> Unit,
         isResponseReceived: () -> Boolean,
         maxRetries: Int = 5,
-        delayMillis: Long = 1000L,
+        delayMillis: Long = 500L,
         scope: CoroutineScope
     ) {
         scope.launch(Dispatchers.Main) {

@@ -760,12 +760,18 @@ class BLEController(private val bleManager: BleManagerKmm) {
         if (isTransferFlowActive) return
 
         // 1) Поднимаем NOTIFY
-        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
-        if (!mainChannelNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-            return
-        }
+        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+//            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+//            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+//        }
+//        if (!mainChannelNotifyEnabled) {
+//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+//            return
+//        }
+
         // 2) Запрашиваем стрим
         main.bleCommandWithQueue(
             BLECommands.requestTransferFlow(1),

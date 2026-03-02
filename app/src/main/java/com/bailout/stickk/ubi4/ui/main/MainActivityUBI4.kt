@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ui.main
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
@@ -95,6 +96,7 @@ import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.jvm.java
 import kotlin.properties.Delegates
 
 
@@ -611,6 +613,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.bottomNavigation.visibility = v
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
+
+
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()

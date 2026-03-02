@@ -284,8 +284,12 @@ public class BluetoothLeService extends Service {
 
 
         private void requestMTU() {
-            int mtu = 100; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
-
+            int mtu;
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                mtu = 100;
+            } else {
+                mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
+            }
             mBluetoothGatt.requestMtu(mtu);
 
 //            System.err.println("BLE debug -> mtu=$mtu");
@@ -361,17 +365,30 @@ public class BluetoothLeService extends Service {
             super.onDescriptorWrite(gatt, descriptor, status);
 
             final BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
+            final boolean isCccdDescriptor = UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG)
+                    .equals(descriptor.getUuid());
+            // На Android 14 и ниже descriptor.getValue() в callback часто не содержит записанное значение,
+            // поэтому проверка только через Arrays.equals(...) даёт false даже при успешной подписке.
+            final boolean hasEnableValue = java.util.Arrays.equals(
+                    descriptor.getValue(),
+                    BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            );
+            final boolean notificationEnabled = BluetoothGatt.GATT_SUCCESS == status
+                    && isCccdDescriptor
+                    && (hasEnableValue || (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0);
+
             final Intent intent = new Intent(ACTION_NOTIFICATION_SUBSCRIBED);
             intent.putExtra(EXTRA_NOTIFICATION_UUID, String.valueOf(characteristic.getUuid()));
             intent.putExtra(EXTRA_GATT_STATUS, status);
-            intent.putExtra(
-                    EXTRA_NOTIFICATION_ENABLED,
-                    BluetoothGatt.GATT_SUCCESS == status
-                            && java.util.Arrays.equals(
-                            descriptor.getValue(),
-                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    )
-            );
+//            intent.putExtra(
+//                    EXTRA_NOTIFICATION_ENABLED,
+//                    BluetoothGatt.GATT_SUCCESS == status
+//                            && java.util.Arrays.equals(
+//                            descriptor.getValue(),
+//                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+//                    )
+//            );
+            intent.putExtra(EXTRA_NOTIFICATION_ENABLED, notificationEnabled);
 
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);

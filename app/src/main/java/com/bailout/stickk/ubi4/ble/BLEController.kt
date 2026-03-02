@@ -163,13 +163,12 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-        registerGattReceiverIfNeeded()
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-//            LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-//        }
-//        else {
-//            mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-//        }
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        }
+        else {
+            mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        }
         mBLEParser = bleParser
         mBLEParserV3 = bleParserV3
     }
@@ -235,11 +234,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
                         bleScope.launch {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
+                                platformLog("BLE_CONNECT_TEST", "ветка V3")
                                 UiState.startupInProgress.value = false
                                 mBLEParserV3?.generatedHardcodeWidgets()
                                 ensureTransferFlowV3Active()
                             } else {
                                 //ветка инициализации протокола UBIv4
+                                platformLog("BLE_CONNECT_TEST", "ветка UBIv4 (старая)")
                                 UiState.startupInProgress.value = true
                                 // сброс прогресса ок, но "готово" НЕ эмитим
                                 UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
@@ -252,6 +253,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if ((intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) && (!UiState.isInterfaceV3Activated)) {
+                        platformLog("BLE_CONNECT_TEST", "ACTION_DATA_AVAILABLE от MAIN_CHANNEL")
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                     if (UiState.isInterfaceV3Activated) {
@@ -276,6 +278,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
     private fun requestProductInfoTypeOnceForUbiV4() {
         if (productInfoRequested) return
+        platformLog("BLE_CONNECT_TEST", "requestProductInfoType старт")
         productInfoRequested = true
 
         main.bleCommandWithQueue(
@@ -283,6 +286,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
+        platformLog("BLE_CONNECT_TEST", "requestProductInfoType финиш")
     }
     private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L, attempts: Int = 10, baseDelayMs: Long = 100L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
         val key = uuid.lowercase()
@@ -378,9 +382,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
         Log.d("BLE_CRC", "oldCrc from DB = $oldCrc, mac=${WidgetRepoProvider.mac()}")
 
         // Включаем NOTIFY и запрашиваем CRC
-        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-        delay(150)
-        //TODO переписать без delay
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//        delay(150)
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+        if (!mainChannelNotifyEnabled) {
+            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+            smartInitWithCrc()
+        } else {
+//            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
+        }
+//        //TODO переписать без delay
 
         Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
         main.bleCommandWithQueue(
@@ -581,28 +592,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
         }
     }
-//    fun reconnectThread() {
-//        if (reconnectJob?.isActive == true) return
-//
-//        reconnectJob = bleScope.launch {
-//            var j = 1
-//            try {
-//                while (reconnectThreadFlag) {
-//                    if (j % 5 == 0) {
-//                        scanLeDevice(true)
-//                    } else {
-//                        reconnect()
-//                    }
-//                    j++
-//                    delay(RECONNECT_BLE_PERIOD.toLong())
-//                }
-//            } finally {
-//                if (!mConnected) {
-//                    ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
-//                }
-//            }
-//        }
-//    }
 
     private suspend fun reconnect() {
         if (isReconnectingNow) {
@@ -739,38 +728,36 @@ class BLEController(private val bleManager: BleManagerKmm) {
     fun cleanup() {
         // Отменяем запущенные корутины
         bleJob.cancel()
-        unregisterGattReceiverIfNeeded()
 
-//        try {
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-//                // Там, где регистрировали через LocalBroadcastManager
-//                LocalBroadcastManager.getInstance(mContext)
-//                    .unregisterReceiver(mGattUpdateReceiver)
-//            } else {
-//                // Там, где регистрировали через обычный Context
-//                mContext.unregisterReceiver(mGattUpdateReceiver)
-//            }
-//        } catch (e: IllegalArgumentException) {
-//            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
-//        }
+        try {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Там, где регистрировали через LocalBroadcastManager
+                LocalBroadcastManager.getInstance(mContext)
+                    .unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                // Там, где регистрировали через обычный Context
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
+        }
     }
 
     private suspend fun ensureTransferFlowActive() {
         //старый вариант подключения для UBIv4
         if (isTransferFlowActive) return
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive старт")
 
         // 1) Поднимаем NOTIFY
-        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
-//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
-//            main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-//            Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-//        }
-//        if (!mainChannelNotifyEnabled) {
-//            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-//            return
-//        }
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+        if (!mainChannelNotifyEnabled) {
+            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+            ensureTransferFlowActive()
+        } else {
+//            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
+        }
 
         // 2) Запрашиваем стрим
         main.bleCommandWithQueue(
@@ -780,17 +767,22 @@ class BLEController(private val bleManager: BleManagerKmm) {
         ) {}
 
         isTransferFlowActive = true
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive финиш")
     }
     private suspend fun ensureTransferFlowV3Active() {
         //старый вариант подключения для UBIv4
         if (isTransferFlowActive) return
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive старт")
 
         // 1) Поднимаем NOTIFY 1
         val serialNotifyEnabled = enableNotifyAndAwaitAck(SERIALPORTCHAR_UUID)
         if (!serialNotifyEnabled) {
             Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
             main.showToast("Не включилась notify SERIALPORTCHAR_UUID")
-            return
+            ensureTransferFlowV3Active()
+//            return
+        } else {
+//            main.showToast("Успешная notify SERIALPORTCHAR_UUID")
         }
 
         platformLog("BLEParserV3", "send command requestDeviceData")
@@ -804,6 +796,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
             if (!secondAttemptOk) {
                 Log.w("BLEParserV3", "Повторный requestDeviceData() также без ответа")
                 main.showToast("Нет ответа requestDeviceData()")
+            } else {
+//                main.showToast("Успешный requestDeviceData")
             }
         }
 
@@ -813,41 +807,19 @@ class BLEController(private val bleManager: BleManagerKmm) {
             Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
         }
         if (!mainChannelNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
             main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-            return
+            ensureTransferFlowV3Active()
+//            return
+        } else {
+//            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
         }
 
         isTransferFlowActive = true
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive финиш")
     }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
-    }
-
-    private fun registerGattReceiverIfNeeded() {
-        if (receiverRegistered) return
-        val filter = makeGattUpdateIntentFilter()
-
-        receiverRegistered = true
-        if (Build.VERSION.SDK_INT >= 33) {
-            ContextCompat.registerReceiver(
-                mContext,
-                mGattUpdateReceiver,
-                filter,
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            mContext.registerReceiver(mGattUpdateReceiver, filter)
-        }
-    }
-
-    private fun unregisterGattReceiverIfNeeded() {
-        if (!receiverRegistered) return
-        receiverRegistered = false
-        runCatching { mContext.unregisterReceiver(mGattUpdateReceiver) }
-            .onFailure { Log.w("BLEController", "unregisterReceiver failed: ${it.message}") }
     }
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }

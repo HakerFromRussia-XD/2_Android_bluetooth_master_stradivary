@@ -94,6 +94,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
+import org.junit.jupiter.params.provider.Arguments
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.jvm.java
@@ -260,9 +261,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             true
         }
 
-//        val bleStatusController = ControllerBleStatusConnection(this, binding.bleIndicator)
-//        lifecycle.addObserver(bleStatusController)
-//        ControllerBleStatusConnection.UiBridges.bleStatusController = bleStatusController
+
+
+        val bleStatusController = ControllerBleStatusConnection(
+            context = this,
+            indicator = binding.bleIndicator,
+            isBleConnected = { mBLEController.getStatusConnected() }
+        )
+        lifecycle.addObserver(bleStatusController)
     }
 
 

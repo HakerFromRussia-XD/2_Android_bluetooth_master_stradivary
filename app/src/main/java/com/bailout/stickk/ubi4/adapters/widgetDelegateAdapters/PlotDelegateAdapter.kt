@@ -19,7 +19,6 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.PlotThresholds
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
@@ -271,7 +270,7 @@ class PlotDelegateAdapter (
                 System.err.println("plotArrayFlowCollectttttt")
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
-                        val indexWidgetPlot = getIndexWidgetPlot(
+                        val indexWidgetPlot = getIndexWidget(
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
                         )
@@ -306,7 +305,7 @@ class PlotDelegateAdapter (
                     // 3) (опционально) если хочешь реагировать на событие мерджа виджетов
                     widgetsMergeEventFlow.map { parameterRef ->
                         // фильтруем только наш виджет
-                        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+                        val idx = getIndexWidget(parameterRef.addressDevice, parameterRef.parameterID)
                         if (idx == -1) return@map
                         // на случай, если после мерджа появился новый threshold-параметр
                         val firstThresholdRef = firstThresholdRefFrom(widgetPlotsInfo[idx].parameterInfoSet)
@@ -354,7 +353,7 @@ class PlotDelegateAdapter (
     private fun setUI(parameterRef: ParameterRef) {
         responseReceived.set(true) // чтобы RetryUtils понимал, что ответ получен
 
-        val idx = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+        val idx = getIndexWidget(parameterRef.addressDevice, parameterRef.parameterID)
         if (idx == -1) return
         val info = widgetPlotsInfo[idx]
 
@@ -651,7 +650,7 @@ class PlotDelegateAdapter (
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
-    private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
+    private fun getIndexWidget (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
             if (widgetPlotInfo.parameterInfoSet.any { it.deviceAddress == addressDevice && it.parameterID == parameterID }) {
                 return index

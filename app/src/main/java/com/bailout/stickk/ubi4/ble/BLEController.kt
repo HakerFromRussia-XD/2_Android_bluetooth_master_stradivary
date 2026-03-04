@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
@@ -86,6 +87,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     @Volatile private var isTransferFlowActive = false
     @Volatile private var productInfoRequested = false
+    @Volatile private var isReconnectingNow = false
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -103,7 +105,12 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
+            Log.d("BLE_RECON", "onServiceConnected() called")
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
+            Log.d(
+                "BLE_RECON",
+                "service initialized? ${mBluetoothLeService != null}, address=$connectedDeviceAddress"
+            )
             mBluetoothLeService?.setReceiverCallback {state ->
                 if(state == WRITE)
                     synchronized(main.writeLock) {
@@ -129,6 +136,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") //fest FO3
 
+                Log.d("BLE_RECON", "calling connect($connectedDeviceAddress)")
                 mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
@@ -168,13 +176,19 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressLint("ResourceAsColor")
         override fun onReceive(context: Context, intent: Intent) {
+            Log.d("BLE_RECON", "onReceive() action=${intent.action}")
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+                    Log.d("BLE_RECON", "ACTION_GATT_CONNECTED")
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
+                    isReconnectingNow = false
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    Log.d("BLE_RECON", "ACTION_GATT_DISCONNECTED")
+                    isReconnectingNow = false
+                    productInfoRequested = false
                     isTransferFlowActive = false
                     if (mDisconnected) {
                         Log.d("BLE_DEBUG11", " isDisconnected = ${mDisconnected}")
@@ -207,6 +221,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    Log.d("BLE_RECON", "ACTION_GATT_SERVICES_DISCOVERED")
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
@@ -215,14 +230,17 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
 
-                        main.lifecycleScope.launch {
+                        Log.d("BLE_INIT", "launch init on bleScope; main=$main, ctx=${context.applicationContext}")
+                        bleScope.launch {
                             if (UiState.isInterfaceV3Activated) {
                                 //закрытие прелоадера синхронизации
+                                platformLog("BLE_CONNECT_TEST", "ветка V3")
                                 UiState.startupInProgress.value = false
                                 mBLEParserV3?.generatedHardcodeWidgets()
                                 ensureTransferFlowV3Active()
                             } else {
                                 //ветка инициализации протокола UBIv4
+                                platformLog("BLE_CONNECT_TEST", "ветка UBIv4 (старая)")
                                 UiState.startupInProgress.value = true
                                 // сброс прогресса ок, но "готово" НЕ эмитим
                                 UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(0, 0)
@@ -235,6 +253,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
                     if ((intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) && (!UiState.isInterfaceV3Activated)) {
+                        platformLog("BLE_CONNECT_TEST", "ACTION_DATA_AVAILABLE от MAIN_CHANNEL")
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                     if (UiState.isInterfaceV3Activated) {
@@ -259,6 +278,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
     private fun requestProductInfoTypeOnceForUbiV4() {
         if (productInfoRequested) return
+        platformLog("BLE_CONNECT_TEST", "requestProductInfoType старт")
         productInfoRequested = true
 
         main.bleCommandWithQueue(
@@ -266,8 +286,9 @@ class BLEController(private val bleManager: BleManagerKmm) {
             MAIN_CHANNEL_CHARACTERISTIC,
             WRITE
         ) {}
+        platformLog("BLE_CONNECT_TEST", "requestProductInfoType финиш")
     }
-    private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L, attempts: Int = 10, baseDelayMs: Long = 100L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
+    private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 250L, attempts: Int = 1, baseDelayMs: Long = 100L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
         val key = uuid.lowercase()
         repeat(attempts) { index ->
             val attemptNo = index + 1
@@ -284,7 +305,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
         return false
     }
-    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 1500L): Boolean {
+    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
         pendingDeviceDataResponseAck = responseAck
         platformLog( "requestDeviceDataAndAwaitResponse","requestThresholdValue: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestThresholdValue())}")
@@ -363,7 +384,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
         // Включаем NOTIFY и запрашиваем CRC
         bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
         delay(150)
-        //TODO переписать без delay
+//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+//        if (!mainChannelNotifyEnabled) {
+//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC 2")
+//            smartInitWithCrc()
+//        } else {
+//            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC 2")
+//        }
 
         Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
         main.bleCommandWithQueue(
@@ -524,6 +551,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
         if (mScanning) { scanLeDevice(false) }
     }
     fun connectToSavedDeviceNow() {
+        mDisconnected = false
+        isReconnectingNow = false
         val hasTarget = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
         if (!hasTarget) {
             scanLeDevice(true)
@@ -534,54 +563,59 @@ class BLEController(private val bleManager: BleManagerKmm) {
         reconnectThread()
     }
     fun reconnectThread() {
-        if (reconnectJob?.isActive == true) return
+        Log.d("BLE_RECON", "reconnectThread() called, flag=$reconnectThreadFlag")
+
+        if (reconnectJob?.isActive == true) {
+            Log.d("BLE_RECON", "reconnectThread() already active")
+            return
+        }
 
         reconnectJob = bleScope.launch {
             var j = 1
             try {
                 while (reconnectThreadFlag) {
+                    Log.d("BLE_RECON", "reconnect loop iteration=$j")
+
                     if (j % 5 == 0) {
+                        Log.d("BLE_RECON", "→ scanLeDevice(true)")
                         scanLeDevice(true)
                     } else {
+                        Log.d("BLE_RECON", "→ reconnect()")
                         reconnect()
                     }
                     j++
                     delay(RECONNECT_BLE_PERIOD.toLong())
                 }
             } finally {
-                if (!mConnected) {
-                    ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
-                }
+                Log.d("BLE_RECON", "reconnectThread() finished, connected=$mConnected")
             }
         }
     }
+
     private suspend fun reconnect() {
-        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
+        if (isReconnectingNow) {
+            Log.d("BLE_RECON", "reconnect() skipped: already reconnecting")
+            return
+        }
+        isReconnectingNow = true
+
+        Log.d("BLE_RECON", "reconnect() start")
+
         withContext(Dispatchers.IO) {
-            try {
-                mContext.unbindService(mServiceConnection)
-            } catch (ex: Exception) {
-                // Если не был привязан, можно игнорировать ошибку
-                Log.w("BLEController", "Не удалось отцепить сервис: ${ex.message}")
-            }
+            Log.d("BLE_RECON", "unbindService...")
+            runCatching { mContext.unbindService(mServiceConnection) }
+                .onFailure { Log.w("BLE_RECON", "unbind failed: ${it.message}") }
+
             mBluetoothLeService = null
 
-            val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
-            mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+            Log.d("BLE_RECON", "bindService...")
+            val intent = Intent(mContext, BluetoothLeService::class.java)
+            mContext.bindService(intent, mServiceConnection, BIND_AUTO_CREATE)
         }
 
-        // На главном потоке регистрируем ресивер (если требуется)
-        withContext(Dispatchers.Main) {
-            try {
-                // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
-                mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-            } catch (e: IllegalArgumentException) {
-                // Если уже зарегистрирован, игнорируем
-                Log.w("BLEController", "Ресивер уже зарегистрирован")
-            }
-            mBluetoothLeService?.connect(connectedDeviceAddress)
-        }
+        Log.d("BLE_RECON", "reconnect() end — waiting onServiceConnected")
     }
+
     fun disconnect() {
         if (mDisconnected) return
         reconnectThreadFlag = false
@@ -693,6 +727,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     fun cleanup() {
         // Отменяем запущенные корутины
         bleJob.cancel()
+
         try {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 // Там, где регистрировали через LocalBroadcastManager
@@ -710,10 +745,18 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private suspend fun ensureTransferFlowActive() {
         //старый вариант подключения для UBIv4
         if (isTransferFlowActive) return
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive старт")
 
         // 1) Поднимаем NOTIFY
-        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
+//        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+        if (!mainChannelNotifyEnabled) {
+            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+            ensureTransferFlowActive()
+        } else {
+            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
+        }
 
         // 2) Запрашиваем стрим
         main.bleCommandWithQueue(
@@ -723,30 +766,39 @@ class BLEController(private val bleManager: BleManagerKmm) {
         ) {}
 
         isTransferFlowActive = true
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive финиш")
     }
     private suspend fun ensureTransferFlowV3Active() {
         //старый вариант подключения для UBIv4
         if (isTransferFlowActive) return
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive старт")
 
         // 1) Поднимаем NOTIFY 1
+        platformLog("BLEParserV3", "send command requestDeviceData")
         val serialNotifyEnabled = enableNotifyAndAwaitAck(SERIALPORTCHAR_UUID)
         if (!serialNotifyEnabled) {
             Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
             main.showToast("Не включилась notify SERIALPORTCHAR_UUID")
-            return
+//            ensureTransferFlowV3Active()
+//            return
+        } else {
+//            main.showToast("Успешная notify SERIALPORTCHAR_UUID")
+            platformLog("BLEParserV3", "Успешная notify SERIALPORTCHAR_UUID")
         }
 
         platformLog("BLEParserV3", "send command requestDeviceData")
         // 2) Запрашиваем информацию по девайсам и дожидаемся первого ответа
         val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
         if (!gotDeviceDataResponse) {
-            Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
-            main.showToast("Нет ответа requestDeviceData(), повторяем запрос")
+//            Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
+//            main.showToast("Нет ответа requestDeviceData(), повторяем запрос")
 
-            val secondAttemptOk = requestDeviceDataAndAwaitResponse(timeoutMs = 2000L)
+            val secondAttemptOk = requestDeviceDataAndAwaitResponse(timeoutMs = 1000L)
             if (!secondAttemptOk) {
                 Log.w("BLEParserV3", "Повторный requestDeviceData() также без ответа")
                 main.showToast("Нет ответа requestDeviceData()")
+            } else {
+//                main.showToast("Успешный requestDeviceData")
             }
         }
 
@@ -756,12 +808,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
             Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
         }
         if (!mainChannelNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
             main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-            return
+//            ensureTransferFlowV3Active()
+//            return
+        } else {
+//            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
+            platformLog("BLEParserV3", "Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
         }
 
         isTransferFlowActive = true
+        platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive финиш")
     }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {

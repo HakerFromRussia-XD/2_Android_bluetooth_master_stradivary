@@ -32,7 +32,7 @@ object WidgetState {
     val activeGestureState = MutableStateFlow<Int?>(null)
     val selectGestureModeState = MutableStateFlow(false)
 
-    var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ThresholdResult>>()
+    var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var sliderFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
 
     @Volatile

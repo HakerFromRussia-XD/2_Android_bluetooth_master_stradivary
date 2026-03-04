@@ -38,25 +38,28 @@ class SensorsFragment : BaseWidgetsFragment() {
         updateFlow.tryEmit(0)
     }
 
-    @SuppressLint("CheckResult", "LogNotTimber")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
-        if (activity != null) { main = activity as MainActivityUBI4? }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false).apply {
+            refreshLayout.setLottieAnimation("loader_3.json")
+            refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+            refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+            refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+//        binding.refreshLayout.isEnabled = false
+            homeRv.layoutManager = LinearLayoutManager(context)
+            homeRv.adapter = adapterWidgets
+
+        }
+        widgetListUpdater()
+        main = activity as? MainActivityUBI4
 
         //настоящие виджеты
         adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
-
-        binding.refreshLayout.setLottieAnimation("loader_3.json")
-        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
-//        binding.refreshLayout.isEnabled = false
-
-        widgetListUpdater()
-        binding.homeRv.layoutManager = LinearLayoutManager(context)
-        binding.homeRv.adapter = adapterWidgets
 
 
         val initialData = mDataFactory.prepareData(display)
@@ -77,7 +80,7 @@ class SensorsFragment : BaseWidgetsFragment() {
     }
 
 
-    @SuppressLint("NotifyDataSetChanged")
+
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect { updateEvent->

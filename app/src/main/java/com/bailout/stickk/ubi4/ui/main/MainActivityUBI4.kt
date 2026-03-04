@@ -226,10 +226,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                request(PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
-            bleManager.sendBytesKmm(
-                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
+            platformLog("BLEParserV3", "runCommandBtn")
+//            bleManager.sendBytesKmm(
+//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
 //            platformLog("BLEParserV3", "runCommandBtn")
 //            platformLog("BLEParserV3", "send command requestDeviceData")
 //            bleManager.sendBytesKmm(
@@ -472,8 +473,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
-            writeData(byteArray, command, typeCommand)
-            onChunkSent() } }
+            lifecycleScope.launch(Dispatchers.IO) {
+                writeData(byteArray, command, typeCommand)
+                onChunkSent()
+            }
+        }
+    }
     val writeLock = Any()
 
 

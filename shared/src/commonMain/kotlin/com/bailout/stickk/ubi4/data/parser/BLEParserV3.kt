@@ -41,8 +41,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CLOSE_THRESHOLD
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -123,22 +124,24 @@ class BLEParserV3(
             }
             PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
                 val subcommand = payload[0]
-                platformLog("[parseReceivedData]", "subcommand = $subcommand")
+//                platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
                     PWCE_GET_THRESHOLD_VALUE.number -> {
                         val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
-                        coroutineScope.launch { thresholdFlowV3.emit(thresholds) }
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(thresholds)
+                        coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
                         platformLog("[parseReceivedData]", "thresholds: $thresholds")
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
                         //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD)
-                        var parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        platformLog("baseSubDevicesInfoStructSet", "Json.encodeToString(parseEMGGain) = ${json.encodeToString(parseEMGGain)}  parseEMGGain = $parseEMGGain")
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
                         parameter.data = json.encodeToString(parseEMGGain)
-                        platformLog("baseSubDevicesInfoStructSet", "parameter.data 1 = ${parameter.data}")
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "slider = ${json.encodeToString(parseEMGGain)}")
                     }
                 }
             }
@@ -302,8 +305,7 @@ class BLEParserV3(
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
-                ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD),
-                ParameterInfoRegistry.require(P_KEY_CLOSE_THRESHOLD))
+                ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
         )
             ,"Графики"
         ))
@@ -313,7 +315,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 2,
-            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 7, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
         )
             ,"Чувствительность датчика открытия"
         ))
@@ -323,7 +325,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 3,
-            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 8, 1))
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
         )
             ,"Чувствительность датчика закрытия"
         ))

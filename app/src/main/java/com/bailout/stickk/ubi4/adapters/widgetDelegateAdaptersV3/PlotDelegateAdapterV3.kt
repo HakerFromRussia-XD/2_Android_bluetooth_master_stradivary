@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
@@ -54,6 +55,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -246,7 +248,7 @@ class PlotDelegateAdapterV3 (
             try {
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
-                        val indexWidgetPlot = getIndexWidgetPlot(
+                        val indexWidgetPlot = getIndexWidget(
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
                         )
@@ -274,7 +276,7 @@ class PlotDelegateAdapterV3 (
                             }
                         }
                     },
-//                    thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
+                    thresholdFlowV3.map { parameterInfo -> setUI(parameterInfo) },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -287,30 +289,30 @@ class PlotDelegateAdapterV3 (
             }
         }
     }
-//    private fun setUI(parameterInfo: ParameterInfo, thresholdResult: ThresholdResult) {
-//        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-//        val indexWidgetSlider = getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID)
-//        currentSliderInfo.responseReceived.set(true)
-//        val info = widgetPlotsInfo[0]
-//
-//        info.apply {
-//            openThreshold   = thresholdResult.openThreshold
-//            closeThreshold  = thresholdResult.closeThreshold
-//            threshold3      = 0
-//            threshold4      = 0
-//            threshold5      = 0
-//            threshold6      = 0
-//        }
-//
-//        info.openThresholdTv.text  = info.openThreshold.toString()
-//        info.closeThresholdTv.text = info.closeThreshold.toString()
-//
-//        setLimitPosition2(info.limitCH2, info.allCHRl, info.openThreshold)
-//        setLimitPosition2(info.limitCH1, info.allCHRl, info.closeThreshold)
-//
-//        openThreshold  = info.openThreshold
-//        closeThreshold = info.closeThreshold
-//    }
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+        val thresholdResult = Json.decodeFromString<ThresholdResult>(parameter.data)
+        widgetPlotsInfo[0].responseReceived.set(true)
+        val info = widgetPlotsInfo[0]
+
+        info.apply {
+            openThreshold   = thresholdResult.openThreshold
+            closeThreshold  = thresholdResult.closeThreshold
+            threshold3      = 0
+            threshold4      = 0
+            threshold5      = 0
+            threshold6      = 0
+        }
+
+        info.openThresholdTv.text  = info.openThreshold.toString()
+        info.closeThresholdTv.text = info.closeThreshold.toString()
+
+        setLimitPosition2(info.limitCH2, info.allCHRl, info.openThreshold)
+        setLimitPosition2(info.limitCH1, info.allCHRl, info.closeThreshold)
+
+        openThreshold  = info.openThreshold
+        closeThreshold = info.closeThreshold
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
@@ -581,7 +583,7 @@ class PlotDelegateAdapterV3 (
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
-    private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
+    private fun getIndexWidget (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
             if (widgetPlotInfo.parameterInfoSet.any { it.deviceAddress == addressDevice && it.parameterID == parameterID }) {
                 return index

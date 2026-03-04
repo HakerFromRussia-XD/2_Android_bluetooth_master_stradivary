@@ -3,10 +3,10 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CLOSE_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import kotlin.native.ObjCName
 
 //@file:OptIn(kotlin.experimental.ExperimentalObjCName::class)
@@ -668,8 +668,9 @@ object PreferenceKeysUbi4 {
     object ParameterInfoRegistry {
         val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> = mapOf(
             P_KEY_PLOT to ParameterInfo(1, 1, 1, 0),
-            P_KEY_OPEN_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
-            P_KEY_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
+            P_KEY_OPEN_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
+            P_KEY_EMG_GAIN_OPEN_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
+            P_KEY_EMG_GAIN_CLOSE_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

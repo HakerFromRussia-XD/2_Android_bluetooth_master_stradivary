@@ -202,9 +202,7 @@ class SliderDelegateAdapterV3(
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            sliderFlowV3.collect { parameterInfo ->
-                setUI(parameterInfo)
-            }
+            sliderFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
 //            when(widgetSlidersInfo[indexWidgetSlider].parameterInfo.parameterID) {
 //            when(widgetSlidersInfo[0].parameterInfo.parameterID) {
 //                PDCE_EMG_CH_1_3_VAL.number -> {

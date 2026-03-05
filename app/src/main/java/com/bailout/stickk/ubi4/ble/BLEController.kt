@@ -287,7 +287,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 1500L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
         pendingDeviceDataResponseAck = responseAck
-        platformLog( "requestDeviceDataAndAwaitResponse","requestThresholdValue: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestThresholdValue())}")
         platformLog( "requestDeviceDataAndAwaitResponse","requestDeviceData: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestDeviceData())}")
         bleManager.sendBytesKmm(
             BLECommandsV3.requestDeviceData(),

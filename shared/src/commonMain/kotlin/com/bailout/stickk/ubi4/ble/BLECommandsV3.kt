@@ -7,17 +7,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 
 object BLECommandsV3 {
 
-    fun request(command: Int, subcommand: Int): ByteArray {
-        val header = byteArrayOf(
-            0x00,
-            command.toByte(),
-            subcommand.toByte(),
-            0x00,
-            0x00
-        )
-        header[4] = calculationCRC(header).toByte()
-        return header
-    }
     fun requestDeviceData(): ByteArray {
         val header = byteArrayOf(
             0x00,
@@ -40,11 +29,22 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun request(prosthesisModuleControl: Byte): ByteArray {
+    fun request(command: Int, subcommand: Int): ByteArray {
+        val header = byteArrayOf(
+            0x00,
+            command.toByte(),
+            subcommand.toByte(),
+            0x00,
+            0x00
+        )
+        header[4] = calculationCRC(header).toByte()
+        return header
+    }
+    fun request(subcommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,
-            prosthesisModuleControl,
+            subcommand.toByte(),
             0x00,
             0x00
         )

@@ -661,15 +661,10 @@ class PlotDelegateAdapterV3 (
     private fun initRequest() {
         if (requestedOnFirstShow.compareAndSet(false, true)) {
             parameterInfoSet.forEach {
-                when(it.dataCode){
-                    PWCE_GET_THRESHOLD_VALUE.number.toInt() -> {
-                        Log.d("PWCE_GET_THRESHOLD_VALUE", "parameterInfoSet: $it")
-                        main.bleCommandWithQueue(
-                            request(it.parameterID, it.dataCode),
-                            SERIALPORTCHAR_UUID,
-                            WRITE){}
-                    }
-                }
+                main.bleCommandWithQueue(
+                    request(it.dataCode),
+                    SERIALPORTCHAR_UUID,
+                    WRITE){}
             }
         }
     }

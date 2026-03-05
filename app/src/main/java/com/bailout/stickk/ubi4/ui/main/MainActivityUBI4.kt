@@ -60,6 +60,7 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
@@ -473,7 +474,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
-            lifecycleScope.launch(Dispatchers.IO) {
+            if (UiState.isInterfaceV3Activated) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    writeData(byteArray, command, typeCommand)
+                    onChunkSent()
+                }
+            } else {
                 writeData(byteArray, command, typeCommand)
                 onChunkSent()
             }

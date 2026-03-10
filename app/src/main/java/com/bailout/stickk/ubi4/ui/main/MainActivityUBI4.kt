@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragme
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
+import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4CoroutineDemo.Companion.runBlockingDemo
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
@@ -239,10 +240,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE
 //            ) {}
-            main.bleCommandWithQueue(
-                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number.toInt()),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
+//            main.bleCommandWithQueue(
+//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+//            runBlockingDemo()
         }
 
         val accountPb = binding.accountPb.apply {

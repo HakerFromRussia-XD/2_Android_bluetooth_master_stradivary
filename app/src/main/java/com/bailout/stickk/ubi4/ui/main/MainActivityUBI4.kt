@@ -168,8 +168,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         mBLEController.initBLEStructure()
-//        mBLEController.connectToSavedDeviceNow()
-        mBLEController.scanLeDevice(true)
+        mBLEController.connectToSavedDeviceNow()
+//        mBLEController.scanLeDevice(true)
         bluetoothLeService = BluetoothLeService()
         startQueue()
 

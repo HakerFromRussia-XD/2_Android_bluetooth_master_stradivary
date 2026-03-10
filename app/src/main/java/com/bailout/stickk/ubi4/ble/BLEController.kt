@@ -217,9 +217,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
-                    displayGattServices(mBluetoothLeService!!.supportedGattServices)
-
-
 
                     Log.d("BLE_RECON", "ACTION_GATT_SERVICES_DISCOVERED")
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
@@ -353,17 +350,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
         Log.d("BLE_CRC", "oldCrc from DB = $oldCrc, mac=${WidgetRepoProvider.mac()}")
 
         // Включаем NOTIFY и запрашиваем CRC
-//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-//        delay(150)
-//        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
-//        if (!mainChannelNotifyEnabled) {
-//            main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-//            smartInitWithCrc()
-//        } else {
-////            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
-//        }
-//        //TODO переписать без delay
-
         Log.d("BLE_INIT", "smartInitWithCrc → send requestSystemCrc()")
         main.bleCommandWithQueue(
             BLECommands.requestSystemCrc(),
@@ -488,6 +474,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             main.showToast("ошибка парсинга в mBLEParserV3")
         }
     }
+
 
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
@@ -670,7 +657,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                             commandDispatched = true
-//                            commandDispatched = mBluetoothLeService?.writeCharacteristic(mCharacteristic) == true
                             if (!commandDispatched) {
                                 Log.w("bleCommand", "writeCharacteristic вернул false для UUID=$uuid")
                             }
@@ -694,10 +680,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
             }
         }
         return commandDispatched
-    }
-    fun setOnDisconnectedListener(listener: () -> Unit) {
-        // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
-        onDisconnectedListener = listener
     }
 
     fun cleanup() {
@@ -724,8 +706,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive старт")
 
         // 1) Поднимаем NOTIFY
-//        bleCommand(null, MAIN_CHANNEL_CHARACTERISTIC, NOTIFY)
-//        delay(200) // лучше ждать onDescriptorWrite, но это быстрый фикс
+
         val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
         if (!mainChannelNotifyEnabled) {
             main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
@@ -733,14 +714,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
         } else {
 //            main.showToast("Успешная notify MAIN_CHANNEL_CHARACTERISTIC")
         }
-
-        // 2) Запрашиваем стрим
-//        main.bleCommandWithQueue(
-//            BLECommands.requestTransferFlow(1),
-//            MAIN_CHANNEL_CHARACTERISTIC,
-//            WRITE
-//        ) {}
-
         isTransferFlowActive = true
         platformLog("BLE_CONNECT_TEST", "ensureTransferFlowActive финиш")
     }

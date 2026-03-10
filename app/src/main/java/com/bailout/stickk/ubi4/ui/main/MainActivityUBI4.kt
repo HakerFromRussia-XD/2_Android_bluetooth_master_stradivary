@@ -620,8 +620,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
-
-
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
     }

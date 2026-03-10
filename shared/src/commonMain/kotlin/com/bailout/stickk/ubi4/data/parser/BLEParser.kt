@@ -119,6 +119,10 @@ class BLEParser(
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
 
     fun parseReceivedData(data: ByteArray?) {
+        platformLog(
+            "parseProductCRCInfo",
+            "parseReceivedData run!}"
+        )
         if (data != null) {
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             platformLog("BLEParser", "data.size=${data.size}")
@@ -583,6 +587,7 @@ class BLEParser(
 
 
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, deviceAddress: Int, receiveDataString: String) {
+        platformLog("parseDeviceInformation", "packageCodeRequest = ${packageCodeRequest.toInt()}")
         when (packageCodeRequest) {
             (0x00).toByte() -> {
                 platformLog("BLEParser", "TEST parser 2 DEFOULT")
@@ -674,7 +679,11 @@ class BLEParser(
             }
             DataManagerCommand.READ_DATA.number -> {
                 platformLog("receiveDataString", "${receiveDataString.length}")
-                //TODO исправить версию прошивки CPU без мэджик намберс
+                //TODO исправить версию прошивки CPU без мэджик
+                platformLog(
+                    "parseProductCRCInfo",
+                    "parseProductInfoType length= ${receiveDataString.length}"
+                )
                 if (receiveDataString.length == 174){
                     parseProductInfoType(receiveDataString)
 
@@ -896,6 +905,7 @@ class BLEParser(
                     BLECommands.requestProductInfoType(),
                     MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
 
+                //TODO посчитать кол-во requestProductFWInfoType
                 baseSubDevicesInfoStructSet.forEach { sub ->
                     bleManager.sendBytesKmm(
                         BLECommands.requestProductFWInfoType(sub.deviceAddress),

@@ -15,7 +15,7 @@ class BlockingQueueUbi4 {
     private val tasks = mutableListOf<QueueEntry>()
     private var canTake: Boolean = true // Флаг, разрешающий извлечение задачи
     private var lastAllowTime: Long = 0L // Время последнего события (например, dataReceive)
-    private val autoUnlockMs = 50L
+    private val autoUnlockMs = 1000L
 
     fun get(): Runnable {
         // Используем цикл с коротким сном, чтобы избежать busy loop
@@ -55,6 +55,7 @@ class BlockingQueueUbi4 {
             tasks.add(QueueEntry(task = task, enqueuedAt = currentTimeMillis(), description = description))
 
             val lockedForMs = if (canTake) 0L else (now - lastAllowTime)
+
             platformLog(
                 "sendBytesKmm",
                 "BlockingQueueUbi4: put +1, size=${tasks.size}, canTake=$canTake, lockedFor=${lockedForMs}ms, data=$description"

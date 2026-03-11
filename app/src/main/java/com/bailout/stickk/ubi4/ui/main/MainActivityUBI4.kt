@@ -32,8 +32,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.sendGaines
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
@@ -165,7 +163,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         mBLEController.initBLEStructure()
-        mBLEController.scanLeDevice(true)
+        mBLEController.connectToSavedDeviceNow()
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
@@ -258,10 +256,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 2")}
 //            platformLog("sendThresholds", "отправка команды 3")
-//            main.bleCommandWithQueue(
-//                BLECommandsV3.sendThresholds(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
+            main.bleCommandWithQueue(
+                BLECommandsV3.sendGaines(15, 136),
+                SERIALPORTCHAR_UUID,
+                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
 //            runBlockingDemo()
             platformLog("BLEParserV3", "runCommandBtn")
         }

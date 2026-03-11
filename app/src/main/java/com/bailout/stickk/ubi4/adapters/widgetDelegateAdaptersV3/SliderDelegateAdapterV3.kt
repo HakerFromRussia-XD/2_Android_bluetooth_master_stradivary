@@ -118,9 +118,9 @@ class SliderDelegateAdapterV3(
         )
         currentSliderInfo.instanceId = sliderInfoCounter++
 
-        widgetSlidersInfo.removeAll {
-            it.parameterInfo.deviceAddress == currentParameterInfo.deviceAddress && it.parameterInfo.parameterID == currentParameterInfo.parameterID
-        }
+//        widgetSlidersInfo.removeAll {
+//            it.parameterInfo.deviceAddress == currentParameterInfo.deviceAddress && it.parameterInfo.parameterID == currentParameterInfo.parameterID
+//        }
         widgetSlidersInfo.add(currentSliderInfo)
 
         // Получаем индекс текущего виджета по значению device и parameter
@@ -236,7 +236,12 @@ class SliderDelegateAdapterV3(
             val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb.progress
             val newValue = Json.decodeFromString<EMGGainResult>(parameter.data)
 
-            setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, newValue.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+            if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
+                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, newValue.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+            }
+            if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 1) {
+                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, newValue.closeGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+            }
         }
     }
 

@@ -495,9 +495,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
     fun connectToSavedDeviceNow() {
         val hasTarget = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
         if (!hasTarget) {
+            platformLog("connectToSavedDeviceNow", "scanLeDevice")
             scanLeDevice(true)
             return
         }
+        platformLog("connectToSavedDeviceNow", "не scanLeDevice")
 
         reconnectThreadFlag = true
         reconnectThread()

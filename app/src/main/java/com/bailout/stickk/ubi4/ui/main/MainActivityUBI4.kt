@@ -31,6 +31,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
 import com.bailout.stickk.ubi4.ble.BLECommandsV3.sendGaines
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -228,7 +229,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                request(PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
-            platformLog("BLEParserV3", "runCommandBtn")
 //            bleManager.sendBytesKmm(
 //                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
@@ -244,7 +244,26 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number.toInt()),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
+
+
+
+//            platformLog("sendThresholds", "отправка команды 1")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendThresholds(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 1")}
+//            platformLog("sendThresholds", "отправка команды 2")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendThresholds(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 2")}
+//            platformLog("sendThresholds", "отправка команды 3")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendThresholds(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
 //            runBlockingDemo()
+            platformLog("BLEParserV3", "runCommandBtn")
         }
 
         val accountPb = binding.accountPb.apply {

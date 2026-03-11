@@ -133,6 +133,7 @@ class BLEParserV3(
                         parameter.data = json.encodeToString(thresholds)
                         coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
                         platformLog("[parseReceivedData]", "thresholds: $thresholds")
+//                        platformLog("sendThresholds", "приём ответа команды")
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)

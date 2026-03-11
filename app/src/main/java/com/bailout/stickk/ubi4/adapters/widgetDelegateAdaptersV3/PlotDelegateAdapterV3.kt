@@ -15,6 +15,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
@@ -47,6 +48,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -164,19 +166,10 @@ class PlotDelegateAdapterV3 (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    val filteredSet =
-                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-                            .toSet()
-                    if (filteredSet.isNotEmpty()) {
-                        Log.d("Plot", "openThreshold send $openThreshold  deviceAddress = ${filteredSet.elementAt(0).deviceAddress},  parameterID = ${filteredSet.elementAt(0).parameterID}")
-                        main.bleCommandWithQueue(
-                            BLECommands.sendThresholdsCommand(
-                                filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
-                                filteredSet.elementAt(0).parameterID,
-                                arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                    main.bleCommandWithQueue(
+                        BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
+                        SERIALPORTCHAR_UUID, WRITE
+                    ) {}
                 }
             }
             true
@@ -194,19 +187,10 @@ class PlotDelegateAdapterV3 (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    val filteredSet =
-                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-                            .toSet()
-                    if (filteredSet.size >= 2) {
-                        Log.d("Plot", "closeThreshold send $closeThreshold")
-                        main.bleCommandWithQueue(
-                            BLECommands.sendThresholdsCommand(
-                                filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
-                                filteredSet.elementAt(1).parameterID,
-                                arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                    main.bleCommandWithQueue(
+                        BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
+                        SERIALPORTCHAR_UUID, WRITE
+                    ) {}
                 }
             }
             true
@@ -660,12 +644,20 @@ class PlotDelegateAdapterV3 (
     }
     private fun initRequest() {
         if (requestedOnFirstShow.compareAndSet(false, true)) {
-            parameterInfoSet.forEach {
-                main.bleCommandWithQueue(
-                    request(it.dataCode),
-                    SERIALPORTCHAR_UUID,
-                    WRITE){}
-            }
+//            parameterInfoSet.forEach {
+//                platformLog("sendThresholds", "отправка команды ${it.dataCode}")
+//                main.bleCommandWithQueue(
+//                    request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+//                    SERIALPORTCHAR_UUID, WRITE){
+                    //TODO тест для базы системы подтверждения отправки команд (при том что в системе
+                    // пока что не будет автоматических ответов и в этой лямбде мы должны будем делать
+                    // запрос изменяемых значений самостоятельно)
+//                    GlobalScope.launch {
+//                        delay(20)
+//                        platformLog("sendThresholds", "приём подтверждения отправки команды ${it.dataCode}")
+//                    }
+//                }
+//            }
         }
     }
 }

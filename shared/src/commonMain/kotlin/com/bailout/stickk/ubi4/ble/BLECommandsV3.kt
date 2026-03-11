@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 object BLECommandsV3 {
 
@@ -12,28 +13,6 @@ object BLECommandsV3 {
             0x00,
             SUB_DEVICE_MANAGER.number,
             SubDeviceManager.GET_ALL_SUB_DEVICE.number,
-            0x00,
-            0x00
-        )
-        header[4] = calculationCRC(header).toByte()
-        return header
-    }
-    fun requestThresholdValue(): ByteArray {
-        val header = byteArrayOf(
-            0x00,
-            PROSTHESIS_MODULE_CONTROL.number,
-            PWCE_GET_THRESHOLD_VALUE.number,
-            0x00,
-            0x00
-        )
-        header[4] = calculationCRC(header).toByte()
-        return header
-    }
-    fun request(command: Int, subcommand: Int): ByteArray {
-        val header = byteArrayOf(
-            0x00,
-            command.toByte(),
-            subcommand.toByte(),
             0x00,
             0x00
         )
@@ -62,8 +41,28 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-
-    fun sendGaines(): ByteArray {
+    fun sendThresholds(thresholdOpen: Int, thresholdClose: Int): ByteArray {
+        platformLog("Thresholds", "sendThresholds $thresholdOpen  $thresholdClose")
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            0x00,
+            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
+            PWCE_SET_THRESHOLD_VALUE.number,
+            thresholdOpen.toByte(),
+            thresholdClose.toByte(),
+            0x00
+        )
+        header[2] = (data.size - 1).toByte()
+        header[3] = (data.size / 256).toByte()
+        header[4] = calculationCRC(header).toByte()
+        data[3] = calculationCRC(data).toByte()
+        return header + data
+    }
+    fun sendGaines(gainOpen: Int, gainClose: Int): ByteArray {
         val header = byteArrayOf(
             0x80.toByte(),
             PROSTHESIS_MODULE_CONTROL.number,
@@ -73,8 +72,8 @@ object BLECommandsV3 {
         )
         val data = byteArrayOf(
             PWCE_SET_EMG_GAIN_VALUE.number,
-            0x32,
-            0x30,
+            gainOpen.toByte(),
+            gainClose.toByte(),
             0x00
         )
         header[2] = (data.size - 1).toByte()

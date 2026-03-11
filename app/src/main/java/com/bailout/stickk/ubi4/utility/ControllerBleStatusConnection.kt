@@ -84,7 +84,10 @@ class ControllerBleStatusConnection(
     // ---- Безобрывный переход (единственная точка смены) ----
     private fun requestState(state: UiState, minSingleMs: Long? = null, loopOverride: Boolean? = null) {
         if (isPlaying) {
-            pendingState = state
+            // минимальный приоритет: Connected всегда может перебить очередь
+            if (pendingState == null || state == UiState.Connected) {
+                pendingState = state
+            }
             if (isLoopingNow) indicator.post { indicator.repeatCount = 0 } // доиграть текущую итерацию
             return
         }

@@ -269,15 +269,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
 
     //CallBacks
-//    open fun onPlotReady(num: Int) {}
-    open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-        Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
-    }
-    open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommandWithQueue(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-        Log.d("TestButton", "oneButtonPressed run $addressDevice $parameterID $command")
-    }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
         System.err.println("showAddGestureToSprScreen")
         val dialogBinding =

@@ -476,6 +476,12 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     open fun refreshWidgetsList() {
+        if (UiState.isInterfaceV3Activated) {
+            UiState.fullInitInProgress.value = true
+            main?.observeSyncProgress()
+            main?.getBLEController()?.refreshWidgetsV3BySwipe()
+            return
+        }
         UiState.fullInitInProgress.value = true
         main?.observeSyncProgress()
         UiState.widgetsLoadingFlow.tryEmit(Unit)

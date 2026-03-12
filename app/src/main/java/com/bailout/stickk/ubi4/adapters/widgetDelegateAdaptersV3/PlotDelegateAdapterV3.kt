@@ -33,9 +33,13 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -57,6 +61,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
@@ -67,10 +72,9 @@ class PlotDelegateAdapterV3 (
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private companion object {
         val requestedOnFirstShow = AtomicBoolean(false)
-        var cachedOpenThreshold: Int = 0
-        var cachedCloseThreshold: Int = 0
     }
 
+    private val json = Json { encodeDefaults = true }
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
@@ -90,9 +94,6 @@ class PlotDelegateAdapterV3 (
         platformLog("[Ubi4WidgetPlotBinding]","работает PlotDelegateAdapterV3")
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
-
-        openThreshold = cachedOpenThreshold
-        closeThreshold = cachedCloseThreshold
 
         when (val widget = plotItem.widget) {
             is PlotParameterWidgetSStruct -> {
@@ -170,13 +171,19 @@ class PlotDelegateAdapterV3 (
                 allCHRl,
                 ev
             )
-            cachedOpenThreshold = openThreshold
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
                     main.bleCommandWithQueue(
                         BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
                         SERIALPORTCHAR_UUID, WRITE
                     ) {}
+
+                    //записываем данные в параметр
+                    val parameter = ParameterProvider.getParameterV3(
+                        ParameterInfoRegistry.require(
+                            P_KEY_OPEN_CLOSE_THRESHOLD
+                        ))
+                    parameter.data = json.encodeToString(ThresholdResult(openThreshold, closeThreshold))
                 }
             }
             true
@@ -192,13 +199,19 @@ class PlotDelegateAdapterV3 (
                 allCHRl,
                 ev
             )
-            cachedCloseThreshold = closeThreshold
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
                     main.bleCommandWithQueue(
                         BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
                         SERIALPORTCHAR_UUID, WRITE
                     ) {}
+
+                    //записываем данные в параметр
+                    val parameter = ParameterProvider.getParameterV3(
+                        ParameterInfoRegistry.require(
+                            P_KEY_OPEN_CLOSE_THRESHOLD
+                        ))
+                    parameter.data = json.encodeToString(ThresholdResult(openThreshold, closeThreshold))
                 }
             }
             true
@@ -207,8 +220,6 @@ class PlotDelegateAdapterV3 (
         setLimitPosition2(limitCH2, allCHRl, openThreshold)
         setLimitPosition2(limitCH1, allCHRl, closeThreshold)
 
-        cachedOpenThreshold = openThreshold
-        cachedCloseThreshold = closeThreshold
     }
 
 
@@ -647,8 +658,6 @@ class PlotDelegateAdapterV3 (
 
     fun onDestroy() {
         graphThreadFlag = false
-//        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
-//        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
         collectJob?.cancel()
         collectJob = null
         scope?.cancel()

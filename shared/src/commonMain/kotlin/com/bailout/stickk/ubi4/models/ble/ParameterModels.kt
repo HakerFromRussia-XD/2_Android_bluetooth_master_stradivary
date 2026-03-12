@@ -21,11 +21,11 @@ data class PlotParameterRef(
 )
 @Serializable
 data class ThresholdResult(
-    val openThreshold: Int = 0,
-    val closeThreshold: Int = 0
+    var openThreshold: Int = 0,
+    var closeThreshold: Int = 0
 )
 @Serializable
 data class EMGGainResult(
-    val openGain: Int = 0,
-    val closeGain: Int = 0
+    var openGain: Int = 0,
+    var closeGain: Int = 0
 )

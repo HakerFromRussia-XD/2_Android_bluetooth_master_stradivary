@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSS
 import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -45,6 +47,7 @@ class SliderDelegateAdapterV3(
         val requestedOnFirstShow = AtomicBoolean(false)
     }
 
+    private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSlidersInfo: ArrayList<WidgetSliderInfo> = ArrayList()
     private var indexWidgetSlidersArray = intArrayOf()
@@ -136,7 +139,7 @@ class SliderDelegateAdapterV3(
         currentSliderInfo.progress = minProgress
         widgetSliderTitleTv.text = item.title
 
-        // Обработчик первого слайдера
+        // Обработчик первого слайдеров
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
             val info = widgetSlidersInfo[indexWidgetSlider]
             widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -146,8 +149,9 @@ class SliderDelegateAdapterV3(
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    widgetSlidersInfo[indexWidgetSlider].progress = seekBar.progress
                     sendProgress(
-                        info.parameterInfo.parameterID,
+                        info.parameterInfo,
                         widgetSlidersInfo[indexWidgetSlider].progress
                     )
                 }
@@ -174,15 +178,15 @@ class SliderDelegateAdapterV3(
                     request = {
                         Log.d("SliderDebugTest!", "=============================================")
                         Log.d("SliderDebugTest!", "parameterInfo = $parameterInfo")
-                        main.bleCommandWithQueue(
-                            BLECommandsV3.request(parameterInfo.dataCode),
-                            SENSORS_STREAM_UUID,
-                            WRITE
-                        ) {}
+//                        main.bleCommandWithQueue(
+//                            BLECommandsV3.request(parameterInfo.dataCode),
+//                            SERIALPORTCHAR_UUID,
+//                            WRITE
+//                        ) {}
                     },
                     isResponseReceived = { currentSliderInfo.responseReceived.get() },
                     maxRetries = 5,
-                    delayMillis = 250L,
+                    delayMillis = 1000L,
                     scope = scope
                 )
                 Log.d("RequestUtils", "Запрос отправлен: кэш пуст. command=${parameterInfo.parameterID}, subcommand=${parameterInfo.dataCode}")
@@ -215,7 +219,7 @@ class SliderDelegateAdapterV3(
             override fun onFinish() {
                 if (!isAttached) return
                 sendProgress(
-                    sliderInfo.parameterInfo.parameterID,
+                    sliderInfo.parameterInfo,
                     sliderInfo.progress
                 )
             }
@@ -227,15 +231,14 @@ class SliderDelegateAdapterV3(
 
         val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.parameterID)
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            platformLog("animateProgressBar", "indexWidgetSlider: ${indexWidgetSlider}")
             val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb.progress
-            val newValue = Json.decodeFromString<EMGGainResult>(parameter.data)
+            val emgGainResult = Json.decodeFromString<EMGGainResult>(parameter.data)
 
             if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
-                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, newValue.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, emgGainResult.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
             }
             if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 1) {
-                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, newValue.closeGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, emgGainResult.closeGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
             }
         }
     }
@@ -274,9 +277,21 @@ class SliderDelegateAdapterV3(
 
         return indices
     }
-    private fun sendProgress(subcommand: Int, progress: Int) {
+    private fun sendProgress(parameterInfo: ParameterInfo<Int, Int, Int, Int>, progress: Int) {
+        val subcommand = parameterInfo.dataCode
+        platformLog("sendProgress", "subcommand: ${parameterInfo} сравниваем с ${ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt()}")
         when (subcommand) {
-
+            ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt() -> {
+                val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                val emgGainResult = Json.decodeFromString<EMGGainResult>(parameter.data)
+                if (parameterInfo.dataOffsets == 0) { emgGainResult.openGain = progress }
+                if (parameterInfo.dataOffsets == 1) { emgGainResult.closeGain = progress }
+                parameter.data = json.encodeToString(emgGainResult)
+                main.bleCommandWithQueue(
+                    BLECommandsV3.sendGaines(emgGainResult.openGain, emgGainResult.closeGain),
+                    SERIALPORTCHAR_UUID, WRITE){}
+                platformLog("sendProgress", "parameter.data: ${parameter.data}")
+            }
         }
     }
 

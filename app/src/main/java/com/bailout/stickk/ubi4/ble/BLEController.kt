@@ -700,6 +700,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
     }
 
+    fun refreshWidgetsV3BySwipe() {
+        main.lifecycleScope.launch {
+            initRequestsV3()
+            UiState.fullInitInProgress.value = false
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+        }
+    }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener

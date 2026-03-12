@@ -242,9 +242,11 @@ class PlotDelegateAdapterV3 (
         }
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
-        Log.d("Plot view","View detached")
+        graphThreadFlag = false
         scope?.cancel()
         scope = null
+        collectJob?.cancel()
+        collectJob = null
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItemV3
     override fun PlotItemV3.getItemId(): Any = title
@@ -298,7 +300,7 @@ class PlotDelegateAdapterV3 (
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         if (widgetPlotsInfo.isEmpty()) return
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val thresholdResult = Json.decodeFromString<ThresholdResult>(parameter.data)
+        val thresholdResult = parseThresholdResultSafely(parameter.data)?: return
         widgetPlotsInfo[0].responseReceived.set(true)
         val info = widgetPlotsInfo[0]
 
@@ -658,11 +660,10 @@ class PlotDelegateAdapterV3 (
 
     fun onDestroy() {
         graphThreadFlag = false
-        collectJob?.cancel()
-        collectJob = null
         scope?.cancel()
         scope = null
-        Log.d("onDestroy" , "onDestroy plot")
+        collectJob?.cancel()
+        collectJob = null
     }
     private fun initRequest() {
         if (requestedOnFirstShow.compareAndSet(false, true)) {
@@ -681,6 +682,12 @@ class PlotDelegateAdapterV3 (
 //                }
 //            }
         }
+    }
+    private fun parseThresholdResultSafely(data: String): ThresholdResult? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<ThresholdResult>(data) }
+            .onFailure { platformLog("PlotDelegateAdapterV3", "Failed to decode ThresholdResult: ${it.message}") }
+            .getOrNull()
     }
 }
 

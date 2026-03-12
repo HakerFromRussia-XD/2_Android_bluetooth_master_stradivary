@@ -426,6 +426,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
+        updateSerialNumberV3()
 
         saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
@@ -510,8 +511,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     val writeLock = Any()
 
-
-
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
             canSendFlag = false
@@ -528,10 +527,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-
-
-
-
     //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {
         return mBLEController
@@ -541,6 +536,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
+    private fun updateSerialNumberV3() {
+        if (UiState.isInterfaceV3Activated) {
+
+            runOnUiThread { binding.nameTv.text = connectedDeviceName }
+            return
+        }
+    }
     override fun updateSerialNumber(info: DeviceInfoStructs) {
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0

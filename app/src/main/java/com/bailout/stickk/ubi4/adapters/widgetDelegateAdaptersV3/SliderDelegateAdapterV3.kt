@@ -40,7 +40,6 @@ import kotlin.math.roundToInt
 
 
 class SliderDelegateAdapterV3(
-//    val onSetProgress: (subcommand: Int, progress: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : ViewBindingDelegateAdapter<SliderItemV3, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
     private companion object {
@@ -228,11 +227,11 @@ class SliderDelegateAdapterV3(
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
+        val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
 
         val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.parameterID)
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
             val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb.progress
-            val emgGainResult = Json.decodeFromString<EMGGainResult>(parameter.data)
 
             if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
                 setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, emgGainResult.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
@@ -283,7 +282,7 @@ class SliderDelegateAdapterV3(
         when (subcommand) {
             ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt() -> {
                 val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                val emgGainResult = Json.decodeFromString<EMGGainResult>(parameter.data)
+                val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: EMGGainResult()
                 if (parameterInfo.dataOffsets == 0) { emgGainResult.openGain = progress }
                 if (parameterInfo.dataOffsets == 1) { emgGainResult.closeGain = progress }
                 parameter.data = json.encodeToString(emgGainResult)
@@ -295,6 +294,12 @@ class SliderDelegateAdapterV3(
         }
     }
 
+    private fun parseEmgGainResultSafely(data: String): EMGGainResult? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<EMGGainResult>(data) }
+            .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
+            .getOrNull()
+    }
     override fun isForViewType(item: Any): Boolean =
         item is SliderItemV3 && (
                 item.widget is SliderParameterWidgetEStruct ||

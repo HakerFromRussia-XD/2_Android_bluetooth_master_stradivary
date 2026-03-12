@@ -245,7 +245,11 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SliderDelegateAdapterV3(
-                onSetProgress = { addressDevice, parameterID, progress -> },
+//                onSetProgress = { subcommand, progress ->
+//                    when (subcommand) {
+//
+//                    }
+//                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             )
         )

@@ -138,7 +138,7 @@ class BLEParserV3(
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
                         //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
                         parameter.data = json.encodeToString(parseEMGGain)
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
@@ -294,8 +294,6 @@ class BLEParserV3(
         )
     }
 
-
-
     suspend fun generatedHardcodeWidgets() {
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
@@ -371,20 +369,25 @@ class BLEParserV3(
         updateFlow.emit(1)
     }
     private fun generatedParameters() {
-        val parametersByDevice = linkedMapOf<Int, LinkedHashMap<Int, BaseParameterInfoStruct>>()
+        val parametersByDevice = linkedMapOf<Int, LinkedHashMap<ParameterInfo<Int,Int,Int,Int>, BaseParameterInfoStruct>>()
 
         baseParameterWidgetSStruct.forEach { widget ->
             val baseStruct = widget.baseStructOrNull() ?: return@forEach
 
             baseStruct.parameterInfoSet.forEach { parameterInfo ->
-                val deviceAddress = (parameterInfo.deviceAddress as? Number)?.toInt() ?: return@forEach
-                val parameterId = (parameterInfo.parameterID as? Number)?.toInt() ?: return@forEach
-                val dataCode = (parameterInfo.dataCode as? Number)?.toInt() ?: 0
+                val key = ParameterInfo(
+                    (parameterInfo.parameterID as Number).toInt(),
+                    (parameterInfo.dataCode as Number).toInt(),
+                    (parameterInfo.deviceAddress as Number).toInt(),
+                    (parameterInfo.dataOffsets as Number).toInt()
+                )
 
-                val parametersForDevice = parametersByDevice.getOrPut(deviceAddress) { linkedMapOf() }
-                parametersForDevice[parameterId] = BaseParameterInfoStruct(
-                    ID = parameterId,
-                    dataCode = dataCode
+                val deviceMap =
+                    parametersByDevice.getOrPut(key.deviceAddress) { LinkedHashMap() }
+
+                deviceMap[key] = BaseParameterInfoStruct(
+                    ID = key.parameterID,
+                    dataCode = key.dataCode
                 )
             }
         }
@@ -398,9 +401,9 @@ class BLEParserV3(
                     parametersList = ArrayList(paramsById.values)
                 )
             )
-//            platformLog("baseSubDevicesInfoStructSetV3", "it: $deviceAddress $paramsById")
+            platformLog("baseSubDevicesInfoStructSetV3", "it: $deviceAddress $paramsById")
         }
-//        baseSubDevicesInfoStructSetV3.forEach { platformLog("baseSubDevicesInfoStructSetV3", "до $it") }
+        baseSubDevicesInfoStructSetV3.forEach { platformLog("baseSubDevicesInfoStructSetV3", "до $it") }
     }
     private fun parseWidgets(widget: Any) {
         when (widget) {

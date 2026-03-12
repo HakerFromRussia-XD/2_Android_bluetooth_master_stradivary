@@ -67,6 +67,8 @@ class PlotDelegateAdapterV3 (
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private companion object {
         val requestedOnFirstShow = AtomicBoolean(false)
+        var cachedOpenThreshold: Int = 0
+        var cachedCloseThreshold: Int = 0
     }
 
     private var scope: CoroutineScope? = null
@@ -89,6 +91,9 @@ class PlotDelegateAdapterV3 (
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 
+        openThreshold = cachedOpenThreshold
+        closeThreshold = cachedCloseThreshold
+
         when (val widget = plotItem.widget) {
             is PlotParameterWidgetSStruct -> {
                 parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
@@ -101,6 +106,7 @@ class PlotDelegateAdapterV3 (
         }
         platformLog("sendWidgetsArray", "▶\uFE0F▶\uFE0F▶\uFE0F parameterInfoSet: $parameterInfoSet")
 
+        widgetPlotsInfo.clear()
         widgetPlotsInfo.add(
             WidgetPlotInfo(
                 parameterInfoSet,
@@ -164,6 +170,7 @@ class PlotDelegateAdapterV3 (
                 allCHRl,
                 ev
             )
+            cachedOpenThreshold = openThreshold
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
                     main.bleCommandWithQueue(
@@ -185,6 +192,7 @@ class PlotDelegateAdapterV3 (
                 allCHRl,
                 ev
             )
+            cachedCloseThreshold = closeThreshold
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
                     main.bleCommandWithQueue(
@@ -198,6 +206,9 @@ class PlotDelegateAdapterV3 (
 
         setLimitPosition2(limitCH2, allCHRl, openThreshold)
         setLimitPosition2(limitCH1, allCHRl, closeThreshold)
+
+        cachedOpenThreshold = openThreshold
+        cachedCloseThreshold = closeThreshold
     }
 
 
@@ -269,11 +280,12 @@ class PlotDelegateAdapterV3 (
                     main.showToast("ERROR plotArrayFlowCollect")
                 }
                 Log.e("plotArrayFlowCollect", "Exception: ${e.message}")
-
+                plotArrayFlowCollect()
             }
         }
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        if (widgetPlotsInfo.isEmpty()) return
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
         val thresholdResult = Json.decodeFromString<ThresholdResult>(parameter.data)
         widgetPlotsInfo[0].responseReceived.set(true)
@@ -635,11 +647,12 @@ class PlotDelegateAdapterV3 (
 
     fun onDestroy() {
         graphThreadFlag = false
-        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
-        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+//        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
+//        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
         collectJob?.cancel()
         collectJob = null
-//        scope?.cancel()
+        scope?.cancel()
+        scope = null
         Log.d("onDestroy" , "onDestroy plot")
     }
     private fun initRequest() {

@@ -9,12 +9,10 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -30,7 +28,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancelChildren
 import java.util.concurrent.atomic.AtomicBoolean
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -41,7 +38,7 @@ import kotlin.math.roundToInt
 
 
 class SliderDelegateAdapterV3(
-    val onSetProgress: (addressDevice: Int, parameterID: Int, progress: Int) -> Unit,
+//    val onSetProgress: (subcommand: Int, progress: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : ViewBindingDelegateAdapter<SliderItemV3, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
     private companion object {
@@ -141,17 +138,16 @@ class SliderDelegateAdapterV3(
 
         // Обработчик первого слайдера
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
+            val info = widgetSlidersInfo[indexWidgetSlider]
             widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    val info = widgetSlidersInfo[indexWidgetSlider]
                     widgetSliderNumTv.text = formatSliderValue(seekBar.progress + info.minProgress, info.increment)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    onSetProgress(
-                        currentParameterInfo.deviceAddress,
-                        currentParameterInfo.parameterID,
+                    sendProgress(
+                        info.parameterInfo.parameterID,
                         widgetSlidersInfo[indexWidgetSlider].progress
                     )
                 }
@@ -218,8 +214,7 @@ class SliderDelegateAdapterV3(
             override fun onTick(millisUntilFinished: Long) = Unit
             override fun onFinish() {
                 if (!isAttached) return
-                onSetProgress(
-                    sliderInfo.parameterInfo.deviceAddress,
+                sendProgress(
                     sliderInfo.parameterInfo.parameterID,
                     sliderInfo.progress
                 )
@@ -244,7 +239,6 @@ class SliderDelegateAdapterV3(
             }
         }
     }
-
     private fun setProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
         try {
             animateProgressBar(progressBar, from, to)
@@ -279,6 +273,11 @@ class SliderDelegateAdapterV3(
         }.toIntArray()
 
         return indices
+    }
+    private fun sendProgress(subcommand: Int, progress: Int) {
+        when (subcommand) {
+
+        }
     }
 
     override fun isForViewType(item: Any): Boolean =

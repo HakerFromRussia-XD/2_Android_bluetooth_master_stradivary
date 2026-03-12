@@ -16,7 +16,9 @@ class ParameterProvider {
             baseSubDevicesInfoStructSetV3.forEach { subDevice ->
                 if (subDevice.deviceAddress == parameterInfo.deviceAddress) {
                     subDevice.parametersList.forEach { p ->
-                        if (p.ID == parameterInfo.parameterID) {
+                        platformLog("baseSubDevicesInfoStructSet", "ищем ${parameterInfo.dataCode} а находим ${p.dataCode}  его дата ${p.data}")
+                        if (p.ID == parameterInfo.parameterID &&
+                            p.dataCode == parameterInfo.dataCode) {
 //                            platformLog("baseSubDevicesInfoStructSet", "Возвращаем валидный параметр")
                             return p
                         }

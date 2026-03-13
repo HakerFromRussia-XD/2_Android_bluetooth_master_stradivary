@@ -93,10 +93,10 @@ class BLEParserV3(
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
+        // [new widgets V3] тут добавляем ветку парсинга нового параметра
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         val receivePacket = parseUbiPacketZeroAlloc(data)
         val payload = receivePacket.payload
-//        platformLog("[parseReceivedData]", "data.size: ${data.size}  receiveDataString = $receiveDataString")
         platformLog("[parseReceivedData]", "command = ${receivePacket.command}")
         when (receivePacket.command) {
             SUB_DEVICE_MANAGER.number.toInt() -> {
@@ -295,6 +295,7 @@ class BLEParserV3(
     }
 
     suspend fun generatedHardcodeWidgets() {
+        // [new widgets V3] тут добавляем новые виджеты
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,

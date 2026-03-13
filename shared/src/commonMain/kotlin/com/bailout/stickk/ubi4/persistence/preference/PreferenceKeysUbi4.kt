@@ -666,6 +666,7 @@ object PreferenceKeysUbi4 {
     }
 
     object ParameterInfoRegistry {
+        // [new widgets V3] тут связываем новые виджеты с их параметрами
         val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> = mapOf(
             P_KEY_PLOT to ParameterInfo(1, 1, 1, 0),
             P_KEY_OPEN_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),

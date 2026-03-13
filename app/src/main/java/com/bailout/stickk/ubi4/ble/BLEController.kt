@@ -707,7 +707,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
             UiState.widgetsLoadingFlow.tryEmit(Unit)
         }
     }
-
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
     }

@@ -226,18 +226,31 @@ class SliderDelegateAdapterV3(
 
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        // [new widgets V3] тут добавляем ветку расфасовки пришедших данных SliderDelegateAdapterV3 1
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
 
         val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.parameterID)
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb.progress
-
-            if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
-                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, emgGainResult.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
-            }
-            if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 1) {
-                setProgressBar(widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb, oldProgress, emgGainResult.closeGain - widgetSlidersInfo[indexWidgetSlider].minProgress)
+            val subcommand = parameterInfo.dataCode
+            when (subcommand) {
+                ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt() -> {
+                    val oldProgress = widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb.progress
+                    val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
+                    if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
+                        setProgressBar(
+                            widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb,
+                            oldProgress,
+                            emgGainResult.openGain - widgetSlidersInfo[indexWidgetSlider].minProgress
+                        )
+                    }
+                    if (widgetSlidersInfo[indexWidgetSlider].parameterInfo.dataOffsets == 1) {
+                        setProgressBar(
+                            widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb,
+                            oldProgress,
+                            emgGainResult.closeGain - widgetSlidersInfo[indexWidgetSlider].minProgress
+                        )
+                    }
+                }
             }
         }
     }
@@ -277,6 +290,7 @@ class SliderDelegateAdapterV3(
         return indices
     }
     private fun sendProgress(parameterInfo: ParameterInfo<Int, Int, Int, Int>, progress: Int) {
+        // [new widgets V3] тут добавляем ветку отправки новых команд SliderDelegateAdapterV3 2
         val subcommand = parameterInfo.dataCode
         platformLog("sendProgress", "subcommand: ${parameterInfo} сравниваем с ${ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt()}")
         when (subcommand) {

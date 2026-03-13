@@ -14,11 +14,8 @@ import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.WidgetState
@@ -27,18 +24,14 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
-import com.bailout.stickk.ubi4.models.ble.ThresholdResult
+import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.github.mikephil.charting.charts.LineChart
@@ -52,7 +45,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -183,7 +175,7 @@ class PlotDelegateAdapterV3 (
                         ParameterInfoRegistry.require(
                             P_KEY_OPEN_CLOSE_THRESHOLD
                         ))
-                    parameter.data = json.encodeToString(ThresholdResult(openThreshold, closeThreshold))
+                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
                 }
             }
             true
@@ -211,7 +203,7 @@ class PlotDelegateAdapterV3 (
                         ParameterInfoRegistry.require(
                             P_KEY_OPEN_CLOSE_THRESHOLD
                         ))
-                    parameter.data = json.encodeToString(ThresholdResult(openThreshold, closeThreshold))
+                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
                 }
             }
             true
@@ -683,9 +675,9 @@ class PlotDelegateAdapterV3 (
 //            }
         }
     }
-    private fun parseThresholdResultSafely(data: String): ThresholdResult? {
+    private fun parseThresholdResultSafely(data: String): ThresholdsV3? {
         if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<ThresholdResult>(data) }
+        return runCatching { json.decodeFromString<ThresholdsV3>(data) }
             .onFailure { platformLog("PlotDelegateAdapterV3", "Failed to decode ThresholdResult: ${it.message}") }
             .getOrNull()
     }

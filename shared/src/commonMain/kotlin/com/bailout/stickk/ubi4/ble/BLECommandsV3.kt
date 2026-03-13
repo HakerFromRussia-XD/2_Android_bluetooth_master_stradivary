@@ -30,6 +30,17 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
+    fun requestGestureInfo(subcommand: Int, gestureId: Int): ByteArray {
+        val header = byteArrayOf(
+            0x00,
+            PROSTHESIS_MODULE_CONTROL.number,
+            subcommand.toByte(),
+            gestureId.toByte(),
+            0x00
+        )
+        header[4] = calculationCRC(header).toByte()
+        return header
+    }
     fun sendCommand( moduleControlCommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,

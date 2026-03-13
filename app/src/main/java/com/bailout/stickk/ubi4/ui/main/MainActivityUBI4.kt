@@ -222,10 +222,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
+            // тест жестов
+            // запрос активного жеста (ответ 00002401a4)
 //            bleManager.sendBytesKmm(
-//                request(PWCE_GET_EMG_GAIN_VALUE.number),
+//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number.toInt()),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
+            // запрос количества жестов (ответ пока пустой)
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_COUNT.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+            // запрос всей инфы по жестам (ответ )
+            bleManager.sendBytesKmm(
+                BLECommandsV3.requestGestureInfo(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number.toInt(), 64),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
+
+
 //            bleManager.sendBytesKmm(
 //                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
@@ -255,10 +269,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 2")}
 //            platformLog("sendThresholds", "отправка команды 3")
-            main.bleCommandWithQueue(
-                BLECommandsV3.sendGaines(15, 136),
-                SERIALPORTCHAR_UUID,
-                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendGaines(15, 136),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
 //            runBlockingDemo()
             platformLog("BLEParserV3", "runCommandBtn")
         }

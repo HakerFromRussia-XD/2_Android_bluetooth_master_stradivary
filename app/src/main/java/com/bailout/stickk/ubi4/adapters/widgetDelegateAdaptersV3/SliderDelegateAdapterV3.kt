@@ -17,7 +17,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
+import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
@@ -296,7 +296,7 @@ class SliderDelegateAdapterV3(
         when (subcommand) {
             ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number.toInt() -> {
                 val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: EMGGainResult()
+                val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: EMGGainsV3()
                 if (parameterInfo.dataOffsets == 0) { emgGainResult.openGain = progress }
                 if (parameterInfo.dataOffsets == 1) { emgGainResult.closeGain = progress }
                 parameter.data = json.encodeToString(emgGainResult)
@@ -308,9 +308,9 @@ class SliderDelegateAdapterV3(
         }
     }
 
-    private fun parseEmgGainResultSafely(data: String): EMGGainResult? {
+    private fun parseEmgGainResultSafely(data: String): EMGGainsV3? {
         if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<EMGGainResult>(data) }
+        return runCatching { json.decodeFromString<EMGGainsV3>(data) }
             .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
             .getOrNull()
     }

@@ -29,23 +29,25 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
+import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
-import com.bailout.stickk.ubi4.models.ble.ThresholdResult
+import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
-import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -100,7 +102,7 @@ class BLEParserV3(
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         val receivePacket = parseUbiPacketZeroAlloc(data)
         val payload = receivePacket.payload
-        platformLog("[parseReceivedData]", "command = ${receivePacket.command}")
+        platformLog("[parseReceivedData]", "command = ${receivePacket.command} receiveDataString = $receiveDataString")
         when (receivePacket.command) {
             SUB_DEVICE_MANAGER.number.toInt() -> {
                 val devices = parseSubDeviceManagerGetAllSubDevice(payload)
@@ -127,16 +129,25 @@ class BLEParserV3(
             }
             PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
                 val subcommand = payload[0]
-//                platformLog("[parseReceivedData]", "subcommand = $subcommand")
+                platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
-                    PWCE_GET_THRESHOLD_VALUE.number -> {
-                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                    PWCE_GET_CURRENT_GESTURE_NUM.number -> {
+                        val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
+                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(thresholds)
-                        coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
-                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
-//                        platformLog("sendThresholds", "приём ответа команды")
+                        parameter.data = json.encodeToString(parseCurrentGesture)
+                        coroutineScope.launch { currentGestureFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "gesture = ${json.encodeToString(parseCurrentGesture)}")
+                    }
+                    PWCE_GET_GESTURE_SETTING.number -> {
+                        val parseGestureInfo = parseGestureZeroAlloc(receivePacket.payload)
+                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseGestureInfo)
+                        platformLog("[PWCE_GET_GESTURE_SETTING]", "parameter.data = $parseGestureInfo")
+                        coroutineScope.launch { gestureInfoFlowV3.emit(parameterInfo) }
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
@@ -146,6 +157,15 @@ class BLEParserV3(
                         parameter.data = json.encodeToString(parseEMGGain)
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
                         platformLog("[parseReceivedData]", "slider = ${json.encodeToString(parseEMGGain)}")
+                    }
+                    PWCE_GET_THRESHOLD_VALUE.number -> {
+                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(thresholds)
+                        coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
+//                        platformLog("sendThresholds", "приём ответа команды")
                     }
                 }
             }
@@ -270,30 +290,77 @@ class BLEParserV3(
             fwVersion = fwVersion
         )
     }
-    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdResult {
+    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdsV3 {
         //парсинг PWCE_GET_THRESHOLD_VALUE
-        if (payload == null || payload.length < 3) { return ThresholdResult() }
+        if (payload == null || payload.length < 3) { return ThresholdsV3() }
 
         val subcommand = payload.u8(0)
         val openThreshold = payload.u8(1)
         val closeThreshold = payload.u8(2)
 
-        return ThresholdResult(
+        return ThresholdsV3(
             openThreshold = openThreshold,
             closeThreshold = closeThreshold
         )
     }
-    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainResult {
+    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainsV3 {
         // парсинг PWCE_GET_EMG_GAIN
-        if (payload == null || payload.length < 3) { return EMGGainResult() }
+        if (payload == null || payload.length < 3) { return EMGGainsV3() }
 
         val subcommand = payload.u8(0)
         val openGain = payload.u8(1)
         val closeGain = payload.u8(2)
 
-        return EMGGainResult(
+        return EMGGainsV3(
             openGain = openGain,
             closeGain = closeGain
+        )
+    }
+    private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 2) { return CurrentGestureV3(0) }
+        val subcommand = payload.u8(0)
+        val currentGesture = payload.u8(1)
+
+        return CurrentGestureV3(currentGesture)
+    }
+    private fun parseGestureZeroAlloc(payload: ByteArrayView?): GestureV3 {
+        // парсинг PWCE_GET_GESTURE_SETTING
+        if (payload == null || payload.length < 26) {
+            return GestureV3()
+        }
+        val subcommand = payload.u8(0)
+
+        return GestureV3(
+            gestureId = payload.u8(1),
+
+            openPosition1 = payload.u8(2),
+            openPosition2 = payload.u8(3),
+            openPosition3 = payload.u8(4),
+            openPosition4 = payload.u8(5),
+            openPosition5 = payload.u8(6),
+            openPosition6 = payload.u8(7),
+
+            closePosition1 = payload.u8(8),
+            closePosition2 = payload.u8(9),
+            closePosition3 = payload.u8(10),
+            closePosition4 = payload.u8(11),
+            closePosition5 = payload.u8(12),
+            closePosition6 = payload.u8(13),
+
+            openToCloseTimeShift1 = payload.u8(14),
+            openToCloseTimeShift2 = payload.u8(15),
+            openToCloseTimeShift3 = payload.u8(16),
+            openToCloseTimeShift4 = payload.u8(17),
+            openToCloseTimeShift5 = payload.u8(18),
+            openToCloseTimeShift6 = payload.u8(19),
+
+            closeToOpenTimeShift1 = payload.u8(20),
+            closeToOpenTimeShift2 = payload.u8(21),
+            closeToOpenTimeShift3 = payload.u8(22),
+            closeToOpenTimeShift4 = payload.u8(23),
+            closeToOpenTimeShift5 = payload.u8(24),
+            closeToOpenTimeShift6 = payload.u8(25)
         )
     }
 
@@ -365,7 +432,9 @@ class BLEParserV3(
             deviceId = 0,
             widgetId = 7,
             parameterInfoSet = mutableSetOf(
-                ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE))
+                ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
+                ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
+            )
         )
             ,"Жесты"
         ))

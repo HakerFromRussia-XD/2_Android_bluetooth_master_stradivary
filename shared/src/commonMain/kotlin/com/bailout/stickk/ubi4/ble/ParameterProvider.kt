@@ -6,9 +6,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseParameterInfoStructArray
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import kotlinx.serialization.json.Json
 
 class ParameterProvider {
     companion object {

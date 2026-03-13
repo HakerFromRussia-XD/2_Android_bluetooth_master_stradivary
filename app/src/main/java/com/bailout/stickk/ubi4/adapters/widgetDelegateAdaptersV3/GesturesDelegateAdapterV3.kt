@@ -21,15 +21,20 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -40,10 +45,15 @@ import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
+import kotlin.coroutines.cancellation.CancellationException
 
+@Suppress("DEPRECATION")
 class GesturesDelegateAdapterV3(
     val coroutineScope: CoroutineScope?,
     val gestureNameList: ArrayList<String>,
@@ -51,9 +61,10 @@ class GesturesDelegateAdapterV3(
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
-    val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
-    val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
-    val onRequestActiveGesture: (deviceAddress: Int, parameterID: Int) -> Unit,
+    //  onShowGestureSettings колбек при нажатии на шестерёнку кастомного жеста
+    val onShowGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
+    val onRequestGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
+    val onRequestActiveGesture: () -> Unit,
     val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapterV3.OnCopyClickRotationGroupListener,
@@ -61,6 +72,7 @@ class GesturesDelegateAdapterV3(
     RotationGroupItemAdapterV3.OnSelectClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItemV3, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
+    private val json = Json { encodeDefaults = true }
     private val ANIMATION_DURATION = 200
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapterV3? = null
@@ -158,10 +170,7 @@ class GesturesDelegateAdapterV3(
             )
         }
         // запрос активного жеста — чтобы подсветка/текст пришли
-        onRequestActiveGesture(
-            deviceAddress,
-            getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterIDSet)
-        )
+        onRequestActiveGesture()
 
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
@@ -282,12 +291,8 @@ class GesturesDelegateAdapterV3(
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
                 onShowGestureSettings(
-                    deviceAddress,
-                    getParameterIDByCode(
-                        ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number,
-                        parameterIDSet
-                    ),
-                    (0x40).toInt() + i
+                    ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING).dataCode,
+                    (0x3F).toInt() + i
                 )
                 main.saveInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
@@ -370,48 +375,59 @@ class GesturesDelegateAdapterV3(
         collectJob?.cancel()
 
         collectJob = scope.launch(Dispatchers.Main.immediate) {
-            launch {
-                UiState.activeGestureFragmentFilterFlow.collect { filter ->
-                    renderFilterUI(filter)
+//            launch {
+//                rotationGroupFlow.collect {
+//                    isRotationGroupResponseReceived = true
+//
+//                    val parameter = ParameterProvider.getParameterDeprecated(
+//                        ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number
+//                    )
+//
+//                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+//                    val rotationGroupList = rotationGroup.toGestureList()
+//
+//                    rotationGroupGestures.clear()
+//                    rotationGroupList.forEach { item ->
+//                        if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
+//                    }
+//
+//                    showIntroduction()
+//                    setupListRecyclerView()
+//                    synchronizeRotationGroup()
+//                    calculatingShowAddButton()
+//                    currentActiveGestureId?.let { id ->
+//                        setActiveGesture(getGestureViewById(id))
+//                        updateActiveGestureHeader(id)
+//                    }
+//                }
+//            }
+            try {
+                merge(
+                    UiState.activeGestureFragmentFilterFlow.map{ filter ->
+                        renderFilterUI(filter)
+                    },
+                    WidgetState.currentGestureFlowV3.map { parameterInfo ->
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        val currentGesture = parseCurrentGestureSafely(parameter.data) ?: return@map
+                        currentActiveGestureId = currentGesture.currentGesture
+                        setActiveGesture(getGestureViewById(currentGesture.currentGesture))
+                        updateActiveGestureHeader(currentGesture.currentGesture)
+                        listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
+                ).collect()
+            } catch (e: CancellationException) {
+                Log.d("gestureFlowCollect", "Job was cancelled: ${e.message}")
+            } catch (e: Exception) {
+                main.runOnUiThread {
+                    main.showToast("ERROR plotArrayFlowCollect")
                 }
-            }
-
-            launch {
-                WidgetState.activeGestureState.collect { activeGestureId ->
-                    currentActiveGestureId = activeGestureId
-                    setActiveGesture(getGestureViewById(activeGestureId))
-                    updateActiveGestureHeader(activeGestureId)
-                    listRotationGroupAdapter?.setActiveGestureId(activeGestureId ?: -1)
-                }
-            }
-
-            launch {
-                rotationGroupFlow.collect {
-                    isRotationGroupResponseReceived = true
-
-                    val parameter = ParameterProvider.getParameterDeprecated(
-                        ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number
-                    )
-
-                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-                    val rotationGroupList = rotationGroup.toGestureList()
-
-                    rotationGroupGestures.clear()
-                    rotationGroupList.forEach { item ->
-                        if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
-                    }
-
-                    showIntroduction()
-                    setupListRecyclerView()
-                    synchronizeRotationGroup()
-                    calculatingShowAddButton()
-                    currentActiveGestureId?.let { id ->
-                        setActiveGesture(getGestureViewById(id))
-                        updateActiveGestureHeader(id)
-                    }
-                }
+                Log.e("gestureFlowCollect", "Exception: ${e.message}")
             }
         }
+    }
+    private fun parseCurrentGestureSafely(data: String): CurrentGestureV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<CurrentGestureV3>(data) }
+            .getOrNull()
     }
 
     private fun calculatingShowAddButton() {
@@ -514,7 +530,6 @@ class GesturesDelegateAdapterV3(
 
                 showCollectionGestures(true, _rotationGroupCl, _collectionGesturesCl)
             }
-
             2 -> {
                 ObjectAnimator.ofFloat(
                     _gesturesSelectV,

@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -163,15 +164,13 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
                     sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
                 },
-                onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
-                    showGestureSettings(deviceAddress, parameterID, gestureID)
+                onShowGestureSettings = {subcommand, gestureID ->
+                    platformLog("GesturesDelegateAdapterV3", "onShowGestureSettings")
+                    requestGestureSettingsV3(subcommand, gestureID)
+                    showGestureSettingsV3(subcommand, gestureID)
                 },
-                onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
-                    requestGestureSettings(deviceAddress, parameterID, gestureID)
-                },
-                onRequestActiveGesture = { deviceAddress, parameterID ->
-                    requestActiveGesture(deviceAddress, parameterID)
-                },
+                onRequestGestureSettings = { subcommand, gestureID -> },
+                onRequestActiveGesture = { requestActiveGestureV3() },
                 onRequestRotationGroup = { deviceAddress, parameterID ->
                     requestRotationGroup(deviceAddress, parameterID)
                 },
@@ -382,10 +381,22 @@ abstract class BaseWidgetsFragment : Fragment() {
         intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
         startActivity(intent)
     }
+    open fun showGestureSettingsV3(subcommand: Int, gestureID: Int) {
+        val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
+        intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, subcommand)
+        intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
+        startActivity(intent)
+    }
     open fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
     }
+    open fun requestGestureSettingsV3( subcommand: Int, gestureID: Int) {
+        if (!isAdded) { return }
+        platformLog("[PWCE_GET_GESTURE_SETTING]", "gestureID = $gestureID  сабкоманда $subcommand а ожидаем ${PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number.toInt()}")
+        transmitter().bleCommandWithQueue(BLECommandsV3.requestGestureInfo(subcommand, gestureID), SERIALPORTCHAR_UUID, WRITE){}
+    }
+
 
     open fun showCustomGesturesDialog(onSaveDotsClick: (Pair<Int, Int>) -> Unit, bindingItem: Pair<Int, Int>) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
@@ -478,6 +489,10 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}
         transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+    }
+    open fun requestActiveGestureV3() {
+        if (!isAdded) {return}
+        transmitter().bleCommandWithQueue(BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun sendBLEBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         if (!isAdded) { return }

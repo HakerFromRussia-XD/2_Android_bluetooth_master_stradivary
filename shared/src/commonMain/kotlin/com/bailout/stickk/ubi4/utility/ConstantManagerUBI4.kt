@@ -30,6 +30,7 @@ interface ConstantManagerUBI4 {
         const val P_KEY_OPEN_CLOSE_THRESHOLD = "PI_KEY_OPEN_CLOSE_THRESHOLD"
         const val P_KEY_EMG_GAIN_OPEN_VALUE = "P_KEY_EMG_GAIN_OPEN_VALUE"
         const val P_KEY_EMG_GAIN_CLOSE_VALUE = "P_KEY_EMG_GAIN_CLOSE_VALUE"
+        const val P_KEY_CURRENT_GESTURE = "P_KEY_CURRENT_GESTURE"
 
 
         val CRC_TABLE = intArrayOf(

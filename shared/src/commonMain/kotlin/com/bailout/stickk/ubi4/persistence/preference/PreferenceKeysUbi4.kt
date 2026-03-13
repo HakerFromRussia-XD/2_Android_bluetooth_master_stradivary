@@ -3,6 +3,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
@@ -157,6 +158,7 @@ object PreferenceKeysUbi4 {
         PWCE_SLIDER_V3                      (0x15),
         PWCE_PLOT_V3                        (0x16),
         PWCE_TOGGLE_SLIDER_V3               (0x17),
+        PWCE_GESTURES_WINDOW_V3            (0x18)
     }
 
 
@@ -672,6 +674,7 @@ object PreferenceKeysUbi4 {
             P_KEY_OPEN_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_THRESHOLD_VALUE.number.toInt(), 1, 0),
             P_KEY_EMG_GAIN_OPEN_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
             P_KEY_EMG_GAIN_CLOSE_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
+            P_KEY_CURRENT_GESTURE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_GET_CURRENT_GESTURE_NUM.number.toInt(), 1, 0),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

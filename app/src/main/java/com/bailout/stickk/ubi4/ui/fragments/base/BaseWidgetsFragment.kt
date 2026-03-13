@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -74,11 +75,8 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             OneButtonDelegateAdapter(
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
-
             ButtonsDelegateAdapterV3(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
@@ -150,6 +148,37 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
+            GesturesDelegateAdapterV3 (
+                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
+                gestureNameList = gestureNameList,
+                onDeleteClick = { resultCb, gestureName ->
+                    showDeleteGestureFromRotationGroupDialog(resultCb, gestureName)
+                },
+                onAddGesturesToRotationGroup = { onSaveDialogClick ->
+                    showAddGestureToRotationGroupDialog(onSaveDialogClick)
+                },
+                onSendBLERotationGroup = { deviceAddress, parameterID ->
+                    sendBLERotationGroup(deviceAddress, parameterID)
+                },
+                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
+                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
+                },
+                onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
+                    showGestureSettings(deviceAddress, parameterID, gestureID)
+                },
+                onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
+                    requestGestureSettings(deviceAddress, parameterID, gestureID)
+                },
+                onRequestActiveGesture = { deviceAddress, parameterID ->
+                    requestActiveGesture(deviceAddress, parameterID)
+                },
+                onRequestRotationGroup = { deviceAddress, parameterID ->
+                    requestRotationGroup(deviceAddress, parameterID)
+                },
+                onDestroyParent = { onDestroyParent ->
+                    onDestroyParentCallbacks.add(onDestroyParent)
+                }
+            ),
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
@@ -165,11 +194,9 @@ abstract class BaseWidgetsFragment : Fragment() {
                         }
                     }
                 },
-
                 onShowFileClick = { addressDevice, parameterId ->
                     showFilesDialog(addressDevice, parameterId)
                 },
-
                 onShowEmg8Files = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter
 

@@ -18,6 +18,11 @@ data class GesturesItem(
     val widget: Any
 )
 
+data class GesturesItemV3(
+    val title: String,
+    val widget: Any
+)
+
 data class OneButtonItem(
     val title: String,
     val description: String,

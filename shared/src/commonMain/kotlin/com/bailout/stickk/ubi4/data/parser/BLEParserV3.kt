@@ -40,7 +40,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
+import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.GestureParameterWidgetSStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
@@ -365,6 +368,17 @@ class BLEParserV3(
         )
             ,"Чувствительность датчика открытия"
         ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 0,
+            widgetPosition = 0,
+            widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
+            deviceId = 0,
+            widgetId = 7,
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE))
+        )
+            ,"Жесты"
+        ))
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
@@ -440,7 +454,11 @@ class BLEParserV3(
                         addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
                     PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
-                    PWCE_GESTURES_WINDOW.number.toInt() -> {}
+                    PWCE_GESTURES_WINDOW.number.toInt(),
+                    PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
+                        val gestureParameterWidgetSStruct = GestureParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
+                        addToListWidgets(gestureParameterWidgetSStruct, gestureParameterWidgetSStruct.baseParameterWidgetSStruct)
+                    }
                 }
             }
             is CommandParameterWidgetSStruct -> {
@@ -512,6 +530,14 @@ class BLEParserV3(
         } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
             listWidgets.forEach {
                 when (it) {
+                    is BaseParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId
+                        if (combineWidgetId == combineWidgetIdIterated) {
+                            canAdd = false
+//                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(1, 1, 1)) }
+                        }
+                    }
                     is CommandParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId

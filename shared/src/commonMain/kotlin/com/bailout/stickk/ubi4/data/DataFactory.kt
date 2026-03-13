@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.ButtonsItemV3
 import com.bailout.stickk.ubi4.models.widgets.GesturesItem
+import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.models.widgets.OneButtonItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
@@ -320,6 +321,9 @@ class DataFactory {
 
             ParameterWidgetCode.PWCE_TOGGLE_SLIDER_V3.number.toInt() ->
                 ToggleSliderItemV3(resultLabel[0], widget)
+
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW_V3.number.toInt() ->
+                GesturesItemV3(resultLabel[0], widget)
 
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }

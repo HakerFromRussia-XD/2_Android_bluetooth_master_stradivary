@@ -105,6 +105,7 @@ class DataFactory {
         val filteredWidgets = UiState.listWidgets.filter { widget ->
             when (widget) {
                 is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.display == display
+                is BaseParameterWidgetSStruct -> widget.baseParameterWidgetStruct.display == display
                 is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
                 is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
                 is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
@@ -125,6 +126,7 @@ class DataFactory {
         val sortedWidgets = filteredWidgets.sortedBy { widget ->
             when (widget) {
                 is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.widgetPosition
+                is BaseParameterWidgetSStruct -> widget.baseParameterWidgetStruct.widgetPosition
                 is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
                 is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
@@ -147,6 +149,12 @@ class DataFactory {
                     toWidgetItemE(
                         widget.baseParameterWidgetStruct.widgetCode,
                         widget.labelCode,
+                        widget
+                    )
+                is BaseParameterWidgetSStruct ->
+                    toWidgetItemS(
+                        widget.baseParameterWidgetStruct.widgetCode,
+                        widget.label,
                         widget
                     )
 
@@ -322,8 +330,9 @@ class DataFactory {
             ParameterWidgetCode.PWCE_TOGGLE_SLIDER_V3.number.toInt() ->
                 ToggleSliderItemV3(resultLabel[0], widget)
 
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW_V3.number.toInt() ->
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
                 GesturesItemV3(resultLabel[0], widget)
+            }
 
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }
@@ -331,6 +340,7 @@ class DataFactory {
 
     fun Any.extractDisplayOrNull(): Int? = when (this) {
         is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
+        is BaseParameterWidgetSStruct -> baseParameterWidgetStruct.display
 
         is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
         is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display

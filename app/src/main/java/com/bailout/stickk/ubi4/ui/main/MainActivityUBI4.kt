@@ -126,9 +126,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var job: Job? = null
 
     // Очередь для задачь работы с BLE
-    val queue = BlockingQueueUbi4()
+    private val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
-
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -390,7 +389,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
-    fun launchFragmentWithoutStack(fragment: Fragment) {
+    private fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
             activeFragment = fragment
@@ -538,7 +537,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
-
             runOnUiThread { binding.nameTv.text = connectedDeviceName }
             return
         }

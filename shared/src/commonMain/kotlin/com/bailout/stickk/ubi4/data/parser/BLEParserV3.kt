@@ -359,16 +359,6 @@ class BLEParserV3(
                 ,"Открыть%Закрыть"
         )))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetPosition = 0,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 0,
-            widgetId = 6,
-            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
-        )
-            ,"Чувствительность датчика открытия"
-        ))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 0,
             widgetPosition = 0,
             widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
@@ -423,6 +413,10 @@ class BLEParserV3(
     private fun parseWidgets(widget: Any) {
         when (widget) {
             is BaseParameterWidgetSStruct -> {
+                platformLog(
+                    "PWCE_GESTURES_WINDOW_V3",
+                    "expected=${PWCE_GESTURES_WINDOW_V3.number} actual=${widget.baseParameterWidgetStruct.widgetCode}"
+                )
                 when (widget.baseParameterWidgetStruct.widgetCode) {
                     PWCE_BUTTON.number.toInt(),
                     PWCE_BUTTON_V3.number.toInt()-> {
@@ -456,8 +450,8 @@ class BLEParserV3(
                     PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
                     PWCE_GESTURES_WINDOW.number.toInt(),
                     PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
-                        val gestureParameterWidgetSStruct = GestureParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
-                        addToListWidgets(gestureParameterWidgetSStruct, gestureParameterWidgetSStruct.baseParameterWidgetSStruct)
+                        val gestureParameterWidgetSStruct = widget
+                        addToListWidgets(gestureParameterWidgetSStruct, gestureParameterWidgetSStruct)
                     }
                 }
             }
@@ -529,14 +523,13 @@ class BLEParserV3(
             }
         } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
             listWidgets.forEach {
+//                platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S  it = $it")
                 when (it) {
                     is BaseParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId
-                        if (combineWidgetId == combineWidgetIdIterated) {
-                            canAdd = false
-//                            coroutineScope.launch { thresholdFlow.emit(ParameterRef(1, 1, 1)) }
-                        }
+                        platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S BaseParameterWidgetSStruct")
+                        if (combineWidgetId == combineWidgetIdIterated) { canAdd = false }
                     }
                     is CommandParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
@@ -586,10 +579,13 @@ class BLEParserV3(
             }
         }
         if (canAdd) {
+//            platformLog("PWCE_GESTURES_WINDOW_V3", "смогли добавить")
             listWidgets.add(widget)
             listWidgets.forEach { it ->
                 platformLog("listWidgets", "listWidgets: $it")
             }
+        } else {
+            platformLog("PWCE_GESTURES_WINDOW_V3", "не смогли добавить")
         }
     }
 

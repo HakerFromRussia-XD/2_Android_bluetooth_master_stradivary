@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
+import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
@@ -28,19 +29,28 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
+import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
-import com.bailout.stickk.ubi4.models.ble.ThresholdResult
+import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+//import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CLOSE_THRESHOLD
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -55,6 +65,7 @@ class BLEParserV3(
     private val bleCommandExecutor: BleCommandExecutor,
     private val bleManager: BleManagerKmm
 ) {
+    val json = Json { encodeDefaults = true }
     private var mConnected = false
     private var countErrors = 0
     private val deviceSize = 7
@@ -89,11 +100,11 @@ class BLEParserV3(
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
+        // [new widgets V3] тут добавляем ветку парсинга нового параметра
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         val receivePacket = parseUbiPacketZeroAlloc(data)
         val payload = receivePacket.payload
-//        platformLog("[parseReceivedData]", "data.size: ${data.size}  receiveDataString = $receiveDataString")
-        platformLog("[parseReceivedData]", "command = ${receivePacket.command}")
+        platformLog("[parseReceivedData]", "command = ${receivePacket.command} receiveDataString = $receiveDataString")
         when (receivePacket.command) {
             SUB_DEVICE_MANAGER.number.toInt() -> {
                 val devices = parseSubDeviceManagerGetAllSubDevice(payload)
@@ -122,19 +133,43 @@ class BLEParserV3(
                 val subcommand = payload[0]
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
-                    PWCE_GET_THRESHOLD_VALUE.number -> {
-                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
-                        coroutineScope.launch { thresholdFlowV3.emit(thresholds) }
-                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
+                    PWCE_GET_CURRENT_GESTURE_NUM.number -> {
+                        val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
+                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseCurrentGesture)
+                        coroutineScope.launch { currentGestureFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "gesture = ${json.encodeToString(parseCurrentGesture)}")
+                    }
+                    PWCE_GET_GESTURE_SETTING.number -> {
+                        val parseGestureInfo = parseGestureZeroAlloc(receivePacket.payload)
+                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseGestureInfo)
+                        //
+                        platformLog("[PWCE_GET_GESTURE_SETTING]", "parameter.data = $parseGestureInfo")
+                        RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
+//                        coroutineScope.launch { gestureInfoFlowV3.emit(parameterInfo) }
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
                         //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD)
-                        var parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        platformLog("baseSubDevicesInfoStructSet", "Json.encodeToString(parseEMGGain) = ${Json.encodeToString(parseEMGGain)}")
-                        parameter.data = Json.encodeToString(parseEMGGain)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseEMGGain)
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "slider = ${json.encodeToString(parseEMGGain)}")
+                    }
+                    PWCE_GET_THRESHOLD_VALUE.number -> {
+                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(thresholds)
+                        coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
+                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
+//                        platformLog("sendThresholds", "приём ответа команды")
                     }
                 }
             }
@@ -259,36 +294,82 @@ class BLEParserV3(
             fwVersion = fwVersion
         )
     }
-    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdResult {
+    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdsV3 {
         //парсинг PWCE_GET_THRESHOLD_VALUE
-        if (payload == null || payload.length < 3) { return ThresholdResult() }
+        if (payload == null || payload.length < 3) { return ThresholdsV3() }
 
         val subcommand = payload.u8(0)
         val openThreshold = payload.u8(1)
         val closeThreshold = payload.u8(2)
 
-        return ThresholdResult(
+        return ThresholdsV3(
             openThreshold = openThreshold,
             closeThreshold = closeThreshold
         )
     }
-    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainResult {
+    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainsV3 {
         // парсинг PWCE_GET_EMG_GAIN
-        if (payload == null || payload.length < 3) { return EMGGainResult() }
+        if (payload == null || payload.length < 3) { return EMGGainsV3() }
 
         val subcommand = payload.u8(0)
         val openGain = payload.u8(1)
         val closeGain = payload.u8(2)
 
-        return EMGGainResult(
+        return EMGGainsV3(
             openGain = openGain,
             closeGain = closeGain
         )
     }
+    private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 2) { return CurrentGestureV3(0) }
+        val subcommand = payload.u8(0)
+        val currentGesture = payload.u8(1)
 
+        return CurrentGestureV3(currentGesture)
+    }
+    private fun parseGestureZeroAlloc(payload: ByteArrayView?): GestureV3 {
+        // парсинг PWCE_GET_GESTURE_SETTING
+        if (payload == null || payload.length < 26) {
+            return GestureV3()
+        }
+        val subcommand = payload.u8(0)
 
+        return GestureV3(
+            gestureId = payload.u8(1),
+
+            openPosition1 = payload.u8(2),
+            openPosition2 = payload.u8(3),
+            openPosition3 = payload.u8(4),
+            openPosition4 = payload.u8(5),
+            openPosition5 = payload.u8(6),
+            openPosition6 = payload.u8(7),
+
+            closePosition1 = payload.u8(8),
+            closePosition2 = payload.u8(9),
+            closePosition3 = payload.u8(10),
+            closePosition4 = payload.u8(11),
+            closePosition5 = payload.u8(12),
+            closePosition6 = payload.u8(13),
+
+            openToCloseTimeShift1 = payload.u8(14),
+            openToCloseTimeShift2 = payload.u8(15),
+            openToCloseTimeShift3 = payload.u8(16),
+            openToCloseTimeShift4 = payload.u8(17),
+            openToCloseTimeShift5 = payload.u8(18),
+            openToCloseTimeShift6 = payload.u8(19),
+
+            closeToOpenTimeShift1 = payload.u8(20),
+            closeToOpenTimeShift2 = payload.u8(21),
+            closeToOpenTimeShift3 = payload.u8(22),
+            closeToOpenTimeShift4 = payload.u8(23),
+            closeToOpenTimeShift5 = payload.u8(24),
+            closeToOpenTimeShift6 = payload.u8(25)
+        )
+    }
 
     suspend fun generatedHardcodeWidgets() {
+        // [new widgets V3] тут добавляем новые виджеты
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
@@ -298,8 +379,7 @@ class BLEParserV3(
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
-                ParameterInfoRegistry.require(P_KEY_OPEN_THRESHOLD),
-                ParameterInfoRegistry.require(P_KEY_CLOSE_THRESHOLD))
+                ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
         )
             ,"Графики"
         ))
@@ -309,7 +389,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 2,
-            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 0, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
         )
             ,"Чувствительность датчика открытия"
         ))
@@ -319,7 +399,7 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             deviceId = 0,
             widgetId = 3,
-            parameterInfoSet = mutableSetOf(ParameterInfo(PDCE_EMG_CH_1_3_VAL.number, 0, 0, 1))
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
         )
             ,"Чувствительность датчика закрытия"
         ))
@@ -350,97 +430,67 @@ class BLEParserV3(
                 ,"Открыть%Закрыть"
         )))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
+            display = 0,
             widgetPosition = 0,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 0,
-            widgetId = 6,
-            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
-        )
-            ,"Чувствительность датчика открытия"
-        ))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 3,
-            widgetPosition = 0,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
             deviceId = 0,
             widgetId = 7,
-            parameterInfoSet = mutableSetOf(ParameterInfo(2, 2, 2, 0))
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
+                ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
+            )
         )
-            ,"Чувствительность датчика открытия"
+            ,"Жесты"
         ))
+
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)
     }
     private fun generatedParameters() {
-//        val deviceAddress -> list of BaseParameterInfoStruct (без перетирания по ID)
-        val parametersByDevice = linkedMapOf<Int, ArrayList<BaseParameterInfoStruct>>()
+        val parametersByDevice = linkedMapOf<Int, LinkedHashMap<ParameterInfo<Int,Int,Int,Int>, BaseParameterInfoStruct>>()
 
         baseParameterWidgetSStruct.forEach { widget ->
             val baseStruct = widget.baseStructOrNull() ?: return@forEach
 
             baseStruct.parameterInfoSet.forEach { parameterInfo ->
-                val deviceAddress = (parameterInfo.deviceAddress as? Number)?.toInt() ?: return@forEach
-                val parameterId = (parameterInfo.parameterID as? Number)?.toInt() ?: return@forEach
-                val dataCode = (parameterInfo.dataCode as? Number)?.toInt() ?: 0
+                val key = ParameterInfo(
+                    (parameterInfo.parameterID as Number).toInt(),
+                    (parameterInfo.dataCode as Number).toInt(),
+                    (parameterInfo.deviceAddress as Number).toInt(),
+                    (parameterInfo.dataOffsets as Number).toInt()
+                )
 
-                val list = parametersByDevice.getOrPut(deviceAddress) { arrayListOf() }
-                list.add(
-                    BaseParameterInfoStruct(
-                        ID = parameterId,
-                        dataCode = dataCode
-                    )
+                val deviceMap =
+                    parametersByDevice.getOrPut(key.deviceAddress) { LinkedHashMap() }
+
+                deviceMap[key] = BaseParameterInfoStruct(
+                    ID = key.parameterID,
+                    dataCode = key.dataCode
                 )
             }
         }
 
-        baseSubDevicesInfoStructSet.clear()
-        parametersByDevice.forEach { (deviceAddress, list) ->
-            baseSubDevicesInfoStructSet.add(
+        baseSubDevicesInfoStructSetV3.clear()
+        parametersByDevice.forEach { (deviceAddress, paramsById) ->
+            baseSubDevicesInfoStructSetV3.add(
                 BaseSubDeviceInfoStruct(
                     deviceAddress = deviceAddress,
-                    parametersNum = list.size,
-                    parametersList = list
+                    parametersNum = paramsById.size,
+                    parametersList = ArrayList(paramsById.values)
                 )
             )
-            platformLog("baseSubDevicesInfoStructSet", "device=$deviceAddress count=${list.size} list=$list")
+            platformLog("baseSubDevicesInfoStructSetV3", "it: $deviceAddress $paramsById")
         }
+        baseSubDevicesInfoStructSetV3.forEach { platformLog("baseSubDevicesInfoStructSetV3", "до $it") }
     }
-//    private fun generatedParameters() {
-//        val parametersByDevice = linkedMapOf<Int, LinkedHashMap<Int, BaseParameterInfoStruct>>()
-//
-//        baseParameterWidgetSStruct.forEach { widget ->
-//            val baseStruct = widget.baseStructOrNull() ?: return@forEach
-//
-//            baseStruct.parameterInfoSet.forEach { parameterInfo ->
-//                val deviceAddress = (parameterInfo.deviceAddress as? Number)?.toInt() ?: return@forEach
-//                val parameterId = (parameterInfo.parameterID as? Number)?.toInt() ?: return@forEach
-//                val dataCode = (parameterInfo.dataCode as? Number)?.toInt() ?: 0
-//
-//                val parametersForDevice = parametersByDevice.getOrPut(deviceAddress) { linkedMapOf() }
-//                parametersForDevice[parameterId] = BaseParameterInfoStruct(
-//                    ID = parameterId,
-//                    dataCode = dataCode
-//                )
-//            }
-//        }
-//
-//        baseSubDevicesInfoStructSet.clear()
-//        parametersByDevice.forEach { (deviceAddress, paramsById) ->
-//            baseSubDevicesInfoStructSet.add(
-//                BaseSubDeviceInfoStruct(
-//                    deviceAddress = deviceAddress,
-//                    parametersNum = paramsById.size,
-//                    parametersList = ArrayList(paramsById.values)
-//                )
-//            )
-//            platformLog("baseSubDevicesInfoStructSet", "it: $deviceAddress $paramsById")
-//        }
-//    }
     private fun parseWidgets(widget: Any) {
         when (widget) {
             is BaseParameterWidgetSStruct -> {
+                platformLog(
+                    "PWCE_GESTURES_WINDOW_V3",
+                    "expected=${PWCE_GESTURES_WINDOW_V3.number} actual=${widget.baseParameterWidgetStruct.widgetCode}"
+                )
                 when (widget.baseParameterWidgetStruct.widgetCode) {
                     PWCE_BUTTON.number.toInt(),
                     PWCE_BUTTON_V3.number.toInt()-> {
@@ -472,7 +522,11 @@ class BLEParserV3(
                         addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
                     PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
-                    PWCE_GESTURES_WINDOW.number.toInt() -> {}
+                    PWCE_GESTURES_WINDOW.number.toInt(),
+                    PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
+                        val gestureParameterWidgetSStruct = widget
+                        addToListWidgets(gestureParameterWidgetSStruct, gestureParameterWidgetSStruct)
+                    }
                 }
             }
             is CommandParameterWidgetSStruct -> {
@@ -543,7 +597,14 @@ class BLEParserV3(
             }
         } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
             listWidgets.forEach {
+//                platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S  it = $it")
                 when (it) {
+                    is BaseParameterWidgetSStruct -> {
+                        val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
+                        val combineWidgetIdIterated = it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId
+                        platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S BaseParameterWidgetSStruct")
+                        if (combineWidgetId == combineWidgetIdIterated) { canAdd = false }
+                    }
                     is CommandParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetId
@@ -592,10 +653,13 @@ class BLEParserV3(
             }
         }
         if (canAdd) {
+//            platformLog("PWCE_GESTURES_WINDOW_V3", "смогли добавить")
             listWidgets.add(widget)
             listWidgets.forEach { it ->
                 platformLog("listWidgets", "listWidgets: $it")
             }
+        } else {
+            platformLog("PWCE_GESTURES_WINDOW_V3", "не смогли добавить")
         }
     }
 
@@ -613,6 +677,7 @@ class BLEParserV3(
         is ToggleSliderParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
         is SwitchParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
 
+        is BaseParameterWidgetSStruct -> this.baseParameterWidgetStruct
         is CommandParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
         is PlotParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
         is SliderParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct

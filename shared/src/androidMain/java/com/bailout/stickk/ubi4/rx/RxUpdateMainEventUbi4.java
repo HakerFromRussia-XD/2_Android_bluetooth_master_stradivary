@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.rx;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
 import com.bailout.stickk.ubi4.models.ble.ParameterRef;
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo;
 import com.bailout.stickk.ubi4.models.gestures.GestureInfo;
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress;
 
@@ -17,6 +18,7 @@ public class RxUpdateMainEventUbi4 {
   private final PublishSubject<GestureWithAddress> gestureStateWithEncoders;
   private final PublishSubject<GestureInfo> readCharacteristicBLE;
   private final PublishSubject<ParameterRef> uiGestureSettings;
+  private final PublishSubject<ParameterInfo<Integer, Integer, Integer, Integer>> uiGestureSettingsV3;
   private final PublishSubject<ParameterRef> uiRotationGroup;
   private final PublishSubject<ParameterRef> uiOpticTraining;
 
@@ -28,6 +30,7 @@ public class RxUpdateMainEventUbi4 {
     gestureStateWithEncoders = PublishSubject.create();
     readCharacteristicBLE = PublishSubject.create();
     uiGestureSettings = PublishSubject.create();
+    uiGestureSettingsV3 = PublishSubject.create();
     uiRotationGroup = PublishSubject.create();
     uiOpticTraining = PublishSubject.create();
     uiAccountMain = PublishSubject.create();              // инициализация
@@ -55,6 +58,9 @@ public class RxUpdateMainEventUbi4 {
 
   public void updateUiGestureSettings(ParameterRef parameterRef) {
     uiGestureSettings.onNext(parameterRef);
+  }
+  public void updateUiGestureSettingsV3(ParameterInfo<Integer, Integer, Integer, Integer> parameterInfo) {
+    uiGestureSettingsV3.onNext(parameterInfo);
   }
 
   public void updateUiRotationGroup(ParameterRef parameters) {
@@ -85,6 +91,10 @@ public class RxUpdateMainEventUbi4 {
 
   public Observable<ParameterRef> getUiGestureSettingsObservable() {
     return uiGestureSettings;
+  }
+
+  public Observable<ParameterInfo<Integer, Integer, Integer, Integer>> getUiGestureSettingsV3Observable() {
+    return uiGestureSettingsV3;
   }
 
   public Observable<ParameterRef> getUiRotationGroupObservable() {

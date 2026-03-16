@@ -1,10 +1,8 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.models.ble.EMGGainResult
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
-import com.bailout.stickk.ubi4.models.ble.ThresholdResult
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,8 +30,10 @@ object WidgetState {
     val activeGestureState = MutableStateFlow<Int?>(null)
     val selectGestureModeState = MutableStateFlow(false)
 
-    var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ThresholdResult>>()
+    var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var sliderFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    var gestureInfoFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
 
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false
@@ -64,5 +64,7 @@ object WidgetState {
 
         thresholdFlowV3 = MutableSharedFlow(replay = 1)
         sliderFlowV3 = MutableSharedFlow(replay = 1)
+        currentGestureFlowV3 = MutableSharedFlow(replay = 1)
+        gestureInfoFlowV3 = MutableSharedFlow(replay = 1)
     }
 }

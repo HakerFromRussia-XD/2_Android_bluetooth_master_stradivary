@@ -51,7 +51,10 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 0 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_DOWN -> {
+                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){}
+                    platformLog("ButtonsDelegateAdapterV3", "moduleControlCommand: $moduleControlCommand")
+                }
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }
@@ -62,7 +65,10 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 1 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_DOWN -> {
+                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){}
+                    platformLog("ButtonsDelegateAdapterV3", "moduleControlCommand: $moduleControlCommand")
+                }
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }
@@ -73,7 +79,9 @@ class ButtonsDelegateAdapterV3(
             val moduleControlCommand = parameterInfoSet.firstOrNull { it.dataOffsets == 2 }?.dataCode
 
             when (event.action){
-                MotionEvent.ACTION_DOWN -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_DOWN -> {
+                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(moduleControlCommand!!), SERIALPORTCHAR_UUID, WRITE){}
+                    platformLog("ButtonsDelegateAdapterV3", "moduleControlCommand: $moduleControlCommand")}
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0), SERIALPORTCHAR_UUID, WRITE){} }
             }

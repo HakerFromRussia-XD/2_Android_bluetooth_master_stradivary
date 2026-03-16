@@ -11,6 +11,8 @@ import shared
 extension Notification.Name {
     static let gestureSettingsDidUpdate = Notification.Name("GestureSettingsDidUpdate")
     static let gestureSettingsViewModelDidUpdate = Notification.Name("GestureSettingsViewModelDidUpdate")
+    static let gestureSettingsDidUpdate = Notification.Name("GestureSettingsV3DidUpdate")
+    static let gestureSettingsViewModelDidUpdate = Notification.Name("GestureSettingsV3ViewModelDidUpdate")
 }
 
 @objcMembers

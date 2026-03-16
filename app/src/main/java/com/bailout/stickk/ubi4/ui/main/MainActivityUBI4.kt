@@ -33,9 +33,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestKolbasa
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
@@ -53,7 +50,6 @@ import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
@@ -63,7 +59,8 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParserV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
-import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
@@ -81,10 +78,10 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragme
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
+import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4CoroutineDemo.Companion.runBlockingDemo
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -131,8 +128,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var job: Job? = null
 
     // Очередь для задачь работы с BLE
-    val queue = BlockingQueueUbi4()
+    private val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
+
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,7 +165,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         mBLEController.initBLEStructure()
         mBLEController.connectToSavedDeviceNow()
-//        mBLEController.scanLeDevice(true)
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
@@ -191,6 +188,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 bluetoothLeService = null
             }
         }
+
 
         if (savedInstanceState == null) {
             binding.bottomNavigation.selectedItemId = R.id.page_2
@@ -230,14 +228,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                request(PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
-////            platformLog("BLEParserV3", "runCommandBtn")
-////            platformLog("BLEParserV3", "send command requestDeviceData")
-////            bleManager.sendBytesKmm(
-////                BLECommandsV3.requestDeviceData(),
-////                SERIALPORTCHAR_UUID,
-////                WRITE
-////            ) {}
+//            platformLog("BLEParserV3", "runCommandBtn")
+//            platformLog("BLEParserV3", "send command requestDeviceData")
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.requestDeviceData(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE
+//            ) {}
 //        }
+
         val accountPb = binding.accountPb.apply {
             max = 100
             visibility = View.GONE
@@ -355,7 +354,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         activeFragment = fragment
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
-
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
@@ -365,7 +363,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
-    fun launchFragmentWithoutStack(fragment: Fragment) {
+    private fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
             activeFragment = fragment
@@ -472,12 +470,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit): Runnable {
         return Runnable {
-            writeData(byteArray, command, typeCommand)
-            onChunkSent() } }
+            if (UiState.isInterfaceV3Activated) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    writeData(byteArray, command, typeCommand)
+                    onChunkSent()
+                }
+            } else {
+                writeData(byteArray, command, typeCommand)
+                onChunkSent()
+            }
+        }
+    }
     val writeLock = Any()
-
-
-
     private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
         synchronized(writeLock) {
             canSendFlag = false
@@ -495,9 +499,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
 
-
-
-
     //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {
         return mBLEController
@@ -507,6 +508,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return bottomNavigationController
     }
 
+    private fun updateSerialNumberV3() {
+        if (UiState.isInterfaceV3Activated) {
+            runOnUiThread { binding.nameTv.text = connectedDeviceName }
+            return
+        }
+    }
     override fun updateSerialNumber(info: DeviceInfoStructs) {
         val isCpu = info.deviceType == 1 || info.deviceCode == 1 || info.deviceAddress == 0
         val uuidOk = info.deviceUUID != 0

@@ -14,32 +14,25 @@ import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestThresholdValue
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.local.PlotThresholds
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.widgetsMergeEventFlow
-import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
-import com.bailout.stickk.ubi4.models.ble.ThresholdResult
+import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
-import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
-import com.bailout.stickk.ubi4.utility.RetryUtils
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -52,7 +45,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -61,6 +53,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
@@ -70,9 +63,10 @@ class PlotDelegateAdapterV3 (
 ) :
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private companion object {
-        val thresholdsRequestedOnFirstShow = AtomicBoolean(false)
+        val requestedOnFirstShow = AtomicBoolean(false)
     }
 
+    private val json = Json { encodeDefaults = true }
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
@@ -85,8 +79,6 @@ class PlotDelegateAdapterV3 (
     private var closeThreshold = 0
 
     private var collectJob: kotlinx.coroutines.Job? = null
-
-    private val responseReceived = AtomicBoolean(false)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItemV3) {
@@ -107,6 +99,7 @@ class PlotDelegateAdapterV3 (
         }
         platformLog("sendWidgetsArray", "▶\uFE0F▶\uFE0F▶\uFE0F parameterInfoSet: $parameterInfoSet")
 
+        widgetPlotsInfo.clear()
         widgetPlotsInfo.add(
             WidgetPlotInfo(
                 parameterInfoSet,
@@ -158,7 +151,6 @@ class PlotDelegateAdapterV3 (
 
         countBinding += 1
 
-        responseReceived.set(false)
         Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
         // Порог открытия — слушаем openCHV
@@ -173,19 +165,17 @@ class PlotDelegateAdapterV3 (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    val filteredSet =
-                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-                            .toSet()
-                    if (filteredSet.isNotEmpty()) {
-                        Log.d("Plot", "openThreshold send $openThreshold  deviceAddress = ${filteredSet.elementAt(0).deviceAddress},  parameterID = ${filteredSet.elementAt(0).parameterID}")
-                        main.bleCommandWithQueue(
-                            BLECommands.sendThresholdsCommand(
-                                filteredSet.elementAt(0).deviceAddress,  // 0 = открытие
-                                filteredSet.elementAt(0).parameterID,
-                                arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                    main.bleCommandWithQueue(
+                        BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
+                        SERIALPORTCHAR_UUID, WRITE
+                    ) {}
+
+                    //записываем данные в параметр
+                    val parameter = ParameterProvider.getParameterV3(
+                        ParameterInfoRegistry.require(
+                            P_KEY_OPEN_CLOSE_THRESHOLD
+                        ))
+                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
                 }
             }
             true
@@ -203,19 +193,17 @@ class PlotDelegateAdapterV3 (
             )
             when (ev.action) {
                 MotionEvent.ACTION_UP -> {
-                    val filteredSet =
-                        parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }
-                            .toSet()
-                    if (filteredSet.size >= 2) {
-                        Log.d("Plot", "closeThreshold send $closeThreshold")
-                        main.bleCommandWithQueue(
-                            BLECommands.sendThresholdsCommand(
-                                filteredSet.elementAt(1).deviceAddress,  // 1 = закрытие
-                                filteredSet.elementAt(1).parameterID,
-                                arrayListOf(openThreshold, 0, closeThreshold, 0)
-                            ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
-                        ) {}
-                    }
+                    main.bleCommandWithQueue(
+                        BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
+                        SERIALPORTCHAR_UUID, WRITE
+                    ) {}
+
+                    //записываем данные в параметр
+                    val parameter = ParameterProvider.getParameterV3(
+                        ParameterInfoRegistry.require(
+                            P_KEY_OPEN_CLOSE_THRESHOLD
+                        ))
+                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
                 }
             }
             true
@@ -223,6 +211,7 @@ class PlotDelegateAdapterV3 (
 
         setLimitPosition2(limitCH2, allCHRl, openThreshold)
         setLimitPosition2(limitCH1, allCHRl, closeThreshold)
+
     }
 
 
@@ -237,16 +226,19 @@ class PlotDelegateAdapterV3 (
             plotArrayFlowCollect()
         }
         graphThreadFlag = true
-        requestThresholdsOnce()
+
+        initRequest()
         scope?.launch {
             //TODO indexWidgetPlot должен вычисляться в этом месте взависимости от того с каким посчету графиком мы работаем в этой функции
             startGraphEnteringDataCoroutine(EMGChartLc, 0)
         }
     }
     override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
-        Log.d("Plot view","View detached")
+        graphThreadFlag = false
         scope?.cancel()
         scope = null
+        collectJob?.cancel()
+        collectJob = null
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItemV3
     override fun PlotItemV3.getItemId(): Any = title
@@ -256,7 +248,7 @@ class PlotDelegateAdapterV3 (
             try {
                 merge(
                     plotArrayFlow.map { plotParameterRef ->
-                        val indexWidgetPlot = getIndexWidgetPlot(
+                        val indexWidgetPlot = getIndexWidget(
                             plotParameterRef.addressDevice,
                             plotParameterRef.parameterID
                         )
@@ -284,7 +276,7 @@ class PlotDelegateAdapterV3 (
                             }
                         }
                     },
-                    thresholdFlowV3.map { thresholdResult -> setUI(thresholdResult) },
+                    thresholdFlowV3.map { parameterInfo -> setUI(parameterInfo) },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -293,12 +285,15 @@ class PlotDelegateAdapterV3 (
                     main.showToast("ERROR plotArrayFlowCollect")
                 }
                 Log.e("plotArrayFlowCollect", "Exception: ${e.message}")
-
+                plotArrayFlowCollect()
             }
         }
     }
-    private fun setUI(thresholdResult: ThresholdResult) {
-        responseReceived.set(true)
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        if (widgetPlotsInfo.isEmpty()) return
+        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+        val thresholdResult = parseThresholdResultSafely(parameter.data)?: return
+        widgetPlotsInfo[0].responseReceived.set(true)
         val info = widgetPlotsInfo[0]
 
         info.apply {
@@ -589,7 +584,7 @@ class PlotDelegateAdapterV3 (
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
-    private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
+    private fun getIndexWidget (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
             if (widgetPlotInfo.parameterInfoSet.any { it.deviceAddress == addressDevice && it.parameterID == parameterID }) {
                 return index
@@ -657,20 +652,34 @@ class PlotDelegateAdapterV3 (
 
     fun onDestroy() {
         graphThreadFlag = false
-        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
-        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+        scope?.cancel()
+        scope = null
         collectJob?.cancel()
         collectJob = null
-//        scope?.cancel()
-        Log.d("onDestroy" , "onDestroy plot")
     }
-    private fun requestThresholdsOnce() {
-        if (thresholdsRequestedOnFirstShow.compareAndSet(false, true)) {
-            main.bleCommandWithQueue(
-                requestThresholdValue(),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
+    private fun initRequest() {
+        if (requestedOnFirstShow.compareAndSet(false, true)) {
+//            parameterInfoSet.forEach {
+//                platformLog("sendThresholds", "отправка команды ${it.dataCode}")
+//                main.bleCommandWithQueue(
+//                    request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+//                    SERIALPORTCHAR_UUID, WRITE){
+                    //TODO тест для базы системы подтверждения отправки команд (при том что в системе
+                    // пока что не будет автоматических ответов и в этой лямбде мы должны будем делать
+                    // запрос изменяемых значений самостоятельно)
+//                    GlobalScope.launch {
+//                        delay(20)
+//                        platformLog("sendThresholds", "приём подтверждения отправки команды ${it.dataCode}")
+//                    }
+//                }
+//            }
         }
+    }
+    private fun parseThresholdResultSafely(data: String): ThresholdsV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<ThresholdsV3>(data) }
+            .onFailure { platformLog("PlotDelegateAdapterV3", "Failed to decode ThresholdResult: ${it.message}") }
+            .getOrNull()
     }
 }
 
@@ -696,4 +705,5 @@ data class WidgetPlotInfo (
     var dataSens4: Int = 0,
     var dataSens5: Int = 0,
     var dataSens6: Int = 0,
+    var responseReceived: AtomicBoolean = AtomicBoolean(false),
 )

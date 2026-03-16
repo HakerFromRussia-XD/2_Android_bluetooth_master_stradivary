@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
@@ -46,6 +47,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
@@ -217,7 +220,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                                 //закрытие прелоадера синхронизации
                                 UiState.startupInProgress.value = false
                                 mBLEParserV3?.generatedHardcodeWidgets()
-                                ensureTransferFlowV3Active()
+                                initRequestsV3()
                             } else {
                                 //ветка инициализации протокола UBIv4
                                 UiState.startupInProgress.value = true
@@ -254,7 +257,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
     }
     private suspend fun requestProductInfoTypeOnceForUbiV4() {
-        val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC)
+        val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC)
         if (!mainChannelNotifyEnabled) {
             main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
             platformLog("parseProductCRCInfo", "НЕ УСПЕШНО")
@@ -268,7 +271,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             ) {}
         }
     }
-    private suspend fun enableNotifyAndAwaitAck(uuid: String, timeoutMs: Long = 2500L, attempts: Int = 10, baseDelayMs: Long = 100L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
+    private suspend fun enableNotifyAndAwaitResponse(uuid: String, timeoutMs: Long = 250L, attempts: Int = 10, baseDelayMs: Long = 10L, onFailedAttempt: (suspend (attempt: Int, max: Int) -> Unit)? = null): Boolean {
         val key = uuid.lowercase()
         repeat(attempts) { index ->
             val attemptNo = index + 1
@@ -280,12 +283,12 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
             if (success) return true
             if (attemptNo < attempts) {
-                kotlinx.coroutines.delay(baseDelayMs * attemptNo) // 250, 500, 750, 1000...
+                kotlinx.coroutines.delay(baseDelayMs * attemptNo)
             }
         }
         return false
     }
-    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 1500L): Boolean {
+    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
         val responseAck = CompletableDeferred<Boolean>()
         pendingDeviceDataResponseAck = responseAck
         platformLog( "requestDeviceDataAndAwaitResponse","requestDeviceData: ${EncodeByteToHex.bytesToHexString(BLECommandsV3.requestDeviceData())}")
@@ -492,9 +495,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
     fun connectToSavedDeviceNow() {
         val hasTarget = connectedDeviceAddress.isNotBlank() && connectedDeviceAddress != "null"
         if (!hasTarget) {
+            platformLog("connectToSavedDeviceNow", "scanLeDevice")
             scanLeDevice(true)
             return
         }
+        platformLog("connectToSavedDeviceNow", "не scanLeDevice")
 
         reconnectThreadFlag = true
         reconnectThread()
@@ -640,7 +645,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
         return commandDispatched
     }
-
     fun cleanup() {
         // Отменяем запущенные корутины
         bleJob.cancel()
@@ -658,35 +662,51 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
     }
 
-    private suspend fun ensureTransferFlowV3Active() {
+    private suspend fun initRequestsV3() {
         // 1) Поднимаем NOTIFY 1
-        val serialNotifyEnabled = enableNotifyAndAwaitAck(SERIALPORTCHAR_UUID)
+        val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
         if (!serialNotifyEnabled) {
             Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
             main.showToast("Не включилась notify SERIALPORTCHAR_UUID")
-            ensureTransferFlowV3Active()
+            initRequestsV3()
         } else {
             // 2) Запрашиваем информацию по девайсам и дожидаемся первого ответа
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
                 main.showToast("Нет ответа requestDeviceData(), повторяем запрос")
-                ensureTransferFlowV3Active()
+                initRequestsV3()
             } else {
                 // 3) Поднимаем NOTIFY 2
-                val mainChannelNotifyEnabled = enableNotifyAndAwaitAck(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+                val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
                     main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
                     Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
                 }
                 if (!mainChannelNotifyEnabled) {
                     Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
                     main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-                    ensureTransferFlowV3Active()
+                    initRequestsV3()
+                } else {
+                    main.bleCommandWithQueue(
+                        request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
                 }
             }
         }
     }
 
+    fun refreshWidgetsV3BySwipe() {
+        main.lifecycleScope.launch {
+            initRequestsV3()
+            UiState.fullInitInProgress.value = false
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+        }
+    }
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
     }

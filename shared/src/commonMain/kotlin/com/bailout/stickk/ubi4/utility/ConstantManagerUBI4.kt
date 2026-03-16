@@ -25,9 +25,13 @@ interface ConstantManagerUBI4 {
         const val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
 
         //parameters V3
+        // [new widgets V3] тут добавляем ключи новых параметров
         const val P_KEY_PLOT = "PI_KEY_1"
-        const val P_KEY_OPEN_THRESHOLD = "PI_KEY_OPEN_CLOSE_2"
-        const val P_KEY_CLOSE_THRESHOLD = "PI_KEY_OPEN_CLOSE_3"
+        const val P_KEY_OPEN_CLOSE_THRESHOLD = "PI_KEY_OPEN_CLOSE_THRESHOLD"
+        const val P_KEY_EMG_GAIN_OPEN_VALUE = "P_KEY_EMG_GAIN_OPEN_VALUE"
+        const val P_KEY_EMG_GAIN_CLOSE_VALUE = "P_KEY_EMG_GAIN_CLOSE_VALUE"
+        const val P_KEY_CURRENT_GESTURE = "P_KEY_CURRENT_GESTURE"
+        const val P_KEY_GESTURE_SETTING = "P_KEY_GESTURE_SETTING"
 
 
         val CRC_TABLE = intArrayOf(

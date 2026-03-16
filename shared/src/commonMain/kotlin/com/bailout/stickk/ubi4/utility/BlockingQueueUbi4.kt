@@ -2,10 +2,10 @@ package com.bailout.stickk.ubi4.utility
 
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.coroutines.Runnable
-import kotlin.time.TimeSource
 
 
 class BlockingQueueUbi4 {
+    //    private val tasks = mutableListOf<Runnable>()
     private data class QueueEntry(
         val task: Runnable,
         val enqueuedAt: Long,
@@ -44,7 +44,7 @@ class BlockingQueueUbi4 {
                     return entry.task
                 }
             }
-            sleep(50) // Короткий сон (50 мс) для экономии ресурсов
+            sleep(10) // Короткий сон (50 мс) для экономии ресурсов
         }
     }
 

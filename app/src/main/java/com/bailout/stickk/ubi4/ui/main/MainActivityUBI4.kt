@@ -134,8 +134,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     val queue = BlockingQueueUbi4()
     private lateinit var bottomNavigationController: BottomNavigationController
 
-
-
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -193,7 +191,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 bluetoothLeService = null
             }
         }
-
 
         if (savedInstanceState == null) {
             binding.bottomNavigation.selectedItemId = R.id.page_2
@@ -358,6 +355,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         activeFragment = fragment
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
+
     override fun showSpecialScreen() { launchFragmentWithoutStack(SpecialSettingsFragment()) }
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()

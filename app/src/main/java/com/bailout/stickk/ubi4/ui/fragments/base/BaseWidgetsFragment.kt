@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
@@ -83,73 +84,73 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
-//            GesturesDelegateAdapter(
-//                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
-//                gestureNameList = gestureNameList,
-//                onDeleteClick = { resultCb, gestureName ->
-//                    showDeleteGestureFromRotationGroupDialog(resultCb, gestureName)
-//                },
-//                onAddGesturesToRotationGroup = { onSaveDialogClick ->
-//                    showAddGestureToRotationGroupDialog(onSaveDialogClick)
-//                },
-//                onSendBLERotationGroup = { deviceAddress, parameterID ->
-//                    sendBLERotationGroup(deviceAddress, parameterID)
-//                },
-//                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
-//                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
-//                },
-//                onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
-//                    showGestureSettings(deviceAddress, parameterID, gestureID)
-//                },
-//                onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
-//                    requestGestureSettings(deviceAddress, parameterID, gestureID)
-//                },
-//                onRequestActiveGesture = { deviceAddress, parameterID ->
-//                    requestActiveGesture(deviceAddress, parameterID)
-//                },
-//                onRequestRotationGroup = { deviceAddress, parameterID ->
-//                    requestRotationGroup(deviceAddress, parameterID)
-//                },
-//                onDestroyParent = { onDestroyParent ->
-//                    onDestroyParentCallbacks.add(onDestroyParent)
-//                }
-//            ),
-            GesturesOpticDelegateAdapter(
-                coroutineScope = main?.lifecycleScope,
+            GesturesDelegateAdapter(
+                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
                 gestureNameList = gestureNameList,
-                onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
-                onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick)},
-                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
-                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
+                onDeleteClick = { resultCb, gestureName ->
+                    showDeleteGestureFromRotationGroupDialog(resultCb, gestureName)
                 },
-                onShowGestureSettings = { device, param, gestureID ->
-                    showGestureSettings(device, param, gestureID)
+                onAddGesturesToRotationGroup = { onSaveDialogClick ->
+                    showAddGestureToRotationGroupDialog(onSaveDialogClick)
                 },
-                onRequestGestureSettings = { device, param, gestureID ->
-                    requestGestureSettings(device, param, gestureID)
-                },
-                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
-                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
+                onSendBLERotationGroup = { deviceAddress, parameterID ->
+                    sendBLERotationGroup(deviceAddress, parameterID)
                 },
                 onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
-                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
+                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
+                },
+                onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
+                    showGestureSettings(deviceAddress, parameterID, gestureID)
+                },
+                onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
+                    requestGestureSettings(deviceAddress, parameterID, gestureID)
+                },
                 onRequestActiveGesture = { deviceAddress, parameterID ->
                     requestActiveGesture(deviceAddress, parameterID)
                 },
-                onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID)},
-                onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup ->
-                    sendBLEBindingGroup(deviceAddress, parameterID, bindingGestureGroup)
-                },
-                onRequestBindingGroup = { deviceAddress, parameterID ->
-                    requestBindingGroup(deviceAddress, parameterID)
-                },
-                onRequestRotationGroup = {deviceAddress, parameterID ->
+                onRequestRotationGroup = { deviceAddress, parameterID ->
                     requestRotationGroup(deviceAddress, parameterID)
                 },
                 onDestroyParent = { onDestroyParent ->
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
+//            GesturesOpticDelegateAdapter(
+//                coroutineScope = main?.lifecycleScope,
+//                gestureNameList = gestureNameList,
+//                onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
+//                onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick)},
+//                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
+//                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
+//                },
+//                onShowGestureSettings = { device, param, gestureID ->
+//                    showGestureSettings(device, param, gestureID)
+//                },
+//                onRequestGestureSettings = { device, param, gestureID ->
+//                    requestGestureSettings(device, param, gestureID)
+//                },
+//                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
+//                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
+//                },
+//                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
+//                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
+//                onRequestActiveGesture = { deviceAddress, parameterID ->
+//                    requestActiveGesture(deviceAddress, parameterID)
+//                },
+//                onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID)},
+//                onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup ->
+//                    sendBLEBindingGroup(deviceAddress, parameterID, bindingGestureGroup)
+//                },
+//                onRequestBindingGroup = { deviceAddress, parameterID ->
+//                    requestBindingGroup(deviceAddress, parameterID)
+//                },
+//                onRequestRotationGroup = {deviceAddress, parameterID ->
+//                    requestRotationGroup(deviceAddress, parameterID)
+//                },
+//                onDestroyParent = { onDestroyParent ->
+//                    onDestroyParentCallbacks.add(onDestroyParent)
+//                }
+//            ),
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
                     if (!isAdded) return@TrainingFragmentDelegateAdapter

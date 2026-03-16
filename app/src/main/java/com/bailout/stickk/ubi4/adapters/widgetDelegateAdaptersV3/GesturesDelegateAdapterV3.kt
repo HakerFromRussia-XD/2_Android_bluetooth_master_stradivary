@@ -21,11 +21,13 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4

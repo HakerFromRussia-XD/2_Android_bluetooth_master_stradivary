@@ -43,6 +43,8 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
@@ -146,8 +148,10 @@ class BLEParserV3(
                         val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
                         parameter.data = json.encodeToString(parseGestureInfo)
+                        //
                         platformLog("[PWCE_GET_GESTURE_SETTING]", "parameter.data = $parseGestureInfo")
-                        coroutineScope.launch { gestureInfoFlowV3.emit(parameterInfo) }
+                        RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
+//                        coroutineScope.launch { gestureInfoFlowV3.emit(parameterInfo) }
                     }
                     PWCE_GET_EMG_GAIN_VALUE.number -> {
                         val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
@@ -438,6 +442,7 @@ class BLEParserV3(
         )
             ,"Жесты"
         ))
+
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
         updateFlow.emit(1)

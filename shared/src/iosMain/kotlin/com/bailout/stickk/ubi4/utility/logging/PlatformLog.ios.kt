@@ -1,5 +1,5 @@
 package com.bailout.stickk.ubi4.utility.logging
 
 actual fun platformLog(tag: String, message: String) {
-    println("$tag: $message")
+    println("$tag: ${sanitizeLogMessage(message)}")
 }

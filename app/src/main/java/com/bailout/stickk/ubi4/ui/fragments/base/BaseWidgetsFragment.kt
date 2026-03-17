@@ -165,11 +165,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
                     sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
                 },
-                onShowGestureSettings = {subcommand, gestureID ->
-                    platformLog("GesturesDelegateAdapterV3", "onShowGestureSettings")
-                    requestGestureSettingsV3(subcommand, gestureID)
-                    showGestureSettingsV3(subcommand, gestureID)
-                },
+                onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
                 onRequestGestureSettings = { subcommand, gestureID -> },
                 onRequestActiveGesture = { requestActiveGestureV3() },
                 onRequestRotationGroup = { deviceAddress, parameterID ->
@@ -272,11 +268,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SliderDelegateAdapterV3(
-//                onSetProgress = { subcommand, progress ->
-//                    when (subcommand) {
-//
-//                    }
-//                },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             )
         )
@@ -391,11 +382,6 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
-    }
-    open fun requestGestureSettingsV3( subcommand: Int, gestureID: Int) {
-        if (!isAdded) { return }
-        platformLog("[PWCE_GET_GESTURE_SETTING]", "gestureID = $gestureID  сабкоманда $subcommand а ожидаем ${PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number.toInt()}")
-        transmitter().bleCommandWithQueue(BLECommandsV3.requestGestureInfo(subcommand, gestureID), SERIALPORTCHAR_UUID, WRITE){}
     }
 
 

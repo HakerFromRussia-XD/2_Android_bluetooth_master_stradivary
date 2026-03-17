@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
@@ -30,11 +31,11 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun requestGestureInfo(subcommand: Int, gestureId: Int): ByteArray {
+    fun requestGestureInfo(gestureId: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,
-            subcommand.toByte(),
+            PWCE_GET_GESTURE_SETTING.number,
             gestureId.toByte(),
             0x00
         )
@@ -89,8 +90,52 @@ object BLECommandsV3 {
         )
         header[2] = (data.size - 1).toByte()
         header[3] = (data.size / 256).toByte()
-        header[4] = calculationCRC(header).toByte()
-        data[3] = calculationCRC(data).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
+        return header + data
+    }
+    fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            0x00,
+            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
+            PWCE_SET_GESTURE_SETTING.number,
+            gestureWithAddress.gesture.gestureId.toByte(),
+            gestureWithAddress.gesture.openPosition1.toByte(),
+            gestureWithAddress.gesture.openPosition2.toByte(),
+            gestureWithAddress.gesture.openPosition3.toByte(),
+            gestureWithAddress.gesture.openPosition4.toByte(),
+            gestureWithAddress.gesture.openPosition5.toByte(),
+            gestureWithAddress.gesture.openPosition6.toByte(),
+            gestureWithAddress.gesture.closePosition1.toByte(),
+            gestureWithAddress.gesture.closePosition2.toByte(),
+            gestureWithAddress.gesture.closePosition3.toByte(),
+            gestureWithAddress.gesture.closePosition4.toByte(),
+            gestureWithAddress.gesture.closePosition5.toByte(),
+            gestureWithAddress.gesture.closePosition6.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift1.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift2.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift3.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift4.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift5.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift6.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift1.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift2.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift3.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift4.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift5.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift6.toByte(),
+            gestureWithAddress.gestureState.toByte(),
+            0x00
+        )
+        header[2] = (data.size - 1).toByte()
+        header[3] = (data.size / 256).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
         return header + data
     }
 

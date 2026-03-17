@@ -32,8 +32,10 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.state.BLEState
@@ -207,7 +209,7 @@ class UBI4GripperScreenWithEncodersActivityV3
                 val parameter = ParameterProvider.getParameterV3(parameterInfo)
                 val gestureSettings = parseGestureInfoSafely(parameter.data)
                 gestureSettings?.let { loadGestureState(it)
-                } ?: main.showToast("Ошибка чтения параметра")
+                } ?: main.showToast("Ошибка обносления состояния жеста")
             }
 
         RxView.clicks(findViewById(R.id.editGestureNameBtn))
@@ -717,11 +719,11 @@ class UBI4GripperScreenWithEncodersActivityV3
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0), gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        main.bleCommandWithQueue(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+        main.bleCommandWithQueue(BLECommandsV3.sendGestureInfo(gestureStateModel), SERIALPORTCHAR_UUID, WRITE){}
     }
     private fun compileBLERead () {
         Log.d("uiGestureSettingsObservable", "compileBLERead gesture id = $gestureID")
-        main.bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+        main.bleCommandWithQueue(BLECommandsV3.requestGestureInfo(gestureID), SERIALPORTCHAR_UUID, WRITE){}
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
 //        val _inputNumber = validationRange(inputNumber)
@@ -744,11 +746,6 @@ class UBI4GripperScreenWithEncodersActivityV3
         return _inputNumber
     }
 
-    private fun saveBool(key: String, variable: Boolean) {
-        val editor: SharedPreferences.Editor = mSettings!!.edit()
-        editor.putBoolean(key, variable)
-        editor.apply()
-    }
     private fun mySaveText(key: String, text: String) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putString(key, text)
@@ -803,7 +800,7 @@ class UBI4GripperScreenWithEncodersActivityV3
             )
         }
     }
-private fun initSelector() {
+    private fun initSelector() {
     halfSelectorWidth = binding.gestureStateSelectorContainer.width / 2f
     updateSelectorUI(isOpenMode)
     binding.gestureOpenBtn.setOnClickListener {
@@ -838,27 +835,27 @@ private fun initSelector() {
     }
 }
 
-private fun updateSelectorUI(isOpen: Boolean) {
-    ObjectAnimator.ofFloat(
-        binding.selectorIndicator,
-        "translationX",
-        if (isOpen) 0f else halfSelectorWidth
-    ).setDuration(animDuration).start()
+    private fun updateSelectorUI(isOpen: Boolean) {
+        ObjectAnimator.ofFloat(
+            binding.selectorIndicator,
+            "translationX",
+            if (isOpen) 0f else halfSelectorWidth
+        ).setDuration(animDuration).start()
 
-    ObjectAnimator.ofInt(
-        binding.gestureOpenBtn,
-        "textColor",
-        if (isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
-        if (isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
-    ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
+        ObjectAnimator.ofInt(
+            binding.gestureOpenBtn,
+            "textColor",
+            if (isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
+            if (isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+        ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
 
-    ObjectAnimator.ofInt(
-        binding.gestureCloseBtn,
-        "textColor",
-        if (!isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
-        if (!isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
-    ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
-}
+        ObjectAnimator.ofInt(
+            binding.gestureCloseBtn,
+            "textColor",
+            if (!isOpen) resources.getColor(android.R.color.darker_gray) else resources.getColor(R.color.white),
+            if (!isOpen) resources.getColor(R.color.white) else resources.getColor(android.R.color.darker_gray)
+        ).apply { duration = animDuration; setEvaluator(ArgbEvaluator()); start() }
+    }
 
     private fun scheduleF56Send() {
         // перезапускаем таймер на отправку

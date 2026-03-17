@@ -3,73 +3,45 @@
   <option name="DESCRIPTION" value="Uncommitted changes before rebase [Changes]" />
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-serialization-kotlinx-json-2.3.12-commonMain-sJ8SDA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/8.7/expanded.lock" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-serialization-kotlinx-2.3.12-commonMain-s53Slg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/file-system.probe" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-utils-2.3.12-commonMain-kEcFvw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-io-2.3.12-darwinMain-sbySvA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-websocket-serialization-2.3.12-commonMain-8xBQEg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-events-2.3.12-commonMain-Q6-xkw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".idea/shelf/Uncommitted_changes_before_Checkout_at_01_04_2025,_12_17_[Changes]/fileHashes.lock" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-http-2.3.12-posixMain-W5sIeA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-core-2.3.12-posixMain-FU-9lg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-logging-2.3.12-posixMain-grxlVw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-utils-2.3.12-posixMain-kEcFvw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-core-2.3.12-commonMain-FU-9lg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/buildOutputCleanup/buildOutputCleanup.lock" />
@@ -78,28 +50,18 @@
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-websockets-2.3.12-posixMain-8-9-_g.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-serialization-kotlinx-2.3.12-posixMain-s53Slg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-utils-2.3.12-nixMain-kEcFvw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-darwin-2.3.12-darwinMain-CnRCQQ.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-content-negotiation-2.3.12-posixMain-jI37cw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/configuration-cache/configuration-cache.lock" />
@@ -113,8 +75,6 @@
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedCInteropMetadataLibraries/io.ktor-ktor-utils-2.3.12-iosMain-cinterop/io.ktor_ktor-utils-cinterop-threadUtils-TE4abA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/8.7/fileHashes/fileHashes.lock" />
@@ -123,8 +83,6 @@
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-io-2.3.12-posixMain-3YsjwQ.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value="iosApp/MotoricaStart.xcodeproj/project.xcworkspace/xcuserdata/motoricallc.xcuserdatad/UserInterfaceState.xcuserstate" />
@@ -133,53 +91,33 @@
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-utils-2.3.12-darwinMain-TE4abA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".idea/shelf/Uncommitted_changes_before_Checkout_at_01_04_2025,_12_17_[Changes]/buildOutputCleanup.lock" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-http-2.3.12-commonMain-W5sIeA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-websockets-2.3.12-commonMain-8-9-_g.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/8.7/expanded/expanded.lock" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-logging-2.3.12-commonMain-grxlVw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-io-2.3.12-commonMain-3YsjwQ.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-serialization-kotlinx-json-2.3.12-posixMain-sJ8SDA.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".idea/shelf/Uncommitted_changes_before_Checkout_at_01_04_2025,_12_17_[Changes]/file-system.probe" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-client-content-negotiation-2.3.12-commonMain-jI37cw.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/8.7/executionHistory/executionHistory.lock" />
@@ -188,7 +126,5 @@
   </binary>
   <binary>
     <option name="BEFORE_PATH" value=".gradle/kotlin/kotlinTransformedMetadataLibraries/io.ktor-ktor-serialization-2.3.12-commonMain-NxrIfg.klib" />
-    <option name="AFTER_PATH" />
-    <option name="SHELVED_PATH" />
   </binary>
 </changelist>

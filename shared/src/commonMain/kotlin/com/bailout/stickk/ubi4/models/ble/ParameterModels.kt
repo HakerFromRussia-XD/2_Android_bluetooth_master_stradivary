@@ -29,6 +29,10 @@ data class EMGGainsV3(
     var closeGain: Int = 0
 )
 @Serializable
+data class SwitcherV3(
+    var checked: Boolean = false,
+)
+@Serializable
 data class CurrentGestureV3(
     var currentGesture: Int = 0
 )

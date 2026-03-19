@@ -235,7 +235,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                WRITE){}
             // запрос всей инфы по жестам (ответ )
             bleManager.sendBytesKmm(
-                BLECommandsV3.requestGestureInfo(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number.toInt(), 64),
+                BLECommandsV3.requestGestureInfo(64),
                 SERIALPORTCHAR_UUID,
                 WRITE){}
 

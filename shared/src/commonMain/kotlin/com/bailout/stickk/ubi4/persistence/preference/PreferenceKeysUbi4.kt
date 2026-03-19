@@ -592,7 +592,8 @@ object PreferenceKeysUbi4 {
         SYSTEM_MODE                 (0x0C),
         COMPLEX_RUNTIME_LOG_TRANSFER(0x0D), /**< 13 Передача лога в реальном времени */
         MOVEMENT_CONTROL            (0x0E),
-        PROSTHESIS_MODULE_CONTROL   (0x0F)
+        PROSTHESIS_MODULE_CONTROL   (0x0F),
+        GUI_CONTROL                 (0x10)
     }
 
     enum class ProsthesisModuleControlEnum (val number: Byte) {
@@ -658,7 +659,36 @@ object PreferenceKeysUbi4 {
         PWCE_GET_EMG_GAIN_VALUE           (0X2E),
 
         PWCE_SET_THRESHOLD_VALUE          (0X2F),
-        PWCE_GET_THRESHOLD_VALUE          (0X30)
+        PWCE_GET_THRESHOLD_VALUE          (0X30),
+
+        PWCE_MOVE_FINGERS_TO_POSITIONS    (0X31),
+        PWCE_MOVE_FINGERS_SET_SPEED       (0X32),
+        PWCE_MOVE_FINGERS_SET_FORCE       (0X33),
+
+        PWCE_COLLECT_TELEMETRY_CONTORL    (0x34),
+
+        PWCE_GET_GESTURE_GROUPE           (0x35),
+        PWCE_SET_GESTURE_GROUPE           (0x36),
+
+        PWCE_SET_COLLECTION_GESTURE_INFO  (0x37),
+        PWCE_SET_USER_GESTURE_INFO        (0x38)
+
+    }
+
+    enum class guiModuleControlEnum(val number: Byte)
+    {
+        GMCE_SET_SCREEN                 (0x01),
+        GMCE_SET_BATTERY                (0x02),
+        GMCE_SET_GESTURE                (0x03),
+        GMCE_SET_GESTURE_GROUP          (0x04),
+        GMCE_SET_EMG_SIGNALS            (0x05),
+        GMCE_SET_EMG_THRESHOLDS         (0x06),
+        GMCE_SET_EMG_GAINS              (0x07),
+        GMCE_SET_SCREEN_TIMEOUT         (0x08),
+        GMCE_SET_GUI_SETTINGS           (0x09),
+        GMCE_SET_INIT_INFORMATION       (0x0a),
+        GMCE_SET_DATE_TIME              (0x0b),
+        GMCE_SET_MOVEMENT_BLOCK_DATA    (0x0c)
     }
 
 

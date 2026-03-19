@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
@@ -8,7 +9,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 object BLECommandsV3 {
-
     fun requestDeviceData(): ByteArray {
         val header = byteArrayOf(
             0x00,
@@ -137,6 +137,51 @@ object BLECommandsV3 {
         header[header.size-1] = calculationCRC(header).toByte()
         data[data.size-1] = calculationCRC(data).toByte()
         return header + data
+    }
+    fun sendRotationGroupInfo(rotationGroup: RotationGroup): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            0x00,
+            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
+            PWCE_SET_GESTURE_GROUPE.number,
+            rotationGroup.gesture1Id.toByte(),
+            rotationGroup.gesture1ImageId.toByte(),
+            rotationGroup.gesture2Id.toByte(),
+            rotationGroup.gesture2ImageId.toByte(),
+            rotationGroup.gesture3Id.toByte(),
+            rotationGroup.gesture3ImageId.toByte(),
+            rotationGroup.gesture4Id.toByte(),
+            rotationGroup.gesture4ImageId.toByte(),
+            rotationGroup.gesture5Id.toByte(),
+            rotationGroup.gesture5ImageId.toByte(),
+            rotationGroup.gesture6Id.toByte(),
+            rotationGroup.gesture6ImageId.toByte(),
+            rotationGroup.gesture7Id.toByte(),
+            rotationGroup.gesture7ImageId.toByte(),
+            rotationGroup.gesture8Id.toByte(),
+            rotationGroup.gesture8ImageId.toByte(),
+            0x00
+        )
+        header[2] = (data.size - 1).toByte()
+        header[3] = (data.size / 256).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
+        return header + data
+    }
+    fun sendActiveGesture(activeGesture: Int): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            PWCE_SET_CURRENT_GESTURE_NUM.number,
+            activeGesture.toByte(),
+            0x00
+        )
+        header[header.size-1] = calculationCRC(header).toByte()
+        return header
     }
 
     private fun calculationCRC(data: ByteArray): Int {

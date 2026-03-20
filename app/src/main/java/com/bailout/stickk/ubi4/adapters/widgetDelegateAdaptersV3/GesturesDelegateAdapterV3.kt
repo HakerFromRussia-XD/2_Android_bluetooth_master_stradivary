@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -379,6 +380,26 @@ class GesturesDelegateAdapterV3(
                         setActiveGesture(getGestureViewById(currentGesture.currentGesture))
                         updateActiveGestureHeader(currentGesture.currentGesture)
                         listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
+                    WidgetState.gestureGroupeFlowV3.map { parameterInfo ->
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 пришли по потоку ${parameter.data}")
+                        val currentGesture = parseGestureGroupeSafely(parameter.data) ?: return@map
+                        val rotationGroupList = currentGesture.toGestureList()
+                        isRotationGroupResponseReceived = true
+                        rotationGroupGestures.clear()
+                        rotationGroupList.forEach { item ->
+                            if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
+                        }
+                        showIntroduction()
+                        setupListRecyclerView()
+                        synchronizeRotationGroup()
+                        calculatingShowAddButton()
+                        currentActiveGestureId?.let { id ->
+                            setActiveGesture(getGestureViewById(id))
+                            updateActiveGestureHeader(id)
+                        }
+                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 $currentGesture")
+                    },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("gestureFlowCollect", "Job was cancelled: ${e.message}")
@@ -389,6 +410,11 @@ class GesturesDelegateAdapterV3(
                 Log.e("gestureFlowCollect", "Exception: ${e.message}")
             }
         }
+    }
+    private fun parseGestureGroupeSafely(data: String): RotationGroupV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<RotationGroupV3>(data) }
+            .getOrNull()
     }
     private fun parseCurrentGestureSafely(data: String): CurrentGestureV3? {
         if (data.isBlank()) return null

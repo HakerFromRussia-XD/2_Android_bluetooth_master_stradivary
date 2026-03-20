@@ -462,6 +462,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     open fun sendBLEActiveGestureV3(activeGesture: Int) {
+        platformLog("sendBLEActiveGestureV3", "послали жест $activeGesture")
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommandsV3.sendActiveGesture(activeGesture), SERIALPORTCHAR_UUID, WRITE){}
     }
@@ -492,6 +493,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         main?.showToast("Виджет отображается вне своего экрана")
     }
     open fun sendBLERotationGroupV3 () {
+        Log.d("RotationDebug", "BaseWidgetsFragment.sendBLERotationGroupV3, fragment=${this::class.java.simpleName}")
         main?.showToast("Виджет отображается вне своего экрана")
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
@@ -500,6 +502,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     }
     private fun requestRotationGroupV3() {
+        platformLog("requestRotationGroupV3", "спросили группу ротации")
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
 

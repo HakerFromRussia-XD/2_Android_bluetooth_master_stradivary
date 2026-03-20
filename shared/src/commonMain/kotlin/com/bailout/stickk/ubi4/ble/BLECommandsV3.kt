@@ -138,7 +138,7 @@ object BLECommandsV3 {
         data[data.size-1] = calculationCRC(data).toByte()
         return header + data
     }
-    fun sendRotationGroupInfo(rotationGroup: RotationGroup): ByteArray {
+    fun sendRotationGroup(rotationGroup: RotationGroup): ByteArray {
         val header = byteArrayOf(
             0x80.toByte(),
             PROSTHESIS_MODULE_CONTROL.number,
@@ -174,7 +174,7 @@ object BLECommandsV3 {
     }
     fun sendActiveGesture(activeGesture: Int): ByteArray {
         val header = byteArrayOf(
-            0x80.toByte(),
+            0x00.toByte(),
             PROSTHESIS_MODULE_CONTROL.number,
             PWCE_SET_CURRENT_GESTURE_NUM.number,
             activeGesture.toByte(),

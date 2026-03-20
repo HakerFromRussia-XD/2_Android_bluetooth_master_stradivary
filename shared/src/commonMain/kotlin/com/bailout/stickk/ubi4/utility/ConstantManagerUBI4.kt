@@ -32,6 +32,7 @@ interface ConstantManagerUBI4 {
         const val P_KEY_EMG_GAIN_CLOSE_VALUE = "P_KEY_EMG_GAIN_CLOSE_VALUE"
         const val P_KEY_CURRENT_GESTURE = "P_KEY_CURRENT_GESTURE"
         const val P_KEY_GESTURE_SETTING = "P_KEY_GESTURE_SETTING"
+        const val P_KEY_GESTURE_GROUPE = "P_KEY_GESTURE_GROUPE"
 
 
         val CRC_TABLE = intArrayOf(

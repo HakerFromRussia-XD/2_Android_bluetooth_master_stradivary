@@ -40,15 +40,18 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupeFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
@@ -133,6 +136,13 @@ class BLEParserV3(
                 val subcommand = payload[0]
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
+                    PWCE_GET_GESTURE_GROUPE.number -> {
+                        val parseGestureGroup = parseGestureGroupeZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseGestureGroup)
+                        coroutineScope.launch { gestureGroupeFlowV3.emit(parameterInfo) }
+                    }
                     PWCE_GET_CURRENT_GESTURE_NUM.number -> {
                         val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
                         //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
@@ -320,6 +330,30 @@ class BLEParserV3(
             closeGain = closeGain
         )
     }
+    private fun parseGestureGroupeZeroAlloc(payload: ByteArrayView?): RotationGroupV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 17) { return RotationGroupV3() }
+        val subcommand = payload.u8(0)
+
+        return RotationGroupV3(
+            gesture1Id = payload.u8(1)     ,
+            gesture1ImageId = payload.u8(2),
+            gesture2Id = payload.u8(3)     ,
+            gesture2ImageId = payload.u8(4),
+            gesture3Id = payload.u8(5)     ,
+            gesture3ImageId = payload.u8(6),
+            gesture4Id = payload.u8(7)     ,
+            gesture4ImageId = payload.u8(8),
+            gesture5Id = payload.u8(9)     ,
+            gesture5ImageId = payload.u8(10),
+            gesture6Id = payload.u8(11)     ,
+            gesture6ImageId = payload.u8(12),
+            gesture7Id = payload.u8(13)     ,
+            gesture7ImageId = payload.u8(14),
+            gesture8Id = payload.u8(15)     ,
+            gesture8ImageId = payload.u8(16),
+        )
+    }
     private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
         // парсинг PWCE_GET_CURRENT_GESTURE_NUM
         if (payload == null || payload.length < 2) { return CurrentGestureV3(0) }
@@ -438,6 +472,7 @@ class BLEParserV3(
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
+                ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
             )
         )
             ,"Жесты"

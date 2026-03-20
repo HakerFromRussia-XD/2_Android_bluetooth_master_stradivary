@@ -1,4 +1,31 @@
+# IDE
 *.iml
 /.idea/workspace.xml
 /.idea/libraries
+/.idea/shelf/
+
+# macOS
 .DS_Store
+
+# Gradle / Kotlin
+.gradle/
+.kotlinc/
+.kotlin/
+
+# Build
+build/
+*/build/
+
+# Local config
+local.properties
+
+# Android artifacts
+*.apk
+*.aab
+
+# Logs
+*.log
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate

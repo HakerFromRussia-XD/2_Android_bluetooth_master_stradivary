@@ -746,13 +746,13 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     companion object {
         fun newInstance(lastEmg8: String): SprTrainingFragment =
             SprTrainingFragment().apply {
-                arguments = Bundle().apply { putString(PreferenceKeysUbi4.ARG_LAST_EMG8, lastEmg8) }
+                arguments = Bundle().apply { putString(ARG_LAST_EMG8, lastEmg8) }
             }
-
 //        private const val SERIAL_DEFAULT = "CYBI-H-05007" //<-  Макс Емец
 //        private const val SERIAL_DEFAULT = "CYBI-F-05663" //<- Тест
         private const val PASSWORD_DEFAULT = "123фыв6"
     }
+
 }
 
 

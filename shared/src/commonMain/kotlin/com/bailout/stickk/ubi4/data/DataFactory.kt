@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
+import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
@@ -333,6 +334,9 @@ class DataFactory {
             ParameterWidgetCode.PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
                 GesturesItemV3(resultLabel[0], widget)
             }
+
+            ParameterWidgetCode.PWCE_SWITCH_V3.number.toInt() ->
+                SwitchItemV3(resultLabel[0], widget)
 
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }

@@ -81,10 +81,8 @@ class ControllerBleStatusConnection(
         }
     }
 
-    // ---- Безобрывный переход (единственная точка смены) ----
     private fun requestState(state: UiState, minSingleMs: Long? = null, loopOverride: Boolean? = null) {
         if (isPlaying) {
-            // минимальный приоритет: Connected всегда может перебить очередь
             if (pendingState == null || state == UiState.Connected) {
                 pendingState = state
             }

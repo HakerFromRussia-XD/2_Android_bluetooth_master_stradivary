@@ -73,6 +73,7 @@ object TrainingUploadManager {
                     progressFlow.tryEmit(progressInt.coerceIn(0, 100))
                 }
 
+
                 Log.d("TrainingUploadManager", "Получили checkpoint = $checkpoint")
                 stateFlow.value = State.EXPORTING
 
@@ -81,6 +82,7 @@ object TrainingUploadManager {
                     checkpoint = checkpoint,
                     outputDir = dirShared
                 )
+
 
                 // Ищем нужные файлы
                 val ckptShared: SharedFile = unpackedShared.first { it.name.endsWith(".ckpt") }

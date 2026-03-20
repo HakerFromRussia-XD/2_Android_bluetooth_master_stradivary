@@ -55,6 +55,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTU
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
@@ -477,6 +478,18 @@ class BLEParserV3(
         )
             ,"Жесты"
         ))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetPosition = 0,
+            widgetCode = PWCE_SWITCH_V3.number.toInt(),
+            deviceId = 0,
+            widgetId = 8,
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_TEST_SWITCHER),
+            )
+        )
+            ,"Свитчер тест"
+        ))
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -532,7 +545,8 @@ class BLEParserV3(
                         val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    PWCE_SWITCH.number.toInt() -> {
+                    PWCE_SWITCH.number.toInt(),
+                    PWCE_SWITCH_V3.number.toInt() -> {
                         val switchParameterWidgetSStruct = SwitchParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(switchParameterWidgetSStruct, switchParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
@@ -559,8 +573,7 @@ class BLEParserV3(
                     PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {}
                     PWCE_GESTURES_WINDOW.number.toInt(),
                     PWCE_GESTURES_WINDOW_V3.number.toInt() -> {
-                        val gestureParameterWidgetSStruct = widget
-                        addToListWidgets(gestureParameterWidgetSStruct, gestureParameterWidgetSStruct)
+                        addToListWidgets(widget, widget)
                     }
                 }
             }

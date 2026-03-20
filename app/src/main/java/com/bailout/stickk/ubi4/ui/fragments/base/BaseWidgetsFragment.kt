@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
@@ -30,6 +31,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegate
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SwitcherDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.BLEController
@@ -70,6 +72,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private lateinit var bleController: BLEController
 
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
+        // [new widgets V3] тут добавляем новые ячейки виджетов
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
@@ -228,6 +231,10 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
                 },
+                onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            SwitcherDelegateAdapterV3(
                 onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),

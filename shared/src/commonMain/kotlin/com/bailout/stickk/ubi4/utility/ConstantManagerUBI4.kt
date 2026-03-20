@@ -33,6 +33,8 @@ interface ConstantManagerUBI4 {
         const val P_KEY_CURRENT_GESTURE = "P_KEY_CURRENT_GESTURE"
         const val P_KEY_GESTURE_SETTING = "P_KEY_GESTURE_SETTING"
         const val P_KEY_GESTURE_GROUPE = "P_KEY_GESTURE_GROUPE"
+        const val P_KEY_TEST_SWITCHER = "P_KEY_TEST_SWITCHER"
+
 
 
         val CRC_TABLE = intArrayOf(

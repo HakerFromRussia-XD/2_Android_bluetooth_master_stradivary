@@ -53,6 +53,19 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
+
+    fun sendSwitcher(subcommand: Int, checked: Boolean): ByteArray {
+        val checkedByte: Byte = if (checked) 0x01 else 0x00
+        val header = byteArrayOf(
+            0x00,
+            PROSTHESIS_MODULE_CONTROL.number,
+            subcommand.toByte(),
+            checkedByte,
+            0x00
+        )
+        header[header.size-1] = calculationCRC(header).toByte()
+        return header
+    }
     fun sendThresholds(thresholdOpen: Int, thresholdClose: Int): ByteArray {
         platformLog("Thresholds", "sendThresholds $thresholdOpen  $thresholdClose")
         val header = byteArrayOf(

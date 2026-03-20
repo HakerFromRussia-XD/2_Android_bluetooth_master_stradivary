@@ -71,6 +71,10 @@ data class SwitchItem(
     val title: String,
     val widget: Any
 )
+data class SwitchItemV3(
+    val title: String,
+    val widget: Any
+)
 
 data class TrainingGestureItem(
     val title: String,

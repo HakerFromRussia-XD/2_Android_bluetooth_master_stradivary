@@ -72,7 +72,12 @@ private fun parseEventBlock(eventLines: List<String>): ParseResult {
         }
     }
 
-    val data = dataParts.joinToString("\n")
+//    val data = dataParts.joinToString("\n")
+
+    val data = dataParts.joinToString("\n").trim().ifEmpty {
+        // fallback: сервер прислал JSON без префикса "data:"
+        eventLines.joinToString("\n").trim()
+    }
     var progress: Int? = null
     var checkpoint: String? = null
 
@@ -96,21 +101,55 @@ private fun parseEventBlock(eventLines: List<String>): ParseResult {
     return ParseResult(progress, checkpoint)
 }
 
+//private suspend fun BufferedSource.collectSseCheckpoint(onProgress: (Int) -> Unit): String {
+//    val eventLines = mutableListOf<String>()
+//    var lastProgress = -1
+//    var checkpoint: String? = null
+//
+//    while (!exhausted()) {
+//        coroutineContext.ensureActive() // проверка отмены
+//
+//        val line = try {
+//            readUtf8LineStrict()
+//        } catch (_: Exception) {
+//            break
+//        }
+//
+//        if (line.isBlank()) {
+//            val (progress, cp) = parseEventBlock(eventLines)
+//            if (progress != null && progress != lastProgress) {
+//                lastProgress = progress
+//                onProgress(progress)
+//            }
+//            if (cp != null) {
+//                checkpoint = cp
+//                break
+//            }
+//            eventLines.clear()
+//        } else {
+//            eventLines += line
+//        }
+//    }
+//
+//    if (checkpoint == null && eventLines.isNotEmpty()) {
+//        val (_, cp) = parseEventBlock(eventLines)
+//        if (cp != null) checkpoint = cp
+//    }
+//
+//    return checkpoint ?: error("Не удалось получить checkpoint ")
+//}
 private suspend fun BufferedSource.collectSseCheckpoint(onProgress: (Int) -> Unit): String {
     val eventLines = mutableListOf<String>()
     var lastProgress = -1
     var checkpoint: String? = null
 
     while (!exhausted()) {
-        coroutineContext.ensureActive() // проверка отмены
+        coroutineContext.ensureActive()
 
-        val line = try {
-            readUtf8LineStrict()
-        } catch (_: Exception) {
-            break
-        }
+        val line = readUtf8Line() ?: break   // НЕ strict
+        val clean = line.trimEnd('\r')
 
-        if (line.isBlank()) {
+        if (clean.isBlank()) {
             val (progress, cp) = parseEventBlock(eventLines)
             if (progress != null && progress != lastProgress) {
                 lastProgress = progress
@@ -122,7 +161,8 @@ private suspend fun BufferedSource.collectSseCheckpoint(onProgress: (Int) -> Uni
             }
             eventLines.clear()
         } else {
-            eventLines += line
+            // SSE keep-alive комментарии вида ": ping"
+            if (!clean.startsWith(":")) eventLines += clean
         }
     }
 
@@ -131,5 +171,9 @@ private suspend fun BufferedSource.collectSseCheckpoint(onProgress: (Int) -> Uni
         if (cp != null) checkpoint = cp
     }
 
-    return checkpoint ?: error("Не удалось получить checkpoint ")
+    if (checkpoint == null) {
+        android.util.Log.e("SSE_RAW", "Last event block:\n" + eventLines.joinToString("\n"))
+    }
+
+    return checkpoint ?: error("Не удалось получить checkpoint")
 }

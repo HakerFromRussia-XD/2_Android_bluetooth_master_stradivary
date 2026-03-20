@@ -55,6 +55,7 @@ class BlockingQueueUbi4 {
             tasks.add(QueueEntry(task = task, enqueuedAt = currentTimeMillis(), description = description))
 
             val lockedForMs = if (canTake) 0L else (now - lastAllowTime)
+
             platformLog(
                 "sendBytesKmm",
                 "BlockingQueueUbi4: put +1, size=${tasks.size}, canTake=$canTake, lockedFor=${lockedForMs}ms, data=$description"

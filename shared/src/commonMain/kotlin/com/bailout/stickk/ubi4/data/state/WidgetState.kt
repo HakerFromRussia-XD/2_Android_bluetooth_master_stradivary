@@ -32,6 +32,7 @@ object WidgetState {
 
     var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var sliderFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    val switcherFlowV3 = MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>(extraBufferCapacity = 1)
     var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureInfoFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureGroupeFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()

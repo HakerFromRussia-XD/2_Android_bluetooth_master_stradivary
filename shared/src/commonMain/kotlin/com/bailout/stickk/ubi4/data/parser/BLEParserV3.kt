@@ -478,17 +478,29 @@ class BLEParserV3(
         )
             ,"Жесты"
         ))
+//        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+//            display = 2,
+//            widgetPosition = 0,
+//            widgetCode = PWCE_SWITCH_V3.number.toInt(),
+//            deviceId = 0,
+//            widgetId = 8,
+//            parameterInfoSet = mutableSetOf(
+//                ParameterInfoRegistry.require(P_KEY_TEST_SWITCHER),
+//            )
+//        )
+//            ,"Свитчер тест"
+//        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 0,
-            widgetCode = PWCE_SWITCH_V3.number.toInt(),
+            widgetPosition = 1,
+            widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
             deviceId = 0,
-            widgetId = 8,
+            widgetId = 9,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_TEST_SWITCHER),
             )
         )
-            ,"Свитчер тест"
+            ,"Тоггл слайдер тест"
         ))
 
         generatedParameters()

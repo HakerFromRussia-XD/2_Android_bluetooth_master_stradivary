@@ -624,8 +624,8 @@ object PreferenceKeysUbi4 {
         PWCE_GET_CURRENT_PRESSURE         (0x13),
         PWCE_SET_TARGET_PRESSURE          (0x14),
 
-        PWCE_ENABLE_EMG_BLOCKED           (0x15),
-        PWCE_ENABLE_EMG_CHANGE_GESTURE    (0x16),
+        PWCE_SET_EMG_CHANGE_GESTURE       (0x15),
+        PWCE_GET_EMG_CHANGE_GESTURE       (0x16),
 
         PWCE_MOVE_FINGER_TO_POSITION      (0x17),
         PWCE_MOVE_FINGER_BY_SPEED         (0x18),
@@ -672,7 +672,13 @@ object PreferenceKeysUbi4 {
         PWCE_SET_GESTURE_GROUPE           (0x36),
 
         PWCE_SET_COLLECTION_GESTURE_INFO  (0x37),
-        PWCE_SET_USER_GESTURE_INFO        (0x38)
+        PWCE_SET_USER_GESTURE_INFO        (0x38),
+
+        PWCE_SET_EMG_MOVEMENT_LOCK        (0x39), // тогл слайдер для настройки блокировки протеза и времени для перевода его в заблокированное состояние (предполагается блокировать сигналом закрытия, отсчёт времени с момента старта закрытия)
+        PWCE_GET_EMG_MOVEMENT_LOCK        (0x3A),
+
+        PWCE_SET_HAND_CONTROL_MODE        (0x3B), // моды управления рукой (туда хотим добавить мод при котором сразу при обратном пересечении порога управляющим сигналом управление отдаётся другому сигналу - спорт режим)
+        PWCE_GET_HAND_CONTROL_MODE        (0x3C),
     }
 
     enum class guiModuleControlEnum(val number: Byte)

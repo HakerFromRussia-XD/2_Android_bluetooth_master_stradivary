@@ -346,21 +346,6 @@ class ToggleSliderDelegateAdapterV3(
         return String.format(Locale.US, pattern, result)
     }
 
-//    private fun toggleEnabled(subcommand: Int) {
-//        val idx = getIndexWidgetSlider(subcommand)
-//        val info = widgetSlidersInfo.getOrNull(idx) ?: return
-//
-//        val packed = info.packedProgress.getOrNull(sliderIndex) ?: return
-//        val value = unpackValue(packed)
-//        val enabled = unpackEnabled(packed)
-//
-//        info.packedProgress[sliderIndex] = pack(value, !enabled)
-//        markPending(info, sliderIndex, info.packedProgress[sliderIndex])
-//
-//        applyToggleVisuals(idx, sliderIndex)
-//        debounceSend(info)
-//    }
-
     private fun toggleEnabled(subcommand: Int) {
         val indices = getIndexWidgetSlider(subcommand)
 

@@ -453,6 +453,8 @@ class BLEParserV3(
 //        )
 //            ,"Свитчер тест"
 //        ))
+
+
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetPosition = 1,

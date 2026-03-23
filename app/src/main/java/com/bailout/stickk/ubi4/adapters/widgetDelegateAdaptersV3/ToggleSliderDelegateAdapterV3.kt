@@ -11,6 +11,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getColor
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetToggleSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
@@ -66,16 +67,16 @@ class ToggleSliderDelegateAdapterV3(
         Log.d("ToggleSliderAdapter", "onBind RUN")
         onDestroyParent { onDestroy() }
         isAttached = true
-        toggleSliderUnitTv.text = ""
-        toggleSliderUnitTv.visibility = View.GONE
         toggleSliderUnit2Tv.text = ""
         toggleSliderUnit2Tv.visibility = View.GONE
+        toggleTurnOffBtnIv1.setColorFilter(getColor(root.context, R.color.ubi4_active))
 
         val parameterInfo: ParameterInfo<Int, Int, Int, Int>?
         val minProgress: Int
         val maxProgress: Int
         val widgetPosition: Int
         val increment: Float
+        val unitLabel: String
 
         when (val widget = item.widget) {
             is ToggleSliderParameterWidgetSStruct -> {
@@ -84,6 +85,7 @@ class ToggleSliderDelegateAdapterV3(
                 minProgress = widget.minProgress
                 maxProgress = widget.maxProgress
                 increment = widget.increment
+                unitLabel = widget.unitLabel
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
             }
 
@@ -95,6 +97,7 @@ class ToggleSliderDelegateAdapterV3(
             minProgress = minProgress,
             maxProgress = maxProgress,
             range = (if (maxProgress == minProgress) 100 else maxProgress - minProgress).coerceIn(0, 127),
+            unitLabel = unitLabel,
             increment = increment,
             enabled = false,
             progress = 0,
@@ -103,12 +106,11 @@ class ToggleSliderDelegateAdapterV3(
             togglePlusBtnRipple1Btn = togglePlusRipple1Btn,
             togglePlusBtnTv1 = togglePlusBtnTv1,
             toggleMinusBtnTv1 = toggleMinusBtnTv1,
-            widgetSliderNumTv = toggleSliderNumTv,
-            widgetSliderUnitTv = toggleSliderUnitTv,
+            toggleSliderNumTv = toggleSliderNumTv,
+            toggleSliderUnitTv = toggleSliderUnitTv,
             widgetPosition = widgetPosition,
             turnOffBtnIv = arrayListOf(toggleTurnOffBtnIv1, toggleTurnOffBtnIv2),
         )
-
         currentSliderInfo.instanceId = sliderInfoCounter++
 
         widgetSlidersInfo.add(currentSliderInfo)
@@ -121,14 +123,9 @@ class ToggleSliderDelegateAdapterV3(
         // setup UI
         toggleSliderSb.max = currentSliderInfo.range
         toggleSliderTitleTv.text = item.title
-        toggleSliderUnitTv.text = ""
-        toggleSliderUnitTv.visibility = View.GONE
         toggleSliderUnit2Tv.text = ""
         toggleSliderUnit2Tv.visibility = View.GONE
 
-        // cache-first draw
-        val cached = ParameterProvider.getParameterV3(parameterInfo)
-        if (cached.data.isNotEmpty()) setUI(parameterInfo)
         // первичная синхронизация текста с текущим progress
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
             val info = widgetSlidersInfo[indexWidgetSlider]
@@ -140,6 +137,7 @@ class ToggleSliderDelegateAdapterV3(
                 useInfinity0,
                 info.increment
             )
+            toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
 
             // seekbar 1
             toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -157,13 +155,14 @@ class ToggleSliderDelegateAdapterV3(
                         useInfinity,
                         info.increment
                     )
+                    toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
                     val progress = seekBar.progress.coerceIn(0, 127)
-                    info.progress = progress
+                    info.progress = progress + info.minProgress
                     setParameterData(info)
                     debounceSend(info)
                     setUI(info.parameterInfo, false)
@@ -216,12 +215,12 @@ class ToggleSliderDelegateAdapterV3(
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>, withAnimation: Boolean = true) {
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
+        platformLog("ToggleSliderDelegateAdapterV3 setUI", "parameter = $parameter")
         val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
 
         indexWidgetSlidersArray.forEach { indexWidgetSlider ->
             val info = widgetSlidersInfo.getOrNull(indexWidgetSlider) ?: return@forEach
             val seekBar = info.widgetSlidersSb as? SeekBar ?: return@forEach
-            val textView = info.widgetSliderNumTv
             var valueForChangeToggle = 0
             val subcommand = parameterInfo.dataCode
             when (subcommand) {
@@ -229,9 +228,7 @@ class ToggleSliderDelegateAdapterV3(
                     val parseEMGChangeGesture = parseEMGChangeGestureSafely(parameter.data) ?: EMGChangeGestureV3()
                     valueForChangeToggle = parseEMGChangeGesture.changeGesture
                 }
-                PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt() -> {
-
-                }
+                PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt() -> {}
             }
             try {
                 info.responseReceived.set(true)
@@ -249,13 +246,14 @@ class ToggleSliderDelegateAdapterV3(
                 else { seekBar.progress = uiProgress }
 
                 val useInfinity = isInfinityLabel(info)
-                textView.text = formatValueForUi(
+                info.toggleSliderNumTv.text = formatValueForUi(
                     progress = uiProgress,
                     min = info.minProgress,
                     range = info.range,
                     useInfinity = useInfinity,
                     increment = info.increment
                 )
+                info.toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
 
                 applyToggleVisuals(info)
             } catch (e: Exception) {
@@ -292,7 +290,6 @@ class ToggleSliderDelegateAdapterV3(
             else R.color.ubi4_gray_border
         togglePlusBtnTv1.setTextColor(ctx.getColor(colorResPlusMinusBtn))
         toggleMinusBtnTv1.setTextColor(ctx.getColor(colorResPlusMinusBtn))
-
         info.turnOffBtnIv.getOrNull(0)?.setColorFilter(
             ContextCompat.getColor(ctx, colorResOnOffBtn),
             android.graphics.PorterDuff.Mode.SRC_IN
@@ -397,6 +394,7 @@ data class WidgetToggleSliderInfo(
     var minProgress: Int = 0,
     var maxProgress: Int = 0,
     var range: Int = 0,
+    var unitLabel: String = "",
     var increment: Float = 1.0f,
     var enabled: Boolean = false,
     var progress: Int = 0,
@@ -405,8 +403,8 @@ data class WidgetToggleSliderInfo(
     var togglePlusBtnRipple1Btn: View,
     var togglePlusBtnTv1: TextView,
     var toggleMinusBtnTv1: TextView,
-    var widgetSliderNumTv: TextView,
-    var widgetSliderUnitTv: TextView?,
+    var toggleSliderNumTv: TextView,
+    var toggleSliderUnitTv: TextView,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),

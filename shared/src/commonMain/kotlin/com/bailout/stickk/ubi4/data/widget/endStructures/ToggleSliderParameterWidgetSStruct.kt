@@ -18,7 +18,8 @@ data class ToggleSliderParameterWidgetSStruct(
         BaseParameterWidgetSStruct(BaseParameterWidgetStruct(), "NOT VALID"),
     val minProgress: Int = 0,
     val maxProgress: Int = 0,
-    val increment: Float = 1.0f
+    val increment: Float = 1.0f,
+    val unitLabel: String = ""
 )
 
 object ToggleSliderParameterWidgetSSerializer : KSerializer<ToggleSliderParameterWidgetSStruct> {

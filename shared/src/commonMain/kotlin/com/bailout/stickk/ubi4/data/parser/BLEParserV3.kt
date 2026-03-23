@@ -502,17 +502,24 @@ class BLEParserV3(
         )
             ,"Свитчер тест"
         ))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetPosition = 1,
-            widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-            widgetId = 8,
-            parameterInfoSet = mutableSetOf(
-                ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetPosition = 1,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                widgetId = 8,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
+                )
             )
+                ,"Переключение жестов сенсорами"
+            ))
         )
-            ,"Переключение жестов сенсорами"
-        ))
+
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -607,6 +614,15 @@ class BLEParserV3(
                     releasedCommand = widget.releasedCommand,
                     baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
                 addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
+            is ToggleSliderParameterWidgetSStruct -> {
+                val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(
+                    minProgress = widget.minProgress,
+                    maxProgress = widget.maxProgress,
+                    increment = widget.increment,
+                    unitLabel = widget.unitLabel,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
             }
         }
     }

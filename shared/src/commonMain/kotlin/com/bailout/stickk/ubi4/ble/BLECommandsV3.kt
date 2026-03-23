@@ -42,15 +42,15 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun sendCommand( moduleControlCommand: Int): ByteArray {
+    fun sendCommand(subcommand: Int, parameter: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,
-            moduleControlCommand.toByte(),
-            0x00,
+            subcommand.toByte(),
+            parameter.toByte(),
             0x00
         )
-        header[4] = calculationCRC(header).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
         return header
     }
 
@@ -185,17 +185,7 @@ object BLECommandsV3 {
         data[data.size-1] = calculationCRC(data).toByte()
         return header + data
     }
-    fun sendActiveGesture(activeGesture: Int): ByteArray {
-        val header = byteArrayOf(
-            0x00.toByte(),
-            PROSTHESIS_MODULE_CONTROL.number,
-            PWCE_SET_CURRENT_GESTURE_NUM.number,
-            activeGesture.toByte(),
-            0x00
-        )
-        header[header.size-1] = calculationCRC(header).toByte()
-        return header
-    }
+
 
     private fun calculationCRC(data: ByteArray): Int {
         var result = 0

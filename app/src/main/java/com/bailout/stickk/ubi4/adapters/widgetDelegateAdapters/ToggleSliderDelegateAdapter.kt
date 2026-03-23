@@ -323,7 +323,7 @@ class ToggleSliderDelegateAdapter(
         }
 
         // +/-
-        toggleMinusBtnRipple1.setOnClickListener {
+        toggleMinusRipple1Btn.setOnClickListener {
             updateSliderProgress(
                 widgetPosition,
                 sliderIndex = 0,
@@ -331,7 +331,7 @@ class ToggleSliderDelegateAdapter(
                 indexWidgetSlider = indexWidgetSlider
             )
         }
-        togglePlusBtnRipple1.setOnClickListener {
+        togglePlusRipple1Btn.setOnClickListener {
             updateSliderProgress(
                 widgetPosition,
                 sliderIndex = 0,
@@ -363,7 +363,7 @@ class ToggleSliderDelegateAdapter(
         }
 
         // toggle buttons: меняем только enabled-bit
-        toggleTurnOffBtnRipple1.setOnClickListener { toggleEnabled(addressDevice, parameterID, 0) }
+        toggleTurnOffRipple1Btn.setOnClickListener { toggleEnabled(addressDevice, parameterID, 0) }
         toggleTurnOffBtnRipple2.setOnClickListener {
             if (paramCount > 1) toggleEnabled(
                 addressDevice,

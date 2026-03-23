@@ -96,7 +96,7 @@
                     tools:ignore="ContentDescription" />
 
                 <View
-                    android:id="@+id/toggleTurnOffBtnRipple1"
+                    android:id="@+id/toggle_turn_off_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/ubi4_ripple_corners"
@@ -140,7 +140,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
-                    android:id="@+id/toggleMinusBtnRipple1"
+                    android:id="@+id/toggle_minus_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/ubi4_ripple_corners"
@@ -201,7 +201,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
-                    android:id="@+id/togglePlusBtnRipple1"
+                    android:id="@+id/toggle_plus_ripple_1_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/ubi4_ripple_corners"

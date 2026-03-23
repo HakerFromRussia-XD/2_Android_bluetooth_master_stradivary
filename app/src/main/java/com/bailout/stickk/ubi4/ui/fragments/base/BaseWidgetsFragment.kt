@@ -477,7 +477,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun sendBLEActiveGestureV3(activeGesture: Int) {
         platformLog("sendBLEActiveGestureV3", "послали жест $activeGesture")
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommandsV3.sendActiveGesture(activeGesture), SERIALPORTCHAR_UUID, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendCommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), activeGesture), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}

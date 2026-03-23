@@ -69,7 +69,6 @@ data class GestureV3(
     var closeToOpenTimeShift5: Int = 0,
     var closeToOpenTimeShift6: Int = 0
 )
-
 @Serializable
 data class RotationGroupV3 (
     var gesture1Id: Int = 0,
@@ -102,3 +101,7 @@ data class RotationGroupV3 (
         )
     }
 }
+@Serializable
+data class EMGChangeGestureV3(
+    var changeGesture: Int = 0
+)

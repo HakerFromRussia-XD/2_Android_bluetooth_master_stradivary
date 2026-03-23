@@ -236,8 +236,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
             // запрос всей инфы по жестам (ответ )
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.requestGestureInfo(64),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
             bleManager.sendBytesKmm(
-                BLECommandsV3.requestGestureInfo(64),
+                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
                 SERIALPORTCHAR_UUID,
                 WRITE){}
 

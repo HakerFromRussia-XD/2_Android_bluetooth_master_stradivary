@@ -17,7 +17,9 @@ import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
@@ -29,10 +31,10 @@ import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import okhttp3.internal.notify
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -118,6 +120,24 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 rotationGroup
             ), MAIN_CHANNEL_CHARACTERISTIC, WRITE
         ){}
+    }
+    override fun sendBLERotationGroupV3 () {
+        platformLog("testRotationGroup", "sendBLERotationGroupV3")
+        val rotationGroup = RotationGroup()
+        rotationGroupGestures.forEachIndexed { index, item ->
+            // Используем рефлексию, чтобы найти и изменить свойства
+            val idProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}Id" } as? KMutableProperty1<RotationGroup, Int>
+            val imageIdProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}ImageId" } as? KMutableProperty1<RotationGroup, Int>
+
+            // Устанавливаем значения, если свойства найдены
+            idProperty?.set(rotationGroup, item.gestureId)
+            imageIdProperty?.set(rotationGroup, item.gestureId)
+        }
+
+        // Проверяем результат
+        Log.d("sendBLERotationGroup", "rotationGroupV3 = $rotationGroup")
+
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendRotationGroup(rotationGroup), SERIALPORTCHAR_UUID, WRITE){}
     }
 
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n", "SuspiciousIndentation")

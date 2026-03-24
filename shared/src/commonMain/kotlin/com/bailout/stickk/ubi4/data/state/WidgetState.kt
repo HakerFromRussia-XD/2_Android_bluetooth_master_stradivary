@@ -35,6 +35,7 @@ object WidgetState {
     val switcherFlowV3 = MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>(extraBufferCapacity = 1)
     var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureInfoFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    var gestureGroupeFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
 
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false
@@ -67,5 +68,6 @@ object WidgetState {
         sliderFlowV3 = MutableSharedFlow(replay = 1)
         currentGestureFlowV3 = MutableSharedFlow(replay = 1)
         gestureInfoFlowV3 = MutableSharedFlow(replay = 1)
+        gestureGroupeFlowV3 = MutableSharedFlow(replay = 1)
     }
 }

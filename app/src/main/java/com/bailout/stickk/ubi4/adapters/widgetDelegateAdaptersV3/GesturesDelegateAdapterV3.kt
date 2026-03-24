@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -61,13 +62,12 @@ class GesturesDelegateAdapterV3(
     val gestureNameList: ArrayList<String>,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
-    val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
-    val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
+    val onSendBLERotationGroup: () -> Unit,
+    val onSendBLEActiveGesture: (activeGesture: Int) -> Unit,
     //  onShowGestureSettings колбек при нажатии на шестерёнку кастомного жеста
     val onShowGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
-    val onRequestGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
     val onRequestActiveGesture: () -> Unit,
-    val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
+    val onRequestRotationGroup: () -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapterV3.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapterV3.OnDeleteClickRotationGroupListener,
@@ -166,10 +166,7 @@ class GesturesDelegateAdapterV3(
         val savedFilter = main.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
         UiState.activeGestureFragmentFilterFlow.value = savedFilter // если у тебя этот flow доступен тут
         if (savedFilter == 2) {
-            requestRotationGroupWithRetry(
-                deviceAddress,
-                getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet)
-            )
+            requestRotationGroupWithRetry()
         }
         // запрос активного жеста — чтобы подсветка/текст пришли
         onRequestActiveGesture()
@@ -182,13 +179,7 @@ class GesturesDelegateAdapterV3(
         rotationGroupSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 2)
             UiState.activeGestureFragmentFilterFlow.value = 2
-            onRequestRotationGroup(
-                deviceAddress,
-                getParameterIDByCode(
-                    ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number,
-                    parameterIDSet
-                )
-            )
+            onRequestRotationGroup()
         }
         hideCollectionBtn.setOnClickListener {
             System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
@@ -318,7 +309,7 @@ class GesturesDelegateAdapterV3(
                 showIntroduction()
                 setupListRecyclerView()
                 synchronizeRotationGroup()
-                sendBLERotationGroup()
+                onSendBLERotationGroup()
                 calculatingShowAddButton()
             }
             onAddGesturesToRotationGroup(resultCb)
@@ -332,7 +323,7 @@ class GesturesDelegateAdapterV3(
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
                 if (fromPosition != toPosition) {
                     synchronizeRotationGroup()
-                    sendBLERotationGroup()
+                    onSendBLERotationGroup()
                 }
             }
         })
@@ -377,32 +368,6 @@ class GesturesDelegateAdapterV3(
         collectJob?.cancel()
 
         collectJob = scope.launch(Dispatchers.Main.immediate) {
-//            launch {
-//                rotationGroupFlow.collect {
-//                    isRotationGroupResponseReceived = true
-//
-//                    val parameter = ParameterProvider.getParameterDeprecated(
-//                        ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number
-//                    )
-//
-//                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-//                    val rotationGroupList = rotationGroup.toGestureList()
-//
-//                    rotationGroupGestures.clear()
-//                    rotationGroupList.forEach { item ->
-//                        if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
-//                    }
-//
-//                    showIntroduction()
-//                    setupListRecyclerView()
-//                    synchronizeRotationGroup()
-//                    calculatingShowAddButton()
-//                    currentActiveGestureId?.let { id ->
-//                        setActiveGesture(getGestureViewById(id))
-//                        updateActiveGestureHeader(id)
-//                    }
-//                }
-//            }
             try {
                 merge(
                     UiState.activeGestureFragmentFilterFlow.map{ filter ->
@@ -415,6 +380,26 @@ class GesturesDelegateAdapterV3(
                         setActiveGesture(getGestureViewById(currentGesture.currentGesture))
                         updateActiveGestureHeader(currentGesture.currentGesture)
                         listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
+                    WidgetState.gestureGroupeFlowV3.map { parameterInfo ->
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 пришли по потоку ${parameter.data}")
+                        val currentGesture = parseGestureGroupeSafely(parameter.data) ?: return@map
+                        val rotationGroupList = currentGesture.toGestureList()
+                        isRotationGroupResponseReceived = true
+                        rotationGroupGestures.clear()
+                        rotationGroupList.forEach { item ->
+                            if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
+                        }
+                        showIntroduction()
+                        setupListRecyclerView()
+                        synchronizeRotationGroup()
+                        calculatingShowAddButton()
+                        currentActiveGestureId?.let { id ->
+                            setActiveGesture(getGestureViewById(id))
+                            updateActiveGestureHeader(id)
+                        }
+                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 $currentGesture")
+                    },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("gestureFlowCollect", "Job was cancelled: ${e.message}")
@@ -425,6 +410,11 @@ class GesturesDelegateAdapterV3(
                 Log.e("gestureFlowCollect", "Exception: ${e.message}")
             }
         }
+    }
+    private fun parseGestureGroupeSafely(data: String): RotationGroupV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<RotationGroupV3>(data) }
+            .getOrNull()
     }
     private fun parseCurrentGestureSafely(data: String): CurrentGestureV3? {
         if (data.isBlank()) return null
@@ -448,33 +438,17 @@ class GesturesDelegateAdapterV3(
             rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
         }
     }
-
-    private fun sendBLERotationGroup() {
-        onSendBLERotationGroup(
-            deviceAddress,
-            getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet)
-        )
-    }
-
-    private fun requestRotationGroupWithRetry(deviceAddress: Int, parameterID: Int) {
+    private fun requestRotationGroupWithRetry() {
         isRotationGroupResponseReceived = false
         RetryUtils.sendRequestWithRetry(
             request = {
-                onRequestRotationGroup(deviceAddress, parameterID)
+                onRequestRotationGroup()
                 Log.d("GesturesDelegateAdapter", "Отправил onRequestRotationGroup")
             },
             isResponseReceived = { isRotationGroupResponseReceived },
             maxRetries = 5,
             delayMillis = 400,
             scope = scope
-        )
-    }
-
-    private fun onSendBLEActiveGesture(activeGesture: Int) {
-        onSendBLEActiveGesture(
-            deviceAddress,
-            getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterIDSet),
-            activeGesture
         )
     }
 
@@ -602,7 +576,7 @@ class GesturesDelegateAdapterV3(
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
         listRotationGroupAdapter?.notifyDataSetChanged()
         synchronizeRotationGroup()
-        sendBLERotationGroup()
+        onSendBLERotationGroup()
         calculatingShowAddButton()
     }
 
@@ -613,7 +587,7 @@ class GesturesDelegateAdapterV3(
             showIntroduction()
             setupListRecyclerView()
             synchronizeRotationGroup()
-            sendBLERotationGroup()
+            onSendBLERotationGroup()
             calculatingShowAddButton()
         }
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)

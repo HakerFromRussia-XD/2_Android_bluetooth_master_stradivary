@@ -695,6 +695,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                         request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()),
                         SERIALPORTCHAR_UUID,
                         WRITE){}
+                    main.bleCommandWithQueue(
+                        request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
@@ -7,7 +9,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 object BLECommandsV3 {
-
     fun requestDeviceData(): ByteArray {
         val header = byteArrayOf(
             0x00,
@@ -30,26 +31,26 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun requestGestureInfo(subcommand: Int, gestureId: Int): ByteArray {
+    fun requestGestureInfo(gestureId: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,
-            subcommand.toByte(),
+            PWCE_GET_GESTURE_SETTING.number,
             gestureId.toByte(),
             0x00
         )
         header[4] = calculationCRC(header).toByte()
         return header
     }
-    fun sendCommand( moduleControlCommand: Int): ByteArray {
+    fun sendCommand(subcommand: Int, parameter: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
             PROSTHESIS_MODULE_CONTROL.number,
-            moduleControlCommand.toByte(),
-            0x00,
+            subcommand.toByte(),
+            parameter.toByte(),
             0x00
         )
-        header[4] = calculationCRC(header).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
         return header
     }
 
@@ -102,10 +103,89 @@ object BLECommandsV3 {
         )
         header[2] = (data.size - 1).toByte()
         header[3] = (data.size / 256).toByte()
-        header[4] = calculationCRC(header).toByte()
-        data[3] = calculationCRC(data).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
         return header + data
     }
+    fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            0x00,
+            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
+            PWCE_SET_GESTURE_SETTING.number,
+            gestureWithAddress.gesture.gestureId.toByte(),
+            gestureWithAddress.gesture.openPosition1.toByte(),
+            gestureWithAddress.gesture.openPosition2.toByte(),
+            gestureWithAddress.gesture.openPosition3.toByte(),
+            gestureWithAddress.gesture.openPosition4.toByte(),
+            gestureWithAddress.gesture.openPosition5.toByte(),
+            gestureWithAddress.gesture.openPosition6.toByte(),
+            gestureWithAddress.gesture.closePosition1.toByte(),
+            gestureWithAddress.gesture.closePosition2.toByte(),
+            gestureWithAddress.gesture.closePosition3.toByte(),
+            gestureWithAddress.gesture.closePosition4.toByte(),
+            gestureWithAddress.gesture.closePosition5.toByte(),
+            gestureWithAddress.gesture.closePosition6.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift1.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift2.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift3.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift4.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift5.toByte(),
+            gestureWithAddress.gesture.openToCloseTimeShift6.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift1.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift2.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift3.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift4.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift5.toByte(),
+            gestureWithAddress.gesture.closeToOpenTimeShift6.toByte(),
+            gestureWithAddress.gestureState.toByte(),
+            0x00
+        )
+        header[2] = (data.size - 1).toByte()
+        header[3] = (data.size / 256).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
+        return header + data
+    }
+    fun sendRotationGroup(rotationGroup: RotationGroup): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            PROSTHESIS_MODULE_CONTROL.number,
+            0x00,
+            0x00,
+            0x00
+        )
+        val data = byteArrayOf(
+            PWCE_SET_GESTURE_GROUPE.number,
+            rotationGroup.gesture1Id.toByte(),
+            rotationGroup.gesture1ImageId.toByte(),
+            rotationGroup.gesture2Id.toByte(),
+            rotationGroup.gesture2ImageId.toByte(),
+            rotationGroup.gesture3Id.toByte(),
+            rotationGroup.gesture3ImageId.toByte(),
+            rotationGroup.gesture4Id.toByte(),
+            rotationGroup.gesture4ImageId.toByte(),
+            rotationGroup.gesture5Id.toByte(),
+            rotationGroup.gesture5ImageId.toByte(),
+            rotationGroup.gesture6Id.toByte(),
+            rotationGroup.gesture6ImageId.toByte(),
+            rotationGroup.gesture7Id.toByte(),
+            rotationGroup.gesture7ImageId.toByte(),
+            rotationGroup.gesture8Id.toByte(),
+            rotationGroup.gesture8ImageId.toByte(),
+            0x00
+        )
+        header[2] = (data.size - 1).toByte()
+        header[3] = (data.size / 256).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
+        return header + data
+    }
+
 
     private fun calculationCRC(data: ByteArray): Int {
         var result = 0

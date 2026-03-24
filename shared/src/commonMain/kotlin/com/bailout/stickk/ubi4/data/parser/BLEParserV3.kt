@@ -40,16 +40,24 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupeFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.EMGChangeGestureV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
+import com.bailout.stickk.ubi4.models.ble.ParameterRef
+import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -132,6 +140,20 @@ class BLEParserV3(
                 val subcommand = payload[0]
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
+                    PWCE_GET_EMG_CHANGE_GESTURE.number -> {
+                        val parseEMGChangeGesture = parseEMGChangeGestureZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseEMGChangeGesture)
+                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
+                    }
+                    PWCE_GET_GESTURE_GROUPE.number -> {
+                        val parseGestureGroup = parseGestureGroupeZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseGestureGroup)
+                        coroutineScope.launch { gestureGroupeFlowV3.emit(parameterInfo) }
+                    }
                     PWCE_GET_CURRENT_GESTURE_NUM.number -> {
                         val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
                         //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
@@ -319,6 +341,15 @@ class BLEParserV3(
             closeGain = closeGain
         )
     }
+    private fun parseEMGChangeGestureZeroAlloc(payload: ByteArrayView?): EMGChangeGestureV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 17) { return EMGChangeGestureV3() }
+        val subcommand = payload.u8(0)
+
+        return EMGChangeGestureV3(
+            changeGesture = payload.u8(1)
+        )
+    }
     private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
         // парсинг PWCE_GET_CURRENT_GESTURE_NUM
         if (payload == null || payload.length < 2) { return CurrentGestureV3(0) }
@@ -366,6 +397,30 @@ class BLEParserV3(
             closeToOpenTimeShift6 = payload.u8(25)
         )
     }
+    private fun parseGestureGroupeZeroAlloc(payload: ByteArrayView?): RotationGroupV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 17) { return RotationGroupV3() }
+        val subcommand = payload.u8(0)
+
+        return RotationGroupV3(
+            gesture1Id = payload.u8(1)     ,
+            gesture1ImageId = payload.u8(2),
+            gesture2Id = payload.u8(3)     ,
+            gesture2ImageId = payload.u8(4),
+            gesture3Id = payload.u8(5)     ,
+            gesture3ImageId = payload.u8(6),
+            gesture4Id = payload.u8(7)     ,
+            gesture4ImageId = payload.u8(8),
+            gesture5Id = payload.u8(9)     ,
+            gesture5ImageId = payload.u8(10),
+            gesture6Id = payload.u8(11)     ,
+            gesture6ImageId = payload.u8(12),
+            gesture7Id = payload.u8(13)     ,
+            gesture7ImageId = payload.u8(14),
+            gesture8Id = payload.u8(15)     ,
+            gesture8ImageId = payload.u8(16),
+        )
+    }
 
     suspend fun generatedHardcodeWidgets() {
         // [new widgets V3] тут добавляем новые виджеты
@@ -374,7 +429,6 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 0,
             widgetCode = PWCE_PLOT_V3.number.toInt(),
-            deviceId = 0,
             widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
@@ -386,7 +440,6 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 0,
             widgetId = 2,
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
         )
@@ -396,7 +449,6 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            deviceId = 0,
             widgetId = 3,
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
         )
@@ -406,9 +458,8 @@ class BLEParserV3(
             display = 1,
             widgetPosition = 3,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
-            deviceId = 0,
             widgetId = 4,
-            parameterInfoSet = mutableSetOf(ParameterInfo(4, 4, 4, 0))
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
         )
             ,"Калибровка протеза"
         ))
@@ -420,7 +471,6 @@ class BLEParserV3(
                 display = 1,
                 widgetPosition = 4,
                 widgetCode = PWCE_BUTTON_V3.number.toInt(),
-                deviceId = 0,
                 widgetId = 5,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
@@ -432,41 +482,44 @@ class BLEParserV3(
             display = 0,
             widgetPosition = 0,
             widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
-            deviceId = 0,
-            widgetId = 7,
+            widgetId = 6,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
+                ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
             )
         )
             ,"Жесты"
         ))
-//        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-//            display = 2,
-//            widgetPosition = 0,
-//            widgetCode = PWCE_SWITCH_V3.number.toInt(),
-//            deviceId = 0,
-//            widgetId = 8,
-//            parameterInfoSet = mutableSetOf(
-//                ParameterInfoRegistry.require(P_KEY_TEST_SWITCHER),
-//            )
-//        )
-//            ,"Свитчер тест"
-//        ))
-
-
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 1,
-            widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-            deviceId = 0,
-            widgetId = 9,
+            widgetPosition = 0,
+            widgetCode = PWCE_SWITCH_V3.number.toInt(),
+            widgetId = 7,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_TEST_SWITCHER),
             )
         )
-            ,"Тоггл слайдер тест"
+            ,"Свитчер тест"
         ))
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetPosition = 1,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                widgetId = 8,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
+                )
+            )
+                ,"Переключение жестов сенсорами"
+            ))
+        )
+
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -561,6 +614,15 @@ class BLEParserV3(
                     releasedCommand = widget.releasedCommand,
                     baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
                 addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
+            is ToggleSliderParameterWidgetSStruct -> {
+                val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(
+                    minProgress = widget.minProgress,
+                    maxProgress = widget.maxProgress,
+                    increment = widget.increment,
+                    unitLabel = widget.unitLabel,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
             }
         }
     }

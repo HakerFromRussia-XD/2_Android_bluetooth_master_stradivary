@@ -1762,8 +1762,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 
-
-
 	private void transferCommand() {
 		FingerAngle fingerAngleModel;
 		FingerAngle fingerAngleModel2;

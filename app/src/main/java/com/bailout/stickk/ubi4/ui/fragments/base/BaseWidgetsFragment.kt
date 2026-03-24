@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.dialog.SprDialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
@@ -157,31 +158,14 @@ abstract class BaseWidgetsFragment : Fragment() {
             GesturesDelegateAdapterV3 (
                 coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
                 gestureNameList = gestureNameList,
-                onDeleteClick = { resultCb, gestureName ->
-                    showDeleteGestureFromRotationGroupDialog(resultCb, gestureName)
-                },
-                onAddGesturesToRotationGroup = { onSaveDialogClick ->
-                    showAddGestureToRotationGroupDialog(onSaveDialogClick)
-                },
-                onSendBLERotationGroup = { deviceAddress, parameterID ->
-                    sendBLERotationGroup(deviceAddress, parameterID)
-                },
-                onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture ->
-                    sendBLEActiveGesture(deviceAddress, parameterID, activeGesture)
-                },
-                onShowGestureSettings = {subcommand, gestureID ->
-                    platformLog("GesturesDelegateAdapterV3", "onShowGestureSettings")
-                    requestGestureSettingsV3(subcommand, gestureID)
-                    showGestureSettingsV3(subcommand, gestureID)
-                },
-                onRequestGestureSettings = { subcommand, gestureID -> },
+                onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
+                onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
+                onSendBLERotationGroup = { sendBLERotationGroupV3() },
+                onSendBLEActiveGesture = { activeGesture -> sendBLEActiveGestureV3(activeGesture) },
+                onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
                 onRequestActiveGesture = { requestActiveGestureV3() },
-                onRequestRotationGroup = { deviceAddress, parameterID ->
-                    requestRotationGroup(deviceAddress, parameterID)
-                },
-                onDestroyParent = { onDestroyParent ->
-                    onDestroyParentCallbacks.add(onDestroyParent)
-                }
+                onRequestRotationGroup = { requestRotationGroupV3() },
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             TrainingFragmentDelegateAdapter(
                 onConfirmClick = {
@@ -400,11 +384,6 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
     }
-    open fun requestGestureSettingsV3( subcommand: Int, gestureID: Int) {
-        if (!isAdded) { return }
-        platformLog("[PWCE_GET_GESTURE_SETTING]", "gestureID = $gestureID  сабкоманда $subcommand а ожидаем ${PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number.toInt()}")
-        transmitter().bleCommandWithQueue(BLECommandsV3.requestGestureInfo(subcommand, gestureID), SERIALPORTCHAR_UUID, WRITE){}
-    }
 
 
     open fun showCustomGesturesDialog(onSaveDotsClick: (Pair<Int, Int>) -> Unit, bindingItem: Pair<Int, Int>) {
@@ -495,6 +474,11 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+    open fun sendBLEActiveGestureV3(activeGesture: Int) {
+        platformLog("sendBLEActiveGestureV3", "послали жест $activeGesture")
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendCommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), activeGesture), SERIALPORTCHAR_UUID, WRITE){}
+    }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}
         transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
@@ -521,9 +505,19 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
         main?.showToast("Виджет отображается вне своего экрана")
     }
+    open fun sendBLERotationGroupV3 () {
+        Log.d("RotationDebug", "BaseWidgetsFragment.sendBLERotationGroupV3, fragment=${this::class.java.simpleName}")
+        main?.showToast("Виджет отображается вне своего экрана")
+    }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
+
+    }
+    private fun requestRotationGroupV3() {
+        platformLog("requestRotationGroupV3", "спросили группу ротации")
+        if (!isAdded) return
+        transmitter().bleCommandWithQueue(BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
 
     }
     open fun refreshWidgetsList() {

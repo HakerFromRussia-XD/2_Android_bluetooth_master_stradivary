@@ -223,9 +223,31 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         }
 
-//        binding.runCommandBtn.setOnClickListener {
+        binding.runCommandBtn.setOnClickListener {
+            // тест жестов
+            // запрос активного жеста (ответ 00002401a4)
 //            bleManager.sendBytesKmm(
-//                request(PWCE_GET_EMG_GAIN_VALUE.number),
+//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+            // запрос количества жестов (ответ пока пустой)
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_COUNT.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+            // запрос всей инфы по жестам (ответ )
+//            bleManager.sendBytesKmm(
+//                BLECommandsV3.requestGestureInfo(64),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+            bleManager.sendBytesKmm(
+                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
+
+
+//            bleManager.sendBytesKmm(
+//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
 //            platformLog("BLEParserV3", "runCommandBtn")
@@ -235,7 +257,31 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE
 //            ) {}
-//        }
+//            main.bleCommandWithQueue(
+//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+
+
+
+//            platformLog("sendThresholds", "отправка команды 1")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendThresholds(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 1")}
+//            platformLog("sendThresholds", "отправка команды 2")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendThresholds(),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 2")}
+//            platformLog("sendThresholds", "отправка команды 3")
+//            main.bleCommandWithQueue(
+//                BLECommandsV3.sendGaines(15, 136),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
+//            runBlockingDemo()
+            platformLog("BLEParserV3", "runCommandBtn")
+        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -399,6 +445,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManagerUBI4.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
+        updateSerialNumberV3()
 
         saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
@@ -497,7 +544,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
     }
-
 
     //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {

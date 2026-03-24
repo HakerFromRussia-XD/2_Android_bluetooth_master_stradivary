@@ -104,3 +104,7 @@ data class RotationGroupV3 (
 data class ToggleV3(
     var toggleValue: Int = 0
 )
+@Serializable
+data class SpinnerV3(
+    var spinnerValue: Int = 0
+)

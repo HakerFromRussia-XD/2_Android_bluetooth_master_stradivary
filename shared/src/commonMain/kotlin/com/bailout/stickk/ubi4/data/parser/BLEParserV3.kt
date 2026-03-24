@@ -40,12 +40,15 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupeFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
+import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
+import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -57,6 +60,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_M
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
@@ -143,6 +147,13 @@ class BLEParserV3(
                 val subcommand = payload[0]
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
+                    PWCE_GET_HAND_CONTROL_MODE.number -> {
+                        val handControl =  parseSpinnerZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(handControl)
+                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
+                    }
                     PWCE_SET_EMG_MOVEMENT_LOCK.number -> {
                         val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
                         val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK)
@@ -162,7 +173,7 @@ class BLEParserV3(
                         val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
                         parameter.data = json.encodeToString(parseGestureGroup)
-                        coroutineScope.launch { gestureGroupeFlowV3.emit(parameterInfo) }
+                        coroutineScope.launch { gestureGroupFlowV3.emit(parameterInfo) }
                     }
                     PWCE_GET_CURRENT_GESTURE_NUM.number -> {
                         val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
@@ -214,8 +225,17 @@ class BLEParserV3(
                         parameter.data = json.encodeToString(screenTimeout)
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
                     }
+                    GMCE_GET_LEFT_RIGHT_HAND.number -> {
+                        val handSide = parseSpinnerZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(handSide)
+                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
+                    }
+
                 }
             }
+
         }
         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
         platformLog(
@@ -365,11 +385,19 @@ class BLEParserV3(
     }
     private fun parseToggleZeroAlloc(payload: ByteArrayView?): ToggleV3 {
         // парсинг PWCE_GET_CURRENT_GESTURE_NUM
-        if (payload == null || payload.length < 17) { return ToggleV3() }
+        if (payload == null || payload.length < 2) { return ToggleV3() }
         val subcommand = payload.u8(0)
 
         return ToggleV3(
             toggleValue = payload.u8(1)
+        )
+    }
+    private fun parseSpinnerZeroAlloc(payload: ByteArrayView?): SpinnerV3 {
+        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
+        if (payload == null || payload.length < 2) { return SpinnerV3() }
+        val subcommand = payload.u8(0)
+        return SpinnerV3(
+            spinnerValue = payload.u8(1)
         )
     }
     private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
@@ -540,15 +568,32 @@ class BLEParserV3(
             )
                 ,"Переключение жестов сенсорами"
             )))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Нормальный","Спортивный"),0),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetPosition = 2,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
             widgetId = 9,
-            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE))
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
+            )
         )
-            ,"Тест spinbox"
-        ))
+            ,"Режим работы протеза"
+        )))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Левая","Правая"),0),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetPosition = 2,
+            widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+            widgetId = 9,
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
+            )
+        )
+            ,"Сторона руки"
+        )))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -685,6 +730,12 @@ class BLEParserV3(
                     unitLabel = widget.unitLabel,
                     baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
                 addToListWidgets(toggleSliderParameterWidgetSStruct, toggleSliderParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
+            is SpinnerParameterWidgetSStruct -> {
+                val spinnerParameterWidgetSStruct = SpinnerParameterWidgetSStruct(
+                    dataSpinnerParameterWidgetStruct = widget.dataSpinnerParameterWidgetStruct,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
             }
         }
     }

@@ -39,6 +39,7 @@ interface ConstantManagerUBI4 {
         const val P_KEY_HAND_CONTROL_MODE = "P_KEY_HAND_CONTROL_MODE"
         const val P_KEY_SCREEN_TIMEOUT = "P_KEY_SCREEN_TIMEOUT"
         const val P_KEY_EMG_MOVEMENT_LOCK = "P_KEY_EMG_MOVEMENT_LOCK"
+        const val P_KEY_LEFT_RIGHT_HAND = "P_KEY_LEFT_RIGHT_HAND"
 
 
 

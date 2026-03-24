@@ -12,6 +12,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_M
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
@@ -713,6 +714,8 @@ object PreferenceKeysUbi4 {
         GMCE_SET_DATE_TIME              (0x0b),
         GMCE_SET_MOVEMENT_BLOCK_DATA    (0x0c),
         GMCE_GET_SCREEN_TIMEOUT         (0x0d),
+        GMCE_SET_LEFT_RIGHT_HAND        (0x0e),
+        GMCE_GET_LEFT_RIGHT_HAND        (0x0f),
     }
 
 
@@ -738,6 +741,7 @@ object PreferenceKeysUbi4 {
             P_KEY_HAND_CONTROL_MODE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
             P_KEY_SCREEN_TIMEOUT to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
             P_KEY_EMG_MOVEMENT_LOCK to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
+            P_KEY_LEFT_RIGHT_HAND to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

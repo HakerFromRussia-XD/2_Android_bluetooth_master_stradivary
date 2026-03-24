@@ -12,11 +12,12 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
 @Serializable(with = SpinnerParameterWidgetSSerializer::class)
+
 data class SpinnerParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(
         BaseParameterWidgetStruct(), "NOT VALID"
     ),
-    val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct()
+    val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(),
 )
 
 object SpinnerParameterWidgetSSerializer : KSerializer<SpinnerParameterWidgetSStruct> {

@@ -23,7 +23,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineCenter"
@@ -48,7 +49,7 @@
        />
 
     <com.skydoves.powerspinner.PowerSpinnerView
-        android:id="@+id/psvGesturesSpinner"
+        android:id="@+id/spinnerPsv"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginEnd="4dp"
@@ -66,7 +67,6 @@
         app:spinner_popup_bottom_padding="2dp"
         app:spinner_popup_start_padding="10dp"
         app:spinner_popup_end_padding="10dp"
-        app:spinner_item_array="@array/gesture_loop"
         app:spinner_item_height="42dp"
         app:spinner_divider_color="@color/ubi4_gray_border"
         app:spinner_popup_animation="dropdown"

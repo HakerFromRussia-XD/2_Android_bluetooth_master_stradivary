@@ -32,10 +32,6 @@ class ButtonsDelegateAdapterV3(
 
 
         when (val widget = item.widget) {
-            is CommandParameterWidgetEStruct -> {
-                parameterInfoSet = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
-                countOfButtons = widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.size
-            }
             is CommandParameterWidgetSStruct -> {
                 parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 countOfButtons = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.size

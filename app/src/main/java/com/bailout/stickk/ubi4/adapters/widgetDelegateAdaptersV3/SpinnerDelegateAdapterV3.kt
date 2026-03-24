@@ -1,29 +1,24 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
-import android.app.Dialog
-import android.content.Context
-import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
-import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding.inflate
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlow
-import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
+import com.bailout.stickk.ubi4.models.ble.SpinnerV3
+import com.bailout.stickk.ubi4.models.ble.ToggleV3
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import io.reactivex.disposables.CompositeDisposable
@@ -34,227 +29,105 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import online.devliving.passcodeview.PasscodeView
 import java.lang.ref.WeakReference
 import java.util.Collections
 
 class SpinnerDelegateAdapterV3 (
-    private val onSpinnerItemSelected: (addressDevice: Int, parameterID: Int, newIndex: Int) -> Unit,
+    private val onSpinnerItemSelected: (newIndex: Int) -> Unit,
     private val onDestroyParent: (onDestroyParent: () -> Unit) -> Unit
 ) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
 ) {
-
+    private val json = Json { encodeDefaults = true }
+    private var collectJob: kotlinx.coroutines.Job? = null
     private val disposables = CompositeDisposable()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    private val spinnerInfoList = mutableListOf<WidgetSpinnerInfo>()
-
-    private val roleItems = listOf("Протезист", "Сервисный инженер")
-    private val prosthetistIndex = 0
-    private val serviceEngineerIndex = 1
-
-    // TODO: возьми реальный PIN
-    private val SECRET_PIN = "1234"
-
-    private val PREFS_NAME = "APP_PREFERENCES"
+    private val spinnerInfoList : ArrayList<WidgetSpinnerInfo> = ArrayList()
 
     override fun Ubi4WidgetSpinnerBinding.onBind(item: SpinnerItemV3) {
         onDestroyParent { onDestroy() }
-
         // закрыть любые открытые попапы, чтобы не висели поверх при ребайнде
         dismissAll()
 
-        val addressDeviceList = mutableListOf<Int>()
-        val parameterIDList = mutableListOf<Int>()
+        var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0))
         var selectedIndexFromWidget = 0
+        var spinnerItems = mutableListOf<String>()
 
+        
         when (val widget = item.widget) {
-            is SpinnerParameterWidgetEStruct -> {
-                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    addressDeviceList.add(it.deviceAddress)
-                    parameterIDList.add(it.parameterID)
-                }
-                selectedIndexFromWidget = widget.dataSpinnerParameterWidgetStruct.selectedIndex
-            }
-
             is SpinnerParameterWidgetSStruct -> {
-                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
-                    addressDeviceList.add(it.deviceAddress)
-                    parameterIDList.add(it.parameterID)
-                }
+                parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 selectedIndexFromWidget = widget.dataSpinnerParameterWidgetStruct.selectedIndex
+                spinnerItems = widget.dataSpinnerParameterWidgetStruct.spinnerItems as MutableList<String>
             }
-
-            else -> Log.w("SpinnerDelegateAdapter", "Unknown widget type: ${item.widget}")
         }
-
-        val addressDevice = addressDeviceList.firstOrNull() ?: 0
-        val parameterID = parameterIDList.firstOrNull() ?: 0
-
-        val prefs = psvGesturesSpinner.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val savedIndex = prefs.getInt(roleSelectedKey(addressDevice, parameterID), selectedIndexFromWidget)
-            .coerceIn(roleItems.indices)
-
+        val info = WidgetSpinnerInfo(
+            parameterInfoSet = parameterInfoSet,
+            spinner = spinnerPsv,
+            items = spinnerItems
+        )
+        spinnerInfoList.add(info)
+        registerSpinner(spinnerPsv)
+        spinnerPsv.setItems(spinnerItems)
+        // стартовое состояние из структуры
+        spinnerPsv.selectItemByIndex(selectedIndexFromWidget)
         spinnerTv.text = item.title
-
-        psvGesturesSpinner.setItems(roleItems)
-        psvGesturesSpinner.apply {
+        spinnerPsv.apply {
             setTextColor(ContextCompat.getColor(context, R.color.white))
             textSize = 12f
             typeface = ResourcesCompat.getFont(context, R.font.sf_pro_display_light)
             gravity = Gravity.CENTER
         }
 
-        // стартовое состояние — из prefs (если есть), иначе из структуры
-        psvGesturesSpinner.selectItemByIndex(savedIndex)
 
-        val info = WidgetSpinnerInfo(
-            addressDevice = addressDevice,
-            parameterID = parameterID,
-            spinner = psvGesturesSpinner,
-            items = roleItems
-        )
-
-        spinnerInfoList.add(info)
-        registerSpinner(psvGesturesSpinner)
-
-        psvGesturesSpinner.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, newItem ->
-            Log.d("SpinnerDelegateAdapter", "Select '$newItem' index=$newIndex addr=$addressDevice pid=$parameterID")
-
+        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, newItem ->
             // закрываем попап сразу
-            psvGesturesSpinner.dismiss()
-
-            if (newIndex == serviceEngineerIndex) {
-                // Всегда требуем PIN для "Сервисный инженер"
-                showPinCodeDialog(
-                    context = psvGesturesSpinner.context,
-                    onSuccess = {
-                        persistSelectedIndex(prefs, addressDevice, parameterID, newIndex)
-                        onSpinnerItemSelected(addressDevice, parameterID, newIndex)
-                    },
-                    onCancelOrFail = {
-                        // откат на "Протезист"
-                        psvGesturesSpinner.selectItemByIndex(prosthetistIndex)
-                        persistSelectedIndex(prefs, addressDevice, parameterID, prosthetistIndex)
-                        onSpinnerItemSelected(addressDevice, parameterID, prosthetistIndex)
-                    }
-                )
-                return@setOnSpinnerItemSelectedListener
-            }
-
-            // "Протезист"
-            persistSelectedIndex(prefs, addressDevice, parameterID, newIndex)
-            onSpinnerItemSelected(addressDevice, parameterID, newIndex)
+            spinnerPsv.dismiss()
+            onSpinnerItemSelected(newIndex)
         }
 
+
         // BLE обновления — если у тебя реально приходят payload’ы
-        collectSpinnerUpdates()
+        spinnerCollect()
 
         // при уходе элемента с экрана — закрыть попап
         root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) = Unit
             override fun onViewDetachedFromWindow(v: View) {
-                psvGesturesSpinner.dismiss()
+                spinnerPsv.dismiss()
             }
         })
     }
 
-    private fun persistSelectedIndex(
-        prefs: SharedPreferences,
-        addressDevice: Int,
-        parameterID: Int,
-        index: Int
-    ) {
-        prefs.edit()
-            .putInt(roleSelectedKey(addressDevice, parameterID), index)
-            .apply()
+    private fun spinnerCollect() {
+        if (collectJob?.isActive == true) return
+        collectJob = scope.launch(Dispatchers.Main) {
+            sliderFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
+        }
     }
 
-    private fun roleSelectedKey(addressDevice: Int, parameterID: Int): String =
-        "UBI4_ROLE_SELECTED_${addressDevice}_$parameterID"
+    private fun parseSpinnerSafely(data: String): SpinnerV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<SpinnerV3>(data) }
+            .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
+            .getOrNull()
+    }
 
-    private fun collectSpinnerUpdates() {
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                spinnerFlow.collect { parameterRef ->
-                    val idx = getIndexWidgetSpinner(parameterRef.addressDevice, parameterRef.parameterID)
-                    if (idx < 0) return@collect
-
-                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                    Log.d("SpinnerCollect", "data='${parameter.data}' addr=${parameterRef.addressDevice} pid=${parameterRef.parameterID}")
-
-                    runCatching {
-                        val payload = Json.decodeFromString<DataSpinnerParameterWidgetStruct>("\"${parameter.data}\"")
-                        val spinner = spinnerInfoList[idx].spinner
-
-                        spinnerInfoList[idx].items = payload.spinnerItems
-                        spinner.setItems(payload.spinnerItems)
-
-                        val safeIndex = payload.selectedIndex.coerceIn(payload.spinnerItems.indices)
-                        spinner.selectItemByIndex(safeIndex)
-                    }.onFailure {
-                        Log.w("SpinnerCollect", "parse fail: ${it.message}")
-                    }
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+        val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue
+        spinnerInfoList.forEachIndexed { index, info ->
+            val subcommand = parameterInfo.dataCode
+            when (subcommand) {
+                PWCE_SET_HAND_CONTROL_MODE.number.toInt() -> {
+                   info.spinner.selectItemByIndex(spinnerValue ?: 0)
+                }
+                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
+                    info.spinner.selectItemByIndex(spinnerValue ?: 0)
                 }
             }
         }
-    }
 
-    private fun getIndexWidgetSpinner(addressDevice: Int, parameterID: Int): Int =
-        spinnerInfoList.indexOfFirst { it.addressDevice == addressDevice && it.parameterID == parameterID }
-
-    @Suppress("DEPRECATION")
-    private fun showPinCodeDialog(
-        context: Context,
-        onSuccess: () -> Unit,
-        onCancelOrFail: () -> Unit
-    ) {
-        val dialogView = View.inflate(context, R.layout.ubi4_dialog_enter_pin, null)
-        val dialog = Dialog(context).apply {
-            setContentView(dialogView)
-            setCancelable(false)
-            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            show()
-        }
-
-        val pinView = dialog.findViewById<PasscodeView>(R.id.ubi4_pin_dialog_passcode_view)
-        pinView.requestFocus()
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            pinView.showKeyboard()
-        }, 200)
-
-        pinView.setPasscodeEntryListener { passcode ->
-            val ok = passcode == SECRET_PIN
-            hideKeyboard(context, pinView)
-            dialog.dismiss()
-
-            if (ok) {
-                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
-                onSuccess()
-            } else {
-                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
-                onCancelOrFail()
-            }
-        }
-
-        val cancelBtn = dialogView.findViewById<View>(R.id.ubi4_pin_dialog_cancel_click_area)
-        cancelBtn.setOnClickListener {
-            hideKeyboard(context, pinView)
-            dialog.dismiss()
-            onCancelOrFail()
-        }
-    }
-
-    private fun PasscodeView.showKeyboard() {
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-    }
-
-    private fun hideKeyboard(context: Context, view: View) {
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun isForViewType(item: Any): Boolean = item is SpinnerItemV3
@@ -265,15 +138,10 @@ class SpinnerDelegateAdapterV3 (
         spinnerInfoList.clear()
         scope.cancel()
         disposables.clear()
+        collectJob?.cancel()
+        collectJob = null
         Log.d("SpinnerDelegateAdapter", "onDestroy spinner")
     }
-
-    data class WidgetSpinnerInfo(
-        val addressDevice: Int,
-        val parameterID: Int,
-        val spinner: PowerSpinnerView,
-        var items: List<String>
-    )
 
     companion object {
         private val spinners =
@@ -297,3 +165,9 @@ class SpinnerDelegateAdapterV3 (
         }
     }
 }
+
+data class WidgetSpinnerInfo(
+    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0)),
+    val spinner: PowerSpinnerView,
+    var items: List<String>
+)

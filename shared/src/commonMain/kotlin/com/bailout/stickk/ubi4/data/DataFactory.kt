@@ -8,6 +8,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
@@ -24,6 +26,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
+import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
@@ -118,6 +121,8 @@ class DataFactory {
                 is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
                 is ToggleSliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
                 is ToggleSliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is SpinnerParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display
+                is SpinnerParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display
                 else -> false
             }
         }
@@ -139,6 +144,8 @@ class DataFactory {
                 is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
                 is ToggleSliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 is ToggleSliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is SpinnerParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
+                is SpinnerParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
 
                 else -> 0
             }
@@ -235,6 +242,20 @@ class DataFactory {
                         widget.baseParameterWidgetEStruct.labelCode,
                         widget
                     )
+                is SpinnerParameterWidgetSStruct ->
+                    toWidgetItemS(
+                        widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetSStruct.label,
+                        widget
+                    )
+
+                is SpinnerParameterWidgetEStruct ->
+                    toWidgetItemE(
+                        widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                        widget.baseParameterWidgetEStruct.labelCode,
+                        widget
+                    )
+
 
                 else -> null
             }
@@ -338,6 +359,9 @@ class DataFactory {
             ParameterWidgetCode.PWCE_SWITCH_V3.number.toInt() ->
                 SwitchItemV3(resultLabel[0], widget)
 
+            ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt() -> {
+                SpinnerItemV3(resultLabel[0], widget)
+            }
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }
     }

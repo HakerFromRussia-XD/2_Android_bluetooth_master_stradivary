@@ -52,11 +52,11 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> {
-                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
+                    main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
                     platformLog("ButtonsDelegateAdapterV3", "subcommand: $subcommand")
                 }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }
@@ -66,11 +66,11 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> {
-                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
+                    main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
                     platformLog("ButtonsDelegateAdapterV3", "subcommand: $subcommand")
                 }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }
@@ -80,10 +80,10 @@ class ButtonsDelegateAdapterV3(
 
             when (event.action){
                 MotionEvent.ACTION_DOWN -> {
-                    main.bleCommandWithQueue( BLECommandsV3.sendCommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
+                    main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(subcommand!!, 0), SERIALPORTCHAR_UUID, WRITE){}
                     platformLog("ButtonsDelegateAdapterV3", "subcommand: $subcommand")}
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendCommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
+                MotionEvent.ACTION_CANCEL -> { main.bleCommandWithQueue( BLECommandsV3.sendSubcommand(0, 0), SERIALPORTCHAR_UUID, WRITE){} }
             }
             true
         }

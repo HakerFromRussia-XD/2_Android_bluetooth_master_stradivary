@@ -41,22 +41,25 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupeFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.gestureInfoFlowV3
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
-import com.bailout.stickk.ubi4.models.ble.EMGChangeGestureV3
+import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
-import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -140,8 +143,15 @@ class BLEParserV3(
                 val subcommand = payload[0]
                 platformLog("[parseReceivedData]", "subcommand = $subcommand")
                 when(subcommand) {
+                    PWCE_SET_EMG_MOVEMENT_LOCK.number -> {
+                        val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(parseEMGChangeGesture)
+                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
+                    }
                     PWCE_GET_EMG_CHANGE_GESTURE.number -> {
-                        val parseEMGChangeGesture = parseEMGChangeGestureZeroAlloc(receivePacket.payload)
+                        val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
                         val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
                         parameter.data = json.encodeToString(parseEMGChangeGesture)
@@ -191,6 +201,18 @@ class BLEParserV3(
                         coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
                         platformLog("[parseReceivedData]", "thresholds: $thresholds")
 //                        platformLog("sendThresholds", "приём ответа команды")
+                    }
+                }
+            }
+            GUI_CONTROL.number.toInt() -> {
+                val subcommand = payload[0]
+                when(subcommand) {
+                    GMCE_GET_SCREEN_TIMEOUT.number -> {
+                        val screenTimeout = parseToggleZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(screenTimeout)
+                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
                     }
                 }
             }
@@ -341,13 +363,13 @@ class BLEParserV3(
             closeGain = closeGain
         )
     }
-    private fun parseEMGChangeGestureZeroAlloc(payload: ByteArrayView?): EMGChangeGestureV3 {
+    private fun parseToggleZeroAlloc(payload: ByteArrayView?): ToggleV3 {
         // парсинг PWCE_GET_CURRENT_GESTURE_NUM
-        if (payload == null || payload.length < 17) { return EMGChangeGestureV3() }
+        if (payload == null || payload.length < 17) { return ToggleV3() }
         val subcommand = payload.u8(0)
 
-        return EMGChangeGestureV3(
-            changeGesture = payload.u8(1)
+        return ToggleV3(
+            toggleValue = payload.u8(1)
         )
     }
     private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
@@ -517,9 +539,48 @@ class BLEParserV3(
                 )
             )
                 ,"Переключение жестов сенсорами"
-            ))
+            )))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetPosition = 2,
+            widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+            widgetId = 9,
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE))
         )
-
+            ,"Тест spinbox"
+        ))
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetPosition = 3,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                widgetId = 10,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
+                )
+            )
+                ,"Время работы экрана"
+            )))
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetPosition = 4,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                widgetId = 11,
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
+                )
+            )
+                ,"Блокировка движения с ЕМГ"
+            )))
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -596,7 +657,8 @@ class BLEParserV3(
                         val plotParameterWidgetSStruct = PlotParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
-                    PWCE_SPINBOX.number.toInt() -> {
+                    PWCE_SPINBOX.number.toInt(),
+                    PWCE_SPINBOX_V3.number.toInt()-> {
                         val spinnerParameterWidgetSStruct = SpinnerParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(spinnerParameterWidgetSStruct, spinnerParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }
@@ -763,6 +825,7 @@ class BLEParserV3(
         is SliderParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
         is ToggleSliderParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
         is SwitchParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        is SpinnerParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct
 
         is BaseParameterWidgetSStruct -> this.baseParameterWidgetStruct
         is CommandParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
@@ -771,7 +834,7 @@ class BLEParserV3(
         is ToggleSliderParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
         is ThresholdParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
         is SwitchParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
-
+        is SpinnerParameterWidgetSStruct -> this.baseParameterWidgetSStruct.baseParameterWidgetStruct
         else -> null
     }
     private fun String.substringSafe(startIndex: Int, endIndex: Int): String {

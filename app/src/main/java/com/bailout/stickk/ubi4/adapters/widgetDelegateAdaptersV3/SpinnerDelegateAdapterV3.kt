@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters
+package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
 import android.app.Dialog
 import android.content.Context
@@ -16,12 +16,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
+import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding.inflate
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlow
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
+import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import io.reactivex.disposables.CompositeDisposable
@@ -36,10 +38,10 @@ import online.devliving.passcodeview.PasscodeView
 import java.lang.ref.WeakReference
 import java.util.Collections
 
-class SpinnerDelegateAdapter(
+class SpinnerDelegateAdapterV3 (
     private val onSpinnerItemSelected: (addressDevice: Int, parameterID: Int, newIndex: Int) -> Unit,
     private val onDestroyParent: (onDestroyParent: () -> Unit) -> Unit
-) : ViewBindingDelegateAdapter<SpinnerItem, Ubi4WidgetSpinnerBinding>(
+) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
 ) {
 
@@ -57,7 +59,7 @@ class SpinnerDelegateAdapter(
 
     private val PREFS_NAME = "APP_PREFERENCES"
 
-    override fun Ubi4WidgetSpinnerBinding.onBind(item: SpinnerItem) {
+    override fun Ubi4WidgetSpinnerBinding.onBind(item: SpinnerItemV3) {
         onDestroyParent { onDestroy() }
 
         // закрыть любые открытые попапы, чтобы не висели поверх при ребайнде
@@ -255,8 +257,8 @@ class SpinnerDelegateAdapter(
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    override fun isForViewType(item: Any): Boolean = item is SpinnerItem
-    override fun SpinnerItem.getItemId(): Any = title
+    override fun isForViewType(item: Any): Boolean = item is SpinnerItemV3
+    override fun SpinnerItemV3.getItemId(): Any = title
 
     fun onDestroy() {
         spinnerInfoList.forEach { it.spinner.dismiss() }

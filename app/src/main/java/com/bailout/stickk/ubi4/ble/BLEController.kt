@@ -28,6 +28,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestWithCommand
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
@@ -48,6 +49,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -697,6 +700,14 @@ class BLEController(private val bleManager: BleManagerKmm) {
                         WRITE){}
                     main.bleCommandWithQueue(
                         request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_SCREEN_TIMEOUT.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
                         SERIALPORTCHAR_UUID,
                         WRITE){}
                 }

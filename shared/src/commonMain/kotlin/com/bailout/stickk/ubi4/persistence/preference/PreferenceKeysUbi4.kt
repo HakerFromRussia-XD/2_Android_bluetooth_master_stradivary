@@ -187,6 +187,12 @@ object PreferenceKeysUbi4 {
         "custom_name" to WidgetLabel("Кастомное имя")
     )
 
+    val unitCodesRu: Map<Int, String > = mapOf(
+        1 to "сек"
+    )
+
+
+
     val parameterWidgetLabelEn: Map<String, WidgetLabel> = mapOf(
         "0" to WidgetLabel("Unknown"),
         "1" to WidgetLabel("Open"),

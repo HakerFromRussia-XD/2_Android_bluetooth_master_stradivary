@@ -437,8 +437,8 @@ class ToggleSliderDelegateAdapterV3(
             .coerceAtLeast(0)
             .coerceAtMost(127)
 
-//        val enabled = info.responseReceived.get() && range > 0 && unpackEnabled(packed)
-        val enabled = true
+        val enabled = info.responseReceived.get() && range > 0 && unpackEnabled(packed)
+//        val enabled = true
 
         // SeekBar
         val trackRes = if (enabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled

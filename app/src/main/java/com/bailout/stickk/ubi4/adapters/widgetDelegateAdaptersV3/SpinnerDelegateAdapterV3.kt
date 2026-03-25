@@ -7,7 +7,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
@@ -18,6 +21,7 @@ import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
@@ -33,7 +37,6 @@ import java.lang.ref.WeakReference
 import java.util.Collections
 
 class SpinnerDelegateAdapterV3 (
-    private val onSpinnerItemSelected: (newIndex: Int) -> Unit,
     private val onDestroyParent: (onDestroyParent: () -> Unit) -> Unit
 ) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
@@ -80,10 +83,10 @@ class SpinnerDelegateAdapterV3 (
         }
 
 
-        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, newItem ->
+        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
             // закрываем попап сразу
             spinnerPsv.dismiss()
-            onSpinnerItemSelected(newIndex)
+            sendValue(info, newIndex)
         }
 
 
@@ -102,16 +105,10 @@ class SpinnerDelegateAdapterV3 (
     private fun spinnerCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            sliderFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
+            spinnerFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
         }
     }
 
-    private fun parseSpinnerSafely(data: String): SpinnerV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<SpinnerV3>(data) }
-            .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
-            .getOrNull()
-    }
 
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
@@ -130,9 +127,19 @@ class SpinnerDelegateAdapterV3 (
 
     }
 
+    private fun sendValue(info: WidgetSpinnerInfo, value: Int) {
+        platformLog("SpinnerDelegateAdapterV3", "sendValue info = $info  value = $value")
+        main.bleCommandWithQueue(BLECommandsV3.sendCommand(info.parameterInfoSet.elementAt(0).parameterID, info.parameterInfoSet.elementAt(0).dataCode, value), SERIALPORTCHAR_UUID, WRITE){}
+    }
+
+    private fun parseSpinnerSafely(data: String): SpinnerV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<SpinnerV3>(data) }
+            .onFailure { platformLog("SpinnerDelegateAdapterV3", "Failed to decode SpinnerV3: ${it.message}") }
+            .getOrNull()
+    }
     override fun isForViewType(item: Any): Boolean = item is SpinnerItemV3
     override fun SpinnerItemV3.getItemId(): Any = title
-
     fun onDestroy() {
         spinnerInfoList.forEach { it.spinner.dismiss() }
         spinnerInfoList.clear()

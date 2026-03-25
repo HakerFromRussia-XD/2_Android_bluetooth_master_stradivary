@@ -246,7 +246,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SpinnerDelegateAdapterV3(
-                onSpinnerItemSelected = { newIndex -> Log.d("SpinnerDelegateV3", "Selected index $newIndex") },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             ToggleSliderDelegateAdapter(

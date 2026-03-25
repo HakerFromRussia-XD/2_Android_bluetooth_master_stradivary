@@ -56,8 +56,7 @@ class ToggleSliderDelegateAdapterV3(
 
     private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var widgetSlidersInfo: ArrayList<WidgetToggleSliderInfo> = ArrayList()
-    private var indexWidgetSlidersArray = intArrayOf()
+    private var widgetInfoList: ArrayList<WidgetToggleSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
     private var isAttached = false
     private var collectJob: kotlinx.coroutines.Job? = null
@@ -97,11 +96,11 @@ class ToggleSliderDelegateAdapterV3(
             parameterInfo = parameterInfo,
             minProgress = minProgress,
             maxProgress = maxProgress,
-            range = (if (maxProgress == minProgress) 100 else maxProgress - minProgress).coerceIn(0, 127),
             unitLabel = unitLabel,
             increment = increment,
             enabled = false,
             progress = 0,
+            range = (if (maxProgress == minProgress) 100 else maxProgress - minProgress).coerceIn(0, 127),
             widgetSlidersSb = toggleSliderSb,
             toggleMinusBtnRipple1Btn = toggleMinusRipple1Btn,
             togglePlusBtnRipple1Btn = togglePlusRipple1Btn,
@@ -113,11 +112,10 @@ class ToggleSliderDelegateAdapterV3(
             turnOffBtnIv = arrayListOf(toggleTurnOffBtnIv1, toggleTurnOffBtnIv2),
         )
         currentSliderInfo.instanceId = sliderInfoCounter++
+        widgetInfoList.add(currentSliderInfo)
 
-        widgetSlidersInfo.add(currentSliderInfo)
 
-
-        indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
+//        indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
         sliderCollect()
 
 
@@ -128,17 +126,19 @@ class ToggleSliderDelegateAdapterV3(
         toggleSliderUnit2Tv.visibility = View.GONE
 
         // первичная синхронизация текста с текущим progress
-        indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            val info = widgetSlidersInfo[indexWidgetSlider]
-            val useInfinity0 = isInfinityLabel(info)
+        platformLog("indexWidgetSlidersArray", "==============================")
+        platformLog("indexWidgetSlidersArray", "widgetInfoList $widgetInfoList")
+        widgetInfoList.forEach { widgetInfo ->
+//            val widgetInfo = widgetInfoList[indexWidgetSlider]
+            val useInfinity0 = isInfinityLabel(widgetInfo)
             toggleSliderNumTv.text = formatValueForUi(
                 toggleSliderSb.progress,
-                info.minProgress,
+                widgetInfo.minProgress,
                 currentSliderInfo.range,
                 useInfinity0,
-                info.increment
+                widgetInfo.increment
             )
-            toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
+            toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " "+ widgetInfo.unitLabel
 
             // seekbar 1
             toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -147,65 +147,50 @@ class ToggleSliderDelegateAdapterV3(
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    val info = widgetSlidersInfo[indexWidgetSlider]
-                    val useInfinity = isInfinityLabel(info)
+//                    val widgetInfo = widgetInfoList[indexWidgetSlider]
+                    val useInfinity = isInfinityLabel(widgetInfo)
                     toggleSliderNumTv.text = formatValueForUi(
                         progress,
-                        info.minProgress,
+                        widgetInfo.minProgress,
                         currentSliderInfo.range,
                         useInfinity,
-                        info.increment
+                        widgetInfo.increment
                     )
-                    toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
+                    toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " "+ widgetInfo.unitLabel
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
                     val progress = seekBar.progress.coerceIn(0, 127)
-                    info.progress = progress + info.minProgress
-                    setParameterData(info)
-                    debounceSend(info)
-                    setUI(info.parameterInfo, false)
+                    widgetInfo.progress = progress + widgetInfo.minProgress
+                    setParameterData(widgetInfo)
+                    debounceSend(widgetInfo)
+                    setUI(widgetInfo.parameterInfo, false)
                 }
             })
 
             // +/-
             toggleMinusRipple1Btn.setOnClickListener {
-                info.progress = (info.progress - 1).coerceIn(0, 127)
-                setParameterData(info)
-                debounceSend(info)
-                setUI(info.parameterInfo, false)
+                widgetInfo.progress = (widgetInfo.progress - 1).coerceIn(0, 127)
+                setParameterData(widgetInfo)
+                debounceSend(widgetInfo)
+                setUI(widgetInfo.parameterInfo, false)
             }
             togglePlusRipple1Btn.setOnClickListener {
-                info.progress = (info.progress + 1).coerceIn(0, 127)
-                setParameterData(info)
-                debounceSend(info)
-                setUI(info.parameterInfo, false)
+                widgetInfo.progress = (widgetInfo.progress + 1).coerceIn(0, 127)
+                setParameterData(widgetInfo)
+                debounceSend(widgetInfo)
+                setUI(widgetInfo.parameterInfo, false)
             }
             toggleTurnOffRipple1Btn.setOnClickListener {
-                info.enabled = !info.enabled
-                setParameterData(info)
-                debounceSend(info)
-                setUI(info.parameterInfo)
+                widgetInfo.enabled = !widgetInfo.enabled
+                setParameterData(widgetInfo)
+                debounceSend(widgetInfo)
+                setUI(widgetInfo.parameterInfo)
             }
         }
     }
-
-    private fun setParameterData(info: WidgetToggleSliderInfo){
-        val parameter = ParameterProvider.getParameterV3(info.parameterInfo)
-        val toggleV3 = ToggleV3()
-        toggleV3.toggleValue = pack(info.progress, info.enabled)
-        parameter.data = json.encodeToString(toggleV3)
-    }
-    private fun parseToggleSafely(data: String): ToggleV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<ToggleV3>(data) }
-            .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
-            .getOrNull()
-    }
-
-
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
@@ -214,14 +199,11 @@ class ToggleSliderDelegateAdapterV3(
             }
         }
     }
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>, withAnimation: Boolean = true) {
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        platformLog("ToggleSliderDelegateAdapterV3 setUI", "parameter = $parameter")
-        val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
 
-        indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            val info = widgetSlidersInfo.getOrNull(indexWidgetSlider) ?: return@forEach
-            val seekBar = info.widgetSlidersSb as? SeekBar ?: return@forEach
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>, withAnimation: Boolean = true) {
+        widgetInfoList.forEach { infoWidget ->
+            val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
+            val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return@forEach
             var valueForChangeToggle = 0
             val subcommand = parameterInfo.dataCode
             when (subcommand) {
@@ -237,40 +219,40 @@ class ToggleSliderDelegateAdapterV3(
                 }
             }
             try {
-                info.responseReceived.set(true)
+                infoWidget.responseReceived.set(true)
 
                 val oldProgress = seekBar.progress
 
                 val enabled = unpackEnabled(valueForChangeToggle)
                 val progress = unpackValue(valueForChangeToggle).coerceIn(0, 127)
-                val uiProgress = (progress - info.minProgress).coerceIn(0, info.range)
+                val uiProgress = (progress - infoWidget.minProgress).coerceIn(0, infoWidget.range)
 
-                info.enabled = enabled
-                info.progress = progress
+                infoWidget.enabled = enabled
+                infoWidget.progress = progress
 
                 if (withAnimation) { animateProgressBar(seekBar, oldProgress, uiProgress) }
                 else { seekBar.progress = uiProgress }
 
-                val useInfinity = isInfinityLabel(info)
-                info.toggleSliderNumTv.text = formatValueForUi(
+                val useInfinity = isInfinityLabel(infoWidget)
+                infoWidget.toggleSliderNumTv.text = formatValueForUi(
                     progress = uiProgress,
-                    min = info.minProgress,
-                    range = info.range,
+                    min = infoWidget.minProgress,
+                    range = infoWidget.range,
                     useInfinity = useInfinity,
-                    increment = info.increment
+                    increment = infoWidget.increment
                 )
-                info.toggleSliderUnitTv.text = if (info.unitLabel.isEmpty()) "" else " "+ info.unitLabel
+                infoWidget.toggleSliderUnitTv.text = if (infoWidget.unitLabel.isEmpty()) "" else " "+ infoWidget.unitLabel
 
-                applyToggleVisuals(info)
+                applyToggleVisuals(infoWidget)
             } catch (e: Exception) {
                 Log.e("ToggleSliderV3", "setUI error: ${e.message}", e)
             } finally {
-                info.loadingAnimators?.cancel()
+                infoWidget.loadingAnimators?.cancel()
             }
         }
     }
-    // в зависимости от enable деактивирует или активирует виджет (визуально)
     private fun applyToggleVisuals(info: WidgetToggleSliderInfo) {
+        // в зависимости от enable деактивирует или активирует виджет (визуально)
         val sb = info.widgetSlidersSb as SeekBar
         val togglePlusBtnRipple1Btn = info.togglePlusBtnRipple1Btn
         val toggleMinusBtnRipple1Btn = info.toggleMinusBtnRipple1Btn
@@ -302,7 +284,6 @@ class ToggleSliderDelegateAdapterV3(
         )
     }
 
-    // работает при нажатии на + и -
     private fun debounceSend(info: WidgetToggleSliderInfo) {
         info.timer?.cancel()
         info.timer = object : CountDownTimer(PENDING_WINDOW_MS, 1) {
@@ -312,6 +293,10 @@ class ToggleSliderDelegateAdapterV3(
                 sendProgress(info.parameterInfo.parameterID, info.parameterInfo.dataCode, pack(info.progress, info.enabled))
             }
         }.start()
+    }
+    private fun sendProgress(command: Int, subcommand: Int, progress: Int){
+        platformLog("sendProgress", "subcommand = $subcommand   progress = $progress")
+        main.bleCommandWithQueue(BLECommandsV3.sendCommand(command, subcommand, progress), SERIALPORTCHAR_UUID, WRITE){}
     }
 
     fun onDestroy() {
@@ -363,15 +348,6 @@ class ToggleSliderDelegateAdapterV3(
 
         return String.format(Locale.US, pattern, result)
     }
-    private fun getIndexWidgetSlider(subcommand: Int): IntArray  {
-        // выдаёт массив индексов widgetSlidersInfo, dataCode которых соответствует subcommand
-        // это индексы тех виджетов в которых есть соответствующий subcommand параметр
-        val indices = widgetSlidersInfo.mapIndexedNotNull { index, item ->
-            if (item.parameterInfo.dataCode == subcommand) { index }
-            else { null }
-        }.toIntArray()
-        return indices
-    }
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
         if (from == to) return
 
@@ -388,10 +364,17 @@ class ToggleSliderDelegateAdapterV3(
             start()
         }
     }
-
-    private fun sendProgress(command: Int, subcommand: Int, progress: Int){
-        platformLog("sendProgress", "subcommand = $subcommand   progress = $progress")
-        main.bleCommandWithQueue(BLECommandsV3.sendCommand(command, subcommand, progress), SERIALPORTCHAR_UUID, WRITE){}
+    private fun setParameterData(info: WidgetToggleSliderInfo){
+        val parameter = ParameterProvider.getParameterV3(info.parameterInfo)
+        val toggleV3 = ToggleV3()
+        toggleV3.toggleValue = pack(info.progress, info.enabled)
+        parameter.data = json.encodeToString(toggleV3)
+    }
+    private fun parseToggleSafely(data: String): ToggleV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<ToggleV3>(data) }
+            .onFailure { platformLog("ToggleSliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
+            .getOrNull()
     }
 }
 
@@ -399,11 +382,11 @@ data class WidgetToggleSliderInfo(
     var parameterInfo: ParameterInfo<Int, Int, Int, Int> = ParameterInfo(0, 0, 0, 0),
     var minProgress: Int = 0,
     var maxProgress: Int = 0,
-    var range: Int = 0,
     var unitLabel: String = "",
     var increment: Float = 1.0f,
     var enabled: Boolean = false,
     var progress: Int = 0,
+    var range: Int = 0,
     var widgetSlidersSb: ProgressBar,
     var toggleMinusBtnRipple1Btn: View,
     var togglePlusBtnRipple1Btn: View,

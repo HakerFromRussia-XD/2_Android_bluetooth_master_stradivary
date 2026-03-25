@@ -154,7 +154,7 @@ class BLEParserV3(
                         parameter.data = json.encodeToString(handControl)
                         coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
                     }
-                    PWCE_SET_EMG_MOVEMENT_LOCK.number -> {
+                    PWCE_GET_EMG_MOVEMENT_LOCK.number -> {
                         val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
                         val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK)
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
@@ -232,10 +232,8 @@ class BLEParserV3(
                         parameter.data = json.encodeToString(handSide)
                         coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
                     }
-
                 }
             }
-
         }
         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
         platformLog(
@@ -589,7 +587,7 @@ class BLEParserV3(
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
             widgetId = 9,
             parameterInfoSet = mutableSetOf(
-                ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
+                ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
             )
         )
             ,"Сторона руки"

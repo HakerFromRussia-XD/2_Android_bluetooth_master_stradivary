@@ -33,6 +33,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
+import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestWithCommand
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
@@ -61,6 +63,12 @@ import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.Flag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
@@ -240,14 +248,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                BLECommandsV3.requestGestureInfo(64),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
-            bleManager.sendBytesKmm(
-                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
-                SERIALPORTCHAR_UUID,
-                WRITE){}
-
-
 //            bleManager.sendBytesKmm(
-//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number),
+//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+
+
+//            main.bleCommandWithQueue(
+//                request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()),
 //                SERIALPORTCHAR_UUID,
 //                WRITE){}
 //            platformLog("BLEParserV3", "runCommandBtn")
@@ -280,6 +288,26 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                SERIALPORTCHAR_UUID,
 //                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
 //            runBlockingDemo()
+
+            main.bleCommandWithQueue(
+                requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
+                SERIALPORTCHAR_UUID,
+                WRITE){}
+//            main.bleCommandWithQueue(
+//                request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+//            main.bleCommandWithQueue(
+//                requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_SCREEN_TIMEOUT.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+//            main.bleCommandWithQueue(
+//                request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
+//                SERIALPORTCHAR_UUID,
+//                WRITE){}
+
             platformLog("BLEParserV3", "runCommandBtn")
         }
 

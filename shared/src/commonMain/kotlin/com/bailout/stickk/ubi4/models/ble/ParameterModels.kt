@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.models.ble
 
-import com.bailout.stickk.ubi4.data.local.RotationGroupSerializer
 import kotlinx.serialization.Serializable
 
 
@@ -102,6 +101,10 @@ data class RotationGroupV3 (
     }
 }
 @Serializable
-data class EMGChangeGestureV3(
-    var changeGesture: Int = 0
+data class ToggleV3(
+    var toggleValue: Int = 0
+)
+@Serializable
+data class SpinnerV3(
+    var spinnerValue: Int = 0
 )

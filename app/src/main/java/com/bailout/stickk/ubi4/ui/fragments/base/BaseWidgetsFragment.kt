@@ -18,7 +18,6 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
@@ -31,6 +30,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegate
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SwitcherDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ToggleSliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -243,6 +243,10 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onSpinnerItemSelected = { addressDevice, parameterID, newIndex ->
                     Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")
                 },
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            SpinnerDelegateAdapterV3(
+                onSpinnerItemSelected = { newIndex -> Log.d("SpinnerDelegateV3", "Selected index $newIndex") },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             ToggleSliderDelegateAdapter(
@@ -477,7 +481,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     open fun sendBLEActiveGestureV3(activeGesture: Int) {
         platformLog("sendBLEActiveGestureV3", "послали жест $activeGesture")
         if (!isAdded) { return }
-        transmitter().bleCommandWithQueue(BLECommandsV3.sendCommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), activeGesture), SERIALPORTCHAR_UUID, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), activeGesture), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}

@@ -3,14 +3,19 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import kotlin.native.ObjCName
@@ -163,7 +168,8 @@ object PreferenceKeysUbi4 {
         PWCE_SLIDER_V3                      (0x15),
         PWCE_PLOT_V3                        (0x16),
         PWCE_TOGGLE_SLIDER_V3               (0x17),
-        PWCE_GESTURES_WINDOW_V3            (0x18)
+        PWCE_GESTURES_WINDOW_V3             (0x18),
+        PWCE_SPINBOX_V3                      (0x19)
     }
 
 
@@ -189,6 +195,12 @@ object PreferenceKeysUbi4 {
         "18" to WidgetLabel("Блокировка движения с датчиков", " сек"),
         "custom_name" to WidgetLabel("Кастомное имя")
     )
+
+    val unitCodesRu: Map<Int, String > = mapOf(
+        1 to "сек"
+    )
+
+
 
     val parameterWidgetLabelEn: Map<String, WidgetLabel> = mapOf(
         "0" to WidgetLabel("Unknown"),
@@ -683,9 +695,8 @@ object PreferenceKeysUbi4 {
         PWCE_SET_HAND_CONTROL_MODE        (0x3B), // моды управления рукой (туда хотим добавить мод при котором сразу при обратном пересечении порога управляющим сигналом управление отдаётся другому сигналу - спорт режим)
         PWCE_GET_HAND_CONTROL_MODE        (0x3C),
 
-
-
-        PWCE_TEST_SWITCHER                  (0XFF.toByte())
+        PWCE_TEST_SWITCHER                  (0XFF.toByte()),
+//        PWCE_TEST_SPINBOX                   (0XFE.toByte())
     }
 
     enum class guiModuleControlEnum(val number: Byte)
@@ -701,7 +712,10 @@ object PreferenceKeysUbi4 {
         GMCE_SET_GUI_SETTINGS           (0x09),
         GMCE_SET_INIT_INFORMATION       (0x0a),
         GMCE_SET_DATE_TIME              (0x0b),
-        GMCE_SET_MOVEMENT_BLOCK_DATA    (0x0c)
+        GMCE_SET_MOVEMENT_BLOCK_DATA    (0x0c),
+        GMCE_GET_SCREEN_TIMEOUT         (0x0d),
+        GMCE_SET_LEFT_RIGHT_HAND        (0x0e),
+        GMCE_GET_LEFT_RIGHT_HAND        (0x0f),
     }
 
 
@@ -724,6 +738,10 @@ object PreferenceKeysUbi4 {
             P_KEY_EMG_CHANGE_GESTURE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),
             P_KEY_TEST_SWITCHER to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
             P_KEY_START_CALIBRATE_COMMAND to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_START_CALIBRATE_COMMAND.number.toInt(), 1, 0),
+            P_KEY_HAND_CONTROL_MODE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
+            P_KEY_SCREEN_TIMEOUT to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
+            P_KEY_EMG_MOVEMENT_LOCK to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
+            P_KEY_LEFT_RIGHT_HAND to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

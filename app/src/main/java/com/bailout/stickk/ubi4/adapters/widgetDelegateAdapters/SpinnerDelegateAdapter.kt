@@ -52,7 +52,7 @@ class SpinnerDelegateAdapter(
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
 
-    // TODO: возьми реальный PIN (если он у тебя хранится где-то в UBI4)
+    // TODO: возьми реальный PIN
     private val SECRET_PIN = "1234"
 
     private val PREFS_NAME = "APP_PREFERENCES"
@@ -90,14 +90,14 @@ class SpinnerDelegateAdapter(
         val addressDevice = addressDeviceList.firstOrNull() ?: 0
         val parameterID = parameterIDList.firstOrNull() ?: 0
 
-        val prefs = psvGesturesSpinner.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = spinnerPsv.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedIndex = prefs.getInt(roleSelectedKey(addressDevice, parameterID), selectedIndexFromWidget)
             .coerceIn(roleItems.indices)
 
         spinnerTv.text = item.title
 
-        psvGesturesSpinner.setItems(roleItems)
-        psvGesturesSpinner.apply {
+        spinnerPsv.setItems(roleItems)
+        spinnerPsv.apply {
             setTextColor(ContextCompat.getColor(context, R.color.white))
             textSize = 12f
             typeface = ResourcesCompat.getFont(context, R.font.sf_pro_display_light)
@@ -105,35 +105,35 @@ class SpinnerDelegateAdapter(
         }
 
         // стартовое состояние — из prefs (если есть), иначе из структуры
-        psvGesturesSpinner.selectItemByIndex(savedIndex)
+        spinnerPsv.selectItemByIndex(savedIndex)
 
         val info = WidgetSpinnerInfo(
             addressDevice = addressDevice,
             parameterID = parameterID,
-            spinner = psvGesturesSpinner,
+            spinner = spinnerPsv,
             items = roleItems
         )
 
         spinnerInfoList.add(info)
-        registerSpinner(psvGesturesSpinner)
+        registerSpinner(spinnerPsv)
 
-        psvGesturesSpinner.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, newItem ->
+        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, newItem ->
             Log.d("SpinnerDelegateAdapter", "Select '$newItem' index=$newIndex addr=$addressDevice pid=$parameterID")
 
             // закрываем попап сразу
-            psvGesturesSpinner.dismiss()
+            spinnerPsv.dismiss()
 
             if (newIndex == serviceEngineerIndex) {
                 // Всегда требуем PIN для "Сервисный инженер"
                 showPinCodeDialog(
-                    context = psvGesturesSpinner.context,
+                    context = spinnerPsv.context,
                     onSuccess = {
                         persistSelectedIndex(prefs, addressDevice, parameterID, newIndex)
                         onSpinnerItemSelected(addressDevice, parameterID, newIndex)
                     },
                     onCancelOrFail = {
                         // откат на "Протезист"
-                        psvGesturesSpinner.selectItemByIndex(prosthetistIndex)
+                        spinnerPsv.selectItemByIndex(prosthetistIndex)
                         persistSelectedIndex(prefs, addressDevice, parameterID, prosthetistIndex)
                         onSpinnerItemSelected(addressDevice, parameterID, prosthetistIndex)
                     }
@@ -153,7 +153,7 @@ class SpinnerDelegateAdapter(
         root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) = Unit
             override fun onViewDetachedFromWindow(v: View) {
-                psvGesturesSpinner.dismiss()
+                spinnerPsv.dismiss()
             }
         })
     }

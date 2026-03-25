@@ -22,9 +22,10 @@ import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.EMGChangeGestureV3
+import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
@@ -193,13 +194,13 @@ class ToggleSliderDelegateAdapterV3(
 
     private fun setParameterData(info: WidgetToggleSliderInfo){
         val parameter = ParameterProvider.getParameterV3(info.parameterInfo)
-        val emgChangeGestureV3 = EMGChangeGestureV3()
-        emgChangeGestureV3.changeGesture = pack(info.progress, info.enabled)
-        parameter.data = json.encodeToString(emgChangeGestureV3)
+        val toggleV3 = ToggleV3()
+        toggleV3.toggleValue = pack(info.progress, info.enabled)
+        parameter.data = json.encodeToString(toggleV3)
     }
-    private fun parseEMGChangeGestureSafely(data: String): EMGChangeGestureV3? {
+    private fun parseToggleSafely(data: String): ToggleV3? {
         if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<EMGChangeGestureV3>(data) }
+        return runCatching { json.decodeFromString<ToggleV3>(data) }
             .onFailure { platformLog("SliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
             .getOrNull()
     }
@@ -225,10 +226,15 @@ class ToggleSliderDelegateAdapterV3(
             val subcommand = parameterInfo.dataCode
             when (subcommand) {
                 PWCE_SET_EMG_CHANGE_GESTURE.number.toInt() -> {
-                    val parseEMGChangeGesture = parseEMGChangeGestureSafely(parameter.data) ?: EMGChangeGestureV3()
-                    valueForChangeToggle = parseEMGChangeGesture.changeGesture
+                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
                 }
-                PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt() -> {}
+                PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt() -> {
+                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
+                    platformLog("PWCE_SET_EMG_MOVEMENT_LOCK", "valueForChangeToggle $valueForChangeToggle")
+                }
+                GMCE_SET_SCREEN_TIMEOUT.number.toInt() -> {
+                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
+                }
             }
             try {
                 info.responseReceived.set(true)
@@ -303,7 +309,7 @@ class ToggleSliderDelegateAdapterV3(
             override fun onTick(millisUntilFinished: Long) = Unit
             override fun onFinish() {
                 if (!isAttached) return
-                sendProgress(info.parameterInfo.dataCode, pack(info.progress, info.enabled))
+                sendProgress(info.parameterInfo.parameterID, info.parameterInfo.dataCode, pack(info.progress, info.enabled))
             }
         }.start()
     }
@@ -383,9 +389,9 @@ class ToggleSliderDelegateAdapterV3(
         }
     }
 
-    private fun sendProgress(subcommand: Int, progress: Int){
+    private fun sendProgress(command: Int, subcommand: Int, progress: Int){
         platformLog("sendProgress", "subcommand = $subcommand   progress = $progress")
-        main.bleCommandWithQueue(BLECommandsV3.sendCommand(subcommand, progress), SERIALPORTCHAR_UUID, WRITE){}
+        main.bleCommandWithQueue(BLECommandsV3.sendCommand(command, subcommand, progress), SERIALPORTCHAR_UUID, WRITE){}
     }
 }
 

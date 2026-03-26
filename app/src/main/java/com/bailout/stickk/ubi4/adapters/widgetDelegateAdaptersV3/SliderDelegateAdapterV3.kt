@@ -183,8 +183,7 @@ class SliderDelegateAdapterV3(
         widgetInfoList.forEach { infoWidget ->
             val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             platformLog("SliderDelegateAdapterV3", "setUI parameter.data: ${parameter.data}   parameterInfo: ${infoWidget.parameterInfo}")
-            val subcommand = infoWidget.parameterInfo.dataCode
-            when (subcommand) {
+            when (val subcommand = infoWidget.parameterInfo.dataCode) {
                 ProsthesisModuleControlEnum.PWCE_SET_EMG_GAIN_VALUE.number.toInt() -> {
                     val oldProgress = infoWidget.widgetSlidersSb.progress
                     val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
@@ -204,6 +203,10 @@ class SliderDelegateAdapterV3(
                             emgGainResult.closeGain - infoWidget.minProgress
                         )
                     }
+                }
+                else -> {
+                    main.showToast("В SliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                    platformLog("SliderDelegateAdapterV3", "В SliderDelegateAdapterV3 парсим неправильную сабкоманду ${infoWidget.parameterInfo}")
                 }
             }
         }

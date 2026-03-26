@@ -236,7 +236,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SwitcherDelegateAdapterV3(
-                onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SpinnerDelegateAdapter(

@@ -17,7 +17,8 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -32,7 +33,6 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SwitcherDelegateAdapterV3(
-    val onClearCache: (onClearCache: (() -> Unit)) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : ViewBindingDelegateAdapter<SwitchItemV3, Ubi4WidgetSwitcherBinding>(
     Ubi4WidgetSwitcherBinding::inflate
@@ -40,7 +40,7 @@ class SwitcherDelegateAdapterV3(
 
     private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var widgetSwitchInfo: ArrayList<WidgetSwitchInfoV3> = ArrayList()
+    private var widgetInfoList: ArrayList<WidgetSwitchInfoV3> = ArrayList()
     private var switchInfoCounter = 0
     private var isAttached = false
 
@@ -52,7 +52,6 @@ class SwitcherDelegateAdapterV3(
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItemV3) {
         Log.d("SwitcherDelegateAdapterV3", "onBind RUN")
         onDestroyParent { onDestroy() }
-        onClearCache { clearCache() }
         isAttached = true
 
         indicatorOpticStreamIv.visibility = View.GONE
@@ -84,7 +83,7 @@ class SwitcherDelegateAdapterV3(
             keyMobileSettings = keyMobileSettings
         )
         currentSwitchInfo.instanceId = switchInfoCounter++
-        widgetSwitchInfo.add(currentSwitchInfo)
+        widgetInfoList.add(currentSwitchInfo)
 
         if (isMobileSetting) {
             val saved = main.getBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false)
@@ -137,16 +136,32 @@ class SwitcherDelegateAdapterV3(
                     delayMillis = 1000L,
                     scope = scope
                 )
-            } else {
-                setUI(currentParameterInfo)
-            }
+            } else { setUI() }
 
             switchCollect()
         }
     }
 
-    private fun clearCache() {
-        widgetSwitchInfo.clear()
+    private fun setUI() {
+        platformLog("SwitcherDelegateAdapterV3", "SwitcherDelegateAdapterV3")
+        widgetInfoList.forEach { widgetInfo ->
+            val parameter = ParameterProvider.getParameterV3(widgetInfo.parameterInfo)
+            val subcommand = widgetInfo.parameterInfo.dataCode
+            when (subcommand) {
+                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
+                    val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
+                    widgetInfo.isChecked = switcherV3.checked
+                    updateSwitchState(
+                        widgetInfo.isChecked,
+                        widgetInfo.widgetSwitch
+                    )
+                }
+                else -> {
+                    main.showToast("В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                    platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду ${widgetInfo.parameterInfo}")
+                }
+            }
+        }
     }
 
     private fun sendStateSwitcher(
@@ -156,11 +171,15 @@ class SwitcherDelegateAdapterV3(
         val subcommand = parameterInfo.dataCode
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
         when (subcommand) {
-            ProsthesisModuleControlEnum.PWCE_TEST_SWITCHER.number.toInt() -> {
+            GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
                 val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
                 switcherV3.checked = checked
                 parameter.data = json.encodeToString(switcherV3)
                 platformLog("sendSwitcher", "parameter.data: ${parameter.data}")
+            }
+            else -> {
+                main.showToast("В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $subcommand")
+                platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $parameterInfo")
             }
         }
         main.bleCommandWithQueue(
@@ -198,66 +217,25 @@ class SwitcherDelegateAdapterV3(
         if (collectJob?.isActive == true) return
 
         collectJob = scope.launch(Dispatchers.Main) {
-            try {
-                switcherFlowV3.collect { parameterInfo ->
-                    setUI(parameterInfo)
-                }
+            try { switcherFlowV3.collect { setUI() }
             } catch (e: Exception) {
                 Log.d("switchCollectTestV3", "${e.message}")
             }
         }
     }
-
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
-        // [new widgets V3] тут добавляем ветки расфасовки пришедших данных SwitcherDelegateAdapterV3 1
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-
-        val indexWidgetSwitchArray = getIndexWidgetSwitch(parameterInfo.parameterID)
-        indexWidgetSwitchArray.forEach { indexWidgetSwitch ->
-            val subcommand = parameterInfo.dataCode
-            when (subcommand) {
-                ProsthesisModuleControlEnum.PWCE_TEST_SWITCHER.number.toInt() -> {
-                    val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-                    widgetSwitchInfo[indexWidgetSwitch].isChecked = switcherV3.checked
-                    updateSwitchState(
-                        widgetSwitchInfo[indexWidgetSwitch].isChecked,
-                        widgetSwitchInfo[indexWidgetSwitch].widgetSwitch
-                    )
-                }
-                else -> {
-                    if (parameter.data.isNotEmpty()) {
-                        try {
-                            val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-                            widgetSwitchInfo[indexWidgetSwitch].isChecked = switcherV3.checked
-                            updateSwitchState(
-                                widgetSwitchInfo[indexWidgetSwitch].isChecked,
-                                widgetSwitchInfo[indexWidgetSwitch].widgetSwitch
-                            )
-                        } catch (e: Exception) {
-                            Log.d("switchCollectV3", "$e")
-                        } finally {
-                            widgetSwitchInfo[indexWidgetSwitch].responseReceived.set(true)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun parseTestResultSafely(data: String): SwitcherV3? {
         if (data.isBlank()) return null
         return runCatching { json.decodeFromString<SwitcherV3>(data) }
             .onFailure { platformLog("SwitcherDelegateAdapterV3", "Failed to decode TestToggleV3: ${it.message}") }
             .getOrNull()
     }
-
     private fun getIndexWidgetSwitch(parameterID: Int): IntArray {
         platformLog(
             "SwitcherDelegateAdapterV3",
-            "getIndexWidgetSwitch из ${widgetSwitchInfo.size}"
+            "getIndexWidgetSwitch из ${widgetInfoList.size}"
         )
 
-        return widgetSwitchInfo.mapIndexedNotNull { index, item ->
+        return widgetInfoList.mapIndexedNotNull { index, item ->
             if (item.parameterInfo.parameterID == parameterID) {
                 index
             } else {
@@ -265,10 +243,8 @@ class SwitcherDelegateAdapterV3(
             }
         }.toIntArray()
     }
-
     override fun isForViewType(item: Any): Boolean =
         item is SwitchItemV3 && item.widget is SwitchParameterWidgetSStruct
-
     override fun SwitchItemV3.getItemId(): Any = when (val w = widget) {
         is SwitchParameterWidgetSStruct -> {
             val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
@@ -278,7 +254,6 @@ class SwitcherDelegateAdapterV3(
         }
         else -> title
     }
-
     fun onDestroy() {
         Log.d("SwitcherDelegateAdapterV3", "onDestroy switch")
         isAttached = false

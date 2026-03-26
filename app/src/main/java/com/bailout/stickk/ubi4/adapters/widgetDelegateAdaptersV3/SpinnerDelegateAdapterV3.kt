@@ -109,18 +109,22 @@ class SpinnerDelegateAdapterV3 (
         }
     }
 
-
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
         val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue
-        spinnerInfoList.forEachIndexed { index, info ->
-            val subcommand = parameterInfo.dataCode
-            when (subcommand) {
+        spinnerInfoList.forEach { infoWidget ->
+            when (val subcommand = parameterInfo.dataCode) {
                 PWCE_SET_HAND_CONTROL_MODE.number.toInt() -> {
-                   info.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    infoWidget.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    platformLog("SpinnerDelegateAdapterV3", "принимаем PWCE_SET_HAND_CONTROL_MODE $spinnerValue")
                 }
                 GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-                    info.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    infoWidget.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    platformLog("SpinnerDelegateAdapterV3", "принимаем GMCE_SET_LEFT_RIGHT_HAND $spinnerValue")
+                }
+                else -> {
+                    main.showToast("В SpinnerDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                    platformLog("SpinnerDelegateAdapterV3", "В SpinnerDelegateAdapterV3 парсим неправильную сабкоманду ${infoWidget.parameterInfoSet.elementAt(0)}")
                 }
             }
         }

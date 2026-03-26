@@ -217,6 +217,9 @@ class ToggleSliderDelegateAdapterV3(
                 GMCE_SET_SCREEN_TIMEOUT.number.toInt() -> {
                     valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
                 }
+                else -> {
+                    main.showToast("В ToggleSliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                }
             }
             try {
                 infoWidget.responseReceived.set(true)

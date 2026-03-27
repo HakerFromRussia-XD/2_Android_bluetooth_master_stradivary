@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 
 class SpecialSettingsFragment : BaseWidgetsFragment() {
 
-    private lateinit var binding: Ubi4FragmentSpecialSettingsBinding
+    private var _binding: Ubi4FragmentSpecialSettingsBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private val mDataFactory: DataFactory = DataFactory()
     private val display = 2
     private var previousMobileSettings: Boolean? = null
@@ -39,7 +40,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = Ubi4FragmentSpecialSettingsBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentSpecialSettingsBinding.inflate(inflater, container, false)
 
         // Обработчики переключения режимов
         widgetListUpdater()
@@ -164,5 +165,9 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
 }

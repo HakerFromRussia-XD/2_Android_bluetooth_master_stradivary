@@ -55,7 +55,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 
 class SprTrainingFragment: BaseWidgetsFragment() {
-    private lateinit var binding: Ubi4FragmentSprTrainingBinding
+    private var _binding: Ubi4FragmentSprTrainingBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private lateinit var bleController: BLEController
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
@@ -75,7 +76,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     private val repo = Ubi4TrainingRepository(Ubi4RequestsApi())
 
-    private val prefs by lazy { requireContext().getSharedPreferences(PreferenceKeysUbi4.NAME, MODE_PRIVATE) }
+    private val prefs by lazy(LazyThreadSafetyMode.NONE) {
+        requireContext().applicationContext.getSharedPreferences(PreferenceKeysUbi4.NAME, MODE_PRIVATE)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -87,7 +90,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d("LagSpr", "onCreateView started")
-        binding = Ubi4FragmentSprTrainingBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentSprTrainingBinding.inflate(inflater, container, false)
         if (activity != null) {
             main = activity as MainActivityUBI4?
 
@@ -422,7 +425,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     }
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
 
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         //TODO РАЗОБРАТЬСЯ с parameterID, нам передается параметерID = 5!!!!
                         sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, addressDevice, 6)
                         sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, addressDevice, 6)
@@ -743,6 +746,14 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        closeCurrentDialog()
+        closeWarningDialog()
+        main = null
+        _binding = null
+        super.onDestroyView()
+    }
+
     companion object {
         fun newInstance(lastEmg8: String): SprTrainingFragment =
             SprTrainingFragment().apply {
@@ -754,6 +765,4 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     }
 
 }
-
-
 

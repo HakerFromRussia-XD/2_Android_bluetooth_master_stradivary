@@ -290,6 +290,12 @@ class SliderDelegateAdapterV3(
         isAttached = false
         timer?.cancel()
         timer = null
+        widgetInfoList.forEach { info ->
+            info.loadingAnimators?.cancel()
+            info.loadingAnimators = null
+        }
+        widgetInfoList.clear()
+        sliderInfoCounter = 0
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null

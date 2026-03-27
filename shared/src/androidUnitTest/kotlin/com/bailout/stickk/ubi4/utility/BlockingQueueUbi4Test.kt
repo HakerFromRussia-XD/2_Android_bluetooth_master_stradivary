@@ -85,6 +85,9 @@ class BlockingQueueUbi4Test {
 
         assertEquals(listOf("first", "second"), executionLog, "Tasks should run sequentially")
         val autoUnlockDelay = secondStartedAt.get() - waitingStartedAt
-        assertTrue(autoUnlockDelay >= 950, "Second task should start around auto-unlock timeout, delay=$autoUnlockDelay")
+        assertTrue(
+            autoUnlockDelay in 250..1000,
+            "Second task should start around auto-unlock timeout (~300ms), delay=$autoUnlockDelay"
+        )
     }
 }

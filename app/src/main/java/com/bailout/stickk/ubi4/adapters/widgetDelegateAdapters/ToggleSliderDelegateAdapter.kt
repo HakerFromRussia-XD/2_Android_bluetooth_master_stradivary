@@ -646,6 +646,12 @@ class ToggleSliderDelegateAdapter(
         isAttached = false
         timer?.cancel()
         timer = null
+        widgetSlidersInfo.forEach { info ->
+            info.loadingAnimators.forEach { animator -> animator?.cancel() }
+            info.loadingAnimators.clear()
+        }
+        widgetSlidersInfo.clear()
+        sliderInfoCounter = 0
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null

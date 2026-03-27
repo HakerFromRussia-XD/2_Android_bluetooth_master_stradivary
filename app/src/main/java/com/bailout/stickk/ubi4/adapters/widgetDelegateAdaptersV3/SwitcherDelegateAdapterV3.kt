@@ -257,6 +257,8 @@ class SwitcherDelegateAdapterV3(
     fun onDestroy() {
         Log.d("SwitcherDelegateAdapterV3", "onDestroy switch")
         isAttached = false
+        widgetInfoList.clear()
+        switchInfoCounter = 0
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null

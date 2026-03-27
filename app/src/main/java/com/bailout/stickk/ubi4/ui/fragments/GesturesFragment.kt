@@ -39,6 +39,7 @@ import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getC
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
@@ -47,16 +48,18 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("DEPRECATION")
 class GesturesFragment : BaseWidgetsFragment() {
-    private lateinit var binding: Ubi4FragmentHomeBinding
+    private var _binding: Ubi4FragmentHomeBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private val display = 0
     private var mSettings: SharedPreferences? = null
+    private val disposables = CompositeDisposable()
 
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         mSettings = context?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
         Log.d("LifeCycele", "onCreateView")
@@ -81,21 +84,33 @@ class GesturesFragment : BaseWidgetsFragment() {
             adapterWidgets.swapData(initialData)
         }
 
-        RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameters ->
-                Log.d("gestureStateWithEncodersObservable", "parameters = ${parameters.gesture.openPosition1}")
-                transmitter().bleCommandWithQueue(BLECommands.sendGestureInfo (parameters), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
-            }
-        RxUpdateMainEventUbi4.getInstance().readCharacteristicBLE
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameters ->
-                requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
-            }
+        disposables.add(
+            RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable
+                .compose(main?.bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { parameters ->
+                    Log.d("gestureStateWithEncodersObservable", "parameters = ${parameters.gesture.openPosition1}")
+                    transmitter().bleCommandWithQueue(BLECommands.sendGestureInfo(parameters), MAIN_CHANNEL_CHARACTERISTIC, WRITE) {}
+                }
+        )
+        disposables.add(
+            RxUpdateMainEventUbi4.getInstance().readCharacteristicBLE
+                .compose(main?.bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { parameters ->
+                    requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
+                }
+        )
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        disposables.clear()
+        mSettings = null
+        main = null
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun widgetListUpdater() {

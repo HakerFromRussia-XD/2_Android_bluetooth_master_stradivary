@@ -11,25 +11,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountCustomerServiceBinding
-import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
-import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 
@@ -46,10 +38,11 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
     private var testSerialNumber = "FEST-F-05670"
     private var myRequests: Requests? = null
 
-    private lateinit var binding: Ubi4FragmentPersonalAccountCustomerServiceBinding
+    private var _binding: Ubi4FragmentPersonalAccountCustomerServiceBinding? = null
+    private val binding get() = requireNotNull(_binding)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentPersonalAccountCustomerServiceBinding.inflate(layoutInflater)
+        _binding = Ubi4FragmentPersonalAccountCustomerServiceBinding.inflate(inflater, container, false)
 //        WDApplication.component.inject(this)
         Log.d("AccountFragment", "Activity: $activity, is NavigatorUBI4: ${activity is NavigatorUBI4}")
         if (activity != null) { main = activity as MainActivityUBI4? }
@@ -152,6 +145,20 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
             (activity as? NavigatorUBI4)?.goingBackUbi4() ?:
             println("Activity не реализует NavigatorUBI4")
         }
+    }
+
+    override fun onDestroyView() {
+        binding.accountCustomerServiceRv.adapter = null
+        adapter = null
+        linearLayoutManager = null
+        myRequests = null
+        gson = null
+        encryptionManager = null
+        encryptionResult = null
+        main = null
+        mContext = null
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

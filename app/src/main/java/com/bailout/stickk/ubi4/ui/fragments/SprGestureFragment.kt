@@ -41,10 +41,10 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("DEPRECATION")
 class SprGestureFragment: BaseWidgetsFragment() {
-    private lateinit var binding: Ubi4FragmentSprGesturesBinding
+    private var _binding: Ubi4FragmentSprGesturesBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
-    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
     private lateinit var collectionGesturesProvider: CollectionGesturesProvider
 
@@ -64,7 +64,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = Ubi4FragmentSprGesturesBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentSprGesturesBinding.inflate(inflater, container, false)
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
@@ -253,6 +253,11 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
     }
 
+    override fun onDestroyView() {
+        main = null
+        _binding = null
+        super.onDestroyView()
+    }
+
 
 }
-

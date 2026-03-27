@@ -26,7 +26,8 @@ import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 class AdvancedFragment : BaseWidgetsFragment() {
-    private lateinit var binding: Ubi4FragmentHomeBinding
+    private var _binding: Ubi4FragmentHomeBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
@@ -36,7 +37,7 @@ class AdvancedFragment : BaseWidgetsFragment() {
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
@@ -55,9 +56,11 @@ class AdvancedFragment : BaseWidgetsFragment() {
         return binding.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
         disposables.clear()
+        main = null
+        _binding = null
+        super.onDestroyView()
     }
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {

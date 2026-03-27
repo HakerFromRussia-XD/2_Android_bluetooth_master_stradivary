@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountProsthesisInformationBinding
@@ -18,8 +19,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
@@ -36,10 +35,11 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
     private var testSerialNumber = "FEST-F-05670"
     private var myRequests: Requests? = null
 
-    private lateinit var binding: Ubi4FragmentPersonalAccountProsthesisInformationBinding
+    private var _binding: Ubi4FragmentPersonalAccountProsthesisInformationBinding? = null
+    private val binding get() = requireNotNull(_binding)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = Ubi4FragmentPersonalAccountProsthesisInformationBinding.inflate(layoutInflater)
+        _binding = Ubi4FragmentPersonalAccountProsthesisInformationBinding.inflate(inflater, container, false)
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivityUBI4? }
         this.mContext = context
@@ -88,7 +88,7 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
     }
 
     private fun requestToken() {
-        CoroutineScope(Dispatchers.Main).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             myRequests!!.getRequestToken(
                 { token ->
                     this@AccountFragmentProsthesisInformationUBI4.token = token
@@ -113,6 +113,20 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
             (activity as? NavigatorUBI4)?.goingBackUbi4() ?:
             println("Activity не реализует NavigatorUBI4")
         }
+    }
+
+    override fun onDestroyView() {
+        binding.accountProsthesisInformationRv.adapter = null
+        adapter = null
+        linearLayoutManager = null
+        myRequests = null
+        gson = null
+        encryptionManager = null
+        encryptionResult = null
+        main = null
+        mContext = null
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

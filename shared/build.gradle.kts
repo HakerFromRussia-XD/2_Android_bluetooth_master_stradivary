@@ -1,3 +1,8 @@
+import org.gradle.api.GradleException
+import org.gradle.api.tasks.testing.Test
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -8,6 +13,7 @@ plugins {
     id("dev.icerock.mobile.multiplatform-resources")
     id("com.google.devtools.ksp") version "2.1.21-2.0.1"
     id("androidx.room") version "2.7.2"
+    id("jacoco")
 //    kotlin("kapt")
 }
 
@@ -120,14 +126,9 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
-                // ---- Ktor (оставляю обе версии, как у тебя; Gradle возьмёт новее) ----
-                implementation("io.ktor:ktor-client-core:2.3.2")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
-
+                // ---- Ktor ----
                 implementation("io.ktor:ktor-client-core:2.3.12")
                 implementation("io.ktor:ktor-client-logging:2.3.12")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
 
@@ -151,7 +152,6 @@ kotlin {
                 implementation("com.google.android.material:material:1.12.0")
 
                 // Ktor Android
-                implementation("io.ktor:ktor-client-okhttp:2.3.2")
                 implementation("io.ktor:ktor-client-okhttp:2.3.12")
 
                 // RX
@@ -189,6 +189,11 @@ kotlin {
             implementation(kotlin("test"))
             implementation(kotlin("test-junit"))
             implementation("junit:junit:4.13.2")
+            implementation("io.ktor:ktor-client-mock:2.3.12")
+            implementation("androidx.arch.core:core-testing:2.2.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation("org.mockito:mockito-inline:5.2.0")
+            implementation("com.squareup.okhttp3:mockwebserver:4.10.0")
         }
     }
 }
@@ -208,6 +213,92 @@ multiplatformResources {
     resourcesClassName.set("SharedRes")
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
 
+tasks.withType<Test>().configureEach {
+    extensions.configure(JacocoTaskExtension::class) {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+        setDestinationFile(layout.buildDirectory.file("jacoco/${name}.exec").get().asFile)
+    }
+}
 
+val ubi4CoverageIncludes = listOf(
+    "com/bailout/stickk/ubi4/**"
+)
 
+val ubi4CoverageExcludes = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "**/*Test*.*",
+    "**/*_Impl*.*",
+    "**/*Dao_Impl*.*",
+    "**/*Constructor*.*",
+    "**/SharedRes*.*",
+    "**/*\$*.*",
+    "**/com/bailout/stickk/ubi4/data/parser/BLEParser.*",
+    "**/*\$Companion*.*",
+    "**/*\$serializer*.*",
+    "**/*\$WhenMappings*.*"
+)
+
+val jacocoUbi4DebugUnitTestReport by tasks.registering(JacocoReport::class) {
+    group = "verification"
+    description = "JaCoCo HTML/XML report for Android debug unit tests in com.bailout.stickk.ubi4.*"
+
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    classDirectories.setFrom(
+        files(
+            fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+                include(ubi4CoverageIncludes)
+                exclude(ubi4CoverageExcludes)
+            },
+            fileTree(layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes")) {
+                include(ubi4CoverageIncludes)
+                exclude(ubi4CoverageExcludes)
+            }
+        )
+    )
+
+    sourceDirectories.setFrom(
+        files(
+            "src/commonMain/kotlin",
+            "src/androidMain/kotlin",
+            "src/androidMain/java"
+        )
+    )
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.asFile.get()) {
+            include("jacoco/testDebugUnitTest.exec")
+            include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+            include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.ec")
+        }
+    )
+
+    doFirst {
+        val hasExecData = executionData.files.any { it.exists() }
+        if (!hasExecData) {
+            throw GradleException(
+                "No JaCoCo execution data found. Run :shared:testDebugUnitTest first."
+            )
+        }
+    }
+}
+
+tasks.register("jacocoUbi4Report") {
+    group = "verification"
+    description = "Runs debug unit tests and builds JaCoCo report for com.bailout.stickk.ubi4.*"
+    dependsOn(jacocoUbi4DebugUnitTestReport)
+}

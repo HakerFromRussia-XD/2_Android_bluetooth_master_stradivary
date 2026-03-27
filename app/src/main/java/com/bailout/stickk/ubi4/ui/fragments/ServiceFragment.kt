@@ -18,7 +18,8 @@ import kotlinx.coroutines.withContext
 
 class ServiceFragment: BaseWidgetsFragment() {
 
-    private lateinit var binding: Ubi4FragmentServiceBinding
+    private var _binding: Ubi4FragmentServiceBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private val mDataFactory: DataFactory = DataFactory()
     private val display = 4
 
@@ -29,7 +30,7 @@ class ServiceFragment: BaseWidgetsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = Ubi4FragmentServiceBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentServiceBinding.inflate(inflater, container, false)
 
         //fake data
         adapterWidgets.swapData(mDataFactory.fakeData())
@@ -64,6 +65,12 @@ class ServiceFragment: BaseWidgetsFragment() {
 
     companion object {
         fun newInstance(): ServiceFragment = ServiceFragment()
+    }
+
+    override fun onDestroyView() {
+        binding.serviceFragmentRv.adapter = null
+        _binding = null
+        super.onDestroyView()
     }
 
 }

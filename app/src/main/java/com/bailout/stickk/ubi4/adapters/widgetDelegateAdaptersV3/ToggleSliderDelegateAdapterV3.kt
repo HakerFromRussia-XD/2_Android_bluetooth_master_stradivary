@@ -305,8 +305,12 @@ class ToggleSliderDelegateAdapterV3(
     fun onDestroy() {
         Log.d("ToggleSliderAdapter", "onDestroy")
         isAttached = false
-//        info.timer?.cancel()
-//        info.timer = null
+        widgetInfoList.forEach { info ->
+            info.timer?.cancel()
+            info.timer = null
+        }
+        widgetInfoList.clear()
+        sliderInfoCounter = 0
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null

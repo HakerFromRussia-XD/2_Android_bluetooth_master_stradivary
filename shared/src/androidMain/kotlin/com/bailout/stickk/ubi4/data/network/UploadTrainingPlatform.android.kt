@@ -23,7 +23,18 @@ actual suspend fun uploadTrainingDataSsePlatform(
     pairs: List<Pair<SharedFile, SharedFile>>,
     onProgress: (Int) -> Unit
 ): String {
-    val client = OkHttpClient.Builder()
+    return uploadTrainingDataSsePlatformInternal(
+        token = token,
+        serial = serial,
+        pairs = pairs,
+        onProgress = onProgress,
+        baseUrl = PASSPORT_BASE,
+        client = createSseHttpClient()
+    )
+}
+
+internal fun createSseHttpClient(): OkHttpClient =
+    OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_1_1))
         .connectTimeout(15, TimeUnit.SECONDS)
         .writeTimeout(0, TimeUnit.SECONDS)
@@ -31,6 +42,14 @@ actual suspend fun uploadTrainingDataSsePlatform(
         .retryOnConnectionFailure(true)
         .build()
 
+internal suspend fun uploadTrainingDataSsePlatformInternal(
+    token: String,
+    serial: String,
+    pairs: List<Pair<SharedFile, SharedFile>>,
+    onProgress: (Int) -> Unit,
+    baseUrl: String,
+    client: OkHttpClient
+): String {
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
         addFormDataPart("serial", serial)
         pairs.flatMap { listOf(it.first, it.second) }
@@ -42,7 +61,7 @@ actual suspend fun uploadTrainingDataSsePlatform(
     }.build()
 
     val request = Request.Builder()
-        .url("${PASSPORT_BASE}passport_data/")
+        .url("${baseUrl}passport_data/")
         .header("Authorization", token)
         .header("Accept", "text/event-stream")
         .post(multipart)

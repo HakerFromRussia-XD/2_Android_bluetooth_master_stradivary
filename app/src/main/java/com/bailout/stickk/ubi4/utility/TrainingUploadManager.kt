@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.utility
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.bailout.stickk.ubi4.AndroidContextProvider.context
 import com.bailout.stickk.ubi4.data.network.SharedFile
 import com.bailout.stickk.ubi4.data.network.sharedFile
 import com.bailout.stickk.ubi4.data.network.Ubi4TrainingRepository
@@ -40,7 +39,8 @@ object TrainingUploadManager {
         serial: String,
         selectedEmg8Files: List<File>
     ): Job {
-        val dir = context.getExternalFilesDir(null)
+        val appContext = context.applicationContext
+        val dir = appContext.getExternalFilesDir(null)
             ?: throw IllegalStateException("External storage unavailable")
         val dirShared = sharedFile(dir.absolutePath)
 
@@ -103,7 +103,7 @@ object TrainingUploadManager {
                         } ?: fallback
                 }
 
-                val nextNum = getNextCheckpointNumber(context)
+                val nextNum = getNextCheckpointNumber(appContext)
                 val ckptDst = File(dir, "checkpoint_№${nextNum}_$ts.ckpt")
                 val binDst = File(dir, "params_$ts.bin")
 
@@ -118,7 +118,7 @@ object TrainingUploadManager {
                 progressFlow.tryEmit(100)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
-                        context,
+                        appContext,
                         "Модель обучена (checkpoint=$checkpoint)",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -128,7 +128,7 @@ object TrainingUploadManager {
                 stateFlow.value = State.ERROR
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
-                        context,
+                        appContext,
                         "Ошибка обучения: ${e.message}",
                         Toast.LENGTH_LONG
                     ).show()

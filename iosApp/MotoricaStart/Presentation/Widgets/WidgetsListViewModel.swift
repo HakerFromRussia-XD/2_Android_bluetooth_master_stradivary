@@ -272,7 +272,7 @@ extension ParameterInfoData {
                 let parameterID = intValue(from: info.parameterID),
                 let dataCode = intValue(from: info.dataCode),
                 let deviceAddress = intValue(from: info.deviceAddress),
-                let dataOffset = intValue(from: info.dataOffset)
+                let dataOffset = intValue(from: info.dataOffsets)
             else {
                 return nil
             }

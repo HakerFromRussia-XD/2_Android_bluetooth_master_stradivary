@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
 class SensorsFragment : BaseWidgetsFragment() {
-    private lateinit var binding: Ubi4FragmentHomeBinding
+    private var _binding: Ubi4FragmentHomeBinding? = null
+    private val binding get() = requireNotNull(_binding)
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
@@ -43,7 +44,7 @@ class SensorsFragment : BaseWidgetsFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false).apply {
+        _binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false).apply {
             refreshLayout.setLottieAnimation("loader_3.json")
             refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
             refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -70,13 +71,16 @@ class SensorsFragment : BaseWidgetsFragment() {
         return binding.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
         disposables.clear()
         Log.d("onDestroyParentCallbacks", "========================")
         onDestroyParentCallbacks.forEach {
             Log.d("onDestroyParentCallbacks", " считаем сколько раз")
             it.invoke() }
+        onDestroyParentCallbacks.clear()
+        main = null
+        _binding = null
+        super.onDestroyView()
     }
 
 
@@ -99,5 +103,3 @@ class SensorsFragment : BaseWidgetsFragment() {
         }
     }
 }
-
-

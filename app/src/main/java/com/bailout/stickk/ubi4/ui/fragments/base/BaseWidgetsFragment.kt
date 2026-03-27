@@ -288,9 +288,21 @@ abstract class BaseWidgetsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
     }
-    override fun onDestroy() {
-        super.onDestroy()
+
+    private fun releaseDelegateResources() {
         onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
+        closeCurrentDialog()
+    }
+
+    override fun onDestroyView() {
+        releaseDelegateResources()
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        releaseDelegateResources()
+        super.onDestroy()
     }
 
     //CallBacks

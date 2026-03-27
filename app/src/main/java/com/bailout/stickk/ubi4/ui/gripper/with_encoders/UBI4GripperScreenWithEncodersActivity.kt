@@ -777,7 +777,7 @@ class UBI4GripperScreenWithEncodersActivity
         fingerCloseStateDelay5 = gestureSettings.closeToOpenTimeShift5
         fingerCloseStateDelay6 = gestureSettings.closeToOpenTimeShift6
 
-        Handler().postDelayed({
+        f56Handler.postDelayed({
             animateFinger1 ()
             animateFinger2 ()
             animateFinger3 ()
@@ -871,7 +871,7 @@ private fun updateSelectorUI(isOpen: Boolean) {
     }
 
     override fun onDestroy() {
-        f56PendingSend?.let { f56Handler.removeCallbacks(it) }
+        f56Handler.removeCallbacksAndMessages(null)
         f56PendingSend = null
         super.onDestroy()
     }

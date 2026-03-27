@@ -48,7 +48,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -313,6 +312,7 @@ class PlotDelegateAdapter (
                             val (addr, pid) = firstThresholdRef
                             responseReceived.set(false)
                             if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
+                                val activeScope = scope ?: return@map
                                 RetryUtils.sendRequestWithRetry(
                                     request = {
                                         main.bleCommandWithQueue(
@@ -323,7 +323,7 @@ class PlotDelegateAdapter (
                                     isResponseReceived = { responseReceived.get() },
                                     maxRetries = 5,
                                     delayMillis = 1000L,
-                                    scope = GlobalScope
+                                    scope = activeScope
                                 )
                             } else {
                                 setUI(
@@ -725,9 +725,13 @@ class PlotDelegateAdapter (
 
     fun onDestroy() {
         graphThreadFlag = false
-        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
-        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
-//        scope?.cancel()
+        if (widgetPlotsInfo.isNotEmpty()) {
+            setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
+            setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)
+        }
+        scope?.cancel()
+        scope = null
+        widgetPlotsInfo.clear()
         Log.d("onDestroy" , "onDestroy plot")
     }
 
@@ -744,6 +748,7 @@ class PlotDelegateAdapter (
 
         responseReceived.set(false)
         if (RetryUtils.canSendRequestWithFirstReceiveDataFlag(addr, pid)) {
+            val activeScope = scope ?: return
             RetryUtils.sendRequestWithRetry(
                 request = {
                     main.bleCommandWithQueue(
@@ -754,7 +759,7 @@ class PlotDelegateAdapter (
                 isResponseReceived = { responseReceived.get() },
                 maxRetries = 5,
                 delayMillis = 1000L,
-                scope = GlobalScope
+                scope = activeScope
             )
         } else {
             setUI(

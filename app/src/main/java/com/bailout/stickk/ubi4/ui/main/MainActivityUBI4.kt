@@ -91,7 +91,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.logging.platformLog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -99,11 +98,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
-import org.junit.jupiter.params.provider.Arguments
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.jvm.java
-import kotlin.properties.Delegates
 
 
 @RequirePresenter(MainPresenter::class)
@@ -137,6 +135,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     // Очередь для задачь работы с BLE
     private val queue = BlockingQueueUbi4()
+    @Volatile private var queueWorkerRunning = false
+    private var queueWorker: Thread? = null
     private lateinit var bottomNavigationController: BottomNavigationController
 
 
@@ -232,81 +232,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-            // тест жестов
-            // запрос активного жеста (ответ 00002401a4)
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-            // запрос количества жестов (ответ пока пустой)
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_COUNT.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-            // запрос всей инфы по жестам (ответ )
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.requestGestureInfo(64),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-
-
-//            main.bleCommandWithQueue(
-//                request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-//            platformLog("BLEParserV3", "runCommandBtn")
-//            platformLog("BLEParserV3", "send command requestDeviceData")
-//            bleManager.sendBytesKmm(
-//                BLECommandsV3.requestDeviceData(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE
-//            ) {}
-//            main.bleCommandWithQueue(
-//                request(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-
-
-
-//            platformLog("sendThresholds", "отправка команды 1")
-//            main.bleCommandWithQueue(
-//                BLECommandsV3.sendThresholds(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 1")}
-//            platformLog("sendThresholds", "отправка команды 2")
-//            main.bleCommandWithQueue(
-//                BLECommandsV3.sendThresholds(),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 2")}
-//            platformLog("sendThresholds", "отправка команды 3")
-//            main.bleCommandWithQueue(
-//                BLECommandsV3.sendGaines(15, 136),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){platformLog("sendThresholds", "приём ответа подтверждения отправки 3")}
-//            runBlockingDemo()
-
             main.bleCommandWithQueue(
                 requestWithCommand(
                     GUI_CONTROL.number.toInt(),
                     GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
                 SERIALPORTCHAR_UUID,
                 WRITE){}
-//            main.bleCommandWithQueue(
-//                request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-//            main.bleCommandWithQueue(
-//                requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_SCREEN_TIMEOUT.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-//            main.bleCommandWithQueue(
-//                request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
 
             platformLog("BLEParserV3", "runCommandBtn")
         }
@@ -365,10 +296,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        queueWorkerRunning = false
+        queueWorker?.interrupt()
+        queueWorker = null
         job?.cancel()
+        dialogManager?.onDestroy()
+        dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
         mBLEController.cleanup()
+        clearMainIfSame(this)
+        super.onDestroy()
     }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
@@ -478,7 +415,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         saveString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
         Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
     }
-    override fun sendWidgetsArray() { CoroutineScope(Dispatchers.IO).launch { updateFlow.emit(1) } }
+    override fun sendWidgetsArray() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            updateFlow.emit(1)
+        }
+    }
     private fun setStaticVariables() {
         canSendNextChunkFlagFlow = MutableSharedFlow()
         synchronized(writeLock) {
@@ -518,21 +459,38 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     private fun startQueue() {
+        if (queueWorkerRunning) return
+        queueWorkerRunning = true
         val worker = Thread {
-            while (true) {
-                val task: Runnable = queue.get()
-                Log.d(
-                    "BLE_Q",
-                    "DEQ start thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
-                )
-                task.run()
-                Log.d(
-                    "BLE_Q",
-                    "DEQ done  thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
-                )
-                remainingTasks.decrementAndGet()
+            try {
+                while (queueWorkerRunning && !Thread.currentThread().isInterrupted) {
+                    try {
+                        val task: Runnable = queue.get()
+                        if (!queueWorkerRunning || Thread.currentThread().isInterrupted) break
+                        Log.d(
+                            "BLE_Q",
+                            "DEQ start thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
+                        )
+                        task.run()
+                        Log.d(
+                            "BLE_Q",
+                            "DEQ done  thread=${Thread.currentThread().name} remaining=${remainingTasks.get()}"
+                        )
+                        remainingTasks.decrementAndGet()
+                    } catch (_: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        break
+                    } catch (t: Throwable) {
+                        if (!queueWorkerRunning) break
+                        Log.e("BLE_Q", "Queue worker failed: ${t.message}", t)
+                    }
+                }
+            } finally {
+                queueWorkerRunning = false
             }
         }
+        worker.name = "BLE-Queue-Worker"
+        queueWorker = worker
         worker.start()
     }
     override fun getQueueUBI4() : BlockingQueueUbi4 { return queue }
@@ -700,6 +658,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     companion object {
-        var main by Delegates.notNull<MainActivityUBI4>()
+        private var mainRef: WeakReference<MainActivityUBI4>? = null
+
+        var main: MainActivityUBI4
+            get() = mainRef?.get()
+                ?: error("MainActivityUBI4 reference is not available")
+            set(value) {
+                mainRef = WeakReference(value)
+            }
+
+        private fun clearMainIfSame(owner: MainActivityUBI4) {
+            val current = mainRef?.get()
+            if (current === owner) {
+                mainRef?.clear()
+                mainRef = null
+            }
+        }
     }
 }

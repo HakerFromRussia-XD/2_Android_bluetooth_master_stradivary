@@ -400,10 +400,26 @@ class BLEParser(
                             if (errorStatus != 0 && errorStatus != 255) {
                                 countErrors++
                             }
-                            if (newStatusExist == 1 && errorStatus == 0)
+                            platformLog(
+                                "AckDebug",
+                                "raw=${ParameterProvider.getParameter(deviceAddress, parameterID).data}, " +
+                                        "deviceAddress=$deviceAddress, parameterID=$parameterID, dataCode=$dataCode, " +
+                                        "newStatusExist=$newStatusExist, errorStatus=$errorStatus, packIndex=$packIndex"
+                            )
+                            if (newStatusExist == 1 && errorStatus == 0) {
+                                platformLog("AckDebug", "EMIT packIndex=$packIndex")
                                 coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
-                            platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
+                                platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
+                            }
+                            else {
+                                platformLog(
+                                    "AckDebug",
+                                    "SKIP emit: newStatusExist=$newStatusExist, errorStatus=$errorStatus"
+                                )
+                            }
+
                         }
+
 
                     }
                 }

@@ -29,7 +29,7 @@ android {
         minSdk = 28
         targetSdk = 33
         versionCode = 13
-        versionName = "3.3.1565"
+        versionName = "3.3.1570"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 //        signingConfig = signingConfigs.getByName("release")
@@ -84,6 +84,9 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            all {
+                it.useJUnitPlatform()
+            }
         }
     }
     buildFeatures {
@@ -111,13 +114,12 @@ dependencies {
     // retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp:okhttp:2.7.5")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.5.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
 
     // gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     // dagger 2
     implementation("com.google.dagger:dagger:2.56")
@@ -171,13 +173,11 @@ dependencies {
     // debug
     implementation("com.jakewharton.timber:timber:4.7.1")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0-alpha")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
 
     // dexter (permissions)
     implementation("com.karumi:dexter:6.2.3")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     //animation
     implementation("com.airbnb.android:lottie:6.4.0")
@@ -190,8 +190,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
     //TESTS
-    implementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.3.1")
@@ -201,11 +200,11 @@ dependencies {
 
 
     // Ktor
-    implementation("io.ktor:ktor-client-core:2.3.1")
-    implementation("io.ktor:ktor-client-okhttp:2.3.1") 
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.1")
-    implementation("io.ktor:ktor-client-logging:2.3.1")
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-client-okhttp:2.3.12")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+    implementation("io.ktor:ktor-client-logging:2.3.12")
 
 
     implementation("androidx.room:room-runtime:2.7.2")

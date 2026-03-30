@@ -695,8 +695,7 @@ object PreferenceKeysUbi4 {
         PWCE_SET_HAND_CONTROL_MODE        (0x3B), // моды управления рукой (туда хотим добавить мод при котором сразу при обратном пересечении порога управляющим сигналом управление отдаётся другому сигналу - спорт режим)
         PWCE_GET_HAND_CONTROL_MODE        (0x3C),
 
-        PWCE_TEST_SWITCHER                  (0XFF.toByte()),
-//        PWCE_TEST_SPINBOX                   (0XFE.toByte())
+        PWCE_TEST_SWITCHER                (0XFF.toByte()),
     }
 
     enum class guiModuleControlEnum(val number: Byte)
@@ -736,12 +735,13 @@ object PreferenceKeysUbi4 {
             P_KEY_GESTURE_SETTING to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_SETTING.number.toInt(), 1, 0),
             P_KEY_GESTURE_GROUPE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_GROUPE.number.toInt(), 1, 0),
             P_KEY_EMG_CHANGE_GESTURE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),
-            P_KEY_TEST_SWITCHER to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
             P_KEY_START_CALIBRATE_COMMAND to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_START_CALIBRATE_COMMAND.number.toInt(), 1, 0),
             P_KEY_HAND_CONTROL_MODE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
             P_KEY_SCREEN_TIMEOUT to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
             P_KEY_EMG_MOVEMENT_LOCK to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
             P_KEY_LEFT_RIGHT_HAND to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
+
+            P_KEY_TEST_SWITCHER to ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

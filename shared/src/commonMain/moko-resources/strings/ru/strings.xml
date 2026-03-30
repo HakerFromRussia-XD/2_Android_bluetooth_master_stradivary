@@ -248,9 +248,11 @@
 <string name="hold_to_lock_time">время удержания для блокировки</string>
 <string name="debug_screen">отладочный экран</string>
 <string name="scale">размер протеза:</string>
+<string name="choose_the_size_of_the_prostheses">Выберите размер протеза</string>
 <string name="yes">да</string>
 <string name="the_size_of_your_prostheses">Размер вашего протеза</string>
 <string name="amplitude">амплитуда</string>
+<string name="measure_ms">мс</string>
 <string name="one_sensor">одним датчиком</string>
 <string name="change_value">Изменение значения</string>
 <string name="test_connection">тест связи</string>
@@ -383,7 +385,7 @@
 <string name="charge_level_is_less_than_5">Уровень заряда меньше 5%</string>
 <string name="check_the_technical_condition_of_your_prostheses_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist">Регулярно проверяйте техническое состояние своего протеза. В случае обнаружения неполадок, трещин и прочих неисправностей, обратитесь в сервисный центр или к своему протезисту.</string>
 <string name="regular_maintenance_of_the_prostheses_is_required_refer_to_service_and_warranty_for_service_intervals">Необходимо проводить регулярное техническое обслуживание протеза. Периодичность обслуживания указана в разделе «Сервис и гарантийное обслуживание».</string>
-<string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">Рекомендуется регулярно чистить протез руки. Для этого используйте отжатый ватный тампон, смоченный в 3% растворе перекиси водорода или влажные спиртовые салфетки.</string>
+<string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">Рекомендуется регулярно чистить протез руки. Для этого используйте отжатый ватный тампон, смоченный в 3%% растворе перекиси водорода или влажные спиртовые салфетки.</string>
 <string name="do_not_use_aggressive_detergents">Не допускается применять агрессивные моющие средства.</string>
 <string name="if_you_have_a_cosmetic_shell_installed_check_it_regularly_for_through_damage_try_to_avoid_contact_with_sharp_or_pointed_objects_if_the_cosmetic_shell_needs_to_be_replaced_please_contact_your_prosthetic_company">Если у вас установлена косметическая оболочка, регулярно проверяйте ее на предмет сквозных повреждений. Старайтесь избегать контакта с острыми или заостренными предметами. При необходимости замены косметической оболочки, пожалуйста, свяжитесь с вашим протезным предприятием.</string>
 <string name="important_do_not_try_to_repair_your_prosthetic_arm_yourself_it_may_cause_more_serious_damage_and_void_your_warranty">Важно! Не пытайтесь самостоятельно починить протез руки, это может привести к более серьезным поломкам и аннулированию гарантии.</string>

@@ -34,50 +34,74 @@ class Ubi4RequestsApi(
     // ==== USER-API ====
 
     suspend fun getToken(authHeader: String): NetworkResult<Token> =
-        safeGet(userClient) {
-            url("${BaseUrlUtilsUBI4.USER_BASE}v1/auth/login")
-            header(HttpHeaders.Authorization, authHeader)
-        }
+        safeGet(
+            client = userClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/auth/login")
+                header(HttpHeaders.Authorization, authHeader)
+            },
+            decode = { it.body() }
+        )
 
     suspend fun getUserInfo(token: String, lang: String): NetworkResult<User> =
-        safeGet(userClient) {
-            url("${BaseUrlUtilsUBI4.USER_BASE}v1/clients/self-info")
-            header(HttpHeaders.Authorization, "Bearer $token")
-            parameter("lang", lang)
-        }
+        safeGet(
+            client = userClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/clients/self-info")
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("lang", lang)
+            },
+            decode = { it.body() }
+        )
 
     suspend fun getUserInfoV2(token: String, lang: String): NetworkResult<UserV2> =
-        safeGet(userClient) {
-            url("${BaseUrlUtilsUBI4.USER_BASE}v1/user/info")
-            header(HttpHeaders.Authorization, "Bearer $token")
-            parameter("lang", lang)
-        }
+        safeGet(
+            client = userClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/user/info")
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("lang", lang)
+            },
+            decode = { it.body() }
+        )
 
     suspend fun getDevicesList(
         userId: Int,
         token: String,
         lang: String
-    ): NetworkResult<List<DeviceInList_DEV>> = safeGet(userClient) {
-        url("${BaseUrlUtilsUBI4.USER_BASE}v1/clients/$userId/devices")
-        header(HttpHeaders.Authorization, "Bearer $token")
-        parameter("lang", lang)
-    }
+    ): NetworkResult<List<DeviceInList_DEV>> = safeGet(
+        client = userClient,
+        builder = {
+            url("${BaseUrlUtilsUBI4.USER_BASE}v1/clients/$userId/devices")
+            header(HttpHeaders.Authorization, "Bearer $token")
+            parameter("lang", lang)
+        },
+        decode = { it.body() }
+    )
 
     suspend fun getDeviceInfo(
         deviceId: Int,
         token: String,
         lang: String
-    ): NetworkResult<DeviceInfo> = safeGet(userClient) {
-        url("${BaseUrlUtilsUBI4.USER_BASE}v1/devices/$deviceId/info")
-        header(HttpHeaders.Authorization, "Bearer $token")
-        parameter("lang", lang)
-    }
+    ): NetworkResult<DeviceInfo> = safeGet(
+        client = userClient,
+        builder = {
+            url("${BaseUrlUtilsUBI4.USER_BASE}v1/devices/$deviceId/info")
+            header(HttpHeaders.Authorization, "Bearer $token")
+            parameter("lang", lang)
+        },
+        decode = { it.body() }
+    )
 
     suspend fun getProthesisSettings(deviceId: String, token: String): NetworkResult<AllOptions> =
-        safeGet(passportClient) {
-            url("${BaseUrlUtilsUBI4.PASSPORT_BASE}v1/device-mobile-app/$deviceId")
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }
+        safeGet(
+            client = passportClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.PASSPORT_BASE}v1/device-mobile-app/$deviceId")
+                header(HttpHeaders.Authorization, "Bearer $token")
+            },
+            decode = { it.body() }
+        )
 
     // ==== PASSPORT-API ====
 
@@ -85,12 +109,16 @@ class Ubi4RequestsApi(
     suspend fun loginBySerial(
         apiKey: String,
         request: SerialTokenRequest
-    ): NetworkResult<LoginResponse> = safePost(passportClient) {
-        url("${BaseUrlUtilsUBI4.PASSPORT_BASE}ser_n_token/")
-        header("X-API-Key", apiKey)
-        contentType(ContentType.Application.Json)
-        setBody(request)
-    }
+    ): NetworkResult<LoginResponse> = safePost(
+        client = passportClient,
+        builder = {
+            url("${BaseUrlUtilsUBI4.PASSPORT_BASE}ser_n_token/")
+            header("X-API-Key", apiKey)
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        },
+        decode = { it.body() }
+    )
 
     // 2) token + serial → паспорт (YAML + имя файла)
     suspend fun getPassportData(
@@ -146,20 +174,25 @@ class Ubi4RequestsApi(
 
     // 5) token → список клиентов
     suspend fun getClients(auth: String): NetworkResult<List<Client>> =
-        safeGet(passportClient) {
-            url("${BaseUrlUtilsUBI4.PASSPORT_BASE}clients_table/clients/")
-            header(HttpHeaders.Authorization, auth)
-        }
+        safeGet(
+            client = passportClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.PASSPORT_BASE}clients_table/clients/")
+                header(HttpHeaders.Authorization, auth)
+            },
+            decode = { it.body() }
+        )
 
     // ==== HELPERS ====
 
-    private suspend inline fun <reified T> safeGet(
+    private suspend fun <T> safeGet(
         client: HttpClient,
-        noinline builder: HttpRequestBuilder.() -> Unit
+        builder: HttpRequestBuilder.() -> Unit,
+        decode: suspend (HttpResponse) -> T
     ): NetworkResult<T> = try {
         val resp: HttpResponse = client.get { builder() }
         val code = resp.status.value
-        if (code in 200..299) NetworkResult.Success(resp.body())
+        if (code in 200..299) NetworkResult.Success(decode(resp))
         else                   NetworkResult.Error(code, "HTTP $code")
     } catch (e: IOException) {
         NetworkResult.Error(null, "Network error: ${e.message}")
@@ -167,13 +200,14 @@ class Ubi4RequestsApi(
         NetworkResult.Error(null, "Unknown error: ${e.message}")
     }
 
-    private suspend inline fun <reified T> safePost(
+    private suspend fun <T> safePost(
         client: HttpClient,
-        noinline builder: HttpRequestBuilder.() -> Unit
+        builder: HttpRequestBuilder.() -> Unit,
+        decode: suspend (HttpResponse) -> T
     ): NetworkResult<T> = try {
         val resp: HttpResponse = client.post { builder() }
         val code = resp.status.value
-        if (code in 200..299) NetworkResult.Success(resp.body())
+        if (code in 200..299) NetworkResult.Success(decode(resp))
         else                   NetworkResult.Error(code, "HTTP $code")
     } catch (e: IOException) {
         NetworkResult.Error(null, "Network error: ${e.message}")

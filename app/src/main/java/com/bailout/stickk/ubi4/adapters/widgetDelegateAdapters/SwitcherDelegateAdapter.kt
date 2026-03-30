@@ -275,6 +275,9 @@ class SwitcherDelegateAdapter(
 
 
     fun onDestroy() {
+        timer?.cancel()
+        timer = null
+        widgetSwitchInfo.clear()
         scope.cancel()
         disposables.clear()
         Log.d("onDestroy" , "onDestroy swich")

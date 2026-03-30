@@ -33,9 +33,8 @@ object WidgetState {
     var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var sliderFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var spinnerFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
-    val switcherFlowV3 = MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>(extraBufferCapacity = 1)
+    var switcherFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
-    var gestureInfoFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureGroupFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
 
     @Volatile
@@ -68,8 +67,8 @@ object WidgetState {
         thresholdFlowV3 = MutableSharedFlow(replay = 1)
         sliderFlowV3 = MutableSharedFlow(replay = 1)
         spinnerFlowV3 = MutableSharedFlow(replay = 1)
+        switcherFlowV3 = MutableSharedFlow(replay = 1)
         currentGestureFlowV3 = MutableSharedFlow(replay = 1)
-        gestureInfoFlowV3 = MutableSharedFlow(replay = 1)
         gestureGroupFlowV3 = MutableSharedFlow(replay = 1)
     }
 }

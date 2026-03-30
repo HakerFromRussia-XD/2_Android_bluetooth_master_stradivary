@@ -225,41 +225,6 @@ internal fun Any.toWidgetPayloadOrNull(): BaseParameterWidgetPayload? =
                     label = null
                 )
 
-        // -------- TOGGLE SLIDER --------
-        is ToggleSliderParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
-                labelCode = baseParameterWidgetEStruct.labelCode
-            ).copy(
-                minProgress = minProgress,
-                maxProgress = maxProgress
-            )
-
-        is ToggleSliderParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
-                label = baseParameterWidgetSStruct.label
-            ).copy(
-                minProgress = minProgress,
-                maxProgress = maxProgress
-            )
-        is SliderParameterWidgetEStruct ->
-            this.baseParameterWidgetEStruct.baseParameterWidgetStruct.toPayload(
-                labelCode = baseParameterWidgetEStruct.labelCode
-            ).copy(
-                minProgress = minProgress,
-                maxProgress = maxProgress,
-                increment = increment // ✅
-            )
-
-        is SliderParameterWidgetSStruct ->
-            this.baseParameterWidgetSStruct.baseParameterWidgetStruct.toPayload(
-                label = baseParameterWidgetSStruct.label
-            ).copy(
-                minProgress = minProgress,
-                maxProgress = maxProgress,
-                increment = increment // ✅
-            )
-
-
         else -> null
     }
 

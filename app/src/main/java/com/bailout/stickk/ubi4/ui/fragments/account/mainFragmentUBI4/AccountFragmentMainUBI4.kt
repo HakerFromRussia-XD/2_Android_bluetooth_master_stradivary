@@ -46,6 +46,7 @@ import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.properties.Delegates
@@ -85,7 +86,9 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
 
 
-    private lateinit var binding: Ubi4FragmentPersonalAccountMainBinding
+    private var _binding: Ubi4FragmentPersonalAccountMainBinding? = null
+    private val binding get() = requireNotNull(_binding)
+    private val resumeDisposables = CompositeDisposable()
 
     private val fwVersions = mutableMapOf<Int, String>()
 
@@ -94,7 +97,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         System.err.println("AccountFragmentMainUBI4: onCreateView")
-        binding = Ubi4FragmentPersonalAccountMainBinding.inflate(inflater, container, false)
+        _binding = Ubi4FragmentPersonalAccountMainBinding.inflate(inflater, container, false)
         // Если используется DI, можно вызвать WDApplication.component.inject(this)
         if (activity != null) {
             main = activity as? MainActivityUBI4
@@ -179,14 +182,16 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         super.onResume()
         System.err.println("AccountFragmentMainUBI4: onResume")
         //TODO временно RxUpdateMainEvent от UBI3
-        RxUpdateMainEventUbi4.getInstance().uiAccountMain
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                if (mContext != null) {
-                    updateAllParameters()
+        resumeDisposables.add(
+            RxUpdateMainEventUbi4.getInstance().uiAccountMain
+                .compose(main?.bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (mContext != null) {
+                        updateAllParameters()
+                    }
                 }
-            }
+        )
     }
 
     private fun updateAllParameters() {
@@ -445,15 +450,22 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
     override fun onPause() {
+        resumeDisposables.clear()
         super.onPause()
         System.err.println("AccountFragmentMainUBI4: onPause")
     }
 
 
     override fun onDestroyView() {
+        resumeDisposables.clear()
+        _binding?.accountRv?.adapter = null
         main?.showBottomNavigation()
-        super.onDestroyView()
+        mContext = null
+        mSettings = null
+        main = null
+        _binding = null
         System.err.println("AccountFragmentMainUBI4: onDestroyView")
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
@@ -640,11 +652,13 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
 
-    private fun updateAccountSafe(item: AccountMainUBI4Item) =
-        binding.accountRv.post { accountAdapter.submitProfile(item) }
+    private fun updateAccountSafe(item: AccountMainUBI4Item) {
+        _binding?.accountRv?.post { accountAdapter.submitProfile(item) }
+    }
 
-    private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) =
-        binding.accountRv.post { bootloaderAdapter.submitBoards(list) }
+    private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
+        _binding?.accountRv?.post { bootloaderAdapter.submitBoards(list) }
+    }
     companion object {
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }

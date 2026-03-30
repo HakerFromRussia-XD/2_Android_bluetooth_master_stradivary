@@ -160,12 +160,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-            LocalBroadcastManager.getInstance(mContext).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        }
-        else {
-            mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        }
+        registerGattReceiverIfNeeded()
         mBLEParser = bleParser
         mBLEParserV3 = bleParserV3
     }
@@ -541,8 +536,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
         // На главном потоке регистрируем ресивер (если требуется)
         withContext(Dispatchers.Main) {
-            runCatching { mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter()) }
-                .onFailure {  Log.w("BLEController", "Ресивер уже зарегистрирован") }
+            registerGattReceiverIfNeeded()
             mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }
@@ -573,6 +567,37 @@ class BLEController(private val bleManager: BleManagerKmm) {
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE)
         intentFilter.addAction(BluetoothLeService.ACTION_NOTIFICATION_SUBSCRIBED)
         return intentFilter
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private fun registerGattReceiverIfNeeded() {
+        if (receiverRegistered) return
+        runCatching {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                LocalBroadcastManager.getInstance(mContext)
+                    .registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+            } else {
+                mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+            }
+            receiverRegistered = true
+        }.onFailure {
+            Log.w("BLEController", "registerReceiver failed: ${it.message}")
+        }
+    }
+
+    private fun unregisterGattReceiverIfNeeded() {
+        if (!receiverRegistered) return
+        runCatching {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                LocalBroadcastManager.getInstance(mContext)
+                    .unregisterReceiver(mGattUpdateReceiver)
+            } else {
+                mContext.unregisterReceiver(mGattUpdateReceiver)
+            }
+        }.onFailure {
+            Log.w("BLEController", "unregisterReceiver failed: ${it.message}")
+        }
+        receiverRegistered = false
     }
     internal fun scanLeDevice(enable: Boolean) {
         if (enable) {
@@ -649,20 +674,20 @@ class BLEController(private val bleManager: BleManagerKmm) {
         return commandDispatched
     }
     fun cleanup() {
-        // Отменяем запущенные корутины
+        reconnectThreadFlag = false
+        reconnectJob?.cancel()
         bleJob.cancel()
-        try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                // Там, где регистрировали через LocalBroadcastManager
-                LocalBroadcastManager.getInstance(mContext)
-                    .unregisterReceiver(mGattUpdateReceiver)
-            } else {
-                // Там, где регистрировали через обычный Context
-                mContext.unregisterReceiver(mGattUpdateReceiver)
-            }
-        } catch (e: IllegalArgumentException) {
-            Log.w("BLEController", "Ресивер уже отписан: ${e.message}")
-        }
+        mDisconnected = true
+        progressDialog?.dismiss()
+        progressDialog = null
+        onNeedFullInitListener = null
+        onDisconnectedListener = null
+        runCatching { mBluetoothLeService?.disconnect() }
+        runCatching { mBluetoothLeService?.close() }
+        runCatching { mContext.unbindService(mServiceConnection) }
+            .onFailure { Log.w("BLEController", "unbindService failed: ${it.message}") }
+        mBluetoothLeService = null
+        unregisterGattReceiverIfNeeded()
     }
 
     private suspend fun initRequestsV3() {

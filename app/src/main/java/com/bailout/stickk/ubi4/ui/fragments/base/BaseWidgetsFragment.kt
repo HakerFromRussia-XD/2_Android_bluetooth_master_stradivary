@@ -236,7 +236,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SwitcherDelegateAdapterV3(
-                onClearCache = { clearSwitcherCache -> onClearSwitcherCache = clearSwitcherCache},
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SpinnerDelegateAdapter(
@@ -246,7 +245,6 @@ abstract class BaseWidgetsFragment : Fragment() {
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             SpinnerDelegateAdapterV3(
-                onSpinnerItemSelected = { newIndex -> Log.d("SpinnerDelegateV3", "Selected index $newIndex") },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             ToggleSliderDelegateAdapter(
@@ -290,9 +288,21 @@ abstract class BaseWidgetsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
     }
-    override fun onDestroy() {
-        super.onDestroy()
+
+    private fun releaseDelegateResources() {
         onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
+        closeCurrentDialog()
+    }
+
+    override fun onDestroyView() {
+        releaseDelegateResources()
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        releaseDelegateResources()
+        super.onDestroy()
     }
 
     //CallBacks

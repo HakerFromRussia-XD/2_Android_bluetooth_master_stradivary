@@ -15,8 +15,8 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -28,12 +28,9 @@ import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.BufferedWriter
 import java.io.File
@@ -54,6 +51,7 @@ class MotionTrainingFragment(
     private lateinit var path: File
     private lateinit var file: File
     private lateinit var writer: BufferedWriter
+    private var writerClosed = false
 
     // Timers
     private var timer: CountDownTimer? = null
@@ -182,6 +180,7 @@ class MotionTrainingFragment(
             Log.d("SprTrainingFragment", "Created log file: ${file.absolutePath}")
         }
         writer = BufferedWriter(FileWriter(file, true))
+        writerClosed = false
         Log.d("SprTrainingFragment", "Logging to file: ${file.absolutePath}")
 
 
@@ -300,22 +299,38 @@ class MotionTrainingFragment(
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         Log.d("LagSpr", "Motion onDestroyView")
-        _binding = null
+        stopTimers()
+        dismissCurrentDialog()
+        closeWriterSafely()
         (activity as? MainActivityUBI4)?.getBottomNavigationController()?.setNavigationEnabled(true)
-
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.d("LagSpr", "Motion onDestroy")
-        // Отмена всех таймеров и остановка Chronometer
-        timer?.cancel()
-        preparationTimer?.cancel()
-        learningTimer.stop()
-        learningStepTimer.stop()
+        stopTimers()
+        dismissCurrentDialog()
+        if (::learningTimer.isInitialized) learningTimer.stop()
+        if (::learningStepTimer.isInitialized) learningStepTimer.stop()
+        closeWriterSafely()
         disposables.clear()
+        super.onDestroy()
+    }
+
+    private fun dismissCurrentDialog() {
+        currentDialog?.dismiss()
+        currentDialog = null
+    }
+
+    private fun closeWriterSafely() {
+        if (!::writer.isInitialized || writerClosed) return
+        synchronized(fileLock) {
+            runCatching { writer.close() }
+                .onFailure { Log.w(LOG_TAG, "Failed to close writer: ${it.message}") }
+            writerClosed = true
+        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -328,6 +343,11 @@ class MotionTrainingFragment(
         val dialogBinding =
             layoutInflater.inflate(R.layout.ubi4_dialog_cancel_training, null)
         val myDialog = Dialog(requireContext())
+        dismissCurrentDialog()
+        currentDialog = myDialog
+        myDialog.setOnDismissListener {
+            if (currentDialog === myDialog) currentDialog = null
+        }
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -336,6 +356,7 @@ class MotionTrainingFragment(
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmCancelTrainingBtn)
         confirmBtn.setOnClickListener {
             stopTimers() // Убедимся, что все таймеры остановлены
+            closeWriterSafely()
             myDialog.dismiss()
             confirmClick()
         }
@@ -353,6 +374,11 @@ class MotionTrainingFragment(
         val dialogBinding =
             layoutInflater.inflate(R.layout.ubi4_dialog_confirm_finish_training, null)
         val myDialog = Dialog(requireContext())
+        dismissCurrentDialog()
+        currentDialog = myDialog
+        myDialog.setOnDismissListener {
+            if (currentDialog === myDialog) currentDialog = null
+        }
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -360,9 +386,7 @@ class MotionTrainingFragment(
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4CompletedTrainingBtn)
         confirmBtn.setOnClickListener {
-
-            Log.d("SprTrainingFragment", "⏹ user confirmed finish – closing writer")
-            lifecycleScope.launch(Dispatchers.Default) { writer.close() }
+            closeWriterSafely()
             myDialog.dismiss()
             val spr = SprTrainingFragment.newInstance(loggingFilename)
             parentFragmentManager.beginTransaction()
@@ -376,6 +400,8 @@ class MotionTrainingFragment(
         // Отмена таймеров
         timer?.cancel()
         preparationTimer?.cancel()
+        indicationTimer?.cancel()
+        dialogWarningTimer?.cancel()
 
         // Приостановка Chronometer и сохранение прошедшего времени
         elapsedLearningTime = SystemClock.elapsedRealtime() - learningTimer.base
@@ -461,7 +487,13 @@ class MotionTrainingFragment(
 
     private fun stopTimers() {
         timer?.cancel()
+        timer = null
         preparationTimer?.cancel()
+        preparationTimer = null
+        indicationTimer?.cancel()
+        indicationTimer = null
+        dialogWarningTimer?.cancel()
+        dialogWarningTimer = null
         currentTimerType = TimerType.NONE
     }
 
@@ -725,7 +757,7 @@ class MotionTrainingFragment(
     }
 
     private fun writeToFile(data: String) {
-        if (isRecordingPaused) return
+        if (isRecordingPaused || writerClosed) return
 
         synchronized(fileLock) {
             try {
@@ -799,7 +831,7 @@ class MotionTrainingFragment(
     private fun loadConfigJson(): String {
         val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
         if (!extFile.exists()) {
-            main?.showToast("Файл не найден")
+            (activity as? MainActivityUBI4)?.showToast("Файл не найден")
             throw IllegalStateException("config.json is missing")
         }
         return extFile.readText()
@@ -960,10 +992,16 @@ class MotionTrainingFragment(
     }
 
     private fun showWarningDialog() {
-        if (!isAdded) return
+        if (!isAdded || _binding == null) return
+        if (currentDialog?.isShowing == true) return
         val dialogFileBinding =
             layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
         val myDialog = Dialog(requireContext())
+        dismissCurrentDialog()
+        currentDialog = myDialog
+        myDialog.setOnDismissListener {
+            if (currentDialog === myDialog) currentDialog = null
+        }
         myDialog.setContentView(dialogFileBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -976,6 +1014,7 @@ class MotionTrainingFragment(
         val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
         confirmBtn.setOnClickListener {
             stopTimers()
+            closeWriterSafely()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, SprTrainingFragment())
                 .commit()
@@ -994,8 +1033,10 @@ class MotionTrainingFragment(
     private fun onDataPacketReceived() {
         // Сбрасываем предыдущий таймер
         Log.d("onDataPacketReceived", "onDataPacketReceived run")
-
-        _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_green))
+        val localContext = context ?: return
+        _binding?.indicatorOpticStreamIv?.setImageDrawable(
+            ContextCompat.getDrawable(localContext, R.drawable.circle_16_green)
+        )
         indicationTimer?.cancel()
         dialogWarningTimer?.cancel()
         // Запускаем новый таймер на 100 мс
@@ -1003,14 +1044,20 @@ class MotionTrainingFragment(
             override fun onTick(millisUntilFinished: Long) = Unit
 
             override fun onFinish() {
-                _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+                val contextOnFinish = context ?: return
+                _binding?.indicatorOpticStreamIv?.setImageDrawable(
+                    ContextCompat.getDrawable(contextOnFinish, R.drawable.circle_16_red)
+                )
             }
         }.start()
         dialogWarningTimer = object : CountDownTimer(2000, 2000) {
             override fun onTick(millisUntilFinished: Long) = Unit
 
             override fun onFinish() {
-                _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+                val contextOnFinish = context ?: return
+                _binding?.indicatorOpticStreamIv?.setImageDrawable(
+                    ContextCompat.getDrawable(contextOnFinish, R.drawable.circle_16_red)
+                )
                 showWarningDialog()
                 pauseTimers()
             }

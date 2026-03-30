@@ -48,8 +48,7 @@ class SliderDelegateAdapterV3(
 
     private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var slidersInfoList: ArrayList<WidgetSliderInfo> = ArrayList()
-    private var indexWidgetSlidersArray = intArrayOf()
+    private var widgetInfoList: ArrayList<WidgetSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
     private var timer: CountDownTimer? = null
     private var isAttached = false
@@ -76,21 +75,15 @@ class SliderDelegateAdapterV3(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItemV3) {
-        Log.d("[Ubi4WidgetSliderBinding]", "работает SliderDelegateAdapterV3")
+//        Log.d("[Ubi4WidgetSliderBinding]", "работает SliderDelegateAdapterV3")
         onDestroyParent { onDestroy() }
         isAttached = true
-        widgetSliderUnitTv?.text = ""
-        widgetSliderUnitTv?.visibility = View.GONE
-        widgetSliderUnit2Tv?.text = ""
-        widgetSliderUnit2Tv?.visibility = View.GONE
-
 
         var parameterInfo: ParameterInfo<Int, Int, Int, Int>? = null
         var minProgress = 0
         var maxProgress = 100
         var widgetPosition = 0
         var increment = 1.0f
-
 
         when (val widget = item.widget) {
             is SliderParameterWidgetSStruct -> {
@@ -110,144 +103,110 @@ class SliderDelegateAdapterV3(
             maxProgress = maxProgress,
             increment = increment,
             progress = 0,
+            range = if (maxProgress == minProgress) 100 else maxProgress - minProgress,
             widgetSlidersSb = widgetSliderSb,
             widgetSliderNumTv = widgetSliderNumTv,
             widgetSliderUnitTv = widgetSliderUnitTv,
             widgetPosition = widgetPosition
         )
         currentSliderInfo.instanceId = sliderInfoCounter++
+        widgetInfoList.add(currentSliderInfo)
 
-        slidersInfoList.add(currentSliderInfo)
-
-        // Получаем индекс текущего виджета по значению device и parameter
-        platformLog("SliderDelegateAdapterV3", "getIndexWidgetSlider(parameterInfo.deviceAddress, parameterInfo.parameterID) count = ${slidersInfoList.size} ")
-        platformLog("SliderDelegateAdapterV3", "getIndexWidgetSlider = ${getIndexWidgetSlider(parameterInfo.dataCode).joinToString()}")
-
-        indexWidgetSlidersArray = getIndexWidgetSlider(currentParameterInfo.dataCode)
-        sliderCollect()
-        val range = if (maxProgress == minProgress) 100 else maxProgress - minProgress
-
-        // Настраиваем слайдеры: если параметров больше одного, показываем второй слайдер
-        widgetSliderSb.max = range
-        secondSliderCl.visibility = View.GONE
-        widgetSliderSb.progress = 0
-        widgetSliderNumTv.text = formatSliderValue(minProgress, increment)
-        currentSliderInfo.progress = minProgress
-        widgetSliderTitleTv.text = item.title
-
-        // Обработчик первого слайдеров
-        indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            val info = slidersInfoList[indexWidgetSlider]
+        // Обработчик всех слайдеров
+        widgetInfoList.forEach { infoWidget ->
             widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    widgetSliderNumTv.text = formatSliderValue(seekBar.progress + info.minProgress, info.increment)
+                    widgetSliderNumTv.text = formatSliderValue(seekBar.progress + infoWidget.minProgress, infoWidget.increment)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    slidersInfoList[indexWidgetSlider].progress = seekBar.progress
+                    infoWidget.progress = seekBar.progress
                     sendProgress(
-                        info.parameterInfo,
-                        slidersInfoList[indexWidgetSlider].progress
+                        infoWidget.parameterInfo,
+                        infoWidget.progress
                     )
                 }
             })
 
             // Кнопки инкремента и декремента для каждого слайдера
             minusBtnRipple.setOnClickListener {
-                updateSliderProgressWithStep(step = -1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgressWithStep(step = -1, infoWidget = infoWidget)
             }
             plusBtnRipple.setOnClickListener {
-                updateSliderProgressWithStep(step = +1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgressWithStep(step = +1, infoWidget = infoWidget)
             }
         }
 
-        run {
-            //достаётся параметр соответствующий определённому слайдеру
-            val cachedNow = ParameterProvider.getParameterV3(parameterInfo)
-            //если данные в параметре пустые, то отправляем запрос
-            if (cachedNow.data.isEmpty()) {
-                currentSliderInfo.responseReceived.set(false)
-                RetryUtils.sendRequestWithRetry(
-                    //отправляется этот реквест с периодичностью 400 мс
-                    //пока флаг responseReceived не станет true в месте приёма
-                    request = {
-                        Log.d("SliderDebugTest!", "=============================================")
-                        Log.d("SliderDebugTest!", "parameterInfo = $parameterInfo")
-//                        main.bleCommandWithQueue(
-//                            BLECommandsV3.request(parameterInfo.dataCode),
-//                            SERIALPORTCHAR_UUID,
-//                            WRITE
-//                        ) {}
-                    },
-                    isResponseReceived = { currentSliderInfo.responseReceived.get() },
-                    maxRetries = 5,
-                    delayMillis = 1000L,
-                    scope = scope
-                )
-                Log.d("RequestUtils", "Запрос отправлен: кэш пуст. command=${parameterInfo.parameterID}, subcommand=${parameterInfo.dataCode}")
-            } else {
-                // Данные уже есть – убеждаемся, что не будем ретраить зря
-                currentSliderInfo.responseReceived.set(true)
-            }
-        }
+        // Настраиваем слайдеры: если параметров больше одного, показываем второй слайдер
+        widgetSliderSb.max = currentSliderInfo.range
+        secondSliderCl.visibility = View.GONE
+        widgetSliderSb.progress = 0
+        widgetSliderNumTv.text = formatSliderValue(minProgress, increment)
+        currentSliderInfo.progress = minProgress
+        widgetSliderTitleTv.text = item.title
+        sliderCollect()
     }
 
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            sliderFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
+            sliderFlowV3.collect { setUI() }
         }
     }
-    private fun updateSliderProgressWithStep(step: Int, indexWidgetSlider: Int) {
-        val sliderInfo = slidersInfoList[indexWidgetSlider]
-        val currentValue = sliderInfo.progress
+    private fun updateSliderProgressWithStep(step: Int, infoWidget: WidgetSliderInfo) {
+//        val sliderInfo = widgetInfoList[indexWidgetSlider]
+        val currentValue = infoWidget.progress
         var newValue = currentValue + step
-        val minProgress = sliderInfo.minProgress
-        val effectiveMax = if (minProgress == sliderInfo.maxProgress) 100 else sliderInfo.maxProgress
+        val minProgress = infoWidget.minProgress
+        val effectiveMax = if (minProgress == infoWidget.maxProgress) 100 else infoWidget.maxProgress
         newValue = newValue.coerceIn(minProgress, effectiveMax)
-        sliderInfo.progress = newValue
-        sliderInfo.widgetSlidersSb.progress = newValue - minProgress
-        sliderInfo.widgetSliderNumTv.text = formatSliderValue(newValue, sliderInfo.increment)
+        infoWidget.progress = newValue
+        infoWidget.widgetSlidersSb.progress = newValue - minProgress
+        infoWidget.widgetSliderNumTv.text = formatSliderValue(newValue, infoWidget.increment)
         timer?.cancel()
         timer = object : CountDownTimer(300, 300) {
             override fun onTick(millisUntilFinished: Long) = Unit
             override fun onFinish() {
                 if (!isAttached) return
                 sendProgress(
-                    sliderInfo.parameterInfo,
-                    sliderInfo.progress
+                    infoWidget.parameterInfo,
+                    infoWidget.progress
                 )
             }
         }.start()
 
     }
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
+    private fun setUI() {
         // [new widgets V3] тут добавляем ветку расфасовки пришедших данных SliderDelegateAdapterV3 1
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
 
-        indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-            platformLog("SliderDelegateAdapterV3", "setUI widgetSlidersInfo: ${slidersInfoList[indexWidgetSlider].parameterInfo}")
-            val subcommand = parameterInfo.dataCode
-            when (subcommand) {
+        widgetInfoList.forEach { infoWidget ->
+            val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
+            platformLog("SliderDelegateAdapterV3", "setUI parameter.data: ${parameter.data}   parameterInfo: ${infoWidget.parameterInfo}")
+            when (val subcommand = infoWidget.parameterInfo.dataCode) {
                 ProsthesisModuleControlEnum.PWCE_SET_EMG_GAIN_VALUE.number.toInt() -> {
-                    val oldProgress = slidersInfoList[indexWidgetSlider].widgetSlidersSb.progress
+                    val oldProgress = infoWidget.widgetSlidersSb.progress
                     val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
-                    if (slidersInfoList[indexWidgetSlider].parameterInfo.dataOffsets == 0) {
+                    if (infoWidget.parameterInfo.dataOffsets == 0) {
+                        infoWidget.progress = emgGainResult.openGain - infoWidget.minProgress
                         setProgressBar(
-                            slidersInfoList[indexWidgetSlider].widgetSlidersSb,
+                            infoWidget.widgetSlidersSb,
                             oldProgress,
-                            emgGainResult.openGain - slidersInfoList[indexWidgetSlider].minProgress
+                            emgGainResult.openGain - infoWidget.minProgress
                         )
                     }
-                    if (slidersInfoList[indexWidgetSlider].parameterInfo.dataOffsets == 1) {
+                    if (infoWidget.parameterInfo.dataOffsets == 1) {
+                        infoWidget.progress = emgGainResult.closeGain - infoWidget.minProgress
                         setProgressBar(
-                            slidersInfoList[indexWidgetSlider].widgetSlidersSb,
+                            infoWidget.widgetSlidersSb,
                             oldProgress,
-                            emgGainResult.closeGain - slidersInfoList[indexWidgetSlider].minProgress
+                            emgGainResult.closeGain - infoWidget.minProgress
                         )
                     }
+                }
+                else -> {
+                    main.showToast("В SliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                    platformLog("SliderDelegateAdapterV3", "В SliderDelegateAdapterV3 парсим неправильную сабкоманду ${infoWidget.parameterInfo}")
                 }
             }
         }
@@ -256,10 +215,10 @@ class SliderDelegateAdapterV3(
         try {
             animateProgressBar(progressBar, from, to)
         } catch (_: Exception) { } finally {
-            indexWidgetSlidersArray.forEach { indexWidgetSlider ->
-                slidersInfoList[indexWidgetSlider].responseReceived.set(true)
-                slidersInfoList[indexWidgetSlider].loadingAnimators?.cancel()
-            }
+//            indexWidgetSlidersArray.forEach { indexWidgetSlider ->
+//                widgetInfoList[indexWidgetSlider].responseReceived.set(true)
+//                widgetInfoList[indexWidgetSlider].loadingAnimators?.cancel()
+//            }
         }
     }
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
@@ -277,15 +236,6 @@ class SliderDelegateAdapterV3(
             }
             start()
         }
-    }
-    private fun getIndexWidgetSlider(subcommand: Int): IntArray {
-        platformLog("animateProgressBar", "getIndexWidgetSlider из ${slidersInfoList.size}")
-        val indices = slidersInfoList.mapIndexedNotNull { index, item ->
-            if (item.parameterInfo.dataCode == subcommand) { index }
-            else { null }
-        }.toIntArray()
-
-        return indices
     }
     private fun sendProgress(parameterInfo: ParameterInfo<Int, Int, Int, Int>, progress: Int) {
         // [new widgets V3] тут добавляем ветку отправки новых команд SliderDelegateAdapterV3 2
@@ -340,6 +290,12 @@ class SliderDelegateAdapterV3(
         isAttached = false
         timer?.cancel()
         timer = null
+        widgetInfoList.forEach { info ->
+            info.loadingAnimators?.cancel()
+            info.loadingAnimators = null
+        }
+        widgetInfoList.clear()
+        sliderInfoCounter = 0
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null
@@ -352,6 +308,7 @@ data class WidgetSliderInfo (
     var maxProgress: Int = 0,
     var increment: Float = 1.0f,
     var progress: Int = 0,
+    var range: Int = 0,
     var widgetSlidersSb: ProgressBar,
     var widgetSliderNumTv: TextView,
     var widgetSliderUnitTv: TextView?,

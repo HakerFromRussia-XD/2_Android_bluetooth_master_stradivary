@@ -143,19 +143,18 @@ class SwitcherDelegateAdapterV3(
     }
 
     private fun setUI() {
-        platformLog("SwitcherDelegateAdapterV3", "SwitcherDelegateAdapterV3")
         widgetInfoList.forEach { widgetInfo ->
             val parameter = ParameterProvider.getParameterV3(widgetInfo.parameterInfo)
             val subcommand = widgetInfo.parameterInfo.dataCode
             when (subcommand) {
-                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-                    val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-                    widgetInfo.isChecked = switcherV3.checked
-                    updateSwitchState(
-                        widgetInfo.isChecked,
-                        widgetInfo.widgetSwitch
-                    )
-                }
+//                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
+//                    val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
+//                    widgetInfo.isChecked = switcherV3.checked
+//                    updateSwitchState(
+//                        widgetInfo.isChecked,
+//                        widgetInfo.widgetSwitch
+//                    )
+//                }
                 else -> {
                     main.showToast("В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
                     platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду ${widgetInfo.parameterInfo}")
@@ -171,12 +170,12 @@ class SwitcherDelegateAdapterV3(
         val subcommand = parameterInfo.dataCode
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
         when (subcommand) {
-            GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-                val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-                switcherV3.checked = checked
-                parameter.data = json.encodeToString(switcherV3)
-                platformLog("sendSwitcher", "parameter.data: ${parameter.data}")
-            }
+//            GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
+//                val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
+//                switcherV3.checked = checked
+//                parameter.data = json.encodeToString(switcherV3)
+//                platformLog("sendSwitcher", "parameter.data: ${parameter.data}")
+//            }
             else -> {
                 main.showToast("В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $subcommand")
                 platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $parameterInfo")

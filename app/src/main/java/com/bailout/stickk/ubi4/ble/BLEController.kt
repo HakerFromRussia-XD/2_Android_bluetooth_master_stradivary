@@ -54,6 +54,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModu
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.mainOrNull
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -110,11 +111,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
-                if(state == WRITE)
-                    synchronized(main.writeLock) {
+                if(state == WRITE) {
+                    val currentMain = mainOrNull ?: return@setReceiverCallback
+                    synchronized(currentMain.writeLock) {
                         canSendFlag = true
-                        main.writeLock.notifyAll()
+                        currentMain.writeLock.notifyAll()
                     }
+                }
             }
             if (!mBluetoothLeService?.initialize()!!) {
                 main.finish()
@@ -196,7 +199,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
                     }
 
-                    mBluetoothLeService?.disconnect()
                     mBluetoothLeService?.close()
 
                     if (!reconnectThreadFlag && !mScanning) {
@@ -523,38 +525,45 @@ class BLEController(private val bleManager: BleManagerKmm) {
         }
     }
     private suspend fun reconnect() {
-        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
-        withContext(Dispatchers.IO) {
-            runCatching { mContext.unbindService(mServiceConnection) }
-                .onFailure { Log.w("BLEController", "Не удалось отцепить сервис: ${it.message}") }
-
-            mBluetoothLeService = null
-
-            val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
-            mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+        val targetAddress = connectedDeviceAddress
+        if (targetAddress.isBlank() || targetAddress == "null") {
+            Log.w("BLEController", "reconnect skipped: empty target address")
+            return
         }
 
-        // На главном потоке регистрируем ресивер (если требуется)
+        // Сначала пробуем обычный reconnect без перевязывания сервиса — так стабильнее на части стеков.
+        val connectedViaExistingService = withContext(Dispatchers.Main) {
+            mBluetoothLeService?.connect(targetAddress) ?: false
+        }
+        if (connectedViaExistingService) return
+
+        // Fallback: поднимаем сервис заново, если предыдущая попытка не стартовала.
         withContext(Dispatchers.Main) {
+            runCatching { mContext.unbindService(mServiceConnection) }
+                .onFailure { Log.w("BLEController", "Не удалось отцепить сервис: ${it.message}") }
+            mBluetoothLeService = null
+            val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
+            mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
             registerGattReceiverIfNeeded()
-            mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }
     fun disconnect() {
         if (mDisconnected) return
         reconnectThreadFlag = false
         reconnectJob?.cancel()
+        if (mScanning) scanLeDevice(false)
         ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
         mDisconnected = true
         println("--> дисконнектим всё к хуям и анбайндим")
         bleScope.launch(Dispatchers.IO) {
-            mBluetoothLeService?.disconnect()
+            runCatching { mBluetoothLeService?.disconnect() }
+            runCatching { mBluetoothLeService?.close() }
             runCatching { mContext.unbindService(mServiceConnection) }
             withContext(Dispatchers.Main) {
                 mConnected = false
                 listWidgets.clear()
                 UiState.resetWidgetRequests()
-                main.openScanActivity()
+                mainOrNull?.openScanActivity()
             }
         }
 
@@ -600,31 +609,50 @@ class BLEController(private val bleManager: BleManagerKmm) {
         receiverRegistered = false
     }
     internal fun scanLeDevice(enable: Boolean) {
+        val adapter = mBluetoothAdapter
+        if (adapter == null) {
+            if (enable) Log.w("BLEController", "scanLeDevice(true) skipped: adapter is null")
+            mScanning = false
+            return
+        }
+
         if (enable) {
-            mScanning = true
+            if (mScanning) return
             if (ActivityCompat.checkSelfPermission(
                     mContext,
                     Manifest.permission.BLUETOOTH_SCAN
                 ) != PackageManager.PERMISSION_GRANTED
             ) { return }
-            mBluetoothAdapter!!.startLeScan(mLeScanCallback)
+            runCatching {
+                adapter.startLeScan(mLeScanCallback)
+                mScanning = true
+            }.onFailure {
+                mScanning = false
+                Log.w("BLEController", "startLeScan failed: ${it.message}")
+            }
         } else {
+            if (!mScanning) return
+            runCatching {
+                adapter.stopLeScan(mLeScanCallback)
+            }.onFailure {
+                Log.w("BLEController", "stopLeScan failed: ${it.message}")
+            }
             mScanning = false
-            mBluetoothAdapter!!.stopLeScan(mLeScanCallback)
         }
     }
     @SuppressLint("MissingPermission")
     private val mLeScanCallback = BluetoothAdapter.LeScanCallback { device, _, _ ->
-        main.runOnUiThread {
-            if (device.name != null) {
-                System.err.println("------->   ===============найден девайс: ${device.address} - ${device.name}  ищем $connectedDeviceAddress ==============")
-                if (device.address == connectedDeviceAddress) {
-                    System.err.println("------->   ==========это нужный нам девайс $device  $scanWithoutConnectFlag ==============")
-                    if (!scanWithoutConnectFlag) {
-                        scanLeDevice(false)
-                        reconnectThreadFlag = true
-                        reconnectThread()
-                    }
+        val deviceName = device.name ?: return@LeScanCallback
+        if (mDisconnected) return@LeScanCallback
+        System.err.println("------->   ===============найден девайс: ${device.address} - $deviceName  ищем $connectedDeviceAddress ==============")
+        if (device.address == connectedDeviceAddress) {
+            System.err.println("------->   ==========это нужный нам девайс $device  $scanWithoutConnectFlag ==============")
+            if (!scanWithoutConnectFlag) {
+                Handler(Looper.getMainLooper()).post {
+                    if (mDisconnected) return@post
+                    scanLeDevice(false)
+                    reconnectThreadFlag = true
+                    reconnectThread()
                 }
             }
         }
@@ -676,6 +704,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     fun cleanup() {
         reconnectThreadFlag = false
         reconnectJob?.cancel()
+        if (mScanning) scanLeDevice(false)
         bleJob.cancel()
         mDisconnected = true
         progressDialog?.dismiss()

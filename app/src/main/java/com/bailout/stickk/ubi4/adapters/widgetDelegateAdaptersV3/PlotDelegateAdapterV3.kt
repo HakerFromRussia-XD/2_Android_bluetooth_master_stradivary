@@ -10,6 +10,8 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
@@ -51,6 +53,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -281,11 +284,10 @@ class PlotDelegateAdapterV3 (
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
             } catch (e: Exception) {
-                main.runOnUiThread {
-                    main.showToast("ERROR plotArrayFlowCollect")
+                Log.e("plotArrayFlowCollect", "Exception: ${e.message}", e)
+                if (scope?.isActive == true) {
+                    plotArrayFlowCollect()
                 }
-                Log.e("plotArrayFlowCollect", "Exception: ${e.message}")
-                plotArrayFlowCollect()
             }
         }
     }
@@ -333,13 +335,13 @@ class PlotDelegateAdapterV3 (
         set.valueTextColor = Color.TRANSPARENT
         return set
     }
-    private fun createSet1(): LineDataSet {
+    private fun createSet1(emgChart: LineChart): LineDataSet {
         val set1 = LineDataSet(null, null)
         set1.setDrawCircles(false)
         set1.setDrawValues(false)
         set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
-        set1.color = main.applicationContext.getColor(R.color.ubi4_white)
+        set1.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_white)
         set1.mode = LineDataSet.Mode.LINEAR
         set1.setCircleColor(Color.TRANSPARENT)
         set1.circleHoleColor = Color.TRANSPARENT
@@ -348,13 +350,13 @@ class PlotDelegateAdapterV3 (
         set1.valueTextColor = Color.TRANSPARENT
         return set1
     }
-    private fun createSet2(): LineDataSet {
+    private fun createSet2(emgChart: LineChart): LineDataSet {
         val set2 = LineDataSet(null, null)
         set2.setDrawCircles(false)
         set2.setDrawValues(false)
         set2.axisDependency = YAxis.AxisDependency.LEFT
         set2.lineWidth = 2f
-        set2.color = main.applicationContext.getColor(R.color.ubi4_deactivate_text)
+        set2.color = ContextCompat.getColor(emgChart.context, R.color.ubi4_deactivate_text)
         set2.mode = LineDataSet.Mode.LINEAR
         set2.setCircleColor(Color.TRANSPARENT)
         set2.circleHoleColor = Color.TRANSPARENT
@@ -445,7 +447,16 @@ class PlotDelegateAdapterV3 (
             // Передаём обработанные данные в addEntry
             addEntry(preparedEntries, emgChart)
         } catch (e:ConcurrentModificationException){
-            main.showToast("Ошибка: изменение данных во время отрисовки!")
+            Log.w("Plot view", "Concurrent modification while rendering chart", e)
+            emgChart.post {
+                if (emgChart.isAttachedToWindow) {
+                    Toast.makeText(
+                        emgChart.context,
+                        "Ошибка: изменение данных во время отрисовки!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
 
     }
@@ -463,8 +474,8 @@ class PlotDelegateAdapterV3 (
         if (set1 == null) {
             Log.d("Plot view","создание новых DataSet  numberOfCharts = $numberOfCharts  countBinding = $countBinding ")
             set = createSet()
-            set1 = createSet1()
-            set2 = createSet2()
+            set1 = createSet1(emgChart)
+            set2 = createSet2(emgChart)
             set3 = createSet3()
             set4 = createSet4()
             set5 = createSet5()
@@ -479,7 +490,9 @@ class PlotDelegateAdapterV3 (
             data.addDataSet(set6)
         }
 
-        main.runOnUiThread {
+        if (!emgChart.isAttachedToWindow) return
+        emgChart.post {
+            if (!emgChart.isAttachedToWindow || !graphThreadFlag) return@post
             if (set1.entryCount > 200) {
                 set.removeFirst()
                 set1.removeFirst()

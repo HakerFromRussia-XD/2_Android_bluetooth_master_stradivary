@@ -205,8 +205,7 @@ class ToggleSliderDelegateAdapterV3(
             val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return@forEach
             var valueForChangeToggle = 0
-            val subcommand = parameterInfo.dataCode
-            when (subcommand) {
+            when (val subcommand = parameterInfo.dataCode) {
                 PWCE_SET_EMG_CHANGE_GESTURE.number.toInt() -> {
                     valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
                 }
@@ -219,6 +218,7 @@ class ToggleSliderDelegateAdapterV3(
                 }
                 else -> {
                     main.showToast("В ToggleSliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
+                    platformLog("ToggleSliderDelegateAdapterV3", "В ToggleSliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
                 }
             }
             try {

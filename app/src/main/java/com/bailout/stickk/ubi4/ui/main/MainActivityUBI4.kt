@@ -129,7 +129,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private val bleManager = BleManagerKmm()
 
     private lateinit var syncDialog: SyncProgressDialog
-    private var chromeHidden = false
 
     private var job: Job? = null
 
@@ -233,9 +232,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         binding.runCommandBtn.setOnClickListener {
             main.bleCommandWithQueue(
-                requestWithCommand(
-                    GUI_CONTROL.number.toInt(),
-                    GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
+                requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
                 SERIALPORTCHAR_UUID,
                 WRITE){}
 
@@ -659,6 +656,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     companion object {
         private var mainRef: WeakReference<MainActivityUBI4>? = null
+
+        val mainOrNull: MainActivityUBI4?
+            get() = mainRef?.get()
 
         var main: MainActivityUBI4
             get() = mainRef?.get()

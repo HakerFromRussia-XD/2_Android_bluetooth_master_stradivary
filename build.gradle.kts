@@ -7,6 +7,7 @@ plugins {
     id("com.android.library") apply false
     id("org.jetbrains.compose") apply false
 }
+
 buildscript {
     dependencies {
         classpath("dev.icerock.moko:resources-generator:0.25.1")
@@ -14,18 +15,20 @@ buildscript {
 }
 
 allprojects {
-    configurations.all {
+    configurations.configureEach {
         exclude(group = "com.android.support", module = "support-compat")
-        resolutionStrategy.force("com.google.guava:guava:33.1.0-android")
+        resolutionStrategy {
+            force("com.google.guava:guava:33.1.0-android")
+        }
     }
     repositories {
         mavenCentral()
         mavenLocal()
         google()
         gradlePluginPortal()
-        maven("https://jitpack.io")
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://plugins.gradle.org/m2")
+        maven(url = uri("https://jitpack.io"))
+        maven(url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev"))
+        maven(url = uri("https://plugins.gradle.org/m2"))
     }
 }
 
@@ -63,14 +66,9 @@ tasks.named("build").configure {
     }
 }
 
-if (runTestsOnBuild) {
-    subprojects {
-        tasks.matching {
-            it.name == "build" ||
-                it.name.startsWith("assemble")
-        }.configureEach {
-            dependsOn(rootProject.tasks.named("runAllUnitTests"))
-        }
+tasks.named("build").configure {
+    if (runTestsOnBuild) {
+        dependsOn(runAllUnitTests)
     }
 }
 

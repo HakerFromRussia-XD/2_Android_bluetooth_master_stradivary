@@ -111,22 +111,15 @@ class SpinnerDelegateAdapterV3 (
     private fun spinnerCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            spinnerFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
+            spinnerFlowV3.collect { setUI() }
         }
     }
 
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue ?: return
+    private fun setUI() {
         spinnerInfoList.forEach { infoWidget ->
-            val widgetParameterInfo = infoWidget.parameterInfoSet.firstOrNull() ?: return@forEach
-            if (widgetParameterInfo.parameterID != parameterInfo.parameterID ||
-                widgetParameterInfo.dataCode != parameterInfo.dataCode ||
-                widgetParameterInfo.deviceAddress != parameterInfo.deviceAddress ||
-                widgetParameterInfo.dataOffsets != parameterInfo.dataOffsets
-            ) {
-                return@forEach
-            }
+            val parameterInfo = infoWidget.parameterInfoSet.firstOrNull() ?: return@forEach
+            val parameter = ParameterProvider.getParameterV3(parameterInfo)
+            val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue ?: return
             when (val subcommand = parameterInfo.dataCode) {
                 PWCE_SET_HAND_CONTROL_MODE.number.toInt() -> {
                     applyProgrammaticSelection(infoWidget, spinnerValue)

@@ -181,7 +181,6 @@ class SliderDelegateAdapterV3(
     }
     private fun setUI() {
         // [new widgets V3] тут добавляем ветку расфасовки пришедших данных SliderDelegateAdapterV3 1
-
         widgetInfoList.forEach { infoWidget ->
             val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             platformLog("SliderDelegateAdapterV3", "setUI parameter.data: ${parameter.data}   parameterInfo: ${infoWidget.parameterInfo}")

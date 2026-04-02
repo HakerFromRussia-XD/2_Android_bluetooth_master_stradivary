@@ -62,11 +62,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.roundToInt
 
 class PlotDelegateAdapter (
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
+    private companion object {
+        private const val SENSOR_COUNT = 6
+        private const val SMOOTHING_TICKS = 7
+    }
+
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
@@ -81,6 +87,11 @@ class PlotDelegateAdapter (
     private var firstInit = true
     private var openThreshold = 0
     private var closeThreshold = 0
+
+    private var rampTick = 0
+    private val startSensors = DoubleArray(SENSOR_COUNT)
+    private val targetSensors = DoubleArray(SENSOR_COUNT)
+    private val currentSensors = DoubleArray(SENSOR_COUNT)
 
 
 
@@ -249,6 +260,7 @@ class PlotDelegateAdapter (
         } else {
             // Создаем новый scope
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            resetSmoothingState()
             initializedSensorGraph(EMGChartLc)
             plotArrayFlowCollect()
         }
@@ -492,6 +504,69 @@ class PlotDelegateAdapter (
         set6.valueTextColor = Color.TRANSPARENT
         return set6
     }
+    private fun createBoundsSet(): LineDataSet {
+        val boundsSet = LineDataSet(null, null)
+        boundsSet.setDrawCircles(false)
+        boundsSet.setDrawValues(false)
+        boundsSet.axisDependency = YAxis.AxisDependency.LEFT
+        boundsSet.lineWidth = 0f
+        boundsSet.color = Color.TRANSPARENT
+        boundsSet.mode = LineDataSet.Mode.LINEAR
+        boundsSet.setCircleColor(Color.TRANSPARENT)
+        boundsSet.circleHoleColor = Color.TRANSPARENT
+        boundsSet.fillColor = Color.TRANSPARENT
+        boundsSet.highLightColor = Color.TRANSPARENT
+        boundsSet.valueTextColor = Color.TRANSPARENT
+        boundsSet.isHighlightEnabled = false
+        return boundsSet
+    }
+
+    private fun normalizeSensorValue(value: Int): Int {
+        return if (value in 0..255) value else 0
+    }
+
+    private fun resetSmoothingState() {
+        rampTick = 0
+        for (index in 0 until SENSOR_COUNT) {
+            startSensors[index] = 0.0
+            targetSensors[index] = 0.0
+            currentSensors[index] = 0.0
+        }
+    }
+
+    private fun smoothSensorValues(rawSensors: IntArray): IntArray {
+        var hasNewTarget = false
+        for (index in 0 until SENSOR_COUNT) {
+            if (rawSensors[index].toDouble() != targetSensors[index]) {
+                hasNewTarget = true
+                break
+            }
+        }
+
+        if (hasNewTarget) {
+            for (index in 0 until SENSOR_COUNT) {
+                startSensors[index] = currentSensors[index]
+                targetSensors[index] = rawSensors[index].toDouble()
+            }
+            rampTick = 0
+        }
+
+        val ticks = maxOf(1, SMOOTHING_TICKS)
+        val progress = minOf(1.0, (rampTick + 1).toDouble() / ticks.toDouble())
+        val smoothedSensors = IntArray(SENSOR_COUNT)
+
+        for (index in 0 until SENSOR_COUNT) {
+            currentSensors[index] =
+                startSensors[index] + (targetSensors[index] - startSensors[index]) * progress
+            smoothedSensors[index] = currentSensors[index].roundToInt()
+        }
+
+        if (rampTick < ticks - 1) {
+            rampTick += 1
+        }
+
+        return smoothedSensors
+    }
 
     private suspend fun prepareAndAddEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
         if (graphThreadFlag) {
@@ -536,6 +611,8 @@ class PlotDelegateAdapter (
         var set4 = data.getDataSetByIndex(4)
         var set5 = data.getDataSetByIndex(5)
         var set6 = data.getDataSetByIndex(6)
+        var setUpperBound = data.getDataSetByIndex(7)
+        var setLowerBound = data.getDataSetByIndex(8)
 
         if (set1 == null) {
             Log.d("Plot view","создание новых DataSet  numberOfCharts = $numberOfCharts  countBinding = $countBinding ")
@@ -546,6 +623,8 @@ class PlotDelegateAdapter (
             set4 = createSet4()
             set5 = createSet5()
             set6 = createSet6()
+            setUpperBound = createBoundsSet()
+            setLowerBound = createBoundsSet()
 
             data.addDataSet(set)
             data.addDataSet(set1)
@@ -554,6 +633,16 @@ class PlotDelegateAdapter (
             data.addDataSet(set4)
             data.addDataSet(set5)
             data.addDataSet(set6)
+            data.addDataSet(setUpperBound)
+            data.addDataSet(setLowerBound)
+        }
+        if (setUpperBound == null) {
+            setUpperBound = createBoundsSet()
+            data.addDataSet(setUpperBound)
+        }
+        if (setLowerBound == null) {
+            setLowerBound = createBoundsSet()
+            data.addDataSet(setLowerBound)
         }
 
         if (!emgChart.isAttachedToWindow) return
@@ -567,6 +656,8 @@ class PlotDelegateAdapter (
                 if (numberOfCharts >= 4) { set4.removeFirst() }
                 if (numberOfCharts >= 5) { set5.removeFirst() }
                 if (numberOfCharts >= 6) { set6.removeFirst() }
+                setUpperBound.removeFirst()
+                setLowerBound.removeFirst()
             }
 
             data.addEntry(defaultEntry, 0)
@@ -576,6 +667,8 @@ class PlotDelegateAdapter (
             if (numberOfCharts >= 4) {data.addEntry(preparedEntries[3], 4)}
             if (numberOfCharts >= 5) {data.addEntry(preparedEntries[4], 5)}
             if (numberOfCharts >= 6) {data.addEntry(preparedEntries[5], 6)}
+            data.addEntry(Entry(count.toFloat(), 255f), 7)
+            data.addEntry(Entry(count.toFloat(), 0f), 8)
 
             data.notifyDataChanged()
             emgChart.notifyDataSetChanged()
@@ -710,20 +803,23 @@ class PlotDelegateAdapter (
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart, indexWidgetPlot: Int) {
         while (graphThreadFlag) {
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens1 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens1 = 0
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens2 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens2 = 0
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens3 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens3 = 0
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens4 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens4 = 0
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens5 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens5 = 0
-            if (widgetPlotsInfo[indexWidgetPlot].dataSens6 > 255) widgetPlotsInfo[indexWidgetPlot].dataSens6 = 0
+            val rawSensors = intArrayOf(
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens1),
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens2),
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens3),
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens4),
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens5),
+                normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens6)
+            )
+            val smoothedSensors = smoothSensorValues(rawSensors)
 
             prepareAndAddEntry(
-                widgetPlotsInfo[indexWidgetPlot].dataSens1,
-                widgetPlotsInfo[indexWidgetPlot].dataSens2,
-                widgetPlotsInfo[indexWidgetPlot].dataSens3,
-                widgetPlotsInfo[indexWidgetPlot].dataSens4,
-                widgetPlotsInfo[indexWidgetPlot].dataSens5,
-                widgetPlotsInfo[indexWidgetPlot].dataSens6,
+                smoothedSensors[0],
+                smoothedSensors[1],
+                smoothedSensors[2],
+                smoothedSensors[3],
+                smoothedSensors[4],
+                smoothedSensors[5],
                 emgChart
             )
             delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
@@ -738,6 +834,7 @@ class PlotDelegateAdapter (
 
     fun onDestroy() {
         graphThreadFlag = false
+        resetSmoothingState()
         if (widgetPlotsInfo.isNotEmpty()) {
             setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, 0)
             setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, 0)

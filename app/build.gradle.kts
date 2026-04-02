@@ -32,7 +32,6 @@ android {
         versionName = "3.3.1573"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
-//        signingConfig = signingConfigs.getByName("release")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

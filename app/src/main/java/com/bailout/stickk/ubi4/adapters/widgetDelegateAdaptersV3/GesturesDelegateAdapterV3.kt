@@ -101,6 +101,7 @@ class GesturesDelegateAdapterV3(
     private var collectJob: Job? = null
     private var currentActiveGestureId: Int? = null
     private var isRotationGroupResponseReceived = false
+    private var lastRenderedFilter: Int? = null
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -156,6 +157,8 @@ class GesturesDelegateAdapterV3(
 
         // восстановить фильтр (1/2)
         val savedFilter = main.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        lastRenderedFilter = null
+        renderFilterUI(savedFilter, animate = false)
         UiState.activeGestureFragmentFilterFlow.value = savedFilter // если у тебя этот flow доступен тут
         if (savedFilter == 2) {
             requestRotationGroupWithRetry()
@@ -363,7 +366,7 @@ class GesturesDelegateAdapterV3(
             try {
                 merge(
                     UiState.activeGestureFragmentFilterFlow.map{ filter ->
-                        renderFilterUI(filter)
+                        renderFilterUI(filter, animate = true)
                     },
                     WidgetState.currentGestureFlowV3.map { parameterInfo ->
                         val parameter = ParameterProvider.getParameterV3(parameterInfo)
@@ -377,15 +380,20 @@ class GesturesDelegateAdapterV3(
                         platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 пришли по потоку ${parameter.data}")
                         val currentGesture = parseGestureGroupeSafely(parameter.data) ?: return@map
                         val rotationGroupList = currentGesture.toGestureList()
+                        val receivedGestures = rotationGroupList
+                            .filter { item -> item.first != 0 }
+                            .map { item -> getGesture(item.first) }
                         isRotationGroupResponseReceived = true
-                        rotationGroupGestures.clear()
-                        rotationGroupList.forEach { item ->
-                            if (item.first != 0) rotationGroupGestures.add(getGesture(item.first))
+                        if (!hasSameRotationGroup(receivedGestures)) {
+                            rotationGroupGestures.clear()
+                            rotationGroupGestures.addAll(receivedGestures)
+
+                            showIntroduction()
+                            setupListRecyclerView()
+                            synchronizeRotationGroup()
+                            calculatingShowAddButton()
                         }
-                        showIntroduction()
-                        setupListRecyclerView()
-                        synchronizeRotationGroup()
-                        calculatingShowAddButton()
+
                         currentActiveGestureId?.let { id ->
                             setActiveGesture(getGestureViewById(id))
                             updateActiveGestureHeader(id)
@@ -444,14 +452,29 @@ class GesturesDelegateAdapterV3(
         )
     }
 
+    private fun hasSameRotationGroup(newGestures: List<Gesture>): Boolean {
+        if (rotationGroupGestures.size != newGestures.size) return false
+        return rotationGroupGestures.zip(newGestures).all { (current, received) ->
+            current.gestureId == received.gestureId
+        }
+    }
+
     private fun setupListRecyclerView() {
-        mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
-        itemsGesturesRotationArray = ArrayList(rotationGroupGestures.mapIndexed { index, gesture ->
+        val newItems = ArrayList(rotationGroupGestures.mapIndexed { index, gesture ->
             Pair(
                 index.toLong(),
                 gesture.gestureName + "™" + gesture.gestureId.toString()
             )
         })
+        if (itemsGesturesRotationArray == newItems && listRotationGroupAdapter != null) {
+            currentActiveGestureId?.let { id ->
+                listRotationGroupAdapter?.setActiveGestureId(id)
+            }
+            return
+        }
+
+        mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
+        itemsGesturesRotationArray = newItems
         listRotationGroupAdapter =
             RotationGroupItemAdapterV3(
                 itemsGesturesRotationArray,
@@ -477,49 +500,73 @@ class GesturesDelegateAdapterV3(
         )
     }
 
-    private fun renderFilterUI(activeFilter: Int) {
+    private fun renderFilterUI(activeFilter: Int, animate: Boolean = true, force: Boolean = false) {
+        if (!force && lastRenderedFilter == activeFilter) return
+
         val displayMetrics = main.resources.displayMetrics
-        val filterWidth = (_ubi4GesturesSelectorV.width / displayMetrics.density).toInt()
+        val selectorContainerWidth = _ubi4GesturesSelectorV.width.takeIf { it > 0 }
+            ?: _ubi4GesturesSelectorV.measuredWidth
+        val selectorStart = 18f * displayMetrics.density
+        val targetSelectorX = if (activeFilter == 1) {
+            selectorStart
+        } else {
+            (selectorContainerWidth / 2f) + selectorStart
+        }
+        val showCollection = activeFilter == 1
+        val collectionTargetColor = if (showCollection) {
+            main.getColor(R.color.white)
+        } else {
+            main.getColor(R.color.ubi4_deactivate_text)
+        }
+        val rotationTargetColor = if (showCollection) {
+            main.getColor(R.color.ubi4_deactivate_text)
+        } else {
+            main.getColor(R.color.white)
+        }
 
-        when (activeFilter) {
-            1 -> {
-                ObjectAnimator.ofFloat(_gesturesSelectV, "x", (18 * displayMetrics.density))
-                    .setDuration(ANIMATION_DURATION.toLong()).start()
-
-                ObjectAnimator.ofInt(
-                    _collectionOfGesturesTv, "textColor",
-                    main.getColor(R.color.ubi4_deactivate_text), main.getColor(R.color.white)
-                ).apply { setEvaluator(ArgbEvaluator()); duration = ANIMATION_DURATION.toLong(); start() }
-
-                ObjectAnimator.ofInt(
-                    _rotationGroupTv, "textColor",
-                    main.getColor(R.color.white), main.getColor(R.color.ubi4_deactivate_text)
-                ).apply { setEvaluator(ArgbEvaluator()); duration = ANIMATION_DURATION.toLong(); start() }
-
-                showCollectionGestures(true, _rotationGroupCl, _collectionGesturesCl)
-            }
-            2 -> {
-                ObjectAnimator.ofFloat(
-                    _gesturesSelectV,
-                    "x",
-                    ((filterWidth / 2) + 18) * displayMetrics.density
-                ).setDuration(ANIMATION_DURATION.toLong()).start()
-
-                ObjectAnimator.ofInt(
-                    _collectionOfGesturesTv, "textColor",
-                    main.getColor(R.color.white), main.getColor(R.color.ubi4_deactivate_text)
-                ).apply { setEvaluator(ArgbEvaluator()); duration = ANIMATION_DURATION.toLong(); start() }
-
-                ObjectAnimator.ofInt(
-                    _rotationGroupTv, "textColor",
-                    main.getColor(R.color.ubi4_deactivate_text), main.getColor(R.color.white)
-                ).apply { setEvaluator(ArgbEvaluator()); duration = ANIMATION_DURATION.toLong(); start() }
-
-                showCollectionGestures(false, _rotationGroupCl, _collectionGesturesCl)
+        if (activeFilter == 2 && selectorContainerWidth == 0 && !force) {
+            _ubi4GesturesSelectorV.post {
+                renderFilterUI(activeFilter, animate = false, force = true)
             }
         }
 
-        _activeGestureNameCl.visibility = View.VISIBLE
+        if (animate && lastRenderedFilter != null) {
+            ObjectAnimator.ofFloat(_gesturesSelectV, "x", targetSelectorX)
+                .setDuration(ANIMATION_DURATION.toLong())
+                .start()
+
+            ObjectAnimator.ofInt(
+                _collectionOfGesturesTv,
+                "textColor",
+                _collectionOfGesturesTv.currentTextColor,
+                collectionTargetColor
+            ).apply {
+                setEvaluator(ArgbEvaluator())
+                duration = ANIMATION_DURATION.toLong()
+                start()
+            }
+
+            ObjectAnimator.ofInt(
+                _rotationGroupTv,
+                "textColor",
+                _rotationGroupTv.currentTextColor,
+                rotationTargetColor
+            ).apply {
+                setEvaluator(ArgbEvaluator())
+                duration = ANIMATION_DURATION.toLong()
+                start()
+            }
+        } else {
+            _gesturesSelectV.x = targetSelectorX
+            _collectionOfGesturesTv.setTextColor(collectionTargetColor)
+            _rotationGroupTv.setTextColor(rotationTargetColor)
+        }
+
+        showCollectionGestures(showCollection, _rotationGroupCl, _collectionGesturesCl)
+        if (_activeGestureNameCl.visibility != View.VISIBLE) {
+            _activeGestureNameCl.visibility = View.VISIBLE
+        }
+        lastRenderedFilter = activeFilter
     }
 
     private fun showCollectionGestures(
@@ -528,11 +575,19 @@ class GesturesDelegateAdapterV3(
         collectionGesturesCl: ConstraintLayout
     ) {
         if (show) {
-            collectionGesturesCl.visibility = View.VISIBLE
-            rotationGroupCl.visibility = View.GONE
+            if (collectionGesturesCl.visibility != View.VISIBLE) {
+                collectionGesturesCl.visibility = View.VISIBLE
+            }
+            if (rotationGroupCl.visibility != View.GONE) {
+                rotationGroupCl.visibility = View.GONE
+            }
         } else {
-            rotationGroupCl.visibility = View.VISIBLE
-            collectionGesturesCl.visibility = View.GONE
+            if (rotationGroupCl.visibility != View.VISIBLE) {
+                rotationGroupCl.visibility = View.VISIBLE
+            }
+            if (collectionGesturesCl.visibility != View.GONE) {
+                collectionGesturesCl.visibility = View.GONE
+            }
         }
     }
 

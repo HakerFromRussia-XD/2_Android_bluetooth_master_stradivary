@@ -66,7 +66,6 @@ class GesturesFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -80,9 +79,7 @@ class GesturesFragment : BaseWidgetsFragment() {
 
         val initialData = mDataFactory.prepareData(display)
         Log.d("GesturesFragment", "initialData size=${initialData.size}")
-        binding.homeRv.post {
-            adapterWidgets.swapData(initialData)
-        }
+        adapterWidgets.swapData(initialData)
 
         disposables.add(
             RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable

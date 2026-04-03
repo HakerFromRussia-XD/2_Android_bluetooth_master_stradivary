@@ -228,17 +228,17 @@ class BLEParserV3(
                         coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
                     }
                     GMCE_GET_LEFT_RIGHT_HAND.number -> {
-//                        val handSide = parseSpinnerZeroAlloc(receivePacket.payload)
-//                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
-//                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-//                        parameter.data = json.encodeToString(handSide)
-//                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
+                        val handSide = parseSpinnerZeroAlloc(receivePacket.payload)
+                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                        parameter.data = json.encodeToString(handSide)
+                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
 
-                        val handSideSwitch = parseSwitchZeroAlloc(receivePacket.payload)
-                        val parameterInfoSwitch = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
-                        val parameterSwitch = ParameterProvider.getParameterV3(parameterInfoSwitch)
-                        parameterSwitch.data = json.encodeToString(handSideSwitch)
-                        coroutineScope.launch { switcherFlowV3.emit(parameterInfoSwitch) }
+//                        val handSideSwitch = parseSwitchZeroAlloc(receivePacket.payload)
+//                        val parameterInfoSwitch = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+//                        val parameterSwitch = ParameterProvider.getParameterV3(parameterInfoSwitch)
+//                        parameterSwitch.data = json.encodeToString(handSideSwitch)
+//                        coroutineScope.launch { switcherFlowV3.emit(parameterInfoSwitch) }
                     }
                 }
             }
@@ -553,17 +553,17 @@ class BLEParserV3(
         )
             ,"Жесты"
         ))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetPosition = 0,
-            widgetCode = PWCE_SWITCH_V3.number.toInt(),
-            widgetId = 7,
-            parameterInfoSet = mutableSetOf(
-                ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
-            )
-        )
-            ,"Свитчер тест(сторона руки)"
-        ))
+//        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+//            display = 2,
+//            widgetPosition = 0,
+//            widgetCode = PWCE_SWITCH_V3.number.toInt(),
+//            widgetId = 7,
+//            parameterInfoSet = mutableSetOf(
+//                ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
+//            )
+//        )
+//            ,"Свитчер тест(сторона руки)"
+//        ))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -571,7 +571,7 @@ class BLEParserV3(
             unitLabel = "сек",
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
-                widgetPosition = 1,
+                widgetPosition = 0,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
                 widgetId = 8,
                 parameterInfoSet = mutableSetOf(
@@ -584,7 +584,7 @@ class BLEParserV3(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Нормальный","Спортивный"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 2,
+            widgetPosition = 1,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
             widgetId = 9,
             parameterInfoSet = mutableSetOf(
@@ -599,7 +599,7 @@ class BLEParserV3(
             display = 2,
             widgetPosition = 2,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-            widgetId = 9,
+            widgetId = 10,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
             )
@@ -615,7 +615,7 @@ class BLEParserV3(
                 display = 2,
                 widgetPosition = 3,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-                widgetId = 10,
+                widgetId = 11,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
                 )
@@ -631,7 +631,7 @@ class BLEParserV3(
                 display = 2,
                 widgetPosition = 4,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-                widgetId = 11,
+                widgetId = 12,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
                 )

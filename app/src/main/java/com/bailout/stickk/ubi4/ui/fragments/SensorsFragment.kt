@@ -58,11 +58,6 @@ class SensorsFragment : BaseWidgetsFragment() {
         main = activity as? MainActivityUBI4
 
         //настоящие виджеты
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
-        //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
-
-
         val initialData = mDataFactory.prepareData(display)
         platformLog("BOOTSTRAP_UI", "apply initial widgets in SensorsFragment: size=${initialData.size}")
         adapterWidgets.swapData(initialData)
@@ -89,16 +84,20 @@ class SensorsFragment : BaseWidgetsFragment() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             updateFlow.collect { updateEvent->
                 Log.d("WidgetUpdater", "updateFlow event received: $updateEvent")
-                main?.runOnUiThread {
-                    Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                    platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=${mDataFactory.prepareData(display)}")
+                val data = mDataFactory.prepareData(display)
+                Log.d("widgetListUpdater", "$data")
+                platformLog("sendWidgetsArray", "▶️▶\uFE0F widgetListUpdater(), mDataFactory.prepareData=$data")
+
+                if (binding.homeRv.isComputingLayout) {
                     binding.homeRv.post {
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
-//                        adapterWidgets.swapData(mDataFactory.fakeData())
+                        adapterWidgets.swapData(data)
                         main?.refreshBottomNavVisibility()
                     }
-                    binding.refreshLayout.setRefreshing(false)
+                } else {
+                    adapterWidgets.swapData(data)
+                    main?.refreshBottomNavVisibility()
                 }
+                binding.refreshLayout.setRefreshing(false)
             }
         }
     }

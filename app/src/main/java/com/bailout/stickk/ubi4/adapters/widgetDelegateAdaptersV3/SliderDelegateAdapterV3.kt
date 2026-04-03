@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.CountDownTimer
@@ -179,27 +181,23 @@ class SliderDelegateAdapterV3(
     }
     private fun setUI() {
         // [new widgets V3] тут добавляем ветку расфасовки пришедших данных SliderDelegateAdapterV3 1
-
         widgetInfoList.forEach { infoWidget ->
             val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             platformLog("SliderDelegateAdapterV3", "setUI parameter.data: ${parameter.data}   parameterInfo: ${infoWidget.parameterInfo}")
             when (val subcommand = infoWidget.parameterInfo.dataCode) {
                 ProsthesisModuleControlEnum.PWCE_SET_EMG_GAIN_VALUE.number.toInt() -> {
-                    val oldProgress = infoWidget.widgetSlidersSb.progress
                     val emgGainResult = parseEmgGainResultSafely(parameter.data) ?: return
                     if (infoWidget.parameterInfo.dataOffsets == 0) {
                         infoWidget.progress = emgGainResult.openGain - infoWidget.minProgress
                         setProgressBar(
-                            infoWidget.widgetSlidersSb,
-                            oldProgress,
+                            infoWidget,
                             emgGainResult.openGain - infoWidget.minProgress
                         )
                     }
                     if (infoWidget.parameterInfo.dataOffsets == 1) {
                         infoWidget.progress = emgGainResult.closeGain - infoWidget.minProgress
                         setProgressBar(
-                            infoWidget.widgetSlidersSb,
-                            oldProgress,
+                            infoWidget,
                             emgGainResult.closeGain - infoWidget.minProgress
                         )
                     }
@@ -211,9 +209,9 @@ class SliderDelegateAdapterV3(
             }
         }
     }
-    private fun setProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
+    private fun setProgressBar(infoWidget: WidgetSliderInfo, to: Int) {
         try {
-            animateProgressBar(progressBar, from, to)
+            animateProgressBar(infoWidget, to)
         } catch (_: Exception) { } finally {
 //            indexWidgetSlidersArray.forEach { indexWidgetSlider ->
 //                widgetInfoList[indexWidgetSlider].responseReceived.set(true)
@@ -221,21 +219,73 @@ class SliderDelegateAdapterV3(
 //            }
         }
     }
-    private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
-        if (from == to) return
-
+    private fun animateProgressBar(infoWidget: WidgetSliderInfo, to: Int) {
+        val progressBar = infoWidget.widgetSlidersSb
         if (WidgetState.dbSnapshotAppliedWithCrc) {
+            infoWidget.pendingUiProgress = null
+            infoWidget.loadingAnimators?.cancel()
+            infoWidget.loadingAnimators = null
             progressBar.progress = to
             return
         }
 
-        ValueAnimator.ofInt(from, to).apply {
-            duration = DURATION_ANIMATION
-            addUpdateListener { animator ->
-                progressBar.progress = animator.animatedValue as Int
-            }
-            start()
+        if (infoWidget.loadingAnimators?.isRunning == true) {
+            infoWidget.pendingUiProgress = to
+            return
         }
+
+        startProgressAnimation(
+            infoWidget = infoWidget,
+            from = progressBar.progress,
+            to = to
+        )
+    }
+
+    private fun startProgressAnimation(infoWidget: WidgetSliderInfo, from: Int, to: Int) {
+        if (from == to) {
+            val pending = infoWidget.pendingUiProgress
+            infoWidget.pendingUiProgress = null
+            if (pending != null && pending != to) {
+                startProgressAnimation(
+                    infoWidget = infoWidget,
+                    from = to,
+                    to = pending
+                )
+            }
+            return
+        }
+
+        val animator = ValueAnimator.ofInt(from, to)
+        animator.duration = DURATION_ANIMATION
+        animator.addUpdateListener { animation ->
+            infoWidget.widgetSlidersSb.progress = animation.animatedValue as Int
+        }
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (infoWidget.loadingAnimators === animation) {
+                    infoWidget.loadingAnimators = null
+                }
+
+                val pending = infoWidget.pendingUiProgress
+                infoWidget.pendingUiProgress = null
+                if (pending != null && pending != infoWidget.widgetSlidersSb.progress) {
+                    startProgressAnimation(
+                        infoWidget = infoWidget,
+                        from = infoWidget.widgetSlidersSb.progress,
+                        to = pending
+                    )
+                }
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                if (infoWidget.loadingAnimators === animation) {
+                    infoWidget.loadingAnimators = null
+                }
+            }
+        })
+
+        infoWidget.loadingAnimators = animator
+        animator.start()
     }
     private fun sendProgress(parameterInfo: ParameterInfo<Int, Int, Int, Int>, progress: Int) {
         // [new widgets V3] тут добавляем ветку отправки новых команд SliderDelegateAdapterV3 2
@@ -293,6 +343,7 @@ class SliderDelegateAdapterV3(
         widgetInfoList.forEach { info ->
             info.loadingAnimators?.cancel()
             info.loadingAnimators = null
+            info.pendingUiProgress = null
         }
         widgetInfoList.clear()
         sliderInfoCounter = 0
@@ -315,5 +366,6 @@ data class WidgetSliderInfo (
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),
-    var loadingAnimators: ValueAnimator? = null
+    var loadingAnimators: ValueAnimator? = null,
+    var pendingUiProgress: Int? = null
 )

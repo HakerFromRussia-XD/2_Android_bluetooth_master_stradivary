@@ -59,8 +59,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             activeSettingsFragmentFilterFlow.value = 1
             if (isMobileSettings) {
                 isMobileSettings = false
-                binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
-                binding.settingsRecyclerView.adapter = adapterWidgets
                 updateUI()
             }
         }
@@ -71,8 +69,6 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
             activeSettingsFragmentFilterFlow.value = 2
             if (!isMobileSettings) {
                 isMobileSettings = true
-                binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
-                binding.settingsRecyclerView.adapter = adapterWidgets
                 updateUI()
             }
         }
@@ -99,23 +95,28 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 //    }
 
     private fun updateUI() {
-        binding.settingsRecyclerView.post {
-            val dataSetChanged = (previousMobileSettings == null || previousMobileSettings != isMobileSettings)
+        val dataSetChanged = (previousMobileSettings == null || previousMobileSettings != isMobileSettings)
+        val data = if (isMobileSettings) {
+            mDataFactory.mobileWidgets()
+        } else {
+            mDataFactory.prepareData(display)
+        }
 
-            if (dataSetChanged) {
-                clearSwitcherCache()
-            }
+        if (dataSetChanged) {
+            clearSwitcherCache()
+        }
 
-            if (isMobileSettings) {
-                adapterWidgets.swapData(mDataFactory.mobileWidgets())
-            } else {
-                adapterWidgets.swapData(mDataFactory.prepareData(display))
+        if (binding.settingsRecyclerView.isComputingLayout) {
+            binding.settingsRecyclerView.post {
+                adapterWidgets.swapData(data)
             }
+        } else {
+            adapterWidgets.swapData(data)
+        }
 
-            if (dataSetChanged) {
-                updateSelectorUI()
-                previousMobileSettings = isMobileSettings
-            }
+        if (dataSetChanged) {
+            updateSelectorUI()
+            previousMobileSettings = isMobileSettings
         }
     }
 

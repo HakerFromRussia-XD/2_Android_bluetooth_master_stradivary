@@ -23,6 +23,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.CancellationException
 
 
 
@@ -145,6 +146,8 @@ class Ubi4RequestsApi(
         }
     } catch (e: IOException) {
         NetworkResult.Error(null, "Network error: ${e.message}")
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         NetworkResult.Error(null, "Unknown error: ${e.message}")
     }
@@ -196,6 +199,8 @@ class Ubi4RequestsApi(
         else                   NetworkResult.Error(code, "HTTP $code")
     } catch (e: IOException) {
         NetworkResult.Error(null, "Network error: ${e.message}")
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         NetworkResult.Error(null, "Unknown error: ${e.message}")
     }
@@ -211,6 +216,8 @@ class Ubi4RequestsApi(
         else                   NetworkResult.Error(code, "HTTP $code")
     } catch (e: IOException) {
         NetworkResult.Error(null, "Network error: ${e.message}")
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         NetworkResult.Error(null, "Unknown error: ${e.message}")
     }

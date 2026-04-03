@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
 
 
     <View
@@ -17,6 +18,7 @@
         android:layout_alignParentEnd="true"
         android:background="@color/ubi4_back"
         android:layout_marginBottom="-18dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/imageView33"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +37,7 @@
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="6dp"
         android:src="@drawable/ic_arrow_left"
+        android:visibility="gone"
         android:tintMode="src_in"
         app:layout_constraintBottom_toBottomOf="@+id/back_btn"
         app:layout_constraintEnd_toEndOf="@+id/back_btn"
@@ -52,6 +55,7 @@
         android:layout_marginStart="6dp"
         android:layout_marginTop="18dp"
         android:background="?android:attr/selectableItemBackground"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -59,12 +63,11 @@
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@+id/title_click_block_btn"
         android:layout_alignParentBottom="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_click_block_btn">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/accountRv"
@@ -100,4 +103,3 @@
         app:lottie_rawRes="@raw/loader_3"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

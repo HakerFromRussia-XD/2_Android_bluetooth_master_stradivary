@@ -21,7 +21,6 @@ import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 @Suppress("DEPRECATION")
@@ -42,9 +41,6 @@ class AdvancedFragment : BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
-        //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -53,6 +49,8 @@ class AdvancedFragment : BaseWidgetsFragment() {
 
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
+        val initialData = mDataFactory.prepareData(display)
+        adapterWidgets.swapData(initialData)
         return binding.root
     }
 
@@ -64,16 +62,19 @@ class AdvancedFragment : BaseWidgetsFragment() {
     }
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Main) {
-                updateFlow.collect {
-                    main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        binding.homeRv.post {
-                            adapterWidgets.swapData(mDataFactory.prepareData(display))
-                        }
-                        binding.refreshLayout.setRefreshing(false)
+            updateFlow.collect {
+                val data = mDataFactory.prepareData(display)
+                Log.d("widgetListUpdater", "$data")
+
+                if (binding.homeRv.isComputingLayout) {
+                    binding.homeRv.post {
+                        adapterWidgets.swapData(data)
                     }
+                } else {
+                    adapterWidgets.swapData(data)
                 }
+
+                binding.refreshLayout.setRefreshing(false)
             }
         }
     }

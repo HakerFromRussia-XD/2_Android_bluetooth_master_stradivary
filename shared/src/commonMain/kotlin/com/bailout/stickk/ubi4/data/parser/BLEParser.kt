@@ -96,6 +96,7 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.experimental.and
@@ -114,6 +115,7 @@ class BLEParser(
     private var countErrors = 0
     private val fwResponseReceived = mutableMapOf<Int, Boolean>()
     private var widgetsProgressTotal: Int = 0
+    private var fwInfoRequestBatchJob: Job? = null
 
 
     private val deviceProgramTypeMap = mutableMapOf<Int, Int>()
@@ -1811,40 +1813,55 @@ class BLEParser(
 
 
     fun sendFwInfoRequestsWithRetry() {
-        // CPU (адрес 0)
-        fwFlag(0, false)   // сбрасываем флаг перед серией запросов
-        RetryUtils.sendRequestWithRetry(
-            request = {
-                bleManager.sendBytesKmm(
-                    BLECommands.requestProductFWInfoType(0),
-                    MAIN_CHANNEL_CHARACTERISTIC,
-                    WRITE
-                ) {}
-            },
-            isResponseReceived = { fwFlag(0) },
-            maxRetries = 5,
-            delayMillis = 1000L,
-            scope = coroutineScope
-        )
+        if (fwInfoRequestBatchJob?.isActive == true) {
+            platformLog("FW_FLOW", "sendFwInfoRequestsWithRetry: skip duplicated batch")
+            return
+        }
 
-        // Сабдевайсы
-        baseSubDevicesInfoStructSet.forEach { sub ->
-            val addr = sub.deviceAddress
-            fwFlag(addr, false)
+        fwInfoRequestBatchJob = coroutineScope.launch {
+            try {
+                val requestJobs = mutableListOf<Job>()
 
-            RetryUtils.sendRequestWithRetry(
-                request = {
-                    bleManager.sendBytesKmm(
-                        BLECommands.requestProductFWInfoType(addr),
-                        MAIN_CHANNEL_CHARACTERISTIC,
-                        WRITE
-                    ) {}
-                },
-                isResponseReceived = { fwFlag(addr) },
-                maxRetries = 5,
-                delayMillis = 1000L,
-                scope = coroutineScope
-            )
+                // CPU (адрес 0)
+                fwFlag(0, false)   // сбрасываем флаг перед серией запросов
+                requestJobs += RetryUtils.sendRequestWithRetry(
+                    request = {
+                        bleManager.sendBytesKmm(
+                            BLECommands.requestProductFWInfoType(0),
+                            MAIN_CHANNEL_CHARACTERISTIC,
+                            WRITE
+                        ) {}
+                    },
+                    isResponseReceived = { fwFlag(0) },
+                    maxRetries = 5,
+                    delayMillis = 1000L,
+                    scope = coroutineScope
+                )
+
+                // Сабдевайсы
+                baseSubDevicesInfoStructSet.forEach { sub ->
+                    val addr = sub.deviceAddress
+                    fwFlag(addr, false)
+
+                    requestJobs += RetryUtils.sendRequestWithRetry(
+                        request = {
+                            bleManager.sendBytesKmm(
+                                BLECommands.requestProductFWInfoType(addr),
+                                MAIN_CHANNEL_CHARACTERISTIC,
+                                WRITE
+                            ) {}
+                        },
+                        isResponseReceived = { fwFlag(addr) },
+                        maxRetries = 5,
+                        delayMillis = 1000L,
+                        scope = coroutineScope
+                    )
+                }
+
+                requestJobs.forEach { it.join() }
+            } finally {
+                fwInfoRequestBatchJob = null
+            }
         }
     }
     private fun String.substringSafe(startIndex: Int, endIndex: Int): String {

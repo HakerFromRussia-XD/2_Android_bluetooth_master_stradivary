@@ -36,8 +36,6 @@ class ServiceFragment: BaseWidgetsFragment() {
         adapterWidgets.swapData(mDataFactory.fakeData())
         setupRecycler()
         subscribeUpdates()
-
-
         return binding.root
     }
 

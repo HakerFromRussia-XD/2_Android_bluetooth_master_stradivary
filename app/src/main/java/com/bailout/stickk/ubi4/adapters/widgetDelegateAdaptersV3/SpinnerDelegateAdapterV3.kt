@@ -86,6 +86,12 @@ class SpinnerDelegateAdapterV3 (
         spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
             // закрываем попап сразу
             spinnerPsv.dismiss()
+            val pendingProgrammaticIndex = info.pendingProgrammaticIndex
+            if (pendingProgrammaticIndex != null && pendingProgrammaticIndex == newIndex) {
+                info.pendingProgrammaticIndex = null
+                return@setOnSpinnerItemSelectedListener
+            }
+            info.pendingProgrammaticIndex = null
             sendValue(info, newIndex)
         }
 
@@ -105,21 +111,22 @@ class SpinnerDelegateAdapterV3 (
     private fun spinnerCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            spinnerFlowV3.collect { parameterInfo -> setUI(parameterInfo) }
+            spinnerFlowV3.collect { setUI() }
         }
     }
 
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue
+    private fun setUI() {
         spinnerInfoList.forEach { infoWidget ->
+            val parameterInfo = infoWidget.parameterInfoSet.firstOrNull() ?: return@forEach
+            val parameter = ParameterProvider.getParameterV3(parameterInfo)
+            val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue ?: return
             when (val subcommand = parameterInfo.dataCode) {
                 PWCE_SET_HAND_CONTROL_MODE.number.toInt() -> {
-                    infoWidget.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    applyProgrammaticSelection(infoWidget, spinnerValue)
                     platformLog("SpinnerDelegateAdapterV3", "принимаем PWCE_SET_HAND_CONTROL_MODE $spinnerValue")
                 }
                 GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-                    infoWidget.spinner.selectItemByIndex(spinnerValue ?: 0)
+                    applyProgrammaticSelection(infoWidget, spinnerValue)
                     platformLog("SpinnerDelegateAdapterV3", "принимаем GMCE_SET_LEFT_RIGHT_HAND $spinnerValue")
                 }
                 else -> {
@@ -129,6 +136,11 @@ class SpinnerDelegateAdapterV3 (
             }
         }
 
+    }
+
+    private fun applyProgrammaticSelection(infoWidget: WidgetSpinnerInfo, index: Int) {
+        infoWidget.pendingProgrammaticIndex = index
+        infoWidget.spinner.selectItemByIndex(index)
     }
 
     private fun sendValue(info: WidgetSpinnerInfo, value: Int) {
@@ -180,5 +192,6 @@ class SpinnerDelegateAdapterV3 (
 data class WidgetSpinnerInfo(
     var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0)),
     val spinner: PowerSpinnerView,
-    var items: List<String>
+    var items: List<String>,
+    var pendingProgrammaticIndex: Int? = null
 )

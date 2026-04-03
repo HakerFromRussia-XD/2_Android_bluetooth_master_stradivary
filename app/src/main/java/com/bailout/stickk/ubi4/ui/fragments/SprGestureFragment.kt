@@ -71,11 +71,8 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
         //настоящие виджеты
         widgetListUpdater()
-        adapterWidgets.swapData(mDataFactory.prepareData(display))
-        //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
-
-        mDataFactory.prepareData(display).forEach {
+        val initialData = mDataFactory.prepareData(display)
+        initialData.forEach {
             Log.d("DataType", "Element type: ${it::class.simpleName}")
         }
 
@@ -89,6 +86,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
         binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
         binding.sprGesturesRv.adapter = adapterWidgets
+        adapterWidgets.swapData(initialData)
         return binding.root
 
     }
@@ -238,9 +236,13 @@ class SprGestureFragment: BaseWidgetsFragment() {
 
                 val newData = mDataFactory.prepareData(display)
                 Log.d("SprGestureFragment", "New data size: ${newData.size}")
-                binding.sprGesturesRv.post {
-                    adapterWidgets.swapData(mDataFactory.prepareData(display))
-                    adapterWidgets.notifyDataSetChanged()
+                if (binding.sprGesturesRv.isComputingLayout) {
+                    binding.sprGesturesRv.post {
+                        adapterWidgets.swapData(newData)
+                        main?.refreshBottomNavVisibility()
+                    }
+                } else {
+                    adapterWidgets.swapData(newData)
                     main?.refreshBottomNavVisibility()
                 }
 //                binding.refreshLayout.setRefreshing(false)

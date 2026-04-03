@@ -115,7 +115,7 @@ class ToggleSliderDelegateAdapterV3(
         widgetInfoList.add(currentSliderInfo)
 
 
-//        indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
+//      indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
         sliderCollect()
 
 

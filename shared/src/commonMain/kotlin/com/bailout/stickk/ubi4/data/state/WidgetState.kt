@@ -40,6 +40,9 @@ object WidgetState {
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false
 
+    @Volatile
+    var pausePlotPointsDuringTransition: Boolean = false
+
 
     var countBinding by Delegates.notNull<Int>()
     var graphThreadFlag by Delegates.notNull<Boolean>()

@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +46,9 @@ import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.properties.Delegates
 
@@ -91,6 +92,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private val resumeDisposables = CompositeDisposable()
 
     private val fwVersions = mutableMapOf<Int, String>()
+    private var canRenderBoards = false
 
 
     override fun onCreateView(
@@ -130,9 +132,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 FirmwareInfoState.firmwareInfoFlow.collect { fw ->
                     // апдейтим конкретную плату
                     fwVersions[fw.deviceAddress] = fw.fwVersion
-//                    updateBoardVersion(fw.deviceAddress, fw.fwVersion)
-//                    showBoardsVersion()
-                    refreshBoards()
+                    if (canRenderBoards) refreshBoards()
                 }
             }
         }
@@ -161,13 +161,18 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
         accountMainList = ArrayList()
         binding.preloaderLav.visibility = View.VISIBLE
-        requestToken()
         initializeUI()
-//        showBoardsVersion()
-        refreshBoards()
+        val transitionDurationMs = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+        binding.root.postDelayed({
+            if (!isAdded || _binding == null) return@postDelayed
+            canRenderBoards = true
+            refreshBoards()
+            requestToken()
+        }, transitionDurationMs)
 
         viewLifecycleOwner.lifecycleScope.launch {
              runProgramTypeFlow.collect { (addr, runType) ->
+                if (!canRenderBoards) return@collect
                 val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
                 if (idx != -1) {
                     bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
@@ -211,7 +216,9 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
     private fun requestToken() {
         viewLifecycleOwner.lifecycleScope.launch {
-            encryptionResult = encryptionManager?.encrypt(serialNumber)
+            encryptionResult = withContext(Dispatchers.Default) {
+                encryptionManager?.encrypt(serialNumber)
+            }
             when (val res = api.getToken("Aesserial $encryptionResult")) {
                 is NetworkResult.Success -> {
                     token = res.value.token
@@ -227,6 +234,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     }
 
     private fun handleTokenError(err: NetworkResult.Error) {
+        if (err.isCancelledByLifecycle()) return
         if (err.code == 500) retryOrShowNoData()
         else {
             showInfoWithoutConnection()
@@ -255,6 +263,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 }
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -277,6 +286,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 }
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -307,10 +317,18 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 is NetworkResult.Success -> saveDeviceInfo(res.value)
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    private fun NetworkResult.Error.isCancelledByLifecycle(): Boolean {
+        val msg = message
+        return msg.contains("Job was cancelled", ignoreCase = true) ||
+                msg.contains("CancellationException", ignoreCase = true) ||
+                msg.contains("cancelled", ignoreCase = true)
     }
 
     private fun saveDeviceInfo(info: DeviceInfo) {
@@ -413,9 +431,19 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     }
 
     private fun handleBackPress() {
-        // Получаем имя исходного фрагмента из аргументов
-        (activity as? MainActivityUBI4)?.showBottomNavigation()
         val sourceFragmentClassName = arguments?.getString("sourceFragmentClass")
+        // Получаем имя исходного фрагмента из аргументов
+        val mainActivity = activity as? MainActivityUBI4
+        mainActivity?.showTopStatusBar()
+        mainActivity?.setStatusBarBackMode(false)
+        mainActivity?.showBottomNavigation()
+        if (parentFragmentManager.backStackEntryCount > 0) {
+            if (sourceFragmentClassName == SensorsFragment::class.java.name) {
+                mainActivity?.pausePlotPointsForTransition()
+            }
+            parentFragmentManager.popBackStack()
+            return
+        }
         if (sourceFragmentClassName != null) {
             when (sourceFragmentClassName) {
                 SensorsFragment::class.java.name -> { main?.showSensorsScreen() }
@@ -459,6 +487,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     override fun onDestroyView() {
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
+        canRenderBoards = false
         main?.showBottomNavigation()
         mContext = null
         mSettings = null
@@ -525,20 +554,14 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
     private fun refreshBoards() {
-
-        // старт
-        Log.d("refreshBoards", ">>> called, fullInit=$fullInicializeConnectionStruct, subsSize=${baseSubDevicesInfoStructSet.size}, fwVersions=$fwVersions")
-
         // 1) Перекешируем имена
         rebuildBoardNameCache()
-        Log.d("refreshBoards", ">>> name cache = $boardNameByAddr")
 
         // 2) Строим список
         val builtBoards = buildList {
             fullInicializeConnectionStruct?.let { cpu ->
                 val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
                 val nameCpu = boardNameByAddr[0] ?: "Unknown"
-                Log.d("refreshBoards", "Adding CPU -> addr=0, code=${cpu.deviceCode}, name=$nameCpu, version=$versionCpu")
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameCpu,
@@ -555,7 +578,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                 val addr = sub.deviceAddress
                 val versionSub = fwVersions.getOrDefault(addr, "—")
                 val nameSub = boardNameByAddr[addr] ?: "Unknown"
-                Log.d("refreshBoards", "Adding Sub -> addr=$addr, code=${sub.deviceCode}, name=$nameSub, version=$versionSub")
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameSub,
@@ -570,8 +592,6 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
             .distinctBy { it.deviceAddress }
 
-        // финал
-        Log.d("refreshBoards", "<<< built boards (${builtBoards.size}): $builtBoards")
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)

@@ -503,15 +503,6 @@ class GesturesDelegateAdapterV3(
     private fun renderFilterUI(activeFilter: Int, animate: Boolean = true, force: Boolean = false) {
         if (!force && lastRenderedFilter == activeFilter) return
 
-        val displayMetrics = main.resources.displayMetrics
-        val selectorContainerWidth = _ubi4GesturesSelectorV.width.takeIf { it > 0 }
-            ?: _ubi4GesturesSelectorV.measuredWidth
-        val selectorStart = 18f * displayMetrics.density
-        val targetSelectorX = if (activeFilter == 1) {
-            selectorStart
-        } else {
-            (selectorContainerWidth / 2f) + selectorStart
-        }
         val showCollection = activeFilter == 1
         val collectionTargetColor = if (showCollection) {
             main.getColor(R.color.white)
@@ -524,10 +515,28 @@ class GesturesDelegateAdapterV3(
             main.getColor(R.color.white)
         }
 
-        if (activeFilter == 2 && selectorContainerWidth == 0 && !force) {
+        if (!_ubi4GesturesSelectorV.isLaidOut && !force) {
+            _collectionOfGesturesTv.setTextColor(collectionTargetColor)
+            _rotationGroupTv.setTextColor(rotationTargetColor)
+            showCollectionGestures(showCollection, _rotationGroupCl, _collectionGesturesCl)
+            if (_activeGestureNameCl.visibility != View.VISIBLE) {
+                _activeGestureNameCl.visibility = View.VISIBLE
+            }
+            lastRenderedFilter = activeFilter
             _ubi4GesturesSelectorV.post {
                 renderFilterUI(activeFilter, animate = false, force = true)
             }
+            return
+        }
+
+        val displayMetrics = main.resources.displayMetrics
+        val selectorContainerWidth = _ubi4GesturesSelectorV.width.takeIf { it > 0 }
+            ?: _ubi4GesturesSelectorV.measuredWidth
+        val selectorStart = 18f * displayMetrics.density
+        val targetSelectorX = if (activeFilter == 1) {
+            selectorStart
+        } else {
+            (selectorContainerWidth / 2f) + selectorStart
         }
 
         if (animate && lastRenderedFilter != null) {

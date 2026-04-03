@@ -78,7 +78,6 @@ class PlotDelegateAdapterV3 (
     private var numberOfCharts = 2
     private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
-    private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
 
     private var firstInit = true
     private var openThreshold = 0
@@ -233,6 +232,8 @@ class PlotDelegateAdapterV3 (
         } else {
             // Создаем новый scope
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            count = 0
+            firstInit = true
             resetSmoothingState()
             initializedSensorGraph(EMGChartLc)
             plotArrayFlowCollect()
@@ -533,6 +534,8 @@ class PlotDelegateAdapterV3 (
 
     }
     private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {
+        if (WidgetState.pausePlotPointsDuringTransition) return
+
         val data: LineData =  emgChart.data ?: LineData().also { emgChart.data = it }
 
         var set = data.getDataSetByIndex(0)
@@ -578,7 +581,7 @@ class PlotDelegateAdapterV3 (
 
         if (!emgChart.isAttachedToWindow) return
         emgChart.post {
-            if (!emgChart.isAttachedToWindow || !graphThreadFlag) return@post
+            if (!emgChart.isAttachedToWindow || !graphThreadFlag || WidgetState.pausePlotPointsDuringTransition) return@post
             if (set1.entryCount > 200) {
                 set.removeFirst()
                 set1.removeFirst()
@@ -591,7 +594,7 @@ class PlotDelegateAdapterV3 (
                 setLowerBound.removeFirst()
             }
 
-            data.addEntry(defaultEntry, 0)
+            data.addEntry(Entry(preparedEntries[0].x, 250f), 0)
             data.addEntry(preparedEntries[0], 1)
             if (numberOfCharts >= 2) {data.addEntry(preparedEntries[1], 2)}
             if (numberOfCharts >= 3) {data.addEntry(preparedEntries[2], 3)}
@@ -674,18 +677,21 @@ class PlotDelegateAdapterV3 (
 
         val y = emgChart.axisLeft
         y.textColor = Color.WHITE
-        y.mAxisMaximum = 255f
-        y.mAxisMinimum = 255f
+        y.axisMaximum = 281f
+        y.axisMinimum = 0f
+        y.isGranularityEnabled = true
+        y.granularity = 50f
+        y.setLabelCount(6, false)
         y.textSize = 0f
         y.textColor = Color.TRANSPARENT
         y.setDrawGridLines(true)
         y.setDrawAxisLine(false)
-        y.setStartAtZero(true)
         y.gridColor = Color.WHITE
 
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
+        emgChart.invalidate()
     }
     private fun getIndexWidget (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
@@ -732,6 +738,11 @@ class PlotDelegateAdapterV3 (
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart, indexWidgetPlot: Int) {
         while (graphThreadFlag) {
+            if (WidgetState.pausePlotPointsDuringTransition) {
+                delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
+                continue
+            }
+
             val rawSensors = intArrayOf(
                 normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens1),
                 normalizeSensorValue(widgetPlotsInfo[indexWidgetPlot].dataSens2),

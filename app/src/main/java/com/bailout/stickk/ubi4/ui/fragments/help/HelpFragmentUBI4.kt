@@ -27,6 +27,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
     private var _binding: Ubi4FragmentHelpBinding? = null
     private val binding get() = requireNotNull(_binding)
+    private var lastRenderedVisibilityState: VisibilityState? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -91,11 +92,19 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         val widgets = UiState.listWidgets
 
         if (widgets.isEmpty()) {
+            val emptyState = VisibilityState(
+                hasSensors = false,
+                hasGestures = false,
+                hasTraining = false,
+                hasSpecialSettings = false
+            )
+            if (lastRenderedVisibilityState == emptyState) return@with
 
-            ubi4SensorsSettingsBtn.isVisible = false
-            ubi4GestureCustomizationRl.isVisible = false
-            ubi4AdvancedSettingsRl.isVisible = false
-            ubi4TrainingRl.isVisible = false
+            setVisibleIfChanged(ubi4SensorsSettingsBtn, false)
+            setVisibleIfChanged(ubi4GestureCustomizationRl, false)
+            setVisibleIfChanged(ubi4AdvancedSettingsRl, false)
+            setVisibleIfChanged(ubi4TrainingRl, false)
+            lastRenderedVisibilityState = emptyState
             return@with
         }
 
@@ -106,17 +115,33 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         val hasTraining = 3 in displays
         val hasSpecialSettings = 2 in displays
 
+        val newState = VisibilityState(
+            hasSensors = hasSensors,
+            hasGestures = hasGestures,
+            hasTraining = hasTraining,
+            hasSpecialSettings = hasSpecialSettings
+        )
+        if (lastRenderedVisibilityState == newState) return@with
+
         // Sensors: у строки нет id контейнера, поэтому минимум — убрать кликабельную кнопку.
         // Идеально: добавь android:id="@+id/ubi4SensorsSettingsRl" и скрывай именно его.
-        ubi4SensorsSettingsBtn.isVisible = hasSensors
+        setVisibleIfChanged(ubi4SensorsSettingsBtn, hasSensors)
 
         // Gestures: строка контейнер есть -> скрываем красиво
-        ubi4GestureCustomizationRl.isVisible = hasGestures
+        setVisibleIfChanged(ubi4GestureCustomizationRl, hasGestures)
 
         // Training: строка контейнер есть -> скрываем красиво
-        ubi4TrainingRl.isVisible = hasTraining
+        setVisibleIfChanged(ubi4TrainingRl, hasTraining)
 
-        ubi4AdvancedSettingsRl.isVisible = hasSpecialSettings    }
+        setVisibleIfChanged(ubi4AdvancedSettingsRl, hasSpecialSettings)
+        lastRenderedVisibilityState = newState
+    }
+
+    private fun setVisibleIfChanged(view: View, isVisible: Boolean) {
+        if (view.isVisible != isVisible) {
+            view.isVisible = isVisible
+        }
+    }
 
     private fun Any.extractDisplayOrNull(): Int? = when (this) {
         is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
@@ -145,6 +170,12 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
     private fun openScreen(fragment: Fragment) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out_next,
+                R.anim.slide_in_next,
+                R.anim.slide_out
+            )
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)
             .commit()
@@ -152,9 +183,18 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
     private fun handleBackPress() {
         val main = activity as? MainActivityUBI4
+        val source = arguments?.getString(ARG_SOURCE_FRAGMENT).orEmpty()
+        main?.showTopStatusBar()
+        main?.setStatusBarBackMode(false)
         main?.showBottomNavigation()
 
-        val source = arguments?.getString(ARG_SOURCE_FRAGMENT).orEmpty()
+        if (parentFragmentManager.backStackEntryCount > 0) {
+            if (source == SensorsFragment::class.java.name) {
+                main?.pausePlotPointsForTransition()
+            }
+            parentFragmentManager.popBackStack()
+            return
+        }
 
         when (source) {
             SensorsFragment::class.java.name -> main?.showSensorsScreen()
@@ -185,4 +225,11 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     companion object {
         const val ARG_SOURCE_FRAGMENT = "sourceFragmentClass"
     }
+
+    private data class VisibilityState(
+        val hasSensors: Boolean,
+        val hasGestures: Boolean,
+        val hasTraining: Boolean,
+        val hasSpecialSettings: Boolean
+    )
 }

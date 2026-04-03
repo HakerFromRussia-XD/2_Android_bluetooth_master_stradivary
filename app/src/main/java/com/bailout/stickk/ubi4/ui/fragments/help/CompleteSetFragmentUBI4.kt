@@ -59,6 +59,12 @@ class CompleteSetFragmentUBI4 : Fragment(R.layout.ubi4_fragment_complete_set) {
 
     private fun openHelpScreen(fragment: Fragment) {
         parentFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out_next,
+                R.anim.slide_in_next,
+                R.anim.slide_out
+            )
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)
             .commit()

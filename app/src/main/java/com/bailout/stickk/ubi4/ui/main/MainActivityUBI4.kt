@@ -15,7 +15,9 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RotateDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -50,6 +52,7 @@ import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
@@ -117,6 +120,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var bluetoothLeService: BluetoothLeService? = null
     private lateinit var mServiceConnection: ServiceConnection
     private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач
+    private val transitionPauseHandler = Handler(Looper.getMainLooper())
+    private var resumePlotPointsRunnable: Runnable? = null
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
@@ -218,16 +223,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         binding.helpView.setOnClickListener {
             showHelpScreen()
-            binding.bottomNavigation.visibility = View.INVISIBLE
         }
 
 
         binding.accountBtn.setOnClickListener {
-            sendFwInfoRequests()
-            sendRunProgramTypeRequests()
             showAccountScreen()
-            binding.bottomNavigation.visibility = View.INVISIBLE
 
+        }
+        binding.statusBackBtn.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         binding.runCommandBtn.setOnClickListener {
@@ -297,6 +301,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         queueWorker?.interrupt()
         queueWorker = null
         job?.cancel()
+        resumePlotPointsRunnable?.let(transitionPauseHandler::removeCallbacks)
+        resumePlotPointsRunnable = null
+        WidgetState.pausePlotPointsDuringTransition = false
         dialogManager?.onDestroy()
         dialogManager = null
         if (this::syncDialog.isInitialized) syncDialog.dismiss()
@@ -313,8 +320,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3)
             return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        binding.bottomNavigation.visibility = View.GONE
             
         val sourceFragment = activeFragment?.javaClass?.name ?: ""
+        if (sourceFragment == SensorsFragment::class.java.name) {
+            pausePlotPointsForTransition()
+        }
         
         val fragment: Fragment = if (UiState.isInterfaceV3Activated) {
             AccountFragmentMainV3()
@@ -326,7 +339,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
         
-        launchFragmentWithStack(fragment)
+        launchFragmentWithStack(fragment, withSlideAnimation = true)
     }
     override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
         AccountFragmentCustomerServiceUBI4()
@@ -341,8 +354,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun showHelpScreen() {
         if (activeFragment is HelpFragmentUBI4) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        binding.bottomNavigation.visibility = View.GONE
 
         val sourceFragment = activeFragment?.javaClass?.name.orEmpty()
+        if (sourceFragment == SensorsFragment::class.java.name) {
+            pausePlotPointsForTransition()
+        }
 
         val helpFragment = HelpFragmentUBI4().apply {
             arguments = Bundle().apply {
@@ -350,7 +369,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             }
         }
 
-        launchFragmentWithStack(helpFragment)
+        launchFragmentWithStack(helpFragment, withSlideAnimation = true)
     }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
@@ -371,9 +390,23 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
+
+    fun pausePlotPointsForTransition(durationMs: Long = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()) {
+        WidgetState.pausePlotPointsDuringTransition = true
+        resumePlotPointsRunnable?.let(transitionPauseHandler::removeCallbacks)
+
+        val resumeRunnable = Runnable {
+            WidgetState.pausePlotPointsDuringTransition = false
+        }
+        resumePlotPointsRunnable = resumeRunnable
+        transitionPauseHandler.postDelayed(resumeRunnable, durationMs + 80L)
+    }
+
     private fun launchFragmentWithoutStack(fragment: Fragment) {
         // Проверяем, отличается ли класс нового фрагмента от текущего активного
         if (activeFragment?.javaClass != fragment.javaClass) {
+            showTopStatusBar()
+            setStatusBarBackMode(enabled = false)
             activeFragment = fragment
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
             transaction.replace(R.id.fragmentContainer, fragment)
@@ -381,9 +414,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    private fun launchFragmentWithStack(fragment: Fragment) {
+    private fun launchFragmentWithStack(fragment: Fragment, withSlideAnimation: Boolean = false) {
         activeFragment = fragment
-        supportFragmentManager.beginTransaction()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.setReorderingAllowed(true)
+        if (withSlideAnimation) {
+            transaction.setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out_next,
+                R.anim.slide_in_next,
+                R.anim.slide_out
+            )
+        }
+        transaction
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)
             .commit()
@@ -519,7 +562,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 "BLE_Q",
                 "SEND cmd=$typeCommand uuid=$command size=${byteArray?.size ?: -1} thread=${Thread.currentThread().name}"
             )
-            mBLEController.bleCommand(byteArray, command, typeCommand)
+            val dispatched = mBLEController.bleCommand(byteArray, command, typeCommand)
+            if (!dispatched) {
+                Log.w("BLE_Q", "Command not dispatched cmd=$typeCommand uuid=$command; release queue slot")
+                canSendFlag = true
+                return
+            }
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 writeLock.wait()    // ждём, пока кто-то вызовет notify()
@@ -632,6 +680,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     fun showBottomNavigation() {
         binding.bottomNavigation.visibility = View.VISIBLE
+    }
+
+    fun showTopStatusBar() {
+        binding.statusBar.visibility = View.VISIBLE
+        binding.dividerV.visibility = View.VISIBLE
+    }
+
+    fun setStatusBarBackMode(enabled: Boolean) {
+        binding.statusBackContainer.visibility = if (enabled) View.VISIBLE else View.GONE
+        binding.accountContainer.visibility = if (enabled) View.GONE else View.VISIBLE
+        binding.helpView.visibility = if (enabled) View.GONE else View.VISIBLE
     }
 
     private fun showStartupLoaderIfNeeded() {

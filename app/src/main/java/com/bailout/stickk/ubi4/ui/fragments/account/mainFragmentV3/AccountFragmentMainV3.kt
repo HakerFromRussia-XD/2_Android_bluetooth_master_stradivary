@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +45,9 @@ import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.properties.Delegates
 
@@ -80,6 +81,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private val fwVersions = mutableMapOf<Int, String>()
     private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
     private val boardNameByAddr = mutableMapOf<Int, String>()
+    private var canRenderBoards = false
+    private var isTokenLoaded = false
+    private var isBoardsRendered = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -118,19 +122,27 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         initializeUI()
 
         binding.preloaderLav.visibility = View.VISIBLE
-        requestToken()
-        refreshBoards()
+        binding.accountRv.visibility = View.INVISIBLE
+        val transitionDurationMs = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+        binding.root.postDelayed({
+            if (!isAdded || _binding == null) return@postDelayed
+            canRenderBoards = true
+            refreshBoards()
+            requestToken()
+        }, transitionDurationMs)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    UiState.updateFlow.collect { refreshBoards() }
+                    UiState.updateFlow.collect {
+                        if (canRenderBoards) refreshBoards()
+                    }
                 }
                 launch {
                     FirmwareInfoState.firmwareInfoFlowV3.collect { versions ->
                         fwVersions.clear()
                         fwVersions.putAll(versions)
-                        refreshBoards()
+                        if (canRenderBoards) refreshBoards()
                     }
                 }
             }
@@ -144,6 +156,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             FirmwareInfoState.runProgramTypeFlow.collect { (addr, runType) ->
+                if (!canRenderBoards) return@collect
                 val idx = bootloaderBoardsList.indexOfFirst { it.deviceAddress == addr }
                 if (idx != -1) {
                     bootloaderBoardsList[idx].isInBootLoader = runType == PreferenceKeysUbi4.RunProgramType.BOOTLOADER
@@ -196,11 +209,14 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     private fun requestToken() {
         viewLifecycleOwner.lifecycleScope.launch {
-            encryptionResult = encryptionManager?.encrypt(serialNumber)
+            encryptionResult = withContext(Dispatchers.Default) {
+                encryptionManager?.encrypt(serialNumber)
+            }
             when (val res = api.getToken("Aesserial $encryptionResult")) {
                 is NetworkResult.Success -> {
                     token = res.value.token
-                    binding.preloaderLav.visibility = View.GONE
+                    isTokenLoaded = true
+                    revealVersionsWhenReady()
                     requestUserData()
                 }
                 is NetworkResult.Error -> {
@@ -212,6 +228,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun handleTokenError(err: NetworkResult.Error) {
+        if (err.isCancelledByLifecycle()) return
         if (err.code == 500) retryOrShowNoData()
         else {
             showInfoWithoutConnection()
@@ -241,6 +258,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 }
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -261,6 +279,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 }
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -290,10 +309,18 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 is NetworkResult.Success -> saveDeviceInfo(res.value)
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
+                    if (res.isCancelledByLifecycle()) return@launch
                     Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    private fun NetworkResult.Error.isCancelledByLifecycle(): Boolean {
+        val msg = message
+        return msg.contains("Job was cancelled", ignoreCase = true) ||
+                msg.contains("CancellationException", ignoreCase = true) ||
+                msg.contains("cancelled", ignoreCase = true)
     }
 
     private fun saveDeviceInfo(info: DeviceInfo) {
@@ -307,6 +334,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {
+        isTokenLoaded = true
+        isBoardsRendered = true
+        binding.accountRv.visibility = View.VISIBLE
         binding.preloaderLav.visibility = View.GONE
         updateAccountSafe(AccountMainUBI4Item("avatarUrl", fname, sname, "Ivanovich", driverVersion, bmsVersion, sensorsVersion))
 
@@ -361,11 +391,30 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)
+        isBoardsRendered = true
+        revealVersionsWhenReady()
+    }
+
+    private fun revealVersionsWhenReady() {
+        if (!isTokenLoaded || !isBoardsRendered) return
+        binding.accountRv.visibility = View.VISIBLE
+        binding.preloaderLav.visibility = View.GONE
     }
 
     private fun handleBackPress() {
-        (activity as? MainActivityUBI4)?.showBottomNavigation()
+        val mainActivity = activity as? MainActivityUBI4
         val source = arguments?.getString("sourceFragmentClass")
+
+        mainActivity?.showTopStatusBar()
+        mainActivity?.setStatusBarBackMode(false)
+        mainActivity?.showBottomNavigation()
+        if (parentFragmentManager.backStackEntryCount > 0) {
+            if (source == SensorsFragment::class.java.name) {
+                mainActivity?.pausePlotPointsForTransition()
+            }
+            parentFragmentManager.popBackStack()
+            return
+        }
         when (source) {
             SprTrainingFragment::class.java.name -> main?.showOpticTrainingGesturesScreen()
             SprGestureFragment::class.java.name -> main?.showOpticGesturesScreen()
@@ -396,11 +445,24 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun updateAccountSafe(item: AccountMainUBI4Item) {
-        _binding?.accountRv?.post { accountAdapter.submitProfile(item) }
+        _binding?.accountRv?.post {
+            accountAdapter.submitProfile(item)
+            scrollAccountListToTop()
+        }
     }
 
     private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
-        _binding?.accountRv?.post { bootloaderAdapter.submitBoards(list) }
+        _binding?.accountRv?.post {
+            bootloaderAdapter.submitBoards(list)
+            scrollAccountListToTop()
+        }
+    }
+
+    private fun scrollAccountListToTop() {
+        val rv = _binding?.accountRv ?: return
+        if ((rv.adapter?.itemCount ?: 0) > 0) {
+            rv.scrollToPosition(0)
+        }
     }
 
     override fun onPause() {
@@ -411,6 +473,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     override fun onDestroyView() {
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
+        canRenderBoards = false
+        isTokenLoaded = false
+        isBoardsRendered = false
         mContext = null
         mSettings = null
         main = null

@@ -71,9 +71,6 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
             binding.refreshLayout.setRefreshing(false)
         }
 
-
-        initializeUI()
-
         accountProsthesisInformationList.clear()
         accountProsthesisInformationList.add(
             AccountProsthesisInformationItemUBI4(
@@ -84,7 +81,8 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
                 touchscreenFingerPads = main?.loadText(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS).toString(),
                 batteryType = main?.loadText(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS).toString())
         )
-        initAdapter(binding.accountProsthesisInformationRv)
+
+        initializeUI()
     }
 
     private fun requestToken() {

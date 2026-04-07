@@ -341,12 +341,33 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         
         launchFragmentWithStack(fragment, withSlideAnimation = true)
     }
-    override fun showAccountCustomerServiceScreen() { launchFragmentWithStack(
-        AccountFragmentCustomerServiceUBI4()
-    ) }
-    override fun showAccountProsthesisInformationScreen() { launchFragmentWithStack(
-        AccountFragmentProsthesisInformationUBI4()
-    ) }
+    override fun showAccountCustomerServiceScreen() {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        binding.bottomNavigation.visibility = View.GONE
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = AccountFragmentCustomerServiceUBI4(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showAccountProsthesisInformationScreen() {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        binding.bottomNavigation.visibility = View.GONE
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = AccountFragmentProsthesisInformationUBI4(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
 
     override fun showSecretScreen() {
         launchFragmentWithStack(ServiceFragment())
@@ -414,7 +435,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    private fun launchFragmentWithStack(fragment: Fragment, withSlideAnimation: Boolean = false) {
+    private fun launchFragmentWithStack(
+        fragment: Fragment,
+        withSlideAnimation: Boolean = false,
+        preserveCurrentFragmentView: Boolean = false
+    ) {
         activeFragment = fragment
         val transaction = supportFragmentManager.beginTransaction()
         transaction.setReorderingAllowed(true)
@@ -426,6 +451,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 R.anim.slide_out
             )
         }
+
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (preserveCurrentFragmentView &&
+            currentFragment != null &&
+            currentFragment !== fragment &&
+            currentFragment.isAdded
+        ) {
+            transaction
+                .hide(currentFragment)
+                .add(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+            return
+        }
+
         transaction
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)

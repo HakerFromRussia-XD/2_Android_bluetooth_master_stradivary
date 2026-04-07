@@ -76,9 +76,6 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
             binding.refreshLayout.setRefreshing(false)
         }
 
-        initializeUI()
-
-
         //TODO изменить константы val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
         val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
         var warrantyDate: String? = null
@@ -98,7 +95,8 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
                 yourManagerPhone = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString(),
                 prosthesisStatus = main?.loadText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS).toString())
         )
-        initAdapter(binding.accountCustomerServiceRv)
+
+        initializeUI()
     }
 
     //    private fun requestToken() {

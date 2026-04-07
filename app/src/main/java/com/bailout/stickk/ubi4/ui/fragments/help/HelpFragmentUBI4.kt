@@ -35,11 +35,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
         setupSystemBack()
         initUi()
-
-        // 1) сразу применяем видимость
         renderVisibility()
-
-        // 2) и обновляем при любых изменениях виджетов
         observeWidgetsUpdates()
     }
 
@@ -100,10 +96,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
             )
             if (lastRenderedVisibilityState == emptyState) return@with
 
-            setVisibleIfChanged(ubi4SensorsSettingsBtn, false)
-            setVisibleIfChanged(ubi4GestureCustomizationRl, false)
-            setVisibleIfChanged(ubi4AdvancedSettingsRl, false)
-            setVisibleIfChanged(ubi4TrainingRl, false)
+            applyVisibilityState(emptyState)
             lastRenderedVisibilityState = emptyState
             return@with
         }
@@ -123,18 +116,16 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         )
         if (lastRenderedVisibilityState == newState) return@with
 
-        // Sensors: у строки нет id контейнера, поэтому минимум — убрать кликабельную кнопку.
-        // Идеально: добавь android:id="@+id/ubi4SensorsSettingsRl" и скрывай именно его.
-        setVisibleIfChanged(ubi4SensorsSettingsBtn, hasSensors)
-
-        // Gestures: строка контейнер есть -> скрываем красиво
-        setVisibleIfChanged(ubi4GestureCustomizationRl, hasGestures)
-
-        // Training: строка контейнер есть -> скрываем красиво
-        setVisibleIfChanged(ubi4TrainingRl, hasTraining)
-
-        setVisibleIfChanged(ubi4AdvancedSettingsRl, hasSpecialSettings)
+        applyVisibilityState(newState)
         lastRenderedVisibilityState = newState
+    }
+
+    private fun applyVisibilityState(state: VisibilityState) = with(binding) {
+        // Sensors: у строки нет id контейнера, поэтому скрываем кнопку-оверлей.
+        setVisibleIfChanged(ubi4SensorsSettingsBtn, state.hasSensors)
+        setVisibleIfChanged(ubi4GestureCustomizationRl, state.hasGestures)
+        setVisibleIfChanged(ubi4TrainingRl, state.hasTraining)
+        setVisibleIfChanged(ubi4AdvancedSettingsRl, state.hasSpecialSettings)
     }
 
     private fun setVisibleIfChanged(view: View, isVisible: Boolean) {

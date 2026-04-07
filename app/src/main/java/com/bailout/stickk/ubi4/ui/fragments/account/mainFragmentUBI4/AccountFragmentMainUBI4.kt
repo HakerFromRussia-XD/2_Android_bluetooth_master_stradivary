@@ -93,6 +93,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
     private val fwVersions = mutableMapOf<Int, String>()
     private var canRenderBoards = false
+    private var systemBackCallback: OnBackPressedCallback? = null
 
 
     override fun onCreateView(
@@ -140,7 +141,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
         //кнопка назад самого андроида - дублируем код из backBtn
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+        systemBackCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isAdded) {
                     handleBackPress()
@@ -148,7 +149,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                     main?.finish()
                 }
             }
-        })
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            requireNotNull(systemBackCallback)
+        )
+        systemBackCallback?.isEnabled = !isHidden
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -160,8 +166,18 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
 
         accountMainList = ArrayList()
-        binding.preloaderLav.visibility = View.VISIBLE
         initializeUI()
+
+        val hasCachedContent = applyCachedContentIfAvailable()
+        if (hasCachedContent) {
+            canRenderBoards = true
+            binding.preloaderLav.visibility = View.GONE
+            binding.accountRv.visibility = View.VISIBLE
+        } else {
+            binding.preloaderLav.visibility = View.VISIBLE
+            binding.accountRv.visibility = View.INVISIBLE
+        }
+
         val transitionDurationMs = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         binding.root.postDelayed({
             if (!isAdded || _binding == null) return@postDelayed
@@ -185,6 +201,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
+        systemBackCallback?.isEnabled = !isHidden
         System.err.println("AccountFragmentMainUBI4: onResume")
         //TODO временно RxUpdateMainEvent от UBI3
         resumeDisposables.add(
@@ -430,6 +447,22 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         ) ?: 1) / 100f).toString()
     }
 
+    private fun applyCachedContentIfAvailable(): Boolean {
+        val profile = cachedProfileItem
+        val boards = cachedBootloaderBoards
+
+        if (profile == null && boards.isNullOrEmpty()) return false
+
+        profile?.let { updateAccountSafe(it) }
+        if (!boards.isNullOrEmpty()) {
+            val snapshot = boards.map { it.copy() }
+            bootloaderBoardsList.clear()
+            bootloaderBoardsList.addAll(snapshot)
+            updateBootloaderSafe(snapshot)
+        }
+        return true
+    }
+
     private fun handleBackPress() {
         val sourceFragmentClassName = arguments?.getString("sourceFragmentClass")
         // Получаем имя исходного фрагмента из аргументов
@@ -483,11 +516,17 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         System.err.println("AccountFragmentMainUBI4: onPause")
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        systemBackCallback?.isEnabled = !hidden
+    }
+
 
     override fun onDestroyView() {
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
         canRenderBoards = false
+        systemBackCallback = null
         main?.showBottomNavigation()
         mContext = null
         mSettings = null
@@ -592,6 +631,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
             .distinctBy { it.deviceAddress }
 
+        if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
+
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)
@@ -673,13 +714,20 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
     private fun updateAccountSafe(item: AccountMainUBI4Item) {
-        _binding?.accountRv?.post { accountAdapter.submitProfile(item) }
+        _binding?.accountRv?.post {
+            cachedProfileItem = item
+            accountAdapter.submitProfile(item)
+        }
     }
 
     private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
-        _binding?.accountRv?.post { bootloaderAdapter.submitBoards(list) }
+        val snapshot = list.map { it.copy() }
+        cachedBootloaderBoards = snapshot
+        _binding?.accountRv?.post { bootloaderAdapter.submitBoards(snapshot) }
     }
     companion object {
+        private var cachedProfileItem: AccountMainUBI4Item? = null
+        private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }
 }

@@ -84,6 +84,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var canRenderBoards = false
     private var isTokenLoaded = false
     private var isBoardsRendered = false
+    private var systemBackCallback: OnBackPressedCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -121,8 +122,16 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         accountMainList = ArrayList()
         initializeUI()
 
-        binding.preloaderLav.visibility = View.VISIBLE
-        binding.accountRv.visibility = View.INVISIBLE
+        val hasCachedContent = applyCachedContentIfAvailable()
+        if (hasCachedContent) {
+            canRenderBoards = true
+            binding.preloaderLav.visibility = View.GONE
+            binding.accountRv.visibility = View.VISIBLE
+        } else {
+            binding.preloaderLav.visibility = View.VISIBLE
+            binding.accountRv.visibility = View.INVISIBLE
+        }
+
         val transitionDurationMs = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         binding.root.postDelayed({
             if (!isAdded || _binding == null) return@postDelayed
@@ -148,11 +157,16 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             }
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+        systemBackCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 handleBackPress()
             }
-        })
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            requireNotNull(systemBackCallback)
+        )
+        systemBackCallback?.isEnabled = !isHidden
 
         viewLifecycleOwner.lifecycleScope.launch {
             FirmwareInfoState.runProgramTypeFlow.collect { (addr, runType) ->
@@ -169,6 +183,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
+        systemBackCallback?.isEnabled = !isHidden
         resumeDisposables.add(
             RxUpdateMainEventUbi4.getInstance().uiAccountMain
                 .compose(main?.bindToLifecycle())
@@ -376,6 +391,24 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
     }
 
+    private fun applyCachedContentIfAvailable(): Boolean {
+        val profile = cachedProfileItem
+        val boards = cachedBootloaderBoards
+
+        if (profile == null && boards.isNullOrEmpty()) return false
+
+        profile?.let { updateAccountSafe(it) }
+        if (!boards.isNullOrEmpty()) {
+            val snapshot = boards.map { it.copy() }
+            bootloaderBoardsList.clear()
+            bootloaderBoardsList.addAll(snapshot)
+            updateBootloaderSafe(snapshot)
+            isBoardsRendered = true
+        }
+
+        return true
+    }
+
     private fun rebuildBoardNameCache() {
         boardNameByAddr.clear()
         GlobalParameters.baseSubDevicesInfoStructSet.forEach { sub ->
@@ -388,6 +421,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         val builtBoards = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
             BootloaderBoardItemUBI4(boardNameByAddr[sub.deviceAddress] ?: "Unknown", sub.deviceCode, sub.deviceAddress, true, fwVersions.getOrDefault(sub.deviceAddress, "—"), false)
         }.distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }
+        if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)
@@ -446,14 +480,17 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     private fun updateAccountSafe(item: AccountMainUBI4Item) {
         _binding?.accountRv?.post {
+            cachedProfileItem = item
             accountAdapter.submitProfile(item)
             scrollAccountListToTop()
         }
     }
 
     private fun updateBootloaderSafe(list: List<BootloaderBoardItemUBI4>) {
+        val snapshot = list.map { it.copy() }
+        cachedBootloaderBoards = snapshot
         _binding?.accountRv?.post {
-            bootloaderAdapter.submitBoards(list)
+            bootloaderAdapter.submitBoards(snapshot)
             scrollAccountListToTop()
         }
     }
@@ -470,12 +507,18 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         super.onPause()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        systemBackCallback?.isEnabled = !hidden
+    }
+
     override fun onDestroyView() {
         resumeDisposables.clear()
         _binding?.accountRv?.adapter = null
         canRenderBoards = false
         isTokenLoaded = false
         isBoardsRendered = false
+        systemBackCallback = null
         mContext = null
         mSettings = null
         main = null
@@ -484,6 +527,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     companion object {
+        private var cachedProfileItem: AccountMainUBI4Item? = null
+        private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()
     }
 }

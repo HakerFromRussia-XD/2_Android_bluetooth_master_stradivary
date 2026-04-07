@@ -13,12 +13,12 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTab
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_ML_MODEL_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETERS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.INICIALIZE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.READ_DEVICE_PARAMETERS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_INFO
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.JUMP_TO_BOOTLOADER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand.START_SYSTEM_UPDATE
@@ -106,7 +106,7 @@ object BLECommands {
         )
 
         val data = byteArrayOf(
-            PreferenceKeysUbi4.DeviceInformationCommand.GET_SYSTEM_CRC.number
+            PreferenceKeysUbi4.deviceInformationCommand.GET_SYSTEM_CRC.number
         )
 
         header[3] = data.size.toByte()

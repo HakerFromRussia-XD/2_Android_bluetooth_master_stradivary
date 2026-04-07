@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
@@ -16,6 +17,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import kotlin.native.ObjCName
@@ -88,7 +90,7 @@ object PreferenceKeysUbi4 {
         COMPLEX_PARAMETER_TRANSFER  (0x09),
     }
 
-    enum class DeviceInformationCommand(val number: Byte) {
+    enum class deviceInformationCommand(val number: Byte) {
         INICIALIZE_INFORMATION                  (0x01),
         READ_DEVICE_PARAMETERS                  (0x02),
         READ_DEVICE_ADDITIONAL_PARAMETERS       (0x03),
@@ -169,7 +171,8 @@ object PreferenceKeysUbi4 {
         PWCE_PLOT_V3                        (0x16),
         PWCE_TOGGLE_SLIDER_V3               (0x17),
         PWCE_GESTURES_WINDOW_V3             (0x18),
-        PWCE_SPINBOX_V3                      (0x19)
+        PWCE_SPINBOX_V3                     (0x19),
+        PWCE_TEXT_INPUT_V3                  (0x1A)
     }
 
 
@@ -717,6 +720,36 @@ object PreferenceKeysUbi4 {
         GMCE_GET_LEFT_RIGHT_HAND        (0x0f),
     }
 
+    enum class deviceInformationCommandV3(val number: Int) {
+        INICIALIZE_INFORMATION                      (1),  //< 1 Инициализация информации */
+        READ_DEVICE_PARAMETERS                      (2),  //< 2 Чтение параметров устройства */
+        READ_DEVICE_FIRMWARE_VERSION                (3),  //< 3 Чтение дополнительных параметров устройства */
+        READ_DEVICE_ADDITIONAL_PARAMETER_SIZE       (16), //< 16 Размер дополнительных параметров устройства */
+        READ_SUB_DEVICES_FIRST_INFO                 (4),  //< 4 Чтение первой информации о подустройствах */
+        READ_SUB_DEVICE_INFO                        (5),  //< 5 Чтение информации о подустройстве */
+        READ_SUB_DEVICE_PARAMETERS                  (6),  //< 6 Чтение параметров подустройства */
+        READ_SUB_DEVICE_ADDITIONAL_PARAMETER        (7),  //< 7 Чтение дополнительных параметров подустройства */
+        READ_SUB_DEVICE_ADDITIONAL_PARAMETER_SIZE   (17), //< 17 Размер дополнительных параметров подустройства */
+        SUB_DEVICE_PARAMETER_INIT_READ              (8),  //< 8 Инициализация чтения параметров подустройства */
+        SUB_DEVICE_PARAMETER_INIT_WRITE             (9),  //< 9 Инициализация записи параметров подустройства */
+        GET_SERIAL_NUMBER                           (10), //< 10 Получить серийный номер */
+        SET_SERIAL_NUMBER                           (11), //< 11 Установить серийный номер */
+        GET_DEVICE_NAME                             (12), //< 12 Получить имя устройства */
+        SET_DEVICE_NAME                             (13), //< 13 Установить имя устройства */
+        GET_DEVICE_ROLE                             (14), //< 14 Получить роль устройства */
+        SET_DEVICE_ROLE                             (15), //< 15 Установить роль устройства */
+        GET_DEVICE_ADDRESS                          (18), //< 18 Получить адрес устройства */
+        SET_DEVICE_ADDRESS                          (19), //< 19 Установить адрес устройства */
+
+        GET_DEVICE_INFO_CRC                         (20),
+        GET_PARAM_INFO_CRC                          (21),
+        GET_PARAM_DATA_CRC                          (22),
+        GET_DEVICE_CRC                              (23),
+        SET_SUB_DEVICE_ADDRESS                      (24),
+        GET_MASTER_CRC                              (25),
+        GET_SYSTEM_CRC                              (26)
+    }
+
 
     enum class SubDeviceManager (val number: Byte) {
         GET_ALL_SUB_DEVICE      (0x01),        /** Получить список всех подустройств */
@@ -740,8 +773,10 @@ object PreferenceKeysUbi4 {
             P_KEY_SCREEN_TIMEOUT to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
             P_KEY_EMG_MOVEMENT_LOCK to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
             P_KEY_LEFT_RIGHT_HAND to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
+            P_KEY_SET_DEVICE_NAME to ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_DEVICE_NAME.number.toInt(), 1, 0),
 
             P_KEY_TEST_SWITCHER to ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
+
         )
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]

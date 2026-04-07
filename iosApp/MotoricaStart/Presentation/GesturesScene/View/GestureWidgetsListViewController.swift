@@ -104,6 +104,10 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
                         widgetType = .commandWidget
                         title = oneButtonItem.title
                         widgetObject = oneButtonItem.widget
+                    case let textInputItem as TextInputItemV3:
+                        widgetType = .commandWidget
+                        title = "\(textInputItem.title)%\(textInputItem.buttonTitle)"
+                        widgetObject = textInputItem.widget
                     case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
                         widgetType = .commandWidget
                     case is GestureOpticParameterWidgetEStruct:
@@ -176,6 +180,8 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
                 return trainingItem.title
             case let spinnerItem as SpinnerItem:
                 return spinnerItem.title
+            case let textInputItem as TextInputItemV3:
+                return "\(textInputItem.title)%\(textInputItem.buttonTitle)"
             default:
                 return nil
             }
@@ -229,4 +235,3 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
         showAlert(title: viewModel.errorTitle, message: error)
     }
 }
-

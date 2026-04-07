@@ -23,6 +23,7 @@ interface ConstantManagerUBI4 {
 
         const val EXTRAS_DEVICE_NAME = "DEVICE_NAME";
         const val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
+        const val DEVICE_NAME_PREFIX = "FTHS3-"
 
         //parameters V3
         // [new widgets V3] тут добавляем ключи новых параметров
@@ -40,6 +41,7 @@ interface ConstantManagerUBI4 {
         const val P_KEY_SCREEN_TIMEOUT = "P_KEY_SCREEN_TIMEOUT"
         const val P_KEY_EMG_MOVEMENT_LOCK = "P_KEY_EMG_MOVEMENT_LOCK"
         const val P_KEY_LEFT_RIGHT_HAND = "P_KEY_LEFT_RIGHT_HAND"
+        const val P_KEY_SET_DEVICE_NAME = "P_KEY_SET_DEVICE_NAME"
 
 
 

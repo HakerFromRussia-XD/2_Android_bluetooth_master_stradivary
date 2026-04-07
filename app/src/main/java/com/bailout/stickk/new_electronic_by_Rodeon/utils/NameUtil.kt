@@ -1,8 +1,10 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.utils
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 
 object NameUtil {
+    @JvmStatic
     fun getCleanName(deviceName: String): String {
         if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             if ( deviceName.length == 15 ) {
@@ -48,5 +50,16 @@ object NameUtil {
             }
         }
         return deviceName
+    }
+
+    @JvmStatic
+    fun getDisplayName(deviceName: String): String {
+        val cleanName = getCleanName(deviceName)
+        val prefix = ConstantManagerUBI4.DEVICE_NAME_PREFIX
+        return if (cleanName.startsWith(prefix)) {
+            cleanName.removePrefix(prefix).removePrefix("-")
+        } else {
+            cleanName
+        }
     }
 }

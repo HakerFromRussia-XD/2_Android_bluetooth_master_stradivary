@@ -10,6 +10,7 @@ import java.util.List;
 import com.bailout.bluetooth.Bluetooth;
 import com.bailout.bluetooth.BluetoothCallback;
 import com.bailout.bluetooth.DiscoveryCallback;
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil;
 import com.bailout.stickk.scan.data.ScanItem;
 //import com.bailout.stickk.ubi4.ble.AndroidBleScanner;
 
@@ -147,7 +148,7 @@ public class ScanInteractorImpl implements ScanInteractor {
                 items.add(position,
                         new ScanItem(
                                 "не важно какой",
-                                device.getName(),
+                                NameUtil.INSTANCE.getDisplayName(device.getName()),
                                 device.getAddress(),
                                 (position+1),
                             0));

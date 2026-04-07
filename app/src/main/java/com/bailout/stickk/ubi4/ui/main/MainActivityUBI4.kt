@@ -22,6 +22,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -30,6 +32,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
@@ -122,6 +125,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private val remainingTasks = AtomicInteger(0) // Счётчик оставшихся задач
     private val transitionPauseHandler = Handler(Looper.getMainLooper())
     private var resumePlotPointsRunnable: Runnable? = null
+    private var isImeVisible = false
+    private var bottomNavHiddenByIme = false
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
@@ -155,6 +160,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val window = this.window
         window.statusBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
+        window.setBackgroundDrawableResource(R.color.ubi4_back)
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
@@ -164,6 +170,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
         bottomNavigationController.applyVisibility(computeVisibleDisplays())
+        setupImeBottomNavBehavior()
         refreshBottomNavVisibility()
         observeBattery()
         // инициализация блютуз
@@ -322,7 +329,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             return
         showTopStatusBar()
         setStatusBarBackMode(enabled = true)
-        binding.bottomNavigation.visibility = View.GONE
+        hideBottomNavigationAnimated()
             
         val sourceFragment = activeFragment?.javaClass?.name ?: ""
         if (sourceFragment == SensorsFragment::class.java.name) {
@@ -344,7 +351,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAccountCustomerServiceScreen() {
         showTopStatusBar()
         setStatusBarBackMode(enabled = true)
-        binding.bottomNavigation.visibility = View.GONE
+        hideBottomNavigationAnimated()
 
         val preserveCurrentFragmentView =
             activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
@@ -358,7 +365,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showAccountProsthesisInformationScreen() {
         showTopStatusBar()
         setStatusBarBackMode(enabled = true)
-        binding.bottomNavigation.visibility = View.GONE
+        hideBottomNavigationAnimated()
 
         val preserveCurrentFragmentView =
             activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
@@ -377,7 +384,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (activeFragment is HelpFragmentUBI4) return
         showTopStatusBar()
         setStatusBarBackMode(enabled = true)
-        binding.bottomNavigation.visibility = View.GONE
+        hideBottomNavigationAnimated()
 
         val sourceFragment = activeFragment?.javaClass?.name.orEmpty()
         if (sourceFragment == SensorsFragment::class.java.name) {
@@ -627,7 +634,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
-            runOnUiThread { binding.nameTv.text = connectedDeviceName }
+            val displayName = NameUtil.getDisplayName(connectedDeviceName)
+            runOnUiThread { binding.nameTv.text = displayName }
             return
         }
     }
@@ -638,7 +646,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         currentSerial = mDeviceName
-        runOnUiThread { binding.nameTv.text = serial }
+        val displayName = NameUtil.getDisplayName(serial)
+        runOnUiThread { binding.nameTv.text = displayName }
+    }
+
+    fun applyDeviceNameImmediately(fullDeviceName: String) {
+        if (fullDeviceName.isBlank()) return
+
+        connectedDeviceName = fullDeviceName
+        mDeviceName = fullDeviceName
+        currentSerial = fullDeviceName
+
+        val displayName = NameUtil.getDisplayName(fullDeviceName)
+        runOnUiThread { binding.nameTv.text = displayName }
     }
 
     fun getCurrentSerial(): String? = currentSerial
@@ -719,7 +739,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     fun showBottomNavigation() {
-        binding.bottomNavigation.visibility = View.VISIBLE
+        if (isImeVisible) {
+            bottomNavHiddenByIme = true
+            binding.bottomNavigation.visibility = View.GONE
+            return
+        }
+        showBottomNavigationAnimated()
     }
 
     fun showTopStatusBar() {
@@ -749,8 +774,88 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun setChromeVisible(visible: Boolean) {
         val v = if (visible) View.VISIBLE else View.INVISIBLE
         binding.statusBar.visibility = v
-        binding.bottomNavigation.visibility = v
+        binding.bottomNavigation.visibility = if (visible && !isImeVisible) View.VISIBLE else View.INVISIBLE
         binding.dividerV.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+    }
+
+    private fun setupImeBottomNavBehavior() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.myMainLl) { _, insets ->
+            val imeVisibleNow = insets.isVisible(WindowInsetsCompat.Type.ime())
+            if (imeVisibleNow != isImeVisible) {
+                isImeVisible = imeVisibleNow
+                if (imeVisibleNow) {
+                    hideBottomNavigationForIme()
+                } else {
+                    restoreBottomNavigationAfterIme()
+                }
+            }
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.myMainLl)
+    }
+
+    private fun hideBottomNavigationForIme() {
+        val nav = binding.bottomNavigation
+        if (nav.visibility != View.VISIBLE) return
+
+        bottomNavHiddenByIme = true
+        hideBottomNavigationAnimated()
+    }
+
+    private fun hideBottomNavigationAnimated() {
+        val nav = binding.bottomNavigation
+        if (nav.visibility != View.VISIBLE) {
+            nav.visibility = View.GONE
+            nav.translationY = 0f
+            nav.alpha = 1f
+            return
+        }
+
+        nav.animate().cancel()
+        val translateDistance = nav.height.takeIf { it > 0 }?.toFloat()
+            ?: (56f * resources.displayMetrics.density)
+        nav.animate()
+            .translationY(translateDistance)
+            .alpha(0f)
+            .setDuration(180L)
+            .withEndAction {
+                nav.visibility = View.GONE
+                nav.translationY = 0f
+                nav.alpha = 1f
+            }
+            .start()
+    }
+
+    private fun restoreBottomNavigationAfterIme() {
+        if (!bottomNavHiddenByIme) return
+        bottomNavHiddenByIme = false
+        if (!canRestoreBottomNavigationAfterIme()) return
+
+        val nav = binding.bottomNavigation
+        showBottomNavigationAnimated(nav)
+    }
+
+    private fun canRestoreBottomNavigationAfterIme(): Boolean {
+        return binding.statusBar.visibility == View.VISIBLE &&
+            binding.statusBackContainer.visibility != View.VISIBLE &&
+            !UiState.startupInProgress.value
+    }
+
+    private fun showBottomNavigationAnimated(nav: View = binding.bottomNavigation) {
+        if (isImeVisible) return
+        if (nav.visibility == View.VISIBLE && nav.alpha == 1f && nav.translationY == 0f) return
+
+        nav.animate().cancel()
+        val translateDistance = nav.height.takeIf { it > 0 }?.toFloat()
+            ?: (56f * resources.displayMetrics.density)
+        nav.translationY = translateDistance
+        nav.alpha = 0f
+        nav.visibility = View.VISIBLE
+        nav.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(220L)
+            .start()
     }
 
     companion object {

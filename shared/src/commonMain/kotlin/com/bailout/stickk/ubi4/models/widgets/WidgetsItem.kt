@@ -90,6 +90,12 @@ data class SpinnerItemV3(
     val title: String,
     val widget: Any
 )
+
+data class TextInputItemV3(
+    val title: String,
+    val buttonTitle: String,
+    val widget: Any
+)
 // Файл (checkpoint) для оптических тренировок / сохранений
 data class FileItem(
     val name: String,

@@ -66,6 +66,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -638,6 +639,17 @@ class BLEParserV3(
             )
                 ,"Блокировка движения с ЕМГ"
             )))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetPosition = 5,
+            widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
+            widgetId = 13,
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
+            )
+        )
+            ,"Имя протеза%Записать"
+        ))
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -689,7 +701,8 @@ class BLEParserV3(
                 )
                 when (widget.baseParameterWidgetStruct.widgetCode) {
                     PWCE_BUTTON.number.toInt(),
-                    PWCE_BUTTON_V3.number.toInt()-> {
+                    PWCE_BUTTON_V3.number.toInt(),
+                    PWCE_TEXT_INPUT_V3.number.toInt() -> {
                         val commandParameterWidgetSStruct = CommandParameterWidgetSStruct(baseParameterWidgetSStruct = widget)
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
                     }

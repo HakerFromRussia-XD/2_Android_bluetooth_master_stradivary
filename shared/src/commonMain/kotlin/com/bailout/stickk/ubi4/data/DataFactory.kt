@@ -29,6 +29,7 @@ import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
+import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
@@ -361,6 +362,17 @@ class DataFactory {
 
             ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt() -> {
                 SpinnerItemV3(resultLabel[0], widget)
+            }
+
+            ParameterWidgetCode.PWCE_TEXT_INPUT_V3.number.toInt() -> {
+                val buttonTitle = resultLabel[1]
+                    .takeUnless { it.isBlank() || it.equals("no name", ignoreCase = true) }
+                    ?: "Отправить"
+                TextInputItemV3(
+                    title = resultLabel[0],
+                    buttonTitle = buttonTitle,
+                    widget = widget
+                )
             }
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }

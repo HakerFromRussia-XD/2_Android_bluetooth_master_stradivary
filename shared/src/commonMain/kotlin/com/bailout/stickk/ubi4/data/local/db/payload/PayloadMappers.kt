@@ -361,6 +361,7 @@ internal fun BaseParameterWidgetPayload.toEndStruct(): Any {
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_PLOT.number.toInt()    -> plotStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SWITCH.number.toInt()  -> switchStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_BUTTON.number.toInt()  -> commandStruct()
+        PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TEXT_INPUT_V3.number.toInt() -> commandStruct()
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> spinnerStruct()
         // ---------- TOGGLE SLIDER ----------
         PreferenceKeysUbi4.ParameterWidgetCode.PWCE_TOGGLE_SLIDER.number.toInt() -> {

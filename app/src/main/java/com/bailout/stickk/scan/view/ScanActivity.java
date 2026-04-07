@@ -424,7 +424,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 if (checkOurLEName(items.get(i).getName())) {
                     scanList.add(new ScanItem(
                             getProtocolType(items.get(i).getName()),
-                            NameUtil.INSTANCE.getCleanName(items.get(i).getName()),
+                            NameUtil.INSTANCE.getDisplayName(items.get(i).getName()),
                             items.get(i).getAddress(),
                             i,
                             rssis.get(i)

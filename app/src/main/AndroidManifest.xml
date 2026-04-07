@@ -78,6 +78,7 @@
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.ubi4.ui.main.MainActivityUBI4"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
         </activity>

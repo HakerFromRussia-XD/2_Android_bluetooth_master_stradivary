@@ -66,7 +66,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetLabelType
@@ -594,32 +594,32 @@ class BLEParser(
             (0x00).toByte() -> {
                 platformLog("BLEParser", "TEST parser 2 DEFOULT")
             }
-            DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
+            deviceInformationCommand.INICIALIZE_INFORMATION.number -> {
                 parseInitializeInformation(receiveDataString)
 
             }
-            DeviceInformationCommand.READ_DEVICE_PARAMETERS.number -> {
+            deviceInformationCommand.READ_DEVICE_PARAMETERS.number -> {
                 try {
                     parseReadDeviceParameters(receiveDataString)
                 } catch (e: Exception) {
                     showToast("Неудалось распарсить READ_DEVICE_PARAMETERS")
                 }
             }
-            DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS.number -> {
+            deviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS.number -> {
                 parseReadDeviceAdditionalParameters(ID, receiveDataString, deviceAddress)
             }
-            DeviceInformationCommand.READ_SUB_DEVICES_FIRST_INFO.number -> {
+            deviceInformationCommand.READ_SUB_DEVICES_FIRST_INFO.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_SUB_DEVICES_FIRST_INFO")
             }
-            DeviceInformationCommand.READ_SUB_DEVICE_INFO.number -> {
+            deviceInformationCommand.READ_SUB_DEVICE_INFO.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_SUB_DEVICE_INFO")
                 parseReadSubDeviceInfo(receiveDataString)
             }
-            DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number -> {
+            deviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_SUB_DEVICE_PARAMETERS старт вызовов")
                 parseReadSubDeviceParameters(receiveDataString)
             }
-            DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number -> {
+            deviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_SUB_DEVICE_ADDITIONAL_PARAMETER")
                 val addressSubDevice = castUnsignedCharToInt(
                     receiveDataString.substring(16, 18).toInt(16).toByte()
@@ -629,36 +629,36 @@ class BLEParser(
                 ) // хедер 7 + 2 байта данные до ID (ID-параметра передаётся в возращаемых данных третьим байтом)
                 parseReadSubDeviceAdditionalParameters(addressSubDevice, parameterID, receiveDataString)
             }
-            DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_READ.number -> {
+            deviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_READ.number -> {
                 platformLog("BLEParser", "TEST parser 2 SUB_DEVICE_PARAMETER_INIT_READ")
             }
-            DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_WRITE.number -> {
+            deviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_WRITE.number -> {
                 platformLog("BLEParser", "TEST parser 2 SUB_DEVICE_PARAMETER_INIT_WRITE")
             }
-            DeviceInformationCommand.GET_SERIAL_NUMBER.number -> {
+            deviceInformationCommand.GET_SERIAL_NUMBER.number -> {
                 platformLog("BLEParser", "TEST parser 2 GET_SERIAL_NUMBER")
             }
-            DeviceInformationCommand.SET_SERIAL_NUMBER.number -> {
+            deviceInformationCommand.SET_SERIAL_NUMBER.number -> {
                 platformLog("BLEParser", "TEST parser 2 SET_SERIAL_NUMBER")
             }
-            DeviceInformationCommand.GET_DEVICE_NAME.number -> {
+            deviceInformationCommand.GET_DEVICE_NAME.number -> {
                 platformLog("BLEParser", "TEST parser 2 GET_DEVICE_NAME")
             }
-            DeviceInformationCommand.SET_DEVICE_NAME.number -> {
+            deviceInformationCommand.SET_DEVICE_NAME.number -> {
                 platformLog("BLEParser", "TEST parser 2 SET_DEVICE_NAME")
             }
-            DeviceInformationCommand.GET_DEVICE_ROLE.number -> {
+            deviceInformationCommand.GET_DEVICE_ROLE.number -> {
                 platformLog("BLEParser", "TEST parser 2 GET_DEVICE_ROLE")
             }
-            DeviceInformationCommand.SET_DEVICE_ROLE.number -> {
+            deviceInformationCommand.SET_DEVICE_ROLE.number -> {
                 platformLog("BLEParser", "TEST parser 2 SET_DEVICE_ROLE")
             }
 
-            DeviceInformationCommand.GET_SYSTEM_CRC.number -> {
+            deviceInformationCommand.GET_SYSTEM_CRC.number -> {
                 parseProductCRCInfo(receiveDataString)
             }
 
-            DeviceInformationCommand.GET_DEVICE_CRC.number -> {
+            deviceInformationCommand.GET_DEVICE_CRC.number -> {
 //                parseProductCRCInfo(receiveDataString)
             }
 

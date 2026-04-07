@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ubi4_back"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="-2dp">
+
+    <View
+        android:id="@+id/widgetTextInputRoot"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ubi4_view_with_corners_back_outside"
+        android:elevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.62" />
+
+    <EditText
+        android:id="@+id/widgetInputEt"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="8dp"
+        android:background="@android:color/transparent"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:gravity="center_vertical"
+        android:hint="Введите текст"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingHorizontal="2dp"
+        android:paddingBottom="4dp"
+        android:textCursorDrawable="@drawable/ubi4_cursor_active"
+        android:textSelectHandle="@drawable/ubi4_text_handle_active"
+        android:textSelectHandleLeft="@drawable/ubi4_text_handle_active"
+        android:textSelectHandleRight="@drawable/ubi4_text_handle_active"
+        android:textColor="@color/ubi4_white"
+        android:textColorHint="@color/ubi4_deactivate_text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/widgetTextInputRoot"
+        app:layout_constraintEnd_toStartOf="@id/guidelineCenter"
+        app:layout_constraintStart_toStartOf="@id/widgetTextInputRoot"
+        app:layout_constraintTop_toTopOf="@id/widgetTextInputRoot" />
+
+    <View
+        android:id="@+id/widgetInputUnderline"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/ubi4_deactivate_text"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/sendBtnContainer"
+        app:layout_constraintEnd_toStartOf="@id/guidelineCenter"
+        app:layout_constraintStart_toStartOf="@id/widgetTextInputRoot" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sendBtnContainer"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/ubi4_view_with_corners_gray_inside"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/widgetTextInputRoot"
+        app:layout_constraintEnd_toEndOf="@id/widgetTextInputRoot"
+        app:layout_constraintStart_toStartOf="@id/guidelineCenter"
+        app:layout_constraintTop_toTopOf="@id/widgetTextInputRoot">
+
+        <TextView
+            android:id="@+id/sendBtnTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="Записать"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/sendBtnOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ubi4_ripple_corners"
+            android:clickable="true"
+            android:clipToOutline="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

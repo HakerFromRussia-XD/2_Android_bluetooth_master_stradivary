@@ -75,6 +75,21 @@ object BLECommandsV3 {
         header[header.size-1] = calculationCRC(header).toByte()
         return header
     }
+    fun sendLongCommand(command: Int,subcommand: Int, data: ByteArray): ByteArray {
+        val header = byteArrayOf(
+            0x80.toByte(),
+            command.toByte(),
+            0x00,
+            0x00,
+            0x00
+        )
+        val dataRepack = byteArrayOf(subcommand.toByte()) + data + byteArrayOf(0x00)
+        header[2] = (dataRepack.size - 1).toByte()
+        header[3] = (dataRepack.size / 256).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        dataRepack[dataRepack.size-1] = calculationCRC(dataRepack).toByte()
+        return header + dataRepack
+    }
 
     fun sendSwitcher(subcommand: Int, checked: Boolean): ByteArray {
         val checkedByte: Byte = if (checked) 0x01 else 0x00
@@ -105,8 +120,8 @@ object BLECommandsV3 {
         )
         header[2] = (data.size - 1).toByte()
         header[3] = (data.size / 256).toByte()
-        header[4] = calculationCRC(header).toByte()
-        data[3] = calculationCRC(data).toByte()
+        header[header.size-1] = calculationCRC(header).toByte()
+        data[data.size-1] = calculationCRC(data).toByte()
         return header + data
     }
     fun sendGaines(gainOpen: Int, gainClose: Int): ByteArray {

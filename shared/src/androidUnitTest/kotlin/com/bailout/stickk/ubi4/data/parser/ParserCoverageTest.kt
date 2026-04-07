@@ -260,13 +260,13 @@ class ParserCoverageTest {
         // DEVICE_INFORMATION command path + subcommands
         val deviceInfoCode = PreferenceKeysUbi4.BaseCommands.DEVICE_INFORMATION.number.toInt()
         val infoCommands = listOf(
-            PreferenceKeysUbi4.DeviceInformationCommand.INICIALIZE_INFORMATION.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_PARAMETERS.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_INFO.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number,
-            PreferenceKeysUbi4.DeviceInformationCommand.GET_SYSTEM_CRC.number
+            PreferenceKeysUbi4.deviceInformationCommand.INICIALIZE_INFORMATION.number,
+            PreferenceKeysUbi4.deviceInformationCommand.READ_DEVICE_PARAMETERS.number,
+            PreferenceKeysUbi4.deviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETERS.number,
+            PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_INFO.number,
+            PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number,
+            PreferenceKeysUbi4.deviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number,
+            PreferenceKeysUbi4.deviceInformationCommand.GET_SYSTEM_CRC.number
         )
 
         infoCommands.forEach { sub ->

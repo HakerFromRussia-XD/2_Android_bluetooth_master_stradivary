@@ -88,7 +88,6 @@ class ToggleSliderDelegateAdapterV3(
                 unitLabel = widget.unitLabel
                 widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
             }
-
             else -> return
         }
 
@@ -112,10 +111,16 @@ class ToggleSliderDelegateAdapterV3(
             turnOffBtnIv = arrayListOf(toggleTurnOffBtnIv1, toggleTurnOffBtnIv2),
         )
         currentSliderInfo.instanceId = sliderInfoCounter++
+        widgetInfoList.removeAll {
+            it.parameterInfo.deviceAddress == currentSliderInfo.parameterInfo.deviceAddress &&
+                    it.parameterInfo.parameterID == currentSliderInfo.parameterInfo.parameterID &&
+                    it.parameterInfo.dataCode == currentSliderInfo.parameterInfo.dataCode &&
+                    it.widgetPosition == currentSliderInfo.widgetPosition
+        }
         widgetInfoList.add(currentSliderInfo)
 
 
-//        indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
+//      indexWidgetSlidersArray = getIndexWidgetSlider(parameterInfo.dataCode)
         sliderCollect()
 
 
@@ -128,68 +133,72 @@ class ToggleSliderDelegateAdapterV3(
         // первичная синхронизация текста с текущим progress
         platformLog("indexWidgetSlidersArray", "==============================")
         platformLog("indexWidgetSlidersArray", "widgetInfoList $widgetInfoList")
-        widgetInfoList.forEach { widgetInfo ->
-//            val widgetInfo = widgetInfoList[indexWidgetSlider]
-            val useInfinity0 = isInfinityLabel(widgetInfo)
-            toggleSliderNumTv.text = formatValueForUi(
-                toggleSliderSb.progress,
-                widgetInfo.minProgress,
-                currentSliderInfo.range,
-                useInfinity0,
-                widgetInfo.increment
-            )
-            toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " "+ widgetInfo.unitLabel
 
-            // seekbar 1
-            toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-//                    val widgetInfo = widgetInfoList[indexWidgetSlider]
-                    val useInfinity = isInfinityLabel(widgetInfo)
-                    toggleSliderNumTv.text = formatValueForUi(
-                        progress,
-                        widgetInfo.minProgress,
-                        currentSliderInfo.range,
-                        useInfinity,
-                        widgetInfo.increment
-                    )
-                    toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " "+ widgetInfo.unitLabel
-                }
+        val widgetInfo = currentSliderInfo
+        val useInfinity0 = isInfinityLabel(widgetInfo)
+        toggleSliderNumTv.text = formatValueForUi(
+            toggleSliderSb.progress,
+            widgetInfo.minProgress,
+            widgetInfo.range,
+            useInfinity0,
+            widgetInfo.increment
+        )
+        toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " ${widgetInfo.unitLabel}"
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
+        toggleSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                val useInfinity = isInfinityLabel(widgetInfo)
+                toggleSliderNumTv.text = formatValueForUi(
+                    progress,
+                    widgetInfo.minProgress,
+                    widgetInfo.range,
+                    useInfinity,
+                    widgetInfo.increment
+                )
+                toggleSliderUnitTv.text = if (widgetInfo.unitLabel.isEmpty()) "" else " ${widgetInfo.unitLabel}"
+            }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    val progress = seekBar.progress.coerceIn(0, 127)
-                    widgetInfo.progress = progress + widgetInfo.minProgress
-                    setParameterData(widgetInfo)
-                    debounceSend(widgetInfo)
-                    setUI(widgetInfo.parameterInfo, false)
-                }
-            })
+            override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
-            // +/-
-            toggleMinusRipple1Btn.setOnClickListener {
-                widgetInfo.progress = (widgetInfo.progress - 1).coerceIn(0, 127)
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val progress = seekBar.progress.coerceIn(0, widgetInfo.range)
+                widgetInfo.progress = progress + widgetInfo.minProgress
                 setParameterData(widgetInfo)
                 debounceSend(widgetInfo)
                 setUI(widgetInfo.parameterInfo, false)
             }
-            togglePlusRipple1Btn.setOnClickListener {
-                widgetInfo.progress = (widgetInfo.progress + 1).coerceIn(0, 127)
-                setParameterData(widgetInfo)
-                debounceSend(widgetInfo)
-                setUI(widgetInfo.parameterInfo, false)
-            }
-            toggleTurnOffRipple1Btn.setOnClickListener {
-                widgetInfo.enabled = !widgetInfo.enabled
-                setParameterData(widgetInfo)
-                debounceSend(widgetInfo)
-                setUI(widgetInfo.parameterInfo)
-            }
+        })
+
+        toggleMinusRipple1Btn.setOnClickListener {
+            val uiProgress = (widgetInfo.progress - widgetInfo.minProgress - 1)
+                .coerceIn(0, widgetInfo.range)
+            widgetInfo.progress = uiProgress + widgetInfo.minProgress
+            setParameterData(widgetInfo)
+            debounceSend(widgetInfo)
+            setUI(widgetInfo.parameterInfo, false)
         }
+
+        togglePlusRipple1Btn.setOnClickListener {
+            val uiProgress = (widgetInfo.progress - widgetInfo.minProgress + 1)
+                .coerceIn(0, widgetInfo.range)
+            widgetInfo.progress = uiProgress + widgetInfo.minProgress
+            setParameterData(widgetInfo)
+            debounceSend(widgetInfo)
+            setUI(widgetInfo.parameterInfo, false)
+        }
+
+        toggleTurnOffRipple1Btn.setOnClickListener {
+            widgetInfo.enabled = !widgetInfo.enabled
+            setParameterData(widgetInfo)
+            debounceSend(widgetInfo)
+            setUI(widgetInfo.parameterInfo, false)
+        }
+
+        setUI(currentSliderInfo.parameterInfo, true, currentSliderInfo.widgetPosition)
     }
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
@@ -200,8 +209,17 @@ class ToggleSliderDelegateAdapterV3(
         }
     }
 
-    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>, withAnimation: Boolean = true) {
+    private fun setUI(
+        parameterInfo: ParameterInfo<Int, Int, Int, Int>,
+        withAnimation: Boolean = true,
+        widgetPosition: Int? = null,
+    ) {
         widgetInfoList.forEach { infoWidget ->
+            val sameWidget =
+                infoWidget.parameterInfo.dataCode == parameterInfo.dataCode &&
+                        (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
+
+            if (!sameWidget) return@forEach
             val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return@forEach
             var valueForChangeToggle = 0
@@ -409,3 +427,4 @@ data class WidgetToggleSliderInfo(
     var labelCodes: Int = -1,
     var timer: CountDownTimer? = null
 )
+

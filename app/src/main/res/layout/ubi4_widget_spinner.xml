@@ -55,7 +55,6 @@
         android:layout_marginEnd="4dp"
         android:background="@drawable/ubi4_view_with_corners_gray_inside"
         android:elevation="5dp"
-
         app:layout_constraintTop_toTopOf="@id/clGesturesRoot"
         app:layout_constraintBottom_toBottomOf="@id/clGesturesRoot"
         app:layout_constraintStart_toStartOf="@id/guidelineCenter"

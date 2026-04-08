@@ -154,6 +154,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     }
 
     private fun canSendNextChunkFlagUpdater() {
+        Log.d("BLEFlowDebug", "canSendNextChunkFlagUpdater STARTED")
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             canSendNextChunkFlagFlow.collect { value ->
                 Log.d("BLEFlowDebug", "Получено значение от оптики: $value, текущий chunksSend: ${chunksSend.get()}")
@@ -468,7 +469,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         myDialog.show()
         return myDialog
 
-
     }
     override fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
         if (loadingCurrentDialog != null && loadingCurrentDialog?.isShowing == true) {
@@ -524,6 +524,10 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private val mutex = Mutex()
     override suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {
         mutex.withLock {
+            Log.d(
+                "UploadDebug",
+                "ENTER sendFileInChunks: name=$name, size=${byteArray.size}, addressDevice=$addressDevice, parameterID=$parameterID, sendFileSuccessFlag=$sendFileSuccessFlag"
+            )
             try {
                 if (!sendFileSuccessFlag) return
                 val progressBarDialog = showProgressBarDialog()
@@ -543,6 +547,10 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     command = 1,
                     progressBar = progressBar
                 ) {
+                    Log.d(
+                        "UploadDebug",
+                        "OPEN file: name=$name, addressDevice=$addressDevice, parameterID=$parameterID, seq=1, size=${byteArray.size}"
+                    )
                     main?.bleCommandWithQueue(
                         BLECommands.openCheckpointFileInSDCard(
                             name,

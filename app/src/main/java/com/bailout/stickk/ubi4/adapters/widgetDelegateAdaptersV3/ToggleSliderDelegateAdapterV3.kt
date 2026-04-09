@@ -18,15 +18,16 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
-import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -36,8 +37,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.forEach
@@ -54,7 +53,6 @@ class ToggleSliderDelegateAdapterV3(
         private const val PENDING_WINDOW_MS = 300L
     }
 
-    private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetInfoList: ArrayList<WidgetToggleSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
@@ -203,8 +201,12 @@ class ToggleSliderDelegateAdapterV3(
     private fun sliderCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            sliderFlowV3.collect { parameterInfo ->
-                setUI(parameterInfo)
+            ParameterStoreV3.updates.collect { key ->
+                widgetInfoList.forEach { infoWidget ->
+                    if (ParameterStoreV3.toKey(infoWidget.parameterInfo) == key) {
+                        setUI(infoWidget.parameterInfo)
+                    }
+                }
             }
         }
     }
@@ -216,29 +218,22 @@ class ToggleSliderDelegateAdapterV3(
     ) {
         widgetInfoList.forEach { infoWidget ->
             val sameWidget =
-                infoWidget.parameterInfo.dataCode == parameterInfo.dataCode &&
-                        (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
+                infoWidget.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
+                    infoWidget.parameterInfo.parameterID == parameterInfo.parameterID &&
+                    infoWidget.parameterInfo.dataCode == parameterInfo.dataCode &&
+                    (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
 
             if (!sameWidget) return@forEach
-            val parameter = ParameterProvider.getParameterV3(infoWidget.parameterInfo)
             val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return@forEach
-            var valueForChangeToggle = 0
-            when (val subcommand = parameterInfo.dataCode) {
-                PWCE_SET_EMG_CHANGE_GESTURE.number.toInt() -> {
-                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
+            val parameterMeta = ParameterInfoRegistry.getMeta(infoWidget.parameterInfo) ?: return@forEach
+            val typedValue = ParameterStoreV3.get(infoWidget.parameterInfo)
+                ?: run {
+                    val serialized = ParameterProvider.getParameterV3(infoWidget.parameterInfo).data
+                    ParameterCodecRegistryV3.decodeFromSerialized(parameterMeta.codecId, serialized)
                 }
-                PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt() -> {
-                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
-                    platformLog("PWCE_SET_EMG_MOVEMENT_LOCK", "valueForChangeToggle $valueForChangeToggle")
-                }
-                GMCE_SET_SCREEN_TIMEOUT.number.toInt() -> {
-                    valueForChangeToggle = parseToggleSafely(parameter.data)?.toggleValue ?: ToggleV3().toggleValue
-                }
-                else -> {
-                    main.showToast("В ToggleSliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
-                    platformLog("ToggleSliderDelegateAdapterV3", "В ToggleSliderDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
-                }
-            }
+            val valueForChangeToggle =
+                (typedValue as? ParameterTypedValueV3.Toggle)?.value?.toggleValue
+                    ?: ToggleV3().toggleValue
             try {
                 infoWidget.responseReceived.set(true)
 
@@ -390,16 +385,15 @@ class ToggleSliderDelegateAdapterV3(
         }
     }
     private fun setParameterData(info: WidgetToggleSliderInfo){
-        val parameter = ParameterProvider.getParameterV3(info.parameterInfo)
         val toggleV3 = ToggleV3()
         toggleV3.toggleValue = pack(info.progress, info.enabled)
-        parameter.data = json.encodeToString(toggleV3)
-    }
-    private fun parseToggleSafely(data: String): ToggleV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<ToggleV3>(data) }
-            .onFailure { platformLog("ToggleSliderDelegateAdapterV3", "Failed to decode EMGGainResult: ${it.message}") }
-            .getOrNull()
+        val typedValue = ParameterTypedValueV3.Toggle(toggleV3)
+        ParameterStoreV3.put(info.parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(info.parameterInfo) ?: return
+        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+            ParameterProvider.getParameterV3(info.parameterInfo).data = encoded
+        }
     }
 }
 
@@ -427,4 +421,3 @@ data class WidgetToggleSliderInfo(
     var labelCodes: Int = -1,
     var timer: CountDownTimer? = null
 )
-

@@ -1,5 +1,4 @@
 import UIKit
-import ObjectiveC
 import QuartzCore
 
 @objc final class WidgetsListTableViewController: UITableViewController {
@@ -23,11 +22,7 @@ import QuartzCore
     override func viewDidLoad() {
         super.viewDidLoad()
         print("[Lifecycle]  viewDidLoad")
-        // Ensure our table view uses WidgetsListTableView without losing storyboard prototype cells
-        if !(tableView is WidgetsListTableView) {
-            object_setClass(tableView, WidgetsListTableView.self)
-            (tableView as? WidgetsListTableView)?.configure()
-        }
+        configureTableTouchBehavior()
         setupViews()
         // Assistant: Применяем начальный снапшот данных
         applySnapshot(animatingDifferences: false)
@@ -95,6 +90,22 @@ import QuartzCore
             SliderViewCell.self,
             forCellReuseIdentifier: SliderViewCell.reuseIdentifier
         )
+        tableView.register(
+            SpinnerViewCellV3.self,
+            forCellReuseIdentifier: SpinnerViewCellV3.reuseIdentifier
+        )
+        tableView.register(
+            ToggleSliderViewCellV3.self,
+            forCellReuseIdentifier: ToggleSliderViewCellV3.reuseIdentifier
+        )
+        tableView.register(
+            SwitcherViewCellV3.self,
+            forCellReuseIdentifier: SwitcherViewCellV3.reuseIdentifier
+        )
+        tableView.register(
+            TextInputViewCellV3.self,
+            forCellReuseIdentifier: TextInputViewCellV3.reuseIdentifier
+        )
         
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
@@ -144,8 +155,47 @@ import QuartzCore
                     print("requestGesture title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
+                case .spinnerV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SpinnerViewCellV3.reuseIdentifier,
+                        for: indexPath
+                    ) as! SpinnerViewCellV3
+                    cell.configure(with: vm)
+                    return cell
+                case .toggleSliderV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: ToggleSliderViewCellV3.reuseIdentifier,
+                        for: indexPath
+                    ) as! ToggleSliderViewCellV3
+                    cell.configure(with: vm)
+                    return cell
+                case .switcherV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SwitcherViewCellV3.reuseIdentifier,
+                        for: indexPath
+                    ) as! SwitcherViewCellV3
+                    cell.configure(with: vm)
+                    return cell
+                case .textInputV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: TextInputViewCellV3.reuseIdentifier,
+                        for: indexPath
+                    ) as! TextInputViewCellV3
+                    cell.configure(with: vm)
+                    return cell
             }
         }
+    }
+
+    private func configureTableTouchBehavior() {
+        // Keep storyboard prototype-cell lifecycle untouched.
+        // We only need immediate scroll/touch behaviour adjustments.
+        tableView.delaysContentTouches = false
+        tableView.canCancelContentTouches = true
+        if let innerScrollView = tableView.subviews.first as? UIScrollView {
+            innerScrollView.delaysContentTouches = false
+        }
+        tableView.panGestureRecognizer.delaysTouchesBegan = false
     }
     
     // Assistant: Обрабатываем появление последней ячейки для подгрузки следующей страницы

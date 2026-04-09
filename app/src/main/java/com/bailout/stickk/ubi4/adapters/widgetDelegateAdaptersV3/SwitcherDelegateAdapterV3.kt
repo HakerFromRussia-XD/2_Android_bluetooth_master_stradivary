@@ -9,16 +9,17 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
-import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -28,8 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SwitcherDelegateAdapterV3(
@@ -38,7 +37,6 @@ class SwitcherDelegateAdapterV3(
     Ubi4WidgetSwitcherBinding::inflate
 ) {
 
-    private val json = Json { encodeDefaults = true }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetInfoList: ArrayList<WidgetSwitchInfoV3> = ArrayList()
     private var switchInfoCounter = 0
@@ -83,6 +81,13 @@ class SwitcherDelegateAdapterV3(
             keyMobileSettings = keyMobileSettings
         )
         currentSwitchInfo.instanceId = switchInfoCounter++
+        widgetInfoList.removeAll {
+            it.parameterInfo.deviceAddress == currentSwitchInfo.parameterInfo.deviceAddress &&
+                it.parameterInfo.parameterID == currentSwitchInfo.parameterInfo.parameterID &&
+                it.parameterInfo.dataCode == currentSwitchInfo.parameterInfo.dataCode &&
+                it.parameterInfo.dataOffsets == currentSwitchInfo.parameterInfo.dataOffsets &&
+                it.widgetPosition == currentSwitchInfo.widgetPosition
+        }
         widgetInfoList.add(currentSwitchInfo)
 
         if (isMobileSetting) {
@@ -136,30 +141,36 @@ class SwitcherDelegateAdapterV3(
                     delayMillis = 1000L,
                     scope = scope
                 )
-            } else { setUI() }
+            } else { setUI(currentParameterInfo, widgetPosition = currentSwitchInfo.widgetPosition) }
 
             switchCollect()
         }
     }
 
-    private fun setUI() {
+    private fun setUI(
+        parameterInfo: ParameterInfo<Int, Int, Int, Int>? = null,
+        widgetPosition: Int? = null
+    ) {
         widgetInfoList.forEach { widgetInfo ->
-            val parameter = ParameterProvider.getParameterV3(widgetInfo.parameterInfo)
-            val subcommand = widgetInfo.parameterInfo.dataCode
-            when (subcommand) {
-//                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-//                    val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-//                    widgetInfo.isChecked = switcherV3.checked
-//                    updateSwitchState(
-//                        widgetInfo.isChecked,
-//                        widgetInfo.widgetSwitch
-//                    )
-//                }
-                else -> {
-                    main.showToast("В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
-                    platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 парсим неправильную сабкоманду ${widgetInfo.parameterInfo}")
+            val sameWidget = parameterInfo == null ||
+                (
+                    widgetInfo.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
+                        widgetInfo.parameterInfo.parameterID == parameterInfo.parameterID &&
+                        widgetInfo.parameterInfo.dataCode == parameterInfo.dataCode &&
+                        (widgetPosition == null || widgetInfo.widgetPosition == widgetPosition)
+                    )
+            if (!sameWidget) return@forEach
+
+            val parameterMeta = ParameterInfoRegistry.getMeta(widgetInfo.parameterInfo) ?: return@forEach
+            val typedValue = ParameterStoreV3.get(widgetInfo.parameterInfo)
+                ?: run {
+                    val serialized = ParameterProvider.getParameterV3(widgetInfo.parameterInfo).data
+                    ParameterCodecRegistryV3.decodeFromSerialized(parameterMeta.codecId, serialized)
                 }
-            }
+            val switcherV3 = (typedValue as? ParameterTypedValueV3.Switcher)?.value ?: return@forEach
+            widgetInfo.isChecked = switcherV3.checked
+            updateSwitchState(widgetInfo.isChecked, widgetInfo.widgetSwitch)
+            widgetInfo.responseReceived.set(true)
         }
     }
 
@@ -168,17 +179,13 @@ class SwitcherDelegateAdapterV3(
         checked: Boolean
     ) {
         val subcommand = parameterInfo.dataCode
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        when (subcommand) {
-//            GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-//                val switcherV3 = parseTestResultSafely(parameter.data) ?: SwitcherV3()
-//                switcherV3.checked = checked
-//                parameter.data = json.encodeToString(switcherV3)
-//                platformLog("sendSwitcher", "parameter.data: ${parameter.data}")
-//            }
-            else -> {
-                main.showToast("В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $subcommand")
-                platformLog("SwitcherDelegateAdapterV3", "В SwitcherDelegateAdapterV3 отправляем неправильную сабкоманду $parameterInfo")
+        val typedValue = ParameterTypedValueV3.Switcher(SwitcherV3(checked = checked))
+        ParameterStoreV3.put(parameterInfo, typedValue)
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo)
+        if (parameterMeta != null) {
+            ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+                ParameterProvider.getParameterV3(parameterInfo).data = encoded
+                platformLog("sendSwitcher", "parameter.data: $encoded")
             }
         }
         main.bleCommandWithQueue(
@@ -216,17 +223,18 @@ class SwitcherDelegateAdapterV3(
         if (collectJob?.isActive == true) return
 
         collectJob = scope.launch(Dispatchers.Main) {
-            try { switcherFlowV3.collect { setUI() }
+            try {
+                ParameterStoreV3.updates.collect { key ->
+                    widgetInfoList.forEach { info ->
+                        if (ParameterStoreV3.toKey(info.parameterInfo) == key) {
+                            setUI(info.parameterInfo)
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 Log.d("switchCollectTestV3", "${e.message}")
             }
         }
-    }
-    private fun parseTestResultSafely(data: String): SwitcherV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<SwitcherV3>(data) }
-            .onFailure { platformLog("SwitcherDelegateAdapterV3", "Failed to decode TestToggleV3: ${it.message}") }
-            .getOrNull()
     }
     private fun getIndexWidgetSwitch(parameterID: Int): IntArray {
         platformLog(
@@ -249,7 +257,7 @@ class SwitcherDelegateAdapterV3(
             val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
             val p = s.parameterInfoSet.elementAt(0)
             val pos = s.widgetPosition
-            "switch-${p.deviceAddress}-${p.parameterID}-$pos"
+            "switch-${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${pos}"
         }
         else -> title
     }

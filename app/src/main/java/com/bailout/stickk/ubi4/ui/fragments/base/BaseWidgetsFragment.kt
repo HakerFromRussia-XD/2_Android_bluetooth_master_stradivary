@@ -74,7 +74,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private lateinit var bleController: BLEController
 
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
-        // [new widgets V3] тут добавляем новые ячейки виджетов
+        // [new widgets V3] тут подключаем DelegateAdapter нового типа виджета в общий CompositeDelegateAdapter
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }

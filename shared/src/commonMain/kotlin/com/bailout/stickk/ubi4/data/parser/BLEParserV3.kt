@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
@@ -74,15 +75,12 @@ import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class BLEParserV3(
     private val coroutineScope: CoroutineScope,
     private val bleCommandExecutor: BleCommandExecutor,
     private val bleManager: BleManagerKmm
 ) {
-    val json = Json { encodeDefaults = true }
     private var mConnected = false
     private var countErrors = 0
     private val deviceSize = 7
@@ -117,9 +115,25 @@ class BLEParserV3(
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
-        // [new widgets V3] тут добавляем ветку парсинга нового параметра
+        // [new widgets V3] тут добавляем обработку ответа устройства: route -> decode codec -> ParameterStore -> emitTarget
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-        val receivePacket = parseUbiPacketZeroAlloc(data)
+        val receivePacket = runCatching { parseUbiPacketZeroAlloc(data) }
+            .getOrElse { error ->
+                platformLog(
+                    "[parseReceivedData]",
+                    "invalid packet ignored: ${error.message}; data=$receiveDataString"
+                )
+                bleCommandExecutor.getQueueUBI4().allowNext(
+                    deviceAddress = 0,
+                    parameterID = 0,
+                    receiveDataString = receiveDataString
+                )
+                platformLog(
+                    "sendBytesKmm",
+                    "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                )
+                return
+            }
         val payload = receivePacket.payload
         platformLog("[parseReceivedData]", "command = ${receivePacket.command} receiveDataString = $receiveDataString")
         when (receivePacket.command) {
@@ -146,100 +160,22 @@ class BLEParserV3(
                     updateFlow.emit(1)
                 }
             }
-            PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
-                val subcommand = payload[0]
-                platformLog("[parseReceivedData]", "subcommand = $subcommand")
-                when(subcommand) {
-                    PWCE_GET_HAND_CONTROL_MODE.number -> {
-                        val handControl =  parseSpinnerZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(handControl)
-                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
-                    }
-                    PWCE_GET_EMG_MOVEMENT_LOCK.number -> {
-                        val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseEMGChangeGesture)
-                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
-                    }
-                    PWCE_GET_EMG_CHANGE_GESTURE.number -> {
-                        val parseEMGChangeGesture = parseToggleZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseEMGChangeGesture)
-                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
-                    }
-                    PWCE_GET_GESTURE_GROUPE.number -> {
-                        val parseGestureGroup = parseGestureGroupeZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseGestureGroup)
-                        coroutineScope.launch { gestureGroupFlowV3.emit(parameterInfo) }
-                    }
-                    PWCE_GET_CURRENT_GESTURE_NUM.number -> {
-                        val parseCurrentGesture = parseCurrentGestureZeroAlloc(receivePacket.payload)
-                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseCurrentGesture)
-                        coroutineScope.launch { currentGestureFlowV3.emit(parameterInfo) }
-                        platformLog("[parseReceivedData]", "gesture = ${json.encodeToString(parseCurrentGesture)}")
-                    }
-                    PWCE_GET_GESTURE_SETTING.number -> {
-                        val parseGestureInfo = parseGestureZeroAlloc(receivePacket.payload)
-                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseGestureInfo)
-                        //
-                        platformLog("[PWCE_GET_GESTURE_SETTING]", "parameter.data = $parseGestureInfo")
-                        RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
-//                        coroutineScope.launch { gestureInfoFlowV3.emit(parameterInfo) }
-                    }
-                    PWCE_GET_EMG_GAIN_VALUE.number -> {
-                        val parseEMGGain = parseEMGGainZeroAlloc(receivePacket.payload)
-                        //должно быть согласовано с заводимымм в generatedHardcodeWidgets параметром
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(parseEMGGain)
-                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
-                        platformLog("[parseReceivedData]", "slider = ${json.encodeToString(parseEMGGain)}")
-                    }
-                    PWCE_GET_THRESHOLD_VALUE.number -> {
-                        val thresholds = parseThresholdZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(thresholds)
-                        coroutineScope.launch { thresholdFlowV3.emit(parameterInfo) }
-                        platformLog("[parseReceivedData]", "thresholds: $thresholds")
-//                        platformLog("sendThresholds", "приём ответа команды")
-                    }
-                }
-            }
-            GUI_CONTROL.number.toInt() -> {
-                val subcommand = payload[0]
-                when(subcommand) {
-                    GMCE_GET_SCREEN_TIMEOUT.number -> {
-                        val screenTimeout = parseToggleZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(screenTimeout)
-                        coroutineScope.launch { sliderFlowV3.emit(parameterInfo) }
-                    }
-                    GMCE_GET_LEFT_RIGHT_HAND.number -> {
-                        val handSide = parseSpinnerZeroAlloc(receivePacket.payload)
-                        val parameterInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        parameter.data = json.encodeToString(handSide)
-                        coroutineScope.launch { spinnerFlowV3.emit(parameterInfo) }
-
-//                        val handSideSwitch = parseSwitchZeroAlloc(receivePacket.payload)
-//                        val parameterInfoSwitch = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
-//                        val parameterSwitch = ParameterProvider.getParameterV3(parameterInfoSwitch)
-//                        parameterSwitch.data = json.encodeToString(handSideSwitch)
-//                        coroutineScope.launch { switcherFlowV3.emit(parameterInfoSwitch) }
+            else -> {
+                if (payload.length == 0) {
+                    platformLog("[parseReceivedData]", "payload empty for command=${receivePacket.command}")
+                } else {
+                    val responseSubcommand = payload.u8(0)
+                    val route = WidgetResponseRoutesV3.find(
+                        command = receivePacket.command,
+                        responseSubcommand = responseSubcommand
+                    )
+                    if (route == null) {
+                        platformLog(
+                            "[parseReceivedData]",
+                            "route not found for command=${receivePacket.command} subcommand=$responseSubcommand"
+                        )
+                    } else {
+                        handleWidgetRoute(route, payload)
                     }
                 }
             }
@@ -249,6 +185,44 @@ class BLEParserV3(
             "sendBytesKmm",
             "А тут разрешаем протолкнуть следующую команду allowNextV3 "
         )
+    }
+
+    private fun handleWidgetRoute(
+        route: WidgetResponseRouteV3,
+        payload: ByteArrayView
+    ) {
+        val parameterMeta = ParameterInfoRegistry.requireMeta(route.parameterKey)
+        val parameterInfo = parameterMeta.parameterInfo
+        val typedValue = ParameterCodecRegistryV3.decodeFromPayload(
+            codecId = parameterMeta.codecId,
+            payload = payload
+        ) ?: run {
+            platformLog(
+                "[parseReceivedData]",
+                "decode failed for parameter=${route.parameterKey} codec=${parameterMeta.codecId}"
+            )
+            return
+        }
+
+        ParameterStoreV3.put(parameterInfo, typedValue)
+
+        ParameterCodecRegistryV3
+            .encodeToSerialized(parameterMeta.codecId, typedValue)
+            ?.let { encoded ->
+                ParameterProvider.getParameterV3(parameterInfo).data = encoded
+            }
+
+        coroutineScope.launch {
+            when (route.emitTarget) {
+                WidgetEmitTargetV3.SPINNER_FLOW -> spinnerFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.SLIDER_FLOW -> sliderFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.THRESHOLD_FLOW -> thresholdFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.CURRENT_GESTURE_FLOW -> currentGestureFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.GESTURE_GROUP_FLOW -> gestureGroupFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT ->
+                    RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
+            }
+        }
     }
 
     private fun parseUbiPacketZeroAlloc(data: ByteArray): UbiPacketView {
@@ -486,7 +460,7 @@ class BLEParserV3(
     }
 
     suspend fun generatedHardcodeWidgets() {
-        // [new widgets V3] тут добавляем новые виджеты
+        // [new widgets V3] тут описываем состав виджетов на экранах (display/widgetPosition/widgetCode/parameterInfoSet)
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,

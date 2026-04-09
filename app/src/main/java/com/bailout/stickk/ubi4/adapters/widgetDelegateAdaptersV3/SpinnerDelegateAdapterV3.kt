@@ -11,28 +11,22 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.SpinnerV3
-import com.bailout.stickk.ubi4.models.ble.ToggleV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 import java.util.Collections
 
@@ -41,9 +35,7 @@ class SpinnerDelegateAdapterV3 (
 ) : ViewBindingDelegateAdapter<SpinnerItemV3, Ubi4WidgetSpinnerBinding>(
     Ubi4WidgetSpinnerBinding::inflate
 ) {
-    private val json = Json { encodeDefaults = true }
     private var collectJob: kotlinx.coroutines.Job? = null
-    private val disposables = CompositeDisposable()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val spinnerInfoList : ArrayList<WidgetSpinnerInfo> = ArrayList()
 
@@ -55,6 +47,7 @@ class SpinnerDelegateAdapterV3 (
         var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0))
         var selectedIndexFromWidget = 0
         var spinnerItems = mutableListOf<String>()
+        var widgetPosition = 0
 
         
         when (val widget = item.widget) {
@@ -62,13 +55,22 @@ class SpinnerDelegateAdapterV3 (
                 parameterInfoSet = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 selectedIndexFromWidget = widget.dataSpinnerParameterWidgetStruct.selectedIndex
                 spinnerItems = widget.dataSpinnerParameterWidgetStruct.spinnerItems as MutableList<String>
+                widgetPosition = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
             }
         }
+        val currentParameterInfo = parameterInfoSet.firstOrNull() ?: return
         val info = WidgetSpinnerInfo(
-            parameterInfoSet = parameterInfoSet,
+            parameterInfo = currentParameterInfo,
             spinner = spinnerPsv,
-            items = spinnerItems
+            items = spinnerItems,
+            widgetPosition = widgetPosition
         )
+        spinnerInfoList.removeAll {
+            it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
+                it.parameterInfo.parameterID == info.parameterInfo.parameterID &&
+                it.parameterInfo.dataCode == info.parameterInfo.dataCode &&
+                it.widgetPosition == info.widgetPosition
+        }
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
         spinnerPsv.setItems(spinnerItems)
@@ -98,6 +100,7 @@ class SpinnerDelegateAdapterV3 (
 
         // BLE обновления — если у тебя реально приходят payload’ы
         spinnerCollect()
+        setUI(currentParameterInfo)
 
         // при уходе элемента с экрана — закрыть попап
         root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -111,29 +114,37 @@ class SpinnerDelegateAdapterV3 (
     private fun spinnerCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
-            spinnerFlowV3.collect { setUI() }
+            ParameterStoreV3.updates.collect { key ->
+                spinnerInfoList.forEach { info ->
+                    if (ParameterStoreV3.toKey(info.parameterInfo) == key) {
+                        setUI(info.parameterInfo)
+                    }
+                }
+            }
         }
     }
 
-    private fun setUI() {
+    private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         spinnerInfoList.forEach { infoWidget ->
-            val parameterInfo = infoWidget.parameterInfoSet.firstOrNull() ?: return@forEach
-            val parameter = ParameterProvider.getParameterV3(parameterInfo)
-            val spinnerValue = parseSpinnerSafely(parameter.data)?.spinnerValue ?: return
-            when (val subcommand = parameterInfo.dataCode) {
-                PWCE_SET_HAND_CONTROL_MODE.number.toInt() -> {
-                    applyProgrammaticSelection(infoWidget, spinnerValue)
-                    platformLog("SpinnerDelegateAdapterV3", "принимаем PWCE_SET_HAND_CONTROL_MODE $spinnerValue")
+            val sameWidget =
+                infoWidget.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
+                    infoWidget.parameterInfo.parameterID == parameterInfo.parameterID &&
+                    infoWidget.parameterInfo.dataCode == parameterInfo.dataCode
+            if (!sameWidget) return@forEach
+
+            val parameterMeta = ParameterInfoRegistry.getMeta(infoWidget.parameterInfo) ?: return@forEach
+            val typedValue = ParameterStoreV3.get(infoWidget.parameterInfo)
+                ?: run {
+                    val serialized = ParameterProvider.getParameterV3(infoWidget.parameterInfo).data
+                    ParameterCodecRegistryV3.decodeFromSerialized(parameterMeta.codecId, serialized)
                 }
-                GMCE_SET_LEFT_RIGHT_HAND.number.toInt() -> {
-                    applyProgrammaticSelection(infoWidget, spinnerValue)
-                    platformLog("SpinnerDelegateAdapterV3", "принимаем GMCE_SET_LEFT_RIGHT_HAND $spinnerValue")
-                }
-                else -> {
-                    main.showToast("В SpinnerDelegateAdapterV3 парсим неправильную сабкоманду $subcommand")
-                    platformLog("SpinnerDelegateAdapterV3", "В SpinnerDelegateAdapterV3 парсим неправильную сабкоманду ${infoWidget.parameterInfoSet.elementAt(0)}")
-                }
-            }
+            val spinnerValue = (typedValue as? ParameterTypedValueV3.Spinner)
+                ?.value
+                ?.spinnerValue
+                ?: return@forEach
+
+            applyProgrammaticSelection(infoWidget, spinnerValue)
+            platformLog("SpinnerDelegateAdapterV3", "принимаем spinnerValue=$spinnerValue")
         }
 
     }
@@ -145,22 +156,34 @@ class SpinnerDelegateAdapterV3 (
 
     private fun sendValue(info: WidgetSpinnerInfo, value: Int) {
         platformLog("SpinnerDelegateAdapterV3", "sendValue info = $info  value = $value")
-        main.bleCommandWithQueue(BLECommandsV3.sendCommand(info.parameterInfoSet.elementAt(0).parameterID, info.parameterInfoSet.elementAt(0).dataCode, value), SERIALPORTCHAR_UUID, WRITE){}
+        main.bleCommandWithQueue(
+            BLECommandsV3.sendCommand(
+                info.parameterInfo.parameterID,
+                info.parameterInfo.dataCode,
+                value
+            ),
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ){}
     }
 
-    private fun parseSpinnerSafely(data: String): SpinnerV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<SpinnerV3>(data) }
-            .onFailure { platformLog("SpinnerDelegateAdapterV3", "Failed to decode SpinnerV3: ${it.message}") }
-            .getOrNull()
-    }
     override fun isForViewType(item: Any): Boolean = item is SpinnerItemV3
-    override fun SpinnerItemV3.getItemId(): Any = title
+    override fun SpinnerItemV3.getItemId(): Any = when (val w = widget) {
+        is SpinnerParameterWidgetSStruct -> {
+            val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            val p = s.parameterInfoSet.firstOrNull()
+            if (p != null) {
+                "spinner-${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${s.widgetPosition}"
+            } else {
+                "spinner-$title"
+            }
+        }
+        else -> "spinner-$title"
+    }
     fun onDestroy() {
         spinnerInfoList.forEach { it.spinner.dismiss() }
         spinnerInfoList.clear()
         scope.cancel()
-        disposables.clear()
         collectJob?.cancel()
         collectJob = null
         Log.d("SpinnerDelegateAdapter", "onDestroy spinner")
@@ -190,8 +213,9 @@ class SpinnerDelegateAdapterV3 (
 }
 
 data class WidgetSpinnerInfo(
-    var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0,0,0,0)),
+    var parameterInfo: ParameterInfo<Int, Int, Int, Int> = ParameterInfo(0,0,0,0),
     val spinner: PowerSpinnerView,
     var items: List<String>,
+    var widgetPosition: Int = 0,
     var pendingProgrammaticIndex: Int? = null
 )

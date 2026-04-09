@@ -161,6 +161,8 @@ extension WidgetsResponseDTO {
             case sliderWidget = "slider_widget"
             case spinnerWidget = "spinner_widget"
             case switchWidget = "switch_widget"
+            case toggleSliderWidget = "toggle_slider_widget"
+            case textInputWidget = "text_input_widget"
             case thresholdWidget = "threshold_widget"
             case unknown
         }
@@ -221,6 +223,8 @@ extension WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO {
         case .sliderWidget: return .sliderWidget
         case .spinnerWidget: return .spinnerWidget
         case .switchWidget: return .switchWidget
+        case .toggleSliderWidget: return .toggleSliderWidget
+        case .textInputWidget: return .textInputWidget
         case .thresholdWidget: return .thresholdWidget
         case .unknown: return .commandWidget
         }

@@ -43,6 +43,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var lastKnownLoadingState: LoadingView.State?
     private var isViewVisible = false
     private var open3DGestureId: Int?
+    private var lastWidgetsSignature: String?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -94,6 +95,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         super.viewWillAppear(animated)
         print("[WIDGET_COORDINATOR] viewWillAppear")
         isViewVisible = true
+        PlotListItemViewModel.resetRequestCache()
+        SliderListItemViewModel.resetRequestCache()
+        setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
         if isSynchronizationCompleted {
@@ -114,6 +118,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         isViewVisible = false
+        setPlotPointRenderingPaused(true)
         print("[WIDGET_COORDINATOR] viewWillDisappear")
         if lastKnownLoadingState != nil {
             LoadingView.hide()
@@ -180,78 +185,18 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
-        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
-        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
-            .enumerated()
-            .map { index, widget in
-                print("[WIDGET_COORDINATOR] kotlinWidgets  index = \(index)   widget = \(widget)")
-                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
-                
-                var title: String?
-                var widgetObject: Any? = widget
-                
-                switch widget {
-                    case let plotItem as PlotItem:
-                        widgetType = .plotWidget
-                        title = plotItem.title
-                        widgetObject = plotItem.widget
-                    case let sliderItem as SliderItem:
-                        widgetType = .sliderWidget
-                        title = sliderItem.title
-                        widgetObject = sliderItem.widget
-                    case let switchItem as SwitchItem:
-                        widgetType = .switchWidget
-                        title = switchItem.title
-                        widgetObject = switchItem.widget
-                    case let gestureOpticItem as GesturesItem:
-                        widgetType = .gestureOpticWidget
-                        title = gestureOpticItem.title
-                        widgetObject = gestureOpticItem.widget
-                    case let oneButtonItem as OneButtonItem:
-                        widgetType = .commandWidget
-                        title = oneButtonItem.title
-                        widgetObject = oneButtonItem.widget
-                    case let textInputItem as TextInputItemV3:
-                        widgetType = .commandWidget
-                        title = "\(textInputItem.title)%\(textInputItem.buttonTitle)"
-                        widgetObject = textInputItem.widget
-                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is GestureOpticParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is GestureParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-                        widgetType = .plotWidget
-                        widgetObject = widget
-                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-                        widgetType = .sliderWidget
-                        widgetObject = widget
-                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-                        widgetType = .switchWidget
-                        widgetObject = widget
-                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    default:
-                        widgetType = .commandWidget
-                    }
-
-                    if title == nil {
-                        title = extractTitle(from: widget) ?? "Widget \(index)"
-                }
-                
-                return WidgetsResponseDTO.WidgetDTO(
-                    id: index,
-                    title: title,
-                    widgetType: widgetType,
-                    widget: AnyCodable(widgetObject)
-                )
-            }
+        let widgetsDTO = WidgetDescriptorFactoryV3.makeWidgetsDTO(from: kotlinWidgets)
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
+        let widgetsSignature = makeWidgetsSignature(from: widgetsDTO)
+        guard widgetsSignature != lastWidgetsSignature else {
+            if UiInterfaceModeBridgeV3.shared.isEnabled(),
+               !widgetsDTO.isEmpty,
+               !isSynchronizationCompleted {
+                handleWidgetsLoadingCompletion()
+            }
+            return
+        }
+        lastWidgetsSignature = widgetsSignature
 
         let mockResponseDTO = WidgetsResponseDTO(
             page: 1,
@@ -262,7 +207,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
-            self?.viewModel.update(with: responseDTO.toDomain())
+            guard let self = self else { return }
+            self.viewModel.update(with: responseDTO.toDomain())
+
+            if UiInterfaceModeBridgeV3.shared.isEnabled(),
+               !widgetsDTO.isEmpty,
+               !self.isSynchronizationCompleted {
+                self.handleWidgetsLoadingCompletion()
+            }
         }
     }
 
@@ -321,14 +273,29 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         PlotListItemViewModel.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()
         SwitchListItemViewModel.resetRequestCache()
+        lastWidgetsSignature = nil
         viewModel.items.value = []
         widgetsTableViewController?.reload()
+    }
+
+    private func setPlotPointRenderingPaused(_ paused: Bool) {
+        guard display == 1 else { return }
+        NotificationCenter.default.post(
+            name: paused ? .v3PausePlotPointRendering : .v3ResumePlotPointRendering,
+            object: nil
+        )
     }
     
     private func setupViews() {
         title = viewModel.screenTitle
         title = screenTitleOverride ?? viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
+    }
+
+    private func makeWidgetsSignature(from widgets: [WidgetsResponseDTO.WidgetDTO]) -> String {
+        widgets.map {
+            "\($0.id)|\($0.widgetType?.rawValue ?? "unknown")|\($0.title)"
+        }.joined(separator: "||")
     }
 
     private func updateItems() {

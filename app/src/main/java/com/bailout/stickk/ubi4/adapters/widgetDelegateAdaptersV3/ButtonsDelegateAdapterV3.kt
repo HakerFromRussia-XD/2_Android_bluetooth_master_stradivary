@@ -87,6 +87,38 @@ class ButtonsDelegateAdapterV3(
     }
 
     override fun isForViewType(item: Any): Boolean = item is ButtonsItemV3
-    override fun ButtonsItemV3.getItemId():  Any = title
+    override fun ButtonsItemV3.getItemId():  Any = when (val w = widget) {
+        is CommandParameterWidgetSStruct -> {
+            val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "buttons-${s.widgetPosition}-${paramsKey}"
+        }
+        is CommandParameterWidgetEStruct -> {
+            val s = w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "buttons-${s.widgetPosition}-${paramsKey}"
+        }
+        else -> "buttons-$title-$title2-$title3"
+    }
     fun onDestroy() { Log.d("onDestroy" , "onDestroy button") }
 }

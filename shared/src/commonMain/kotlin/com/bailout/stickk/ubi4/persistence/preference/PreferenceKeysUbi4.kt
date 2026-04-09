@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.persistence.preference
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
+import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
+import com.bailout.stickk.ubi4.models.ble.ParameterMetaV3
+import com.bailout.stickk.ubi4.models.ble.WidgetKindV3
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
@@ -758,29 +761,112 @@ object PreferenceKeysUbi4 {
     }
 
     object ParameterInfoRegistry {
-        // [new widgets V3] тут связываем новые виджеты с их параметрами
-        val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> = mapOf(
-            P_KEY_PLOT to ParameterInfo(1, 1, 1, 0),
-            P_KEY_OPEN_CLOSE_THRESHOLD to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_THRESHOLD_VALUE.number.toInt(), 1, 0),
-            P_KEY_EMG_GAIN_OPEN_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
-            P_KEY_EMG_GAIN_CLOSE_VALUE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
-            P_KEY_CURRENT_GESTURE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), 1, 0),
-            P_KEY_GESTURE_SETTING to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_SETTING.number.toInt(), 1, 0),
-            P_KEY_GESTURE_GROUPE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_GROUPE.number.toInt(), 1, 0),
-            P_KEY_EMG_CHANGE_GESTURE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),
-            P_KEY_START_CALIBRATE_COMMAND to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_START_CALIBRATE_COMMAND.number.toInt(), 1, 0),
-            P_KEY_HAND_CONTROL_MODE to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
-            P_KEY_SCREEN_TIMEOUT to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
-            P_KEY_EMG_MOVEMENT_LOCK to ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
-            P_KEY_LEFT_RIGHT_HAND to ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
-            P_KEY_SET_DEVICE_NAME to ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_DEVICE_NAME.number.toInt(), 1, 0),
-
-            P_KEY_TEST_SWITCHER to ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
-
+        // [new widgets V3] тут описываем метаданные параметра: ParameterInfo + codecId + widgetKind + valuePath
+        val parameterMetaMapV3: Map<String, ParameterMetaV3> = mapOf(
+            P_KEY_PLOT to ParameterMetaV3(
+                parameterInfo = ParameterInfo(1, 1, 1, 0),
+                codecId = ParameterCodecIdV3.NONE,
+                widgetKind = WidgetKindV3.PLOT,
+                valuePath = "plot[]"
+            ),
+            P_KEY_OPEN_CLOSE_THRESHOLD to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_THRESHOLD_VALUE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.THRESHOLDS,
+                widgetKind = WidgetKindV3.PLOT,
+                valuePath = "openThreshold,closeThreshold"
+            ),
+            P_KEY_EMG_GAIN_OPEN_VALUE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.EMG_GAINS,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "openGain"
+            ),
+            P_KEY_EMG_GAIN_CLOSE_VALUE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
+                codecId = ParameterCodecIdV3.EMG_GAINS,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "closeGain"
+            ),
+            P_KEY_CURRENT_GESTURE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_CURRENT_GESTURE_NUM.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.CURRENT_GESTURE,
+                widgetKind = WidgetKindV3.GESTURES,
+                valuePath = "currentGesture"
+            ),
+            P_KEY_GESTURE_SETTING to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_SETTING.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.GESTURE_SETTINGS,
+                widgetKind = WidgetKindV3.GESTURES,
+                valuePath = "gestureSettings"
+            ),
+            P_KEY_GESTURE_GROUPE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_GROUPE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.ROTATION_GROUP,
+                widgetKind = WidgetKindV3.GESTURES,
+                valuePath = "rotationGroup[]"
+            ),
+            P_KEY_EMG_CHANGE_GESTURE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.TOGGLE,
+                widgetKind = WidgetKindV3.TOGGLE_SLIDER,
+                valuePath = "toggleValue"
+            ),
+            P_KEY_START_CALIBRATE_COMMAND to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_START_CALIBRATE_COMMAND.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.NONE,
+                widgetKind = WidgetKindV3.COMMAND,
+                valuePath = "commandOnly"
+            ),
+            P_KEY_HAND_CONTROL_MODE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
+            ),
+            P_KEY_SCREEN_TIMEOUT to ParameterMetaV3(
+                parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_SCREEN_TIMEOUT.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.TOGGLE,
+                widgetKind = WidgetKindV3.TOGGLE_SLIDER,
+                valuePath = "toggleValue"
+            ),
+            P_KEY_EMG_MOVEMENT_LOCK to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.TOGGLE,
+                widgetKind = WidgetKindV3.TOGGLE_SLIDER,
+                valuePath = "toggleValue"
+            ),
+            P_KEY_LEFT_RIGHT_HAND to ParameterMetaV3(
+                parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), GMCE_SET_LEFT_RIGHT_HAND.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
+            ),
+            P_KEY_SET_DEVICE_NAME to ParameterMetaV3(
+                parameterInfo = ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_DEVICE_NAME.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.TEXT,
+                widgetKind = WidgetKindV3.TEXT_INPUT,
+                valuePath = "text"
+            ),
+            P_KEY_TEST_SWITCHER to ParameterMetaV3(
+                parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SWITCHER,
+                widgetKind = WidgetKindV3.SWITCHER,
+                valuePath = "checked"
+            ),
         )
+
+        val parameterInfoMapV3: Map<String, ParameterInfo<Int, Int, Int, Int>> =
+            parameterMetaMapV3.mapValues { it.value.parameterInfo }
+
+        private val parameterMetaByInfoV3: Map<ParameterInfo<Int, Int, Int, Int>, ParameterMetaV3> =
+            parameterMetaMapV3.values.associateBy { it.parameterInfo }
 
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]
         fun require(key: String): ParameterInfo<Int, Int, Int, Int> = parameterInfoMapV3.getValue(key)
+        fun getMeta(key: String): ParameterMetaV3? = parameterMetaMapV3[key]
+        fun requireMeta(key: String): ParameterMetaV3 = parameterMetaMapV3.getValue(key)
+        fun getMeta(parameterInfo: ParameterInfo<Int, Int, Int, Int>): ParameterMetaV3? =
+            parameterMetaByInfoV3[parameterInfo]
     }
 }
 

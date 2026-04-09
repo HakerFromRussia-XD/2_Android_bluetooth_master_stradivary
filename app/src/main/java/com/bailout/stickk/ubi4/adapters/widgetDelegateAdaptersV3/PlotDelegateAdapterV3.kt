@@ -20,11 +20,14 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
@@ -56,8 +59,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
@@ -72,7 +73,6 @@ class PlotDelegateAdapterV3 (
         val requestedOnFirstShow = AtomicBoolean(false)
     }
 
-    private val json = Json { encodeDefaults = true }
     private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var numberOfCharts = 2
@@ -179,13 +179,7 @@ class PlotDelegateAdapterV3 (
                         BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
                         SERIALPORTCHAR_UUID, WRITE
                     ) {}
-
-                    //записываем данные в параметр
-                    val parameter = ParameterProvider.getParameterV3(
-                        ParameterInfoRegistry.require(
-                            P_KEY_OPEN_CLOSE_THRESHOLD
-                        ))
-                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
+                    persistThresholds(openThreshold, closeThreshold)
                 }
             }
             true
@@ -207,13 +201,7 @@ class PlotDelegateAdapterV3 (
                         BLECommandsV3.sendThresholds(openThreshold, closeThreshold),
                         SERIALPORTCHAR_UUID, WRITE
                     ) {}
-
-                    //записываем данные в параметр
-                    val parameter = ParameterProvider.getParameterV3(
-                        ParameterInfoRegistry.require(
-                            P_KEY_OPEN_CLOSE_THRESHOLD
-                        ))
-                    parameter.data = json.encodeToString(ThresholdsV3(openThreshold, closeThreshold))
+                    persistThresholds(openThreshold, closeThreshold)
                 }
             }
             true
@@ -221,6 +209,7 @@ class PlotDelegateAdapterV3 (
 
         setLimitPosition2(limitCH2, allCHRl, openThreshold)
         setLimitPosition2(limitCH1, allCHRl, closeThreshold)
+        setUI(ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
 
     }
 
@@ -254,7 +243,39 @@ class PlotDelegateAdapterV3 (
         collectJob = null
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItemV3
-    override fun PlotItemV3.getItemId(): Any = title
+    override fun PlotItemV3.getItemId(): Any = when (val w = widget) {
+        is PlotParameterWidgetSStruct -> {
+            val s = w.baseParameterWidgetSStruct.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "plot-${s.widgetPosition}-${paramsKey}"
+        }
+        is PlotParameterWidgetEStruct -> {
+            val s = w.baseParameterWidgetEStruct.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "plot-${s.widgetPosition}-${paramsKey}"
+        }
+        else -> "plot-$title"
+    }
     private fun plotArrayFlowCollect() {
         if (collectJob?.isActive == true) return
         collectJob = scope?.launch(Dispatchers.IO) {
@@ -289,7 +310,12 @@ class PlotDelegateAdapterV3 (
                             }
                         }
                     },
-                    thresholdFlowV3.map { parameterInfo -> setUI(parameterInfo) },
+                    ParameterStoreV3.updates.map { key ->
+                        val thresholdParameter = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+                        if (key == ParameterStoreV3.toKey(thresholdParameter)) {
+                            setUI(thresholdParameter)
+                        }
+                    },
                 ).collect()
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
@@ -303,8 +329,13 @@ class PlotDelegateAdapterV3 (
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         if (widgetPlotsInfo.isEmpty()) return
-        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-        val thresholdResult = parseThresholdResultSafely(parameter.data)?: return
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
+        val typedValue = ParameterStoreV3.get(parameterInfo)
+            ?: run {
+                val serialized = ParameterProvider.getParameterV3(parameterInfo).data
+                ParameterCodecRegistryV3.decodeFromSerialized(parameterMeta.codecId, serialized)
+            }
+        val thresholdResult = (typedValue as? ParameterTypedValueV3.Thresholds)?.value ?: return
         widgetPlotsInfo[0].responseReceived.set(true)
         val info = widgetPlotsInfo[0]
 
@@ -325,6 +356,19 @@ class PlotDelegateAdapterV3 (
 
         openThreshold  = info.openThreshold
         closeThreshold = info.closeThreshold
+    }
+
+    private fun persistThresholds(open: Int, close: Int) {
+        val parameterInfo = ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD)
+        val typedValue = ParameterTypedValueV3.Thresholds(
+            ThresholdsV3(openThreshold = open, closeThreshold = close)
+        )
+        ParameterStoreV3.put(parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
+        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+            ParameterProvider.getParameterV3(parameterInfo).data = encoded
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -792,12 +836,6 @@ class PlotDelegateAdapterV3 (
 //                }
 //            }
         }
-    }
-    private fun parseThresholdResultSafely(data: String): ThresholdsV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<ThresholdsV3>(data) }
-            .onFailure { platformLog("PlotDelegateAdapterV3", "Failed to decode ThresholdResult: ${it.message}") }
-            .getOrNull()
     }
 }
 

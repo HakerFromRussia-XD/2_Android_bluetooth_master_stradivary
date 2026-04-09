@@ -30,6 +30,7 @@ final class SliderViewCell: UITableViewCell {
     private var cancellable: AnyCancellable?
     private var provider:   SliderProvider?
     private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
+    private var v3Job: Kotlinx_coroutines_coreJob?
     
 
     override func awakeFromNib() { super.awakeFromNib() }
@@ -87,6 +88,10 @@ final class SliderViewCell: UITableViewCell {
         job = WidgetStateBridge.shared.observeSliders{ [weak self] paramRef in
             self?.updateUI(paramRef, viewModel: viewModel)
         }
+        v3Job?.cancel(cause: nil)
+        v3Job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
+            self?.updateUIV3(snapshot, viewModel: viewModel)
+        }
         
         viewModel.requestSlider()
     }
@@ -97,6 +102,8 @@ final class SliderViewCell: UITableViewCell {
         cancellable = nil
         job?.cancel(cause: nil)        // прекращаем наблюдение
         job = nil
+        v3Job?.cancel(cause: nil)
+        v3Job = nil
         provider    = nil
         contentConfiguration = nil
     }
@@ -112,13 +119,26 @@ final class SliderViewCell: UITableViewCell {
     }
     
     private func updateUI(_ ref: ParameterRef, viewModel: SliderListItemViewModel) {
-        guard ref.addressDevice == viewModel.widget.deviceAddress,
-              ref.parameterID   == viewModel.widget.parameterID else { return }
+        guard viewModel.contains(ref: ref) else { return }
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
         guard let values = viewModel.sliderValues(from: parameter) else { return }
         print("[BLE-COMMUNICATION] SliderViewCell in updateUI values = \(values)")
         
+
+        DispatchQueue.main.async { [weak self] in
+            if let first = values.first {
+                self?.provider?.value_1 = Float(first)
+            }
+            if values.count > 1 {
+                self?.provider?.value_2 = Float(values[1])
+            }
+        }
+    }
+
+    private func updateUIV3(_ snapshot: ParameterSnapshotV3Bridge, viewModel: SliderListItemViewModel) {
+        guard viewModel.matches(snapshot: snapshot) else { return }
+        guard let values = viewModel.sliderValues(from: snapshot) else { return }
 
         DispatchQueue.main.async { [weak self] in
             if let first = values.first {

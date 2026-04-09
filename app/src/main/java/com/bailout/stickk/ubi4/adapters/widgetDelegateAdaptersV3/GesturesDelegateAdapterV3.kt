@@ -15,14 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
-import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -30,6 +31,8 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -44,7 +47,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -66,7 +68,6 @@ class GesturesDelegateAdapterV3(
     RotationGroupItemAdapterV3.OnSelectClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItemV3, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
-    private val json = Json { encodeDefaults = true }
     private val ANIMATION_DURATION = 200
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapterV3? = null
@@ -364,21 +365,42 @@ class GesturesDelegateAdapterV3(
 
         collectJob = scope.launch(Dispatchers.Main.immediate) {
             try {
+                val currentGestureInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
+                val currentGestureMeta = ParameterInfoRegistry.getMeta(currentGestureInfo)
+                val currentGestureKey = ParameterStoreV3.toKey(currentGestureInfo)
+
+                val rotationGroupInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
+                val rotationGroupMeta = ParameterInfoRegistry.getMeta(rotationGroupInfo)
+                val rotationGroupKey = ParameterStoreV3.toKey(rotationGroupInfo)
+
                 merge(
                     UiState.activeGestureFragmentFilterFlow.map{ filter ->
                         renderFilterUI(filter, animate = true)
                     },
-                    WidgetState.currentGestureFlowV3.map { parameterInfo ->
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        val currentGesture = parseCurrentGestureSafely(parameter.data) ?: return@map
+                    ParameterStoreV3.updates.map { key ->
+                        if (key != currentGestureKey) return@map
+                        val typedValue = ParameterStoreV3.get(currentGestureInfo)
+                            ?: run {
+                                val serialized = ParameterProvider.getParameterV3(currentGestureInfo).data
+                                val codecId = currentGestureMeta?.codecId ?: return@run null
+                                ParameterCodecRegistryV3.decodeFromSerialized(codecId, serialized)
+                            }
+                        val currentGesture = (typedValue as? ParameterTypedValueV3.CurrentGesture)?.value
+                            ?: return@map
                         currentActiveGestureId = currentGesture.currentGesture
                         setActiveGesture(getGestureViewById(currentGesture.currentGesture))
                         updateActiveGestureHeader(currentGesture.currentGesture)
                         listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
-                    WidgetState.gestureGroupFlowV3.map { parameterInfo ->
-                        val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                        platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 пришли по потоку ${parameter.data}")
-                        val currentGesture = parseGestureGroupeSafely(parameter.data) ?: return@map
+                    ParameterStoreV3.updates.map { key ->
+                        if (key != rotationGroupKey) return@map
+                        val typedValue = ParameterStoreV3.get(rotationGroupInfo)
+                            ?: run {
+                                val serialized = ParameterProvider.getParameterV3(rotationGroupInfo).data
+                                val codecId = rotationGroupMeta?.codecId ?: return@run null
+                                ParameterCodecRegistryV3.decodeFromSerialized(codecId, serialized)
+                            }
+                        val currentGesture = (typedValue as? ParameterTypedValueV3.RotationGroup)?.value
+                            ?: return@map
                         val rotationGroupList = currentGesture.toGestureList()
                         val receivedGestures = rotationGroupList
                             .filter { item -> item.first != 0 }
@@ -411,17 +433,6 @@ class GesturesDelegateAdapterV3(
             }
         }
     }
-    private fun parseGestureGroupeSafely(data: String): RotationGroupV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<RotationGroupV3>(data) }
-            .getOrNull()
-    }
-    private fun parseCurrentGestureSafely(data: String): CurrentGestureV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<CurrentGestureV3>(data) }
-            .getOrNull()
-    }
-
     private fun calculatingShowAddButton() {
         if (rotationGroupGestures.size >= 8) {
             mAddGestureToRotationGroupBtn.visibility = View.GONE
@@ -615,7 +626,39 @@ class GesturesDelegateAdapterV3(
     }
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItemV3
-    override fun GesturesItemV3.getItemId(): Any = title
+    override fun GesturesItemV3.getItemId(): Any = when (val w = widget) {
+        is BaseParameterWidgetSStruct -> {
+            val s = w.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "gestures-${s.widgetPosition}-${paramsKey}"
+        }
+        is BaseParameterWidgetEStruct -> {
+            val s = w.baseParameterWidgetStruct
+            val paramsKey = s.parameterInfoSet
+                .toList()
+                .sortedWith(
+                    compareBy<ParameterInfo<Int, Int, Int, Int>> { it.dataOffsets }
+                        .thenBy { it.deviceAddress }
+                        .thenBy { it.parameterID }
+                        .thenBy { it.dataCode }
+                )
+                .joinToString("_") { p ->
+                    "${p.deviceAddress}-${p.parameterID}-${p.dataCode}-${p.dataOffsets}"
+                }
+            "gestures-${s.widgetPosition}-${paramsKey}"
+        }
+        else -> "gestures-$title"
+    }
 
     class MyDragItem internal constructor(context: Context?, layoutId: Int) :
         DragItem(context, layoutId) {

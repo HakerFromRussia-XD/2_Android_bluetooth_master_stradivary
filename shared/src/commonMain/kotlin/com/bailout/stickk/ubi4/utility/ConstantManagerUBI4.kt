@@ -26,7 +26,7 @@ interface ConstantManagerUBI4 {
         const val DEVICE_NAME_PREFIX = "FTHS3-"
 
         //parameters V3
-        // [new widgets V3] тут добавляем ключи новых параметров
+        // [new widgets V3] тут добавляем P_KEY_* для нового параметра (идентификатор параметра в приложении)
         const val P_KEY_PLOT = "PI_KEY_1"
         const val P_KEY_OPEN_CLOSE_THRESHOLD = "PI_KEY_OPEN_CLOSE_THRESHOLD"
         const val P_KEY_EMG_GAIN_OPEN_VALUE = "P_KEY_EMG_GAIN_OPEN_VALUE"

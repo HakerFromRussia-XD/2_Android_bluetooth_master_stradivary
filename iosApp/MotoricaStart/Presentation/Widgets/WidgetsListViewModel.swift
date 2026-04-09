@@ -90,7 +90,9 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         
         bleManager.setOnCharacteristicsReadyListener { [weak self] in
             print("[WIDGET_COORDINATOR] setOnCharacteristicsReadyListener")
-            self?.requestInicializeInformation()
+            if !UiInterfaceModeBridgeV3.shared.isEnabled() {
+                self?.requestInicializeInformation()
+            }
         }
     }
 
@@ -104,24 +106,66 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             .filter { $0.page != widgetsPage.page }
         + [widgetsPage]
         
-        items.value = widgetsPage.widgets.map { widget in
-            switch widget.widgetType {
-                case .commandWidget: return ListItemType.command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
-                case .sliderWidget: return ListItemType.slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
-                case .plotWidget: return ListItemType.plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
-                case .switchWidget: return ListItemType.switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
-                case .gestureOpticWidget:
-                    return ListItemType.gestureOptic(
-                        GestureListItemViewModel(
-                            widget: widget,
-                            bleManager: bleManager,
-                            openCustomGestureSettings: customGestureSettingsOpener
-                        )
-                    )
-                @unknown default: fatalError("Unknown widgetType: \(String(describing: widget.widgetType))")
-            }
-        }
+        items.value = widgetsPage.widgets.map { makeListItem(for: $0) }
         print("Updated items.value: \(items.value)")
+    }
+
+    private func makeListItem(for widget: Widget) -> ListItemType {
+        let widgetCode = WidgetV3Support.widgetCode(from: widget)
+
+        switch widgetCode {
+        case WidgetV3Support.WidgetCode.buttonV3:
+            return .command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.spinboxV3, WidgetV3Support.WidgetCode.comboboxV3:
+            return .spinnerV3(SpinnerListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.sliderV3:
+            return .slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.plotV3:
+            return .plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.toggleSliderV3:
+            return .toggleSliderV3(ToggleSliderListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.textInputV3:
+            return .textInputV3(TextInputListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.switchV3:
+            return .switcherV3(SwitcherListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case WidgetV3Support.WidgetCode.gesturesV3:
+            return .gestureOptic(
+                GestureListItemViewModel(
+                    widget: widget,
+                    bleManager: bleManager,
+                    openCustomGestureSettings: customGestureSettingsOpener
+                )
+            )
+        default:
+            break
+        }
+
+        switch widget.widgetType {
+        case .commandWidget:
+            return .command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
+        case .sliderWidget:
+            return .slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
+        case .plotWidget:
+            return .plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
+        case .switchWidget:
+            return .switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
+        case .gestureOpticWidget, .gestureWidget:
+            return .gestureOptic(
+                GestureListItemViewModel(
+                    widget: widget,
+                    bleManager: bleManager,
+                    openCustomGestureSettings: customGestureSettingsOpener
+                )
+            )
+        case .toggleSliderWidget:
+            return .toggleSliderV3(ToggleSliderListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case .spinnerWidget:
+            return .spinnerV3(SpinnerListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case .textInputWidget:
+            return .textInputV3(TextInputListItemViewModelV3(widget: widget, bleManager: bleManager))
+        case .opticStartLearningWidget, .thresholdWidget, .none:
+            return .command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
+        }
     }
 
     private func resetPages() {
@@ -221,6 +265,10 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case slider(SliderListItemViewModel)
     case `switch`(SwitchListItemViewModel)
     case gestureOptic(GestureListItemViewModel)
+    case spinnerV3(SpinnerListItemViewModelV3)
+    case toggleSliderV3(ToggleSliderListItemViewModelV3)
+    case switcherV3(SwitcherListItemViewModelV3)
+    case textInputV3(TextInputListItemViewModelV3)
 }
 // MARK: - INPUT. View event methods
 

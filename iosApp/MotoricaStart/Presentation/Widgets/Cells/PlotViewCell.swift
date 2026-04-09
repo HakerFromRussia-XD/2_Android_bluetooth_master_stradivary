@@ -3,6 +3,11 @@ import DGCharts
 import Combine
 import shared
 
+extension Notification.Name {
+    static let v3PausePlotPointRendering = Notification.Name("V3PausePlotPointRendering")
+    static let v3ResumePlotPointRendering = Notification.Name("V3ResumePlotPointRendering")
+}
+
 final class PlotViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing: PlotViewCell.self)
     static let height = CGFloat(330)
@@ -56,7 +61,11 @@ final class PlotViewCell: UITableViewCell {
     private var closeThreshold: Int = 0
     private var plotDateEntryJob: Kotlinx_coroutines_coreJob?
     private var thresholdJob: Kotlinx_coroutines_coreJob?
+    private var thresholdV3Job: Kotlinx_coroutines_coreJob?
     private var needsThresholdLayout: Bool = false
+    private var pauseRenderingObserver: NSObjectProtocol?
+    private var resumeRenderingObserver: NSObjectProtocol?
+    private var isPlotPointRenderingPaused = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -66,6 +75,7 @@ final class PlotViewCell: UITableViewCell {
     }
     override func awakeFromNib() {
         super.awakeFromNib()
+        observePlotRenderingState()
         initChart()
         setupGestureRecognizers()
         startTimer()
@@ -122,6 +132,17 @@ final class PlotViewCell: UITableViewCell {
         thresholdJob = WidgetStateBridge.shared.observeThresholdFlow { [weak self] ref in
             self?.updateThresholdData(ref, viewModel: viewModel)
         }
+        thresholdV3Job?.cancel(cause: nil)
+        thresholdV3Job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
+            self?.updateThresholdDataV3(snapshot, viewModel: viewModel)
+        }
+
+        if let cachedThresholds = viewModel.cachedThresholds() {
+            openThreshold = cachedThresholds.open
+            closeThreshold = cachedThresholds.close
+            needsThresholdLayout = true
+            applyThresholdLayout(animated: false)
+        }
     }
     
     override func prepareForReuse() {
@@ -130,6 +151,8 @@ final class PlotViewCell: UITableViewCell {
         plotDateEntryJob = nil
         thresholdJob?.cancel(cause: nil)
         thresholdJob = nil
+        thresholdV3Job?.cancel(cause: nil)
+        thresholdV3Job = nil
         widgetPlotInfo = nil
         needsThresholdLayout = false
         startTimer()
@@ -140,16 +163,24 @@ final class PlotViewCell: UITableViewCell {
             stopTimer()
         }
     }
+
+    deinit {
+        if let pauseRenderingObserver {
+            NotificationCenter.default.removeObserver(pauseRenderingObserver)
+        }
+        if let resumeRenderingObserver {
+            NotificationCenter.default.removeObserver(resumeRenderingObserver)
+        }
+    }
     override func layoutSubviews() {
         super.layoutSubviews()
-        let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: Int32(viewModel.widget.deviceAddress), parameterID: Int32(viewModel.widget.parameterID))
-        guard !parameter.data.isEmpty else { return }
-        let thresholds = SerializationObjects.shared.decodePlotThresholds(raw: "\"\(parameter.data)\"")
-        self.openThreshold = Int(thresholds.threshold1)
-        self.closeThreshold = Int(thresholds.threshold2)
-        self.needsThresholdLayout = true
-        applyThresholdLayout(animated: true)
+        guard viewModel != nil else { return }
+        if let cachedThresholds = viewModel.cachedThresholds() {
+            openThreshold = cachedThresholds.open
+            closeThreshold = cachedThresholds.close
+            needsThresholdLayout = true
+            applyThresholdLayout(animated: true)
+        }
     }
     
     
@@ -489,8 +520,7 @@ final class PlotViewCell: UITableViewCell {
         }
     }
     private func updateThresholdData(_ ref: ParameterRef, viewModel: PlotListItemViewModel) {
-        guard ref.addressDevice == viewModel.widget.deviceAddress,
-              ref.parameterID == viewModel.widget.parameterID else { return }
+        guard viewModel.contains(ref: ref) else { return }
 
         let parameter = ParameterProvider.Companion()
             .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
@@ -505,6 +535,38 @@ final class PlotViewCell: UITableViewCell {
             self.applyThresholdLayout(animated: true)
         }
     }
+
+    private func updateThresholdDataV3(_ snapshot: ParameterSnapshotV3Bridge, viewModel: PlotListItemViewModel) {
+        guard viewModel.matchesThresholdSnapshot(snapshot) else { return }
+        guard let thresholds = viewModel.thresholds(from: snapshot) else { return }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.openThreshold = thresholds.open
+            self.closeThreshold = thresholds.close
+            self.needsThresholdLayout = true
+            self.applyThresholdLayout(animated: true)
+        }
+    }
+
+    private func observePlotRenderingState() {
+        pauseRenderingObserver = NotificationCenter.default.addObserver(
+            forName: .v3PausePlotPointRendering,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.isPlotPointRenderingPaused = true
+        }
+
+        resumeRenderingObserver = NotificationCenter.default.addObserver(
+            forName: .v3ResumePlotPointRendering,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.isPlotPointRenderingPaused = false
+        }
+    }
+
     private func startTimer() {
         stopTimer()
         let t = Timer(timeInterval: 0.01, repeats: true) { [weak self] _ in
@@ -525,6 +587,17 @@ final class PlotViewCell: UITableViewCell {
                 self.target_sensor_2 = new2 // зачем: фиксируем новую цель
 
                 self.rampTick = 0           // зачем: стартуем переход заново на timerTiks тиков
+            }
+
+            if self.isPlotPointRenderingPaused {
+                self.current_sensor_1 = new1
+                self.current_sensor_2 = new2
+                self.start_sensor_1 = new1
+                self.start_sensor_2 = new2
+                self.target_sensor_1 = new1
+                self.target_sensor_2 = new2
+                self.rampTick = 0
+                return
             }
 
             // 3) Двигаемся по прямой start -> target за timerTiks тиков

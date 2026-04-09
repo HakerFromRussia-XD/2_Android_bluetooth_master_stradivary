@@ -81,68 +81,7 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
 //        let kotlinWidgets = dataFactory.fakeData()
         print("[WIDGET_COORDINATOR] kotlinWidgets: \(kotlinWidgets)")
         
-        // Преобразуем Kotlin-виджеты в DTO, помечая SliderItem как рекламу
-        let widgetsDTO: [WidgetsResponseDTO.WidgetDTO] = kotlinWidgets
-            .enumerated()
-            .map { index, widget in
-                print("[WIDGET_COORDINATOR] kotlinWidgets  index = \(index)   widget = \(widget)")
-                var widgetType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
-                
-                var title: String?
-                var widgetObject: Any? = widget
-                
-                switch widget {
-                    case let plotItem as PlotItem:
-                        widgetType = .plotWidget
-                        title = plotItem.title
-                        widgetObject = plotItem.widget
-                    case let sliderItem as SliderItem:
-                        widgetType = .sliderWidget
-                        title = sliderItem.title
-                        widgetObject = sliderItem.widget
-                    case let oneButtonItem as OneButtonItem:
-                        widgetType = .commandWidget
-                        title = oneButtonItem.title
-                        widgetObject = oneButtonItem.widget
-                    case let textInputItem as TextInputItemV3:
-                        widgetType = .commandWidget
-                        title = "\(textInputItem.title)%\(textInputItem.buttonTitle)"
-                        widgetObject = textInputItem.widget
-                    case is BaseParameterWidgetEStruct, is BaseParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is GestureOpticParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is GestureParameterWidgetEStruct:
-                        widgetType = .commandWidget
-                    case is OpticStartLearningWidgetEStruct, is OpticStartLearningWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is PlotParameterWidgetEStruct, is PlotParameterWidgetSStruct:
-                        widgetType = .plotWidget
-                        widgetObject = widget
-                    case is SliderParameterWidgetEStruct, is SliderParameterWidgetSStruct:
-                        widgetType = .sliderWidget
-                        widgetObject = widget
-                    case is SpinnerParameterWidgetEStruct, is SpinnerParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is SwitchParameterWidgetEStruct, is SwitchParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    case is ThresholdParameterWidgetEStruct, is ThresholdParameterWidgetSStruct:
-                        widgetType = .commandWidget
-                    default:
-                        widgetType = .commandWidget
-                    }
-
-                    if title == nil {
-                        title = extractTitle(from: widget) ?? "Widget \(index)"
-                }
-                
-                return WidgetsResponseDTO.WidgetDTO(
-                    id: index,
-                    title: title,
-                    widgetType: widgetType,
-                    widget: AnyCodable(widgetObject)
-                )
-            }
+        let widgetsDTO = WidgetDescriptorFactoryV3.makeWidgetsDTO(from: kotlinWidgets)
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
 
         let mockResponseDTO = WidgetsResponseDTO(

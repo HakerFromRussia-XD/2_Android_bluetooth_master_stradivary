@@ -5,6 +5,7 @@
 //  Created by Motorica LLC on 28.08.2025.
 //
 import UIKit
+import shared
 
 final class MainTabBarController: UITabBarController {
     private let appDIContainer: AppDIContainer
@@ -12,6 +13,8 @@ final class MainTabBarController: UITabBarController {
     
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
+    private var keyboardWillShowObserver: NSObjectProtocol?
+    private var keyboardWillHideObserver: NSObjectProtocol?
     
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
@@ -50,6 +53,7 @@ final class MainTabBarController: UITabBarController {
         applyTabBarContentInsets(topPadding: tabItemTopPadding)
         
         selectedIndex = 1 // Sensors tab by default
+        registerKeyboardObservers()
     }
     
     override func viewDidLayoutSubviews() {
@@ -74,13 +78,24 @@ final class MainTabBarController: UITabBarController {
         let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions)
         sensorsVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Sensors", comment: ""), image: UIImage(named: "ic_sensors"), tag: 1)
 
-        let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
-        trainingVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Training", comment: ""), image: UIImage(named: "ic_trophy"), tag: 2)
-
         let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
         specialVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Special settings", comment: ""), image: UIImage(named: "ic_mechanics"), tag: 3)
 
-        viewControllers = [gesturesVC, sensorsVC, trainingVC, specialVC]
+        var controllers: [UIViewController] = [gesturesVC, sensorsVC]
+
+        let trainingWidgets = DataFactory().prepareData(display: 3)
+        if !trainingWidgets.isEmpty {
+            let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
+            trainingVC.tabBarItem = UITabBarItem(
+                title: NSLocalizedString("Training", comment: ""),
+                image: UIImage(named: "ic_trophy"),
+                tag: 2
+            )
+            controllers.append(trainingVC)
+        }
+
+        controllers.append(specialVC)
+        viewControllers = controllers
     }
     
     private func unifyTabBarItemFonts() {
@@ -130,6 +145,46 @@ final class MainTabBarController: UITabBarController {
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
+        }
+    }
+
+    private func registerKeyboardObservers() {
+        keyboardWillShowObserver = NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.setTabBar(hidden: true, notification: notification)
+        }
+
+        keyboardWillHideObserver = NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.setTabBar(hidden: false, notification: notification)
+        }
+    }
+
+    private func setTabBar(hidden: Bool, notification: Notification) {
+        let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
+        let rawCurve = (notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.intValue ?? UIView.AnimationCurve.easeInOut.rawValue
+        let options = UIView.AnimationOptions(rawValue: UInt(rawCurve << 16))
+
+        UIView.animate(withDuration: duration, delay: 0, options: options) {
+            self.tabBar.alpha = hidden ? 0 : 1
+            self.tabBar.transform = hidden
+                ? CGAffineTransform(translationX: 0, y: self.tabBar.bounds.height)
+                : .identity
+        }
+    }
+
+    deinit {
+        if let keyboardWillShowObserver {
+            NotificationCenter.default.removeObserver(keyboardWillShowObserver)
+        }
+        if let keyboardWillHideObserver {
+            NotificationCenter.default.removeObserver(keyboardWillHideObserver)
         }
     }
 }

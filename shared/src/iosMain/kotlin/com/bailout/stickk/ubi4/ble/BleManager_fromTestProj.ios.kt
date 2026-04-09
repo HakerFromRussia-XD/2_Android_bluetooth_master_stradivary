@@ -1,8 +1,16 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -10,8 +18,14 @@ import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
+import platform.CoreBluetooth.CBAdvertisementDataLocalNameKey
 import platform.CoreBluetooth.CBCharacteristic
 import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
@@ -24,7 +38,6 @@ import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
-import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.utility.synchronized
 import kotlin.collections.ArrayDeque
 
@@ -33,15 +46,19 @@ import kotlin.collections.ArrayDeque
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleDeviceKmm
     actual constructor(id: String, name: String?, rssi: Int) {
-    actual val id: String get() = peripheral.identifier.UUIDString()
-    actual val name: String? get() = peripheral.name
+    actual val id: String = id
+    actual val name: String? = name
     actual val rssi: Int = rssi
     internal lateinit var peripheral: CBPeripheral
 
-    internal constructor(peripheral: CBPeripheral, rssi: Int) :
+    internal constructor(
+        peripheral: CBPeripheral,
+        rssi: Int,
+        discoveredName: String? = peripheral.name
+    ) :
             this(
                 id = peripheral.identifier.UUIDString(),
-                name = peripheral.name,
+                name = discoveredName,
                 rssi = rssi
             ) {
         this.peripheral = peripheral
@@ -64,6 +81,11 @@ actual class BleManagerKmm actual constructor() {
     private val onChunkSentQueue = ArrayDeque<() -> Unit>()
     private var onCharacteristicsReady: (() -> Unit)? = null
     private var didNotifyCharacteristicsReady = false
+    private val connectionScope = MainScope()
+    private val pendingNotifyAcks = mutableMapOf<String, CompletableDeferred<Boolean>>()
+    private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
+    private var expectedServicesCount = 0
+    private var discoveredServicesWithCharacteristics = 0
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -101,7 +123,13 @@ actual class BleManagerKmm actual constructor() {
             RSSI: NSNumber
         ) {
             // вызывается каждый раз, когда находится новое устройство
-            val device = BleDeviceKmm(didDiscoverPeripheral, RSSI.intValue)
+            val advertisedName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+            val resolvedName = advertisedName?.takeIf { it.isNotBlank() } ?: didDiscoverPeripheral.name
+            val device = BleDeviceKmm(
+                peripheral = didDiscoverPeripheral,
+                rssi = RSSI.intValue,
+                discoveredName = resolvedName
+            )
             discovered[device.id] = didDiscoverPeripheral
             onDeviceCallback?.invoke(device)
         }
@@ -115,6 +143,12 @@ actual class BleManagerKmm actual constructor() {
             selectedDevice = didConnectPeripheral
             didConnectPeripheral.delegate = this
             didNotifyCharacteristicsReady = false
+            servicesMass.clear()
+            characteristicsMass.clear()
+            expectedServicesCount = 0
+            discoveredServicesWithCharacteristics = 0
+            pendingNotifyAcks.clear()
+            pendingDeviceDataResponseAck = null
             didConnectPeripheral.discoverServices(null)
         }
 
@@ -123,7 +157,13 @@ actual class BleManagerKmm actual constructor() {
             didDiscoverServices: NSError?
         ) {
             platformLog("[BLE-CONNECT]","начало процесса поиска сервисов")
-            (peripheral.services as? List<*>)?.forEach { any ->
+            val services = (peripheral.services as? List<*>) ?: emptyList<Any?>()
+            expectedServicesCount = services.size
+            if (expectedServicesCount == 0) {
+                notifyCharacteristicsReadyOnce()
+                return
+            }
+            services.forEach { any ->
                 val service = any as CBService
                 servicesMass.add(service)
                 peripheral.discoverCharacteristics(characteristicUUIDs = null, forService = service)
@@ -138,13 +178,27 @@ actual class BleManagerKmm actual constructor() {
             platformLog("[BLE-CONNECT]","начало процесса поиска характеристик")
             (didDiscoverCharacteristicsForService.characteristics as? List<*>)?.forEach {
                 val c = it as CBCharacteristic
-                characteristicsMass.add(c); peripheral.setNotifyValue(true, forCharacteristic = c)
+                characteristicsMass.add(c)
+                if (!UiState.isInterfaceV3Activated) {
+                    peripheral.setNotifyValue(true, forCharacteristic = c)
+                }
             }
 
-            if (!didNotifyCharacteristicsReady) {
-                didNotifyCharacteristicsReady = true
-                onCharacteristicsReady?.invoke()
+            discoveredServicesWithCharacteristics += 1
+            if (discoveredServicesWithCharacteristics >= expectedServicesCount) {
+                notifyCharacteristicsReadyOnce()
             }
+        }
+
+        @ObjCSignatureOverride
+        override fun peripheral(
+            peripheral: CBPeripheral,
+            didUpdateNotificationStateForCharacteristic: CBCharacteristic,
+            error: NSError?
+        ) {
+            val key = didUpdateNotificationStateForCharacteristic.UUID.UUIDString().lowercase()
+            val enabled = error == null
+            pendingNotifyAcks.remove(key)?.complete(enabled)
         }
 
         // Метод для обработки успешной записи или ошибки
@@ -179,8 +233,21 @@ actual class BleManagerKmm actual constructor() {
                 dataCount = data.length.toInt()
                 platformLog("[BLE-CONNECT]","приём dataCount = $dataCount")
                 platformLog("sendBytesKmm", "А тут мы обрабатываем принятые данные: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
+                val characteristicUuid = didUpdateValueForCharacteristic.UUID.UUIDString().lowercase()
+                if (characteristicUuid == SERIALPORTCHAR_UUID.lowercase()) {
+                    pendingDeviceDataResponseAck?.complete(true)
+                }
                 val bytes = data.toByteArray()
-                BLEState.bleParser.parseReceivedData(bytes)
+                if (UiState.isInterfaceV3Activated) {
+                    when (characteristicUuid) {
+                        SERIALPORTCHAR_UUID.lowercase() -> BLEState.bleParserV3.parseReceivedData(bytes)
+                        MAIN_CHANNEL_CHARACTERISTIC.lowercase(),
+                        SENSORS_STREAM_UUID.lowercase() -> BLEState.bleParserV3.parseReceivedSensorsData(bytes)
+                        else -> platformLog("[BLE-PARSER-ROUTER]", "route=V3 skip uuid=$characteristicUuid")
+                    }
+                } else {
+                    BlePacketParserRouterV3.parseIncoming(bytes)
+                }
             }
         }
     }
@@ -208,7 +275,9 @@ actual class BleManagerKmm actual constructor() {
 
     actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
         onCharacteristicsReady = onReady
-        didNotifyCharacteristicsReady = false
+        if (didNotifyCharacteristicsReady) {
+            onReady()
+        }
     }
 
     @Suppress("unused")
@@ -260,6 +329,7 @@ actual class BleManagerKmm actual constructor() {
                     }
 
                     NOTIFY -> {
+                        selectedDevice?.setNotifyValue(true, forCharacteristic = c)
                         platformLog("sendBytesKmm", "запускаем нотификацию: $receiveDataString")
                     }
                 }
@@ -286,6 +356,104 @@ actual class BleManagerKmm actual constructor() {
             }
         }
     }
+
+    private fun notifyCharacteristicsReadyOnce() {
+        if (didNotifyCharacteristicsReady) return
+        didNotifyCharacteristicsReady = true
+
+        if (UiState.isInterfaceV3Activated) {
+            connectionScope.launch {
+                UiState.startupInProgress.value = false
+                BLEState.bleParserV3.generatedHardcodeWidgets()
+                UiState.widgetsLoadingFlow.emit(Unit)
+                initRequestsV3()
+            }
+        }
+
+        onCharacteristicsReady?.invoke()
+    }
+
+    private fun findCharacteristic(uuid: String): CBCharacteristic? {
+        val normalized = uuid.lowercase()
+        return characteristicsMass.firstOrNull { it.UUID.UUIDString().lowercase() == normalized }
+    }
+
+    private suspend fun enableNotifyAndAwaitResponse(
+        uuid: String,
+        timeoutMs: Long = 250L,
+        attempts: Int = 10,
+        baseDelayMs: Long = 10L
+    ): Boolean {
+        val key = uuid.lowercase()
+        repeat(attempts) { index ->
+            val characteristic = findCharacteristic(uuid)
+            if (characteristic == null || selectedDevice == null) {
+                if (index < attempts - 1) {
+                    delay(baseDelayMs.toLong() * (index + 1))
+                }
+                return@repeat
+            }
+
+            val ack = CompletableDeferred<Boolean>()
+            pendingNotifyAcks[key] = ack
+            selectedDevice?.setNotifyValue(true, forCharacteristic = characteristic)
+            val success = withTimeoutOrNull(timeoutMs) { ack.await() } ?: false
+            if (pendingNotifyAcks[key] === ack) {
+                pendingNotifyAcks.remove(key)
+            }
+
+            if (success) return true
+            if (index < attempts - 1) {
+                delay(baseDelayMs.toLong() * (index + 1))
+            }
+        }
+        return false
+    }
+
+    private suspend fun requestDeviceDataAndAwaitResponse(timeoutMs: Long = 250L): Boolean {
+        val responseAck = CompletableDeferred<Boolean>()
+        pendingDeviceDataResponseAck = responseAck
+        sendBytesKmm(
+            data = BLECommandsV3.requestDeviceData(),
+            command = SERIALPORTCHAR_UUID,
+            typeCommand = WRITE,
+            onChunkSent = {}
+        )
+        val responseReceived = withTimeoutOrNull(timeoutMs) { responseAck.await() } ?: false
+        if (pendingDeviceDataResponseAck === responseAck) {
+            pendingDeviceDataResponseAck = null
+        }
+        return responseReceived
+    }
+
+    private suspend fun initRequestsV3() {
+        while (true) {
+            val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
+            if (!serialNotifyEnabled) {
+                platformLog("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
+                continue
+            }
+
+            val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
+            if (!gotDeviceDataResponse) {
+                platformLog("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
+                continue
+            }
+
+            val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC)
+            if (!mainChannelNotifyEnabled) {
+                platformLog("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+                continue
+            }
+
+            sendBytesKmm(BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_SCREEN_TIMEOUT.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_LEFT_RIGHT_HAND.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            return
+        }
+    }
 }
-
-

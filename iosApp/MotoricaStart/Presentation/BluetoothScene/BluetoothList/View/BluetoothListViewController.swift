@@ -7,6 +7,7 @@
 import UIKit
 import Combine
 import Foundation
+import shared
 
 final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
@@ -155,8 +156,9 @@ final class BluetoothListViewController: UIViewController {
                     let device = self.viewModel.devices.first(where: { $0.id == uuid })
                 else { return }
                 self.tableViewDevices.reloadData() // перезагружаем строки, чтобы отобразить цвет подключения
-                self.showConnectionToast("Подключено: \(device.name)")
-                print("[BLE-CONNECT] Подключено: \(device.name)")
+                let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
+                self.showConnectionToast("Подключено: \(displayName)")
+                print("[BLE-CONNECT] Подключено: \(displayName)")
             }
             .store(in: &cancellables)
         

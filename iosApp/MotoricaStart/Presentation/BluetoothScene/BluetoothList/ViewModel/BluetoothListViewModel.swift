@@ -66,8 +66,9 @@ final class BluetoothListViewModel {
         resetDevices()
         bleManager.startScanKmm { [weak self] bleDevice in
             guard let self = self else { return }
+            let candidateName = (bleDevice.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             // Фильтруем устройства без имени или с "Unknown"
-            guard let name = bleDevice.name, !name.isEmpty, name != "Unknown" else {
+            guard !candidateName.isEmpty, candidateName != "Unknown" else {
                 print("[BLE] пропускаем устройство без имени или с 'Unknown' 1")
                 return
             }
@@ -75,18 +76,25 @@ final class BluetoothListViewModel {
             
             let device = BLEDevice(
                 id: uuid,
-                name: bleDevice.name ?? "Unknown",
+                name: candidateName,
                 uuid: uuid,
                 rssi: Int(bleDevice.rssi)
             )
             
             DispatchQueue.main.async {
-                // Проверяем, есть ли устройство с таким UUID в списке
-                if self.allDevices.firstIndex(where: { $0.name ==  bleDevice.name ?? "Unknown" }) != nil {}
-                else {
-                    // Если устройства с таким UUID нет, добавляем его в список
+                // Работаем только по UUID, чтобы одно и то же устройство не дублировалось
+                // с разными именами в разных пакетах сканирования.
+                if let index = self.allDevices.firstIndex(where: { $0.id == device.id }) {
+                    let current = self.allDevices[index]
+                    let preferredName = self.preferredScanName(current: current.name, candidate: device.name)
+                    self.allDevices[index] = BLEDevice(
+                        id: current.id,
+                        name: preferredName,
+                        uuid: current.uuid,
+                        rssi: device.rssi
+                    )
+                } else {
                     self.allDevices.append(device)
-//                    self.persistDevices()
                 }
                 self.applyFilter(index: self.selectedFilterIndex)
             }
@@ -111,8 +119,10 @@ final class BluetoothListViewModel {
             print("[BLE-Filter] allDevices")
             devices = allDevices
         } else {
-            print("[BLE-Filter] name.contains(UBI4)")
-            devices = allDevices.filter { $0.name.contains("UBIv4") }
+            print("[BLE-Filter] ubi4 or v3 family")
+            devices = allDevices.filter {
+                UiInterfaceModeBridgeV3.shared.isUbiDeviceFamily(deviceName: $0.name)
+            }
         }
     }
     
@@ -126,6 +136,7 @@ final class BluetoothListViewModel {
         } catch {
             print("[Storage] failed to persist selected device name: \(error)")
         }
+        _ = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
         bleManager.stopScanKmm()
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
@@ -183,5 +194,36 @@ final class BluetoothListViewModel {
         devices.removeAll()
         keyValueStorage.removeValue(for: BluetoothStorageKeys.devicesStorageKey)
         applyFilter(index: selectedFilterIndex)
+    }
+
+    private func preferredScanName(current: String, candidate: String) -> String {
+        let normalizedCurrent = current.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedCandidate = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if normalizedCurrent.isEmpty { return normalizedCandidate }
+        if normalizedCandidate.isEmpty { return normalizedCurrent }
+
+        let currentUpper = normalizedCurrent.uppercased()
+        let candidateUpper = normalizedCandidate.uppercased()
+
+        // Никогда не затираем осмысленное имя на временный плейсхолдер "NAME".
+        if currentUpper != "NAME", candidateUpper == "NAME" {
+            return normalizedCurrent
+        }
+        if currentUpper == "NAME", candidateUpper != "NAME" {
+            return normalizedCandidate
+        }
+
+        let currentHasPrefix = DeviceNameBridgeV3.shared.hasTransportPrefix(deviceName: normalizedCurrent)
+        let candidateHasPrefix = DeviceNameBridgeV3.shared.hasTransportPrefix(deviceName: normalizedCandidate)
+
+        if currentHasPrefix, !candidateHasPrefix {
+            return normalizedCurrent
+        }
+        if !currentHasPrefix, candidateHasPrefix {
+            return normalizedCandidate
+        }
+
+        return normalizedCandidate.count >= normalizedCurrent.count ? normalizedCandidate : normalizedCurrent
     }
 }

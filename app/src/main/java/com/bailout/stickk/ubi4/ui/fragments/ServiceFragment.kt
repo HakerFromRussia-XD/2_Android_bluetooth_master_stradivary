@@ -32,8 +32,7 @@ class ServiceFragment: BaseWidgetsFragment() {
     ): View {
         _binding = Ubi4FragmentServiceBinding.inflate(inflater, container, false)
 
-        //fake data
-        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.prepareData(display))
         setupRecycler()
         subscribeUpdates()
         return binding.root
@@ -47,7 +46,6 @@ class ServiceFragment: BaseWidgetsFragment() {
 
     private fun setupRecycler() {
         binding.serviceFragmentRv.layoutManager = LinearLayoutManager(requireContext())
-//        adapterWidgets.swapData(mDataFactory.prepareData(display))
         binding.serviceFragmentRv.adapter = adapterWidgets
     }
 
@@ -55,7 +53,12 @@ class ServiceFragment: BaseWidgetsFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             updateFlow.collect {
                 withContext(Dispatchers.Main) {
-//                    adapterWidgets.swapData(mDataFactory.prepareData(display))
+                    val data = mDataFactory.prepareData(display)
+                    if (binding.serviceFragmentRv.isComputingLayout) {
+                        binding.serviceFragmentRv.post { adapterWidgets.swapData(data) }
+                    } else {
+                        adapterWidgets.swapData(data)
+                    }
                 }
             }
         }

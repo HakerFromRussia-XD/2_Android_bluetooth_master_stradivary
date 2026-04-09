@@ -5,7 +5,6 @@ import shared
 
 final class CommandViewCell: UITableViewCell {
     static let reuseIdentifier = String(describing:CommandViewCell.self)
-    private let textInputWidgetCode = 0x1A
     private var viewModel: CommandListItemViewModel!
     private let mainQueue: DispatchQueueType = DispatchQueue.main
     private var numberCancellable: AnyCancellable?
@@ -30,41 +29,46 @@ final class CommandViewCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
 
-        let baseStruct = WidgetMetadataExtractor.extractBaseStruct(from: viewModel.widget.widget?.value)
-        let widgetCode = Int(baseStruct?.widgetCode ?? -1)
         let (inputTitle, buttonTitle) = splitTextInputTitle(viewModel.title)
 
-        var configuration: UIHostingConfiguration<AnyView>
-        if widgetCode == textInputWidgetCode {
-            configuration = UIHostingConfiguration {
-                AnyView(
-                    TextInputCommandWidgetView(
-                        placeholder: inputTitle,
-                        buttonTitle: buttonTitle
-                    ) { [weak self] text in
-                        let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        self?.showToast(normalized.isEmpty ? "Введите текст" : normalized)
+        if viewModel.isTextInputWidget {
+            contentConfiguration = UIHostingConfiguration {
+                TextInputCommandWidgetView(
+                    placeholder: inputTitle,
+                    buttonTitle: buttonTitle
+                ) { [weak self] text in
+                    let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                    self?.showToast(normalized.isEmpty ? "Введите текст" : normalized)
+                }
+            }
+            .margins(.vertical, 4)
+        } else if viewModel.isV3ButtonsWidget {
+            contentConfiguration = UIHostingConfiguration {
+                MultiCommandButtonsWidgetView(
+                    titles: viewModel.visibleButtonTitles,
+                    onPress: { [weak self] index in
+                        self?.viewModel.didPressDown(at: index)
+                    },
+                    onRelease: { [weak self] index in
+                        self?.viewModel.didRelease(at: index)
                     }
                 )
             }
+            .margins(.vertical, 4)
         } else {
-            configuration = UIHostingConfiguration {
-                AnyView(
-                    CustomButton(
-                        title: viewModel.title,
-                        onPress: {
-                            viewModel.didPressDown()
-                        },
-                        onRelease: {
-                            viewModel.didRelease()
-                        }
-                    )
+            contentConfiguration = UIHostingConfiguration {
+                CustomButton(
+                    title: viewModel.title,
+                    onPress: {
+                        viewModel.didPressDown(at: 0)
+                    },
+                    onRelease: {
+                        viewModel.didRelease(at: 0)
+                    }
                 )
             }
+            .margins(.vertical, 4)
         }
-
-        configuration = configuration.margins(.vertical, 4)
-        contentConfiguration = configuration
         numberCancellable?.cancel()
     }
     
@@ -134,6 +138,28 @@ final class CommandViewCell: UITableViewCell {
                 toast.alpha = 0
             }) { _ in
                 toast.removeFromSuperview()
+            }
+        }
+    }
+}
+
+private struct MultiCommandButtonsWidgetView: View {
+    let titles: [String]
+    let onPress: (Int) -> Void
+    let onRelease: (Int) -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
+                CustomButton(
+                    title: title,
+                    onPress: {
+                        onPress(index)
+                    },
+                    onRelease: {
+                        onRelease(index)
+                    }
+                )
             }
         }
     }

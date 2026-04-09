@@ -12,6 +12,8 @@ struct Widget: Equatable, Identifiable {
         case sliderWidget
         case spinnerWidget
         case switchWidget
+        case toggleSliderWidget
+        case textInputWidget
         case thresholdWidget
     }
     let id: Identifier
@@ -174,6 +176,10 @@ enum WidgetMetadataExtractor {
             return sliderEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
         case let sliderSStruct as SliderParameterWidgetSStruct:
             return sliderSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
+        case let toggleSliderEStruct as ToggleSliderParameterWidgetEStruct:
+            return toggleSliderEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
+        case let toggleSliderSStruct as ToggleSliderParameterWidgetSStruct:
+            return toggleSliderSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct
         case let spinnerEStruct as SpinnerParameterWidgetEStruct:
             return spinnerEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct
         case let spinnerSStruct as SpinnerParameterWidgetSStruct:
@@ -282,6 +288,7 @@ protocol PlotProtocol {
     var color: Int32 { get }
     var maxSize: Int32 { get }
     var minSize: Int32 { get }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { get }
 }
 struct PlotEProtocol: PlotProtocol {
     private let src: PlotParameterWidgetEStruct
@@ -290,6 +297,7 @@ struct PlotEProtocol: PlotProtocol {
     var color: Int32 { src.color }
     var maxSize: Int32 { src.maxSize }
     var minSize: Int32 { src.minSize }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetEStruct.baseParameterWidgetStruct }
 }
 struct PlotSProtocol: PlotProtocol {
     private let src: PlotParameterWidgetSStruct
@@ -298,6 +306,7 @@ struct PlotSProtocol: PlotProtocol {
     var color: Int32 { src.color }
     var maxSize: Int32 { src.maxSize }
     var minSize: Int32 { src.minSize }
+    var baseParameterWidgetStruct: BaseParameterWidgetStruct? { src.baseParameterWidgetSStruct.baseParameterWidgetStruct }
 }
 
 protocol SliderProtocol {

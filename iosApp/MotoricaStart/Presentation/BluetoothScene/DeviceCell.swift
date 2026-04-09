@@ -5,6 +5,7 @@
 //  Created by Motorica LLC on 25.04.2025.
 //
 import UIKit
+import shared
  
 class DeviceCell: UITableViewCell {
     static let identifier = "DeviceCell"
@@ -15,7 +16,7 @@ class DeviceCell: UITableViewCell {
     @IBOutlet private weak var containerView: UIView!
     
     func setupModel(model: BLEDevice) {
-        deviceNameText.text = model.name
+        deviceNameText.text = DeviceNameBridgeV3.shared.displayName(deviceName: model.name)
         rssi.text = String(model.rssi)
         
 //        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))

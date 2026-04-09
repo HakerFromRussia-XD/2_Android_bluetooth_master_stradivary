@@ -10,11 +10,12 @@ struct SliderListItemViewModel: Equatable, Hashable {
     var paramCount: Int
     let widget: Widget
     let bleManager: BleManagerKmm
+    private let primaryBinding: WidgetV3BindingInfo?
+    private let primaryDataOffset: Int
 }
 
 extension SliderListItemViewModel {
     init(widget: Widget, showSecondSlider: Bool = false, bleManager: BleManagerKmm) {
-        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
         let parameterInfoSet = ParameterInfoData.makeSet(
@@ -24,23 +25,104 @@ extension SliderListItemViewModel {
         self.paramCount = parameterInfoSet.count
         self.widget = widget
         self.bleManager = bleManager
+        let sortedBindings = WidgetV3Support.bindings(from: widget)
+            .sorted { lhs, rhs in
+                if lhs.dataOffset != rhs.dataOffset { return lhs.dataOffset < rhs.dataOffset }
+                if lhs.parameterID != rhs.parameterID { return lhs.parameterID < rhs.parameterID }
+                if lhs.dataCode != rhs.dataCode { return lhs.dataCode < rhs.dataCode }
+                return lhs.deviceAddress < rhs.deviceAddress
+            }
+        self.primaryBinding = sortedBindings.first
+        self.primaryDataOffset = sortedBindings.first?.dataOffset
+            ?? parameterInfoSet.sorted(by: { $0.dataOffset < $1.dataOffset }).first?.dataOffset
+            ?? 0
+        let widgetPosition = WidgetMetadataExtractor
+            .extractBaseStruct(from: widget.widget?.value)?
+            .widgetPosition ?? -1
+        if let primaryBinding {
+            self.identifier = "\(widgetPosition)-\(primaryBinding.deviceAddress)-\(primaryBinding.parameterID)-\(primaryBinding.dataCode)-\(primaryDataOffset)-slider"
+        } else {
+            self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-slider"
+        }
     }
+
+    func contains(ref: ParameterRef) -> Bool {
+        parameterInfoSet.contains {
+            $0.deviceAddress == ref.addressDevice &&
+            $0.parameterID == ref.parameterID
+        }
+    }
+
+    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
+        guard snapshot.codecId == "EMG_GAINS" else { return false }
+        return parameterInfoSet.contains {
+            $0.deviceAddress == snapshot.addressDevice &&
+            $0.parameterID == snapshot.parameterID
+        }
+    }
+
+    func sliderValues(from snapshot: ParameterSnapshotV3Bridge) -> [Int]? {
+        guard
+            let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
+            let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain")
+        else {
+            return nil
+        }
+
+        if paramCount > 1 {
+            return [openGain, closeGain]
+        }
+
+        return [gainForCurrentWidget(open: openGain, close: closeGain)]
+    }
+
     func requestSlider() {
         guard Self.requestTracker.shouldRequest(for: identifier) else { return }
-        let data = BLECommands.shared.requestSlider(
-            addressDevice: Int32(widget.deviceAddress),
-            parameterID: Int32(widget.parameterID)
-        )
+        let data: KotlinByteArray
+        if let primaryBinding {
+            guard let mapped = WidgetCommandBridgeV3.shared.buildReadRequest(
+                parameterID: Int32(primaryBinding.parameterID),
+                dataCode: Int32(primaryBinding.dataCode)
+            ) else { return }
+            data = mapped
+        } else {
+            let targetAddress = Int32(widget.deviceAddress)
+            let targetParameterID = Int32(widget.parameterID)
+            data = BLECommands.shared.requestSlider(
+                addressDevice: targetAddress,
+                parameterID: targetParameterID
+            )
+        }
         
         sendBytes(data)
         print("[request] requestSlider")
     }
     func sendSliderProgress (progress: [KotlinInt]) {
-        let data = BLECommands.shared.sendSliderCommand(
-            addressDevice: Int32(widget.deviceAddress),
-            parameterID: Int32(widget.parameterID),
-            progress: progress
-        )
+        let data: KotlinByteArray
+        if let primaryBinding {
+            let valueIndex = primaryBinding.dataOffset == 1 ? 1 : 0
+            let fallbackValue = Int(progress.first?.intValue ?? 0)
+            let sliderValue = progress.indices.contains(valueIndex)
+                ? Int(progress[valueIndex].intValue)
+                : fallbackValue
+
+            guard let encoded = WidgetCommandBridgeV3.shared.buildSetInt(
+                parameterID: Int32(primaryBinding.parameterID),
+                dataCode: Int32(primaryBinding.dataCode),
+                deviceAddress: Int32(primaryBinding.deviceAddress),
+                dataOffset: Int32(primaryBinding.dataOffset),
+                value: Int32(sliderValue)
+            ) else { return }
+            data = encoded
+        } else {
+            let targetAddress = Int32(widget.deviceAddress)
+            let targetParameterID = Int32(widget.parameterID)
+            data = BLECommands.shared.sendSliderCommand(
+                addressDevice: targetAddress,
+                parameterID: targetParameterID,
+                progress: progress
+            )
+        }
         
         sendBytes(data)
     }
@@ -68,8 +150,21 @@ extension SliderListItemViewModel {
     }
 
     func cachedSliderValues() -> [Float]? {
+        if let primaryBinding,
+           let snapshot = WidgetStateBridgeV3.shared.getCurrent(
+                addressDevice: Int32(primaryBinding.deviceAddress),
+                parameterID: Int32(primaryBinding.parameterID),
+                dataCode: Int32(primaryBinding.dataCode)
+           ),
+           let values = sliderValues(from: snapshot) {
+            return values.map(Float.init)
+        }
+
         let parameter = ParameterProvider.Companion()
-            .getParameter(deviceAddress: Int32(widget.deviceAddress), parameterID: Int32(widget.parameterID))
+            .getParameter(
+                deviceAddress: Int32(widget.deviceAddress),
+                parameterID: Int32(widget.parameterID)
+            )
 
         guard parameter.firstReceiveDataFlag == false,
               let values = sliderValues(from: parameter) else { return nil }
@@ -95,7 +190,7 @@ extension SliderListItemViewModel {
 
         var values: [Int] = []
         var currentIndex = hex.startIndex
-        let valuesCount = max(paramCount, 1)
+        let valuesCount = max(paramCount, primaryDataOffset + 1, 1)
 
         for _ in 0..<valuesCount {
             guard hex.distance(from: currentIndex, to: hex.endIndex) >= chunkLength else { break }
@@ -106,7 +201,20 @@ extension SliderListItemViewModel {
             currentIndex = nextIndex
         }
 
-        return values
+        if paramCount > 1 {
+            return values
+        }
+
+        let selected = primaryDataOffset < values.count
+            ? values[primaryDataOffset]
+            : values.first
+        return selected.map { [$0] }
+    }
+}
+
+private extension SliderListItemViewModel {
+    func gainForCurrentWidget(open: Int, close: Int) -> Int {
+        primaryDataOffset == 1 ? close : open
     }
 }
 

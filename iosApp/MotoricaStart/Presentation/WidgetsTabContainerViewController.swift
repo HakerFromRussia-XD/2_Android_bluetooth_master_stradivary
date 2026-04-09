@@ -7,13 +7,16 @@
 
 import SwiftUI
 import UIKit
+import shared
 
 class WidgetsTabContainerViewController: UIViewController {
     private let contentViewController: WidgetsListViewController
     private let statusBarViewModel = StatusBarViewModel()
+    private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
     private var statusBarHeightConstraint: NSLayoutConstraint?
     private var contentTopConstraint: NSLayoutConstraint?
+    private var deviceNameObserver: NSObjectProtocol?
 
     init(contentViewController: WidgetsListViewController) {
         self.contentViewController = contentViewController
@@ -29,11 +32,13 @@ class WidgetsTabContainerViewController: UIViewController {
         super.viewDidLoad()
         embedStatusBar()
         embedContentController()
+        observeDeviceNameUpdates()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         title = contentViewController.title
+        refreshStatusBarFromStorage()
     }
 
     private func embedContentController() {
@@ -82,6 +87,31 @@ class WidgetsTabContainerViewController: UIViewController {
         statusBarHostingController?.view.isHidden = !isVisible
         statusBarHeightConstraint?.constant = isVisible ? StatusBarView.Constants.height : 0
         view.setNeedsLayout()
+    }
+
+    private func refreshStatusBarFromStorage() {
+        let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
+        let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
+        if !displayName.isEmpty {
+            statusBarViewModel.update(serialNumber: displayName)
+        }
+    }
+
+    private func observeDeviceNameUpdates() {
+        deviceNameObserver = NotificationCenter.default.addObserver(
+            forName: .v3DeviceNameDidUpdate,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let serial = notification.object as? String, !serial.isEmpty else { return }
+            self?.statusBarViewModel.update(serialNumber: serial)
+        }
+    }
+
+    deinit {
+        if let deviceNameObserver {
+            NotificationCenter.default.removeObserver(deviceNameObserver)
+        }
     }
 }
 

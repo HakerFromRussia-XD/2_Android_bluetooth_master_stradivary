@@ -481,32 +481,107 @@ object PreferenceKeysUbi4 {
         }
     }
 
-    enum class SubDeviceBoard(
-        val address: Int,
+    enum class DeviceCodeV3(
+        val code: Int,
         private val baseTitle: String
     ) {
-        CPU                 (0,  "Cpu module"),
-        INDEX_FINGER        (32, "Index finger"),
-        MIDDLE_FINGER       (33, "Middle finger"),
-        RING_FINGER         (34, "Ring finger"),
-        LITTLE_FINGER       (35, "Little finger"),
-        THUMB               (36, "Thumb finger"),
-        ROTATION            (37, "Rotation"),
-        EMG_HUB             (8,  "Emg hub"),
-        EMG_CHANNEL_1       (16, "Emg channel 1"),
-        EMG_CHANNEL_2       (17, "Emg channel 2"),
+        DCE_CPU_MODULE(1, "Cpu module"),
+        DCE_FEST_H_AND_F(2, "Fest H and F"),
+        DCE_INDY(3, "Indy"),
+        DCE_EMG_SENSE(4, "Emg sense"),
+        DCE_BMS(5, "Bms"),
+        DCE_GUI(6, "Gui"),
+        DCE_OMG_MODULE(7, "Omg module"),
+        DCE_FINGERS_DC_DRIVER(8, "Fingers DC driver"),
+        DCE_BLDC_FINGER_DRIVER(9, "BLDC finger driver"),
+        DCE_DC_FINGER_DRIVER(10, "DC finger driver"),
+        DCE_DIGITAL_ELECTROD(11, "Digital electrode"),
 
-        UNKNOWN             (-1, "Unknown");
+        UNKNOWN(-1, "Unknown");
 
         val title: String
             get() = "$baseTitle board"
 
         companion object {
-            /** Быстрый поиск по address */
-            fun from(address: Int): SubDeviceBoard =
-                values().firstOrNull { it.address == address } ?: UNKNOWN
+            private val byCode = entries.associateBy(DeviceCodeV3::code)
+
+            fun fromCode(code: Int): DeviceCodeV3 =
+                byCode[code] ?: UNKNOWN
         }
     }
+    enum class DeviceType(
+        val code: Int
+    ) {
+        DTE_UNKNOWN(0x00),
+        DTE_CPU(0x01),
+        DTE_SUB_CPU(0x02),
+
+        DTE_DRIVER(0x10),
+        DTE_MOTOR_DRIVER(0x11),
+        DTE_MOTOR_DRIVER_MULTY_CH(0x12),
+
+        DTE_SENSOR(0x20),
+        DTE_EMG_1CH(0x21),
+        DTE_EMG_2CH(0x22),
+        DTE_EMG_MULTY_CH(0x23),
+        DTE_OMG_SEGMENT(0x24),
+        DTE_OMG_MULTY_CH(0x25),
+        DTE_OMG_EMG_SEGMENT(0x26),
+        DTE_OMG_EMG_MULTY_CH(0x27),
+        DTE_STIMULATOR(0x30),
+
+        DTE_HMI(0x40),
+        DTE_DISPLAY(0x41),
+        DTE_BUTTONS(0x42),
+        DTE_SOUNDS(0x43),
+        DTE_DISPLAY_BUTTONS(0x44),
+        DTE_DISPLAY_SOUNDS(0x45),
+        DTE_BUTTONS_SOUNDS(0x46),
+        DTE_DISPLAY_BUTTONS_SOUNDS(0x47),
+        DTE_TOUCH_DISPLAY(0x48),
+        DTE_TOUCH_DISPLAY_SOUNDS(0x49),
+        DTE_POWER(0x50),
+        DTE_BMS(0x51),
+        DTE_ACB(0x52),
+        DTE_POWER_CONVERTER(0x53),
+        DTE_POWER_ISOLATOR(0x54),
+        DTE_POWER_COMBO(0x55),
+        DTE_COMBO(0x60),
+        DTE_OTHER(0x70);
+
+        companion object {
+            private val map = entries.associateBy(DeviceType::code)
+
+            fun fromCode(code: Int): DeviceType =
+                map[code] ?: DTE_UNKNOWN
+        }
+    }
+//    enum class SubDeviceBoardV3(
+//        val address: Int,
+//        private val baseTitle: String
+//    ) {
+//        CPU                 (0,  "Cpu module"),
+//        INDEX_FINGER        (32, "Index finger"),
+//        MIDDLE_FINGER       (33, "Middle finger") ,
+//        RING_FINGER         (34, "Ring finger"),
+//        LITTLE_FINGER       (35, "Little finger"),
+//        THUMB               (36, "Thumb finger"),
+//        ROTATION            (37, "Rotation"),
+//        EMG_HUB             (8,  "Emg hub"),
+//        EMG_CHANNEL_1       (16, "Emg channel 1"),
+//        EMG_CHANNEL_2       (17, "Emg channel 2"),
+//
+//        UNKNOWN             (-1, "Unknown");
+//
+//        val title: String
+//            get() = "$baseTitle board"
+//
+//        companion object {
+//            /** Быстрый поиск по address */
+//            fun from(address: Int): SubDeviceBoardV3 =
+//                values().firstOrNull { it.address == address } ?: UNKNOWN
+//        }
+//    }
 
     enum class FirmwareManagerCommand(val number: Byte) {
         GET_RUN_PROGRAM_TYPE   (0x01),

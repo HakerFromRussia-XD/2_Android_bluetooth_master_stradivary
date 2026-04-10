@@ -54,7 +54,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
         // App control
         ubi4SensorsSettingsBtn.setOnClickListener { openScreen(SensorsFragmentHelpUBI4()) }
-        ubi4SettingsGestureBtn.setOnClickListener {  }
+        ubi4SettingsGestureBtn.setOnClickListener { openScreen(GestureSettingsFragmentHelpUBI4()) }
         ubi4TrainingBtn.setOnClickListener { }
         ubi4AdvancedSettingsBtn.setOnClickListener { }
 

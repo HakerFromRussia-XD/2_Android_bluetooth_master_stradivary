@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWidgetEStruct
@@ -60,6 +61,8 @@ class ToggleSliderDelegateAdapterV3(
     private var sliderInfoCounter = 0
     private var isAttached = false
     private var collectJob: kotlinx.coroutines.Job? = null
+    private var interactionJob: kotlinx.coroutines.Job? = null
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -107,6 +110,7 @@ class ToggleSliderDelegateAdapterV3(
             toggleMinusBtnTv1 = toggleMinusBtnTv1,
             toggleSliderNumTv = toggleSliderNumTv,
             toggleSliderUnitTv = toggleSliderUnitTv,
+            toggleTurnOffRipple1Btn = toggleTurnOffRipple1Btn,
             widgetPosition = widgetPosition,
             turnOffBtnIv = arrayListOf(toggleTurnOffBtnIv1, toggleTurnOffBtnIv2),
         )
@@ -165,6 +169,7 @@ class ToggleSliderDelegateAdapterV3(
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if (!isInteractionEnabled || !widgetInfo.enabled) return
                 val progress = seekBar.progress.coerceIn(0, widgetInfo.range)
                 widgetInfo.progress = progress + widgetInfo.minProgress
                 setParameterData(widgetInfo)
@@ -174,6 +179,7 @@ class ToggleSliderDelegateAdapterV3(
         })
 
         toggleMinusRipple1Btn.setOnClickListener {
+            if (!isInteractionEnabled || !widgetInfo.enabled) return@setOnClickListener
             val uiProgress = (widgetInfo.progress - widgetInfo.minProgress - 1)
                 .coerceIn(0, widgetInfo.range)
             widgetInfo.progress = uiProgress + widgetInfo.minProgress
@@ -183,6 +189,7 @@ class ToggleSliderDelegateAdapterV3(
         }
 
         togglePlusRipple1Btn.setOnClickListener {
+            if (!isInteractionEnabled || !widgetInfo.enabled) return@setOnClickListener
             val uiProgress = (widgetInfo.progress - widgetInfo.minProgress + 1)
                 .coerceIn(0, widgetInfo.range)
             widgetInfo.progress = uiProgress + widgetInfo.minProgress
@@ -192,12 +199,15 @@ class ToggleSliderDelegateAdapterV3(
         }
 
         toggleTurnOffRipple1Btn.setOnClickListener {
+            if (!isInteractionEnabled) return@setOnClickListener
             widgetInfo.enabled = !widgetInfo.enabled
             setParameterData(widgetInfo)
             debounceSend(widgetInfo)
             setUI(widgetInfo.parameterInfo, false)
         }
 
+        observeInteractionState()
+        applyToggleSliderLockState(currentSliderInfo)
         setUI(currentSliderInfo.parameterInfo, true, currentSliderInfo.widgetPosition)
     }
     private fun sliderCollect() {
@@ -205,6 +215,16 @@ class ToggleSliderDelegateAdapterV3(
         collectJob = scope.launch(Dispatchers.Main) {
             sliderFlowV3.collect { parameterInfo ->
                 setUI(parameterInfo)
+            }
+        }
+    }
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+        interactionJob = scope.launch(Dispatchers.Main) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                widgetInfoList.forEach { applyToggleSliderLockState(it) }
             }
         }
     }
@@ -264,7 +284,7 @@ class ToggleSliderDelegateAdapterV3(
                 )
                 infoWidget.toggleSliderUnitTv.text = if (infoWidget.unitLabel.isEmpty()) "" else " "+ infoWidget.unitLabel
 
-                applyToggleVisuals(infoWidget)
+                applyToggleSliderLockState(infoWidget)
             } catch (e: Exception) {
                 Log.e("ToggleSliderV3", "setUI error: ${e.message}", e)
             } finally {
@@ -272,7 +292,7 @@ class ToggleSliderDelegateAdapterV3(
             }
         }
     }
-    private fun applyToggleVisuals(info: WidgetToggleSliderInfo) {
+    private fun applyToggleSliderLockState(info: WidgetToggleSliderInfo) {
         // в зависимости от enable деактивирует или активирует виджет (визуально)
         val sb = info.widgetSlidersSb as SeekBar
         val togglePlusBtnRipple1Btn = info.togglePlusBtnRipple1Btn
@@ -280,22 +300,24 @@ class ToggleSliderDelegateAdapterV3(
         val togglePlusBtnTv1 = info.togglePlusBtnTv1
         val toggleMinusBtnTv1 = info.toggleMinusBtnTv1
         val ctx = sb.context
+        val sliderEnabled = info.enabled && isInteractionEnabled
 
 
         // SeekBar
-        val trackRes = if (info.enabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
+        val trackRes = if (sliderEnabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
         sb.progressDrawable = AppCompatResources.getDrawable(ctx, trackRes)?.mutate()
         sb.thumb = AppCompatResources.getDrawable(ctx, R.drawable.thumb_le)?.mutate()
-        sb.isEnabled =  info.enabled
+        sb.isEnabled =  sliderEnabled
         //+ -
-        togglePlusBtnRipple1Btn.isClickable = info.enabled
-        toggleMinusBtnRipple1Btn.isClickable = info.enabled
+        togglePlusBtnRipple1Btn.isClickable = sliderEnabled
+        toggleMinusBtnRipple1Btn.isClickable = sliderEnabled
+        info.toggleTurnOffRipple1Btn?.isClickable = isInteractionEnabled
 
         val colorResOnOffBtn =
-            if ( info.enabled) R.color.ubi4_active
+            if ( sliderEnabled) R.color.ubi4_active
             else R.color.ubi4_gray_border
         val colorResPlusMinusBtn =
-            if ( info.enabled) R.color.ubi4_white
+            if ( sliderEnabled) R.color.ubi4_white
             else R.color.ubi4_gray_border
         togglePlusBtnTv1.setTextColor(ctx.getColor(colorResPlusMinusBtn))
         toggleMinusBtnTv1.setTextColor(ctx.getColor(colorResPlusMinusBtn))
@@ -332,6 +354,8 @@ class ToggleSliderDelegateAdapterV3(
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
     }
     override fun isForViewType(item: Any): Boolean =
         item is ToggleSliderItemV3 &&
@@ -419,6 +443,7 @@ data class WidgetToggleSliderInfo(
     var toggleMinusBtnTv1: TextView,
     var toggleSliderNumTv: TextView,
     var toggleSliderUnitTv: TextView,
+    var toggleTurnOffRipple1Btn: View? = null,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),
@@ -427,4 +452,3 @@ data class WidgetToggleSliderInfo(
     var labelCodes: Int = -1,
     var timer: CountDownTimer? = null
 )
-

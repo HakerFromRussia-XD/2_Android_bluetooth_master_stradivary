@@ -398,7 +398,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             updateBootloaderSafe(snapshot)
             isBoardsRendered = true
         }
-
         return true
     }
 

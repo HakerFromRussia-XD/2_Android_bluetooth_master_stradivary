@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
@@ -46,6 +47,8 @@ class SpinnerDelegateAdapterV3 (
     private val disposables = CompositeDisposable()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val spinnerInfoList : ArrayList<WidgetSpinnerInfo> = ArrayList()
+    private var interactionJob: kotlinx.coroutines.Job? = null
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
 
     override fun Ubi4WidgetSpinnerBinding.onBind(item: SpinnerItemV3) {
         onDestroyParent { onDestroy() }
@@ -72,6 +75,7 @@ class SpinnerDelegateAdapterV3 (
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
         spinnerPsv.setItems(spinnerItems)
+        applySpinnerLockState(info)
         // стартовое состояние из структуры
         spinnerPsv.selectItemByIndex(selectedIndexFromWidget)
         spinnerTv.text = item.title
@@ -84,6 +88,10 @@ class SpinnerDelegateAdapterV3 (
 
 
         spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
+            if (!isInteractionEnabled) {
+                spinnerPsv.dismiss()
+                return@setOnSpinnerItemSelectedListener
+            }
             // закрываем попап сразу
             spinnerPsv.dismiss()
             val pendingProgrammaticIndex = info.pendingProgrammaticIndex
@@ -98,6 +106,7 @@ class SpinnerDelegateAdapterV3 (
 
         // BLE обновления — если у тебя реально приходят payload’ы
         spinnerCollect()
+        observeInteractionState()
 
         // при уходе элемента с экрана — закрыть попап
         root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -112,6 +121,25 @@ class SpinnerDelegateAdapterV3 (
         if (collectJob?.isActive == true) return
         collectJob = scope.launch(Dispatchers.Main) {
             spinnerFlowV3.collect { setUI() }
+        }
+    }
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+        interactionJob = scope.launch(Dispatchers.Main) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                spinnerInfoList.forEach { applySpinnerLockState(it) }
+            }
+        }
+    }
+
+    private fun applySpinnerLockState(infoWidget: WidgetSpinnerInfo) {
+        infoWidget.spinner.isEnabled = isInteractionEnabled
+        infoWidget.spinner.isClickable = isInteractionEnabled
+        infoWidget.spinner.isFocusable = isInteractionEnabled
+        if (!isInteractionEnabled) {
+            infoWidget.spinner.dismiss()
         }
     }
 
@@ -144,6 +172,7 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun sendValue(info: WidgetSpinnerInfo, value: Int) {
+        if (!isInteractionEnabled) return
         platformLog("SpinnerDelegateAdapterV3", "sendValue info = $info  value = $value")
         main.bleCommandWithQueue(BLECommandsV3.sendCommand(info.parameterInfoSet.elementAt(0).parameterID, info.parameterInfoSet.elementAt(0).dataCode, value), SERIALPORTCHAR_UUID, WRITE){}
     }
@@ -163,6 +192,8 @@ class SpinnerDelegateAdapterV3 (
         disposables.clear()
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
         Log.d("SpinnerDelegateAdapter", "onDestroy spinner")
     }
 

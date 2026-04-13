@@ -18,14 +18,13 @@ object UiState {
     var initializationInfoFlow by Delegates.notNull<MutableSharedFlow<FullInicializeConnectionStruct>>()
     val fullInitInProgress = MutableStateFlow(false)
     val startupInProgress = MutableStateFlow(false)
-//    var widgetsLoadingProgressFlow by Delegates.notNull<MutableSharedFlow<WidgetsLoadingProgress>>()
+    val v3WidgetsInteractionEnabled = MutableStateFlow(false)
     val widgetsLoadingProgressFlow = MutableStateFlow(
         WidgetsLoadingProgress(current = 0, total = 0)
     )
     var isInterfaceV3Activated: Boolean = false
 
 
-//    var widgetsLoadingProgressTotal: Int = 0
     val labelCodesByOffset: MutableMap<Int, MutableMap<Int, Int>> = mutableMapOf()
     private val requestedWidgetParameters: MutableSet<Long> = mutableSetOf()
     @Volatile
@@ -41,7 +40,6 @@ object UiState {
         updateFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 64)
         widgetsLoadingFlow = MutableSharedFlow()
         initializationInfoFlow = MutableSharedFlow(replay = 1)
-//        widgetsLoadingProgressFlow = MutableSharedFlow()
     }
     fun resetWidgetRequests() {
         requestedWidgetParameters.clear()

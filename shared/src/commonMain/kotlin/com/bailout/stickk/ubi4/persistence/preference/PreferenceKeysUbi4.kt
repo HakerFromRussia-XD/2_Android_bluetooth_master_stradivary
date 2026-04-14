@@ -853,7 +853,6 @@ object PreferenceKeysUbi4 {
             P_KEY_TEST_SWITCHER to ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
 
         )
-
         fun get(key: String): ParameterInfo<Int, Int, Int, Int>? = parameterInfoMapV3[key]
         fun require(key: String): ParameterInfo<Int, Int, Int, Int> = parameterInfoMapV3.getValue(key)
     }

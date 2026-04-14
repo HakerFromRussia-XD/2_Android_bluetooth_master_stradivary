@@ -381,31 +381,6 @@
                         app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
                         app:layout_constraintTop_toBottomOf="@id/ubi4ImageView7" />
 
-                    <TextView
-                        android:id="@+id/ubi4TextView30"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/the_length_of_the_swipe_adjusts_the_angle_of_the_finger_bend"
-                        android:textColor="@color/ubi4_white"
-                        android:textSize="14sp"
-                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
-                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView29" />
-
-                    <TextView
-                        android:id="@+id/ubi4TextView31"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/vertical_swipe_for_fingers_two_axes_for_thumb"
-                        android:textColor="@color/ubi4_white"
-                        android:textSize="14sp"
-                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
-                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView30" />
 
                     <ImageView
                         android:id="@+id/ubi4ImageView8"
@@ -416,7 +391,7 @@
                         android:src="@drawable/ubi4_help_image_gesture_settings_5"
                         app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
                         app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView31"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView29"
                         tools:ignore="ContentDescription" />
 
                     <TextView

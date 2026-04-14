@@ -39,6 +39,7 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
     OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener;
     OnSelectClickRotationGroupListener onSelectClickRotationGroupListener;
     private int activeGestureId = -1;
+    private boolean interactionEnabled = true;
 
     RotationGroupItemAdapterV3(ArrayList<Pair<Long, String>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, OnCopyClickRotationGroupListener onCopyClickRotationGroupListener, OnDeleteClickRotationGroupListener onDeleteClickRotationGroupListener, OnSelectClickRotationGroupListener onSelectClickRotationGroupListener) {
         mLayoutId = layoutId;
@@ -52,6 +53,11 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
 
     public void setActiveGestureId(int gestureId) {
         this.activeGestureId = gestureId;
+        notifyDataSetChanged();
+    }
+
+    public void setInteractionEnabled(boolean enabled) {
+        this.interactionEnabled = enabled;
         notifyDataSetChanged();
     }
 
@@ -85,7 +91,7 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
         // Активный жест подсвечиваем таким же цветом, как в биндингах
         int activeColor = holder.itemView.getContext().getColor(R.color.ubi4_active);
 
-        if (gestureId == activeGestureId) {
+        if (interactionEnabled && gestureId == activeGestureId) {
             holder.gestureInRotationGroupTv.setTextColor(activeColor);
         } else {
             holder.gestureInRotationGroupTv.setTextColor(inactiveColor);
@@ -108,17 +114,20 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
             gestureInRotationGroupTv = itemView.findViewById(R.id.gestureInRotationGroupTv);
             deleteBtn = itemView.findViewById(R.id.deleteBtn);
             deleteBtn.setOnClickListener(v -> {
+                if (!interactionEnabled) return;
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 onDeleteClickRotationGroupListener.onDeleteClickCb(position);
             });
             copyBtn = itemView.findViewById(R.id.copyBtn);
             copyBtn.setOnClickListener(v -> {
+                if (!interactionEnabled) return;
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 Long setUniqueItemId = (long)mItemList.size();
                 addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).getSecond()));
                 onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).getSecond());
             });
             gestureInRotationGroupTv.setOnClickListener(v -> {
+                if (!interactionEnabled) return;
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 String raw = mItemList.get(position).getSecond(); // format: "Name™id"
                 String[] parts = raw.split("™");
@@ -142,7 +151,7 @@ class RotationGroupItemAdapterV3 extends DragItemAdapter<Pair<Long, String>, Rot
 
         @Override
         public boolean onItemLongClicked(View view) {
-            return true;
+            return interactionEnabled;
         }
 
         private int getIndexItem(long index) {

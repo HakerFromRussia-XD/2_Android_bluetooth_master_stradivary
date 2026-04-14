@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.marginTop
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -20,6 +21,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.countBinding
 import com.bailout.stickk.ubi4.data.state.WidgetState.graphThreadFlag
@@ -89,6 +91,10 @@ class PlotDelegateAdapterV3 (
     private val currentSensors = DoubleArray(SENSOR_COUNT)
 
     private var collectJob: kotlinx.coroutines.Job? = null
+    private var interactionJob: kotlinx.coroutines.Job? = null
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private var openThresholdHandleView: View? = null
+    private var closeThresholdHandleView: View? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItemV3) {
@@ -126,6 +132,8 @@ class PlotDelegateAdapterV3 (
                 allCHRl
             )
         )
+        openThresholdHandleView = openCHV
+        closeThresholdHandleView = closeCHV
 
         parameterInfoSet.forEach {
             if (it.dataCode == ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number) {
@@ -165,6 +173,7 @@ class PlotDelegateAdapterV3 (
 
         // Порог открытия — слушаем openCHV
         openCHV.setOnTouchListener { v, ev ->
+            if (!isInteractionEnabled) return@setOnTouchListener true
             v.parent.requestDisallowInterceptTouchEvent(true)
             // двигаем ползунок открытия
             openThreshold = setLimitPosition(
@@ -193,6 +202,7 @@ class PlotDelegateAdapterV3 (
 
         // Порог закрытия — слушаем closeCHV
         closeCHV.setOnTouchListener { v, ev ->
+            if (!isInteractionEnabled) return@setOnTouchListener true
             v.parent.requestDisallowInterceptTouchEvent(true)
             // двигаем ползунок закрытия
             closeThreshold = setLimitPosition(
@@ -221,6 +231,8 @@ class PlotDelegateAdapterV3 (
 
         setLimitPosition2(limitCH2, allCHRl, openThreshold)
         setLimitPosition2(limitCH1, allCHRl, closeThreshold)
+        observeInteractionState()
+        applyPlotLockState(isInteractionEnabled)
 
     }
 
@@ -239,6 +251,8 @@ class PlotDelegateAdapterV3 (
             plotArrayFlowCollect()
         }
         graphThreadFlag = true
+        observeInteractionState()
+        applyPlotLockState(isInteractionEnabled)
 
         initRequest()
         scope?.launch {
@@ -252,6 +266,8 @@ class PlotDelegateAdapterV3 (
         scope = null
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItemV3
     override fun PlotItemV3.getItemId(): Any = title
@@ -303,6 +319,10 @@ class PlotDelegateAdapterV3 (
     }
     private fun setUI(parameterInfo: ParameterInfo<Int, Int, Int, Int>) {
         if (widgetPlotsInfo.isEmpty()) return
+        if (!isInteractionEnabled) {
+            applyPlotLockState(false)
+            return
+        }
         val parameter = ParameterProvider.getParameterV3(parameterInfo)
         val thresholdResult = parseThresholdResultSafely(parameter.data)?: return
         widgetPlotsInfo[0].responseReceived.set(true)
@@ -325,6 +345,52 @@ class PlotDelegateAdapterV3 (
 
         openThreshold  = info.openThreshold
         closeThreshold = info.closeThreshold
+    }
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+
+        interactionJob = main.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                applyPlotLockState(enabled)
+            }
+        }
+    }
+
+    private fun applyPlotLockState(enabled: Boolean) {
+        openThresholdHandleView?.isEnabled = enabled
+        openThresholdHandleView?.isClickable = enabled
+        closeThresholdHandleView?.isEnabled = enabled
+        closeThresholdHandleView?.isClickable = enabled
+
+        if (!enabled) {
+            resetPlotThresholdsToZero()
+            return
+        }
+
+        restorePlotThresholdsFromCache()
+    }
+
+    private fun resetPlotThresholdsToZero() {
+        openThreshold = 0
+        closeThreshold = 0
+        val info = widgetPlotsInfo.firstOrNull() ?: return
+        info.openThreshold = 0
+        info.closeThreshold = 0
+        info.openThresholdTv.text = "0"
+        info.closeThresholdTv.text = "0"
+        setLimitPosition2(info.limitCH2, info.allCHRl, 0, duration = 0L)
+        setLimitPosition2(info.limitCH1, info.allCHRl, 0, duration = 0L)
+    }
+
+    private fun restorePlotThresholdsFromCache() {
+        if (widgetPlotsInfo.isEmpty()) return
+        runCatching {
+            setUI(ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
+        }.onFailure {
+            platformLog("PlotDelegateAdapterV3", "Failed to restore thresholds after reconnect: ${it.message}")
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -360,6 +426,7 @@ class PlotDelegateAdapterV3 (
         set1.valueTextColor = Color.TRANSPARENT
         return set1
     }
+
     private fun createSet2(emgChart: LineChart): LineDataSet {
         val set2 = LineDataSet(null, null)
         set2.setDrawCircles(false)
@@ -774,6 +841,10 @@ class PlotDelegateAdapterV3 (
         scope = null
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
+        openThresholdHandleView = null
+        closeThresholdHandleView = null
     }
     private fun initRequest() {
         if (requestedOnFirstShow.compareAndSet(false, true)) {

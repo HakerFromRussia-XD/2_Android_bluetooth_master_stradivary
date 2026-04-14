@@ -1,19 +1,13 @@
 package com.bailout.stickk.ubi4.data.parser
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CONTROL_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
@@ -79,10 +73,22 @@ object WidgetResponseRoutesV3 {
             emitTarget = WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT
         ),
         WidgetResponseRouteV3(
-            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
-            responseSubcommand = PWCE_GET_EMG_GAIN_VALUE.number.toInt(),
+            command = EMG_MASTER_CONTROL.number.toInt(),
+            responseSubcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt(),
             parameterKey = P_KEY_EMG_GAIN_OPEN_VALUE,
             emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = EMG_MASTER_CONTROL.number.toInt(),
+            responseSubcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt(),
+            parameterKey = P_KEY_EMG_MAX_GAIN_VALUE,
+            emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = EMG_MASTER_CONTROL.number.toInt(),
+            responseSubcommand = EMCE_GET_EMG_MODE.number.toInt(),
+            parameterKey = P_KEY_EMG_CONTROL_MODE,
+            emitTarget = WidgetEmitTargetV3.SPINNER_FLOW
         ),
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),

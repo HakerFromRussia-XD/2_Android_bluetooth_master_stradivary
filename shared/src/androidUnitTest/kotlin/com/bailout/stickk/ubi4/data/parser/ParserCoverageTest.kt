@@ -82,12 +82,12 @@ class ParserCoverageTest {
             byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE.number, 2, 0),
             byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM.number, 3, 0),
             byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE.number, 10, 20),
-            byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE.number, 11, 21),
+            byteArrayOf(PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_GAIN_VALUE.number, 11, 21),
             byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE.number) + ByteArray(16) { it.toByte() },
             byteArrayOf(PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING.number) + ByteArray(25) { (it + 1).toByte() },
             // GUI_CONTROL branches
-            byteArrayOf(PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT.number, 15, 0),
-            byteArrayOf(PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND.number, 1, 0)
+            byteArrayOf(PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT.number, 15, 0),
+            byteArrayOf(PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND.number, 1, 0)
         )
 
         longPayloads.forEachIndexed { idx, payload ->

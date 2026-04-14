@@ -1228,24 +1228,34 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile kotlin";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\njava -version\ncd \"$SRCROOT/..\"\n./gradlew --no-daemon --no-configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
-		};
+			654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
+				isa = PBXShellScriptBuildPhase;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"$(SRCROOT)/../build.gradle.kts",
+					"$(SRCROOT)/../settings.gradle.kts",
+					"$(SRCROOT)/../gradle.properties",
+					"$(SRCROOT)/../gradlew",
+					"$(SRCROOT)/../gradle/wrapper/gradle-wrapper.properties",
+					"$(SRCROOT)/../shared/build.gradle.kts",
+					"$(SRCROOT)/../shared/src/commonMain",
+					"$(SRCROOT)/../shared/src/iosMain",
+				);
+				name = "Compile kotlin";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework",
+					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework/Info.plist",
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
+			};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */

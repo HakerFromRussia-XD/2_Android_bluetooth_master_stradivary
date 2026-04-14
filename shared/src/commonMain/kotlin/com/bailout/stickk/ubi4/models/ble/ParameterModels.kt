@@ -108,3 +108,7 @@ data class ToggleV3(
 data class SpinnerV3(
     var spinnerValue: Int = 0
 )
+@Serializable
+data class SliderV3(
+    var sliderValue: Int = 0
+)

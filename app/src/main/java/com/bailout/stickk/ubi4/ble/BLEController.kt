@@ -48,9 +48,9 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -749,7 +749,15 @@ class BLEController(private val bleManager: BleManagerKmm) {
                         SERIALPORTCHAR_UUID,
                         WRITE){}
                     main.bleCommandWithQueue(
-                        request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()),
+                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()),
                         SERIALPORTCHAR_UUID,
                         WRITE){}
                     main.bleCommandWithQueue(
@@ -766,6 +774,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                         WRITE){}
                     main.bleCommandWithQueue(
                         requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
+                        SERIALPORTCHAR_UUID,
+                        WRITE){}
+                    main.bleCommandWithQueue(
+                        requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_BATTERY.number.toInt()),
                         SERIALPORTCHAR_UUID,
                         WRITE){}
                     main.bleCommandWithQueue(

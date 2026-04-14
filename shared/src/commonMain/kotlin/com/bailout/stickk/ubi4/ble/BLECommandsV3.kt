@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -127,13 +128,13 @@ object BLECommandsV3 {
     fun sendGaines(gainOpen: Int, gainClose: Int): ByteArray {
         val header = byteArrayOf(
             0x80.toByte(),
-            PROSTHESIS_MODULE_CONTROL.number,
+            EMG_MASTER_CONTROL.number,
             0x00,
             0x00,
             0x00
         )
         val data = byteArrayOf(
-            PWCE_SET_EMG_GAIN_VALUE.number,
+            EMCE_SET_EMG_GAIN_VALUE.number,
             gainOpen.toByte(),
             gainClose.toByte(),
             0x00

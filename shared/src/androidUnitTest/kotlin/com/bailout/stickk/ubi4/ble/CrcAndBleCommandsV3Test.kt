@@ -5,8 +5,8 @@ import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.SUB_DEVICE_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_SETTING
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
@@ -94,7 +94,7 @@ class CrcAndBleCommandsV3Test {
 
         assertEquals(9, packet.size)
         assertEquals(PROSTHESIS_MODULE_CONTROL.number.toInt(), header[1].toInt() and 0xFF)
-        assertEquals(PWCE_SET_EMG_GAIN_VALUE.number.toInt(), payload[0].toInt() and 0xFF)
+        assertEquals(EMCE_SET_EMG_GAIN_VALUE.number.toInt(), payload[0].toInt() and 0xFF)
         assertEquals(88, payload[1].toInt() and 0xFF)
         assertEquals(77, payload[2].toInt() and 0xFF)
         assertEquals(crcExcludeLast(header), header.last().toInt() and 0xFF)

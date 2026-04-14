@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
@@ -46,6 +47,10 @@ object ParameterCodecRegistryV3 {
             ParameterCodecIdV3.SPINNER -> {
                 if (payload == null || payload.length < 2) return null
                 ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = payload.u8(1)))
+            }
+            ParameterCodecIdV3.SLIDER -> {
+                if (payload == null || payload.length < 2) return null
+                ParameterTypedValueV3.Slider(SliderV3(sliderValue = payload.u8(1)))
             }
             ParameterCodecIdV3.TOGGLE -> {
                 if (payload == null || payload.length < 2) return null
@@ -154,6 +159,8 @@ object ParameterCodecRegistryV3 {
             when (codecId) {
                 ParameterCodecIdV3.SPINNER ->
                     ParameterTypedValueV3.Spinner(json.decodeFromString<SpinnerV3>(data))
+                ParameterCodecIdV3.SLIDER ->
+                    ParameterTypedValueV3.Slider(json.decodeFromString<SliderV3>(data))
                 ParameterCodecIdV3.TOGGLE ->
                     ParameterTypedValueV3.Toggle(json.decodeFromString<ToggleV3>(data))
                 ParameterCodecIdV3.EMG_GAINS ->
@@ -184,6 +191,7 @@ object ParameterCodecRegistryV3 {
         return runCatching {
             when (codecId) {
                 ParameterCodecIdV3.SPINNER -> json.encodeToString((typedValue as ParameterTypedValueV3.Spinner).value)
+                ParameterCodecIdV3.SLIDER -> json.encodeToString((typedValue as ParameterTypedValueV3.Slider).value)
                 ParameterCodecIdV3.TOGGLE -> json.encodeToString((typedValue as ParameterTypedValueV3.Toggle).value)
                 ParameterCodecIdV3.EMG_GAINS -> json.encodeToString((typedValue as ParameterTypedValueV3.EmgGains).value)
                 ParameterCodecIdV3.THRESHOLDS -> json.encodeToString((typedValue as ParameterTypedValueV3.Thresholds).value)
@@ -206,6 +214,10 @@ object ParameterCodecRegistryV3 {
     ): ParameterEncodedActionV3? {
         return when (codecId) {
             ParameterCodecIdV3.SPINNER -> {
+                val value = (action as? ParameterCodecActionV3.SetInt)?.value ?: return null
+                ParameterEncodedActionV3.IntValue(value)
+            }
+            ParameterCodecIdV3.SLIDER -> {
                 val value = (action as? ParameterCodecActionV3.SetInt)?.value ?: return null
                 ParameterEncodedActionV3.IntValue(value)
             }

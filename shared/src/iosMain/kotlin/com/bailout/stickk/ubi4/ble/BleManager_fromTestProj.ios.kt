@@ -3,16 +3,24 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MAX_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.utility.synchronized
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.addressOf
@@ -23,9 +31,9 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import platform.CoreBluetooth.CBAdvertisementDataLocalNameKey
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
-import platform.CoreBluetooth.CBAdvertisementDataLocalNameKey
 import platform.CoreBluetooth.CBCharacteristic
 import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
@@ -38,8 +46,6 @@ import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
-import com.bailout.stickk.ubi4.utility.synchronized
-import kotlin.collections.ArrayDeque
 
 
 /** Информация об обнаруженном устройстве */
@@ -349,6 +355,20 @@ actual class BleManagerKmm actual constructor() {
         bleCommandExecutor.bleCommandWithQueue(data, command, typeCommand, onChunkSent)
     }
 
+    actual fun restartV3Synchronization() {
+        if (UiState.isInterfaceV3Activated) {
+            launchV3SynchronizationPipeline()
+            return
+        }
+
+        sendBytesKmm(
+            data = BLECommands.requestInicializeInformation(),
+            command = MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand = WRITE,
+            onChunkSent = {}
+        )
+    }
+
     internal fun dispatchSendBytesKmm(
         data: ByteArray,
         command: String,
@@ -407,15 +427,19 @@ actual class BleManagerKmm actual constructor() {
         BLEState.publishReady()
 
         if (UiState.isInterfaceV3Activated) {
-            connectionScope.launch {
-                UiState.startupInProgress.value = false
-                BLEState.bleParserV3.generatedHardcodeWidgets()
-                UiState.widgetsLoadingFlow.emit(Unit)
-                initRequestsV3()
-            }
+            launchV3SynchronizationPipeline()
         }
 
         onCharacteristicsReady?.invoke()
+    }
+
+    private fun launchV3SynchronizationPipeline() {
+        connectionScope.launch {
+            UiState.startupInProgress.value = false
+            BLEState.bleParserV3.generatedHardcodeWidgets()
+            UiState.widgetsLoadingFlow.emit(Unit)
+            initRequestsV3()
+        }
     }
 
     private fun findCharacteristic(uuid: String): CBCharacteristic? {
@@ -492,11 +516,21 @@ actual class BleManagerKmm actual constructor() {
             }
 
             sendBytesKmm(BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_SCREEN_TIMEOUT.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_LEFT_RIGHT_HAND.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
+            sendBytesKmm(
+                BLECommandsV3.requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_BATTERY.number.toInt()
+                ),
+                SERIALPORTCHAR_UUID,
+                WRITE
+            ) {}
             sendBytesKmm(BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             return
         }

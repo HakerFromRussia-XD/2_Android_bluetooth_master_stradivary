@@ -9,28 +9,33 @@ import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.EMG_MASTER_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.GET_DEVICE_NAME
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MAX_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_MAX_GAIN_VALUE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_SET_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_SET_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_CHANGE_GESTURE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_SET_LEFT_RIGHT_HAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_SET_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.GET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 /**
@@ -52,8 +57,6 @@ object WidgetCommandBridgeV3 {
         return when (parameterID) {
             PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
                 when (dataCode) {
-                    PWCE_SET_EMG_GAIN_VALUE.number.toInt() ->
-                        BLECommandsV3.request(PWCE_GET_EMG_GAIN_VALUE.number.toInt())
                     PWCE_SET_THRESHOLD_VALUE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt())
                     PWCE_SET_EMG_CHANGE_GESTURE.number.toInt() ->
@@ -66,6 +69,27 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_CURRENT_GESTURE_NUM.number.toInt())
                     PWCE_SET_GESTURE_GROUPE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt())
+                    else ->
+                        BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
+                }
+            }
+            EMG_MASTER_CONTROL.number.toInt() -> {
+                when (dataCode) {
+                    EMCE_SET_EMG_GAIN_VALUE.number.toInt() ->
+                        BLECommandsV3.requestWithCommand(
+                            command = EMG_MASTER_CONTROL.number.toInt(),
+                            subcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+                        )
+                    EMCE_SET_EMG_MAX_GAIN_VALUE.number.toInt() ->
+                        BLECommandsV3.requestWithCommand(
+                            command = EMG_MASTER_CONTROL.number.toInt(),
+                            subcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+                        )
+                    EMCE_SET_EMG_MODE.number.toInt() ->
+                        BLECommandsV3.requestWithCommand(
+                            command = EMG_MASTER_CONTROL.number.toInt(),
+                            subcommand = EMCE_GET_EMG_MODE.number.toInt()
+                        )
                     else ->
                         BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
                 }
@@ -123,7 +147,10 @@ object WidgetCommandBridgeV3 {
         value: Int
     ): ByteArray? {
         val parameterInfo = ParameterInfo(parameterID, dataCode, deviceAddress, dataOffset)
-        return buildActionBytes(parameterInfo, ParameterCodecActionV3.SetInt(value = value, dataOffset = dataOffset))
+        return buildActionBytes(
+            parameterInfo,
+            ParameterCodecActionV3.SetInt(value = value, dataOffset = dataOffset)
+        )
     }
 
     fun buildSetBoolean(

@@ -47,6 +47,14 @@ object WidgetStateBridge {
         coroutineScope.launch {
             WidgetState.thresholdFlow.collect { callback(it) }
         }
+    /**
+     * Подписка на уровень батареи (0..100).
+     * @param callback вызывается с каждым новым процентом заряда.
+     */
+    fun observeBatteryPercent(callback: (Int) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.batteryPercentFlow.collect { callback(it) }
+        }
 
 
     /**

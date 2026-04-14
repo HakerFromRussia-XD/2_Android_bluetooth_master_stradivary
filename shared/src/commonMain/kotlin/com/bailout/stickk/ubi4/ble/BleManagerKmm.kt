@@ -33,4 +33,7 @@ expect class BleManagerKmm() {
         typeCommand: String,
         onChunkSent: () -> Unit
     )
+
+    /** Повторно запускает синхронизацию, аналогичную начальному подключению. */
+    fun restartV3Synchronization()
 }

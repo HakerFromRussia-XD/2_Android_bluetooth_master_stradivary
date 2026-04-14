@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.ui.main
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
@@ -37,15 +36,11 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommandsV3
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.request
-import com.bailout.stickk.ubi4.ble.BLECommandsV3.requestWithCommand
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -68,13 +63,6 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_GAIN_VALUE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
@@ -92,7 +80,6 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragme
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
-import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4CoroutineDemo.Companion.runBlockingDemo
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.ControllerBleStatusConnection
@@ -686,20 +673,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    fun observeBattery(){
+    private fun observeBattery(){
         val layer = binding.batteryProgressBar.progressDrawable as LayerDrawable
         val rotate = layer.findDrawableByLayerId(android.R.id.progress) as RotateDrawable
         val shapeDrawable = rotate.drawable as GradientDrawable
         lifecycleScope.launch {
             batteryPercentFlow.collect{ percent ->
                 binding.batteryProgressBar.progress = percent
-                if (percent < 20){
-                    shapeDrawable.setColor(ContextCompat.getColor(this@MainActivityUBI4, R.color.red))
+                val colorRes = when {
+                    percent < 20 -> R.color.ubi4_no_system_red
+                    percent <= 40 -> R.color.ubi4_no_system_yellow
+                    else -> R.color.ubi4_active
                 }
-                else{
-                    (percent >= 22)
-                    shapeDrawable.setColor(ContextCompat.getColor(this@MainActivityUBI4, R.color.ubi4_active))
-                }
+                shapeDrawable.setColor(
+                    ContextCompat.getColor(this@MainActivityUBI4, colorRes)
+                )
             }
 
         }

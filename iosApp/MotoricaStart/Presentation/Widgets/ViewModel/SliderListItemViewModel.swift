@@ -54,26 +54,37 @@ extension SliderListItemViewModel {
     }
 
     func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard snapshot.codecId == "EMG_GAINS" else { return false }
         return parameterInfoSet.contains {
             $0.deviceAddress == snapshot.addressDevice &&
-            $0.parameterID == snapshot.parameterID
+            $0.parameterID == snapshot.parameterID &&
+            $0.dataCode == snapshot.dataCode
         }
     }
 
     func sliderValues(from snapshot: ParameterSnapshotV3Bridge) -> [Int]? {
-        guard
-            let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
-            let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain")
-        else {
-            return nil
+        if snapshot.codecId == "EMG_GAINS" {
+            guard
+                let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
+                let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain")
+            else {
+                return nil
+            }
+
+            if paramCount > 1 {
+                return [openGain, closeGain]
+            }
+
+            return [gainForCurrentWidget(open: openGain, close: closeGain)]
         }
 
-        if paramCount > 1 {
-            return [openGain, closeGain]
+        if snapshot.codecId == "SLIDER" {
+            guard let sliderValue = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "sliderValue") else {
+                return nil
+            }
+            return [sliderValue]
         }
 
-        return [gainForCurrentWidget(open: openGain, close: closeGain)]
+        return nil
     }
 
     func requestSlider() {

@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 enum class ParameterCodecIdV3 {
     NONE,
     SPINNER,
+    SLIDER,
     TOGGLE,
     EMG_GAINS,
     THRESHOLDS,

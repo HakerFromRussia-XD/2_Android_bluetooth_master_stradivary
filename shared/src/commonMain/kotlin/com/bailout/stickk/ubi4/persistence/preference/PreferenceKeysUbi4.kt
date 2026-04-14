@@ -6,12 +6,15 @@ import com.bailout.stickk.ubi4.models.ble.WidgetKindV3
 import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
@@ -615,7 +618,9 @@ object PreferenceKeysUbi4 {
         COMPLEX_RUNTIME_LOG_TRANSFER(0x0D), /**< 13 Передача лога в реальном времени */
         MOVEMENT_CONTROL            (0x0E),
         PROSTHESIS_MODULE_CONTROL   (0x0F),
-        GUI_CONTROL                 (0x10)
+        GUI_CONTROL                 (0x10),
+        SENSOR_CONTROL              (0x11),
+        EMG_MASTER_CONTROL          (0x12),
     }
 
     enum class ProsthesisModuleControlEnum (val number: Byte) {
@@ -677,8 +682,8 @@ object PreferenceKeysUbi4 {
         PWCE_GET_COLLECTION_GESTURE_INFO  (0x2B),
         PWCE_GET_USER_GESTURE_INFO        (0x2C),
 
-        PWCE_SET_EMG_GAIN_VALUE           (0X2D),
-        PWCE_GET_EMG_GAIN_VALUE           (0X2E),
+//        PWCE_SET_EMG_GAIN_VALUE           (0X2D),
+//        PWCE_GET_EMG_GAIN_VALUE           (0X2E),
 
         PWCE_SET_THRESHOLD_VALUE          (0X2F),
         PWCE_GET_THRESHOLD_VALUE          (0X30),
@@ -704,7 +709,19 @@ object PreferenceKeysUbi4 {
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
     }
 
-    enum class guiModuleControlEnum(val number: Byte)
+    enum class EmgMasterControlEnum (val number: Byte)
+    {
+        EMCE_SET_EMG_GAIN_VALUE           (0X01),
+        EMCE_GET_EMG_GAIN_VALUE           (0X02),
+
+        EMCE_SET_EMG_MAX_GAIN_VALUE       (0x03),
+        EMCE_GET_EMG_MAX_GAIN_VALUE       (0x04),
+
+        EMCE_SET_EMG_MODE                 (0x05),
+        EMCE_GET_EMG_MODE                 (0x06),
+    }
+
+    enum class GuiModuleControlEnum(val number: Byte)
     {
         GMCE_SET_SCREEN                 (0x01),
         GMCE_SET_BATTERY                (0x02),
@@ -721,6 +738,7 @@ object PreferenceKeysUbi4 {
         GMCE_GET_SCREEN_TIMEOUT         (0x0d),
         GMCE_SET_LEFT_RIGHT_HAND        (0x0e),
         GMCE_GET_LEFT_RIGHT_HAND        (0x0f),
+        GMCE_GET_BATTERY                (0x10),
     }
 
     enum class deviceInformationCommandV3(val number: Int) {
@@ -776,13 +794,13 @@ object PreferenceKeysUbi4 {
                 valuePath = "openThreshold,closeThreshold"
             ),
             P_KEY_EMG_GAIN_OPEN_VALUE to ParameterMetaV3(
-                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
+                parameterInfo = ParameterInfo(EMG_MASTER_CONTROL.number.toInt(), EMCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.EMG_GAINS,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "openGain"
             ),
             P_KEY_EMG_GAIN_CLOSE_VALUE to ParameterMetaV3(
-                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
+                parameterInfo = ParameterInfo(EMG_MASTER_CONTROL.number.toInt(), EMCE_SET_EMG_GAIN_VALUE.number.toInt(), 1, 1),
                 codecId = ParameterCodecIdV3.EMG_GAINS,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "closeGain"
@@ -816,6 +834,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.NONE,
                 widgetKind = WidgetKindV3.COMMAND,
                 valuePath = "commandOnly"
+            ),
+            P_KEY_EMG_CONTROL_MODE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(EMG_MASTER_CONTROL.number.toInt(), EMCE_SET_EMG_MODE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
             ),
             P_KEY_HAND_CONTROL_MODE to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
@@ -852,6 +876,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.SWITCHER,
                 widgetKind = WidgetKindV3.SWITCHER,
                 valuePath = "checked"
+            ),
+            P_KEY_EMG_MAX_GAIN_VALUE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(EMG_MASTER_CONTROL.number.toInt(), EMCE_SET_EMG_MAX_GAIN_VALUE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
             ),
         )
 

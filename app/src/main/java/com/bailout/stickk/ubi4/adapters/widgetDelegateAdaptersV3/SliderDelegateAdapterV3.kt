@@ -23,6 +23,7 @@ import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
@@ -214,22 +215,36 @@ class SliderDelegateAdapterV3(
                 "SliderDelegateAdapterV3",
                 "setUI parameterInfo: ${infoWidget.parameterInfo}"
             )
-            val emgGainResult = (typedValue as? ParameterTypedValueV3.EmgGains)?.value ?: return@forEach
-            if (infoWidget.parameterInfo.dataOffsets == 0) {
-                infoWidget.progress = emgGainResult.openGain
-                setProgressBar(
-                    infoWidget,
-                    emgGainResult.openGain - infoWidget.minProgress,
-                    withAnimation
-                )
-            }
-            if (infoWidget.parameterInfo.dataOffsets == 1) {
-                infoWidget.progress = emgGainResult.closeGain
-                setProgressBar(
-                    infoWidget,
-                    emgGainResult.closeGain - infoWidget.minProgress,
-                    withAnimation
-                )
+            when (val value = typedValue) {
+                is ParameterTypedValueV3.EmgGains -> {
+                    val emgGainResult = value.value
+                    if (infoWidget.parameterInfo.dataOffsets == 0) {
+                        infoWidget.progress = emgGainResult.openGain
+                        setProgressBar(
+                            infoWidget,
+                            emgGainResult.openGain - infoWidget.minProgress,
+                            withAnimation
+                        )
+                    }
+                    if (infoWidget.parameterInfo.dataOffsets == 1) {
+                        infoWidget.progress = emgGainResult.closeGain
+                        setProgressBar(
+                            infoWidget,
+                            emgGainResult.closeGain - infoWidget.minProgress,
+                            withAnimation
+                        )
+                    }
+                }
+                is ParameterTypedValueV3.Slider -> {
+                    val sliderValue = value.value.sliderValue
+                    infoWidget.progress = sliderValue
+                    setProgressBar(
+                        infoWidget,
+                        (sliderValue - infoWidget.minProgress).coerceIn(0, infoWidget.range),
+                        withAnimation
+                    )
+                }
+                else -> return@forEach
             }
         }
     }
@@ -337,22 +352,42 @@ class SliderDelegateAdapterV3(
                 value = progress,
                 dataOffset = parameterInfo.dataOffsets
             )
-        ) as? com.bailout.stickk.ubi4.data.parser.ParameterEncodedActionV3.EmgGainsValue
-            ?: return
+        ) ?: return
 
-        val emgGainResult = EMGGainsV3(
-            openGain = encodedAction.openGain,
-            closeGain = encodedAction.closeGain
-        )
-        val newTyped = ParameterTypedValueV3.EmgGains(emgGainResult)
-        ParameterStoreV3.put(parameterInfo, newTyped)
-        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
-            ParameterProvider.getParameterV3(parameterInfo).data = encoded
+        when (encodedAction) {
+            is com.bailout.stickk.ubi4.data.parser.ParameterEncodedActionV3.EmgGainsValue -> {
+                val emgGainResult = EMGGainsV3(
+                    openGain = encodedAction.openGain,
+                    closeGain = encodedAction.closeGain
+                )
+                val newTyped = ParameterTypedValueV3.EmgGains(emgGainResult)
+                ParameterStoreV3.put(parameterInfo, newTyped)
+                ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
+                    ParameterProvider.getParameterV3(parameterInfo).data = encoded
+                }
+                main.bleCommandWithQueue(
+                    BLECommandsV3.sendGaines(emgGainResult.openGain, emgGainResult.closeGain),
+                    SERIALPORTCHAR_UUID, WRITE){}
+                platformLog("sendProgress", "emgGainResult: $emgGainResult")
+            }
+            is com.bailout.stickk.ubi4.data.parser.ParameterEncodedActionV3.IntValue -> {
+                val sliderValue = encodedAction.value
+                val newTyped = ParameterTypedValueV3.Slider(SliderV3(sliderValue = sliderValue))
+                ParameterStoreV3.put(parameterInfo, newTyped)
+                ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
+                    ParameterProvider.getParameterV3(parameterInfo).data = encoded
+                }
+                main.bleCommandWithQueue(
+                    BLECommandsV3.sendCommand(
+                        command = parameterInfo.parameterID,
+                        subcommand = parameterInfo.dataCode,
+                        parameter = sliderValue
+                    ),
+                    SERIALPORTCHAR_UUID, WRITE){}
+                platformLog("sendProgress", "sliderValue: $sliderValue")
+            }
+            else -> return
         }
-        main.bleCommandWithQueue(
-            BLECommandsV3.sendGaines(emgGainResult.openGain, emgGainResult.closeGain),
-            SERIALPORTCHAR_UUID, WRITE){}
-        platformLog("sendProgress", "emgGainResult: $emgGainResult")
     }
     override fun isForViewType(item: Any): Boolean =
         item is SliderItemV3 && (

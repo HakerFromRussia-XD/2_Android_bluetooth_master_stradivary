@@ -4,6 +4,7 @@ import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
+import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
@@ -24,6 +25,7 @@ data class ParameterStoreKeyV3(
 
 sealed interface ParameterTypedValueV3 {
     data class Spinner(val value: SpinnerV3) : ParameterTypedValueV3
+    data class Slider(val value: SliderV3) : ParameterTypedValueV3
     data class Toggle(val value: ToggleV3) : ParameterTypedValueV3
     data class EmgGains(val value: EMGGainsV3) : ParameterTypedValueV3
     data class Thresholds(val value: ThresholdsV3) : ParameterTypedValueV3

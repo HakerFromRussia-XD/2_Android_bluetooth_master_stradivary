@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.ble.BleEnvironment
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERISTIC
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 
 /** Информация об обнаруженном устройстве */
 actual class BleDeviceKmm actual constructor (
@@ -47,5 +49,14 @@ actual class BleManagerKmm actual constructor() {
             typeCommand,
             onChunkSent
         )
+    }
+
+    actual fun restartV3Synchronization() {
+        val executor = bleCommandExecutor ?: BleEnvironment.getBleCommandExecutor()
+        executor.bleCommandWithQueue(
+            BLECommands.requestInicializeInformation(),
+            MAIN_CHANNEL_CHARACTERISTIC,
+            WRITE
+        ) {}
     }
 }

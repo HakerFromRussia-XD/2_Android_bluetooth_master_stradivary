@@ -84,7 +84,7 @@ extension SpinnerListItemViewModelV3 {
         let gatt = SampleGattAttributes()
         bleManager.sendBytesKmm(
             data: data,
-            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            command: gatt.SERIALPORTCHAR_UUID,
             typeCommand: gatt.WRITE,
             onChunkSent: {}
         )

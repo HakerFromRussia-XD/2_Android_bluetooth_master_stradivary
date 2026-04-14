@@ -543,9 +543,22 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
 
 private struct BatteryRingView: View {
     private let normalizedLevel: Double
+    private let percent: Int
 
     init(level: Double) {
         normalizedLevel = min(max(level, 0.0), 1.0)
+        percent = Int(normalizedLevel * 100)
+    }
+
+    private var batteryColor: Color {
+        switch percent {
+        case ..<20:
+            return Color("ubi4_no_system_red")
+        case 20...40:
+            return Color("ubi4_yellow")
+        default:
+            return Color("ubi4_active")
+        }
     }
 
     var body: some View {
@@ -556,14 +569,14 @@ private struct BatteryRingView: View {
             Circle()
                 .trim(from: 0, to: normalizedLevel)
                 .stroke(
-                    Color("ubi4_yes_system_blue"),
+                    batteryColor,
                     style: StrokeStyle(lineWidth: 3, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
 
-            Text("\(Int(normalizedLevel * 100))%")
+            Text("\(percent)%")
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(Color("ubi4_white"))
+                .foregroundColor(batteryColor)
         }
     }
 }

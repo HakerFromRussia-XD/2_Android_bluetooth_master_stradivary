@@ -69,7 +69,7 @@ class PlotDelegateAdapterV3 (
     ViewBindingDelegateAdapter<PlotItemV3, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private companion object {
         private const val SENSOR_COUNT = 6
-        private const val SMOOTHING_TICKS = 7
+        private const val SMOOTHING_TICKS = 3
         val requestedOnFirstShow = AtomicBoolean(false)
     }
 

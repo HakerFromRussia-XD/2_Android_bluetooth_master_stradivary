@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStr
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
@@ -37,13 +38,13 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.switcherFlowV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
@@ -52,13 +53,14 @@ import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.guiModuleControlEnum.*
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_CLOSE_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
@@ -69,7 +71,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
@@ -91,6 +92,11 @@ class BLEParserV3(
         val deviceCode: Int,     // 0..255
         val dfu: Int,            // 0..255  // 0 - нельзя прошить, 1 - можно шить
         val fwVersion: String    // "major.minor.quickfix"
+    )
+    private data class BmsStatusCombinedV3(
+        val batLevel: Int,
+        val chargeStatus: Int,
+        val chargeCurrent: Int
     )
 
     fun parseReceivedSensorsData(data: ByteArray) {
@@ -165,6 +171,17 @@ class BLEParserV3(
                     platformLog("[parseReceivedData]", "payload empty for command=${receivePacket.command}")
                 } else {
                     val responseSubcommand = payload.u8(0)
+                    if (receivePacket.command == GUI_CONTROL.number.toInt() &&
+                        responseSubcommand == GMCE_GET_BATTERY.number.toInt()
+                    ) {
+                        handleBatteryStatus(payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
                     val route = WidgetResponseRoutesV3.find(
                         command = receivePacket.command,
                         responseSubcommand = responseSubcommand
@@ -223,6 +240,34 @@ class BLEParserV3(
                     RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
             }
         }
+    }
+    private fun handleBatteryStatus(payload: ByteArrayView) {
+        val battery = parseBmsStatusCombinedZeroAlloc(payload)
+        val normalizedBatLevel = if (battery.batLevel == 0) 1 else battery.batLevel
+        val percent = normalizedBatLevel.coerceIn(0, 100)
+        platformLog(
+            "BatteryParserV3",
+            "bat_level=${battery.batLevel}, normalized_bat_level=$normalizedBatLevel, charge_status=${battery.chargeStatus}, charge_current=${battery.chargeCurrent}"
+        )
+        coroutineScope.launch { batteryPercentFlow.emit(percent) }
+    }
+    private fun parseBmsStatusCombinedZeroAlloc(payload: ByteArrayView?): BmsStatusCombinedV3 {
+        // payload: [subcommand, int8 bat_level, uint8 charge_status, uint16 charge_current(LE)]
+        if (payload == null || payload.length < 5) {
+            return BmsStatusCombinedV3(
+                batLevel = 0,
+                chargeStatus = 0,
+                chargeCurrent = 0
+            )
+        }
+        val batLevel = payload.s8(1)
+        val chargeStatus = payload.u8(2)
+        val chargeCurrent = (payload.u8(4) shl 8) or payload.u8(3)
+        return BmsStatusCombinedV3(
+            batLevel = batLevel,
+            chargeStatus = chargeStatus,
+            chargeCurrent = chargeCurrent
+        )
     }
 
     private fun parseUbiPacketZeroAlloc(data: ByteArray): UbiPacketView {
@@ -464,81 +509,46 @@ class BLEParserV3(
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
-            widgetPosition = 0,
             widgetCode = PWCE_PLOT_V3.number.toInt(),
-            widgetId = 1,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
                 ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
-        )
-            ,"Графики"
-        ))
+        ),"Графики"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
-            widgetPosition = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            widgetId = 2,
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
-        )
-            ,"Чувствительность датчика открытия"
-        ))
+        ),"Чувствительность датчика открытия"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
-            widgetPosition = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            widgetId = 3,
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
-        )
-            ,"Чувствительность датчика закрытия"
-        ))
+        ),"Чувствительность датчика закрытия"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
-            widgetPosition = 3,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
-            widgetId = 4,
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
-        )
-            ,"Калибровка протеза"
-        ))
+        ),"Калибровка протеза"))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
             pressedCommand = 0,
             releasedCommand = 0,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 1,
-                widgetPosition = 4,
                 widgetCode = PWCE_BUTTON_V3.number.toInt(),
-                widgetId = 5,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_CLOSE_COMMAND.number.toInt(), 6, 1))
-            )
-                ,"Открыть%Закрыть"
-        )))
+            ),"Открыть%Закрыть")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 0,
-            widgetPosition = 0,
             widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
-            widgetId = 6,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
             )
-        )
-            ,"Жесты"
-        ))
-//        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-//            display = 2,
-//            widgetPosition = 0,
-//            widgetCode = PWCE_SWITCH_V3.number.toInt(),
-//            widgetId = 7,
-//            parameterInfoSet = mutableSetOf(
-//                ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
-//            )
-//        )
-//            ,"Свитчер тест(сторона руки)"
-//        ))
+        ),"Жесты"))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -546,41 +556,55 @@ class BLEParserV3(
             unitLabel = "сек",
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
-                widgetPosition = 0,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-                widgetId = 8,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
                 )
-            )
-                ,"Переключение жестов сенсорами"
-            )))
+            ),"Переключение жестов сенсорами")))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт"),0),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_CONTROL_MODE),
+                )
+            ),"Режим работы ЕМГ")))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
+        ),"Максимальная чувтсвительность датчиков"))
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
+                )
+            ),"Блокировка движения с ЕМГ")))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Нормальный","Спортивный","Плавное управление силой","Плавное управление скоростью","Плавное управление силой и скоростью"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 1,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-            widgetId = 9,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
             )
-        )
-            ,"Режим работы протеза"
-        )))
+        ),"Режим работы протеза")))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Левая","Правая"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 2,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-            widgetId = 10,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
             )
-        )
-            ,"Сторона руки"
-        )))
+        ),"Сторона руки")))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -588,42 +612,20 @@ class BLEParserV3(
             unitLabel = "сек",
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
-                widgetPosition = 3,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-                widgetId = 11,
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
                 )
-            )
-                ,"Время работы экрана"
-            )))
-        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
-            minProgress = 20,
-            maxProgress = 100,
-            increment = 0.1f,
-            unitLabel = "сек",
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetPosition = 4,
-                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
-                widgetId = 12,
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
-                )
-            )
-                ,"Блокировка движения с ЕМГ"
-            )))
+            ),"Время работы экрана")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
-            widgetPosition = 5,
             widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
-            widgetId = 13,
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
-        )
-            ,"Имя протеза%Записать"
-        ))
+        ),"Имя протеза%Записать"))
+
+        baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
 
         generatedParameters()
         baseParameterWidgetSStruct.forEach { widget -> parseWidgets(widget) }
@@ -868,6 +870,58 @@ class BLEParserV3(
             .uppercase()
             .padStart(2, '0')
     private fun ByteArrayView.u8(i: Int): Int = bytes[offset + i].toInt() and 0xFF
+    private fun ByteArrayView.s8(i: Int): Int = bytes[offset + i].toInt()
+    // при добавлении нового виджета в generatedHardcodeWidgets
+    // не нужно вручную выставлять widgetPosition/widgetId — они назначатся здесь по порядку.
+    private fun assignWidgetOrder(widgets: MutableSet<Any>): MutableSet<Any> {
+        val nextPositionByDisplay = mutableMapOf<Int, Int>()
+        var nextWidgetId = 1
+        val orderedWidgets = linkedSetOf<Any>()
+
+        widgets.forEach { widget ->
+            val baseStruct = widget.baseStructOrNull()
+            if (baseStruct == null) {
+                orderedWidgets.add(widget)
+                return@forEach
+            }
+
+            val assignedPosition = nextPositionByDisplay[baseStruct.display] ?: 0
+            nextPositionByDisplay[baseStruct.display] = assignedPosition + 1
+
+            val assignedBaseStruct = baseStruct.copy(
+                widgetPosition = assignedPosition,
+                widgetId = nextWidgetId++
+            )
+            orderedWidgets.add(widget.withBaseStruct(assignedBaseStruct))
+        }
+
+        return orderedWidgets
+    }
+    private fun Any.withBaseStruct(baseStruct: BaseParameterWidgetStruct): Any = when (this) {
+        is BaseParameterWidgetSStruct -> copy(baseParameterWidgetStruct = baseStruct)
+        is CommandParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is PlotParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is SliderParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is ToggleSliderParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is ThresholdParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is SwitchParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        is SpinnerParameterWidgetSStruct -> copy(
+            baseParameterWidgetSStruct = baseParameterWidgetSStruct.copy(baseParameterWidgetStruct = baseStruct)
+        )
+        else -> this
+    }
     private fun Any.baseStructOrNull(): BaseParameterWidgetStruct? = when (this) {
         is BaseParameterWidgetEStruct -> this.baseParameterWidgetStruct
         is CommandParameterWidgetEStruct -> this.baseParameterWidgetEStruct.baseParameterWidgetStruct

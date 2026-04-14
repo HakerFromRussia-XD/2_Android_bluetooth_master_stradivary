@@ -225,6 +225,12 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
     
     internal func requestInicializeInformation() {
+        if UiInterfaceModeBridgeV3.shared.isEnabled() {
+            print("[BLE-COMMUNICATION] restart V3 synchronization pipeline")
+            bleManager.restartV3Synchronization()
+            return
+        }
+
         let command = BLECommands.shared.requestInicializeInformation()
         command.debugPrint()
         print("[BLE-COMMUNICATION] send:  Constants.MAIN_CHANNEL_CHARACTERISTIC = \(Constants.MAIN_CHANNEL_CHARACTERISTIC) Constants.WRITE = \(Constants.WRITE)")

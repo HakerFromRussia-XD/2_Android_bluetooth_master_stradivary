@@ -23,6 +23,7 @@ class WidgetsTabContainerViewController: UIViewController {
     private var contentTopConstraint: NSLayoutConstraint?
     private var deviceNameObserver: NSObjectProtocol?
     private var bleStateJob: Kotlinx_coroutines_coreJob?
+    private var batteryPercentJob: Kotlinx_coroutines_coreJob?
 
     init(contentViewController: WidgetsListViewController) {
         self.contentViewController = contentViewController
@@ -37,6 +38,7 @@ class WidgetsTabContainerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         observeBleConnectionState()
+        observeBatteryPercent()
         embedStatusBar()
         embedContentController()
         observeDeviceNameUpdates()
@@ -128,11 +130,22 @@ class WidgetsTabContainerViewController: UIViewController {
         }
     }
 
+    private func observeBatteryPercent() {
+        batteryPercentJob?.cancel(cause: nil)
+        batteryPercentJob = WidgetStateBridge.shared.observeBatteryPercent { [weak self] rawPercent in
+            DispatchQueue.main.async {
+                let percent = max(0, min(100, Int(truncating: rawPercent as NSNumber)))
+                self?.statusBarViewModel.update(batteryLevel: Double(percent) / 100.0)
+            }
+        }
+    }
+
     deinit {
         if let deviceNameObserver {
             NotificationCenter.default.removeObserver(deviceNameObserver)
         }
         bleStateJob?.cancel(cause: nil)
+        batteryPercentJob?.cancel(cause: nil)
     }
 }
 

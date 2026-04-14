@@ -51,6 +51,7 @@
     <color name="ubi4_deactivate_text">#838383</color>
     <color name="ubi4_yes_system_blue">#0A84FF</color>
     <color name="ubi4_no_system_red">#FF453A</color>
+    <color name="ubi4_no_system_yellow">#F99A43</color>
     <color name="ubi4_back">#2A2A2A</color>
     <color name="ubi4_dark_back">#212121</color>
     <color name="ubi4_active">#C6F158</color>

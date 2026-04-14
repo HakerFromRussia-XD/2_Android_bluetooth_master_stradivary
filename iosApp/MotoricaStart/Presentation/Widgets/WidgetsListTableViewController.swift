@@ -1,5 +1,6 @@
 import UIKit
 import QuartzCore
+import shared
 
 @objc final class WidgetsListTableViewController: UITableViewController {
     @objc public var savingDeviceName: String = "...."
@@ -106,6 +107,10 @@ import QuartzCore
             TextInputViewCellV3.self,
             forCellReuseIdentifier: TextInputViewCellV3.reuseIdentifier
         )
+        tableView.register(
+            GestureViewCellV3.self,
+            forCellReuseIdentifier: GestureViewCellV3.reuseIdentifier
+        )
         
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
@@ -149,10 +154,10 @@ import QuartzCore
                 
                 case .gestureOptic(let vm):
                     let cell = tableView.dequeueReusableCell(
-                        withIdentifier: GestureViewCell.reuseIdentifier,
+                        withIdentifier: GestureViewCellV3.reuseIdentifier,
                         for: indexPath
-                    ) as! GestureViewCell
-                    print("requestGesture title = \(vm.title)")
+                    ) as! GestureViewCellV3
+                    print("requestGestureV3 title = \(vm.title)")
                     cell.configure(with: vm)
                     return cell
                 case .spinnerV3(let vm):

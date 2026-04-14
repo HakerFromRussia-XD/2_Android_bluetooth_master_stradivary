@@ -15,6 +15,7 @@ struct GesturesWidgetView: View {
     
     // MARK: - Dependencies
     @ObservedObject var provider: GesturesProvider
+    let visibleSegments: [GesturesProvider.Segment]
     @State private var highlightOffsetX: CGFloat = 0
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
@@ -51,6 +52,34 @@ struct GesturesWidgetView: View {
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
 
+    init(
+        provider: GesturesProvider,
+        visibleSegments: [GesturesProvider.Segment] = GesturesProvider.Segment.allCases,
+        onSegmentChange: @escaping (GesturesProvider.Segment) -> Void,
+        onActiveGestureRequest: @escaping () -> Void,
+        onFactoryGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
+        onCustomGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
+        onCustomGestureSettingsTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
+        onRotationGestureRemove: @escaping (Int) -> Void,
+        onRotationGestureAdd: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
+        onRotationGesturesReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
+        onSprGestureAction: @escaping (GesturesProvider.SprGestureDisplayItem) -> Void,
+        onSprAddTap: @escaping () -> Void
+    ) {
+        self.provider = provider
+        self.visibleSegments = visibleSegments.isEmpty ? [.collection] : visibleSegments
+        self.onSegmentChange = onSegmentChange
+        self.onActiveGestureRequest = onActiveGestureRequest
+        self.onFactoryGestureTap = onFactoryGestureTap
+        self.onCustomGestureTap = onCustomGestureTap
+        self.onCustomGestureSettingsTap = onCustomGestureSettingsTap
+        self.onRotationGestureRemove = onRotationGestureRemove
+        self.onRotationGestureAdd = onRotationGestureAdd
+        self.onRotationGesturesReorder = onRotationGesturesReorder
+        self.onSprGestureAction = onSprGestureAction
+        self.onSprAddTap = onSprAddTap
+    }
+    
     
     // MARK: - Body
     var body: some View {
@@ -80,6 +109,9 @@ struct GesturesWidgetView: View {
             
         }
         .onAppear {
+            if !visibleSegments.contains(provider.selectedSegment) {
+                provider.selectedSegment = visibleSegments.first ?? .collection
+            }
             onSegmentChange(provider.selectedSegment)
             onActiveGestureRequest()
         }
@@ -168,7 +200,7 @@ struct GesturesWidgetView: View {
     private var segmentSelector: some View {
         GeometryReader { geo in
             let width = geo.size.width
-            let segmentCount = CGFloat(GesturesProvider.Segment.allCases.count)
+            let segmentCount = CGFloat(max(visibleSegments.count, 1))
             let segmentWidth = (width) / segmentCount
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
@@ -187,7 +219,7 @@ struct GesturesWidgetView: View {
                     .animation(.easeOut(duration: 0.3), value: highlightOffsetX)
 
                 HStack(spacing: 0) {
-                    ForEach(Array(GesturesProvider.Segment.allCases.enumerated()), id: \.offset) { index, segment in
+                    ForEach(Array(visibleSegments.enumerated()), id: \.offset) { index, segment in
                         Button(action: { select(segment: segment) }) {
                             Text(segment.title)
                                 .font(.system(size: 12, weight: .light))
@@ -215,7 +247,7 @@ struct GesturesWidgetView: View {
     }
     
     private func updateHighlightOffset(segmentWidth: CGFloat) {
-        let index = GesturesProvider.Segment.allCases.firstIndex(of: provider.selectedSegment) ?? 0
+        let index = visibleSegments.firstIndex(of: provider.selectedSegment) ?? 0
         let newOffset = CGFloat(index) * segmentWidth
         highlightOffsetX = newOffset
     }

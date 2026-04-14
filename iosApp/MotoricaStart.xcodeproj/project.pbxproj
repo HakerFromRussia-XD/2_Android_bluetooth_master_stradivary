@@ -152,6 +152,9 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		66F6A1012F53CE9B00A1B2C3 /* connect_to_disconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */; };
+		66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */; };
+		66F6A1032F53CE9B00A1B2C3 /* reconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
 		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
 		9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
@@ -198,7 +201,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwitcherListItemViewModelV3.swift; path = MotoricaStart/Presentation/Widgets/ViewModel/SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
+		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = MotoricaStart/Presentation/Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
 		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
 		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -262,9 +265,9 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = MotoricaStartTests/Info.plist; sourceTree = SOURCE_ROOT; };
-		2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToggleSliderViewCellV3.swift; path = MotoricaStart/Presentation/Widgets/Cells/ToggleSliderViewCellV3.swift; sourceTree = "<group>"; };
+		2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderViewCellV3.swift; sourceTree = "<group>"; };
 		534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorageTests.swift; sourceTree = "<group>"; };
-		554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextInputViewCellV3.swift; path = MotoricaStart/Presentation/Widgets/Cells/TextInputViewCellV3.swift; sourceTree = "<group>"; };
+		554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputViewCellV3.swift; sourceTree = "<group>"; };
 		651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorage.swift; sourceTree = "<group>"; };
 		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
 		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
@@ -350,13 +353,16 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
+		66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = connect_to_disconnect.lottie; sourceTree = "<group>"; };
+		66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = disconnect_to_connect.lottie; sourceTree = "<group>"; };
+		66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = reconnect.lottie; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
-		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextInputListItemViewModelV3.swift; path = MotoricaStart/Presentation/Widgets/ViewModel/TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
-		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwitcherViewCellV3.swift; path = MotoricaStart/Presentation/Widgets/Cells/SwitcherViewCellV3.swift; sourceTree = "<group>"; };
-		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToggleSliderListItemViewModelV3.swift; path = MotoricaStart/Presentation/Widgets/ViewModel/ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
-		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinnerViewCellV3.swift; path = MotoricaStart/Presentation/Widgets/Cells/SpinnerViewCellV3.swift; sourceTree = "<group>"; };
+		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
+		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherViewCellV3.swift; sourceTree = "<group>"; };
+		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
+		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerViewCellV3.swift; sourceTree = "<group>"; };
 		E6E882E600C188FAACCC417D /* ObservableTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
-		F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinnerListItemViewModelV3.swift; path = MotoricaStart/Presentation/Widgets/ViewModel/SpinnerListItemViewModelV3.swift; sourceTree = "<group>"; };
+		F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerListItemViewModelV3.swift; sourceTree = "<group>"; };
 		FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetV3Support.swift; path = MotoricaStart/Presentation/Widgets/V3/WidgetV3Support.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
@@ -526,14 +532,6 @@
 				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
 				0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */,
 				FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */,
-				F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */,
-				05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */,
-				C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */,
-				8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */,
-				E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */,
-				C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */,
-				2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */,
-				554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -688,6 +686,10 @@
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
 				652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */,
 				65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */,
+				E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */,
+				C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */,
+				2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */,
+				554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -863,6 +865,9 @@
 				65EAF4802ED865D400B3C49D /* wrist_extend.lottie */,
 				65EAF4812ED865D400B3C49D /* wrist_flex.lottie */,
 				65588FA62EA6557C005CF5BA /* sinchronization.lottie */,
+				66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */,
+				66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */,
+				66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -1026,6 +1031,10 @@
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
 				652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */,
 				65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */,
+				F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */,
+				05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */,
+				C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */,
+				8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1187,6 +1196,9 @@
 				65EAF48C2ED865D400B3C49D /* open.lottie in Resources */,
 				65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */,
 				65EAF48D2ED865D400B3C49D /* pinch.lottie in Resources */,
+				66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */,
+				66F6A1012F53CE9B00A1B2C3 /* connect_to_disconnect.lottie in Resources */,
+				66F6A1032F53CE9B00A1B2C3 /* reconnect.lottie in Resources */,
 				65519BEB2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				65682FD32ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				65EAF49E2EE8232500B3C49D /* temple.fsh in Resources */,
@@ -1232,7 +1244,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-				shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\njava -version\ncd \"$SRCROOT/..\"\n./gradlew --no-daemon --no-configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\njava -version\ncd \"$SRCROOT/..\"\n./gradlew --no-daemon --no-configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

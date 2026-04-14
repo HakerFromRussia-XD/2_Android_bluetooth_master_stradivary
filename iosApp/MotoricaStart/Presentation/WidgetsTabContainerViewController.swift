@@ -10,13 +10,19 @@ import UIKit
 import shared
 
 class WidgetsTabContainerViewController: UIViewController {
+    private static let sharedStatusBarViewModel: StatusBarViewModel = {
+        let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
+        return StatusBarViewModel(isConnected: initialState == 2)
+    }()
+
     private let contentViewController: WidgetsListViewController
-    private let statusBarViewModel = StatusBarViewModel()
+    private let statusBarViewModel = WidgetsTabContainerViewController.sharedStatusBarViewModel
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
     private var statusBarHeightConstraint: NSLayoutConstraint?
     private var contentTopConstraint: NSLayoutConstraint?
     private var deviceNameObserver: NSObjectProtocol?
+    private var bleStateJob: Kotlinx_coroutines_coreJob?
 
     init(contentViewController: WidgetsListViewController) {
         self.contentViewController = contentViewController
@@ -30,6 +36,7 @@ class WidgetsTabContainerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        observeBleConnectionState()
         embedStatusBar()
         embedContentController()
         observeDeviceNameUpdates()
@@ -108,10 +115,24 @@ class WidgetsTabContainerViewController: UIViewController {
         }
     }
 
+    private func observeBleConnectionState() {
+        bleStateJob?.cancel(cause: nil)
+        let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
+        statusBarViewModel.update(isConnected: initialState == 2)
+
+        bleStateJob = BLEStateBridge.shared.observeState { [weak self] rawState in
+            DispatchQueue.main.async {
+                let state = Int(truncating: rawState)
+                self?.statusBarViewModel.update(isConnected: state == 2)
+            }
+        }
+    }
+
     deinit {
         if let deviceNameObserver {
             NotificationCenter.default.removeObserver(deviceNameObserver)
         }
+        bleStateJob?.cancel(cause: nil)
     }
 }
 

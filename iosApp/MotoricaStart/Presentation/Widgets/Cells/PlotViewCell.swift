@@ -85,6 +85,10 @@ final class PlotViewCell: UITableViewCell {
     @available(iOS 16.0, *)
     func configure(with viewModel: PlotListItemViewModel) {
         self.viewModel = viewModel
+        isPlotPointRenderingPaused = false
+        if timer == nil {
+            startTimer()
+        }
         selectionStyle = .none
         print("updateThreshold    requestThresholds")
         viewModel.requestThresholds()
@@ -161,6 +165,11 @@ final class PlotViewCell: UITableViewCell {
         super.didMoveToWindow()
         if window == nil {
             stopTimer()
+        } else if timer == nil {
+            isPlotPointRenderingPaused = false
+            startTimer()
+        } else {
+            isPlotPointRenderingPaused = false
         }
     }
 
@@ -564,6 +573,9 @@ final class PlotViewCell: UITableViewCell {
             queue: .main
         ) { [weak self] _ in
             self?.isPlotPointRenderingPaused = false
+            if self?.timer == nil {
+                self?.startTimer()
+            }
         }
     }
 

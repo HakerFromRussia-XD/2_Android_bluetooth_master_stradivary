@@ -9,6 +9,8 @@ struct CustomSlider: View {
     let activeColor: Color
     let inactiveColor: Color
     let borderColor: Color
+    let isEnabled: Bool
+    let showsThumb: Bool
     let editingDidEnd: ((Float) -> Void)
     @State private var isDragging: Bool = false
     @State private var displayedValue: Float
@@ -27,6 +29,8 @@ struct CustomSlider: View {
         activeColor: Color,
         inactiveColor: Color,
         borderColor: Color,
+        isEnabled: Bool = true,
+        showsThumb: Bool = true,
         editingDidEnd: @escaping ((Float) -> Void)
     ) {
         self._value = value
@@ -37,6 +41,8 @@ struct CustomSlider: View {
         self.activeColor = activeColor
         self.inactiveColor = inactiveColor
         self.borderColor = borderColor
+        self.isEnabled = isEnabled
+        self.showsThumb = showsThumb
         self.editingDidEnd = editingDidEnd
         _displayedValue = State(initialValue: value.wrappedValue)
     }
@@ -61,28 +67,33 @@ struct CustomSlider: View {
                 .frame(height: trackHeight)
             
             // Ползунок
-            Circle()
-                .fill(Color.white)
-                .shadow(radius: 3)
-                .frame(width: trackHeight, height: trackHeight)//это размеры пипки за которую тянем
-                .offset(x: (CGFloat((displayedValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))//чтобы пипка двигалась под пальцем
-                .gesture(
-                    DragGesture()
-                        .onChanged { gesture in
-                            self.isDragging = true
-                            self.isAnimatingValue = false
-                            self.pendingValues.removeAll()
-                            let availableWidth = (geometry.size.width-trackHeight/2)
-                            let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
-                            let clampedValue = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
-                            self.value = clampedValue
-                            self.displayedValue = clampedValue
-                        }
-                        .onEnded { _ in
-                            self.isDragging = false
-                            self.editingDidEnd(self.value)
-                        }
-                )
+            if showsThumb {
+                Circle()
+                    .fill(Color.white)
+                    .shadow(radius: 3)
+                    .frame(width: trackHeight, height: trackHeight)//это размеры пипки за которую тянем
+                    .offset(x: (CGFloat((displayedValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width - geometry.size.width/2))//чтобы пипка двигалась под пальцем
+                    .gesture(
+                        DragGesture()
+                            .onChanged { gesture in
+                                guard isEnabled else { return }
+                                self.isDragging = true
+                                self.isAnimatingValue = false
+                                self.pendingValues.removeAll()
+                                let availableWidth = (geometry.size.width-trackHeight/2)
+                                let normalizedX = Float(CGFloat((gesture.location.x-trackHeight/2)/(availableWidth/2))+1)/2 // Нормализуем значение от 0 до 1 (от левого до правого края)
+                                let clampedValue = max(range.lowerBound, min(normalizedX * (range.upperBound - range.lowerBound) + range.lowerBound, range.upperBound))
+                                self.value = clampedValue
+                                self.displayedValue = clampedValue
+                            }
+                            .onEnded { _ in
+                                guard isEnabled else { return }
+                                self.isDragging = false
+                                self.editingDidEnd(self.value)
+                            }
+                    )
+                    .allowsHitTesting(isEnabled)
+            }
             }
             .padding(.top, 4)
             .onAppear {

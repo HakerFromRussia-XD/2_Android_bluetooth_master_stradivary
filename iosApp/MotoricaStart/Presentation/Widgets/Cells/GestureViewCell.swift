@@ -189,3 +189,149 @@ final class GestureViewCell: UITableViewCell {
         }
     }
 }
+
+final class GestureViewCellV3: UITableViewCell {
+    static let reuseIdentifier = String(describing: GestureViewCellV3.self)
+
+    private var viewModel: GestureListItemViewModel!
+    private var cancellable: AnyCancellable?
+    private var provider: GesturesProvider?
+    private var rotationJob: Kotlinx_coroutines_coreJob?
+    private var activeGestureJob: Kotlinx_coroutines_coreJob?
+    private let rotationDebouncer = Debouncer(delay: 1.0)
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
+    @available(iOS 16.0, *)
+    func configure(with viewModel: GestureListItemViewModel) {
+        self.viewModel = viewModel
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
+
+        let provider = viewModel.makeProvider()
+        if provider.selectedSegment == .sprGroup {
+            provider.selectedSegment = .collection
+        }
+        self.provider = provider
+        cancellable?.cancel()
+        preservesSuperviewLayoutMargins = false
+        contentView.directionalLayoutMargins = .zero
+
+        var configuration = UIHostingConfiguration {
+            GesturesWidgetView(
+                provider: provider,
+                visibleSegments: [.collection, .rotationGroup],
+                onSegmentChange: { [weak self] segment in
+                    guard let self else { return }
+                    switch segment {
+                    case .collection:
+                        break
+                    case .rotationGroup:
+                        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                            self?.viewModel.requestRotationGroup()
+                        }
+                    case .sprGroup:
+                        break
+                    }
+                },
+                onActiveGestureRequest: { [weak self] in
+                    DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                        self?.viewModel.requestActiveGesture()
+                    }
+                },
+                onFactoryGestureTap: { [weak self] item in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.selectFactoryGesture(item, provider: provider)
+                },
+                onCustomGestureTap: { [weak self] item in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.selectCustomGesture(item, provider: provider)
+                },
+                onCustomGestureSettingsTap: { [weak self] item in
+                    self?.viewModel.openGestureSettings(for: item)
+                },
+                onRotationGestureRemove: { [weak self] index in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.removeRotationGesture(at: index, provider: provider)
+                },
+                onRotationGestureAdd: { [weak self] items in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.updateRotationGestures(items, provider: provider)
+                },
+                onRotationGesturesReorder: { [weak self] items in
+                    guard let self, let provider = self.provider else { return }
+                    self.rotationDebouncer.schedule { [weak self] in
+                        guard let self else { return }
+                        self.viewModel.updateRotationGestures(items, provider: provider)
+                    }
+                },
+                onSprGestureAction: { _ in },
+                onSprAddTap: {}
+            )
+        }
+        configuration = configuration.margins(.vertical, 4)
+        contentConfiguration = configuration
+
+        rotationJob?.cancel(cause: nil)
+        rotationJob = WidgetStateBridge.shared.observeRotationGroup { [weak self] paramRef in
+            self?.updateRotationUI(paramRef, viewModel: viewModel)
+        }
+
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = WidgetStateBridge.shared.observeActiveGesture { [weak self] paramRef in
+            self?.updateActiveGestureUI(paramRef, viewModel: viewModel)
+        }
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cancellable?.cancel()
+        cancellable = nil
+        rotationJob?.cancel(cause: nil)
+        rotationJob = nil
+        activeGestureJob?.cancel(cause: nil)
+        activeGestureJob = nil
+        provider = nil
+        contentConfiguration = nil
+    }
+
+    private func updateRotationUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
+        guard ref.addressDevice == viewModel.widget.deviceAddress,
+              ref.parameterID == viewModel.widget.parameterID,
+              let provider = provider else { return }
+
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let rotationGroup = viewModel.rotationGroup(from: parameter.data, provider: provider)
+        DispatchQueue.main.async { [weak self] in
+            self?.provider?.rotationGroup = rotationGroup
+        }
+    }
+
+    private func updateActiveGestureUI(_ ref: ParameterRef, viewModel: GestureListItemViewModel) {
+        guard viewModel.contains(ref: ref) else { return }
+
+        let parameter = ParameterProvider.Companion()
+            .getParameter(deviceAddress: ref.addressDevice, parameterID: ref.parameterID)
+
+        let data = parameter.data
+        let idHex = String(data.prefix(2))
+        guard let activeGestureId = Int(idHex, radix: 16) else { return }
+
+        let activeGestureTitle =
+            provider?.factoryGestures.first(where: { $0.id == activeGestureId })?.title ??
+            provider?.customGestures.first(where: { $0.id == activeGestureId })?.title
+
+        DispatchQueue.main.async { [weak self] in
+            self?.provider?.activeGestureId = activeGestureId
+            self?.provider?.activeGestureTitle = activeGestureTitle
+        }
+    }
+}

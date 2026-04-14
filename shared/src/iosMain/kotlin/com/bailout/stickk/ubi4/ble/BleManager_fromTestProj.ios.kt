@@ -86,6 +86,9 @@ actual class BleManagerKmm actual constructor() {
     private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
     private var expectedServicesCount = 0
     private var discoveredServicesWithCharacteristics = 0
+    private var reconnectTargetUuid: String? = null
+    private var autoReconnectEnabled = false
+    private var reconnectScanActive = false
 
     @OptIn(ExperimentalForeignApi::class)
     private val delegate = object : NSObject(),
@@ -98,6 +101,8 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","подключение не удалось!!!")
+            BLEState.publishError()
+            startAutoReconnect(didFailToConnectPeripheral)
         }
 
         @ObjCSignatureOverride
@@ -107,12 +112,21 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","устройство отключено!!!")
+            BLEState.publishDisconnect()
+            startAutoReconnect(didDisconnectPeripheral)
         }
 
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
             // здесь можно отследить включение Bluetooth
-            if (central.state == CBManagerStatePoweredOn && onDeviceCallback != null) {
-                central.scanForPeripheralsWithServices(null, null)
+            if (central.state == CBManagerStatePoweredOn) {
+                if (onDeviceCallback != null) {
+                    central.scanForPeripheralsWithServices(null, null)
+                }
+                if (autoReconnectEnabled && reconnectTargetUuid != null) {
+                    startReconnectScan()
+                }
+            } else {
+                reconnectScanActive = false
             }
         }
 
@@ -131,6 +145,19 @@ actual class BleManagerKmm actual constructor() {
                 discoveredName = resolvedName
             )
             discovered[device.id] = didDiscoverPeripheral
+
+            val targetUuid = reconnectTargetUuid
+            if (autoReconnectEnabled && targetUuid != null && device.id.equals(targetUuid, ignoreCase = true)) {
+                platformLog("[BLE-RECONNECT]", "target device found in scan, reconnecting: ${device.id}")
+                if (reconnectScanActive) {
+                    central.stopScan()
+                    reconnectScanActive = false
+                }
+                BLEState.publishConnecting()
+                central.connectPeripheral(didDiscoverPeripheral, options = null)
+                return
+            }
+
             onDeviceCallback?.invoke(device)
         }
 
@@ -139,8 +166,15 @@ actual class BleManagerKmm actual constructor() {
             didConnectPeripheral: CBPeripheral
         ) {
             platformLog("[BLE-CONNECT]","коннект состоялся!!!")
+            if (reconnectScanActive) {
+                central.stopScan()
+                reconnectScanActive = false
+            }
+            BLEState.publishConnecting()
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
+            reconnectTargetUuid = didConnectPeripheral.identifier.UUIDString()
+            autoReconnectEnabled = true
             didConnectPeripheral.delegate = this
             didNotifyCharacteristicsReady = false
             servicesMass.clear()
@@ -263,14 +297,22 @@ actual class BleManagerKmm actual constructor() {
     }
 
     actual fun connectToDevice(uuid: String) {
-        var connectedDevice: CBPeripheral?
-        discovered.forEach {
-            if (it.value.identifier.UUIDString == uuid) {
-                platformLog("[BLE-CONNECT]","from kmm ALL DEVICES $it сравниваем с ${uuid}")
-                connectedDevice = it.value
-                manager.connectPeripheral(connectedDevice!!, options = null)
-            }
+        reconnectTargetUuid = uuid
+        autoReconnectEnabled = true
+
+        val discoveredPeripheral = discovered.entries
+            .firstOrNull { it.key.equals(uuid, ignoreCase = true) }
+            ?.value
+
+        if (discoveredPeripheral != null) {
+            platformLog("[BLE-CONNECT]","from kmm ALL DEVICES reconnect target found, uuid=$uuid")
+            BLEState.publishConnecting()
+            manager.connectPeripheral(discoveredPeripheral, options = null)
+            return
         }
+
+        platformLog("[BLE-RECONNECT]", "connect target not in discovered cache, starting scan for uuid=$uuid")
+        startReconnectScan()
     }
 
     actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
@@ -283,7 +325,9 @@ actual class BleManagerKmm actual constructor() {
     @Suppress("unused")
     actual fun stopScanKmm() {
         onDeviceCallback = null
-        manager.stopScan()
+        if (!reconnectScanActive) {
+            manager.stopScan()
+        }
     }
 
 
@@ -360,6 +404,7 @@ actual class BleManagerKmm actual constructor() {
     private fun notifyCharacteristicsReadyOnce() {
         if (didNotifyCharacteristicsReady) return
         didNotifyCharacteristicsReady = true
+        BLEState.publishReady()
 
         if (UiState.isInterfaceV3Activated) {
             connectionScope.launch {
@@ -455,5 +500,39 @@ actual class BleManagerKmm actual constructor() {
             sendBytesKmm(BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
             return
         }
+    }
+
+    private fun startAutoReconnect(peripheral: CBPeripheral) {
+        if (!autoReconnectEnabled) {
+            return
+        }
+
+        reconnectTargetUuid = peripheral.identifier.UUIDString()
+        selectedDevice = null
+        connectedDevice = null
+        didNotifyCharacteristicsReady = false
+
+        platformLog("[BLE-RECONNECT]", "start auto reconnect flow for ${peripheral.identifier.UUIDString()}")
+
+        if (manager.state != CBManagerStatePoweredOn) {
+            platformLog("[BLE-RECONNECT]", "bluetooth is not powered on, waiting for state update")
+            return
+        }
+
+        BLEState.publishConnecting()
+        manager.connectPeripheral(peripheral, options = null)
+        startReconnectScan()
+    }
+
+    private fun startReconnectScan() {
+        if (manager.state != CBManagerStatePoweredOn) {
+            reconnectScanActive = false
+            return
+        }
+        if (reconnectScanActive) return
+
+        manager.scanForPeripheralsWithServices(null, null)
+        reconnectScanActive = true
+        platformLog("[BLE-RECONNECT]", "scan started for auto reconnect target=$reconnectTargetUuid")
     }
 }

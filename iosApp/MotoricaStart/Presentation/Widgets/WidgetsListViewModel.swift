@@ -129,7 +129,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         case WidgetV3Support.WidgetCode.switchV3:
             return .switcherV3(SwitcherListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.gesturesV3:
-            return .gestureOptic(
+            return .gestureOpticV3(
                 GestureListItemViewModel(
                     widget: widget,
                     bleManager: bleManager,
@@ -276,6 +276,7 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case sliderV3(SliderListItemViewModelV3)
     case `switch`(SwitchListItemViewModel)
     case gestureOptic(GestureListItemViewModel)
+    case gestureOpticV3(GestureListItemViewModel)
     case spinnerV3(SpinnerListItemViewModelV3)
     case toggleSliderV3(ToggleSliderListItemViewModelV3)
     case switcherV3(SwitcherListItemViewModelV3)

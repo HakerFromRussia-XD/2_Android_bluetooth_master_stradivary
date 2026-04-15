@@ -134,7 +134,7 @@ import shared
                     let cell = tableView.dequeueReusableCell(
                         withIdentifier: PlotViewCell.reuseIdentifier,
                         for: indexPath
-                    ) as! PlotViewCell
+                    ) as! PlotViewCellV3
                     cell.configure(with: vm)
                     return cell
                 case .plotV3(let vm):
@@ -171,6 +171,14 @@ import shared
                     return cell
                 
                 case .gestureOptic(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: GestureViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! GestureViewCell
+                    print("requestGesture title = \(vm.title)")
+                    cell.configure(with: vm)
+                    return cell
+                case .gestureOpticV3(let vm):
                     let cell = tableView.dequeueReusableCell(
                         withIdentifier: GestureViewCellV3.reuseIdentifier,
                         for: indexPath

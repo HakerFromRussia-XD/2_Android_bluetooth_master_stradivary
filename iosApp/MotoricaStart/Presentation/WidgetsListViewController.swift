@@ -2,6 +2,10 @@ import UIKit
 import DGCharts
 import shared
 
+extension Notification.Name {
+    static let v3PausePlotPointRendering = Notification.Name("V3PausePlotPointRendering")
+    static let v3ResumePlotPointRendering = Notification.Name("V3ResumePlotPointRendering")
+}
 
 final class WidgetsListViewController: UIViewController, StoryboardInstantiable, Alertable {
     static var defaultFileName: String { "WidgetsListViewController" }

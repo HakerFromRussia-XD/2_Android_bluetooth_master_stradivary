@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMast
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_GET_EMG_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.synchronized
@@ -76,6 +77,12 @@ actual class BleDeviceKmm
 @OptIn(ExperimentalForeignApi::class)
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class BleManagerKmm actual constructor() {
+    private data class InitRequestV3(
+        val packet: ByteArray,
+        val expectedResponseCommand: Int,
+        val expectedResponseSubcommand: Int
+    )
+
     private var connectedDevice: BleDeviceKmm? = null
     private var onDeviceCallback: ((BleDeviceKmm) -> Unit)? = null
     private val discovered = mutableMapOf<String, CBPeripheral>()
@@ -90,6 +97,12 @@ actual class BleManagerKmm actual constructor() {
     private val connectionScope = MainScope()
     private val pendingNotifyAcks = mutableMapOf<String, CompletableDeferred<Boolean>>()
     private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
+    private val v3InitProgressLock = Any()
+    private val v3InitExpectedResponses = mutableSetOf<String>()
+    private var v3InitProgressTotal: Int = 0
+    private var v3InitProgressCurrent: Int = 0
+    private var v3InitTrackingActive: Boolean = false
+    private var v3InitCompletionEmitted: Boolean = false
     private var expectedServicesCount = 0
     private var discoveredServicesWithCharacteristics = 0
     private var reconnectTargetUuid: String? = null
@@ -189,6 +202,7 @@ actual class BleManagerKmm actual constructor() {
             discoveredServicesWithCharacteristics = 0
             pendingNotifyAcks.clear()
             pendingDeviceDataResponseAck = null
+            resetV3InitProgressTracking()
             didConnectPeripheral.discoverServices(null)
         }
 
@@ -279,6 +293,7 @@ actual class BleManagerKmm actual constructor() {
                     pendingDeviceDataResponseAck?.complete(true)
                 }
                 val bytes = data.toByteArray()
+                handleV3InitResponseProgress(bytes, characteristicUuid)
                 if (UiState.isInterfaceV3Activated) {
                     when (characteristicUuid) {
                         SERIALPORTCHAR_UUID.lowercase() -> BLEState.bleParserV3.parseReceivedData(bytes)
@@ -460,7 +475,6 @@ actual class BleManagerKmm actual constructor() {
         connectionScope.launch {
             UiState.startupInProgress.value = false
             BLEState.bleParserV3.generatedHardcodeWidgets()
-            UiState.widgetsLoadingFlow.emit(Unit)
             initRequestsV3()
         }
     }
@@ -520,6 +534,8 @@ actual class BleManagerKmm actual constructor() {
 
     private suspend fun initRequestsV3() {
         while (true) {
+            resetV3InitProgressTracking()
+
             val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
             if (!serialNotifyEnabled) {
                 platformLog("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
@@ -538,25 +554,184 @@ actual class BleManagerKmm actual constructor() {
                 continue
             }
 
-            sendBytesKmm(BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_SCREEN_TIMEOUT.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(BLECommandsV3.requestWithCommand(GUI_CONTROL.number.toInt(), GMCE_GET_LEFT_RIGHT_HAND.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            sendBytesKmm(
-                BLECommandsV3.requestWithCommand(
+            val initRequests = buildV3InitRequests()
+            startV3InitProgressTracking(initRequests)
+
+            if (initRequests.isEmpty()) {
+                UiState.widgetsLoadingFlow.emit(Unit)
+                return
+            }
+
+            initRequests.forEach { request ->
+                sendBytesKmm(
+                    data = request.packet,
+                    command = SERIALPORTCHAR_UUID,
+                    typeCommand = WRITE
+                ) {}
+            }
+            return
+        }
+    }
+
+    private fun buildV3InitRequests(): List<InitRequestV3> {
+        return listOf(
+            InitRequestV3(
+                packet = BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_THRESHOLD_VALUE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_MODE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MODE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_SCREEN_TIMEOUT.number.toInt()
+                ),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_SCREEN_TIMEOUT.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_LEFT_RIGHT_HAND.number.toInt()
+                ),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_LEFT_RIGHT_HAND.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.requestWithCommand(
                     GUI_CONTROL.number.toInt(),
                     com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_BATTERY.number.toInt()
                 ),
-                SERIALPORTCHAR_UUID,
-                WRITE
-            ) {}
-            sendBytesKmm(BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()), SERIALPORTCHAR_UUID, WRITE) {}
-            return
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_GET_BATTERY.number.toInt()
+            ),
+            InitRequestV3(
+                packet = BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
+            )
+        )
+    }
+
+    private fun resetV3InitProgressTracking() {
+        synchronized(v3InitProgressLock) {
+            v3InitExpectedResponses.clear()
+            v3InitProgressTotal = 0
+            v3InitProgressCurrent = 0
+            v3InitTrackingActive = false
+            v3InitCompletionEmitted = false
         }
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = 0,
+            total = 0
+        )
+    }
+
+    private fun startV3InitProgressTracking(requests: List<InitRequestV3>) {
+        synchronized(v3InitProgressLock) {
+            v3InitExpectedResponses.clear()
+            requests.forEach { request ->
+                v3InitExpectedResponses.add(
+                    v3InitResponseKey(
+                        command = request.expectedResponseCommand,
+                        subcommand = request.expectedResponseSubcommand
+                    )
+                )
+            }
+            v3InitProgressTotal = requests.size
+            v3InitProgressCurrent = 0
+            v3InitTrackingActive = requests.isNotEmpty()
+            v3InitCompletionEmitted = false
+        }
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = 0,
+            total = requests.size
+        )
+    }
+
+    private fun handleV3InitResponseProgress(data: ByteArray, characteristicUuid: String) {
+        if (!UiState.isInterfaceV3Activated) return
+        if (characteristicUuid != SERIALPORTCHAR_UUID.lowercase()) return
+
+        val parsed = parseCommandAndSubcommand(data) ?: return
+        var progressSnapshot: WidgetsLoadingProgress? = null
+        var shouldEmitCompletion = false
+
+        synchronized(v3InitProgressLock) {
+            if (!v3InitTrackingActive) return
+
+            val key = v3InitResponseKey(parsed.first, parsed.second)
+            if (!v3InitExpectedResponses.remove(key)) return
+
+            v3InitProgressCurrent = minOf(v3InitProgressCurrent + 1, v3InitProgressTotal)
+            progressSnapshot = WidgetsLoadingProgress(
+                current = v3InitProgressCurrent,
+                total = v3InitProgressTotal
+            )
+
+            if (v3InitProgressCurrent >= v3InitProgressTotal && !v3InitCompletionEmitted) {
+                v3InitCompletionEmitted = true
+                v3InitTrackingActive = false
+                shouldEmitCompletion = true
+            }
+        }
+
+        progressSnapshot?.let { UiState.widgetsLoadingProgressFlow.value = it }
+
+        if (shouldEmitCompletion) {
+            connectionScope.launch {
+                UiState.widgetsLoadingFlow.emit(Unit)
+            }
+        }
+    }
+
+    private fun parseCommandAndSubcommand(data: ByteArray): Pair<Int, Int>? {
+        if (data.size < 3) return null
+
+        val isLongPacket = (data[0].toInt() and 0x80) != 0
+        val command = data[1].toInt() and 0xFF
+        val subcommandIndex = if (isLongPacket) 5 else 2
+        if (data.size <= subcommandIndex) return null
+
+        val subcommand = data[subcommandIndex].toInt() and 0xFF
+        return command to subcommand
+    }
+
+    private fun v3InitResponseKey(command: Int, subcommand: Int): String {
+        return "$command:$subcommand"
     }
 
     private fun startAutoReconnect(peripheral: CBPeripheral) {

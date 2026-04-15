@@ -70,6 +70,12 @@ import okhttp3.internal.notifyAll
 import java.util.concurrent.ConcurrentHashMap
 
 class BLEController(private val bleManager: BleManagerKmm) {
+    private data class V3InitRequest(
+        val packet: ByteArray,
+        val expectedResponseCommand: Int,
+        val expectedResponseSubcommand: Int
+    )
+
     private val mContext: Context = main.applicationContext
     private var mBLEParser: BLEParser? = null
     private var mBLEParserV3: BLEParserV3? = null
@@ -106,6 +112,12 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private val pendingNotifyAcks = ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
     @Volatile
     private var pendingDeviceDataResponseAck: CompletableDeferred<Boolean>? = null
+    private val v3InitProgressLock = Any()
+    private val v3InitExpectedResponses = mutableSetOf<String>()
+    private var v3InitProgressTotal: Int = 0
+    private var v3InitProgressCurrent: Int = 0
+    private var v3InitTrackingActive: Boolean = false
+    private var v3InitCompletionEmitted: Boolean = false
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -441,6 +453,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private fun parseReceivedDataV3(data: ByteArray?) {
         if (data == null) { return }
         runCatching {
+            handleV3InitResponseProgress(data)
             mBLEParserV3?.parseReceivedData(data)
         }.onFailure { t ->
             main.showToast("ошибка парсинга в mBLEParserV3")
@@ -720,72 +733,49 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     private suspend fun initRequestsV3() {
-        // 1) Поднимаем NOTIFY 1
-        val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
-        if (!serialNotifyEnabled) {
-            Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
-            main.showToast("Не включилась notify SERIALPORTCHAR_UUID")
-            initRequestsV3()
-        } else {
-            // 2) Запрашиваем информацию по девайсам и дожидаемся первого ответа
+        while (true) {
+            resetV3InitProgressTracking()
+
+            val serialNotifyEnabled = enableNotifyAndAwaitResponse(SERIALPORTCHAR_UUID)
+            if (!serialNotifyEnabled) {
+                Log.w("BLEParserV3", "Не удалось подтвердить включение notify для SERIALPORTCHAR_UUID")
+                main.showToast("Не включилась notify SERIALPORTCHAR_UUID")
+                continue
+            }
+
             val gotDeviceDataResponse = requestDeviceDataAndAwaitResponse()
             if (!gotDeviceDataResponse) {
                 Log.w("BLEParserV3", "Ответ на requestDeviceData() не получен до включения MAIN_CHANNEL notify")
                 main.showToast("Нет ответа requestDeviceData(), повторяем запрос")
-                initRequestsV3()
-            } else {
-                // 3) Поднимаем NOTIFY 2
-                val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
-                    main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-                    Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
-                }
-                if (!mainChannelNotifyEnabled) {
-                    Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
-                    main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
-                    initRequestsV3()
-                } else {
-                    main.bleCommandWithQueue(
-                        request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_GAIN_VALUE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MODE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(EMG_MASTER_CONTROL.number.toInt(), EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_SCREEN_TIMEOUT.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_BATTERY.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                    main.bleCommandWithQueue(
-                        request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
-                        SERIALPORTCHAR_UUID,
-                        WRITE){}
-                }
+                continue
             }
+
+            val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
+                main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+                Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
+            }
+            if (!mainChannelNotifyEnabled) {
+                Log.w("BLEParserV3", "Не удалось подтвердить включение notify для MAIN_CHANNEL_CHARACTERISTIC")
+                main.showToast("Не включилась notify MAIN_CHANNEL_CHARACTERISTIC")
+                continue
+            }
+
+            val initRequests = buildV3InitRequests()
+            startV3InitProgressTracking(initRequests)
+
+            if (initRequests.isEmpty()) {
+                UiState.widgetsLoadingFlow.tryEmit(Unit)
+                return
+            }
+
+            initRequests.forEach { request ->
+                main.bleCommandWithQueue(
+                    request.packet,
+                    SERIALPORTCHAR_UUID,
+                    WRITE
+                ) {}
+            }
+            return
         }
     }
 
@@ -793,7 +783,6 @@ class BLEController(private val bleManager: BleManagerKmm) {
         main.lifecycleScope.launch {
             initRequestsV3()
             UiState.fullInitInProgress.value = false
-            UiState.widgetsLoadingFlow.tryEmit(Unit)
         }
     }
     fun setOnNeedFullInitListener(listener: () -> Unit) {
@@ -809,5 +798,155 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     internal fun setReconnectThreadFlag(reconnectThreadFlag: Boolean) {
         this.reconnectThreadFlag = reconnectThreadFlag
+    }
+
+    private fun buildV3InitRequests(): List<V3InitRequest> {
+        return listOf(
+            V3InitRequest(
+                packet = request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_THRESHOLD_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_MODE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    EMG_MASTER_CONTROL.number.toInt(),
+                    EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+                ),
+                expectedResponseCommand = EMG_MASTER_CONTROL.number.toInt(),
+                expectedResponseSubcommand = EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_CHANGE_GESTURE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_SCREEN_TIMEOUT.number.toInt()
+                ),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_SCREEN_TIMEOUT.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_LEFT_RIGHT_HAND.number.toInt()
+                ),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_LEFT_RIGHT_HAND.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    GUI_CONTROL.number.toInt(),
+                    GMCE_GET_BATTERY.number.toInt()
+                ),
+                expectedResponseCommand = GUI_CONTROL.number.toInt(),
+                expectedResponseSubcommand = GMCE_GET_BATTERY.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
+            )
+        )
+    }
+
+    private fun resetV3InitProgressTracking() {
+        synchronized(v3InitProgressLock) {
+            v3InitExpectedResponses.clear()
+            v3InitProgressTotal = 0
+            v3InitProgressCurrent = 0
+            v3InitTrackingActive = false
+            v3InitCompletionEmitted = false
+        }
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(current = 0, total = 0)
+    }
+
+    private fun startV3InitProgressTracking(requests: List<V3InitRequest>) {
+        synchronized(v3InitProgressLock) {
+            v3InitExpectedResponses.clear()
+            requests.forEach { request ->
+                v3InitExpectedResponses.add(v3InitResponseKey(request.expectedResponseCommand, request.expectedResponseSubcommand))
+            }
+            v3InitProgressTotal = requests.size
+            v3InitProgressCurrent = 0
+            v3InitTrackingActive = requests.isNotEmpty()
+            v3InitCompletionEmitted = false
+        }
+        UiState.widgetsLoadingProgressFlow.value = WidgetsLoadingProgress(
+            current = 0,
+            total = requests.size
+        )
+    }
+
+    private fun handleV3InitResponseProgress(data: ByteArray) {
+        if (!UiState.isInterfaceV3Activated) return
+
+        val parsed = parseCommandAndSubcommand(data) ?: return
+        var progressSnapshot: WidgetsLoadingProgress? = null
+        var shouldEmitCompletion = false
+
+        synchronized(v3InitProgressLock) {
+            if (!v3InitTrackingActive) return
+
+            val key = v3InitResponseKey(parsed.first, parsed.second)
+            if (!v3InitExpectedResponses.remove(key)) return
+
+            v3InitProgressCurrent = (v3InitProgressCurrent + 1).coerceAtMost(v3InitProgressTotal)
+            progressSnapshot = WidgetsLoadingProgress(
+                current = v3InitProgressCurrent,
+                total = v3InitProgressTotal
+            )
+
+            if (v3InitProgressCurrent >= v3InitProgressTotal && !v3InitCompletionEmitted) {
+                v3InitCompletionEmitted = true
+                v3InitTrackingActive = false
+                shouldEmitCompletion = true
+            }
+        }
+
+        progressSnapshot?.let { UiState.widgetsLoadingProgressFlow.value = it }
+
+        if (shouldEmitCompletion) {
+            UiState.widgetsLoadingFlow.tryEmit(Unit)
+        }
+    }
+
+    private fun parseCommandAndSubcommand(data: ByteArray): Pair<Int, Int>? {
+        if (data.size < 3) return null
+
+        val isLongPacket = (data[0].toInt() and 0x80) != 0
+        val command = data[1].toInt() and 0xFF
+        val subcommandIndex = if (isLongPacket) 5 else 2
+        if (data.size <= subcommandIndex) return null
+
+        val subcommand = data[subcommandIndex].toInt() and 0xFF
+        return command to subcommand
+    }
+
+    private fun v3InitResponseKey(command: Int, subcommand: Int): String {
+        return "$command:$subcommand"
     }
 }

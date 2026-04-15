@@ -249,11 +249,12 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             if (error != null) {
-                println("Ошибка записи: ${error.localizedDescription}")
+                platformLog("[V3-SLIDER][BLE-WRITE]", "write error=${error.localizedDescription}")
             } else {
                 didWriteValueForCharacteristic.value?.let { data: NSData ->
                     platformLog("sendBytesKmm", "Тут запись завершена успешно: ${EncodeByteToHex.bytesToHexString(data.toByteArray())}")
                 }
+                platformLog("[V3-SLIDER][BLE-WRITE]", "write success characteristic=${didWriteValueForCharacteristic.UUID.UUIDString()}")
 //                onChunkSent?.invoke()
                 val callback = synchronized(chunkCallbackLock) {
                     if (onChunkSentQueue.isNotEmpty()) onChunkSentQueue.removeFirst() else null
@@ -352,6 +353,10 @@ actual class BleManagerKmm actual constructor() {
         synchronized(chunkCallbackLock) {
             onChunkSentQueue.addLast(onChunkSent)
         }
+        platformLog(
+            "[V3-SLIDER][BLE-QUEUE]",
+            "enqueue command=$command type=$typeCommand payload=${EncodeByteToHex.bytesToHexString(data)} queueSize=${onChunkSentQueue.size}"
+        )
         bleCommandExecutor.bleCommandWithQueue(data, command, typeCommand, onChunkSent)
     }
 
@@ -376,12 +381,22 @@ actual class BleManagerKmm actual constructor() {
         onChunkSent: () -> Unit
     ) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
+        val normalizedCommand = command.lowercase()
+        platformLog(
+            "[V3-SLIDER][BLE-DISPATCH]",
+            "dispatch command=$command type=$typeCommand payload=$receiveDataString charsCount=${characteristicsMass.size}"
+        )
+
+        var foundCharacteristic = false
         characteristicsMass.forEach { c ->
-//            platformLog(
-//                "sendBytesKmm",
-//                "characteristicsMass = ${c.UUID.UUIDString()} сравниваем с ${command.uppercase()}"
-//            )
-            if (c.UUID.UUIDString() == command.uppercase()) {
+            val characteristicUuid = c.UUID.UUIDString()
+            val normalizedCharacteristicUuid = characteristicUuid.lowercase()
+            if (normalizedCharacteristicUuid == normalizedCommand) {
+                foundCharacteristic = true
+                platformLog(
+                    "[V3-SLIDER][BLE-DISPATCH]",
+                    "matched characteristic=$characteristicUuid for command=$command"
+                )
                 when (typeCommand) {
                     READ -> {
                         platformLog("sendBytesKmm", "читаем данные: $receiveDataString")
@@ -398,6 +413,14 @@ actual class BleManagerKmm actual constructor() {
                     }
                 }
             }
+        }
+
+        if (!foundCharacteristic) {
+            val available = characteristicsMass.joinToString(separator = ",") { it.UUID.UUIDString() }
+            platformLog(
+                "[V3-SLIDER][BLE-DISPATCH]",
+                "NO_MATCH command=$command type=$typeCommand available=[$available] payload=$receiveDataString"
+            )
         }
     }
 

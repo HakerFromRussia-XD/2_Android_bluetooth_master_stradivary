@@ -7,170 +7,52 @@ struct SliderListItemViewModel: Equatable, Hashable {
     let title: String
     let title_2: String
     let parameterInfoSet: Set<ParameterInfoData>
-    var paramCount: Int
+    let showSecondSlider: Bool
     let widget: Widget
     let bleManager: BleManagerKmm
-    private let primaryBinding: WidgetV3BindingInfo?
-    private let primaryDataOffset: Int
 }
 
 extension SliderListItemViewModel {
     init(widget: Widget, showSecondSlider: Bool = false, bleManager: BleManagerKmm) {
+        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.title_2 = widget.title_2 ?? ""
-        let parameterInfoSet = ParameterInfoData.makeSet(
+        self.parameterInfoSet = ParameterInfoData.makeSet(
             from: widget.sliderUnified?.baseParameterWidgetStruct?.parameterInfoSet
         )
-        self.parameterInfoSet = parameterInfoSet
-        self.paramCount = parameterInfoSet.count
+        self.showSecondSlider = showSecondSlider || parameterInfoSet.count > 1
         self.widget = widget
         self.bleManager = bleManager
-        let sortedBindings = WidgetV3Support.bindings(from: widget)
-            .sorted { lhs, rhs in
-                if lhs.dataOffset != rhs.dataOffset { return lhs.dataOffset < rhs.dataOffset }
-                if lhs.parameterID != rhs.parameterID { return lhs.parameterID < rhs.parameterID }
-                if lhs.dataCode != rhs.dataCode { return lhs.dataCode < rhs.dataCode }
-                return lhs.deviceAddress < rhs.deviceAddress
-            }
-        self.primaryBinding = sortedBindings.first
-        self.primaryDataOffset = sortedBindings.first?.dataOffset
-            ?? parameterInfoSet.sorted(by: { $0.dataOffset < $1.dataOffset }).first?.dataOffset
-            ?? 0
-        let widgetPosition = WidgetMetadataExtractor
-            .extractBaseStruct(from: widget.widget?.value)?
-            .widgetPosition ?? -1
-        if let primaryBinding {
-            self.identifier = "\(widgetPosition)-\(primaryBinding.deviceAddress)-\(primaryBinding.parameterID)-\(primaryBinding.dataCode)-\(primaryDataOffset)-slider"
-        } else {
-            self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-slider"
-        }
     }
 
     func contains(ref: ParameterRef) -> Bool {
-        parameterInfoSet.contains {
-            $0.deviceAddress == ref.addressDevice &&
-            $0.parameterID == ref.parameterID
+        if parameterInfoSet.isEmpty {
+            return ref.addressDevice == widget.deviceAddress && ref.parameterID == widget.parameterID
         }
-    }
-
-    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
         return parameterInfoSet.contains {
-            $0.deviceAddress == snapshot.addressDevice &&
-            $0.parameterID == snapshot.parameterID &&
-            $0.dataCode == snapshot.dataCode
+            $0.deviceAddress == ref.addressDevice && $0.parameterID == ref.parameterID
         }
-    }
-
-    func sliderValues(from snapshot: ParameterSnapshotV3Bridge) -> [Int]? {
-        if snapshot.codecId == "EMG_GAINS" {
-            guard
-                let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
-                let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain")
-            else {
-                return nil
-            }
-
-            if paramCount > 1 {
-                return [openGain, closeGain]
-            }
-
-            return [gainForCurrentWidget(open: openGain, close: closeGain)]
-        }
-
-        if snapshot.codecId == "SLIDER" {
-            guard let sliderValue = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "sliderValue") else {
-                return nil
-            }
-            return [sliderValue]
-        }
-
-        return nil
     }
 
     func requestSlider() {
         guard Self.requestTracker.shouldRequest(for: identifier) else { return }
-        let data: KotlinByteArray
-        if let primaryBinding {
-            guard let mapped = WidgetCommandBridgeV3.shared.buildReadRequest(
-                parameterID: Int32(primaryBinding.parameterID),
-                dataCode: Int32(primaryBinding.dataCode)
-            ) else { return }
-            data = mapped
-        } else {
-            let targetAddress = Int32(widget.deviceAddress)
-            let targetParameterID = Int32(widget.parameterID)
-            data = BLECommands.shared.requestSlider(
-                addressDevice: targetAddress,
-                parameterID: targetParameterID
-            )
-        }
-        
+        let data = BLECommands.shared.requestSlider(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID)
+        )
         sendBytes(data)
-        print("[request] requestSlider")
     }
-    func sendSliderProgress (progress: [KotlinInt]) {
-        let data: KotlinByteArray
-        if let primaryBinding {
-            let valueIndex = primaryBinding.dataOffset == 1 ? 1 : 0
-            let fallbackValue = Int(progress.first?.intValue ?? 0)
-            let sliderValue = progress.indices.contains(valueIndex)
-                ? Int(progress[valueIndex].intValue)
-                : fallbackValue
 
-            guard let encoded = WidgetCommandBridgeV3.shared.buildSetInt(
-                parameterID: Int32(primaryBinding.parameterID),
-                dataCode: Int32(primaryBinding.dataCode),
-                deviceAddress: Int32(primaryBinding.deviceAddress),
-                dataOffset: Int32(primaryBinding.dataOffset),
-                value: Int32(sliderValue)
-            ) else { return }
-            data = encoded
-        } else {
-            let targetAddress = Int32(widget.deviceAddress)
-            let targetParameterID = Int32(widget.parameterID)
-            data = BLECommands.shared.sendSliderCommand(
-                addressDevice: targetAddress,
-                parameterID: targetParameterID,
-                progress: progress
-            )
-        }
-        
+    func sendSliderProgress(progress: [KotlinInt]) {
+        let data = BLECommands.shared.sendSliderCommand(
+            addressDevice: Int32(widget.deviceAddress),
+            parameterID: Int32(widget.parameterID),
+            progress: progress
+        )
         sendBytes(data)
-    }
-    private func sendBytes (_ data: KotlinByteArray) {
-        let gatt = SampleGattAttributes()
-        print("sendBytesKmm  iOS  отправляем данные: \(data.hexString)  из SliderListItemViewModel")
-        bleManager.sendBytesKmm(
-            data: data,
-            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
-            typeCommand: gatt.WRITE,
-            onChunkSent: {})
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(identifier)
-        hasher.combine(title)
-    }
-    static func == (lhs: SliderListItemViewModel, rhs: SliderListItemViewModel) -> Bool {
-        lhs.identifier == rhs.identifier
-        && lhs.title == rhs.title
-    }
-    
-    static func resetRequestCache() {
-        requestTracker.reset()
     }
 
     func cachedSliderValues() -> [Float]? {
-        if let primaryBinding,
-           let snapshot = WidgetStateBridgeV3.shared.getCurrent(
-                addressDevice: Int32(primaryBinding.deviceAddress),
-                parameterID: Int32(primaryBinding.parameterID),
-                dataCode: Int32(primaryBinding.dataCode)
-           ),
-           let values = sliderValues(from: snapshot) {
-            return values.map(Float.init)
-        }
-
         let parameter = ParameterProvider.Companion()
             .getParameter(
                 deviceAddress: Int32(widget.deviceAddress),
@@ -201,7 +83,7 @@ extension SliderListItemViewModel {
 
         var values: [Int] = []
         var currentIndex = hex.startIndex
-        let valuesCount = max(paramCount, primaryDataOffset + 1, 1)
+        let valuesCount = showSecondSlider ? 2 : 1
 
         for _ in 0..<valuesCount {
             guard hex.distance(from: currentIndex, to: hex.endIndex) >= chunkLength else { break }
@@ -212,20 +94,31 @@ extension SliderListItemViewModel {
             currentIndex = nextIndex
         }
 
-        if paramCount > 1 {
-            return values
-        }
-
-        let selected = primaryDataOffset < values.count
-            ? values[primaryDataOffset]
-            : values.first
-        return selected.map { [$0] }
+        if showSecondSlider { return values }
+        return values.first.map { [$0] }
     }
-}
 
-private extension SliderListItemViewModel {
-    func gainForCurrentWidget(open: Int, close: Int) -> Int {
-        primaryDataOffset == 1 ? close : open
+    private func sendBytes(_ data: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+        hasher.combine(title)
+    }
+
+    static func == (lhs: SliderListItemViewModel, rhs: SliderListItemViewModel) -> Bool {
+        lhs.identifier == rhs.identifier && lhs.title == rhs.title
+    }
+
+    static func resetRequestCache() {
+        requestTracker.reset()
     }
 }
 
@@ -253,13 +146,227 @@ private extension SliderListItemViewModel {
     }
 }
 
+struct SliderListItemViewModelV3: Equatable, Hashable {
+    private let identifier: String
+    private let emgGainsKey: String
+    let title: String
+    let title_2: String
+    let widget: Widget
+    let bleManager: BleManagerKmm
+    let binding: WidgetV3BindingInfo?
+    let minProgress: Int
+    let maxProgress: Int
+}
+
+extension SliderListItemViewModelV3 {
+    init(widget: Widget, bleManager: BleManagerKmm) {
+        self.title = widget.title ?? ""
+        self.title_2 = widget.title_2 ?? ""
+        self.widget = widget
+        self.bleManager = bleManager
+        self.binding = WidgetV3Support.primaryBinding(from: widget)
+
+        let rawMin = Int(widget.sliderUnified?.minProgress ?? 0)
+        let rawMax = Int(widget.sliderUnified?.maxProgress ?? 100)
+        if rawMax > rawMin {
+            self.minProgress = rawMin
+            self.maxProgress = rawMax
+        } else {
+            // Некоторые V3-виджеты приходят с диапазоном 0...0, тогда блокируется отправка (clamp -> 0).
+            // Для таких случаев используем безопасный рабочий диапазон.
+            self.minProgress = 0
+            self.maxProgress = 100
+            print(
+                "[V3-SLIDER][VM] normalizeRange fallback applied rawMin=\(rawMin) rawMax=\(rawMax) -> 0...100"
+            )
+        }
+
+        let widgetPosition = WidgetMetadataExtractor
+            .extractBaseStruct(from: widget.widget?.value)?
+            .widgetPosition ?? -1
+        if let binding {
+            self.identifier = "\(widgetPosition)-\(binding.deviceAddress)-\(binding.parameterID)-\(binding.dataCode)-\(binding.dataOffset)-slider-v3"
+            self.emgGainsKey = "\(binding.deviceAddress)-\(binding.parameterID)-\(binding.dataCode)-emg-gains"
+        } else {
+            self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-slider-v3"
+            self.emgGainsKey = "\(widget.deviceAddress)-\(widget.parameterID)-emg-gains"
+        }
+    }
+
+    func requestCurrent() {
+        guard let binding else {
+            print("[V3-SLIDER][VM] requestCurrent skipped: binding is nil")
+            return
+        }
+        guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode)
+        ) else {
+            print("[V3-SLIDER][VM] requestCurrent failed: buildReadRequest returned nil, binding=\(binding)")
+            return
+        }
+        print("[V3-SLIDER][VM] requestCurrent binding=\(binding) bytes=\(data.hexString)")
+        sendBytes(data)
+    }
+
+    func sendSliderValue(_ value: Int) {
+        guard let binding else {
+            print("[V3-SLIDER][VM] sendSliderValue skipped: binding is nil, value=\(value)")
+            return
+        }
+        let clampedValue = min(max(value, minProgress), maxProgress)
+        print("[V3-SLIDER][VM] sendSliderValue raw=\(value) clamped=\(clampedValue) binding=\(binding)")
+        let currentEmgGains = resolveCurrentEmgGains()
+        let isEmgGainBinding =
+            binding.parameterID == ParameterCode.emgMasterControlV3 &&
+            binding.dataCode == ParameterCode.emgGainSetV3
+        if isEmgGainBinding && currentEmgGains == nil {
+            print("[V3-SLIDER][VM] sendSliderValue skipped: EMG_GAINS current pair is unknown, requesting current first")
+            requestCurrent()
+            return
+        }
+        if currentEmgGains != nil || isEmgGainBinding {
+            let fallbackOpen = currentEmgGains?.open ?? clampedValue
+            let fallbackClose = currentEmgGains?.close ?? clampedValue
+            let openGain = binding.dataOffset == 0 ? clampedValue : fallbackOpen
+            let closeGain = binding.dataOffset == 1 ? clampedValue : fallbackClose
+            EmgGainsCache.store(key: emgGainsKey, open: openGain, close: closeGain)
+            let data = WidgetCommandBridgeV3.shared.buildSendEmgGains(
+                openGain: Int32(openGain),
+                closeGain: Int32(closeGain)
+            )
+            print(
+                "[V3-SLIDER][VM] sendSliderValue EMG_GAINS AndroidParity open=\(openGain) close=\(closeGain) bytes=\(data.hexString)"
+            )
+            sendBytes(data)
+            return
+        }
+        if let snapshot = currentSnapshot() {
+            print("[V3-SLIDER][VM] sendSliderValue codec=\(snapshot.codecId) -> buildSetInt path")
+        } else {
+            print("[V3-SLIDER][VM] sendSliderValue snapshot is nil -> buildSetInt path")
+        }
+        guard let data = WidgetCommandBridgeV3.shared.buildSetInt(
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode),
+            deviceAddress: Int32(binding.deviceAddress),
+            dataOffset: Int32(binding.dataOffset),
+            value: Int32(clampedValue)
+        ) else {
+            print("[V3-SLIDER][VM] sendSliderValue failed: buildSetInt returned nil, binding=\(binding)")
+            return
+        }
+        print("[V3-SLIDER][VM] sendSliderValue encoded bytes=\(data.hexString)")
+        sendBytes(data)
+    }
+
+    func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
+        guard let binding else { return false }
+        return snapshot.addressDevice == Int32(binding.deviceAddress)
+            && snapshot.parameterID == Int32(binding.parameterID)
+            && snapshot.dataCode == Int32(binding.dataCode)
+    }
+
+    func sliderValue(from snapshot: ParameterSnapshotV3Bridge) -> Int? {
+        if snapshot.codecId == "EMG_GAINS" {
+            guard
+                let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
+                let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain")
+            else {
+                return nil
+            }
+            EmgGainsCache.store(key: emgGainsKey, open: openGain, close: closeGain)
+            return (binding?.dataOffset == 1) ? closeGain : openGain
+        }
+
+        if snapshot.codecId == "SLIDER" {
+            return V3SnapshotParser.intField(from: snapshot.serializedValue, field: "sliderValue")
+        }
+
+        return nil
+    }
+
+    func currentSliderValue() -> Int? {
+        guard let snapshot = currentSnapshot() else { return nil }
+        return sliderValue(from: snapshot)
+    }
+
+    private func currentSnapshot() -> ParameterSnapshotV3Bridge? {
+        guard let binding else { return nil }
+        return WidgetStateBridgeV3.shared.getCurrent(
+            addressDevice: Int32(binding.deviceAddress),
+            parameterID: Int32(binding.parameterID),
+            dataCode: Int32(binding.dataCode)
+        )
+    }
+
+    private func resolveCurrentEmgGains() -> (open: Int, close: Int)? {
+        // Важный порядок: сначала локальный кэш, чтобы не перетира́ть только что отправленную
+        // пару старым snapshot'ом, который мог прийти с задержкой.
+        if let cached = EmgGainsCache.read(key: emgGainsKey) {
+            return cached
+        }
+
+        if let snapshot = currentSnapshot(),
+           snapshot.codecId == "EMG_GAINS",
+           let openGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "openGain"),
+           let closeGain = V3SnapshotParser.intField(from: snapshot.serializedValue, field: "closeGain") {
+            EmgGainsCache.store(key: emgGainsKey, open: openGain, close: closeGain)
+            return (openGain, closeGain)
+        }
+        return nil
+    }
+
+    private func sendBytes(_ data: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        print("[V3-SLIDER][VM] sendBytes command=\(gatt.SERIALPORTCHAR_UUID) type=\(gatt.WRITE) bytes=\(data.hexString)")
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+        hasher.combine(title)
+    }
+
+    static func == (lhs: SliderListItemViewModelV3, rhs: SliderListItemViewModelV3) -> Bool {
+        lhs.identifier == rhs.identifier && lhs.title == rhs.title
+    }
+}
+
+private extension SliderListItemViewModelV3 {
+    enum ParameterCode {
+        static let emgMasterControlV3 = 0x12
+        static let emgGainSetV3 = 0x01
+    }
+
+    final class EmgGainsCache {
+        private static var values: [String: (open: Int, close: Int)] = [:]
+        private static let lock = NSLock()
+
+        static func store(key: String, open: Int, close: Int) {
+            lock.lock()
+            values[key] = (open, close)
+            lock.unlock()
+        }
+
+        static func read(key: String) -> (open: Int, close: Int)? {
+            lock.lock()
+            defer { lock.unlock() }
+            return values[key]
+        }
+    }
+}
+
 extension KotlinByteArray {
-    /// Тот же результат, что и Kotlin bytesToHexString(ByteArray)
     var hexString: String {
         var s = String()
         s.reserveCapacity(Int(self.size) * 2)
         for i in 0..<Int(self.size) {
-            // ВАЖНО: UInt8(bitPattern:) убирает знак (аналог 0xFF and ...)
             let b = UInt8(bitPattern: self.get(index: Int32(i)))
             s.append(String(format: "%02x", b))
         }

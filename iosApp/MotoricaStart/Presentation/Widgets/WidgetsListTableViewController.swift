@@ -92,6 +92,10 @@ import shared
             forCellReuseIdentifier: SliderViewCell.reuseIdentifier
         )
         tableView.register(
+            SliderViewCellV3.self,
+            forCellReuseIdentifier: SliderViewCellV3.reuseIdentifier
+        )
+        tableView.register(
             SpinnerViewCellV3.self,
             forCellReuseIdentifier: SpinnerViewCellV3.reuseIdentifier
         )
@@ -133,6 +137,13 @@ import shared
                     ) as! PlotViewCell
                     cell.configure(with: vm)
                     return cell
+                case .plotV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: PlotViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! PlotViewCellV3
+                    cell.configure(with: vm)
+                    return cell
 
                 case .slider(let vm):
                     let cell = tableView.dequeueReusableCell(
@@ -140,6 +151,13 @@ import shared
                         for: indexPath
                     ) as! SliderViewCell
                     print("requestSlider  внешний configure title = \(vm.title)")
+                    cell.configure(with: vm)
+                    return cell
+                case .sliderV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: SliderViewCellV3.reuseIdentifier,
+                        for: indexPath
+                    ) as! SliderViewCellV3
                     cell.configure(with: vm)
                     return cell
 

@@ -83,6 +83,8 @@
 		652E6AB72E8BDDD8007E84EE /* WidgetsTabContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */; };
 		652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */; };
 		652E6ABF2E8EC8CE007E84EE /* SwitchViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */; };
+		6547F5132F8E86E2009E2575 /* SliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6547F5122F8E86D9009E2575 /* SliderViewCellV3.swift */; };
+		6547F5152F8E8721009E2575 /* GestureViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6547F5142F8E871F009E2575 /* GestureViewCellV3.swift */; };
 		654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
 		654FEF7B2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */; };
@@ -115,6 +117,8 @@
 		659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */; };
 		65A053342E58A16A0057474E /* StepButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A053332E58A16A0057474E /* StepButton.swift */; };
 		65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 65A2A0D02E6F1E2F00D57E7C /* DGCharts */; settings = {ATTRIBUTES = (Required, ); }; };
+		65AA00012F8F000100AAA001 /* PlotViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */; };
+		65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
@@ -202,7 +206,7 @@
 
 /* Begin PBXFileReference section */
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
-		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = MotoricaStart/Presentation/Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
+		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
 		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
 		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
@@ -282,6 +286,8 @@
 		652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchListItemViewModel.swift; sourceTree = "<group>"; };
 		652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchViewCell.swift; sourceTree = "<group>"; };
 		6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Shared.xcframework; path = SharedPackage/Shared.xcframework; sourceTree = "<group>"; };
+		6547F5122F8E86D9009E2575 /* SliderViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderViewCellV3.swift; sourceTree = "<group>"; };
+		6547F5142F8E871F009E2575 /* GestureViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCellV3.swift; sourceTree = "<group>"; };
 		654FEF782E37B39E0009E524 /* WidgetsListViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = WidgetsListViewController.storyboard; sourceTree = "<group>"; };
 		65519BE82DF31E37006E985F /* sf_pro_display_light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sf_pro_display_light.otf; sourceTree = "<group>"; };
 		655830312DBBAE8F00744D5C /* ScanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanItem.swift; sourceTree = "<group>"; };
@@ -307,7 +313,9 @@
 		659A45B52DB92E0F002BE2BC /* BluetoothList.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = BluetoothList.storyboard; sourceTree = "<group>"; };
 		65A053332E58A16A0057474E /* StepButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepButton.swift; sourceTree = "<group>"; };
 		65A069312E6EFD9500990F76 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
-		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
+		65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotViewCellV3.swift; sourceTree = "<group>"; };
+		65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModelV3.swift; sourceTree = "<group>"; };
+		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetsListViewModelActions.swift; path = ../../WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
@@ -363,7 +371,7 @@
 		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerViewCellV3.swift; sourceTree = "<group>"; };
 		E6E882E600C188FAACCC417D /* ObservableTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
 		F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerListItemViewModelV3.swift; sourceTree = "<group>"; };
-		FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetV3Support.swift; path = MotoricaStart/Presentation/Widgets/V3/WidgetV3Support.swift; sourceTree = "<group>"; };
+		FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetV3Support.swift; path = Widgets/V3/WidgetV3Support.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
@@ -529,9 +537,6 @@
 				1F02DE3322F8507500E40C3A /* MotoricaStartUITests */,
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
-				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
-				0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */,
-				FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -665,6 +670,9 @@
 		1FE49D63230AA7C200D1D42E /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */,
+				0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */,
+				FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */,
 				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
@@ -683,11 +691,14 @@
 				652136F42DF82876006AB049 /* Providers */,
 				65F27E952E66046900AD5DFD /* CommandViewCell.swift */,
 				1FE49D73230AA7C200D1D42E /* PlotViewCell.swift */,
+				65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */,
 				65267E862D848DC3005CB7A5 /* SliderViewCell.swift */,
+				6547F5122F8E86D9009E2575 /* SliderViewCellV3.swift */,
 				652E6ABE2E8EC8CE007E84EE /* SwitchViewCell.swift */,
-				65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */,
-				E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */,
 				C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */,
+				65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */,
+				6547F5142F8E871F009E2575 /* GestureViewCellV3.swift */,
+				E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */,
 				2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */,
 				554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */,
 			);
@@ -1028,6 +1039,7 @@
 			children = (
 				65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */,
 				1FFF1AD4243B966600937EE4 /* PlotListItemViewModel.swift */,
+				65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */,
 				65267E882D8490EC005CB7A5 /* SliderListItemViewModel.swift */,
 				652E6ABB2E8EC38D007E84EE /* SwitchListItemViewModel.swift */,
 				65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */,
@@ -1228,34 +1240,34 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-			654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
-				isa = PBXShellScriptBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
-				);
-				inputFileListPaths = (
-				);
-				inputPaths = (
-					"$(SRCROOT)/../build.gradle.kts",
-					"$(SRCROOT)/../settings.gradle.kts",
-					"$(SRCROOT)/../gradle.properties",
-					"$(SRCROOT)/../gradlew",
-					"$(SRCROOT)/../gradle/wrapper/gradle-wrapper.properties",
-					"$(SRCROOT)/../shared/build.gradle.kts",
-					"$(SRCROOT)/../shared/src/commonMain",
-					"$(SRCROOT)/../shared/src/iosMain",
-				);
-				name = "Compile kotlin";
-				outputFileListPaths = (
-				);
-				outputPaths = (
-					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework",
-					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework/Info.plist",
-				);
-				runOnlyForDeploymentPostprocessing = 0;
-				shellPath = /bin/sh;
-				shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
-			};
+		654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../build.gradle.kts",
+				"$(SRCROOT)/../settings.gradle.kts",
+				"$(SRCROOT)/../gradle.properties",
+				"$(SRCROOT)/../gradlew",
+				"$(SRCROOT)/../gradle/wrapper/gradle-wrapper.properties",
+				"$(SRCROOT)/../shared/build.gradle.kts",
+				"$(SRCROOT)/../shared/src/commonMain",
+				"$(SRCROOT)/../shared/src/iosMain",
+			);
+			name = "Compile kotlin";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework",
+				"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework/Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1275,6 +1287,7 @@
 				65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */,
 				1FEED0F02023576A000F4EAA /* Alertable.swift in Sources */,
 				1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */,
+				6547F5152F8E8721009E2575 /* GestureViewCellV3.swift in Sources */,
 				65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */,
 				1FCBB8CE25237D4C007F23DC /* UIViewController+ActivityIndicator.swift in Sources */,
 				652E6ABD2E8EC39F007E84EE /* SwitchListItemViewModel.swift in Sources */,
@@ -1306,6 +1319,7 @@
 				1FFF12A42439F2E700937EE4 /* WidgetsResponseStorage.swift in Sources */,
 				1F2AB951242789B80010DEEE /* WidgetsResponseDTO+Mapping.swift in Sources */,
 				1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */,
+				65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */,
 				65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */,
 				65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */,
 				1FC2C9632301FEC0001AE47E /* WidgetQueryUDS+Mapping.swift in Sources */,
@@ -1329,6 +1343,7 @@
 				65682FC92EB0B3ED00BF2D7A /* GesturesWidgetView.swift in Sources */,
 				1F9034DF2307464700DEA4BD /* WidgetsQueriesStorage.swift in Sources */,
 				1FE49D8A230AA7C200D1D42E /* PlotViewCell.swift in Sources */,
+				65AA00012F8F000100AAA001 /* PlotViewCellV3.swift in Sources */,
 				65682FD02EB257C900BF2D7A /* SwitchRowView.swift in Sources */,
 				65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */,
 				1F1FC48B22E3693100BCBA8D /* Endpoint.swift in Sources */,
@@ -1372,6 +1387,7 @@
 				1FA533B2201EE2A500747E55 /* Widget.swift in Sources */,
 				65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */,
 				9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */,
+				6547F5132F8E86E2009E2575 /* SliderViewCellV3.swift in Sources */,
 				19B079BAF376328CFA27B243 /* WidgetV3Support.swift in Sources */,
 				44BE111C65C4FFCFE50F26C6 /* SpinnerListItemViewModelV3.swift in Sources */,
 				46214BAD4C6C41E5515B0D4F /* SwitcherListItemViewModelV3.swift in Sources */,

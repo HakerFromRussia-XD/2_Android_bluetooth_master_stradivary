@@ -119,9 +119,9 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         case WidgetV3Support.WidgetCode.spinboxV3, WidgetV3Support.WidgetCode.comboboxV3:
             return .spinnerV3(SpinnerListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.sliderV3:
-            return .slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
+            return .sliderV3(SliderListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.plotV3:
-            return .plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
+            return .plotV3(PlotListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.toggleSliderV3:
             return .toggleSliderV3(ToggleSliderListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.textInputV3:
@@ -146,6 +146,9 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         case .sliderWidget:
             return .slider(SliderListItemViewModel(widget: widget, bleManager: bleManager))
         case .plotWidget:
+            if UiInterfaceModeBridgeV3.shared.isEnabled() {
+                return .plotV3(PlotListItemViewModelV3(widget: widget, bleManager: bleManager))
+            }
             return .plot(PlotListItemViewModel(widget: widget, bleManager: bleManager))
         case .switchWidget:
             return .switch(SwitchListItemViewModel(widget: widget, bleManager: bleManager))
@@ -268,7 +271,9 @@ extension KotlinByteArray {
 enum ListItemType: Hashable { // Assistant: добавил Hashable
     case command(CommandListItemViewModel)
     case plot(PlotListItemViewModel)
+    case plotV3(PlotListItemViewModelV3)
     case slider(SliderListItemViewModel)
+    case sliderV3(SliderListItemViewModelV3)
     case `switch`(SwitchListItemViewModel)
     case gestureOptic(GestureListItemViewModel)
     case spinnerV3(SpinnerListItemViewModelV3)

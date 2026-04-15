@@ -524,11 +524,6 @@ class BLEParserV3(
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
         ),"Чувствительность датчика закрытия"))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 1,
-            widgetCode = PWCE_BUTTON_V3.number.toInt(),
-            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
-        ),"Калибровка протеза"))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
             pressedCommand = 0,
@@ -624,6 +619,12 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
         ),"Имя протеза%Записать"))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetCode = PWCE_BUTTON_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
+        ),"Калибровка протеза"))
+
 
         baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
 

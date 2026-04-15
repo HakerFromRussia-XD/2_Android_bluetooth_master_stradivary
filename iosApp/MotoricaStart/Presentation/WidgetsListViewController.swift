@@ -96,6 +96,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] viewWillAppear")
         isViewVisible = true
         PlotListItemViewModel.resetRequestCache()
+        PlotListItemViewModelV3.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
@@ -271,6 +272,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func resetWidgetsStateForResynchronization() {
         UiStateBridge.shared.resetWidgetsState()
         PlotListItemViewModel.resetRequestCache()
+        PlotListItemViewModelV3.resetRequestCache()
         SliderListItemViewModel.resetRequestCache()
         SwitchListItemViewModel.resetRequestCache()
         lastWidgetsSignature = nil

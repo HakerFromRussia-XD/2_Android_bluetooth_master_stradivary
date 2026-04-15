@@ -177,16 +177,18 @@ object WidgetCommandBridgeV3 {
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         action: ParameterCodecActionV3
     ): ByteArray? {
-        val parameterMeta = PreferenceKeysUbi4.ParameterInfoRegistry.getMeta(parameterInfo)
+        val normalizedInfo = normalizeSetParameterInfo(parameterInfo)
+        val parameterMeta = PreferenceKeysUbi4.ParameterInfoRegistry.getMeta(normalizedInfo)
             ?: run {
                 platformLog(
                     "WidgetCommandBridgeV3",
-                    "No parameterMeta for parameterInfo=$parameterInfo"
+                    "No parameterMeta for parameterInfo=$parameterInfo normalized=$normalizedInfo"
                 )
                 return null
             }
 
-        val currentTypedValue = ParameterStoreV3.get(parameterInfo)
+        val currentTypedValue = ParameterStoreV3.get(normalizedInfo)
+            ?: ParameterStoreV3.get(parameterInfo)
         val encodedAction = ParameterCodecRegistryV3.encodeAction(
             codecId = parameterMeta.codecId,
             currentValue = currentTypedValue,
@@ -200,10 +202,53 @@ object WidgetCommandBridgeV3 {
         }
 
         return encodedToPayload(
-            parameterInfo = parameterInfo,
+            parameterInfo = normalizedInfo,
             codecId = parameterMeta.codecId,
             encodedAction = encodedAction
         )
+    }
+
+    private fun normalizeSetParameterInfo(
+        parameterInfo: ParameterInfo<Int, Int, Int, Int>
+    ): ParameterInfo<Int, Int, Int, Int> {
+        val normalizedDataCode = when (parameterInfo.parameterID) {
+            PROSTHESIS_MODULE_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {
+                PWCE_GET_THRESHOLD_VALUE.number.toInt() -> PWCE_SET_THRESHOLD_VALUE.number.toInt()
+                PWCE_GET_EMG_CHANGE_GESTURE.number.toInt() -> PWCE_SET_EMG_CHANGE_GESTURE.number.toInt()
+                PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt() -> PWCE_SET_EMG_MOVEMENT_LOCK.number.toInt()
+                PWCE_GET_HAND_CONTROL_MODE.number.toInt() -> PWCE_SET_HAND_CONTROL_MODE.number.toInt()
+                PWCE_GET_CURRENT_GESTURE_NUM.number.toInt() -> PWCE_SET_CURRENT_GESTURE_NUM.number.toInt()
+                PWCE_GET_GESTURE_GROUPE.number.toInt() -> PWCE_SET_GESTURE_GROUPE.number.toInt()
+                else -> parameterInfo.dataCode
+            }
+            EMG_MASTER_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {
+                EMCE_GET_EMG_GAIN_VALUE.number.toInt() -> EMCE_SET_EMG_GAIN_VALUE.number.toInt()
+                EMCE_GET_EMG_MAX_GAIN_VALUE.number.toInt() -> EMCE_SET_EMG_MAX_GAIN_VALUE.number.toInt()
+                EMCE_GET_EMG_MODE.number.toInt() -> EMCE_SET_EMG_MODE.number.toInt()
+                else -> parameterInfo.dataCode
+            }
+            GUI_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {
+                GMCE_GET_SCREEN_TIMEOUT.number.toInt() -> GMCE_SET_SCREEN_TIMEOUT.number.toInt()
+                GMCE_GET_LEFT_RIGHT_HAND.number.toInt() -> GMCE_SET_LEFT_RIGHT_HAND.number.toInt()
+                else -> parameterInfo.dataCode
+            }
+            DEVICE_INFORMATION.number.toInt() -> when (parameterInfo.dataCode) {
+                GET_DEVICE_NAME.number -> SET_DEVICE_NAME.number
+                else -> parameterInfo.dataCode
+            }
+            else -> parameterInfo.dataCode
+        }
+
+        return if (normalizedDataCode == parameterInfo.dataCode) {
+            parameterInfo
+        } else {
+            ParameterInfo(
+                parameterInfo.parameterID,
+                normalizedDataCode,
+                parameterInfo.deviceAddress,
+                parameterInfo.dataOffsets
+            )
+        }
     }
 
     private fun encodedToPayload(
@@ -232,14 +277,9 @@ object WidgetCommandBridgeV3 {
                 )
             }
             is ParameterEncodedActionV3.EmgGainsValue -> {
-                val data = byteArrayOf(
-                    encodedAction.openGain.toByte(),
-                    encodedAction.closeGain.toByte()
-                )
-                BLECommandsV3.sendLongCommand(
-                    command = parameterInfo.parameterID,
-                    subcommand = parameterInfo.dataCode,
-                    data = data
+                BLECommandsV3.sendGaines(
+                    gainOpen = encodedAction.openGain,
+                    gainClose = encodedAction.closeGain
                 )
             }
         }

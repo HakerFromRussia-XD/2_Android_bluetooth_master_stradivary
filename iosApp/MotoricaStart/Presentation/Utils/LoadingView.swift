@@ -12,30 +12,35 @@ final class LoadingView {
     }
     private static var containerView: LoadingContainerView?
     private static var currentState: State?
-    private static var isObservingOrientationChanges = false
+    private static weak var containerHostView: UIView?
     private static let animationName = "sinchronization"
+    private static let fallbackState = State(
+        message: NSLocalizedString("Синхронизация данных...", comment: ""),
+        progress: 0
+    )
 
-    static func show(state: State) {
+    static func show(state: State = fallbackState, in hostView: UIView? = nil) {
         DispatchQueue.main.async {
-            guard let window = getKeyWindow() else { return }
+            guard let hostView = resolveHostView(preferredHostView: hostView) else { return }
             currentState = state
             
             if containerView == nil {
-                let container = LoadingContainerView(frame: window.bounds, animationName: animationName)
+                let container = LoadingContainerView(frame: hostView.bounds, animationName: animationName)
                 containerView = container
-                window.addSubview(container)
-                container.frame = window.bounds
             }
             
             guard let container = containerView else { return }
             
-            if container.superview == nil {
-                window.addSubview(container)
+            if container.superview !== hostView {
+                container.removeFromSuperview()
+                hostView.addSubview(container)
+            } else if container.superview == nil {
+                hostView.addSubview(container)
             } else {
-                window.bringSubviewToFront(container)
+                hostView.bringSubviewToFront(container)
             }
             
-            container.frame = window.bounds
+            container.frame = hostView.bounds
             container.alpha = 1
             container.apply(state: state)
             container.startAnimation()
@@ -53,18 +58,33 @@ final class LoadingView {
                 container.alpha = 1
                 containerView = nil
                 currentState = nil
+                containerHostView = nil
             })
         }
     }
 
     @objc static func update() {
         DispatchQueue.main.async {
-            guard let container = containerView, let window = getKeyWindow() else { return }
-            container.frame = window.bounds
+            guard let container = containerView, let hostView = container.superview else { return }
+            container.frame = hostView.bounds
             if let state = currentState {
                 container.apply(state: state)
             }
         }
+    }
+    
+    private static func resolveHostView(preferredHostView: UIView?) -> UIView? {
+        if let preferredHostView {
+            containerHostView = preferredHostView
+            return preferredHostView
+        }
+        
+        if let cachedHostView = containerHostView, cachedHostView.window != nil {
+            return cachedHostView
+        }
+        
+        containerHostView = nil
+        return getKeyWindow()
     }
     
     private static func getKeyWindow() -> UIWindow? {

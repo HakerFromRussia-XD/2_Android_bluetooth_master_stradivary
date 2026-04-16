@@ -13,6 +13,10 @@ final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
     
     private var didTriggerFakeConnection = false
+    private var isTransitioningToMainTabBar = false
+    private var isUserInteractingWithDevicesList = false
+    private var pendingDevicesReloadAfterInteraction = false
+    private var lastRenderedDeviceIDs: [UUID] = []
     
     lazy var segmentedConrol: CustomSegmentedControl = {
         let items = ["Все устройства", "Протезы"]
@@ -122,6 +126,10 @@ final class BluetoothListViewController: UIViewController {
         tableViewDevices.backgroundColor = UIColor(named: "ubi4_gray")
         tableViewDevices.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
         tableViewDevices.layer.borderWidth = 1
+        tableViewDevices.delaysContentTouches = false
+        tableViewDevices.rowHeight = 64
+        tableViewDevices.estimatedRowHeight = 64
+        tableViewDevices.accessibilityIdentifier = AccessibilityIdentifier.bleDevicesTable
         // Assistant: ограничения для контейнера и таблицы
         NSLayoutConstraint.activate([
             tableContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -152,9 +160,11 @@ final class BluetoothListViewController: UIViewController {
                 print("[BLE-CONNECT] reloadData uuid: \(String(describing: uuid))")
                 guard
                     let self = self,
+                    !self.isTransitioningToMainTabBar,
                     let uuid = uuid,
                     let device = self.viewModel.devices.first(where: { $0.id == uuid })
                 else { return }
+                self.logTouch("connectionCallback", details: "uuid=\(uuid.uuidString)")
                 self.tableViewDevices.reloadData() // перезагружаем строки, чтобы отобразить цвет подключения
                 let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
                 self.showConnectionToast("Подключено: \(displayName)")
@@ -165,11 +175,25 @@ final class BluetoothListViewController: UIViewController {
         viewModel.$devices
             .receive(on: DispatchQueue.main)
             .throttle(for: .milliseconds(200), scheduler: DispatchQueue.main, latest: true)  // обновление не чаще раза в 0.2s
-            .sink { devices in
+            .sink { [weak self] devices in
+                guard let self = self else { return }
+                guard !self.isTransitioningToMainTabBar else { return }
                 print("[BLE-VC] reload table with \(devices.count) items")
-                if self.tableViewDevices.isDragging || self.tableViewDevices.isDecelerating {
+                if self.isTableInteractionInProgress {
+                    self.logTouch("skipReload", details: "reason=interaction count=\(devices.count)")
+                    self.pendingDevicesReloadAfterInteraction = true
                     return
                 }
+                
+                let currentDeviceIDs = devices.map { $0.id }
+                if currentDeviceIDs == self.lastRenderedDeviceIDs {
+                    self.logTouch("skipReload", details: "reason=same-ids count=\(devices.count)")
+                    self.refreshVisibleDeviceCells()
+                    return
+                }
+                
+                self.lastRenderedDeviceIDs = currentDeviceIDs
+                self.pendingDevicesReloadAfterInteraction = false
                 UIView.performWithoutAnimation {
                     self.tableViewDevices.reloadData()
                 }
@@ -242,18 +266,47 @@ final class BluetoothListViewController: UIViewController {
     
     // Функция обновления высоты таблицы
     private func updateTableHeight() {
-        // Устанавливаем высоту таблицы на основе ее контента
-        tableHeightConstraint.constant = tableViewDevices.contentSize.height
-        
-        // Если контент слишком мал, устанавливаем минимальную высоту
-        if tableViewDevices.contentSize.height < 64 {
-            tableHeightConstraint.constant = 64
+        let targetHeight = max(tableViewDevices.contentSize.height, 64)
+        guard abs(tableHeightConstraint.constant - targetHeight) > 0.5 else { return }
+        tableHeightConstraint.constant = targetHeight
+        view.layoutIfNeeded()
+    }
+    
+    private var isTableInteractionInProgress: Bool {
+        isUserInteractingWithDevicesList || tableViewDevices.isTracking || tableViewDevices.isDragging || tableViewDevices.isDecelerating
+    }
+    
+    private func flushPendingDevicesReloadIfNeeded() {
+        guard pendingDevicesReloadAfterInteraction else { return }
+        pendingDevicesReloadAfterInteraction = false
+        lastRenderedDeviceIDs = viewModel.devices.map(\.id)
+        UIView.performWithoutAnimation {
+            tableViewDevices.reloadData()
         }
-        
-        // Анимация для обновления UI
-        UIView.animate(withDuration: 0.33, delay: 0.0, options: .curveEaseIn, animations: {
-            self.view.layoutIfNeeded()
-        }, completion: nil)
+        updateTableHeight()
+        logTouch("flushPendingReload", details: "rows=\(tableViewDevices.numberOfRows(inSection: 0))")
+    }
+    
+    private func refreshVisibleDeviceCells() {
+        for case let cell as DeviceCell in tableViewDevices.visibleCells {
+            guard let indexPath = tableViewDevices.indexPath(for: cell),
+                  viewModel.devices.indices.contains(indexPath.row) else { continue }
+            let device = viewModel.devices[indexPath.row]
+            cell.setupModel(model: device)
+            if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
+                cell.backgroundColor = UIColor(named: "ubi4_active")
+            } else {
+                cell.backgroundColor = UIColor(named: "ubi4_gray")
+            }
+        }
+    }
+    
+    private func logTouch(_ event: String, details: String = "") {
+        let timestamp = String(format: "%.3f", Date().timeIntervalSince1970)
+        let suffix = details.isEmpty ? "" : " \(details)"
+        let message = "[BLE-TAP-TRACE] t=\(timestamp) event=\(event)\(suffix)"
+        NSLog("%@", message)
+        print(message)
     }
 }
 // MARK: - UITableViewDataSource
@@ -300,6 +353,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         let cell = tableView.dequeueReusableCell(withIdentifier: DeviceCell.identifier, for: indexPath) as! DeviceCell
         let device = viewModel.devices[indexPath.row]
         cell.setupModel(model: device) // Настройка данных в ячейке
+        cell.accessibilityIdentifier = "ble.deviceCell.\(indexPath.row)"
         if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
             cell.backgroundColor = UIColor(named: "ubi4_active")
         } else {
@@ -307,7 +361,38 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         }
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        isUserInteractingWithDevicesList = true
+        logTouch("shouldHighlight", details: "row=\(indexPath.row) devices=\(viewModel.devices.count)")
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
+        isUserInteractingWithDevicesList = true
+        logTouch("didHighlight", details: "row=\(indexPath.row)")
+    }
+    
+    func tableView(_ tableView: UITableView, didUnhighlightRowAt indexPath: IndexPath) {
+        if !tableView.isTracking && !isTransitioningToMainTabBar {
+            isUserInteractingWithDevicesList = false
+            flushPendingDevicesReloadIfNeeded()
+        }
+        logTouch("didUnhighlight", details: "row=\(indexPath.row) tracking=\(tableView.isTracking)")
+    }
+    
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        logTouch("willSelect", details: "row=\(indexPath.row)")
+        return indexPath
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard !isTransitioningToMainTabBar else { return }
+        isTransitioningToMainTabBar = true
+        isUserInteractingWithDevicesList = false
+        tableView.isUserInteractionEnabled = false
+        tableView.allowsSelection = false
+        logTouch("didSelect", details: "row=\(indexPath.row)")
         print("[BLE-CONNECT] selectDeviceToConnect indexPath: \(indexPath)")
         print("[BLE-TAP] 2 indexPath: \(indexPath)")
         tableView.deselectRow(at: indexPath, animated: true)
@@ -315,14 +400,62 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
     }
     
     private func handleDeviceSelection(at indexPath: IndexPath) {
-        viewModel.connectToDevice(at: indexPath.row)
+        guard let selectedDevice = viewModel.device(at: indexPath.row) else {
+            resetTransitionState()
+            return
+        }
+        
         // Запрос на открытие WidgetsListViewController через координатор
-        openMainTabBar()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.logTouch(
+                "connectStart",
+                details: "row=\(indexPath.row) name=\(selectedDevice.name) uuid=\(selectedDevice.uuid.uuidString)"
+            )
+            self.viewModel.connect(to: selectedDevice)
+            guard self.openMainTabBar() else { return }
+        }
     }
-    private func openMainTabBar() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+    
+    @discardableResult
+    private func openMainTabBar() -> Bool {
+        guard
+            let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+            let navigationController = navigationController
+        else {
+            resetTransitionState()
+            return false
+        }
         let tabBarController = MainTabBarController(appDIContainer: appDelegate.appDIContainer)
-        navigationController?.setViewControllers([tabBarController], animated: true)
+        navigationController.setViewControllers([tabBarController], animated: true)
+        return true
+    }
+    
+    private func resetTransitionState() {
+        isTransitioningToMainTabBar = false
+        isUserInteractingWithDevicesList = false
+        tableViewDevices.isUserInteractionEnabled = true
+        tableViewDevices.allowsSelection = true
+        flushPendingDevicesReloadIfNeeded()
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isUserInteractingWithDevicesList = true
+        logTouch("scrollBegin")
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            isUserInteractingWithDevicesList = false
+            flushPendingDevicesReloadIfNeeded()
+        }
+        logTouch("scrollEndDragging", details: "decelerate=\(decelerate)")
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        isUserInteractingWithDevicesList = false
+        flushPendingDevicesReloadIfNeeded()
+        logTouch("scrollEndDecelerating")
     }
     private func makeWidgetsDependencies() -> WidgetsSceneDIContainer.Dependencies {                   // Assistant
         // -------- единый сетевой слой (можно разделить при желании) -------

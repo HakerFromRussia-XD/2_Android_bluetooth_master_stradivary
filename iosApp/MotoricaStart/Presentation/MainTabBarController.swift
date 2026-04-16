@@ -44,6 +44,7 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarRoot
         setupTabs()
         tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")
         tabBar.tintColor = UIColor(named: "ubi4_white")

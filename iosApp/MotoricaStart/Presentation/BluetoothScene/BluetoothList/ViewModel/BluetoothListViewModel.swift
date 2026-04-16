@@ -20,6 +20,7 @@ final class BluetoothListViewModel {
 //    private let filterKey = "selectedFilterIndex" // Ключ для UserDefaults
     let bleManager : BleManagerKmm
     private var lastSeenTimestamps: [UUID: Date] = [:] // Храним время последнего обнаружения устройства
+    private var uiTestNoiseTimer: DispatchSourceTimer?
     
     private let repository: BluetoothRepository
     private let keyValueStorage: KeyValueStorage
@@ -55,15 +56,25 @@ final class BluetoothListViewModel {
         repository.connectionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] uuid in
-                print("[BLE-CONNECT] ViewModel received connect callback for: \(uuid)")
-                self?.connectedDeviceID = uuid
+                self?.logConnect("[BLE-CONNECT] ViewModel received connect callback for: \(uuid)")
+                guard let self = self else { return }
+                self.connectedDeviceID = uuid
             }
             .store(in: &cancellables)
     }
     
     func onAppear() {
-        print("BLE-CONNECT onAppear")
+        logConnect("BLE-CONNECT onAppear")
         resetDevices()
+        
+        if isUiTestFakeDeviceEnabled {
+            logConnect("[BLE-VM][UITEST] Fake BLE device mode is enabled")
+            _ = prepareFakeDeviceForTesting()
+            startUiTestNoiseIfNeeded()
+            return
+        }
+        
+        stopUiTestNoiseIfNeeded()
         bleManager.startScanKmm { [weak self] bleDevice in
             guard let self = self else { return }
             let candidateName = (bleDevice.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -102,6 +113,7 @@ final class BluetoothListViewModel {
     }
     func onDisappear() {
         bleManager.stopScanKmm()
+        stopUiTestNoiseIfNeeded()
     }
     
     // метод для фильтрации списка по сегменту
@@ -128,16 +140,33 @@ final class BluetoothListViewModel {
     
     // подключение к устройству и сохранение состояний
     func connectToDevice(at index: Int) {
-        let device = devices[index]
-        print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.name)")
-        print("[BLE-CONNECT] ViewModel.connectToDevice at index: \(index), device: \(device.uuid )")
+        guard let device = device(at: index) else {
+            logConnect("[BLE-CONNECT] invalid connect index: \(index), devicesCount=\(devices.count)")
+            return
+        }
+        connect(to: device)
+    }
+    
+    func device(at index: Int) -> BLEDevice? {
+        guard devices.indices.contains(index) else { return nil }
+        return devices[index]
+    }
+    
+    func connect(to device: BLEDevice) {
+        let indexDescription = devices.firstIndex(where: { $0.id == device.id }).map(String.init) ?? "snapshot"
+        logConnect("[BLE-CONNECT] ViewModel.connectToDevice at index: \(indexDescription), device: \(device.name)")
+        logConnect("[BLE-CONNECT] ViewModel.connectToDevice at index: \(indexDescription), device: \(device.uuid )")
+        logConnect("[BLE-CONNECT] phase=prepare uuid=\(device.uuid.uuidString)")
         do {
             try keyValueStorage.save(device.name, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
         } catch {
             print("[Storage] failed to persist selected device name: \(error)")
         }
         _ = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
+        connectedDeviceID = nil
+        logConnect("[BLE-CONNECT] phase=stopScan")
         bleManager.stopScanKmm()
+        logConnect("[BLE-CONNECT] phase=connect")
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
     }
     
@@ -225,5 +254,46 @@ final class BluetoothListViewModel {
         }
 
         return normalizedCandidate.count >= normalizedCurrent.count ? normalizedCandidate : normalizedCurrent
+    }
+    
+    private var isUiTestFakeDeviceEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-fake-ble-device")
+    }
+    
+    private var isUiTestBleNoiseEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-ble-noise")
+    }
+    
+    private func startUiTestNoiseIfNeeded() {
+        guard isUiTestBleNoiseEnabled else { return }
+        guard uiTestNoiseTimer == nil else { return }
+        
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.schedule(deadline: .now() + 0.1, repeating: .milliseconds(120))
+        timer.setEventHandler { [weak self] in
+            guard let self = self else { return }
+            guard let index = self.allDevices.firstIndex(where: { $0.id == StubConstants.fakeDeviceUUID }) else { return }
+            let currentDevice = self.allDevices[index]
+            let nextRSSI = currentDevice.rssi == -45 ? -53 : -45
+            self.allDevices[index] = BLEDevice(
+                id: currentDevice.id,
+                name: currentDevice.name,
+                uuid: currentDevice.uuid,
+                rssi: nextRSSI
+            )
+            self.applyFilter(index: self.selectedFilterIndex)
+        }
+        uiTestNoiseTimer = timer
+        timer.resume()
+    }
+    
+    private func stopUiTestNoiseIfNeeded() {
+        uiTestNoiseTimer?.cancel()
+        uiTestNoiseTimer = nil
+    }
+    
+    private func logConnect(_ message: String) {
+        NSLog("%@", message)
+        print(message)
     }
 }

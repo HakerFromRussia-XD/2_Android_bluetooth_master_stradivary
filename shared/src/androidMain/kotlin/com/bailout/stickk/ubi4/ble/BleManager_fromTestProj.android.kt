@@ -27,6 +27,8 @@ actual class BleManagerKmm actual constructor() {
 
     actual fun connectToDevice(uuid: String) {}
 
+    actual fun disconnectFromDevice() {}
+
     actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
         onCharacteristicsReady = onReady
         onCharacteristicsReady?.invoke()

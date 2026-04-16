@@ -69,7 +69,14 @@ class WidgetsTabContainerViewController: UIViewController {
     }
     
     private func embedStatusBar() {
-        let hostingController = UIHostingController(rootView: StatusBarView(viewModel: statusBarViewModel))
+        let hostingController = UIHostingController(
+            rootView: StatusBarView(
+                viewModel: statusBarViewModel,
+                onDisconnectConfirmed: { [weak self] in
+                    self?.handleDisconnectConfirmed()
+                }
+            )
+        )
         statusBarHostingController = hostingController
         addChild(hostingController)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -103,6 +110,26 @@ class WidgetsTabContainerViewController: UIViewController {
         let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
         if !displayName.isEmpty {
             statusBarViewModel.update(serialNumber: displayName)
+        }
+    }
+
+    private func handleDisconnectConfirmed() {
+        BLEComponents.shared.bleManager.disconnectFromDevice()
+        keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
+        statusBarViewModel.update(serialNumber: "—", batteryLevel: 0, isConnected: false)
+        UiStateBridge.shared.resetWidgetsState()
+
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let bluetoothVC = appDelegate.appDIContainer
+            .makeBluetoothSceneDIContainer()
+            .makeBluetoothListViewController()
+
+        if let navigationController = navigationController {
+            navigationController.setViewControllers([bluetoothVC], animated: true)
+        } else if let rootNavigationController = appDelegate.window?.rootViewController as? UINavigationController {
+            rootNavigationController.setViewControllers([bluetoothVC], animated: true)
+        } else {
+            appDelegate.window?.rootViewController = UINavigationController(rootViewController: bluetoothVC)
         }
     }
 

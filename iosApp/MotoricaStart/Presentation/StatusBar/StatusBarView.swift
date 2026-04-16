@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import shared
 #if canImport(Lottie)
 import Lottie
 #endif
@@ -20,6 +21,11 @@ struct StatusBarView: View {
     }
 
     @ObservedObject var viewModel: StatusBarViewModel
+    var onDisconnectConfirmed: (() -> Void)?
+    @State private var isDisconnectDialogPresented = false
+    @State private var isDisconnectDialogVisible = false
+    @State private var disconnectDialogDismissWorkItem: DispatchWorkItem?
+    private let dialogAnimationDuration: TimeInterval = 0.22
 
     var body: some View {
         HStack(spacing: 12) {
@@ -36,6 +42,12 @@ struct StatusBarView: View {
                     .foregroundColor(Color("ubi4_white"))
                     .lineLimit(1)
                     .accessibilityLabel(Text("Серийный номер устройства"))
+                    .accessibilityAddTraits(.isButton)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        guard viewModel.serialNumber != "—", !viewModel.serialNumber.isEmpty else { return }
+                        presentDisconnectDialog()
+                    }
 
                 ConnectionStatusIndicatorView(isConnected: viewModel.isConnected)
                     .frame(width: Constants.statusIndicatorRenderSize, height: Constants.statusIndicatorRenderSize)
@@ -53,6 +65,190 @@ struct StatusBarView: View {
         .padding(.horizontal, 16)
         .frame(height: Constants.height)
         .background(Color("ubi4_back"))
+        .fullScreenCover(isPresented: $isDisconnectDialogPresented) {
+            StatusBarDisconnectDialogOverlay(
+                isVisible: $isDisconnectDialogVisible,
+                title: SharedRes.strings().disconnection_from_the_device.desc().localized(),
+                message: SharedRes.strings().are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen.desc().localized(),
+                confirmTitle: SharedRes.strings().ok.desc().localized(),
+                cancelTitle: SharedRes.strings().cancel.desc().localized(),
+                onConfirm: {
+                    dismissDisconnectDialog {
+                        onDisconnectConfirmed?()
+                    }
+                },
+                onCancel: {
+                    dismissDisconnectDialog()
+                }
+            )
+            .interactiveDismissDisabled()
+            .background(ClearFullScreenBackgroundView())
+        }
+    }
+
+    private func presentDisconnectDialog() {
+        disconnectDialogDismissWorkItem?.cancel()
+        isDisconnectDialogVisible = false
+        isDisconnectDialogPresented = true
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: dialogAnimationDuration)) {
+                isDisconnectDialogVisible = true
+            }
+        }
+    }
+
+    private func dismissDisconnectDialog(onDismissed: (() -> Void)? = nil) {
+        guard isDisconnectDialogPresented else { return }
+        withAnimation(.easeInOut(duration: dialogAnimationDuration)) {
+            isDisconnectDialogVisible = false
+        }
+        disconnectDialogDismissWorkItem?.cancel()
+        let workItem = DispatchWorkItem {
+            isDisconnectDialogPresented = false
+            disconnectDialogDismissWorkItem = nil
+            onDismissed?()
+        }
+        disconnectDialogDismissWorkItem = workItem
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + dialogAnimationDuration,
+            execute: workItem
+        )
+    }
+}
+
+private struct StatusBarDisconnectDialogOverlay: View {
+    @Binding var isVisible: Bool
+    let title: String
+    let message: String
+    let confirmTitle: String
+    let cancelTitle: String
+    let onConfirm: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.65)
+                .ignoresSafeArea()
+
+            StatusBarDisconnectDialog(
+                title: title,
+                message: message,
+                confirmTitle: confirmTitle,
+                cancelTitle: cancelTitle,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            )
+            .padding(.horizontal, 8)
+        }
+        .opacity(isVisible ? 1 : 0)
+    }
+}
+
+private struct ClearFullScreenBackgroundView: UIViewRepresentable {
+    final class ClearBackgroundHostView: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            applyClearBackgrounds()
+            DispatchQueue.main.async { [weak self] in
+                self?.applyClearBackgrounds()
+            }
+        }
+
+        private func applyClearBackgrounds() {
+            backgroundColor = .clear
+            isOpaque = false
+
+            var current: UIView? = self
+            while let view = current {
+                view.backgroundColor = .clear
+                view.isOpaque = false
+                current = view.superview
+            }
+        }
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        ClearBackgroundHostView()
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) { }
+}
+
+private struct StatusBarDisconnectDialog: View {
+    let title: String
+    let message: String
+    let confirmTitle: String
+    let cancelTitle: String
+    let onConfirm: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack {
+            Spacer()
+            dialogContent
+                .padding(.horizontal, 32)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private var dialogContent: some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.custom("SFProText-Bold", size: 18))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 16)
+
+            Text(message)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(Color("ubi4_deactivate_text"))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onConfirm) {
+                    Text(confirmTitle)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color("ubi4_yes_system_blue"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Rectangle()
+                    .fill(Color("ubi4_gray_border"))
+                    .frame(height: 1)
+
+                Button(action: onCancel) {
+                    Text(cancelTitle)
+                        .font(.system(size: 16, weight: .light))
+                        .foregroundColor(Color("ubi4_yes_system_blue"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.top, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color("ubi4_back"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 8)
+        )
     }
 }
 

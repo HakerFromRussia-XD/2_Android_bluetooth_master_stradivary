@@ -1242,6 +1242,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		654FDC612E1FDDCA00CF72BD /* Compile kotlin */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1263,10 +1264,12 @@
 			outputPaths = (
 				"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework",
 				"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/shared.framework",
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/shared.framework/shared",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\nFRAMEWORK_BINARY_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/shared.framework/shared\"\nif [ ! -f \"$FRAMEWORK_BINARY_PATH\" ]; then\n  echo \"ERROR: shared.framework is missing in app bundle after Gradle embed step.\"\n  echo \"Expected: $FRAMEWORK_BINARY_PATH\"\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1454,50 +1457,54 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		1F02DE3A22F8507500E40C3A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MotoricaStart;
+			1F02DE3A22F8507500E40C3A /* Debug */ = {
+				isa = XCBuildConfiguration;
+				buildSettings = {
+					CLANG_ENABLE_OBJC_WEAK = YES;
+					CODE_SIGN_IDENTITY = "Apple Development";
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = R7K637DW83;
+					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+					LD_RUNPATH_SEARCH_PATHS = (
+						"$(inherited)",
+						"@executable_path/Frameworks",
+						"@loader_path/Frameworks",
+					);
+					MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+					MTL_FAST_MATH = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SWIFT_VERSION = 5.0;
+					TARGETED_DEVICE_FAMILY = "1,2";
+					TEST_TARGET_NAME = MotoricaStart;
+				};
+				name = Debug;
 			};
-			name = Debug;
-		};
-		1F02DE3B22F8507500E40C3A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MotoricaStart;
-			};
-			name = Release;
+			1F02DE3B22F8507500E40C3A /* Release */ = {
+				isa = XCBuildConfiguration;
+				buildSettings = {
+					CLANG_ENABLE_OBJC_WEAK = YES;
+					CODE_SIGN_IDENTITY = "Apple Development";
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = R7K637DW83;
+					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+					LD_RUNPATH_SEARCH_PATHS = (
+						"$(inherited)",
+						"@executable_path/Frameworks",
+						"@loader_path/Frameworks",
+					);
+					MTL_FAST_MATH = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SWIFT_VERSION = 5.0;
+					TARGETED_DEVICE_FAMILY = "1,2";
+					TEST_TARGET_NAME = MotoricaStart;
+				};
+				name = Release;
 		};
 		1FA533A4201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1699,50 +1706,54 @@
 			};
 			name = Release;
 		};
-		1FA533AA201E1FDE00747E55 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
+			1FA533AA201E1FDE00747E55 /* Debug */ = {
+				isa = XCBuildConfiguration;
+				buildSettings = {
+					CLANG_ENABLE_MODULES = YES;
+					CODE_SIGN_IDENTITY = "Apple Development";
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = R7K637DW83;
+					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+					LD_RUNPATH_SEARCH_PATHS = (
+						"$(inherited)",
+						"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
+					OTHER_SWIFT_FLAGS = "";
+					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = 5.0;
+					TARGETED_DEVICE_FAMILY = "1,2";
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
+				};
+				name = Debug;
 			};
-			name = Debug;
-		};
-		1FA533AB201E1FDE00747E55 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
+			1FA533AB201E1FDE00747E55 /* Release */ = {
+				isa = XCBuildConfiguration;
+				buildSettings = {
+					CLANG_ENABLE_MODULES = YES;
+					CODE_SIGN_IDENTITY = "Apple Development";
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = R7K637DW83;
+					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+					LD_RUNPATH_SEARCH_PATHS = (
+						"$(inherited)",
+						"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_SWIFT_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
-			};
-			name = Release;
+					OTHER_SWIFT_FLAGS = "";
+					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SWIFT_VERSION = 5.0;
+					TARGETED_DEVICE_FAMILY = "1,2";
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
+				};
+				name = Release;
 		};
 /* End XCBuildConfiguration section */
 

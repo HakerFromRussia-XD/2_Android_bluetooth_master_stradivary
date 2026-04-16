@@ -420,7 +420,7 @@ private extension WidgetsListViewController {
         lastKnownLoadingState = state
         guard isViewVisible else { return }
         //TODO: тут можно отключать лоадер (3)
-        LoadingView.show(state: state)
+        LoadingView.show(state: state, in: view)
     }
     
     var isSynchronizationCompleted: Bool {

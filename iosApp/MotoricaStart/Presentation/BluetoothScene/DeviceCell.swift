@@ -43,6 +43,27 @@ class DeviceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        let message = "[BLE-TAP-TRACE] cellTouchesBegan id=\(accessibilityIdentifier ?? "nil")"
+        NSLog("%@", message)
+        print(message)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        let message = "[BLE-TAP-TRACE] cellTouchesEnded id=\(accessibilityIdentifier ?? "nil")"
+        NSLog("%@", message)
+        print(message)
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        let message = "[BLE-TAP-TRACE] cellTouchesCancelled id=\(accessibilityIdentifier ?? "nil")"
+        NSLog("%@", message)
+        print(message)
+    }
+    
 //    @objc private func handleTap() {
 //        onTap?()
 //    }

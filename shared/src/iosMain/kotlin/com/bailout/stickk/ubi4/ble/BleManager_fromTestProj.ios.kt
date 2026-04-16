@@ -337,6 +337,34 @@ actual class BleManagerKmm actual constructor() {
         startReconnectScan()
     }
 
+    actual fun disconnectFromDevice() {
+        platformLog("[BLE-CONNECT]", "manual disconnect requested")
+        autoReconnectEnabled = false
+        reconnectTargetUuid = null
+        reconnectScanActive = false
+        manager.stopScan()
+
+        val peripheral = selectedDevice ?: connectedDevice?.peripheral
+
+        selectedDevice = null
+        connectedDevice = null
+        didNotifyCharacteristicsReady = false
+        servicesMass.clear()
+        characteristicsMass.clear()
+        expectedServicesCount = 0
+        discoveredServicesWithCharacteristics = 0
+        pendingNotifyAcks.clear()
+        pendingDeviceDataResponseAck = null
+        resetV3InitProgressTracking()
+        onDeviceCallback = null
+
+        if (peripheral != null) {
+            manager.cancelPeripheralConnection(peripheral)
+        } else {
+            BLEState.publishDisconnect()
+        }
+    }
+
     actual fun setOnCharacteristicsReadyListener(onReady: () -> Unit) {
         onCharacteristicsReady = onReady
         if (didNotifyCharacteristicsReady) {

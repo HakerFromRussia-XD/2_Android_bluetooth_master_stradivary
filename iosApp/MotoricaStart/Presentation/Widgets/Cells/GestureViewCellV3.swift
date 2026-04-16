@@ -19,10 +19,12 @@ final class GestureViewCellV3: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        disableImplicitGeometryAnimations()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        disableImplicitGeometryAnimations()
     }
 
     @available(iOS 16.0, *)
@@ -89,7 +91,10 @@ final class GestureViewCellV3: UITableViewCell {
                     }
                 },
                 onSprGestureAction: { _ in },
-                onSprAddTap: {}
+                onSprAddTap: {},
+                onContentHeightDecrease: { [weak self] in
+                    self?.updateContainingTableHeightWithoutAnimation()
+                }
             )
         }
         configuration = configuration.margins(.vertical, 4)
@@ -99,7 +104,7 @@ final class GestureViewCellV3: UITableViewCell {
             applyActiveGesture(currentActiveGestureId)
         }
         if let currentRotationGroup = viewModel.currentRotationGroup(provider: provider) {
-            self.provider?.rotationGroup = currentRotationGroup
+            applyRotationGroupWithoutAnimation(currentRotationGroup)
         }
 
         updatesJob?.cancel(cause: nil)
@@ -117,7 +122,7 @@ final class GestureViewCellV3: UITableViewCell {
                let provider = self.provider,
                let rotationGroup = viewModel.rotationGroup(from: snapshot, provider: provider) {
                 DispatchQueue.main.async { [weak self] in
-                    self?.provider?.rotationGroup = rotationGroup
+                    self?.applyRotationGroupWithoutAnimation(rotationGroup)
                 }
             }
         }
@@ -145,5 +150,49 @@ final class GestureViewCellV3: UITableViewCell {
 
         provider?.activeGestureId = activeGestureId
         provider?.activeGestureTitle = activeGestureTitle
+    }
+
+    private func applyRotationGroupWithoutAnimation(_ rotationGroup: [GesturesProvider.GestureDisplayItem]) {
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { [weak self] in
+            self?.provider?.rotationGroup = rotationGroup
+        }
+        if provider?.selectedSegment == .rotationGroup {
+            updateContainingTableHeightWithoutAnimation()
+        }
+    }
+
+    private func updateContainingTableHeightWithoutAnimation() {
+        guard let tableView = findContainingTableView() else { return }
+        let previousAnimationsEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        tableView.beginUpdates()
+        tableView.endUpdates()
+        tableView.layoutIfNeeded()
+        CATransaction.commit()
+        UIView.setAnimationsEnabled(previousAnimationsEnabled)
+    }
+
+    private func findContainingTableView() -> UITableView? {
+        var current: UIView? = self
+        while let view = current {
+            if let tableView = view as? UITableView {
+                return tableView
+            }
+            current = view.superview
+        }
+        return nil
+    }
+
+    private func disableImplicitGeometryAnimations() {
+        let actions: [String: CAAction] = [
+            "bounds": NSNull(),
+            "position": NSNull()
+        ]
+        layer.actions = actions
+        contentView.layer.actions = actions
     }
 }

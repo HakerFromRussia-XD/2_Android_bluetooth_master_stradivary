@@ -23,6 +23,12 @@ final class LoadingContainerView: UIView {
     private let animationAsset: AnimationAsset
     private var shouldPlayAfterLoading = false
     private var isLoadingAnimation = false
+    private var displayedProgress: Float = 0
+    private var targetProgress: Float = 0
+    private var progressAnimationFrom: Float = 0
+    private var progressAnimationStartedAt: CFTimeInterval = 0
+    private var progressAnimationDuration: CFTimeInterval = 0
+    private var progressDisplayLink: CADisplayLink?
 
     init(frame: CGRect, animationName: String) {
         if Bundle.main.url(forResource: animationName, withExtension: "lottie") != nil {
@@ -41,11 +47,16 @@ final class LoadingContainerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        stopProgressAnimationLoop()
+    }
+
     func apply(state: LoadingView.State) {
         messageLabel.text = state.message
         let clampedProgress = max(0, min(1, state.progress))
-        let animated = progressView.progress > 0 && clampedProgress >= progressView.progress
-        progressView.setProgress(clampedProgress, animated: animated)
+        let monotonicTarget = max(clampedProgress, targetProgress, displayedProgress)
+        guard monotonicTarget > targetProgress else { return }
+        animateProgress(to: monotonicTarget)
     }
 
     func startAnimation() {
@@ -71,6 +82,10 @@ final class LoadingContainerView: UIView {
         backgroundColor = UIColor(named: "ubi4_back") ?? UIColor(red: 42.0/255.0, green: 42.0/255.0, blue: 42.0/255.0, alpha: 1.0)
         translatesAutoresizingMaskIntoConstraints = true
         autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        accessibilityIdentifier = "loading.progress"
+        accessibilityLabel = "loading.progress"
+        accessibilityValue = "0%"
+        isAccessibilityElement = true
 
         setupContentView()
         setupStackView()
@@ -137,7 +152,64 @@ final class LoadingContainerView: UIView {
         progressView.trackTintColor = UIColor.secondarySystemFill
         progressView.progressTintColor = UIColor(named: "ubi4_active") ?? UIColor.systemBlue
         progressView.accessibilityIdentifier = "loading.progress"
+        progressView.accessibilityLabel = "loading.progress"
+        progressView.isAccessibilityElement = true
         stackView.addArrangedSubview(progressView)
+    }
+
+    private func animateProgress(to target: Float) {
+        let current = displayedProgress
+        guard target > current else { return }
+        targetProgress = target
+        progressAnimationFrom = current
+        progressAnimationStartedAt = CACurrentMediaTime()
+
+        let delta = Double(target - current)
+        progressAnimationDuration = max(0.18, min(0.65, delta * 1.2))
+        startProgressAnimationLoopIfNeeded()
+    }
+
+    private func startProgressAnimationLoopIfNeeded() {
+        guard progressDisplayLink == nil else { return }
+        let displayLink = CADisplayLink(target: self, selector: #selector(handleProgressDisplayLinkTick))
+        progressDisplayLink = displayLink
+        displayLink.add(to: .main, forMode: .common)
+    }
+
+    private func stopProgressAnimationLoop() {
+        progressDisplayLink?.invalidate()
+        progressDisplayLink = nil
+    }
+
+    @objc private func handleProgressDisplayLinkTick() {
+        guard progressAnimationDuration > 0 else {
+            displayedProgress = targetProgress
+            progressView.setProgress(displayedProgress, animated: false)
+            updateAccessibilityProgress(displayedProgress)
+            stopProgressAnimationLoop()
+            return
+        }
+
+        let elapsed = CACurrentMediaTime() - progressAnimationStartedAt
+        let normalized = min(max(elapsed / progressAnimationDuration, 0), 1)
+        let eased = 1 - pow(1 - normalized, 2)
+
+        let rawProgress = progressAnimationFrom + Float(eased) * (targetProgress - progressAnimationFrom)
+        displayedProgress = max(displayedProgress, min(rawProgress, targetProgress))
+        progressView.setProgress(displayedProgress, animated: false)
+        updateAccessibilityProgress(displayedProgress)
+
+        if normalized >= 1 {
+            displayedProgress = targetProgress
+            progressView.setProgress(displayedProgress, animated: false)
+            updateAccessibilityProgress(displayedProgress)
+            stopProgressAnimationLoop()
+        }
+    }
+
+    private func updateAccessibilityProgress(_ progress: Float) {
+        let percent = Int((progress * 100).rounded())
+        accessibilityValue = "\(percent)%"
     }
     
     private func loadAnimationIfNeeded() {

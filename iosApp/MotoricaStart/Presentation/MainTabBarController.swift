@@ -13,8 +13,10 @@ final class MainTabBarController: UITabBarController {
     
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
+    private let synchronizationRestrictedTabTags: Set<Int> = [0, 3]
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
+    private var synchronizationStateObserver: NSObjectProtocol?
     
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
@@ -55,6 +57,8 @@ final class MainTabBarController: UITabBarController {
         
         selectedIndex = 1 // Sensors tab by default
         registerKeyboardObservers()
+        registerSynchronizationObservers()
+        updateSynchronizationRestrictedTabAvailability()
     }
     
     override func viewDidLayoutSubviews() {
@@ -75,12 +79,14 @@ final class MainTabBarController: UITabBarController {
         
         let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
         gesturesVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Gestures", comment: ""), image: UIImage(named: "ic_gestures"), tag: 0)
+        gesturesVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabGesturesItem
 
         let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions)
         sensorsVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Sensors", comment: ""), image: UIImage(named: "ic_sensors"), tag: 1)
 
         let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
         specialVC.tabBarItem = UITabBarItem(title: NSLocalizedString("Special settings", comment: ""), image: UIImage(named: "ic_mechanics"), tag: 3)
+        specialVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabSpecialSettingsItem
 
         var controllers: [UIViewController] = [gesturesVC, sensorsVC]
 
@@ -167,6 +173,30 @@ final class MainTabBarController: UITabBarController {
         }
     }
 
+    private func registerSynchronizationObservers() {
+        synchronizationStateObserver = NotificationCenter.default.addObserver(
+            forName: .widgetsSynchronizationStateDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateSynchronizationRestrictedTabAvailability()
+        }
+    }
+
+    private func updateSynchronizationRestrictedTabAvailability() {
+        guard let controllers = viewControllers else { return }
+        let canOpenRestrictedTabs = WidgetsListViewController.isGlobalSynchronizationCompleted
+        let selectedTag = selectedViewController?.tabBarItem.tag
+        for controller in controllers where isSynchronizationRestrictedTab(controller) {
+            let isSelectedTab = controller.tabBarItem.tag == selectedTag
+            controller.tabBarItem.isEnabled = canOpenRestrictedTabs || isSelectedTab
+        }
+    }
+
+    private func isSynchronizationRestrictedTab(_ viewController: UIViewController) -> Bool {
+        synchronizationRestrictedTabTags.contains(viewController.tabBarItem.tag)
+    }
+
     private func setTabBar(hidden: Bool, notification: Notification) {
         let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0.25
         let rawCurve = (notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.intValue ?? UIView.AnimationCurve.easeInOut.rawValue
@@ -187,10 +217,22 @@ final class MainTabBarController: UITabBarController {
         if let keyboardWillHideObserver {
             NotificationCenter.default.removeObserver(keyboardWillHideObserver)
         }
+        if let synchronizationStateObserver {
+            NotificationCenter.default.removeObserver(synchronizationStateObserver)
+        }
     }
 }
 
 extension MainTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if tabBarController.selectedViewController === viewController {
+            return true
+        }
+
+        guard isSynchronizationRestrictedTab(viewController) else { return true }
+        return WidgetsListViewController.isGlobalSynchronizationCompleted
+    }
+
     func tabBarController(_ tabBarController: UITabBarController,
                           animationControllerForTransitionFrom fromVC: UIViewController,
                           to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
@@ -244,7 +286,9 @@ private final class TabBarFadeAnimator: NSObject, UIViewControllerAnimatedTransi
             fromView.alpha = 1
             dimmingView.removeFromSuperview()
             let completed = finished && !transitionContext.transitionWasCancelled
-            if !completed {
+            if completed {
+                fromView.removeFromSuperview()
+            } else {
                 toView.removeFromSuperview()
             }
             transitionContext.completeTransition(completed)

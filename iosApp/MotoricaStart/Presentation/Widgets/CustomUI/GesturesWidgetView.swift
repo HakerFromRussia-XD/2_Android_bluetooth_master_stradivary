@@ -16,7 +16,18 @@ struct GesturesWidgetView: View {
     // MARK: - Dependencies
     @ObservedObject var provider: GesturesProvider
     let visibleSegments: [GesturesProvider.Segment]
-    @State private var highlightOffsetX: CGFloat = 0
+    @State private var selectorAccessibilityOffset: CGFloat = 0
+    @State private var selectorDisplayOffset: CGFloat = 0
+    @State private var selectorSegmentWidth: CGFloat = 0
+    @State private var isSelectorOffsetInitialized = false
+    @State private var selectorAnimationTimer: Timer?
+    @State private var selectorAnimationMaxStep: CGFloat = 0
+    @State private var selectorAnimationStepCount: Int = 0
+    @State private var selectorAnimationRollbackDetected = false
+    @State private var selectorPreviousAnimationOffset: CGFloat = 0
+    @State private var selectorAnimationDirection: CGFloat = 0
+    @State private var segmentContentLockedHeight: CGFloat = 0
+    @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
     // rotation group
     @State private var isRotationGroupAddGesturesDialogPresented = false
     @State private var isRotationGroupAddGesturesDialogVisible = false
@@ -51,6 +62,7 @@ struct GesturesWidgetView: View {
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
+    var onContentHeightDecrease: (() -> Void)?
 
     init(
         provider: GesturesProvider,
@@ -64,7 +76,8 @@ struct GesturesWidgetView: View {
         onRotationGestureAdd: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onRotationGesturesReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onSprGestureAction: @escaping (GesturesProvider.SprGestureDisplayItem) -> Void,
-        onSprAddTap: @escaping () -> Void
+        onSprAddTap: @escaping () -> Void,
+        onContentHeightDecrease: (() -> Void)? = nil
     ) {
         self.provider = provider
         self.visibleSegments = visibleSegments.isEmpty ? [.collection] : visibleSegments
@@ -78,6 +91,7 @@ struct GesturesWidgetView: View {
         self.onRotationGesturesReorder = onRotationGesturesReorder
         self.onSprGestureAction = onSprGestureAction
         self.onSprAddTap = onSprAddTap
+        self.onContentHeightDecrease = onContentHeightDecrease
     }
     
     
@@ -88,18 +102,12 @@ struct GesturesWidgetView: View {
                 segmentSelector
                 Group {
                     activeGestureView
-                    
-                    switch provider.selectedSegment {
-                    case .collection:
-                        collectionView
-                    case .rotationGroup:
-                        rotationGroupView
-                    case .sprGroup:
-                        sprGroupView
-                    }
+                    stableSegmentContentView
+                        .accessibilityIdentifier(AccessibilityIdentifier.gesturesSegmentContentContainer)
+                        .accessibilityValue(segmentAccessibilityValue(for: provider.selectedSegment))
                 }
-                .animation(nil, value: provider.selectedSegment)
             }
+            .animation(nil, value: provider.selectedSegment)
             .transaction { transaction in
                 transaction.animation = nil
             }
@@ -112,8 +120,16 @@ struct GesturesWidgetView: View {
             if !visibleSegments.contains(provider.selectedSegment) {
                 provider.selectedSegment = visibleSegments.first ?? .collection
             }
+            applyCachedSegmentHeightIfAvailable(for: provider.selectedSegment)
             onSegmentChange(provider.selectedSegment)
             onActiveGestureRequest()
+        }
+        .onChange(of: provider.selectedSegment) { segment in
+            applyCachedSegmentHeightIfAvailable(for: segment)
+        }
+        .onDisappear {
+            selectorAnimationTimer?.invalidate()
+            selectorAnimationTimer = nil
         }
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
@@ -201,7 +217,7 @@ struct GesturesWidgetView: View {
         GeometryReader { geo in
             let width = geo.size.width
             let segmentCount = CGFloat(max(visibleSegments.count, 1))
-            let segmentWidth = (width) / segmentCount
+            let segmentWidth = width / segmentCount
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color("ubi4_gray"))
@@ -215,49 +231,342 @@ struct GesturesWidgetView: View {
                     .fill(Color("ubi4_back"))
                     .padding(1)
                     .frame(width: segmentWidth)
-                    .offset(x: highlightOffsetX)
-                    .animation(.easeOut(duration: 0.3), value: highlightOffsetX)
+                    .offset(x: selectorDisplayOffset)
 
                 HStack(spacing: 0) {
-                    ForEach(Array(visibleSegments.enumerated()), id: \.offset) { index, segment in
+                    ForEach(visibleSegments, id: \.self) { segment in
                         Button(action: { select(segment: segment) }) {
                             Text(segment.title)
                                 .font(.system(size: 12, weight: .light))
                                 .foregroundColor(segment == provider.selectedSegment ? .white : Color("ubi4_deactivate_text"))
                                 .animation(nil, value: provider.selectedSegment)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         }
+                        .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         .animation(nil, value: provider.selectedSegment)
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(2)
             }
-            .onChange(of: provider.selectedSegment) { _ in
-                updateHighlightOffset(segmentWidth: segmentWidth)
-            }
+            .overlay(
+                Color.clear
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("gestures.segment.selector")
+                    .accessibilityIdentifier(AccessibilityIdentifier.gesturesSegmentSelector)
+                    .accessibilityValue(segmentSelectorAccessibilityValue(segmentWidth: segmentWidth))
+                    .allowsHitTesting(false)
+            )
             .onAppear {
-                updateHighlightOffset(segmentWidth: segmentWidth)
+                initializeSelectorOffsetIfNeeded(segmentWidth: segmentWidth)
             }
-        }
-        .transaction { transaction in
-            transaction.animation = nil
+            .onChange(of: segmentWidth) { newValue in
+                updateSelectorOffsetForSegmentWidth(newValue)
+            }
+            .onChange(of: provider.selectedSegment) { _ in
+                guard segmentWidth > 0 else { return }
+                let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+                if isSelectorOffsetInitialized {
+                    animateSelectorOffset(to: targetOffset)
+                } else {
+                    setSelectorOffsetImmediate(targetOffset)
+                }
+            }
         }
         .frame(height: 48)
     }
     
-    private func updateHighlightOffset(segmentWidth: CGFloat) {
+    @ViewBuilder
+    private func segmentContent(for segment: GesturesProvider.Segment) -> some View {
+        switch segment {
+        case .collection:
+            collectionView
+        case .rotationGroup:
+            rotationGroupView
+        case .sprGroup:
+            sprGroupView
+        }
+    }
+
+    private var segmentContentView: some View {
+        segmentContent(for: provider.selectedSegment)
+    }
+
+    private var shouldPremeasureCollectionHeight: Bool {
+        visibleSegments.contains(.collection)
+        && provider.selectedSegment != .collection
+        && (cachedSegmentHeights[.collection] ?? 0) <= 0.5
+    }
+
+    private var shouldPremeasureRotationHeight: Bool {
+        visibleSegments.contains(.rotationGroup)
+        && provider.selectedSegment != .rotationGroup
+        && (cachedSegmentHeights[.rotationGroup] ?? 0) <= 0.5
+    }
+
+    private var stableSegmentContentView: some View {
+        segmentContentView
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .onPreferenceChange(SegmentContentHeightPreferenceKey.self) { measuredHeight in
+                let normalizedHeight = normalizedHeightForLayout(measuredHeight)
+                updateSegmentContentHeight(
+                    normalizedHeight,
+                    for: provider.selectedSegment
+                )
+            }
+            .overlay(alignment: .topLeading) {
+                ZStack(alignment: .topLeading) {
+                    hiddenCurrentSegmentMeasurementView
+                    if shouldPremeasureCollectionHeight {
+                        segmentContent(for: .collection)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .opacity(0.001)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear.preference(
+                                        key: CollectionSegmentPremeasureHeightPreferenceKey.self,
+                                        value: proxy.size.height
+                                    )
+                                }
+                            )
+                    }
+                    if shouldPremeasureRotationHeight {
+                        segmentContent(for: .rotationGroup)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .opacity(0.001)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear.preference(
+                                        key: RotationSegmentPremeasureHeightPreferenceKey.self,
+                                        value: proxy.size.height
+                                    )
+                                }
+                            )
+                    }
+                }
+            }
+            .onPreferenceChange(CollectionSegmentPremeasureHeightPreferenceKey.self) { measuredHeight in
+                let normalizedHeight = normalizedHeightForLayout(measuredHeight)
+                updateSegmentContentHeight(normalizedHeight, for: .collection)
+            }
+            .onPreferenceChange(RotationSegmentPremeasureHeightPreferenceKey.self) { measuredHeight in
+                let normalizedHeight = normalizedHeightForLayout(measuredHeight)
+                updateSegmentContentHeight(normalizedHeight, for: .rotationGroup)
+            }
+            .frame(minHeight: segmentContentLockedHeight, alignment: .top)
+    }
+
+    private var hiddenCurrentSegmentMeasurementView: some View {
+        segmentContent(for: provider.selectedSegment)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .opacity(0.001)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: SegmentContentHeightPreferenceKey.self,
+                        value: proxy.size.height
+                    )
+                }
+            )
+    }
+
+    private func normalizedHeightForLayout(_ measuredHeight: CGFloat) -> CGFloat {
+        let clamped = max(0, measuredHeight)
+        let scale = UIScreen.main.scale
+        guard scale > 0 else { return clamped }
+        return (clamped * scale).rounded() / scale
+    }
+
+    private func updateSegmentContentHeight(_ measuredHeight: CGFloat, for segment: GesturesProvider.Segment) {
+        guard measuredHeight.isFinite else { return }
+        if let cached = cachedSegmentHeights[segment],
+           abs(measuredHeight - cached) <= 0.5 {
+            if segment == provider.selectedSegment {
+                applyLockedHeightIfNeeded(measuredHeight)
+            }
+            return
+        }
+        cachedSegmentHeights[segment] = measuredHeight
+        if segment == provider.selectedSegment {
+            applyLockedHeightIfNeeded(measuredHeight)
+        }
+    }
+
+    private func applyCachedSegmentHeightIfAvailable(for segment: GesturesProvider.Segment) {
+        guard let cachedHeight = cachedSegmentHeights[segment], cachedHeight.isFinite else { return }
+        applyLockedHeightIfNeeded(cachedHeight)
+    }
+
+    private func applyLockedHeightIfNeeded(_ height: CGFloat) {
+        let previousHeight = segmentContentLockedHeight
+        guard abs(height - previousHeight) > 0.5 else { return }
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            segmentContentLockedHeight = height
+        }
+        // Force table row relayout for both grow and shrink paths.
+        // Shrink-only relayout produced delayed vertical jumps in specific switches.
+        DispatchQueue.main.async { [onContentHeightDecrease] in
+            onContentHeightDecrease?()
+        }
+    }
+
+    private func segmentHighlightOffset(segmentWidth: CGFloat) -> CGFloat {
         let index = visibleSegments.firstIndex(of: provider.selectedSegment) ?? 0
-        let newOffset = CGFloat(index) * segmentWidth
-        highlightOffsetX = newOffset
+        return CGFloat(index) * segmentWidth
+    }
+
+    private func accessibilityIdentifier(for segment: GesturesProvider.Segment) -> String {
+        switch segment {
+        case .collection:
+            return AccessibilityIdentifier.gesturesSegmentCollectionButton
+        case .rotationGroup:
+            return AccessibilityIdentifier.gesturesSegmentRotationButton
+        case .sprGroup:
+            return "AccessibilityIdentifierGesturesSegmentSprButton"
+        }
+    }
+
+    private func segmentAccessibilityValue(for segment: GesturesProvider.Segment) -> String {
+        switch segment {
+        case .collection:
+            return "collection"
+        case .rotationGroup:
+            return "rotation"
+        case .sprGroup:
+            return "spr"
+        }
+    }
+
+    private func segmentSelectorAccessibilityValue(segmentWidth: CGFloat) -> String {
+        let fallbackOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        let reportedOffset = selectorAccessibilityOffset.isFinite ? selectorAccessibilityOffset : fallbackOffset
+        return String(
+            format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
+            segmentAccessibilityValue(for: provider.selectedSegment),
+            reportedOffset,
+            selectorAnimationMaxStep,
+            selectorAnimationStepCount,
+            selectorAnimationRollbackDetected ? "true" : "false"
+        )
     }
     
     private func select(segment: GesturesProvider.Segment) {
         guard provider.selectedSegment != segment else { return }
-        provider.selectedSegment = segment
-        DispatchQueue.main.async {
-            onSegmentChange(segment)
+        UIView.performWithoutAnimation {
+            provider.selectedSegment = segment
         }
+        onSegmentChange(segment)
+    }
+
+    private func initializeSelectorOffsetIfNeeded(segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        selectorSegmentWidth = segmentWidth
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard !isSelectorOffsetInitialized else {
+            if selectorAnimationTimer == nil {
+                setSelectorOffsetImmediate(targetOffset)
+            }
+            return
+        }
+        setSelectorOffsetImmediate(targetOffset)
+    }
+
+    private func updateSelectorOffsetForSegmentWidth(_ segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        selectorSegmentWidth = segmentWidth
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard isSelectorOffsetInitialized else {
+            setSelectorOffsetImmediate(targetOffset)
+            return
+        }
+        if selectorAnimationTimer == nil {
+            setSelectorOffsetImmediate(targetOffset)
+        } else {
+            animateSelectorOffset(to: targetOffset)
+        }
+    }
+
+    private func setSelectorOffsetImmediate(_ offset: CGFloat) {
+        isSelectorOffsetInitialized = true
+        selectorDisplayOffset = offset
+        selectorAccessibilityOffset = offset
+        selectorPreviousAnimationOffset = offset
+    }
+
+    private func animateSelectorOffset(to targetOffset: CGFloat) {
+        let clampedTarget = targetOffset.isFinite ? targetOffset : 0
+        let startOffset = selectorDisplayOffset
+        let delta = clampedTarget - startOffset
+
+        if abs(delta) < 0.5 {
+            selectorAnimationMaxStep = 0
+            selectorAnimationStepCount = 0
+            selectorAnimationRollbackDetected = false
+            selectorAnimationDirection = 0
+            setSelectorOffsetImmediate(clampedTarget)
+            return
+        }
+
+        selectorAnimationTimer?.invalidate()
+        selectorAnimationMaxStep = 0
+        selectorAnimationStepCount = 0
+        selectorAnimationRollbackDetected = false
+        selectorAnimationDirection = delta >= 0 ? 1 : -1
+        selectorPreviousAnimationOffset = startOffset
+        let startTime = CACurrentMediaTime()
+        let duration = animationDuration
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
+            let elapsed = CACurrentMediaTime() - startTime
+            let progress = min(max(elapsed / duration, 0), 1)
+            let easedProgress = easeInOut(progress: progress)
+            let nextOffset = startOffset + (delta * easedProgress)
+
+            let step = nextOffset - selectorPreviousAnimationOffset
+            if abs(step) > 0.001 {
+                selectorAnimationStepCount += 1
+                selectorAnimationMaxStep = max(selectorAnimationMaxStep, abs(step))
+                if selectorAnimationDirection > 0, step < -0.8 {
+                    selectorAnimationRollbackDetected = true
+                } else if selectorAnimationDirection < 0, step > 0.8 {
+                    selectorAnimationRollbackDetected = true
+                }
+                selectorPreviousAnimationOffset = nextOffset
+            }
+
+            selectorDisplayOffset = nextOffset
+            selectorAccessibilityOffset = nextOffset
+
+            if progress >= 1 {
+                timer.invalidate()
+                selectorAnimationTimer = nil
+                selectorPreviousAnimationOffset = clampedTarget
+                setSelectorOffsetImmediate(clampedTarget)
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        selectorAnimationTimer = timer
+    }
+
+    private func easeInOut(progress: Double) -> CGFloat {
+        let easedValue: Double
+        if progress < 0.5 {
+            easedValue = 2 * progress * progress
+        } else {
+            easedValue = 1 - pow(-2 * progress + 2, 2) / 2
+        }
+        return CGFloat(easedValue)
     }
 
     
@@ -1130,6 +1439,30 @@ final class HapticEngineUIKit: ObservableObject {
 }
 
 private struct RotationGesturesWidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct SegmentContentHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct CollectionSegmentPremeasureHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct RotationSegmentPremeasureHeightPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = .zero
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {

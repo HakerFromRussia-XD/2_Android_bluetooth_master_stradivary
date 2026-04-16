@@ -2,68 +2,21 @@ import Foundation
 import shared
 
 struct CommandListItemViewModel: Equatable, Hashable {
-    private static let textInputWidgetCode = 0x1A
-    private static let buttonsV3WidgetCode = 0x12
-
     private let identifier: String
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
-    private let widgetCode: Int
-    private let orderedButtonBindings: [WidgetV3BindingInfo]
-    private let parsedButtonTitles: [String]
 }
 
 extension CommandListItemViewModel {
     init(widget: Widget, bleManager: BleManagerKmm) {
+        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
-        self.widgetCode = WidgetV3Support.widgetCode(from: widget)
-
-        self.orderedButtonBindings = WidgetV3Support.bindings(from: widget)
-            .sorted { $0.dataOffset < $1.dataOffset }
-            .prefix(3)
-            .map { $0 }
-
-        let widgetPosition = WidgetMetadataExtractor
-            .extractBaseStruct(from: widget.widget?.value)?
-            .widgetPosition ?? -1
-        let bindingSignature = orderedButtonBindings
-            .map { "\($0.deviceAddress)-\($0.parameterID)-\($0.dataCode)-\($0.dataOffset)" }
-            .joined(separator: "_")
-        self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-\(bindingSignature)-command"
-
-        self.parsedButtonTitles = Self.parseButtonTitles(from: self.title)
     }
 
-    var isTextInputWidget: Bool {
-        widgetCode == Self.textInputWidgetCode
-    }
-
-    var isV3ButtonsWidget: Bool {
-        widgetCode == Self.buttonsV3WidgetCode
-    }
-
-    var visibleButtonTitles: [String] {
-        if isV3ButtonsWidget {
-            return orderedButtonBindings
-                .enumerated()
-                .map { index, _ in
-                    let title = parsedButtonTitles[safe: index]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    return title.isEmpty ? "Button \(index + 1)" : title
-                }
-        }
-
-        return [title]
-    }
-
-    func didPressDown(at index: Int = 0) {
-        if isV3ButtonsWidget {
-            sendV3ButtonCommand(at: index, isPressDown: true)
-            return
-        }
-
+    func didPressDown() {
         let command = widget.commandUnified?.pressedCommand ?? 0
         print("[BLE_COMMAND] \(command) send")
 
@@ -76,12 +29,7 @@ extension CommandListItemViewModel {
         sendBytes(data)
     }
 
-    func didRelease(at index: Int = 0) {
-        if isV3ButtonsWidget {
-            sendV3ButtonCommand(at: index, isPressDown: false)
-            return
-        }
-
+    func didRelease() {
         let commandUnified = widget.commandUnified
         let command = ((commandUnified?.clickCommand == 0) ? commandUnified?.releasedCommand : commandUnified?.clickCommand) ?? 0
 
@@ -93,17 +41,76 @@ extension CommandListItemViewModel {
 
         sendBytes(data)
     }
-    
-    private func sendBytes (_ data: KotlinByteArray) {
+
+    private func sendBytes(_ data: KotlinByteArray) {
         let gatt = SampleGattAttributes()
         bleManager.sendBytesKmm(
             data: data,
             command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
             typeCommand: gatt.WRITE,
-            onChunkSent: {})
+            onChunkSent: {}
+        )
     }
 
-    private func sendV3ButtonCommand(at index: Int, isPressDown: Bool) {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+        hasher.combine(title)
+    }
+    static func == (lhs: CommandListItemViewModel, rhs: CommandListItemViewModel) -> Bool {
+        lhs.identifier == rhs.identifier
+        && lhs.title == rhs.title
+    }
+}
+
+struct CommandListItemViewModelV3: Equatable, Hashable {
+    private let identifier: String
+    let title: String
+    let widget: Widget
+    let bleManager: BleManagerKmm
+    private let orderedButtonBindings: [WidgetV3BindingInfo]
+    private let parsedButtonTitles: [String]
+}
+
+extension CommandListItemViewModelV3 {
+    init(widget: Widget, bleManager: BleManagerKmm) {
+        self.title = widget.title ?? ""
+        self.widget = widget
+        self.bleManager = bleManager
+
+        self.orderedButtonBindings = WidgetV3Support.bindings(from: widget)
+            .sorted { $0.dataOffset < $1.dataOffset }
+            .prefix(3)
+            .map { $0 }
+
+        let widgetPosition = WidgetMetadataExtractor
+            .extractBaseStruct(from: widget.widget?.value)?
+            .widgetPosition ?? -1
+        let bindingSignature = orderedButtonBindings
+            .map { "\($0.deviceAddress)-\($0.parameterID)-\($0.dataCode)-\($0.dataOffset)" }
+            .joined(separator: "_")
+        self.identifier = "\(widgetPosition)-\(widget.deviceAddress)-\(widget.parameterID)-\(bindingSignature)-command-v3"
+
+        self.parsedButtonTitles = Self.parseButtonTitles(from: self.title)
+    }
+
+    var visibleButtonTitles: [String] {
+        orderedButtonBindings
+            .enumerated()
+            .map { index, _ in
+                let title = parsedButtonTitles[safe: index]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                return title.isEmpty ? "Button \(index + 1)" : title
+            }
+    }
+
+    func didPressDown(at index: Int) {
+        sendButtonCommand(at: index, isPressDown: true)
+    }
+
+    func didRelease(at index: Int) {
+        sendButtonCommand(at: index, isPressDown: false)
+    }
+
+    private func sendButtonCommand(at index: Int, isPressDown: Bool) {
         guard orderedButtonBindings.indices.contains(index) else { return }
         let binding = orderedButtonBindings[index]
         let subcommand = isPressDown ? binding.dataCode : 0
@@ -113,7 +120,19 @@ extension CommandListItemViewModel {
             parameter: 0
         )
 
+        print("[V3-BUTTON][VM] action=\(isPressDown ? "down" : "up") index=\(index) subcommand=\(subcommand) dataCode=\(binding.dataCode)")
         sendBytes(data)
+    }
+
+    private func sendBytes(_ data: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        print("[V3-BUTTON][VM] sendBytes command=\(gatt.SERIALPORTCHAR_UUID) type=\(gatt.WRITE) bytes=\(data.hex)")
+        bleManager.sendBytesKmm(
+            data: data,
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
     }
 
     private static func parseButtonTitles(from rawTitle: String) -> [String] {
@@ -126,9 +145,10 @@ extension CommandListItemViewModel {
         hasher.combine(identifier)
         hasher.combine(title)
     }
-    static func == (lhs: CommandListItemViewModel, rhs: CommandListItemViewModel) -> Bool {
+
+    static func == (lhs: CommandListItemViewModelV3, rhs: CommandListItemViewModelV3) -> Bool {
         lhs.identifier == rhs.identifier
-        && lhs.title == rhs.title
+            && lhs.title == rhs.title
     }
 }
 

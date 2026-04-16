@@ -37,22 +37,25 @@ struct StatusBarView: View {
             Spacer()
 
             HStack(spacing: 8) {
-                Text(viewModel.serialNumber)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color("ubi4_white"))
-                    .lineLimit(1)
-                    .accessibilityLabel(Text("Серийный номер устройства"))
-                    .accessibilityAddTraits(.isButton)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        guard viewModel.serialNumber != "—", !viewModel.serialNumber.isEmpty else { return }
-                        presentDisconnectDialog()
+                Button {
+                    guard viewModel.serialNumber != "—", !viewModel.serialNumber.isEmpty else { return }
+                    presentDisconnectDialog()
+                } label: {
+                    Text(viewModel.serialNumber)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color("ubi4_white"))
+                        .lineLimit(1)
                     }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier(AccessibilityIdentifier.statusBarDeviceNameButton)
+                .accessibilityLabel(Text("Серийный номер устройства"))
+                .accessibilityValue(Text(viewModel.serialNumber))
 
                 ConnectionStatusIndicatorView(isConnected: viewModel.isConnected)
                     .frame(width: Constants.statusIndicatorRenderSize, height: Constants.statusIndicatorRenderSize)
                     .scaleEffect(0.03)
                     .frame(width: Constants.statusIndicatorVisualSize, height: Constants.statusIndicatorVisualSize)
+                    .accessibilityIdentifier(AccessibilityIdentifier.statusBarConnectionIndicator)
                     .accessibilityLabel(Text(viewModel.isConnected ? "Соединение установлено" : "Соединение потеряно"))
             }
 
@@ -73,9 +76,7 @@ struct StatusBarView: View {
                 confirmTitle: SharedRes.strings().ok.desc().localized(),
                 cancelTitle: SharedRes.strings().cancel.desc().localized(),
                 onConfirm: {
-                    dismissDisconnectDialog {
-                        onDisconnectConfirmed?()
-                    }
+                    confirmDisconnectImmediately()
                 },
                 onCancel: {
                     dismissDisconnectDialog()
@@ -113,6 +114,14 @@ struct StatusBarView: View {
             deadline: .now() + dialogAnimationDuration,
             execute: workItem
         )
+    }
+
+    private func confirmDisconnectImmediately() {
+        disconnectDialogDismissWorkItem?.cancel()
+        disconnectDialogDismissWorkItem = nil
+        onDisconnectConfirmed?()
+        isDisconnectDialogVisible = false
+        isDisconnectDialogPresented = false
     }
 }
 
@@ -223,6 +232,7 @@ private struct StatusBarDisconnectDialog: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier(AccessibilityIdentifier.statusBarDisconnectConfirmButton)
 
                 Rectangle()
                     .fill(Color("ubi4_gray_border"))
@@ -237,6 +247,7 @@ private struct StatusBarDisconnectDialog: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier(AccessibilityIdentifier.statusBarDisconnectCancelButton)
             }
         }
         .padding(.top, 16)
@@ -262,6 +273,8 @@ private struct ConnectionStatusIndicatorView: View {
         Image(isConnected ? "connect_status" : "disconnect_status")
             .resizable()
             .scaledToFit()
+            .accessibilityIdentifier(AccessibilityIdentifier.statusBarConnectionIndicator)
+            .accessibilityValue(Text(isConnected ? "connected" : "disconnected"))
         #endif
     }
 }
@@ -320,6 +333,8 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
         animationView.backgroundBehavior = .pauseAndRestore
         animationView.mainThreadRenderingEngineShouldForceDisplayUpdateOnEachFrame = true
         animationView.animationSpeed = 1
+        animationView.isAccessibilityElement = true
+        animationView.accessibilityIdentifier = AccessibilityIdentifier.statusBarConnectionIndicator
         context.coordinator.animationView = animationView
         return animationView
     }
@@ -600,6 +615,7 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
             view.contentMode = .scaleAspectFit
             view.loopMode = loop ? .loop : .playOnce
             view.imageProvider = imageProvider ?? BundleImageProvider(bundle: .main, searchPath: nil)
+            view.accessibilityValue = "animating:\(asset.rawValue)"
             
             let startProgress: AnimationProgressTime
             if let syncedStartTime {
@@ -609,7 +625,12 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
                     if loop {
                         startProgress = AnimationProgressTime((elapsed.truncatingRemainder(dividingBy: duration)) / duration)
                     } else {
-                        startProgress = AnimationProgressTime(min(1.0, elapsed / duration))
+                        let normalizedProgress = elapsed / duration
+                        // If resource loading was delayed and the one-shot animation "starts"
+                        // already at the end, replay it from the beginning so the user sees it.
+                        startProgress = normalizedProgress >= 1.0
+                            ? 0
+                            : AnimationProgressTime(min(1.0, normalizedProgress))
                     }
                 } else {
                     startProgress = 0
@@ -627,6 +648,7 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
                 if holdLastFrame {
                     view.pause()
                     view.currentProgress = 1
+                    view.accessibilityValue = "connected"
                     Self.runtime.phase = .connectedStatic
                 }
                 completion?()
@@ -638,6 +660,7 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
                 if holdLastFrame && finished {
                     view.pause()
                     view.currentProgress = 1
+                    view.accessibilityValue = "connected"
                     Self.runtime.phase = .connectedStatic
                 }
                 completion?()
@@ -674,6 +697,7 @@ private struct ConnectionStatusLottieView: UIViewRepresentable {
             view.loopMode = .playOnce
             view.imageProvider = imageProvider ?? BundleImageProvider(bundle: .main, searchPath: nil)
             view.currentProgress = progress
+            view.accessibilityValue = progress >= 1 ? "connected" : "disconnected"
             view.setNeedsLayout()
             view.layoutIfNeeded()
             view.forceDisplayUpdate()

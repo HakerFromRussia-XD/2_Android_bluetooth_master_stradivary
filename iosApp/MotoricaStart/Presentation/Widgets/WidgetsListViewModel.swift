@@ -115,7 +115,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
         switch widgetCode {
         case WidgetV3Support.WidgetCode.buttonV3:
-            return .command(CommandListItemViewModel(widget: widget, bleManager: bleManager))
+            return .commandV3(CommandListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.spinboxV3, WidgetV3Support.WidgetCode.comboboxV3:
             return .spinnerV3(SpinnerListItemViewModelV3(widget: widget, bleManager: bleManager))
         case WidgetV3Support.WidgetCode.sliderV3:
@@ -270,6 +270,7 @@ extension KotlinByteArray {
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
     case command(CommandListItemViewModel)
+    case commandV3(CommandListItemViewModelV3)
     case plot(PlotListItemViewModel)
     case plotV3(PlotListItemViewModelV3)
     case slider(SliderListItemViewModel)

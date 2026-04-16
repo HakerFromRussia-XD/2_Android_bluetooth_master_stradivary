@@ -1,5 +1,4 @@
 import UIKit
-import QuartzCore
 import shared
 
 @objc final class WidgetsListTableViewController: UITableViewController {
@@ -23,6 +22,7 @@ import shared
     override func viewDidLoad() {
         super.viewDidLoad()
         print("[Lifecycle]  viewDidLoad")
+        tableView.accessibilityIdentifier = AccessibilityIdentifier.widgetsTable
         configureTableTouchBehavior()
         setupViews()
         // Assistant: Применяем начальный снапшот данных
@@ -44,29 +44,14 @@ import shared
         var snapshot = NSDiffableDataSourceSnapshot<Section, ListItemType>()
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModel.items.value)
-        DispatchQueue.main.async {
-//            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
-//                CATransaction.begin()
-//                CATransaction.setDisableActions(true)
-//                UIView.performWithoutAnimation { [weak self] in
-//                    self?.updateTableLayoutWithoutAnimation()
-//                }
-//
-//                CATransaction.commit()
-//            }
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
 
-            let animationsWereEnabled = UIView.areAnimationsEnabled
-            UIView.setAnimationsEnabled(false)
-
-            UIView.performWithoutAnimation {
-                self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences) {
+                UIView.performWithoutAnimation {
                     self.updateTableLayoutWithoutAnimation()
-                    CATransaction.commit()
-                    UIView.setAnimationsEnabled(animationsWereEnabled)
                 }
             }
-            CATransaction.commit()
-            
         }
     }
 
@@ -74,7 +59,6 @@ import shared
         self.tableView.beginUpdates()
         self.tableView.endUpdates()
         self.tableView.layoutIfNeeded()
-//        CATransaction.commit()
     }
 
     func updateLoading(_ loading: WidgetsListViewModelLoading?) {
@@ -128,6 +112,13 @@ import shared
                         for: indexPath
                     ) as! CommandViewCell
                 
+                    cell.configure(with: vm)
+                    return cell
+                case .commandV3(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: CommandViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! CommandViewCell
                     cell.configure(with: vm)
                     return cell
                 case .plot(let vm):

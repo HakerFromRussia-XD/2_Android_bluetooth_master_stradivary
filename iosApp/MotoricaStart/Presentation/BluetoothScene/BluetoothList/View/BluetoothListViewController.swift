@@ -10,6 +10,10 @@ import Foundation
 import shared
 
 final class BluetoothListViewController: UIViewController {
+    private enum Constants {
+        static let rootTransitionDuration: TimeInterval = 0.35
+    }
+
     static let storyboardID = "BluetoothListViewController"
     
     private var didTriggerFakeConnection = false
@@ -412,6 +416,8 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
                 "connectStart",
                 details: "row=\(indexPath.row) name=\(selectedDevice.name) uuid=\(selectedDevice.uuid.uuidString)"
             )
+            UiStateBridge.shared.resetWidgetsState()
+            WidgetsListViewController.resetGlobalSynchronizationState()
             self.viewModel.connect(to: selectedDevice)
             guard self.openMainTabBar() else { return }
         }
@@ -427,7 +433,15 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             return false
         }
         let tabBarController = MainTabBarController(appDIContainer: appDelegate.appDIContainer)
-        navigationController.setViewControllers([tabBarController], animated: true)
+        if let window = appDelegate.window {
+            let transition = CATransition()
+            transition.type = .push
+            transition.subtype = .fromRight
+            transition.duration = Constants.rootTransitionDuration
+            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            window.layer.add(transition, forKey: kCATransition)
+        }
+        navigationController.setViewControllers([tabBarController], animated: false)
         return true
     }
     

@@ -14,6 +14,7 @@ final class LoadingView {
     private static var currentState: State?
     private static weak var containerHostView: UIView?
     private static let animationName = "sinchronization"
+    private static let hideFadeDuration: TimeInterval = 0.3
     private static let fallbackState = State(
         message: NSLocalizedString("Синхронизация данных...", comment: ""),
         progress: 0
@@ -51,15 +52,30 @@ final class LoadingView {
         DispatchQueue.main.async {
             guard let container = containerView else { return }
             container.stopAnimation()
-            UIView.animate(withDuration: 0.3, animations: {
-                container.alpha = 0
-            }, completion: { _ in
+            container.layer.removeAllAnimations()
+
+            let completion: (Bool) -> Void = { _ in
                 container.removeFromSuperview()
                 container.alpha = 1
                 containerView = nil
                 currentState = nil
                 containerHostView = nil
-            })
+            }
+
+            guard container.superview != nil else {
+                completion(true)
+                return
+            }
+
+            UIView.animate(
+                withDuration: hideFadeDuration,
+                delay: 0,
+                options: [.beginFromCurrentState, .curveEaseInOut, .allowUserInteraction],
+                animations: {
+                container.alpha = 0
+            },
+                completion: completion
+            )
         }
     }
 

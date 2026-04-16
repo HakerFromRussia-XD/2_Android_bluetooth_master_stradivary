@@ -62,7 +62,6 @@ struct GesturesWidgetView: View {
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onSprGestureAction: (GesturesProvider.SprGestureDisplayItem) -> Void
     var onSprAddTap: () -> Void
-    var onContentHeightDecrease: (() -> Void)?
 
     init(
         provider: GesturesProvider,
@@ -76,8 +75,7 @@ struct GesturesWidgetView: View {
         onRotationGestureAdd: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onRotationGesturesReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onSprGestureAction: @escaping (GesturesProvider.SprGestureDisplayItem) -> Void,
-        onSprAddTap: @escaping () -> Void,
-        onContentHeightDecrease: (() -> Void)? = nil
+        onSprAddTap: @escaping () -> Void
     ) {
         self.provider = provider
         self.visibleSegments = visibleSegments.isEmpty ? [.collection] : visibleSegments
@@ -91,31 +89,25 @@ struct GesturesWidgetView: View {
         self.onRotationGesturesReorder = onRotationGesturesReorder
         self.onSprGestureAction = onSprGestureAction
         self.onSprAddTap = onSprAddTap
-        self.onContentHeightDecrease = onContentHeightDecrease
     }
     
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            VStack(spacing: 16) {
-                segmentSelector
-                Group {
-                    activeGestureView
-                    stableSegmentContentView
-                        .accessibilityIdentifier(AccessibilityIdentifier.gesturesSegmentContentContainer)
-                        .accessibilityValue(segmentAccessibilityValue(for: provider.selectedSegment))
-                }
-            }
-            .animation(nil, value: provider.selectedSegment)
-            .transaction { transaction in
-                transaction.animation = nil
-            }
-            .padding(.horizontal, 8)
-            .background(Color("ubi4_back"))
-            
-            
+        VStack(spacing: 16) {
+            segmentSelector
+            activeGestureView
+            stableSegmentContentView
+                .accessibilityIdentifier(AccessibilityIdentifier.gesturesSegmentContentContainer)
+                .accessibilityValue(segmentAccessibilityValue(for: provider.selectedSegment))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .animation(nil, value: provider.selectedSegment)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
+        .padding(.horizontal, 8)
+        .background(Color("ubi4_back"))
         .onAppear {
             if !visibleSegments.contains(provider.selectedSegment) {
                 provider.selectedSegment = visibleSegments.first ?? .collection
@@ -145,19 +137,6 @@ struct GesturesWidgetView: View {
                 },
                 onSave: handleRotationDialogSave,
                 onCancel: dismissRotationGroupAddGesturesDialog
-            )
-            .interactiveDismissDisabled()
-            .background(ClearFullScreenBackgroundView())
-        }
-        .fullScreenCover(isPresented: $isRotationDeleteDialogPresented) {
-            RotationDeleteDialogOverlay(
-                isVisible: $isRotationDeleteDialogVisible,
-                title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
-                message: $rotationDeleteDialogMessage,
-                deleteTitle: NSLocalizedString("dialog_delete", comment: ""), //SharedRes.strings().delete.desc().localized(),
-                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
-                onDelete: handleRotationDeleteConfirm,
-                onCancel: dismissRotationDeleteDialog
             )
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
@@ -193,25 +172,51 @@ struct GesturesWidgetView: View {
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
         }
+        .fullScreenCover(isPresented: $isRotationDeleteDialogPresented) {
+            RotationDeleteDialogOverlay(
+                isVisible: $isRotationDeleteDialogVisible,
+                title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
+                message: $rotationDeleteDialogMessage,
+                deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
+                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                onDelete: handleRotationDeleteConfirm,
+                onCancel: dismissRotationDeleteDialog
+            )
+            .interactiveDismissDisabled()
+            .background(ClearFullScreenBackgroundView())
+        }
     }
 
     private struct ClearFullScreenBackgroundView: UIViewRepresentable {
-        func makeUIView(context: Context) -> UIView {
-            let view = UIView()
-            view.backgroundColor = .clear
-
-            DispatchQueue.main.async {
-                view.superview?.superview?.backgroundColor = .clear
-                view.superview?.backgroundColor = .clear
+        final class ClearBackgroundHostView: UIView {
+            override func didMoveToWindow() {
+                super.didMoveToWindow()
+                applyClearBackgrounds()
+                DispatchQueue.main.async { [weak self] in
+                    self?.applyClearBackgrounds()
+                }
             }
 
-            return view
+            private func applyClearBackgrounds() {
+                backgroundColor = .clear
+                isOpaque = false
+
+                var current: UIView? = self
+                while let view = current {
+                    view.backgroundColor = .clear
+                    view.isOpaque = false
+                    current = view.superview
+                }
+            }
+        }
+
+        func makeUIView(context: Context) -> UIView {
+            ClearBackgroundHostView()
         }
 
         func updateUIView(_ uiView: UIView, context: Context) { }
     }
-    
-    
+
     // MARK: - Segment Selector
     private var segmentSelector: some View {
         GeometryReader { geo in
@@ -414,11 +419,6 @@ struct GesturesWidgetView: View {
         transaction.disablesAnimations = true
         withTransaction(transaction) {
             segmentContentLockedHeight = height
-        }
-        // Force table row relayout for both grow and shrink paths.
-        // Shrink-only relayout produced delayed vertical jumps in specific switches.
-        DispatchQueue.main.async { [onContentHeightDecrease] in
-            onContentHeightDecrease?()
         }
     }
 
@@ -787,7 +787,9 @@ struct GesturesWidgetView: View {
         rotationGroupAddGesturesDialogError = nil
         rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
         isRotationGroupAddGesturesDialogVisible = false
-        isRotationGroupAddGesturesDialogPresented = true
+        setDialogPresentedWithoutSystemAnimation {
+            isRotationGroupAddGesturesDialogPresented = true
+        }
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: animationDuration)) {
                 isRotationGroupAddGesturesDialogVisible = true
@@ -803,7 +805,9 @@ struct GesturesWidgetView: View {
         }
         rotationGroupAddGesturesDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem {
-            isRotationGroupAddGesturesDialogPresented = false
+            setDialogPresentedWithoutSystemAnimation {
+                isRotationGroupAddGesturesDialogPresented = false
+            }
             rotationGroupAddGesturesDialogDismissWorkItem = nil
         }
         rotationGroupAddGesturesDialogDismissWorkItem = workItem
@@ -867,7 +871,9 @@ struct GesturesWidgetView: View {
         print ("presentRotationDeleteDialog for \(index) \(rotationDeleteDialogMessage)")
         rotationDeleteDialogDismissWorkItem?.cancel()
         isRotationDeleteDialogVisible = false
-        isRotationDeleteDialogPresented = true
+        setDialogPresentedWithoutSystemAnimation {
+            isRotationDeleteDialogPresented = true
+        }
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: animationDuration)) {
                 isRotationDeleteDialogVisible = true
@@ -882,7 +888,9 @@ struct GesturesWidgetView: View {
         }
         rotationDeleteDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem {
-            isRotationDeleteDialogPresented = false
+            setDialogPresentedWithoutSystemAnimation {
+                isRotationDeleteDialogPresented = false
+            }
             rotationDeleteDialogItem = nil
             rotationDeleteDialogDismissWorkItem = nil
         }
@@ -996,7 +1004,9 @@ struct GesturesWidgetView: View {
         sprGesturesDialogSelection = Set(provider.sprGestures.map { $0.id })
         sprGesturesDialogDismissWorkItem?.cancel()
         isSprGesturesDialogVisible = false
-        isSprGesturesDialogPresented = true
+        setDialogPresentedWithoutSystemAnimation {
+            isSprGesturesDialogPresented = true
+        }
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: animationDuration)) {
                 isSprGesturesDialogVisible = true
@@ -1011,7 +1021,9 @@ struct GesturesWidgetView: View {
         }
         sprGesturesDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem { [self] in
-            isSprGesturesDialogPresented = false
+            setDialogPresentedWithoutSystemAnimation {
+                isSprGesturesDialogPresented = false
+            }
             sprGesturesDialogDismissWorkItem = nil
         }
         sprGesturesDialogDismissWorkItem = workItem
@@ -1054,7 +1066,9 @@ struct GesturesWidgetView: View {
         }
         sprBindingDialogDismissWorkItem?.cancel()
         isSprBindingDialogVisible = false
-        isSprBindingDialogPresented = true
+        setDialogPresentedWithoutSystemAnimation {
+            isSprBindingDialogPresented = true
+        }
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: animationDuration)) {
                 isSprBindingDialogVisible = true
@@ -1069,7 +1083,9 @@ struct GesturesWidgetView: View {
         }
         sprBindingDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem {
-            isSprBindingDialogPresented = false
+            setDialogPresentedWithoutSystemAnimation {
+                isSprBindingDialogPresented = false
+            }
             sprBindingDialogTarget = nil
             sprBindingDialogDismissWorkItem = nil
         }
@@ -1078,6 +1094,14 @@ struct GesturesWidgetView: View {
             deadline: .now() + animationDuration,
             execute: workItem
         )
+    }
+
+    private func setDialogPresentedWithoutSystemAnimation(_ updates: () -> Void) {
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            updates()
+        }
     }
 
     private func toggleSprBindingSelection(option: RotationGroupAddGesturesSelectionOption) {

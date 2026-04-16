@@ -105,9 +105,6 @@ final class GestureViewCell: UITableViewCell {
                 onSprAddTap: { [weak self] in
                     guard let self, let provider = self.provider else { return }
                     self.viewModel.updateBindingGroup(provider: provider)
-                },
-                onContentHeightDecrease: { [weak self] in
-                    self?.updateContainingTableHeightWithoutAnimation()
                 }
             )
         }
@@ -200,33 +197,6 @@ final class GestureViewCell: UITableViewCell {
         withTransaction(transaction) { [weak self] in
             self?.provider?.rotationGroup = rotationGroup
         }
-        if provider?.selectedSegment == .rotationGroup {
-            updateContainingTableHeightWithoutAnimation()
-        }
-    }
-
-    private func updateContainingTableHeightWithoutAnimation() {
-        guard let tableView = findContainingTableView() else { return }
-        let previousAnimationsEnabled = UIView.areAnimationsEnabled
-        UIView.setAnimationsEnabled(false)
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        tableView.beginUpdates()
-        tableView.endUpdates()
-        tableView.layoutIfNeeded()
-        CATransaction.commit()
-        UIView.setAnimationsEnabled(previousAnimationsEnabled)
-    }
-
-    private func findContainingTableView() -> UITableView? {
-        var current: UIView? = self
-        while let view = current {
-            if let tableView = view as? UITableView {
-                return tableView
-            }
-            current = view.superview
-        }
-        return nil
     }
 
     private func disableImplicitGeometryAnimations() {

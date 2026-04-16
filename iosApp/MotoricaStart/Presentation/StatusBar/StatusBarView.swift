@@ -90,7 +90,9 @@ struct StatusBarView: View {
     private func presentDisconnectDialog() {
         disconnectDialogDismissWorkItem?.cancel()
         isDisconnectDialogVisible = false
-        isDisconnectDialogPresented = true
+        setDisconnectDialogPresentedWithoutSystemAnimation {
+            isDisconnectDialogPresented = true
+        }
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: dialogAnimationDuration)) {
                 isDisconnectDialogVisible = true
@@ -105,7 +107,9 @@ struct StatusBarView: View {
         }
         disconnectDialogDismissWorkItem?.cancel()
         let workItem = DispatchWorkItem {
-            isDisconnectDialogPresented = false
+            setDisconnectDialogPresentedWithoutSystemAnimation {
+                isDisconnectDialogPresented = false
+            }
             disconnectDialogDismissWorkItem = nil
             onDismissed?()
         }
@@ -121,7 +125,17 @@ struct StatusBarView: View {
         disconnectDialogDismissWorkItem = nil
         onDisconnectConfirmed?()
         isDisconnectDialogVisible = false
-        isDisconnectDialogPresented = false
+        setDisconnectDialogPresentedWithoutSystemAnimation {
+            isDisconnectDialogPresented = false
+        }
+    }
+
+    private func setDisconnectDialogPresentedWithoutSystemAnimation(_ updates: () -> Void) {
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            updates()
+        }
     }
 }
 

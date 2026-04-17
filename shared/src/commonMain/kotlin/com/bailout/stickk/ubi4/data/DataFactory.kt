@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
@@ -49,7 +50,30 @@ class DataFactory {
         add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
 //        add(SwitchItem("SWITCH S", SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
         add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
-        add(SpinnerItemV3("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 8, widgetCode = ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt())))))
+        add(
+            SpinnerItemV3(
+                "Режим работы протеза",
+                SpinnerParameterWidgetSStruct(
+                    baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+                        BaseParameterWidgetStruct(
+                            widgetPosition = 8,
+                            widgetCode = ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt()
+                        ),
+                        "Режим работы протеза"
+                    ),
+                    dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                        spinnerItems = listOf(
+                            "Нормальный",
+                            "Спортивный",
+                            "Плавное управление силой",
+                            "Плавное управление скоростью",
+                            "Плавное управление силой и скоростью"
+                        ),
+                        selectedIndex = 0
+                    )
+                )
+            )
+        )
 //        add(SliderItem("SLIDER S", SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 8, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
 //        add(PlotItem("PLOT E", PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
 //        add(PlotItem("PLOT S", PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))

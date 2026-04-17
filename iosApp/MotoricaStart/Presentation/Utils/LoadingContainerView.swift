@@ -141,7 +141,7 @@ final class LoadingContainerView: UIView {
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         messageLabel.font = UIFont(name: "SFProDisplay-Light", size: 16)
         messageLabel.textAlignment = .center
-        messageLabel.textColor = .label
+        messageLabel.textColor = UIColor(named: "ubi4_white") ?? .white
         messageLabel.numberOfLines = 0
         stackView.addArrangedSubview(messageLabel)
     }

@@ -31,6 +31,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }()
     
     private var viewModel: WidgetsListViewModel!
+    private var isUiTestSkipSynchronization: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-skip-synchronization")
+    }
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
@@ -101,6 +104,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
         
         bind(to: viewModel)
+        if isUiTestSkipSynchronization {
+            isSynchronizationCompleted = true
+            isSynchronizationInProgress = false
+            showWidgetsContent()
+            LoadingView.hide()
+        }
         if !isSynchronizationCompleted {
             hideWidgetsContentForSynchronization()
         } else {
@@ -124,6 +133,19 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
+        if isUiTestSkipSynchronization {
+            isSynchronizationCompleted = true
+            isSynchronizationInProgress = false
+            needsReloadAfterSynchronization = false
+            hasReceivedWidgetsLoadingProgress = true
+            hasRetriedSynchronizationWithoutProgress = false
+            widgetsLoadingMax = 0
+            currentLoadingMessage = nil
+            lastKnownLoadingState = nil
+            LoadingView.hide()
+            showWidgetsContent()
+            return
+        }
         if isSynchronizationCompleted {
             showWidgetsContent()
         } else if isSynchronizationInProgress {
@@ -204,7 +226,10 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
-        let kotlinWidgets = dataFactory.prepareData(display: display)
+        var kotlinWidgets = dataFactory.prepareData(display: display)
+        if isUiTestSkipSynchronization && kotlinWidgets.isEmpty {
+            kotlinWidgets = dataFactory.fakeData()
+        }
         
 //        let kotlinWidgets = dataFactory.fakeData2()
 //        handleWidgetsLoadingCompletion()

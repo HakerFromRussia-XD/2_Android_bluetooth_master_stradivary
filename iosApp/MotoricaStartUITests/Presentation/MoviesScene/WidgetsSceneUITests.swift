@@ -14,6 +14,13 @@ class WidgetsSceneUITests: XCTestCase {
         let rollback: Bool
     }
 
+    private let preferredDeviceCandidates = [
+        "FTHS3-Рома1",
+        "Рома1",
+        "Роман",
+        "FTHS3-Роман",
+    ]
+
     override func setUp() {
         continueAfterFailure = false
     }
@@ -71,19 +78,12 @@ class WidgetsSceneUITests: XCTestCase {
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
         XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
         
-        let romanCandidates = [
-            "Роман",
-            "Roman",
-            "FTHS3-Роман",
-            "FTHS3-Roman"
-        ]
-        
         guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: romanCandidates,
+            namedAnyOf: preferredDeviceCandidates,
             in: devicesTable,
             timeout: 45
         ) else {
-            XCTFail("Could not find BLE device with name Roman/Роман in scan list")
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
             return
         }
         
@@ -101,19 +101,12 @@ class WidgetsSceneUITests: XCTestCase {
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
         XCTAssertTrue(devicesTable.waitForExistence(timeout: 20))
 
-        let romanCandidates = [
-            "Роман",
-            "Roman",
-            "FTHS3-Роман",
-            "FTHS3-Roman"
-        ]
-
         guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: romanCandidates,
+            namedAnyOf: preferredDeviceCandidates,
             in: devicesTable,
             timeout: 60
         ) else {
-            XCTFail("Could not find BLE device with name Roman/Роман in scan list")
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
             return
         }
 
@@ -150,11 +143,11 @@ class WidgetsSceneUITests: XCTestCase {
         XCTAssertFalse(mainTabsRoot.exists, "Main tabs should be closed right after disconnect")
 
         guard let romanDeviceElementAfterReconnect = waitForDeviceElement(
-            namedAnyOf: romanCandidates,
+            namedAnyOf: preferredDeviceCandidates,
             in: devicesTable,
             timeout: 60
         ) else {
-            XCTFail("Could not find BLE device with name Roman/Роман in scan list after disconnect")
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list after disconnect")
             return
         }
         romanDeviceElementAfterReconnect.tap()
@@ -193,19 +186,12 @@ class WidgetsSceneUITests: XCTestCase {
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
         XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
 
-        let romanCandidates = [
-            "Роман",
-            "Roman",
-            "FTHS3-Роман",
-            "FTHS3-Roman"
-        ]
-
         guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: romanCandidates,
+            namedAnyOf: preferredDeviceCandidates,
             in: devicesTable,
             timeout: 60
         ) else {
-            XCTFail("Could not find BLE device with name Roman/Роман in scan list")
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
             return
         }
 
@@ -266,19 +252,12 @@ class WidgetsSceneUITests: XCTestCase {
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
         XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
 
-        let romanCandidates = [
-            "Роман",
-            "Roman",
-            "FTHS3-Роман",
-            "FTHS3-Roman"
-        ]
-
         guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: romanCandidates,
+            namedAnyOf: preferredDeviceCandidates,
             in: devicesTable,
             timeout: 60
         ) else {
-            XCTFail("Could not find BLE device with name Roman/Роман in scan list")
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
             return
         }
 
@@ -336,7 +315,63 @@ class WidgetsSceneUITests: XCTestCase {
             tapSelectorSegment(selector, normalizedX: 0.25)
         }
     }
-    
+
+    func testBottomBarStyle_whenConnectedToRoma1_thenCaptureRealDeviceScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-ui-test-debug-tabbar"]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: preferredDeviceCandidates,
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 15), "Main tabs did not open after tapping preferred BLE device")
+
+        let sensorsTab = app.tabBars.buttons["Датчики"]
+        if sensorsTab.waitForExistence(timeout: 3) {
+            sensorsTab.tap()
+        }
+
+        RunLoop.current.run(until: Date().addingTimeInterval(1.0))
+
+        let screenshot = XCUIScreen.main.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = "real-device-bottom-bar-after-connect"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+
+        let gesturesTab = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        if gesturesTab.waitForExistence(timeout: 3) {
+            gesturesTab.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+            let gesturesAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            gesturesAttachment.name = "real-device-bottom-bar-gestures-selected"
+            gesturesAttachment.lifetime = .keepAlways
+            add(gesturesAttachment)
+        }
+
+        let specialTab = app.tabBars.buttons[AccessibilityIdentifier.mainTabSpecialSettingsItem]
+        if specialTab.waitForExistence(timeout: 3) {
+            specialTab.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+            let specialAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            specialAttachment.name = "real-device-bottom-bar-special-selected"
+            specialAttachment.lifetime = .keepAlways
+            add(specialAttachment)
+        }
+    }
+
     private func waitForDeviceElement(namedAnyOf candidates: [String], in table: XCUIElement, timeout: TimeInterval) -> XCUIElement? {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {

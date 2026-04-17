@@ -12,8 +12,6 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.UiState
-import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
-import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
@@ -81,7 +79,13 @@ class SpinnerDelegateAdapterV3 (
         spinnerPsv.setItems(spinnerItems)
         applySpinnerLockState(info)
         // стартовое состояние из структуры
-        spinnerPsv.selectItemByIndex(selectedIndexFromWidget)
+        safeIndexOrNull(
+            items = info.items,
+            requestedIndex = selectedIndexFromWidget,
+            logContext = "initialSelection pInfo=${info.parameterInfo}"
+        )?.let { safeIndex ->
+            spinnerPsv.selectItemByIndex(safeIndex)
+        }
         spinnerTv.text = item.title
         spinnerPsv.apply {
             setTextColor(ContextCompat.getColor(context, R.color.white))
@@ -180,8 +184,40 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun applyProgrammaticSelection(infoWidget: WidgetSpinnerInfo, index: Int) {
-        infoWidget.pendingProgrammaticIndex = index
-        infoWidget.spinner.selectItemByIndex(index)
+        val safeIndex = safeIndexOrNull(
+            items = infoWidget.items,
+            requestedIndex = index,
+            logContext = "programmaticSelection pInfo=${infoWidget.parameterInfo}"
+        ) ?: run {
+            infoWidget.pendingProgrammaticIndex = null
+            return
+        }
+
+        infoWidget.pendingProgrammaticIndex = safeIndex
+        infoWidget.spinner.selectItemByIndex(safeIndex)
+    }
+
+    private fun safeIndexOrNull(
+        items: List<String>,
+        requestedIndex: Int,
+        logContext: String
+    ): Int? {
+        if (items.isEmpty()) {
+            Log.w(
+                "SpinnerDelegateAdapterV3",
+                "Skip selection: items is empty, requestedIndex=$requestedIndex, $logContext"
+            )
+            return null
+        }
+
+        val safeIndex = requestedIndex.coerceIn(0, items.lastIndex)
+        if (safeIndex != requestedIndex) {
+            Log.w(
+                "SpinnerDelegateAdapterV3",
+                "Adjust selection index $requestedIndex -> $safeIndex, itemsSize=${items.size}, $logContext"
+            )
+        }
+        return safeIndex
     }
 
     private fun sendValue(info: WidgetSpinnerInfo, value: Int) {

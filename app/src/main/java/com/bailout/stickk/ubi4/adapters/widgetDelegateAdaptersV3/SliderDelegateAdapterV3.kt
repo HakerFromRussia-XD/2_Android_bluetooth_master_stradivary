@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import kotlinx.serialization.json.Json
 import java.util.Locale
 import kotlin.math.roundToInt
 class SliderDelegateAdapterV3(
@@ -54,6 +55,7 @@ class SliderDelegateAdapterV3(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetInfoList: ArrayList<WidgetSliderInfo> = ArrayList()
     private var sliderInfoCounter = 0
+    private var timer: CountDownTimer? = null
     private var isAttached = false
 
     private var collectJob: kotlinx.coroutines.Job? = null

@@ -68,7 +68,6 @@ class GesturesDelegateAdapterV3(
     RotationGroupItemAdapterV3.OnSelectClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItemV3, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
-    private val json = Json { encodeDefaults = true }
     private val ANIMATION_DURATION = 200
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapterV3? = null

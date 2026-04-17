@@ -146,11 +146,7 @@ final class BluetoothListViewController: UIViewController {
             tableViewDevices.topAnchor.constraint(equalTo: tableContainer.topAnchor),
             tableViewDevices.bottomAnchor.constraint(equalTo: tableContainer.bottomAnchor)
         ])
-        view.addSubview(bottomButton)
-        NSLayoutConstraint.activate([
-            bottomButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            bottomButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
+        // Кнопка отладочного действия не должна отображаться на экране сканирования.
         
         let titleTextAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? UIColor.white]
         UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes, for: .normal)
@@ -183,13 +179,14 @@ final class BluetoothListViewController: UIViewController {
                 guard let self = self else { return }
                 guard !self.isTransitioningToMainTabBar else { return }
                 print("[BLE-VC] reload table with \(devices.count) items")
+                let currentDeviceIDs = devices.map { $0.id }
+
                 if self.isTableInteractionInProgress {
                     self.logTouch("skipReload", details: "reason=interaction count=\(devices.count)")
                     self.pendingDevicesReloadAfterInteraction = true
                     return
                 }
-                
-                let currentDeviceIDs = devices.map { $0.id }
+
                 if currentDeviceIDs == self.lastRenderedDeviceIDs {
                     self.logTouch("skipReload", details: "reason=same-ids count=\(devices.count)")
                     self.refreshVisibleDeviceCells()
@@ -201,7 +198,7 @@ final class BluetoothListViewController: UIViewController {
                 UIView.performWithoutAnimation {
                     self.tableViewDevices.reloadData()
                 }
-                self.updateTableHeight()
+                self.updateTableHeight(animated: true)
             }
             .store(in: &cancellables)
         viewModel.onAppear()
@@ -228,6 +225,7 @@ final class BluetoothListViewController: UIViewController {
         if let backgroundColor = UIColor(named: "ubi4_back") {
             containerView.backgroundColor = backgroundColor
         }
+        updateTableHeight()
     }
 
     func updateConstraints() {
@@ -269,11 +267,28 @@ final class BluetoothListViewController: UIViewController {
     
     
     // Функция обновления высоты таблицы
-    private func updateTableHeight() {
-        let targetHeight = max(tableViewDevices.contentSize.height, 64)
+    private func updateTableHeight(animated: Bool = false) {
+        let minHeight: CGFloat = 64
+        let bottomInset: CGFloat = 16
+        let bottomLimitY = view.bounds.height - view.safeAreaInsets.bottom - bottomInset
+        let topY = tableViewDevices.frame.minY
+        let maxAllowedHeight = max(minHeight, bottomLimitY - topY)
+        let contentHeight = max(tableViewDevices.contentSize.height, minHeight)
+        let targetHeight = min(contentHeight, maxAllowedHeight)
+
         guard abs(tableHeightConstraint.constant - targetHeight) > 0.5 else { return }
         tableHeightConstraint.constant = targetHeight
-        view.layoutIfNeeded()
+        if animated {
+            UIView.animate(
+                withDuration: 0.3,
+                delay: 0,
+                options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction]
+            ) {
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            view.layoutIfNeeded()
+        }
     }
     
     private var isTableInteractionInProgress: Bool {
@@ -287,7 +302,7 @@ final class BluetoothListViewController: UIViewController {
         UIView.performWithoutAnimation {
             tableViewDevices.reloadData()
         }
-        updateTableHeight()
+        updateTableHeight(animated: true)
         logTouch("flushPendingReload", details: "rows=\(tableViewDevices.numberOfRows(inSection: 0))")
     }
     
@@ -312,6 +327,7 @@ final class BluetoothListViewController: UIViewController {
         NSLog("%@", message)
         print(message)
     }
+
 }
 // MARK: - UITableViewDataSource
 extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegate {

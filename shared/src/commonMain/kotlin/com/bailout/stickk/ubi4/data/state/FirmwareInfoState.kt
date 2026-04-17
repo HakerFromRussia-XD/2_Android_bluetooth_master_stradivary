@@ -21,13 +21,7 @@ object FirmwareInfoState {
     val completeCrcFlow      = MutableSharedFlow<Boolean>(replay = 1)
     val updateCompleteFlow   = MutableSharedFlow<Unit>(replay = 1)
     val finishSystemUpdateFlow = MutableSharedFlow<Unit>(replay = 1)
-    private val _firmwareInfoFlowV3 = MutableSharedFlow<Map<Int, String>>(replay = 1)
-    val firmwareInfoFlowV3: SharedFlow<Map<Int, String>> = _firmwareInfoFlowV3.asSharedFlow()
 
-
-    fun emitFirmwareInfoV3(versionsByAddr: Map<Int, String>) {
-        _firmwareInfoFlowV3.tryEmit(versionsByAddr)
-    }
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {
         _firmwareInfoFlow.tryEmit(fw)
     }

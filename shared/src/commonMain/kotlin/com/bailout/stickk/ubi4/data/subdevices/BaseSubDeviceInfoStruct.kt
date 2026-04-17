@@ -25,7 +25,6 @@ data class BaseSubDeviceInfoStruct(
 
     val isBoot: Int = 0,
     val fwVersion: String = ""
-
     )
 
 object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {

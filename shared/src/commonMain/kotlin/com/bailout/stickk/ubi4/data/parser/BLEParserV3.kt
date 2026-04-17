@@ -5,7 +5,6 @@ import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
@@ -151,17 +150,15 @@ class BLEParserV3(
                     devices.forEach { d ->
                         baseSubDevicesInfoStructSet.add(
                             BaseSubDeviceInfoStruct(
-                                deviceAddress = d.address,
+                                deviceAddress = d.deviceAddress,
                                 deviceType = d.deviceType,
                                 deviceCode = d.deviceCode,
-                                parametersList = arrayListOf()
+                                parametersList = arrayListOf(),
+                                isBoot = d.isBoot,
+                                fwVersion = d.fwVersion
                             )
                         )
                     }
-
-                    // ВАЖНО: один снапшот версий на все платы
-                    val versionsByAddr: Map<Int, String> = devices.associate { it.address to it.fwVersion }
-                    FirmwareInfoState.emitFirmwareInfoV3(versionsByAddr)
 
                     updateFlow.emit(1)
                 }

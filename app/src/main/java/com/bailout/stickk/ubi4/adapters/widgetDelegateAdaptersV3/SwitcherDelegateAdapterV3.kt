@@ -281,26 +281,7 @@ class SwitcherDelegateAdapterV3(
         updateSwitchState(targetState, switch)
     }
 
-    private fun parseTestResultSafely(data: String): SwitcherV3? {
-        if (data.isBlank()) return null
-        return runCatching { json.decodeFromString<SwitcherV3>(data) }
-            .onFailure { platformLog("SwitcherDelegateAdapterV3", "Failed to decode TestToggleV3: ${it.message}") }
-            .getOrNull()
-    }
-    private fun getIndexWidgetSwitch(parameterID: Int): IntArray {
-        platformLog(
-            "SwitcherDelegateAdapterV3",
-            "getIndexWidgetSwitch из ${widgetInfoList.size}"
-        )
 
-        return widgetInfoList.mapIndexedNotNull { index, item ->
-            if (item.parameterInfo.parameterID == parameterID) {
-                index
-            } else {
-                null
-            }
-        }.toIntArray()
-    }
     override fun isForViewType(item: Any): Boolean =
         item is SwitchItemV3 && item.widget is SwitchParameterWidgetSStruct
     override fun SwitchItemV3.getItemId(): Any = when (val w = widget) {

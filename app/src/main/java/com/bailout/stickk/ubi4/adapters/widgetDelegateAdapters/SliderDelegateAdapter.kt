@@ -170,8 +170,6 @@ class SliderDelegateAdapter(
         // Cache-first draw to avoid showing 0 if the event already arrived earlier
         sliderCollect()
 
-        // Получаем индекс текущего виджета по значению device и parameter
-        val indexWidgetSlider = getIndexWidgetSlider(addressDevice, parameterID)
         val range = if (maxProgress == minProgress) 100 else maxProgress - minProgress
 
         // Настраиваем слайдеры: если параметров больше одного, показываем второй слайдер
@@ -245,14 +243,18 @@ class SliderDelegateAdapter(
         // Обработчик первого слайдера
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                val info = widgetSlidersInfo[indexWidgetSlider]
+                val idx = getIndexWidgetSlider(addressDevice, parameterID)
+                val info = widgetSlidersInfo.getOrNull(idx) ?: return
                 widgetSliderNumTv.text = formatSliderValue(seekBar.progress + info.minProgress, info.increment)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) { }
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[0]  = seekBar.progress + widgetSlidersInfo[indexWidgetSlider].minProgress
-                Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${widgetSlidersInfo[indexWidgetSlider].progress})")
-                onSetProgress(addressDevice, parameterID,  widgetSlidersInfo[indexWidgetSlider].progress )
+                val idx = getIndexWidgetSlider(addressDevice, parameterID)
+                val info = widgetSlidersInfo.getOrNull(idx) ?: return
+                if (info.progress.isEmpty()) return
+                info.progress[0] = seekBar.progress + info.minProgress
+                Log.d("SliderSend", "→ send onSetProgress(address=$addressDevice, param=$parameterID, progress=${info.progress})")
+                onSetProgress(addressDevice, parameterID, info.progress)
             }
         })
 
@@ -285,17 +287,17 @@ class SliderDelegateAdapter(
 
         // Кнопки инкремента и декремента для каждого слайдера
         minusBtnRipple.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 0, step = -1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(widgetPosition, sliderIndex = 0, step = -1)
         }
         plusBtnRipple.setOnClickListener {
-            updateSliderProgress(widgetPosition, sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(widgetPosition, sliderIndex = 0, step = +1)
         }
         if (paramCount > 1) {
             minusBtnRipple2.setOnClickListener {
-                updateSliderProgress(widgetPosition, sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgress(widgetPosition, sliderIndex = 1, step = -1)
             }
             plusBtnRipple2.setOnClickListener {
-                updateSliderProgress(widgetPosition, sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+                updateSliderProgress(widgetPosition, sliderIndex = 1, step = +1)
             }
         } else {
             minusBtnRipple2.setOnClickListener(null)
@@ -333,7 +335,7 @@ class SliderDelegateAdapter(
 
     }
 
-    private fun updateSliderProgress(widgetPosition: Int, sliderIndex: Int, step: Int, indexWidgetSlider: Int) {
+    private fun updateSliderProgress(widgetPosition: Int, sliderIndex: Int, step: Int) {
         val sliderInfo = widgetSlidersInfo.find { it.widgetPosition == widgetPosition }
         if (sliderInfo == null) {
             Log.e("updateSliderProgress", "Не найден sliderInfo для widgetPosition = $widgetPosition")

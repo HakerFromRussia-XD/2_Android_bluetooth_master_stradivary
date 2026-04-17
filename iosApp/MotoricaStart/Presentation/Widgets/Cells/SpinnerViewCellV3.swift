@@ -23,6 +23,10 @@ final class SpinnerViewCellV3: UITableViewCell {
         self.viewModel = viewModel
         selectionStyle = .none
         backgroundColor = UIColor(named: "ubi4_back")
+        clipsToBounds = false
+        contentView.clipsToBounds = false
+        layer.masksToBounds = false
+        contentView.layer.masksToBounds = false
 
         let selected = viewModel.currentSelectedIndex() ?? viewModel.initialSelectedIndex
         let provider = SpinnerProviderV3(
@@ -74,62 +78,131 @@ private final class SpinnerProviderV3: ObservableObject {
 private struct SpinnerRowViewV3: View {
     @ObservedObject var provider: SpinnerProviderV3
     let onSelect: (Int) -> Void
+    @State private var isExpanded = false
 
     private enum Layout {
+        static let rowHeight: CGFloat = 54
+        static let pickerHeight: CGFloat = 52
         static let dropdownWidth: CGFloat = 220
+        static let panelCornerRadius: CGFloat = 18
+        static let panelTopOffset: CGFloat = pickerHeight + 8
+        static let rowCornerRadius: CGFloat = 12
+        static let buttonCornerRadius: CGFloat = 10
+        static let itemVerticalPadding: CGFloat = 18
+        static let panelShadowRadius: CGFloat = 12
+    }
+
+    private enum Palette {
+        static let rowBackground = Color("ubi4_back")
+        static let rowBorder = Color("ubi4_gray_border")
+        static let buttonBackground = Color("ubi4_gray")
+        static let buttonBorder = Color("ubi4_gray_border")
+        static let textPrimary = Color("ubi4_white")
+        static let textSecondary = Color("ubi4_deactivate_text")
     }
 
     var body: some View {
         HStack(spacing: 8) {
             Text(provider.title)
                 .font(.custom("SFProDisplay-Light", size: 12))
-                .foregroundColor(.white)
+                .foregroundColor(Palette.textPrimary)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Menu {
-                ForEach(Array(provider.items.enumerated()), id: \.offset) { index, item in
-                    Button(item) {
-                        onSelect(index)
-                    }
-                }
+            Button {
+                isExpanded.toggle()
             } label: {
                 HStack(spacing: 6) {
                     Text(provider.selectedTitle)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.white)
+                        .font(.custom("SFProDisplay-Light", size: 12))
+                        .foregroundColor(Palette.textPrimary)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        .layoutPriority(1)
 
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(Color("ubi4_deactivate_text"))
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.custom("SFProDisplay-Light", size: 12))
+                        .foregroundColor(Palette.textSecondary)
+                        .frame(width: 12)
                 }
-                .frame(height: 40)
+                .frame(height: Layout.pickerHeight)
                 .padding(.horizontal, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color("ubi4_gray"))
+                    RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
+                        .fill(Palette.buttonBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
+                                .stroke(Palette.buttonBorder, lineWidth: 1)
                         )
                 )
             }
             .buttonStyle(.plain)
             .frame(width: Layout.dropdownWidth)
+            .overlay(alignment: .topTrailing) {
+                if isExpanded {
+                    dropdownPanel
+                        .frame(width: Layout.dropdownWidth)
+                        .offset(y: Layout.panelTopOffset)
+                        .transition(.opacity)
+                        .zIndex(1000)
+                }
+            }
         }
         .padding(.horizontal, 8)
-        .frame(height: 54)
+        .frame(height: Layout.rowHeight)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("ubi4_back"))
+            RoundedRectangle(cornerRadius: Layout.rowCornerRadius)
+                .fill(Palette.rowBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Layout.rowCornerRadius)
+                        .stroke(Palette.rowBorder, lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+        )
+        .zIndex(isExpanded ? 1000 : 0)
+        .animation(.easeInOut(duration: 0.16), value: isExpanded)
+    }
+
+    private var dropdownPanel: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(provider.items.enumerated()), id: \.offset) { index, item in
+                Button {
+                    isExpanded = false
+                    guard provider.selectedIndex != index else { return }
+                    onSelect(index)
+                } label: {
+                    Text(item)
+                        .font(.custom("SFProDisplay-Light", size: 12))
+                        .foregroundColor(Palette.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 12)
+                        .frame(minHeight: 50)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+
+                if index < provider.items.count - 1 {
+                    Rectangle()
+                        .fill(Palette.rowBorder)
+                        .frame(height: 1)
+                }
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: Layout.panelCornerRadius)
+                .fill(Palette.buttonBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Layout.panelCornerRadius)
+                        .stroke(Palette.buttonBorder, lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.35), radius: Layout.panelShadowRadius, x: 0, y: 8)
         )
     }
 }

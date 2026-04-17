@@ -10,6 +10,8 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -20,6 +22,8 @@ import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
@@ -53,6 +57,8 @@ class SliderDelegateAdapterV3(
     private var isAttached = false
 
     private var collectJob: kotlinx.coroutines.Job? = null
+    private var interactionJob: kotlinx.coroutines.Job? = null
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
 
 
     private fun formatSliderValue(value: Int, increment: Float): String {
@@ -106,6 +112,10 @@ class SliderDelegateAdapterV3(
             widgetSlidersSb = widgetSliderSb,
             widgetSliderNumTv = widgetSliderNumTv,
             widgetSliderUnitTv = widgetSliderUnitTv,
+            minusBtnRipple = minusBtnRipple,
+            plusBtnRipple = plusBtnRipple,
+            minusBtnTv = minusBtnTv,
+            plusBtnTv = plusBtnTv,
             widgetPosition = widgetPosition
         )
         currentSliderInfo.instanceId = sliderInfoCounter++
@@ -130,6 +140,7 @@ class SliderDelegateAdapterV3(
             override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if (!isInteractionEnabled) return
                 val uiProgress = seekBar.progress.coerceIn(0, infoWidget.range)
                 val absoluteProgress = uiProgress + infoWidget.minProgress
                 infoWidget.progress = absoluteProgress
@@ -151,6 +162,8 @@ class SliderDelegateAdapterV3(
         widgetSliderNumTv.text = formatSliderValue(minProgress, increment)
         currentSliderInfo.progress = minProgress
         widgetSliderTitleTv.text = item.title
+        applySliderLockState(currentSliderInfo)
+        observeInteractionState()
         sliderCollect()
         setUI(currentParameterInfo, withAnimation = false, widgetPosition = currentSliderInfo.widgetPosition)
     }
@@ -167,7 +180,39 @@ class SliderDelegateAdapterV3(
             }
         }
     }
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+        interactionJob = scope.launch(Dispatchers.Main) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                if (!enabled) {
+                    timer?.cancel()
+                    timer = null
+                }
+                widgetInfoList.forEach { applySliderLockState(it) }
+            }
+        }
+    }
+
+    private fun applySliderLockState(infoWidget: WidgetSliderInfo) {
+        val seekBar = infoWidget.widgetSlidersSb as? SeekBar ?: return
+        val context = seekBar.context
+        val trackRes = if (isInteractionEnabled) R.drawable.ubi4_track else R.drawable.ubi4_track_disabled
+        seekBar.progressDrawable = AppCompatResources.getDrawable(context, trackRes)?.mutate()
+        seekBar.thumb = AppCompatResources.getDrawable(context, R.drawable.thumb_le)?.mutate()
+        seekBar.isEnabled = isInteractionEnabled
+
+        infoWidget.minusBtnRipple?.isClickable = isInteractionEnabled
+        infoWidget.plusBtnRipple?.isClickable = isInteractionEnabled
+
+        val colorRes = if (isInteractionEnabled) R.color.ubi4_white else R.color.ubi4_gray_border
+        infoWidget.minusBtnTv?.setTextColor(context.getColor(colorRes))
+        infoWidget.plusBtnTv?.setTextColor(context.getColor(colorRes))
+    }
+
     private fun updateSliderProgressWithStep(step: Int, infoWidget: WidgetSliderInfo) {
+        if (!isInteractionEnabled) return
 //        val sliderInfo = widgetInfoList[indexWidgetSlider]
         val currentValue = infoWidget.progress
         var newValue = currentValue + step
@@ -196,13 +241,14 @@ class SliderDelegateAdapterV3(
         widgetPosition: Int? = null
     ) {
         widgetInfoList.forEach { infoWidget ->
+            applySliderLockState(infoWidget)
             val sameWidget = parameterInfo == null ||
-                (
-                    infoWidget.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
-                        infoWidget.parameterInfo.parameterID == parameterInfo.parameterID &&
-                        infoWidget.parameterInfo.dataCode == parameterInfo.dataCode &&
-                        (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
-                    )
+                    (
+                            infoWidget.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
+                                    infoWidget.parameterInfo.parameterID == parameterInfo.parameterID &&
+                                    infoWidget.parameterInfo.dataCode == parameterInfo.dataCode &&
+                                    (widgetPosition == null || infoWidget.widgetPosition == widgetPosition)
+                            )
             if (!sameWidget) return@forEach
 
             val parameterMeta = ParameterInfoRegistry.getMeta(infoWidget.parameterInfo) ?: return@forEach
@@ -427,6 +473,8 @@ class SliderDelegateAdapterV3(
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
     }
 }
 
@@ -440,6 +488,10 @@ data class WidgetSliderInfo (
     var widgetSlidersSb: ProgressBar,
     var widgetSliderNumTv: TextView,
     var widgetSliderUnitTv: TextView?,
+    var minusBtnRipple: View? = null,
+    var plusBtnRipple: View? = null,
+    var minusBtnTv: TextView? = null,
+    var plusBtnTv: TextView? = null,
     var widgetPosition: Int = 0,
     var instanceId: Int = 0,
     var responseReceived: AtomicBoolean = AtomicBoolean(false),

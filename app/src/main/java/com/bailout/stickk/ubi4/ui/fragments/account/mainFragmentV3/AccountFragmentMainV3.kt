@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -78,9 +79,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var _binding: Ubi4FragmentPersonalAccountMainBinding? = null
     private val binding get() = requireNotNull(_binding)
     private val resumeDisposables = CompositeDisposable()
-    private val fwVersions = mutableMapOf<Int, String>()
     private val bootloaderBoardsList = mutableListOf<BootloaderBoardItemUBI4>()
-    private val boardNameByAddr = mutableMapOf<Int, String>()
+    private val boardNameByCode = mutableMapOf<Int, String>()
     private var canRenderBoards = false
     private var isTokenLoaded = false
     private var isBoardsRendered = false
@@ -144,13 +144,6 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     UiState.updateFlow.collect {
-                        if (canRenderBoards) refreshBoards()
-                    }
-                }
-                launch {
-                    FirmwareInfoState.firmwareInfoFlowV3.collect { versions ->
-                        fwVersions.clear()
-                        fwVersions.putAll(versions)
                         if (canRenderBoards) refreshBoards()
                     }
                 }
@@ -405,26 +398,61 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             updateBootloaderSafe(snapshot)
             isBoardsRendered = true
         }
-
         return true
     }
 
     private fun rebuildBoardNameCache() {
-        boardNameByAddr.clear()
+        boardNameByCode.clear()
         GlobalParameters.baseSubDevicesInfoStructSet.forEach { sub ->
-            boardNameByAddr[sub.deviceAddress] = PreferenceKeysUbi4.SubDeviceBoard.from(sub.deviceAddress).title.removeSuffix(" board")
+            val resolvedName = PreferenceKeysUbi4.DeviceCodeV3
+                .fromCode(sub.deviceCode)
+                .title
+                .removeSuffix(" board")
+            boardNameByCode[sub.deviceCode] = resolvedName
+            Log.d(
+                BOARD_LOG_TAG,
+                "rebuildBoardNameCache: addr=${sub.deviceAddress}, code=${sub.deviceCode}, nameByDataCode=$resolvedName"
+            )
         }
+        Log.d(BOARD_LOG_TAG, "rebuildBoardNameCache result: $boardNameByCode")
     }
 
     private fun refreshBoards() {
         rebuildBoardNameCache()
+        Log.d(
+            BOARD_LOG_TAG,
+            "refreshBoards start: subDevices=${
+                GlobalParameters.baseSubDevicesInfoStructSet.joinToString(prefix = "[", postfix = "]") {
+                    "{addr=${it.deviceAddress}, code=${it.deviceCode}, fw=${it.fwVersion}}"
+                }
+            }"
+        )
         val builtBoards = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
-            BootloaderBoardItemUBI4(boardNameByAddr[sub.deviceAddress] ?: "Unknown", sub.deviceCode, sub.deviceAddress, true, fwVersions.getOrDefault(sub.deviceAddress, "—"), false)
+            val name = boardNameByCode[sub.deviceCode] ?: "Unknown"
+            val fw = sub.fwVersion.takeIf { it.isNotBlank() }
+                ?: "—"
+            if (name == "Unknown") {
+                Log.w(
+                    BOARD_LOG_TAG,
+                    "Unknown board resolved: addr=${sub.deviceAddress}, code=${sub.deviceCode}, fw=$fw, nameByDataCode=${
+                        PreferenceKeysUbi4.DeviceCodeV3.fromCode(sub.deviceCode).title.removeSuffix(" board")
+                    }"
+                )
+            }
+            BootloaderBoardItemUBI4(name, sub.deviceCode, sub.deviceAddress, true, fw, false)
         }.distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }
         if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)
+        Log.d(
+            BOARD_LOG_TAG,
+            "refreshBoards done: built=${
+                builtBoards.joinToString(prefix = "[", postfix = "]") {
+                    "{addr=${it.deviceAddress}, code=${it.deviceCode}, name=${it.boardName}, fw=${it.version}}"
+                }
+            }"
+        )
         isBoardsRendered = true
         revealVersionsWhenReady()
     }
@@ -527,6 +555,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     companion object {
+        private const val BOARD_LOG_TAG = "AccountBoardsV3"
         private var cachedProfileItem: AccountMainUBI4Item? = null
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()

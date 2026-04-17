@@ -12,6 +12,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
@@ -44,7 +45,9 @@ class SwitcherDelegateAdapterV3(
 
 
     private var collectJob: kotlinx.coroutines.Job? = null
+    private var interactionJob: kotlinx.coroutines.Job? = null
     private var programmaticChange = false
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItemV3) {
@@ -101,11 +104,16 @@ class SwitcherDelegateAdapterV3(
 
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
             if (programmaticChange) return@setOnCheckedChangeListener
+            if (!isInteractionEnabled) {
+                updateSwitchState(false, widgetSwitchSc)
+                return@setOnCheckedChangeListener
+            }
 
             Log.d(
                 "sendSwitcherStateV3",
                 "setOnCheckedChangeListener parameterInfo=$currentParameterInfo isChecked=$isChecked"
             )
+            currentSwitchInfo.isChecked = isChecked
 
             if (!isMobileSetting) {
                 sendStateSwitcher(currentParameterInfo, isChecked)
@@ -145,6 +153,9 @@ class SwitcherDelegateAdapterV3(
 
             switchCollect()
         }
+
+        observeInteractionState()
+        applySwitchLockState(currentSwitchInfo)
     }
 
     private fun setUI(
@@ -152,13 +163,14 @@ class SwitcherDelegateAdapterV3(
         widgetPosition: Int? = null
     ) {
         widgetInfoList.forEach { widgetInfo ->
+            applySwitchLockState(widgetInfo)
             val sameWidget = parameterInfo == null ||
-                (
-                    widgetInfo.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
-                        widgetInfo.parameterInfo.parameterID == parameterInfo.parameterID &&
-                        widgetInfo.parameterInfo.dataCode == parameterInfo.dataCode &&
-                        (widgetPosition == null || widgetInfo.widgetPosition == widgetPosition)
-                    )
+                    (
+                            widgetInfo.parameterInfo.deviceAddress == parameterInfo.deviceAddress &&
+                                    widgetInfo.parameterInfo.parameterID == parameterInfo.parameterID &&
+                                    widgetInfo.parameterInfo.dataCode == parameterInfo.dataCode &&
+                                    (widgetPosition == null || widgetInfo.widgetPosition == widgetPosition)
+                            )
             if (!sameWidget) return@forEach
 
             val parameterMeta = ParameterInfoRegistry.getMeta(widgetInfo.parameterInfo) ?: return@forEach
@@ -236,6 +248,45 @@ class SwitcherDelegateAdapterV3(
             }
         }
     }
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+
+        interactionJob = scope.launch(Dispatchers.Main) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                widgetInfoList.forEach { applySwitchLockState(it) }
+            }
+        }
+    }
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private fun applySwitchLockState(widgetInfo: WidgetSwitchInfoV3) {
+        val switch = widgetInfo.widgetSwitch
+        if (!isInteractionEnabled) {
+            updateSwitchState(false, switch)
+            switch.isEnabled = false
+            switch.isClickable = false
+            return
+        }
+
+        val targetState = if (widgetInfo.isMobileSettings) {
+            main.getBoolean(PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION, false)
+        } else {
+            widgetInfo.isChecked
+        }
+
+        switch.isEnabled = true
+        switch.isClickable = true
+        updateSwitchState(targetState, switch)
+    }
+
+    private fun parseTestResultSafely(data: String): SwitcherV3? {
+        if (data.isBlank()) return null
+        return runCatching { json.decodeFromString<SwitcherV3>(data) }
+            .onFailure { platformLog("SwitcherDelegateAdapterV3", "Failed to decode TestToggleV3: ${it.message}") }
+            .getOrNull()
+    }
     private fun getIndexWidgetSwitch(parameterID: Int): IntArray {
         platformLog(
             "SwitcherDelegateAdapterV3",
@@ -269,6 +320,8 @@ class SwitcherDelegateAdapterV3(
         scope.coroutineContext.cancelChildren()
         collectJob?.cancel()
         collectJob = null
+        interactionJob?.cancel()
+        interactionJob = null
     }
 }
 

@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
+
+    <View
+        android:id="@+id/ubi4TitleClickBlockBtn"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/ubi4MainSv"
+        android:layout_alignParentTop="true"
+        android:background="@color/ubi4_back" />
+
+    <View
+        android:id="@+id/ubi4BackBtn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/ubi4ImageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@id/ubi4BackBtn"
+        android:layout_alignTop="@id/ubi4BackBtn"
+        android:layout_alignEnd="@id/ubi4BackBtn"
+        android:layout_alignBottom="@id/ubi4BackBtn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_arrow_left"
+        android:visibility="gone"
+        app:tint="@color/ubi4_white"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/ubi4HelpTitleTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/ubi4ImageView33"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
+        android:text="@string/gesture_settings"
+        android:textColor="@color/ubi4_white"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/ubi4MainSv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="18dp"
+        android:background="@color/ubi4_back">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4BeginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/ubi4EndGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp" />
+
+            <TextView
+                android:id="@+id/ubi4HelpTitleInContentTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_inter_semi_bold"
+                android:text="@string/gesture_settings"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline"
+                app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4CardView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline"
+                app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline"
+                app:layout_constraintTop_toBottomOf="@id/ubi4HelpTitleInContentTv">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4BeginGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4EndGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/ubi4TopGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="20dp" />
+
+                    <!-- Блок 1 -->
+                    <TextView
+                        android:id="@+id/ubi4TextView16"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/is_the_prosthesis_calibrated"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toTopOf="@id/ubi4TopGuideline_2" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView17"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/prosthesis_is_calibrated_by_default_and_first_gesture_is_configured"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView16" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_1"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView17"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView18"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/when_selected_gesture_in_gesture_menu"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView4" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_2"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView18"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView19"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/if_prosthesis_clenches_into_fist_it_is_calibrated_correctly"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView5" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView5Repeat"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_3"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView19"
+                        tools:ignore="ContentDescription" />
+
+                    <!-- Блок 2 -->
+                    <TextView
+                        android:id="@+id/ubi4TextView20"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/select_active_gesture"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView5Repeat" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView21"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/after_calibration_you_can_select_active_gesture_in_menu"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView20" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView22"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/gestures_are_displayed_as_cards_with_name_and_hand_position"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView21" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView23"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/tap_card_to_select_gesture"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView22" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView24"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/selected_gesture_is_highlighted_and_set_as_active"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView23" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView25"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/prosthesis_uses_selected_gesture_on_open_close"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView24" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView26"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/default_gestures_are_ready_to_use"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView25" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_2"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView26"
+                        tools:ignore="ContentDescription" />
+
+                    <!-- Блок 3 -->
+                    <TextView
+                        android:id="@+id/ubi4TextView27"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/setup_first_custom_gesture"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView6" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView28"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/after_calibration_and_first_gesture_you_can_setup_custom_gestures"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView27" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_4"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView28"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView29"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/gesture_editor_opens_with_hand_model"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView7" />
+
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView8"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_5"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView29"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView32"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_length_of_the_swipe_adjusts_the_angle_of_the_finger_bend"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView8" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView33"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/when_adjusting_the_forefinger_middle_finger_ring_finger_and_pinky_finger_only_the_swipe_in_the_vertical_direction_is_taken_into_consideration_and_two_axes_are_used_simultaneously_to_adjust_the_position_of_the_thumb"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView32" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView34"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/thumb_vertical_bend_horizontal_rotation"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView33" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView35"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/swipes_outside_hand_rotate_it"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView34" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView36"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/button_switches_gesture_state"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView35" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView9"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_6"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView36"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView37"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/animation_shows_gesture_if_states_differ"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView9" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView38"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/prosthesis_repeats_model_movement"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView37" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView39"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/closed_state_is_configured_when_switch_is_closed"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView38" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView40"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/you_can_rename_gesture_with_pencil_icon"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView39" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView10"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_7"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView40"
+                        tools:ignore="ContentDescription" />
+
+                    <!-- Блок 4 -->
+                    <TextView
+                        android:id="@+id/ubi4TextView41"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/save_and_use_gestures"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView10" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView42"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/press_save_button_to_store_gesture"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView41" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView12"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_8"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView42"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/ubi4TextView43"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/press_button_to_use_gesture_frame_becomes_green"
+                        android:textColor="@color/ubi4_white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView12" />
+
+                    <ImageView
+                        android:id="@+id/ubi4ImageView13"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ubi4_help_image_gesture_settings_9"
+                        app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4TextView43"
+                        tools:ignore="ContentDescription" />
+
+                    <RelativeLayout
+                        android:id="@+id/ubi4InteractiveInstructionContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintTop_toBottomOf="@id/ubi4ImageView13"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/view_interactive_instruction"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4ShowInteractiveInstructionBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:id="@+id/ubi4SpacingView"
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:background="@color/transparent"
+                app:layout_constraintTop_toBottomOf="@id/ubi4CardView1" />
+
+            <TextView
+                android:id="@+id/ubi4AppInstructionTitle2Tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                android:text="@string/app_control"
+                android:textColor="@color/ubi4_white"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline"
+                app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline"
+                app:layout_constraintTop_toBottomOf="@id/ubi4CardView1" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/ubi4MainControlsCv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:layout_constraintStart_toStartOf="@id/ubi4BeginGuideline"
+                app:layout_constraintEnd_toStartOf="@id/ubi4EndGuideline"
+                app:layout_constraintTop_toBottomOf="@id/ubi4AppInstructionTitle2Tv"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_semi_bold"
+                                    android:text="@string/gesture_settings"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/ubi4SensorsSettingsBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/ubi4GestureCustomizationRl"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/gesture_settings"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4SettingsGestureBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/ubi4AdvancedSettingsRl"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/advanced_settings"
+                                    android:textColor="@color/ubi4_white"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_navigate_next"
+                                    app:tint="@color/ubi4_white"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/ubi4_gray_border" />
+
+                        <View
+                            android:id="@+id/ubi4AdvancedSettingsBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</RelativeLayout>

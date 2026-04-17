@@ -12,6 +12,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
@@ -19,6 +20,11 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DEVICE_NAME_PREFIX
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 import java.nio.charset.StandardCharsets
 
 class TextInputDelegateAdapterV3(
@@ -30,6 +36,11 @@ class TextInputDelegateAdapterV3(
         private const val MAX_INPUT_BYTES = 10
         private const val BYTE_LIMIT_WARNING = "Лимит 10 байт исчерпан"
     }
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var interactionJob: kotlinx.coroutines.Job? = null
+    private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private val overlayViews = arrayListOf<android.view.View>()
 
     override fun Ubi4WidgetTextInputBinding.onBind(item: TextInputItemV3) {
         onDestroyParent { onDestroy() }
@@ -48,8 +59,12 @@ class TextInputDelegateAdapterV3(
         )
         setupByteLimitWatcher(widgetInputEt)
         setupCurrentDeviceNamePrefill(widgetInputEt)
+        overlayViews.add(sendBtnOverlay)
+        applyTextInputSendButtonLockState(sendBtnOverlay)
+        observeInteractionState()
 
         sendBtnOverlay.setOnClickListener {
+            if (!isInteractionEnabled) return@setOnClickListener
             val enteredText = widgetInputEt.text?.toString()?.trim().orEmpty()
             if (enteredText.isEmpty()) {
                 main.showToast("Введите текст")
@@ -90,6 +105,21 @@ class TextInputDelegateAdapterV3(
     override fun isForViewType(item: Any): Boolean = item is TextInputItemV3
 
     override fun TextInputItemV3.getItemId(): Any = "$title-$buttonTitle"
+
+    private fun observeInteractionState() {
+        if (interactionJob?.isActive == true) return
+        interactionJob = scope.launch(Dispatchers.Main) {
+            UiState.v3WidgetsInteractionEnabled.collect { enabled ->
+                isInteractionEnabled = enabled
+                overlayViews.forEach { applyTextInputSendButtonLockState(it) }
+            }
+        }
+    }
+
+    private fun applyTextInputSendButtonLockState(sendBtnOverlay: android.view.View) {
+        sendBtnOverlay.isEnabled = isInteractionEnabled
+        sendBtnOverlay.isClickable = isInteractionEnabled
+    }
 
     private fun setupByteLimitWatcher(input: EditText) {
         val existingWatcher = input.getTag(R.id.tag_text_input_limit_watcher) as? TextWatcher
@@ -165,5 +195,10 @@ class TextInputDelegateAdapterV3(
         return if (charIndex == value.length) value else value.substring(0, charIndex)
     }
 
-    private fun onDestroy() = Unit
+    private fun onDestroy() {
+        overlayViews.clear()
+        scope.coroutineContext.cancelChildren()
+        interactionJob?.cancel()
+        interactionJob = null
+    }
 }

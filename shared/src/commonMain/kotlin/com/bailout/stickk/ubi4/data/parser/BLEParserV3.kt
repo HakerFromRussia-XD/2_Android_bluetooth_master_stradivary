@@ -336,8 +336,9 @@ class BLEParserV3(
             )
         }
     }
-    private fun parseSubDeviceManagerGetAllSubDevice(payload: ByteArrayView?): List<SubDeviceInfo> {
-        val devices = mutableListOf<SubDeviceInfo>()
+
+    private fun parseSubDeviceManagerGetAllSubDevice(payload: ByteArrayView?): List<BaseSubDeviceInfoStruct> {
+        val devices = mutableListOf<BaseSubDeviceInfoStruct>()
 
         if (payload == null || payload.length == 0) {
             // logger.debug("Ответ SUB_DEVICE_MANAGER: payload пуст")
@@ -361,13 +362,22 @@ class BLEParserV3(
 
         return devices
     }
-    private fun parseDevice(payload: ByteArrayView, offset: Int): SubDeviceInfo? {
+    private fun parseDevice(payload: ByteArrayView, offset: Int): BaseSubDeviceInfoStruct? {
         if (offset < 0 || offset + deviceSize > payload.length) return null
 
         val address = payload.u8(offset + 0)
-        val deviceType = payload.u8(offset + 1)
-        val deviceCode = payload.u8(offset + 2)
-        val dfu = payload.u8(offset + 3)
+        val rawDeviceType = payload.u8(offset + 1)
+        val rawDeviceCode = payload.u8(offset + 2)
+        // Some firmware revisions return board code in the "type" byte for sub-boards.
+        val deviceCode = if (rawDeviceCode == 0 && rawDeviceType in 1..11) rawDeviceType else rawDeviceCode
+        val deviceType = rawDeviceType
+        if (deviceCode != rawDeviceCode) {
+            platformLog(
+                "SUB_DEVICE_PARSE_V3",
+                "fallback deviceCode from type: addr=$address rawType=$rawDeviceType rawCode=$rawDeviceCode resolvedCode=$deviceCode"
+            )
+        }
+        val isBoot = payload.u8(offset + 3) //
 
         val major = payload.u8(offset + 4)
         val minor = payload.u8(offset + 5)
@@ -375,12 +385,12 @@ class BLEParserV3(
 
         val fwVersion = "$major.$minor.$quickfix"
 
-        return SubDeviceInfo(
-            address = address,
+        return BaseSubDeviceInfoStruct(
+            deviceAddress = address,
             deviceType = deviceType,
             deviceCode = deviceCode,
-            dfu = dfu,
-            fwVersion = fwVersion
+            isBoot = isBoot,
+            fwVersion = fwVersion,
         )
     }
     private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdsV3 {

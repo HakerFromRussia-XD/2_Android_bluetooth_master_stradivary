@@ -15,6 +15,7 @@ import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieOnCompositionLoadedListener
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.data.state.UiState as SharedUiState
 import kotlin.math.max
 
 class ControllerBleStatusConnection(
@@ -40,6 +41,7 @@ class ControllerBleStatusConnection(
     private fun isLooping(state: UiState) = state == UiState.Reconnecting || state == UiState.Disconnected
 
     private fun play(state: UiState, minSingleMs: Long? = null, loopOverride: Boolean? = null) {
+        SharedUiState.v3WidgetsInteractionEnabled.value = state == UiState.Connected
         indicator.post {
             // очистка listeners
             compositionListener?.let { indicator.removeLottieOnCompositionLoadedListener(it) }
@@ -82,6 +84,9 @@ class ControllerBleStatusConnection(
     }
 
     private fun requestState(state: UiState, minSingleMs: Long? = null, loopOverride: Boolean? = null) {
+        if (state != UiState.Connected) {
+            SharedUiState.v3WidgetsInteractionEnabled.value = false
+        }
         if (isPlaying) {
             if (pendingState == null || state == UiState.Connected) {
                 pendingState = state
@@ -157,6 +162,7 @@ class ControllerBleStatusConnection(
 
     override fun onStop(owner: LifecycleOwner) {
         unregister()
+        SharedUiState.v3WidgetsInteractionEnabled.value = false
         compositionListener?.let { indicator.removeLottieOnCompositionLoadedListener(it) }
         compositionListener = null
         indicator.removeAllAnimatorListeners()

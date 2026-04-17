@@ -146,7 +146,7 @@ dependencies {
     implementation("com.github.jorgecastilloprz:fillableloaders:1.03@aar")
     implementation("com.github.paolorotolo:appintro:4.1.0")
     implementation("com.skyfishjy.ripplebackground:library:1.0.1")
-    implementation("com.github.skydoves:elasticviews:2.0.3")
+    implementation("com.github.skydoves:elasticviews:2.0.7")
     implementation("com.github.skydoves:colorpickerview:2.1.3")
     implementation("com.github.shchurov:horizontalwheelview:0.9.5")
     implementation("com.github.skydoves:powerspinner:1.2.7")
@@ -197,6 +197,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("io.mockk:mockk:1.13.7")
 
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 
     // Ktor
     implementation("io.ktor:ktor-client-core:2.3.12")

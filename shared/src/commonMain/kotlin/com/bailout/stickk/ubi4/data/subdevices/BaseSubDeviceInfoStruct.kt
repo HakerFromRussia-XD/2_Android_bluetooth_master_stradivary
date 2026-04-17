@@ -15,17 +15,18 @@ data class BaseSubDeviceInfoStruct(
     val deviceType: Int = 0,
     val deviceCode: Int = 0,
     val deviceRole: Int = 0,
-
     val deviceVersion: Int = 0,
     val deviceSubVersion: Int = 0,
-
     val deviceAddress: Int = 0,
     val parametersNum: Int = 0,
     val subDeviceNum: Int = 0,
     val defaultPort: Int = 0,
+    var parametersList: ArrayList<BaseParameterInfoStruct> = arrayListOf(),
 
-    var parametersList: ArrayList<BaseParameterInfoStruct>
-)
+    val isBoot: Int = 0,
+    val fwVersion: String = ""
+
+    )
 
 object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
     override val descriptor: SerialDescriptor =

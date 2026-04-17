@@ -33,11 +33,13 @@ struct SliderRowView: View {
             HStack {
                 Text(provider.title_1)
                     .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                    .foregroundColor(Color("ubi4_white"))
                     .padding(.top, 8) // отступ сверху
                     .padding(.leading, 10) // отступ слева
                 Spacer()
                 Text("\(Int(provider.value_1))") // Преобразуем value в строку и отображаем
                     .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                    .foregroundColor(Color("ubi4_white"))
                     .padding(.top, 8)
                     .padding(.trailing, 10) // отступ справа
             }
@@ -71,11 +73,13 @@ struct SliderRowView: View {
                 HStack {
                     Text(provider.title_2)
                         .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                        .foregroundColor(Color("ubi4_white"))
                         .padding(.top, 12) // отступ сверху
                         .padding(.leading, 10) // отступ слева
                     Spacer()
                     Text("\(Int(provider.value_2))") // Преобразуем value в строку и отображаем
                         .font(.custom("SFProDisplay-Light", size: 14)) // Используем свой шрифт из ассетов
+                        .foregroundColor(Color("ubi4_white"))
                         .padding(.top, 12)
                         .padding(.trailing, 10) // отступ справа
                 }

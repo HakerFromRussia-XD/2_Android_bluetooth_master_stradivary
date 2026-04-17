@@ -81,8 +81,8 @@ private struct SpinnerRowViewV3: View {
     @State private var isExpanded = false
 
     private enum Layout {
-        static let rowHeight: CGFloat = 54
-        static let pickerHeight: CGFloat = 52
+        static let rowHeight: CGFloat = 56
+        static let pickerHeight: CGFloat = 40
         static let dropdownWidth: CGFloat = 220
         static let panelCornerRadius: CGFloat = 18
         static let panelTopOffset: CGFloat = pickerHeight + 8

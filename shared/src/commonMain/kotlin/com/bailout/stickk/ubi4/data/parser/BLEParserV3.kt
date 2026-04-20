@@ -564,20 +564,6 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
                 )
             ),"Переключение жестов сенсорами")))
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт"),0),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_EMG_CONTROL_MODE),
-                )
-            ),"Режим работы ЕМГ")))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
-        ),"Максимальная чувствительность датчиков"))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -590,6 +576,24 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
                 )
             ),"Блокировка движения с ЕМГ")))
+        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
+            minProgress = 20,
+            maxProgress = 100,
+            increment = 0.1f,
+            unitLabel = "сек",
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
+                )
+            ),"Время работы экрана")))
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 2,
+            widgetCode = PWCE_SLIDER_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
+        ),"Максимальная чувствительность датчиков"))
+
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Нормальный","Спортивный","Плавное управление силой","Плавное управление скоростью","Плавное управление силой и скоростью"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
@@ -611,36 +615,35 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE),
                 )
             ),"Действие при смене жеста")))
+
+
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт"),0),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_EMG_CONTROL_MODE),
+                )
+            ),"Режим работы ЕМГ")))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Левая","Правая"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-            parameterInfoSet = mutableSetOf(
-                ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
-            )
-        ),"Сторона руки")))
-        baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
-            minProgress = 20,
-            maxProgress = 100,
-            increment = 0.1f,
-            unitLabel = "сек",
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
+                    ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
                 )
-            ),"Время работы экрана")))
+            ),"Сторона руки")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
+            display = 4,
             widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
         ),"Имя протеза%Записать"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
+            display = 4,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
         ),"Калибровка протеза"))

@@ -62,6 +62,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
@@ -576,7 +577,7 @@ class BLEParserV3(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
-        ),"Максимальная чувтсвительность датчиков"))
+        ),"Максимальная чувствительность датчиков"))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
@@ -598,6 +599,18 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
             )
         ),"Режим работы протеза")))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                listOf("Без действия", "Перейти в открытое положение"),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE),
+                )
+            ),"Действие при смене жеста")))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Левая","Правая"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(

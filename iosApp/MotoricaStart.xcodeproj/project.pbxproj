@@ -1269,7 +1269,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\ncd \"$SRCROOT/..\"\n./gradlew --configuration-cache -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\nFRAMEWORK_BINARY_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/shared.framework/shared\"\nif [ ! -f \"$FRAMEWORK_BINARY_PATH\" ]; then\n  echo \"ERROR: shared.framework is missing in app bundle after Gradle embed step.\"\n  echo \"Expected: $FRAMEWORK_BINARY_PATH\"\n  exit 1\nfi\n";
+			shellScript = "set -euo pipefail\nJAVA_HOME_17=\"$(/usr/libexec/java_home -v 17 2>/dev/null || true)\"\nif [ -z \"$JAVA_HOME_17\" ]; then\n  echo \"ERROR: JDK 17 is required for Kotlin/Gradle iOS build script.\"\n  exit 1\nfi\nexport JAVA_HOME=\"$JAVA_HOME_17\"\nexport ORG_GRADLE_JAVA_HOME=\"$JAVA_HOME\"\nexport PATH=\"$JAVA_HOME/bin:$PATH\"\nJAVA_MAJOR=\"$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/{print $2; exit}')\"\nif [ \"$JAVA_MAJOR\" != \"17\" ]; then\n  echo \"ERROR: Compile kotlin must run on Java 17, got '$JAVA_MAJOR' from JAVA_HOME=$JAVA_HOME\"\n  java -version\n  exit 1\nfi\necho \"[Compile kotlin] Using JAVA_HOME=$JAVA_HOME\"\n\n# Compose resources task expects Xcode build attributes.\nexport CONFIGURATION=\"${CONFIGURATION:-Debug}\"\nexport SDK_NAME=\"${SDK_NAME:-iphonesimulator}\"\nif [ -z \"${PLATFORM_NAME:-}\" ]; then\n  case \"$SDK_NAME\" in\n    iphoneos*) PLATFORM_NAME=\"iphoneos\" ;;\n    iphonesimulator*) PLATFORM_NAME=\"iphonesimulator\" ;;\n    *) PLATFORM_NAME=\"iphonesimulator\" ;;\n  esac\n  export PLATFORM_NAME\nfi\nif [ -z \"${ARCHS:-}\" ]; then\n  export ARCHS=\"${NATIVE_ARCH_ACTUAL:-arm64}\"\nfi\n\necho \"[Compile kotlin] CONFIGURATION=$CONFIGURATION SDK_NAME=$SDK_NAME PLATFORM_NAME=$PLATFORM_NAME ARCHS=$ARCHS\"\ncd \"$SRCROOT/..\"\n./gradlew -Dorg.gradle.java.home=\"$JAVA_HOME\" :shared:embedAndSignAppleFrameworkForXcode\nFRAMEWORK_BINARY_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/shared.framework/shared\"\nif [ ! -f \"$FRAMEWORK_BINARY_PATH\" ]; then\n  echo \"ERROR: shared.framework is missing in app bundle after Gradle embed step.\"\n  echo \"Expected: $FRAMEWORK_BINARY_PATH\"\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1658,7 +1658,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.0.0;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,

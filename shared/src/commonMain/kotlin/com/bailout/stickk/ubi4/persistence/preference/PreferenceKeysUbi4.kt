@@ -7,7 +7,7 @@ import com.bailout.stickk.ubi4.models.widgets.WidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_CHANGE_GESTURE
@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_M
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
@@ -781,7 +782,13 @@ object PreferenceKeysUbi4 {
         PWCE_SET_HAND_CONTROL_MODE        (0x3B), // моды управления рукой (туда хотим добавить мод при котором сразу при обратном пересечении порога управляющим сигналом управление отдаётся другому сигналу - спорт режим)
         PWCE_GET_HAND_CONTROL_MODE        (0x3C),
 
+        PWCE_SET_GESTURE_CHANGE_MODE      (0x2D),
+        PWCE_GET_GESTURE_CHANGE_MODE      (0x2E),
+
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
+
+
+
     }
 
     enum class EmgMasterControlEnum (val number: Byte)
@@ -816,7 +823,7 @@ object PreferenceKeysUbi4 {
         GMCE_GET_BATTERY                (0x10),
     }
 
-    enum class deviceInformationCommandV3(val number: Int) {
+    enum class DeviceInformationCommandV3(val number: Int) {
         INICIALIZE_INFORMATION                      (1),  //< 1 Инициализация информации */
         READ_DEVICE_PARAMETERS                      (2),  //< 2 Чтение параметров устройства */
         READ_DEVICE_FIRMWARE_VERSION                (3),  //< 3 Чтение дополнительных параметров устройства */
@@ -918,6 +925,12 @@ object PreferenceKeysUbi4 {
             ),
             P_KEY_HAND_CONTROL_MODE to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_HAND_CONTROL_MODE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
+            ),
+            P_KEY_GESTURE_CHANGE_MODE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_GESTURE_CHANGE_MODE.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.SPINNER,
                 widgetKind = WidgetKindV3.SPINNER,
                 valuePath = "spinnerValue"

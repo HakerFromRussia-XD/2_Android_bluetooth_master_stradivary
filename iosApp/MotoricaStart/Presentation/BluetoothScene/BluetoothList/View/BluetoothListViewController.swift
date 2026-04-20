@@ -7,6 +7,7 @@
 import UIKit
 import Combine
 import Foundation
+import SwiftUI
 import shared
 
 final class BluetoothListViewController: UIViewController {
@@ -22,11 +23,8 @@ final class BluetoothListViewController: UIViewController {
     private var pendingDevicesReloadAfterInteraction = false
     private var lastRenderedDeviceIDs: [UUID] = []
     
-    lazy var segmentedConrol: CustomSegmentedControl = {
-        let items = ["Все устройства", "Протезы"]
-        let control = CustomSegmentedControl(items: items)
-        return control
-    }()
+    private let filterSegmentTitles = ["Все устройства", "Протезы"]
+    private let filterSegmentProvider = BluetoothFilterSegmentProvider(selectedSegmentIndex: 0)
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Нажми меня", for: .normal)
@@ -34,7 +32,6 @@ final class BluetoothListViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-//    var segmentedConrol = CustomSegmentedControl(titles: ["Коллекция жестов", "Группа ротации"])
     @IBOutlet private weak var containerView: UIView!
     @IBOutlet private weak var tableViewDevices: UITableView!
     @IBOutlet private weak var tableHeightConstraint: NSLayoutConstraint!
@@ -61,46 +58,39 @@ final class BluetoothListViewController: UIViewController {
         let segmentContainer = UIView()
         segmentContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentContainer)
-        segmentContainer.layer.shadowColor = UIColor.black.cgColor
-        segmentContainer.layer.shadowOpacity = 0.25
-        segmentContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
-        segmentContainer.layer.shadowRadius = 3
-        segmentContainer.layer.cornerRadius = 22
-        segmentContainer.layer.masksToBounds = false
-        segmentContainer.addSubview(segmentedConrol)
-        segmentedConrol.translatesAutoresizingMaskIntoConstraints = true
+        segmentContainer.backgroundColor = UIColor.clear
         NSLayoutConstraint.activate([
-           segmentContainer.heightAnchor.constraint(equalToConstant: 54),
+           segmentContainer.heightAnchor.constraint(equalToConstant: 48),
            segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
            segmentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-           segmentContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 47)
+           segmentContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8)
         ])
-        segmentedConrol.translatesAutoresizingMaskIntoConstraints = false
-        segmentedConrol.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor).isActive = true
-        segmentedConrol.trailingAnchor.constraint(equalTo: segmentContainer.trailingAnchor).isActive = true
-        segmentedConrol.topAnchor.constraint(equalTo: segmentContainer.topAnchor).isActive = true
-        segmentedConrol.bottomAnchor.constraint(equalTo: segmentContainer.bottomAnchor).isActive = true
-        segmentedConrol.layer.cornerRadius = 20
-        segmentedConrol.layer.masksToBounds = true
-        // style
-        segmentedConrol.layer.borderWidth = 1
-        segmentedConrol.layer.borderColor = UIColor(named: "ubi4_filter_gray_border")?.cgColor
-        segmentedConrol.backgroundColor = UIColor(named: "ubi4_filter_back")
-        // применяем фильтр при загрузке контроллера
-        segmentedConrol.selectedSegmentIndex = viewModel.currentFilterIndex
-        segmentedConrol.addTarget(self, action: #selector(filterChange), for: .valueChanged)
-
-        let font = UIFont(name: "SFProDisplay-Light", size: 14)
-
-        segmentedConrol.setTitleTextAttributes([
-            .foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? .white,
-            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
-        ], for: .normal)
-
-        segmentedConrol.setTitleTextAttributes([
-            .foregroundColor: UIColor(named: "ubi4_white") ?? .black,
-            .font: font ?? UIFont.systemFont(ofSize: 14, weight: .semibold)
-        ], for: .selected)
+        let safeInitialIndex = min(max(viewModel.currentFilterIndex, 0), filterSegmentTitles.count - 1)
+        filterSegmentProvider.selectedSegmentIndex = safeInitialIndex
+        let segmentSelectorHost = UIHostingController(
+            rootView: BluetoothSegmentSelectorView(
+                provider: filterSegmentProvider,
+                titles: filterSegmentTitles
+            )
+        )
+        addChild(segmentSelectorHost)
+        segmentContainer.addSubview(segmentSelectorHost.view)
+        segmentSelectorHost.view.backgroundColor = UIColor.clear
+        segmentSelectorHost.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            segmentSelectorHost.view.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor),
+            segmentSelectorHost.view.trailingAnchor.constraint(equalTo: segmentContainer.trailingAnchor),
+            segmentSelectorHost.view.topAnchor.constraint(equalTo: segmentContainer.topAnchor),
+            segmentSelectorHost.view.bottomAnchor.constraint(equalTo: segmentContainer.bottomAnchor)
+        ])
+        segmentSelectorHost.didMove(toParent: self)
+        filterSegmentProvider.$selectedSegmentIndex
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] selectedIndex in
+                self?.viewModel.applyFilter(index: selectedIndex)
+            }
+            .store(in: &cancellables)
         
         
         // настройка внешнего вида списка
@@ -138,7 +128,7 @@ final class BluetoothListViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableContainer.topAnchor.constraint(equalTo: segmentedConrol.bottomAnchor, constant: 16),
+            tableContainer.topAnchor.constraint(equalTo: segmentContainer.bottomAnchor, constant: 16),
             tableContainer.heightAnchor.constraint(equalTo: tableViewDevices.heightAnchor),
             
             tableViewDevices.leadingAnchor.constraint(equalTo: tableContainer.leadingAnchor),
@@ -147,11 +137,6 @@ final class BluetoothListViewController: UIViewController {
             tableViewDevices.bottomAnchor.constraint(equalTo: tableContainer.bottomAnchor)
         ])
         // Кнопка отладочного действия не должна отображаться на экране сканирования.
-        
-        let titleTextAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_deactivate_text") ?? UIColor.white]
-        UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes, for: .normal)
-        let titleTextAttributes2: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(named: "ubi4_white") ?? UIColor.black]
-        UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes2, for: .selected)
         
         viewModel.$connectedDeviceID
             .receive(on: DispatchQueue.main)
@@ -211,10 +196,6 @@ final class BluetoothListViewController: UIViewController {
 //                print("Font: \(name)")
 //            }
 //        }
-    }
-    @objc private func filterChange(_ sender: UISegmentedControl) {
-        // применяем фильтр при смене сегмента
-        viewModel.applyFilter(index: sender.selectedSegmentIndex)
     }
     @objc private func bottomButtonTapped() {
         print("[BLE-CONNECT] Bottom button tapped")
@@ -570,6 +551,173 @@ extension UIImage{
         self.init(cgImage: cgImage)
     }
 }
+
+private final class BluetoothFilterSegmentProvider: ObservableObject {
+    @Published var selectedSegmentIndex: Int
+
+    init(selectedSegmentIndex: Int) {
+        self.selectedSegmentIndex = selectedSegmentIndex
+    }
+}
+
+private struct BluetoothSegmentSelectorView: View {
+    @ObservedObject var provider: BluetoothFilterSegmentProvider
+    let titles: [String]
+
+    @State private var selectorDisplayOffset: CGFloat = 0
+    @State private var isSelectorOffsetInitialized = false
+    @State private var selectorAnimationTimer: Timer?
+
+    private var animationDuration: Double { 0.3 }
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let segmentCount = CGFloat(max(titles.count, 1))
+            let segmentWidth = width / segmentCount
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("ubi4_gray"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color("ubi4_back"))
+                    .padding(1)
+                    .frame(width: segmentWidth)
+                    .offset(x: selectorDisplayOffset)
+
+                HStack(spacing: 0) {
+                    ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
+                        Button(action: { select(index: index) }) {
+                            Text(title)
+                                .font(.system(size: 12, weight: .light))
+                                .foregroundColor(index == provider.selectedSegmentIndex ? .white : Color("ubi4_deactivate_text"))
+                                .animation(nil, value: provider.selectedSegmentIndex)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .animation(nil, value: provider.selectedSegmentIndex)
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(2)
+            }
+            .onAppear {
+                initializeSelectorOffsetIfNeeded(segmentWidth: segmentWidth)
+            }
+            .onChange(of: segmentWidth) { newValue in
+                updateSelectorOffsetForSegmentWidth(newValue)
+            }
+            .onChange(of: provider.selectedSegmentIndex) { _ in
+                guard segmentWidth > 0 else { return }
+                let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+                if isSelectorOffsetInitialized {
+                    animateSelectorOffset(to: targetOffset)
+                } else {
+                    setSelectorOffsetImmediate(targetOffset)
+                }
+            }
+        }
+        .frame(height: 48)
+        .onDisappear {
+            selectorAnimationTimer?.invalidate()
+            selectorAnimationTimer = nil
+        }
+    }
+
+    private var clampedSelectedIndex: Int {
+        guard !titles.isEmpty else { return 0 }
+        return min(max(provider.selectedSegmentIndex, 0), titles.count - 1)
+    }
+
+    private func segmentHighlightOffset(segmentWidth: CGFloat) -> CGFloat {
+        CGFloat(clampedSelectedIndex) * segmentWidth
+    }
+
+    private func select(index: Int) {
+        guard provider.selectedSegmentIndex != index else { return }
+        UIView.performWithoutAnimation {
+            provider.selectedSegmentIndex = index
+        }
+    }
+
+    private func initializeSelectorOffsetIfNeeded(segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard !isSelectorOffsetInitialized else {
+            if selectorAnimationTimer == nil {
+                setSelectorOffsetImmediate(targetOffset)
+            }
+            return
+        }
+        setSelectorOffsetImmediate(targetOffset)
+    }
+
+    private func updateSelectorOffsetForSegmentWidth(_ segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard isSelectorOffsetInitialized else {
+            setSelectorOffsetImmediate(targetOffset)
+            return
+        }
+        if selectorAnimationTimer == nil {
+            setSelectorOffsetImmediate(targetOffset)
+        } else {
+            animateSelectorOffset(to: targetOffset)
+        }
+    }
+
+    private func setSelectorOffsetImmediate(_ offset: CGFloat) {
+        isSelectorOffsetInitialized = true
+        selectorDisplayOffset = offset
+    }
+
+    private func animateSelectorOffset(to targetOffset: CGFloat) {
+        let clampedTarget = targetOffset.isFinite ? targetOffset : 0
+        let startOffset = selectorDisplayOffset
+        let delta = clampedTarget - startOffset
+
+        if abs(delta) < 0.5 {
+            setSelectorOffsetImmediate(clampedTarget)
+            return
+        }
+
+        selectorAnimationTimer?.invalidate()
+        let startTime = CACurrentMediaTime()
+        let duration = animationDuration
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
+            let elapsed = CACurrentMediaTime() - startTime
+            let progress = min(max(elapsed / duration, 0), 1)
+            let easedProgress = easeInOut(progress: progress)
+            let nextOffset = startOffset + (delta * easedProgress)
+
+            selectorDisplayOffset = nextOffset
+
+            if progress >= 1 {
+                timer.invalidate()
+                selectorAnimationTimer = nil
+                setSelectorOffsetImmediate(clampedTarget)
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        selectorAnimationTimer = timer
+    }
+
+    private func easeInOut(progress: Double) -> CGFloat {
+        let easedValue: Double
+        if progress < 0.5 {
+            easedValue = 2 * progress * progress
+        } else {
+            easedValue = 1 - pow(-2 * progress + 2, 2) / 2
+        }
+        return CGFloat(easedValue)
+    }
+}
+
 private struct InlineNetworkConfig: NetworkConfigurable {
     let baseURL: URL
     let headers: [String : String]

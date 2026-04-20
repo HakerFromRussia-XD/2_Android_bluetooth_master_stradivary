@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_M
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_GAIN_OPEN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
@@ -44,6 +45,12 @@ object WidgetResponseRoutesV3 {
         ),
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt(),
+            parameterKey = P_KEY_GESTURE_CHANGE_MODE,
+            emitTarget = WidgetEmitTargetV3.SPINNER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
             responseSubcommand = PWCE_GET_EMG_MOVEMENT_LOCK.number.toInt(),
             parameterKey = P_KEY_EMG_MOVEMENT_LOCK,
             emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
@@ -66,9 +73,10 @@ object WidgetResponseRoutesV3 {
             parameterKey = P_KEY_CURRENT_GESTURE,
             emitTarget = WidgetEmitTargetV3.CURRENT_GESTURE_FLOW
         ),
+
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
-            responseSubcommand = PWCE_GET_GESTURE_SETTING.number.toInt(),
+            responseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt(),
             parameterKey = P_KEY_GESTURE_SETTING,
             emitTarget = WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT
         ),

@@ -870,6 +870,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
             )
         )
     }

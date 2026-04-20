@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.models.ble.ParameterCodecIdV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.EMG_MASTER_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.GUI_CONTROL
@@ -34,8 +35,10 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.GET_DEVICE_NAME
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.deviceInformationCommandV3.SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 /**
@@ -69,6 +72,9 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_CURRENT_GESTURE_NUM.number.toInt())
                     PWCE_SET_GESTURE_GROUPE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt())
+
+                    PWCE_SET_GESTURE_CHANGE_MODE.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt())
                     else ->
                         BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
                 }
@@ -219,6 +225,7 @@ object WidgetCommandBridgeV3 {
                 PWCE_GET_HAND_CONTROL_MODE.number.toInt() -> PWCE_SET_HAND_CONTROL_MODE.number.toInt()
                 PWCE_GET_CURRENT_GESTURE_NUM.number.toInt() -> PWCE_SET_CURRENT_GESTURE_NUM.number.toInt()
                 PWCE_GET_GESTURE_GROUPE.number.toInt() -> PWCE_SET_GESTURE_GROUPE.number.toInt()
+                PWCE_GET_GESTURE_CHANGE_MODE.number.toInt() -> PWCE_SET_GESTURE_CHANGE_MODE.number.toInt()
                 else -> parameterInfo.dataCode
             }
             EMG_MASTER_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {

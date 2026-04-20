@@ -34,7 +34,13 @@ Implementation of the cross-platform view controller and cross-platform view tha
     CADisplayLink *_displayLink;
     __weak IBOutlet UIButton *saveBtn;
     UIView *segmentContainer;
-    CustomSegmentedControl *stateSegmentedControl;
+    UIView *stateSegmentBackgroundView;
+    UIView *stateSegmentContentView;
+    UIView *stateSegmentHighlightView;
+    UIButton *stateOpenButton;
+    UIButton *stateCloseButton;
+    NSLayoutConstraint *stateHighlightLeadingConstraint;
+    NSInteger selectedStateSegmentIndex;
     __weak IBOutlet UIButton *fingersDelayBtn;
     __weak IBOutlet UITextField *textField;
     __weak IBOutlet UILabel *deviceName;
@@ -128,6 +134,11 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self selectStateSegmentIndex:selectedStateSegmentIndex animated:NO notifyRenderer:NO];
+}
+
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
 
 - (IBAction)perehod:(UIButton *)sender {
@@ -146,12 +157,63 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 }
 
 - (void)stateSegmentChanged:(UISegmentedControl *)sender {
-    if (sender.selectedSegmentIndex == 1) {
-        state = 1;
+    [self selectStateSegmentIndex:sender.selectedSegmentIndex animated:YES notifyRenderer:YES];
+}
+
+- (void)stateSegmentButtonTapped:(UIButton *)sender {
+    [self selectStateSegmentIndex:sender.tag animated:YES notifyRenderer:YES];
+}
+
+- (UIButton *)makeStateSegmentButtonWithTitle:(NSString *)title tag:(NSInteger)tag {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.translatesAutoresizingMaskIntoConstraints = NO;
+    [button setTitle:title forState:UIControlStateNormal];
+    button.titleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightLight];
+    button.tag = tag;
+    [button addTarget:self action:@selector(stateSegmentButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    return button;
+}
+
+- (void)updateStateSegmentButtonColors {
+    UIColor *activeColor = UIColor.whiteColor;
+    UIColor *inactiveColor = [UIColor colorNamed:@"ubi4_deactivate_text"] ?: UIColor.lightGrayColor;
+    [stateOpenButton setTitleColor:(selectedStateSegmentIndex == 0 ? activeColor : inactiveColor) forState:UIControlStateNormal];
+    [stateCloseButton setTitleColor:(selectedStateSegmentIndex == 1 ? activeColor : inactiveColor) forState:UIControlStateNormal];
+}
+
+- (CGFloat)stateSegmentTargetOffsetForIndex:(NSInteger)index {
+    [segmentContainer layoutIfNeeded];
+    CGFloat segmentWidth = stateSegmentContentView.bounds.size.width / 2.0;
+    return MAX(0.0, segmentWidth * index);
+}
+
+- (void)selectStateSegmentIndex:(NSInteger)index animated:(BOOL)animated notifyRenderer:(BOOL)notifyRenderer {
+    NSInteger clampedIndex = MAX(0, MIN(1, index));
+    selectedStateSegmentIndex = clampedIndex;
+    state = (clampedIndex == 1);
+
+    [segmentContainer layoutIfNeeded];
+    CGFloat targetOffset = [self stateSegmentTargetOffsetForIndex:clampedIndex];
+
+    void (^applySelectionLayout)(void) = ^{
+        stateHighlightLeadingConstraint.constant = targetOffset;
+        [self updateStateSegmentButtonColors];
+        [segmentContainer layoutIfNeeded];
+    };
+
+    if (animated) {
+        [UIView animateWithDuration:0.30
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionAllowUserInteraction
+                         animations:applySelectionLayout
+                         completion:nil];
     } else {
-        state = 0;
+        applySelectionLayout();
     }
-    [_openGLRenderer changeState:state];
+
+    if (notifyRenderer && _openGLRenderer != nil) {
+        [_openGLRenderer changeState:state];
+    }
 }
 
 - (IBAction)openFingersDelayDialog:(UIButton *)sender {
@@ -214,50 +276,79 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     segmentContainer = [[UIView alloc] init];
     segmentContainer.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:segmentContainer];
-    segmentContainer.layer.shadowColor = UIColor.blackColor.CGColor;
-    segmentContainer.layer.shadowOpacity = 0.25;
-    segmentContainer.layer.shadowOffset = CGSizeMake(0, 1);
-    segmentContainer.layer.shadowRadius = 3;
-    segmentContainer.layer.cornerRadius = 2;
-    segmentContainer.layer.masksToBounds = NO;
+    segmentContainer.backgroundColor = UIColor.clearColor;
     
-    stateSegmentedControl = [[CustomSegmentedControl alloc] initWithItems:@[
-        [gestureService gestureStateOpen],
-        [gestureService gestureStateClose]
-    ]];
-    stateSegmentedControl.translatesAutoresizingMaskIntoConstraints = NO;
-    [segmentContainer addSubview:stateSegmentedControl];
     NSLayoutConstraint *leading = [segmentContainer.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:48];
     NSLayoutConstraint *trailing = [segmentContainer.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-48];
     NSLayoutConstraint *bottom = [segmentContainer.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-48];
     NSLayoutConstraint *height = [segmentContainer.heightAnchor constraintEqualToConstant:48];
     [NSLayoutConstraint activateConstraints:@[leading, trailing, bottom, height]];
+
+    stateSegmentBackgroundView = [[UIView alloc] init];
+    stateSegmentBackgroundView.translatesAutoresizingMaskIntoConstraints = NO;
+    stateSegmentBackgroundView.backgroundColor = [UIColor colorNamed:@"ubi4_gray"] ?: UIColor.darkGrayColor;
+    stateSegmentBackgroundView.layer.cornerRadius = 12;
+    stateSegmentBackgroundView.layer.borderWidth = 1;
+    stateSegmentBackgroundView.layer.borderColor = ([UIColor colorNamed:@"ubi4_gray_border"] ?: UIColor.clearColor).CGColor;
+    stateSegmentBackgroundView.layer.shadowColor = UIColor.blackColor.CGColor;
+    stateSegmentBackgroundView.layer.shadowOpacity = 0.25;
+    stateSegmentBackgroundView.layer.shadowOffset = CGSizeMake(0, 2);
+    stateSegmentBackgroundView.layer.shadowRadius = 3;
+    stateSegmentBackgroundView.layer.masksToBounds = NO;
+    [segmentContainer addSubview:stateSegmentBackgroundView];
     
     [NSLayoutConstraint activateConstraints:@[
-        [stateSegmentedControl.leadingAnchor constraintEqualToAnchor:segmentContainer.leadingAnchor],
-        [stateSegmentedControl.trailingAnchor constraintEqualToAnchor:segmentContainer.trailingAnchor],
-        [stateSegmentedControl.topAnchor constraintEqualToAnchor:segmentContainer.topAnchor],
-        [stateSegmentedControl.bottomAnchor constraintEqualToAnchor:segmentContainer.bottomAnchor]
+        [stateSegmentBackgroundView.leadingAnchor constraintEqualToAnchor:segmentContainer.leadingAnchor],
+        [stateSegmentBackgroundView.trailingAnchor constraintEqualToAnchor:segmentContainer.trailingAnchor],
+        [stateSegmentBackgroundView.topAnchor constraintEqualToAnchor:segmentContainer.topAnchor],
+        [stateSegmentBackgroundView.bottomAnchor constraintEqualToAnchor:segmentContainer.bottomAnchor]
     ]];
-    stateSegmentedControl.layer.cornerRadius = 1;
-    stateSegmentedControl.layer.masksToBounds = YES;
-    stateSegmentedControl.layer.borderWidth = 1;
-    stateSegmentedControl.layer.borderColor = [UIColor colorNamed:@"ubi4_filter_gray_border"].CGColor;
-    stateSegmentedControl.backgroundColor = [UIColor colorNamed:@"ubi4_filter_back"];
-    stateSegmentedControl.selectedSegmentIndex = state;
-    [stateSegmentedControl addTarget:self action:@selector(stateSegmentChanged:) forControlEvents:UIControlEventValueChanged];
-    
-    UIFont *font = [UIFont fontWithName:@"SFProDisplay-Light" size: 14];
 
-    [stateSegmentedControl setTitleTextAttributes:@{
-        NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_deactivate_text"] ?: UIColor.whiteColor,
-        NSFontAttributeName: font ?: [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold]
-    } forState:UIControlStateNormal];
+    stateSegmentContentView = [[UIView alloc] init];
+    stateSegmentContentView.translatesAutoresizingMaskIntoConstraints = NO;
+    stateSegmentContentView.backgroundColor = UIColor.clearColor;
+    [stateSegmentBackgroundView addSubview:stateSegmentContentView];
+    [NSLayoutConstraint activateConstraints:@[
+        [stateSegmentContentView.leadingAnchor constraintEqualToAnchor:stateSegmentBackgroundView.leadingAnchor constant:1],
+        [stateSegmentContentView.trailingAnchor constraintEqualToAnchor:stateSegmentBackgroundView.trailingAnchor constant:-1],
+        [stateSegmentContentView.topAnchor constraintEqualToAnchor:stateSegmentBackgroundView.topAnchor constant:1],
+        [stateSegmentContentView.bottomAnchor constraintEqualToAnchor:stateSegmentBackgroundView.bottomAnchor constant:-1]
+    ]];
 
-    [stateSegmentedControl setTitleTextAttributes:@{
-        NSForegroundColorAttributeName: [UIColor colorNamed:@"ubi4_white"] ?: UIColor.blackColor,
-        NSFontAttributeName: font ?: [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold]
-    } forState:UIControlStateSelected];
+    stateSegmentHighlightView = [[UIView alloc] init];
+    stateSegmentHighlightView.translatesAutoresizingMaskIntoConstraints = NO;
+    stateSegmentHighlightView.backgroundColor = [UIColor colorNamed:@"ubi4_back"] ?: UIColor.blackColor;
+    stateSegmentHighlightView.layer.cornerRadius = 10;
+    stateSegmentHighlightView.layer.masksToBounds = YES;
+    [stateSegmentContentView addSubview:stateSegmentHighlightView];
+
+    stateOpenButton = [self makeStateSegmentButtonWithTitle:[gestureService gestureStateOpen] tag:0];
+    stateCloseButton = [self makeStateSegmentButtonWithTitle:[gestureService gestureStateClose] tag:1];
+
+    UIStackView *buttonsStackView = [[UIStackView alloc] initWithArrangedSubviews:@[stateOpenButton, stateCloseButton]];
+    buttonsStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
+    buttonsStackView.alignment = UIStackViewAlignmentFill;
+    buttonsStackView.distribution = UIStackViewDistributionFillEqually;
+    buttonsStackView.spacing = 0;
+    [stateSegmentContentView addSubview:buttonsStackView];
+    [NSLayoutConstraint activateConstraints:@[
+        [buttonsStackView.leadingAnchor constraintEqualToAnchor:stateSegmentContentView.leadingAnchor],
+        [buttonsStackView.trailingAnchor constraintEqualToAnchor:stateSegmentContentView.trailingAnchor],
+        [buttonsStackView.topAnchor constraintEqualToAnchor:stateSegmentContentView.topAnchor],
+        [buttonsStackView.bottomAnchor constraintEqualToAnchor:stateSegmentContentView.bottomAnchor]
+    ]];
+
+    stateHighlightLeadingConstraint = [stateSegmentHighlightView.leadingAnchor constraintEqualToAnchor:stateSegmentContentView.leadingAnchor constant:0.0];
+    [NSLayoutConstraint activateConstraints:@[
+        [stateSegmentHighlightView.topAnchor constraintEqualToAnchor:stateSegmentContentView.topAnchor],
+        [stateSegmentHighlightView.bottomAnchor constraintEqualToAnchor:stateSegmentContentView.bottomAnchor],
+        [stateSegmentHighlightView.widthAnchor constraintEqualToAnchor:stateOpenButton.widthAnchor],
+        stateHighlightLeadingConstraint
+    ]];
+
+    selectedStateSegmentIndex = state ? 1 : 0;
+    [self selectStateSegmentIndex:selectedStateSegmentIndex animated:NO notifyRenderer:NO];
 }
 
 - (void)prepareView {

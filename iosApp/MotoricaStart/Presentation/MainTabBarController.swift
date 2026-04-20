@@ -16,6 +16,9 @@ final class MainTabBarController: UITabBarController {
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
     private let synchronizationRestrictedTabTags: Set<Int> = [0, 3]
+    private let tabBarBackgroundColor = UIColor(named: "ubi4_back")
+        ?? UIColor(named: "ubi4_dark_back")
+        ?? UIColor(red: 42 / 255.0, green: 42 / 255.0, blue: 42 / 255.0, alpha: 1.0)
     private let selectedTabItemColor = UIColor(named: "ubi4_white") ?? .white
     private let unselectedTabItemColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
     private var keyboardWillShowObserver: NSObjectProtocol?
@@ -60,7 +63,8 @@ final class MainTabBarController: UITabBarController {
         super.viewDidLoad()
         view.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarRoot
         setupTabs()
-        tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")
+        tabBar.backgroundColor = tabBarBackgroundColor
+        tabBar.barTintColor = tabBarBackgroundColor
         tabBar.tintColor = selectedTabItemColor
         tabBar.unselectedItemTintColor = unselectedTabItemColor
         configureTabBarPlatformBehavior()
@@ -331,7 +335,9 @@ final class MainTabBarController: UITabBarController {
 
         for (index, control) in controls.enumerated() {
             let isSelectedControl = index == clampedSelectedIndex
-            let color = isSelectedControl ? selectedTabItemColor : unselectedTabItemColor
+            let color = (!control.isEnabled || !control.isUserInteractionEnabled)
+                ? unselectedTabItemColor
+                : (isSelectedControl ? selectedTabItemColor : unselectedTabItemColor)
             control.tintColor = color
             applyTintRecursively(in: control, color: color)
         }
@@ -347,6 +353,7 @@ final class MainTabBarController: UITabBarController {
             button.setTitleColor(color, for: .normal)
             button.setTitleColor(color, for: .selected)
             button.setTitleColor(color, for: .highlighted)
+            button.setTitleColor(color, for: .disabled)
         } else if let imageView = view as? UIImageView {
             imageView.tintColor = color
         }

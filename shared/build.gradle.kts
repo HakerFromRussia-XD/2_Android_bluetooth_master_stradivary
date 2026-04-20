@@ -89,7 +89,7 @@ kotlin {
     androidTarget()
 
     listOf(
-//        iosX64(),
+        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -201,6 +201,7 @@ kotlin {
 dependencies {
 //    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
     add("kspAndroid", "androidx.room:room-compiler:2.7.2")
+    add("kspIosX64", "androidx.room:room-compiler:2.7.2")
     add("kspIosArm64", "androidx.room:room-compiler:2.7.2")
     add("kspIosSimulatorArm64", "androidx.room:room-compiler:2.7.2")
 }
@@ -301,4 +302,10 @@ tasks.register("jacocoUbi4Report") {
     group = "verification"
     description = "Runs debug unit tests and builds JaCoCo report for com.bailout.stickk.ubi4.*"
     dependsOn(jacocoUbi4DebugUnitTestReport)
+}
+
+// shared module doesn't use Compose Multiplatform resources (Res/stringResource/painterResource),
+// so this iOS sync task is unnecessary and may fail in Xcode when some env providers are missing.
+tasks.matching { it.name == "syncComposeResourcesForIos" }.configureEach {
+    enabled = false
 }

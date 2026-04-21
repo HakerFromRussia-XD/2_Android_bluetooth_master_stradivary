@@ -28,12 +28,12 @@ final class AppAppearance {
     }
 }
 
-extension UINavigationController {
-    @objc override open var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+final class StatusBarNavigationController: UINavigationController {
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
     }
 
-    @objc override open var childForStatusBarStyle: UIViewController? {
+    override var childForStatusBarStyle: UIViewController? {
         nil
     }
 }

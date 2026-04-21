@@ -372,6 +372,97 @@ class WidgetsSceneUITests: XCTestCase {
         }
     }
 
+    func testSpecialSettingsSpinner_whenTapOption_thenDropdownClosesAndSelectionIsApplied() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: preferredDeviceCandidates,
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after tapping preferred BLE device")
+        XCTAssertTrue(
+            waitForSynchronizationCompletion(in: app, timeout: 60),
+            "Synchronization did not complete before opening Special settings"
+        )
+
+        let specialTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabSpecialSettingsItem]
+        XCTAssertTrue(specialTabButton.waitForExistence(timeout: 5), "Special settings tab button was not found")
+        specialTabButton.tap()
+        XCTAssertTrue(specialTabButton.isSelected, "Special settings tab did not become selected")
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+
+        let spinnerTitle = elementByIdentifierOrLabels(
+            in: app,
+            identifier: "unused.spinner.title.identifier",
+            fallbackLabels: [
+                "Режим работы протеза",
+                "Режим работы EMG",
+                "Режим работы ЕМГ"
+            ]
+        )
+        XCTAssertTrue(
+            scrollToElement(spinnerTitle, in: widgetsTable, maxSwipes: 12),
+            "Could not find spinner widget title on Special settings screen"
+        )
+        XCTAssertTrue(spinnerTitle.waitForExistence(timeout: 5), "Spinner widget title was not found")
+
+        let triggerButton: XCUIElement
+        if let dropdownButton = buttonInSameRow(as: spinnerTitle, in: widgetsTable) {
+            triggerButton = dropdownButton
+            triggerButton.tap()
+        } else {
+            let openDropdownCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0)).withOffset(
+                CGVector(
+                    dx: min(widgetsTable.frame.maxX - 90, spinnerTitle.frame.maxX + 150),
+                    dy: spinnerTitle.frame.midY
+                )
+            )
+            openDropdownCoordinate.tap()
+            guard let fallbackButton = buttonInSameRow(as: spinnerTitle, in: widgetsTable) else {
+                XCTFail("Could not resolve spinner trigger button after fallback tap")
+                return
+            }
+            triggerButton = fallbackButton
+        }
+
+        XCTAssertTrue(
+            waitForDropdownOptionButtons(in: app, triggerButton: triggerButton, minimum: 2, timeout: 5),
+            "Spinner dropdown did not open (options below trigger button were not detected)"
+        )
+
+        let dropdownCluster = dropdownPanelButtons(in: app, triggerButton: triggerButton)
+        let preferredLastLabel = "Плавное управление силой и скоростью"
+        let initialTriggerLabel = triggerButton.label
+        guard let optionToTap = dropdownCluster.first(where: { $0.label == preferredLastLabel })
+            ?? dropdownCluster.last(where: { $0.label != initialTriggerLabel })
+            ?? dropdownCluster.last
+        else {
+            XCTFail("Could not resolve selectable spinner option in dropdown")
+            return
+        }
+        let expectedSelectedLabel = optionToTap.label
+        optionToTap.tap()
+
+        XCTAssertTrue(
+            waitForButtonLabel(triggerButton, expectedValues: [expectedSelectedLabel], timeout: 4),
+            "Spinner selection was not applied after tapping dropdown option"
+        )
+    }
+
     private func waitForDeviceElement(namedAnyOf candidates: [String], in table: XCUIElement, timeout: TimeInterval) -> XCUIElement? {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
@@ -678,6 +769,106 @@ class WidgetsSceneUITests: XCTestCase {
         }
 
         return !progressElement.exists
+    }
+
+    private func waitForDropdownOptionButtons(
+        in app: XCUIApplication,
+        triggerButton: XCUIElement,
+        minimum: Int,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if dropdownOptionButtons(in: app, triggerButton: triggerButton).count >= minimum {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return dropdownOptionButtons(in: app, triggerButton: triggerButton).count >= minimum
+    }
+
+    private func waitForDropdownOptionButtons(
+        in app: XCUIApplication,
+        triggerButton: XCUIElement,
+        maximum: Int,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if dropdownOptionButtons(in: app, triggerButton: triggerButton).count <= maximum {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return dropdownOptionButtons(in: app, triggerButton: triggerButton).count <= maximum
+    }
+
+    private func waitForButtonLabel(
+        _ button: XCUIElement,
+        expectedValues: [String],
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if expectedValues.contains(button.label) {
+                return true
+            }
+            if let value = button.value as? String, expectedValues.contains(value) {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return expectedValues.contains(button.label)
+    }
+
+    private func dropdownOptionButtons(in app: XCUIApplication, triggerButton: XCUIElement) -> [XCUIElement] {
+        let triggerFrame = triggerButton.frame
+        guard !triggerFrame.isEmpty else { return [] }
+
+        let maxHorizontalDelta = max(44.0, triggerFrame.width * 0.4)
+        let minY = triggerFrame.maxY + 4
+        let maxY = triggerFrame.maxY + 420
+
+        return app.descendants(matching: .button)
+            .allElementsBoundByIndex
+            .filter { button in
+                button.exists &&
+                button.frame.minY >= minY &&
+                button.frame.maxY <= maxY &&
+                abs(button.frame.midX - triggerFrame.midX) <= maxHorizontalDelta &&
+                button.frame.width >= triggerFrame.width * 0.6
+            }
+    }
+
+    private func dropdownPanelButtons(in app: XCUIApplication, triggerButton: XCUIElement) -> [XCUIElement] {
+        let sorted = dropdownOptionButtons(in: app, triggerButton: triggerButton)
+            .sorted { $0.frame.minY < $1.frame.minY }
+        guard let first = sorted.first else { return [] }
+
+        var cluster: [XCUIElement] = [first]
+        var previousMaxY = first.frame.maxY
+        for button in sorted.dropFirst() {
+            let gap = button.frame.minY - previousMaxY
+            if gap > 12 {
+                break
+            }
+            cluster.append(button)
+            previousMaxY = button.frame.maxY
+        }
+        return cluster
+    }
+
+    private func buttonInSameRow(as titleElement: XCUIElement, in table: XCUIElement) -> XCUIElement? {
+        let titleMidY = titleElement.frame.midY
+        let titleMaxX = titleElement.frame.maxX
+
+        return table.descendants(matching: .button)
+            .allElementsBoundByIndex
+            .first(where: { button in
+                button.exists &&
+                abs(button.frame.midY - titleMidY) < 30 &&
+                button.frame.minX > titleMaxX - 20
+            })
     }
 
     private func progressValue(from element: XCUIElement) -> Double? {

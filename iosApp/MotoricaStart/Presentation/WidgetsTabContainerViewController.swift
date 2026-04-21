@@ -154,7 +154,7 @@ class WidgetsTabContainerViewController: UIViewController {
         if let rootNavigationController = window.rootViewController as? UINavigationController {
             rootNavigationController.setViewControllers([bluetoothVC], animated: false)
         } else {
-            window.rootViewController = UINavigationController(rootViewController: bluetoothVC)
+            window.rootViewController = StatusBarNavigationController(rootViewController: bluetoothVC)
         }
         window.makeKeyAndVisible()
     }

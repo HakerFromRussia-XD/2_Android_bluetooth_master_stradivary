@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         
-        let navigationController = UINavigationController()
+        let navigationController = StatusBarNavigationController()
         let ubi4BackgroundColor = UIColor(named: "ubi4_back") ?? UIColor.black
         navigationController.view.backgroundColor = ubi4BackgroundColor
         window = UIWindow(frame: UIScreen.main.bounds)

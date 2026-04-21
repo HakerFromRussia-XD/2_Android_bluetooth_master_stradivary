@@ -47,6 +47,14 @@ final class BluetoothListViewController: UIViewController {
         super.init(coder: coder)
     }
     required init?(coder: NSCoder) { fatalError("Use init(coder:viewModel:)") }
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+
+    override var childForStatusBarStyle: UIViewController? {
+        nil
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

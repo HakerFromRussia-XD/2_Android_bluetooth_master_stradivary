@@ -62,6 +62,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
+    private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
     private static func notifyGlobalSynchronizationStateDidChange() {
         NotificationCenter.default.post(
@@ -326,6 +327,13 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func setupViews() {
+        view.backgroundColor = tabsBackgroundColor
+        view.isOpaque = true
+        contentView?.backgroundColor = tabsBackgroundColor
+        widgetsListContainer?.backgroundColor = tabsBackgroundColor
+        suggestionsListContainer?.backgroundColor = .clear
+        tableViewWidgets?.backgroundColor = tabsBackgroundColor
+        tableViewWidgets?.isOpaque = true
         title = viewModel.screenTitle
         title = screenTitleOverride ?? viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle

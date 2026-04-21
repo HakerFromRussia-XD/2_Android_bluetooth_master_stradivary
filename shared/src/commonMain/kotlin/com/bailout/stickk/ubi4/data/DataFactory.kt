@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlotItem
 import com.bailout.stickk.ubi4.models.widgets.PlotItemV3
 import com.bailout.stickk.ubi4.models.widgets.SliderItem
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
+import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.models.widgets.SwitchItem
 import com.bailout.stickk.ubi4.models.widgets.SwitchItemV3
@@ -47,8 +48,8 @@ class DataFactory {
     fun fakeData(): List<Any> = buildList {
 //        add(OneButtonItem("COMMAND E", "description", CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 3, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
 //        add(OneButtonItem("COMMAND S", "description", CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 4, widgetCode = ParameterWidgetCode.PWCE_BUTTON.number.toInt())))))
-        add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
-//        add(SwitchItem("SWITCH S", SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
+//        add(SwitchItem("SWITCH E", SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 5, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
+        add(SwitchItem("SWITCH S", SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 6, widgetCode = ParameterWidgetCode.PWCE_SWITCH.number.toInt())))))
         add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
         add(
             SpinnerItemV3(
@@ -78,7 +79,19 @@ class DataFactory {
 //        add(PlotItem("PLOT E", PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 9, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
 //        add(PlotItem("PLOT S", PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(widgetPosition = 10, widgetCode = ParameterWidgetCode.PWCE_PLOT.number.toInt())))))
 //        add(TrainingGestureItem("OPTIC LEARNING", OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 11, widgetCode = ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt())))))
-//        add(SpinnerItem("Уровень доступа", SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 12, widgetCode = ParameterWidgetCode.PWCE_SPINBOX.number.toInt())))))
+        add(
+            SpinnerItem(
+                "Уровень доступа",
+                SpinnerParameterWidgetEStruct(
+                    BaseParameterWidgetEStruct(
+                        BaseParameterWidgetStruct(
+                            widgetPosition = 12,
+                            widgetCode = ParameterWidgetCode.PWCE_SPINBOX.number.toInt()
+                        )
+                    )
+                )
+            )
+        )
 //        add(SliderItem("TOGGLE SLIDER",
 //            ToggleSliderParameterWidgetEStruct(
 //                BaseParameterWidgetEStruct(

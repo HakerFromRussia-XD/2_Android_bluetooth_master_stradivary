@@ -1,12 +1,16 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
+import android.graphics.Rect
 import android.util.Log
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSpinnerBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
@@ -41,6 +45,8 @@ class SpinnerDelegateAdapterV3 (
     private val spinnerInfoList : ArrayList<WidgetSpinnerInfo> = ArrayList()
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
+    private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
+
 
     override fun Ubi4WidgetSpinnerBinding.onBind(item: SpinnerItemV3) {
         onDestroyParent { onDestroy() }
@@ -93,6 +99,15 @@ class SpinnerDelegateAdapterV3 (
             typeface = ResourcesCompat.getFont(context, R.font.sf_pro_display_light)
             gravity = Gravity.CENTER
         }
+        spinnerPsv.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                dismissAllExcept(spinnerPsv)
+                // На случай смешанного экрана с V2/V3 виджетами.
+                SpinnerDelegateAdapter.dismissAll()
+            }
+            false
+        }
+        installDismissOnOutsideTouch(root)
 
 
         spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
@@ -137,6 +152,44 @@ class SpinnerDelegateAdapterV3 (
                 }
             }
         }
+    }
+
+    private fun installDismissOnOutsideTouch(itemRoot: View) {
+        val recycler = itemRoot.parent as? RecyclerView
+        if (recycler != null) {
+            ensureRecyclerTouchListener(recycler)
+            return
+        }
+        itemRoot.post {
+            val attachedRecycler = itemRoot.parent as? RecyclerView ?: return@post
+            ensureRecyclerTouchListener(attachedRecycler)
+        }
+    }
+
+    private fun ensureRecyclerTouchListener(recycler: RecyclerView) {
+        if (recyclerTouchListeners.containsKey(recycler)) return
+        val listener = object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                if (e.actionMasked != MotionEvent.ACTION_DOWN) return false
+                if (isTouchOnSpinner(rv, e)) return false
+                dismissAll()
+                return false
+            }
+        }
+        recycler.addOnItemTouchListener(listener)
+        recyclerTouchListeners[recycler] = listener
+    }
+
+    private fun isTouchOnSpinner(recycler: RecyclerView, event: MotionEvent): Boolean {
+        val child = recycler.findChildViewUnder(event.x, event.y) ?: return false
+        val spinner = child.findViewById<PowerSpinnerView>(R.id.spinnerPsv) ?: return false
+
+        val spinnerRect = Rect()
+        spinner.getHitRect(spinnerRect)
+
+        val touchXInChild = (event.x - child.left).toInt()
+        val touchYInChild = (event.y - child.top).toInt()
+        return spinnerRect.contains(touchXInChild, touchYInChild)
     }
 
     private fun observeInteractionState() {
@@ -250,6 +303,10 @@ class SpinnerDelegateAdapterV3 (
     fun onDestroy() {
         spinnerInfoList.forEach { it.spinner.dismiss() }
         spinnerInfoList.clear()
+        recyclerTouchListeners.forEach { (recycler, listener) ->
+            recycler.removeOnItemTouchListener(listener)
+        }
+        recyclerTouchListeners.clear()
         scope.cancel()
         collectJob?.cancel()
         collectJob = null
@@ -277,6 +334,15 @@ class SpinnerDelegateAdapterV3 (
         fun dismissAll() {
             cleanupDeadRefs()
             spinners.forEach { ref -> ref.get()?.dismiss() }
+        }
+
+        fun dismissAllExcept(current: PowerSpinnerView) {
+            cleanupDeadRefs()
+            spinners.forEach { ref ->
+                ref.get()?.let { spinner ->
+                    if (spinner !== current) spinner.dismiss()
+                }
+            }
         }
     }
 }

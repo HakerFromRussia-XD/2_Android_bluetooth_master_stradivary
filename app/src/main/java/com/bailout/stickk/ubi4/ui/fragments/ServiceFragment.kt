@@ -33,6 +33,8 @@ class ServiceFragment: BaseWidgetsFragment() {
         _binding = Ubi4FragmentServiceBinding.inflate(inflater, container, false)
 
         adapterWidgets.swapData(mDataFactory.prepareData(display))
+//        adapterWidgets.swapData(mDataFactory.fakeData())
+
         setupRecycler()
         subscribeUpdates()
         return binding.root

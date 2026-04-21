@@ -70,6 +70,36 @@ class WidgetsSceneUITests: XCTestCase {
             XCTAssertLessThanOrEqual(Date().timeIntervalSince(tapStartedAt), 5.0)
         }
     }
+
+    func testBluetoothFilterSegment_whenTapAreaOutsideText_thenSelectionChanges() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise"]
+        app.launch()
+
+        let selector = app.otherElements[AccessibilityIdentifier.bleFilterSegmentSelector]
+        XCTAssertTrue(selector.waitForExistence(timeout: 8), "Bluetooth filter selector did not appear")
+
+        guard let initialIndex = waitForBluetoothFilterSelectedIndex(selector, timeout: 2) else {
+            XCTFail("Could not read initial bluetooth filter selector index")
+            return
+        }
+
+        let forwardTapX: CGFloat = initialIndex == 0 ? 0.88 : 0.12
+        let backwardTapX: CGFloat = initialIndex == 0 ? 0.12 : 0.88
+        let toggledIndex = initialIndex == 0 ? 1 : 0
+
+        tapSelectorSegment(selector, normalizedX: forwardTapX, normalizedY: 0.18)
+        XCTAssertTrue(
+            waitForBluetoothFilterSelectedIndex(selector, expected: toggledIndex, timeout: 2),
+            "Bluetooth filter did not switch after tap outside text area"
+        )
+
+        tapSelectorSegment(selector, normalizedX: backwardTapX, normalizedY: 0.82)
+        XCTAssertTrue(
+            waitForBluetoothFilterSelectedIndex(selector, expected: initialIndex, timeout: 2),
+            "Bluetooth filter did not switch back after tap outside text area"
+        )
+    }
     
     func testBluetoothScan_whenTapRomanDevice_thenMainTabsOpen() {
         let app = XCUIApplication()
@@ -316,6 +346,54 @@ class WidgetsSceneUITests: XCTestCase {
         }
     }
 
+    func testGesturesSegmentSwitch_whenTapSegmentAreaOutsideText_thenSegmentChangesOnSimulator() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise", "-ui-test-skip-synchronization"]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 30), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Gestures segment selector did not appear")
+
+        // Tap near top-right corner of segment control (outside text baseline) -> rotation segment.
+        tapSelectorSegment(selector, normalizedX: 0.88, normalizedY: 0.18)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment was not selected by tapping segment area outside text"
+        )
+
+        // Tap near bottom-left corner of segment control (outside text baseline) -> collection segment.
+        tapSelectorSegment(selector, normalizedX: 0.12, normalizedY: 0.82)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "collection", timeout: 2),
+            "Collection segment was not selected by tapping segment area outside text"
+        )
+    }
+
     func testBottomBarStyle_whenConnectedToRoma1_thenCaptureRealDeviceScreenshot() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-debug-tabbar"]
@@ -504,8 +582,8 @@ class WidgetsSceneUITests: XCTestCase {
         return element.exists
     }
 
-    private func tapSelectorSegment(_ selector: XCUIElement, normalizedX: CGFloat) {
-        let coordinate = selector.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: 0.5))
+    private func tapSelectorSegment(_ selector: XCUIElement, normalizedX: CGFloat, normalizedY: CGFloat = 0.5) {
+        let coordinate = selector.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: normalizedY))
         coordinate.tap()
     }
 
@@ -697,6 +775,42 @@ class WidgetsSceneUITests: XCTestCase {
             steps: steps,
             rollback: rollback
         )
+    }
+
+    private func waitForBluetoothFilterSelectedIndex(
+        _ selector: XCUIElement,
+        expected: Int,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let index = bluetoothFilterSelectedIndex(from: selector), index == expected {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        return false
+    }
+
+    private func waitForBluetoothFilterSelectedIndex(
+        _ selector: XCUIElement,
+        timeout: TimeInterval
+    ) -> Int? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let index = bluetoothFilterSelectedIndex(from: selector) {
+                return index
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        return nil
+    }
+
+    private func bluetoothFilterSelectedIndex(from selector: XCUIElement) -> Int? {
+        guard let value = selector.value as? String else { return nil }
+        guard let range = value.range(of: "selectedIndex=") else { return nil }
+        let raw = value[range.upperBound...]
+        return Int(raw.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     private func waitForElementValue(

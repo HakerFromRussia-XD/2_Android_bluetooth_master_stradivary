@@ -100,9 +100,6 @@ final class GestureViewCellV3: UITableViewCell {
         if let currentActiveGestureId = viewModel.currentActiveGestureId() {
             applyActiveGesture(currentActiveGestureId)
         }
-        if let currentRotationGroup = viewModel.currentRotationGroup(provider: provider) {
-            applyRotationGroupWithoutAnimation(currentRotationGroup)
-        }
 
         updatesJob?.cancel(cause: nil)
         updatesJob = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in

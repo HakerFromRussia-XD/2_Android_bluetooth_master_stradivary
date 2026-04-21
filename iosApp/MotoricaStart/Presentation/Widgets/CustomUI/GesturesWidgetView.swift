@@ -245,14 +245,18 @@ struct GesturesWidgetView: View {
                                 .font(.system(size: 12, weight: .light))
                                 .foregroundColor(segment == provider.selectedSegment ? .white : Color("ubi4_deactivate_text"))
                                 .animation(nil, value: provider.selectedSegment)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .contentShape(Rectangle())
                                 .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
                         .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         .animation(nil, value: provider.selectedSegment)
                         .buttonStyle(.plain)
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(2)
             }
             .overlay(

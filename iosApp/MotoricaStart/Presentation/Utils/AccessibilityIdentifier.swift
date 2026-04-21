@@ -4,6 +4,7 @@ struct AccessibilityIdentifier {
     static let widgetDetailsView = "AccessibilityIdentifierWidgetDetailsView"
     static let searchField = "AccessibilityIdentifierSearchWidgets"
     static let bleDevicesTable = "AccessibilityIdentifierBLEDevicesTable"
+    static let bleFilterSegmentSelector = "AccessibilityIdentifierBLEFilterSegmentSelector"
     static let mainTabBarRoot = "AccessibilityIdentifierMainTabBarRoot"
     static let mainTabGesturesItem = "AccessibilityIdentifierMainTabGesturesItem"
     static let mainTabSpecialSettingsItem = "AccessibilityIdentifierMainTabSpecialSettingsItem"

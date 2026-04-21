@@ -607,13 +607,24 @@ private struct BluetoothSegmentSelectorView: View {
                                 .foregroundColor(index == provider.selectedSegmentIndex ? .white : Color("ubi4_deactivate_text"))
                                 .animation(nil, value: provider.selectedSegmentIndex)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .contentShape(Rectangle())
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
                         .animation(nil, value: provider.selectedSegmentIndex)
                         .buttonStyle(.plain)
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(2)
             }
+            .overlay(
+                Color.clear
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityIdentifier(AccessibilityIdentifier.bleFilterSegmentSelector)
+                    .accessibilityValue("selectedIndex=\(clampedSelectedIndex)")
+                    .allowsHitTesting(false)
+            )
             .onAppear {
                 initializeSelectorOffsetIfNeeded(segmentWidth: segmentWidth)
             }

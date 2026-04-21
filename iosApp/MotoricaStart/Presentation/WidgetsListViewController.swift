@@ -251,10 +251,8 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
-        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
-            guard let self = self else { return }
-            self.viewModel.update(with: responseDTO.toDomain())
-        }
+        viewModel.update(with: mockResponseDTO.toDomain())
+        storage.save(response: mockResponseDTO, for: requestDTO)
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {

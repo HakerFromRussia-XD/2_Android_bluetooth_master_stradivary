@@ -10,8 +10,11 @@ final class AppAppearance {
             navBarAppearance.configureWithOpaqueBackground()
             navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
             navBarAppearance.backgroundColor = statusBarBackgroundColor
+            navBarAppearance.shadowColor = .clear
             UINavigationBar.appearance().standardAppearance = navBarAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+            UINavigationBar.appearance().compactAppearance = navBarAppearance
+            UINavigationBar.appearance().compactScrollEdgeAppearance = navBarAppearance
 
             let tabBarAppearance = UITabBarAppearance()
             tabBarAppearance.configureWithOpaqueBackground()
@@ -22,6 +25,7 @@ final class AppAppearance {
             UINavigationBar.appearance().barTintColor = statusBarBackgroundColor
             UINavigationBar.appearance().tintColor = .white
             UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+            UINavigationBar.appearance().shadowImage = UIImage()
             UITabBar.appearance().barTintColor = statusBarBackgroundColor
             UITabBar.appearance().isTranslucent = false
         }

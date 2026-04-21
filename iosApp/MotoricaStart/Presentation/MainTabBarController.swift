@@ -16,9 +16,6 @@ final class MainTabBarController: UITabBarController {
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
     private let synchronizationRestrictedTabTags: Set<Int> = [0, 3]
-    private let tabBarBackgroundColor = UIColor(named: "ubi4_back")
-        ?? UIColor(named: "ubi4_dark_back")
-        ?? UIColor(red: 42 / 255.0, green: 42 / 255.0, blue: 42 / 255.0, alpha: 1.0)
     private let selectedTabItemColor = UIColor(named: "ubi4_white") ?? .white
     private let unselectedTabItemColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
     private var keyboardWillShowObserver: NSObjectProtocol?
@@ -64,8 +61,7 @@ final class MainTabBarController: UITabBarController {
         super.viewDidLoad()
         view.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarRoot
         setupTabs()
-        tabBar.backgroundColor = tabBarBackgroundColor
-        tabBar.barTintColor = tabBarBackgroundColor
+        tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")
         tabBar.tintColor = selectedTabItemColor
         tabBar.unselectedItemTintColor = unselectedTabItemColor
         configureTabBarPlatformBehavior()
@@ -77,6 +73,11 @@ final class MainTabBarController: UITabBarController {
         registerKeyboardObservers()
         registerSynchronizationObservers()
         updateSynchronizationRestrictedTabAvailability()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     override func viewDidLayoutSubviews() {

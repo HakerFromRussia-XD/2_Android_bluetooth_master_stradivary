@@ -7,6 +7,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let appDIContainer = AppDIContainer()
     private var appFlowCoordinator: AppFlowCoordinator?
     var window: UIWindow?
+    private weak var statusBarOverlayView: UIView?
     
     
     func application(
@@ -28,18 +29,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.backgroundColor = ubi4BackgroundColor
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        if #available(iOS 13.0, *) {
-            if let statusBarFrame = window?.windowScene?.statusBarManager?.statusBarFrame {
-                let statusBarView = UIView(frame: statusBarFrame)
-                statusBarView.backgroundColor = ubi4BackgroundColor
-                statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
-                window?.addSubview(statusBarView)
-            }
-        } else {
-            let statusBarView = UIView(frame: UIApplication.shared.statusBarFrame)
-            statusBarView.backgroundColor = ubi4BackgroundColor
-            statusBarView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
-            window?.addSubview(statusBarView)
+        installStatusBarOverlay(backgroundColor: ubi4BackgroundColor)
+        DispatchQueue.main.async { [weak self] in
+            self?.installStatusBarOverlay(backgroundColor: ubi4BackgroundColor)
         }
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
@@ -51,5 +43,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         CoreDataStorage.shared.saveContext()
+    }
+
+    private func installStatusBarOverlay(backgroundColor: UIColor) {
+        guard let window else { return }
+
+        // On Dynamic Island devices statusBarFrame can be shorter than safeAreaInsets.top.
+        // We fill the whole top safe area to avoid a visible seam.
+        let statusBarHeight = window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        let overlayHeight = max(window.safeAreaInsets.top, statusBarHeight)
+        guard overlayHeight > 0 else { return }
+
+        let overlay: UIView
+        if let existingOverlay = statusBarOverlayView {
+            overlay = existingOverlay
+        } else {
+            overlay = UIView()
+            overlay.isUserInteractionEnabled = false
+            overlay.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+            window.addSubview(overlay)
+            statusBarOverlayView = overlay
+        }
+
+        overlay.frame = CGRect(x: 0, y: 0, width: window.bounds.width, height: overlayHeight)
+        overlay.backgroundColor = backgroundColor
     }
 }

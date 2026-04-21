@@ -24,6 +24,7 @@ final class MainTabBarController: UITabBarController {
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
+    private var pendingTabColorRefreshWorkItems: [DispatchWorkItem] = []
     
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
@@ -92,6 +93,7 @@ final class MainTabBarController: UITabBarController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
+        scheduleTabBarColorRefreshBurst()
         dumpTabBarIfNeeded()
     }
 
@@ -325,10 +327,7 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func applyTabBarControlTintFallback() {
-        let controls = tabBar.subviews
-            .compactMap { $0 as? UIControl }
-            .filter { !$0.isHidden && $0.bounds.width > 0 && $0.bounds.height > 0 }
-            .sorted { $0.frame.minX < $1.frame.minX }
+        let controls = tabBarButtonControls()
         guard !controls.isEmpty else { return }
 
         let clampedSelectedIndex = max(0, min(selectedIndex, controls.count - 1))
@@ -345,7 +344,20 @@ final class MainTabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = unselectedTabItemColor
     }
 
+    private func tabBarButtonControls() -> [UIControl] {
+        let controls = tabBar.subviews.compactMap { $0 as? UIControl }
+        let tabButtons = controls.filter {
+            let className = String(describing: type(of: $0)).lowercased()
+            return className.contains("tabbarbutton")
+        }
+        let source = tabButtons.isEmpty ? controls : tabButtons
+        return source
+            .filter { !$0.isHidden && $0.bounds.width > 0 && $0.bounds.height > 0 }
+            .sorted { $0.frame.minX < $1.frame.minX }
+    }
+
     private func applyTintRecursively(in view: UIView, color: UIColor) {
+        view.tintColor = color
         if let label = view as? UILabel {
             label.textColor = color
             label.highlightedTextColor = color
@@ -359,6 +371,20 @@ final class MainTabBarController: UITabBarController {
         }
         for subview in view.subviews {
             applyTintRecursively(in: subview, color: color)
+        }
+    }
+
+    private func scheduleTabBarColorRefreshBurst() {
+        pendingTabColorRefreshWorkItems.forEach { $0.cancel() }
+        pendingTabColorRefreshWorkItems.removeAll()
+
+        let delays: [TimeInterval] = [0, 0.03, 0.08, 0.16, 0.28, 0.42]
+        for delay in delays {
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.refreshTabBarItemColors()
+            }
+            pendingTabColorRefreshWorkItems.append(workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
         }
     }
 
@@ -437,9 +463,7 @@ final class MainTabBarController: UITabBarController {
     @objc
     private func handleTabButtonTouchEnd(_ sender: UIControl) {
         suppressTabButtonHighlight(sender)
-        DispatchQueue.main.async { [weak self] in
-            self?.refreshTabBarItemColors()
-        }
+        scheduleTabBarColorRefreshBurst()
     }
 
     private func suppressTabButtonHighlight(_ control: UIControl) {
@@ -525,6 +549,7 @@ final class MainTabBarController: UITabBarController {
     }
 
     deinit {
+        pendingTabColorRefreshWorkItems.forEach { $0.cancel() }
         if let keyboardWillShowObserver {
             NotificationCenter.default.removeObserver(keyboardWillShowObserver)
         }
@@ -548,16 +573,7 @@ extension MainTabBarController: UITabBarControllerDelegate {
     }
 
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        refreshTabBarItemColors()
-        DispatchQueue.main.async { [weak self] in
-            self?.refreshTabBarItemColors()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { [weak self] in
-            self?.refreshTabBarItemColors()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { [weak self] in
-            self?.refreshTabBarItemColors()
-        }
+        scheduleTabBarColorRefreshBurst()
     }
 
     func tabBarController(_ tabBarController: UITabBarController,

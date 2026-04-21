@@ -32,4 +32,8 @@ extension UINavigationController {
     @objc override open var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
+
+    @objc override open var childForStatusBarStyle: UIViewController? {
+        nil
+    }
 }

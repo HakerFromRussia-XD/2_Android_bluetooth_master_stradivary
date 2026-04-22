@@ -60,6 +60,7 @@ struct GesturesWidgetView: View {
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
+    var onRotationGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRotationGestureRemove: (Int) -> Void
     var onRotationGestureAdd: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
@@ -74,6 +75,7 @@ struct GesturesWidgetView: View {
         onFactoryGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onCustomGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onCustomGestureSettingsTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
+        onRotationGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onRotationGestureRemove: @escaping (Int) -> Void,
         onRotationGestureAdd: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onRotationGesturesReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
@@ -87,6 +89,7 @@ struct GesturesWidgetView: View {
         self.onFactoryGestureTap = onFactoryGestureTap
         self.onCustomGestureTap = onCustomGestureTap
         self.onCustomGestureSettingsTap = onCustomGestureSettingsTap
+        self.onRotationGestureTap = onRotationGestureTap
         self.onRotationGestureRemove = onRotationGestureRemove
         self.onRotationGestureAdd = onRotationGestureAdd
         self.onRotationGesturesReorder = onRotationGesturesReorder
@@ -711,6 +714,10 @@ struct GesturesWidgetView: View {
         VStack(spacing: 12) {
             RotationGesturesReorderView(
                 items: $provider.rotationGroup,
+                activeGestureId: provider.activeGestureId,
+                onTap: { item in
+                    onRotationGestureTap(item)
+                },
                 onRemove: { index in
                     presentRotationDeleteDialog(for: index)
                     print("onRemove 1 \(index)")
@@ -1314,6 +1321,8 @@ private struct CustomGestureTile: View {
 // MARK: - rotation group
 private struct RotationGesturesReorderView: View {
     @Binding var items: [GesturesProvider.GestureDisplayItem]
+    var activeGestureId: Int?
+    var onTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRemove: (Int) -> Void
     var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
 
@@ -1333,9 +1342,14 @@ private struct RotationGesturesReorderView: View {
             VStack(spacing: 0) {
                 ForEach(items) { item in
                     RotationGestureRow(
+                        itemId: item.id,
                         title: item.title,
+                        isActive: activeGestureId == item.id,
                         isDragging: draggedItem == item,
                         isLast: item == items.last,
+                        onTap: {
+                            onTap(item)
+                        },
                         onRemove: {
                             if let index = items.firstIndex(of: item) {
                                 onRemove(index)
@@ -1571,22 +1585,31 @@ private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
 }
 
 private struct RotationGestureRow<Handle: View>: View {
+    let itemId: Int
     let title: String
+    var isActive: Bool
     var isDragging: Bool
     var isLast: Bool
+    var onTap: () -> Void
     var onRemove: () -> Void
     let handle: Handle
 
     init(
+        itemId: Int,
         title: String,
+        isActive: Bool,
         isDragging: Bool,
         isLast: Bool,
+        onTap: @escaping () -> Void,
         onRemove: @escaping () -> Void,
         @ViewBuilder handle: () -> Handle
     ) {
+        self.itemId = itemId
         self.title = title
+        self.isActive = isActive
         self.isDragging = isDragging
         self.isLast = isLast
+        self.onTap = onTap
         self.onRemove = onRemove
         self.handle = handle()
     }
@@ -1596,7 +1619,9 @@ private struct RotationGestureRow<Handle: View>: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
+                    .foregroundColor(isActive ? Color("ubi4_active") : .white)
+                    .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesRotationRowTitlePrefix).\(itemId)")
+                    .accessibilityValue(isActive ? "active" : "inactive")
             }
             Spacer()
             Button(action: onRemove) {
@@ -1608,6 +1633,12 @@ private struct RotationGestureRow<Handle: View>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesRotationRowPrefix).\(itemId)")
+        .accessibilityValue(isActive ? "active" : "inactive")
+        .accessibilityAddTraits(.isButton)
         .background(
             Group {
                 if isDragging {

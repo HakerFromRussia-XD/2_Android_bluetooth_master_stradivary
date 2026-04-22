@@ -100,6 +100,12 @@ extension GestureListItemViewModel {
         sendActiveGesture(gestureId: item.id)
     }
 
+    func selectRotationGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
+        provider.activeGestureId = item.id
+        provider.activeGestureTitle = item.title
+        sendActiveGesture(gestureId: item.id)
+    }
+
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
         _ = GestureSettingsViewModel.shared
         requestGestureSettings(gestureId: item.id)
@@ -171,11 +177,9 @@ extension GestureListItemViewModel {
 
     func requestRotationGroup() {
         print("Rotation requestRotationGroup")
-        if isV3Widget, let binding = v3Binding(for: ParameterCode.gestureGroupV3) {
-            guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
-                parameterID: Int32(binding.parameterID),
-                dataCode: Int32(binding.dataCode)
-            ) else { return }
+        if isV3Widget {
+            // Android parity: BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE)
+            let data = BLECommandsV3.shared.request(subcommand: Int32(ParameterCode.gestureGroupV3Get))
             sendBytes(data, useV3Channel: true)
             return
         }
@@ -256,11 +260,9 @@ extension GestureListItemViewModel {
     }
     
     func requestActiveGesture() {
-        if isV3Widget, let binding = v3Binding(for: ParameterCode.selectGestureV3) {
-            guard let data = WidgetCommandBridgeV3.shared.buildReadRequest(
-                parameterID: Int32(binding.parameterID),
-                dataCode: Int32(binding.dataCode)
-            ) else { return }
+        if isV3Widget {
+            // Android parity: BLECommandsV3.request(PWCE_GET_CURRENT_GESTURE_NUM)
+            let data = BLECommandsV3.shared.request(subcommand: Int32(ParameterCode.selectGestureV3Get))
             sendBytes(data, useV3Channel: true)
             return
         }
@@ -295,14 +297,12 @@ extension GestureListItemViewModel {
 
     private func sendActiveGesture(gestureId: Int) {
         print("sendBytes sendActiveGesture")
-        if isV3Widget, let binding = v3Binding(for: ParameterCode.selectGestureV3) {
-            guard let data = WidgetCommandBridgeV3.shared.buildSetInt(
-                parameterID: Int32(binding.parameterID),
-                dataCode: Int32(binding.dataCode),
-                deviceAddress: Int32(binding.deviceAddress),
-                dataOffset: Int32(binding.dataOffset),
-                value: Int32(gestureId)
-            ) else { return }
+        if isV3Widget {
+            // Android parity: BLECommandsV3.sendSubcommand(PWCE_SET_CURRENT_GESTURE_NUM, activeGesture)
+            let data = BLECommandsV3.shared.sendSubcommand(
+                subcommand: Int32(ParameterCode.selectGestureV3Set),
+                parameter: Int32(gestureId)
+            )
             sendBytes(data, useV3Channel: true)
             return
         }
@@ -323,6 +323,10 @@ extension GestureListItemViewModel {
 
     private func v3Binding(for dataCode: Int) -> WidgetV3BindingInfo? {
         bindings.first(where: { $0.dataCode == dataCode })
+    }
+
+    private func v3Binding(forAnyDataCode dataCodes: [Int]) -> WidgetV3BindingInfo? {
+        bindings.first(where: { dataCodes.contains($0.dataCode) })
     }
 
     private func sendBytes(_ data: KotlinByteArray, useV3Channel: Bool) {
@@ -354,14 +358,20 @@ extension GestureListItemViewModel {
     }
 
     func matchesActiveGesture(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding = v3Binding(for: ParameterCode.selectGestureV3) else { return false }
+        guard let binding = v3Binding(forAnyDataCode: [
+            ParameterCode.selectGestureV3Get,
+            ParameterCode.selectGestureV3Set
+        ]) else { return false }
         return snapshot.addressDevice == Int32(binding.deviceAddress)
             && snapshot.parameterID == Int32(binding.parameterID)
             && snapshot.dataCode == Int32(binding.dataCode)
     }
 
     func matchesRotationGroup(snapshot: ParameterSnapshotV3Bridge) -> Bool {
-        guard let binding = v3Binding(for: ParameterCode.gestureGroupV3) else { return false }
+        guard let binding = v3Binding(forAnyDataCode: [
+            ParameterCode.gestureGroupV3Get,
+            ParameterCode.gestureGroupV3Set
+        ]) else { return false }
         return snapshot.addressDevice == Int32(binding.deviceAddress)
             && snapshot.parameterID == Int32(binding.parameterID)
             && snapshot.dataCode == Int32(binding.dataCode)
@@ -379,7 +389,10 @@ extension GestureListItemViewModel {
     }
 
     func currentActiveGestureId() -> Int? {
-        guard let binding = v3Binding(for: ParameterCode.selectGestureV3) else { return nil }
+        guard let binding = v3Binding(forAnyDataCode: [
+            ParameterCode.selectGestureV3Get,
+            ParameterCode.selectGestureV3Set
+        ]) else { return nil }
         guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
             addressDevice: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
@@ -389,7 +402,10 @@ extension GestureListItemViewModel {
     }
 
     func currentRotationGroup(provider: GesturesProvider) -> [GesturesProvider.GestureDisplayItem]? {
-        guard let binding = v3Binding(for: ParameterCode.gestureGroupV3) else { return nil }
+        guard let binding = v3Binding(forAnyDataCode: [
+            ParameterCode.gestureGroupV3Get,
+            ParameterCode.gestureGroupV3Set
+        ]) else { return nil }
         guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
             addressDevice: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
@@ -604,7 +620,9 @@ private enum ParameterCode {
     static let gestureGroupLegacy = 0x20
     static let bindingGroupLegacy = 0x2B
 
-    static let selectGestureV3 = 0x25
+    static let selectGestureV3Get = 0x24
+    static let selectGestureV3Set = 0x25
     static let gestureSettingsV3 = 0x27
-    static let gestureGroupV3 = 0x36
+    static let gestureGroupV3Get = 0x35
+    static let gestureGroupV3Set = 0x36
 }

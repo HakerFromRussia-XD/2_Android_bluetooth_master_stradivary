@@ -475,6 +475,65 @@ class WidgetsSceneUITests: XCTestCase {
         )
     }
 
+    func testGesturesRotationGroup_whenTapRowAreaOutsideText_thenGestureBecomesActive() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-gestures-default-rotation",
+            "-ui-test-simulate-rotation-group-first-load"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment must stay selected while loading rotation-group data"
+        )
+
+        let targetTitle = app.staticTexts.matching(identifier: "\(AccessibilityIdentifier.gesturesRotationRowTitlePrefix).2").firstMatch
+        XCTAssertTrue(
+            scrollToElement(targetTitle, in: widgetsTable, maxSwipes: 10),
+            "Could not find rotation-group row title"
+        )
+        XCTAssertTrue(targetTitle.waitForExistence(timeout: 8), "Rotation-group row title did not appear")
+
+        let rowTapCoordinate = targetTitle.coordinate(withNormalizedOffset: CGVector(dx: 1.8, dy: 0.5))
+        rowTapCoordinate.tap()
+
+        XCTAssertTrue(
+            waitForElementValue(targetTitle, expectedValues: ["active"], timeout: 2),
+            "Rotation-group row did not become active after tapping row area outside text"
+        )
+    }
+
     func testBottomBarStyle_whenConnectedToRoma1_thenCaptureRealDeviceScreenshot() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-debug-tabbar"]

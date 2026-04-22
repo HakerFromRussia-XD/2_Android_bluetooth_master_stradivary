@@ -19,9 +19,9 @@ struct GestureListItemViewModel: Equatable, Hashable {
     private let isV3Widget: Bool
     private let bindings: [WidgetV3BindingInfo]
     
-    private let openCustomGestureSettings: ((Int) -> Void)?
+    private let openCustomGestureSettings: ((Int, Bool) -> Void)?
 
-    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: ((Int) -> Void)? = nil) {
+    init(widget: Widget, bleManager: BleManagerKmm, openCustomGestureSettings: ((Int, Bool) -> Void)? = nil) {
         self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
         self.title = widget.title ?? ""
         self.widget = widget
@@ -108,8 +108,12 @@ extension GestureListItemViewModel {
 
     func openGestureSettings(for item: GesturesProvider.GestureDisplayItem) {
         _ = GestureSettingsViewModel.shared
-        requestGestureSettings(gestureId: item.id)
-        openCustomGestureSettings?(item.id)
+        if isV3Widget {
+            _ = GestureSettingsViewModelV3.shared
+        } else {
+            requestGestureSettings(gestureId: item.id)
+        }
+        openCustomGestureSettings?(item.id, isV3Widget)
     }
 
     func removeRotationGesture(at index: Int, provider: GesturesProvider) {

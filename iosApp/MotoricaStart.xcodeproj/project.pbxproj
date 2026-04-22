@@ -145,6 +145,7 @@
 		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
 		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
 		65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */; };
+		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
 		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
 		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
@@ -338,6 +339,8 @@
 		65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
 		65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
 		65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
+		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
+		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
 		65EAF4962EE8232500B3C49D /* temple.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
 		65EAF4972EE8232500B3C49D /* reflect.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
@@ -999,6 +1002,8 @@
 				65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */,
 				65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */,
 				65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */,
+				66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */,
+				66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */,
 				65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */,
 				65EAF49C2EE8232500B3C49D /* shaders */,
 				65EAF4AC2EE82B3500B3C49D /* Common */,
@@ -1325,6 +1330,7 @@
 				65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */,
 				65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */,
 				65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */,
+				66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */,
 				1FC2C9632301FEC0001AE47E /* WidgetQueryUDS+Mapping.swift in Sources */,
 				1F1FC48A22E3693100BCBA8D /* DataTransferService.swift in Sources */,
 				1FEE31622218B17E00C160B9 /* Observable.swift in Sources */,

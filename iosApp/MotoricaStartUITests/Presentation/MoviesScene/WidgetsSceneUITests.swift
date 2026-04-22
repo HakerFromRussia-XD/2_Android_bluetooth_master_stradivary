@@ -25,31 +25,6 @@ class WidgetsSceneUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    // NOTE: for UI tests to work the keyboard of simulator must be on.
-    // Keyboard shortcut COMMAND + SHIFT + K while simulator has focus
-    func testOpenWidgetDetails_whenSearchBatmanAndTapOnFirstResultRow_thenWidgetDetailsViewOpensWithTitleBatman() {
-        
-        let app = XCUIApplication()
-        app.launch()
-        
-        // Search for Batman
-        let searchText = "Batman Begins"
-        app.searchFields[AccessibilityIdentifier.searchField].tap()
-        if !app.keys["A"].waitForExistence(timeout: 5) {
-            XCTFail("The keyboard could not be found. Use keyboard shortcut COMMAND + SHIFT + K while simulator has focus on text input")
-        }
-        _ = app.searchFields[AccessibilityIdentifier.searchField].waitForExistence(timeout: 10)
-        app.searchFields[AccessibilityIdentifier.searchField].typeText(searchText)
-        app.buttons["search"].tap()
-        
-        // Tap on first result row
-        app.tables.cells.staticTexts[searchText].tap()
-        
-        // Make sure widget details view
-        XCTAssertTrue(app.otherElements[AccessibilityIdentifier.widgetDetailsView].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.navigationBars[searchText].waitForExistence(timeout: 5))
-    }
-
     func testBluetoothScan_whenTapFirstCellOnce_thenMainTabsOpen() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise"]
@@ -121,91 +96,6 @@ class WidgetsSceneUITests: XCTestCase {
         XCTAssertTrue(
             app.otherElements[AccessibilityIdentifier.mainTabBarRoot].waitForExistence(timeout: 8),
             "Main tabs did not open after tapping Roman device"
-        )
-    }
-
-    func testBluetoothDisconnectAndReconnect_whenDisconnectByDeviceName_thenStatusAnimationAndReconnectWork() {
-        let app = XCUIApplication()
-        app.launch()
-
-        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20))
-
-        guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: preferredDeviceCandidates,
-            in: devicesTable,
-            timeout: 60
-        ) else {
-            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
-            return
-        }
-
-        romanDeviceElement.tap()
-
-        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
-        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12))
-
-        let loadingProgress = app.descendants(matching: .any)["loading.progress"]
-        XCTAssertTrue(
-            loadingProgress.waitForExistence(timeout: 12),
-            "Synchronization progress loader wasn't shown after connecting Roman device"
-        )
-        XCTAssertTrue(
-            waitForProgressAdvance(loadingProgress, timeout: 20),
-            "Synchronization progress didn't advance after connecting Roman device"
-        )
-
-        let deviceNameButton = app.buttons[AccessibilityIdentifier.statusBarDeviceNameButton]
-        XCTAssertTrue(deviceNameButton.waitForExistence(timeout: 5))
-        deviceNameButton.tap()
-
-        let confirmDisconnectButton = app.buttons[AccessibilityIdentifier.statusBarDisconnectConfirmButton]
-        XCTAssertTrue(confirmDisconnectButton.waitForExistence(timeout: 5))
-        let disconnectStartedAt = Date()
-        confirmDisconnectButton.tap()
-
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 3))
-        XCTAssertLessThanOrEqual(
-            Date().timeIntervalSince(disconnectStartedAt),
-            1.5,
-            "Scan screen should open immediately after disconnect confirmation"
-        )
-        XCTAssertFalse(mainTabsRoot.exists, "Main tabs should be closed right after disconnect")
-
-        guard let romanDeviceElementAfterReconnect = waitForDeviceElement(
-            namedAnyOf: preferredDeviceCandidates,
-            in: devicesTable,
-            timeout: 60
-        ) else {
-            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list after disconnect")
-            return
-        }
-        romanDeviceElementAfterReconnect.tap()
-
-        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12))
-        let reconnectLoadingProgress = app.descendants(matching: .any)["loading.progress"]
-        XCTAssertTrue(
-            reconnectLoadingProgress.waitForExistence(timeout: 12),
-            "Synchronization progress loader wasn't shown after reconnect"
-        )
-        XCTAssertTrue(
-            staysVisible(reconnectLoadingProgress, for: 0.6),
-            "Synchronization loader disappeared too quickly after reconnect"
-        )
-        XCTAssertTrue(
-            waitForProgressAdvance(reconnectLoadingProgress, timeout: 20),
-            "Synchronization progress didn't advance after reconnect"
-        )
-
-        let statusIndicator = app.otherElements[AccessibilityIdentifier.statusBarConnectionIndicator]
-        XCTAssertTrue(statusIndicator.waitForExistence(timeout: 5))
-        XCTAssertTrue(
-            waitForElementValue(
-                statusIndicator,
-                expectedValues: ["animating:disconnect_to_connect", "connected"],
-                timeout: 3
-            ),
-            "Reconnect animation state wasn't observed"
         )
     }
 

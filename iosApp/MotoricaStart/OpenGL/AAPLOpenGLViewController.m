@@ -6,6 +6,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 */
 #import "AAPLOpenGLViewController.h"
 #import "AAPLOpenGLRenderer.h"
+#import "AAPLOpenGLRendererV3.h"
 #import "MotoricaStart-Swift.h"
 
 #import <UIKit/UIKit.h>
@@ -24,7 +25,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 @implementation AAPLOpenGLViewController
 {
     AAPLOpenGLView *_view;
-    AAPLOpenGLRenderer *_openGLRenderer;
+    id _openGLRenderer;
     GestureService *gestureService;
     PlatformGLContext *_context;
     GLuint _defaultFBOName;
@@ -59,6 +60,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 
 static NSString *const GestureSettingsViewModelDidUpdateNotification = @"GestureSettingsViewModelDidUpdate";
+static NSString *const GestureSettingsViewModelDidUpdateV3Notification = @"GestureSettingsV3ViewModelDidUpdate";
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
@@ -66,12 +68,18 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                           name:GestureSettingsViewModelDidUpdateNotification
                                           object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                          name:GestureSettingsViewModelDidUpdateV3Notification
+                                          object:nil];
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    NSString *notificationName = self.useV3Mode
+        ? GestureSettingsViewModelDidUpdateV3Notification
+        : GestureSettingsViewModelDidUpdateNotification;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleGestureSettingsUpdate:)
-                                                 name:GestureSettingsViewModelDidUpdateNotification
+                                                 name:notificationName
                                                object:nil];
 //    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
 //    if (latestParameterRef != nil) {
@@ -116,8 +124,13 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
 
     [self makeCurrentContext];
 
-    _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
-                                                           gestureNumber:_gestureNumber];
+    if (self.useV3Mode) {
+        _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
+                                                                  gestureNumber:_gestureNumber];
+    } else {
+        _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
+                                                               gestureNumber:_gestureNumber];
+    }
 
     if(!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");
@@ -132,6 +145,9 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     CGFloat screenHeight = screenRect.size.height;
     NSLog(@"Размер экрана   screenWidth: %f   screenHeight: %f", screenWidth, screenHeight);
     [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
+    if (self.useV3Mode && _gestureNumber > 0) {
+        [gestureService requestGestureSettingsV3WithGestureId:(int)_gestureNumber];
+    }
 }
 
 - (void)viewDidLayoutSubviews {
@@ -493,15 +509,29 @@ static NSString *const GestureSettingsViewModelDidUpdateNotification = @"Gesture
     if (parameterRef == nil) {
         return;
     }
-    [self applyGestureSettingsUpdate:parameterRef];
+    NSString *parameterData = notification.userInfo[@"parameterData"];
+    [self applyGestureSettingsUpdate:parameterRef
+                       parameterData:parameterData];
 }
 
-- (void)applyGestureSettingsUpdate:(SharedParameterRef *)parameterRef {
-    NSString *parameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
-                                                                    parameterID: parameterRef.parameterID];
-    SharedGesture *gestureSettings = [gestureService decodeGestureSettingsWithRaw:parameterData];
-    NSLog(@"GestureSettings update (VC) requestGestureSettings gestureId=%ld", gestureSettings.gestureId);
+- (void)applyGestureSettingsUpdate:(SharedParameterRef *)parameterRef
+                     parameterData:(NSString *)parameterData {
+    NSString *resolvedParameterData = parameterData;
+    if (resolvedParameterData == nil) {
+        resolvedParameterData = [gestureService getParameterDataWithDeviceAddress: parameterRef.addressDevice
+                                                                       parameterID: parameterRef.parameterID];
+    }
+    if (resolvedParameterData == nil) {
+        return;
+    }
+    SharedGesture *gestureSettings = self.useV3Mode
+        ? [gestureService decodeGestureSettingsV3WithRaw:resolvedParameterData]
+        : [gestureService decodeGestureSettingsWithRaw:resolvedParameterData];
+    if (gestureSettings == nil) {
+        return;
+    }
+    NSLog(@"GestureSettings update (VC) requestGestureSettings gestureId=%ld", (long)gestureSettings.gestureId);
     [_openGLRenderer updateGestureSettings: parameterRef
-                             parameterData: parameterData];
+                             parameterData: resolvedParameterData];
 }
 @end

@@ -3,3 +3,4 @@
 //
 #import "AAPLOpenGLViewController.h"
 #import "AAPLOpenGLRenderer.h"
+#import "AAPLOpenGLRendererV3.h"

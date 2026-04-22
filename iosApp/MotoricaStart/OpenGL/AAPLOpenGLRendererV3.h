@@ -29,6 +29,7 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 - (void)calculationOfCoefficients:(CGFloat) width  :(CGFloat) height;
 - (void)updateGestureSettings:(SharedParameterRef *_Nullable)parameterRef
                 parameterData:(NSString *_Nullable)parameterData;
++ (NSDictionary<NSString *, NSNumber *> *_Nonnull)stageDistributionForGesture:(SharedGesture *_Nonnull)gesture;
 - (BOOL)currentGestureState;
 - (NSArray<NSNumber *> *_Nullable)currentOpenToCloseShifts;
 - (NSArray<NSNumber *> *_Nullable)currentCloseToOpenShifts;

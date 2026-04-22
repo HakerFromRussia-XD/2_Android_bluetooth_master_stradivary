@@ -161,10 +161,11 @@
 		66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */; };
 		66F6A1032F53CE9B00A1B2C3 /* reconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
-		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
-		9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
-		A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
-		C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+			9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
+			9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
+			A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
+			A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
+			C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
 		C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
 		C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
 		DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */; };
@@ -208,8 +209,9 @@
 /* Begin PBXFileReference section */
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
-		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
-		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+			1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
+			B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
+			1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchWidgetsUseCase.swift; sourceTree = "<group>"; };
@@ -568,17 +570,18 @@
 			path = MotoricaStart;
 			sourceTree = "<group>";
 		};
-		1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
-			isa = PBXGroup;
-			children = (
-				1FFFC83D221B02BA007D99D2 /* Info.plist */,
-				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
-				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
-				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
-			);
-			path = MotoricaStartTests;
-			sourceTree = "<group>";
-		};
+			1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
+				isa = PBXGroup;
+				children = (
+					1FFFC83D221B02BA007D99D2 /* Info.plist */,
+					E6E882E600C188FAACCC417D /* ObservableTests.swift */,
+					534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
+					1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
+					B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
+				);
+				path = MotoricaStartTests;
+				sourceTree = "<group>";
+			};
 		1FA533AD201E205000747E55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1409,17 +1412,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1FA53399201E1FDE00747E55 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
-				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
-				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
-				C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
-				5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
-				C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
-				C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
+			1FA53399201E1FDE00747E55 /* Sources */ = {
+				isa = PBXSourcesBuildPhase;
+				buildActionMask = 2147483647;
+				files = (
+					A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
+					DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
+					F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+					A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
+					C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
+					5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
+					C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
+					C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
 				2E0B07D814145BA62D8870DC /* BLEDevice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

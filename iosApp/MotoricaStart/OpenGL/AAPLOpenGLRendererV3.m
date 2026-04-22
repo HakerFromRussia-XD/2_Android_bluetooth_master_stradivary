@@ -1807,19 +1807,20 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
         return;
     }
     _gestureWithAddress.gesture = decodedGesture;
-    openStage4 = _gestureWithAddress.gesture.openPosition1;
-    openStage3 = _gestureWithAddress.gesture.openPosition2;
-    openStage2 = _gestureWithAddress.gesture.openPosition3;
-    openStage1 = _gestureWithAddress.gesture.openPosition4;
-    openStage5 = _gestureWithAddress.gesture.openPosition5;
-    openStage6 = _gestureWithAddress.gesture.openPosition6;
+    NSDictionary<NSString *, NSNumber *> *distribution = [AAPLOpenGLRendererV3 stageDistributionForGesture:_gestureWithAddress.gesture];
+    openStage1 = distribution[@"openStage1"].integerValue;
+    openStage2 = distribution[@"openStage2"].integerValue;
+    openStage3 = distribution[@"openStage3"].integerValue;
+    openStage4 = distribution[@"openStage4"].integerValue;
+    openStage5 = distribution[@"openStage5"].integerValue;
+    openStage6 = distribution[@"openStage6"].integerValue;
     
-    closeStage4 = _gestureWithAddress.gesture.closePosition1;
-    closeStage3 = _gestureWithAddress.gesture.closePosition2;
-    closeStage2 = _gestureWithAddress.gesture.closePosition3;
-    closeStage1 = _gestureWithAddress.gesture.closePosition4;
-    closeStage5 = _gestureWithAddress.gesture.closePosition5;
-    closeStage6 = _gestureWithAddress.gesture.closePosition6;
+    closeStage1 = distribution[@"closeStage1"].integerValue;
+    closeStage2 = distribution[@"closeStage2"].integerValue;
+    closeStage3 = distribution[@"closeStage3"].integerValue;
+    closeStage4 = distribution[@"closeStage4"].integerValue;
+    closeStage5 = distribution[@"closeStage5"].integerValue;
+    closeStage6 = distribution[@"closeStage6"].integerValue;
     
     openToCloseTimeShift1 = _gestureWithAddress.gesture.openToCloseTimeShift1;
     openToCloseTimeShift2 = _gestureWithAddress.gesture.openToCloseTimeShift2;
@@ -1837,6 +1838,26 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
     
     [self changeState:stateGesture sendTransitionCommand:NO];
     [self printGestureSettingsWithAddress];
+}
+
++ (NSDictionary<NSString *, NSNumber *> *)stageDistributionForGesture:(SharedGesture *)gesture {
+    if (gesture == nil) {
+        return @{};
+    }
+    return @{
+        @"openStage1": @(gesture.openPosition4),
+        @"openStage2": @(gesture.openPosition3),
+        @"openStage3": @(gesture.openPosition2),
+        @"openStage4": @(gesture.openPosition1),
+        @"openStage5": @(gesture.openPosition5),
+        @"openStage6": @(gesture.openPosition6),
+        @"closeStage1": @(gesture.closePosition4),
+        @"closeStage2": @(gesture.closePosition3),
+        @"closeStage3": @(gesture.closePosition2),
+        @"closeStage4": @(gesture.closePosition1),
+        @"closeStage5": @(gesture.closePosition5),
+        @"closeStage6": @(gesture.closePosition6)
+    };
 }
 
 - (void) printGestureSettingsWithAddress {

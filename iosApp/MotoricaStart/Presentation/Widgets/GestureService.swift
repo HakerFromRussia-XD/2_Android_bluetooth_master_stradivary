@@ -84,25 +84,36 @@ final class GestureSettingsViewModelV3: NSObject {
         else {
             return
         }
-        guard let typedParameterInfo = parameterInfo as? ParameterInfo<KotlinInt, KotlinInt, KotlinInt, KotlinInt> else {
-            return
-        }
 
         let parameterRef = ParameterRef(
             addressDevice: Int32(deviceAddress),
             parameterID: Int32(parameterID),
             dataCode: Int32(dataCode)
         )
-        let parameterData = ParameterProvider.Companion().getParameterV3(parameterInfo: typedParameterInfo).data
+
+        var parameterData = WidgetStateBridgeV3.shared.getCurrent(
+            addressDevice: Int32(deviceAddress),
+            parameterID: Int32(parameterID),
+            dataCode: Int32(dataCode)
+        )?.serializedValue
+
+        if parameterData == nil,
+           let typedParameterInfo = parameterInfo as? ParameterInfo<KotlinInt, KotlinInt, KotlinInt, KotlinInt> {
+            parameterData = ParameterProvider.Companion().getParameterV3(parameterInfo: typedParameterInfo).data
+        }
+
+        guard let resolvedParameterData = parameterData else {
+            return
+        }
 
         latestParameterRef = parameterRef
-        latestParameterData = parameterData
+        latestParameterData = resolvedParameterData
         NotificationCenter.default.post(
             name: .gestureSettingsViewModelDidUpdateV3,
             object: self,
             userInfo: [
                 "data": parameterRef,
-                "parameterData": parameterData
+                "parameterData": resolvedParameterData
             ]
         )
     }

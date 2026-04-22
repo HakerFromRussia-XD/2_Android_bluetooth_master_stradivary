@@ -31,10 +31,10 @@ class WidgetsSceneUITests: XCTestCase {
         app.launch()
 
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 8))
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 1))
 
         let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
-        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 8))
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 1))
 
         let tapStartedAt = Date()
         firstDeviceCell.tap()
@@ -81,7 +81,7 @@ class WidgetsSceneUITests: XCTestCase {
         app.launch()
         
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 1), "BLE table did not appear")
         
         guard let romanDeviceElement = waitForDeviceElement(
             namedAnyOf: preferredDeviceCandidates,
@@ -421,6 +421,89 @@ class WidgetsSceneUITests: XCTestCase {
         XCTAssertTrue(
             waitForElementValue(targetTitle, expectedValues: ["active"], timeout: 2),
             "Rotation-group row did not become active after tapping row area outside text"
+        )
+    }
+
+    func testGestureSettingsV3_whenOpenCustomGesture7_thenGesturePayloadArrivesAndMapsToFingers() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-expose-gesture-settings-state",
+            "-ui-test-inject-v3-gesture-70"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Gestures segment selector did not appear")
+
+        tapSelectorSegment(selector, normalizedX: 0.25, normalizedY: 0.5)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "collection", timeout: 2),
+            "Collection segment was not selected before opening custom gesture settings"
+        )
+
+        let gesture7SettingsButtonIdentifier = "\(AccessibilityIdentifier.gesturesCustomSettingsButtonPrefix).70"
+        let gesture7SettingsButtons = app.buttons.matching(identifier: gesture7SettingsButtonIdentifier)
+        let gesture7SettingsButton = gesture7SettingsButtons.firstMatch
+        XCTAssertTrue(
+            scrollToElement(gesture7SettingsButton, in: widgetsTable, maxSwipes: 12),
+            "Could not find settings button for custom gesture #7 (id=70)"
+        )
+        XCTAssertTrue(gesture7SettingsButton.waitForExistence(timeout: 4), "Gesture #7 settings button did not appear")
+        let buttonToTap = gesture7SettingsButtons.allElementsBoundByIndex.first(where: { $0.exists && $0.isHittable })
+            ?? gesture7SettingsButton
+        buttonToTap.tap()
+
+        let gestureSettingsScreen = app.otherElements[AccessibilityIdentifier.gestureSettingsScreen]
+        XCTAssertTrue(gestureSettingsScreen.waitForExistence(timeout: 6), "Gesture settings screen did not open")
+
+        let expectedTokens = [
+            "gestureId=70",
+            "openStage1=0",
+            "openStage2=100",
+            "openStage3=97",
+            "openStage4=0",
+            "openStage5=0",
+            "openStage6=0",
+            "closeStage1=100",
+            "closeStage2=100",
+            "closeStage3=100",
+            "closeStage4=100",
+            "closeStage5=100",
+            "closeStage6=0"
+        ]
+
+        XCTAssertTrue(
+            waitForElementValueContainingAllTokens(gestureSettingsScreen, tokens: expectedTokens, timeout: 8),
+            "Gesture #7 payload did not arrive or was mapped to finger stages incorrectly"
         )
     }
 
@@ -879,6 +962,22 @@ class WidgetsSceneUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if let value = element.value as? String, expectedValues.contains(value) {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return false
+    }
+
+    private func waitForElementValueContainingAllTokens(
+        _ element: XCUIElement,
+        tokens: [String],
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let value = element.value as? String,
+               tokens.allSatisfy({ value.contains($0) }) {
                 return true
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.1))

@@ -646,6 +646,7 @@ struct GesturesWidgetView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
                     ForEach(provider.customGestures) { item in
                         CustomGestureTile(
+                            itemId: item.id,
                             title: item.title,
                             subtitle: item.subtitle,
                             isActive: provider.activeGestureId == item.id,
@@ -1262,6 +1263,7 @@ private struct GestureTile: View {
 }
 
 private struct CustomGestureTile: View {
+    let itemId: Int
     let title: String
     let subtitle: String?
     let isActive: Bool
@@ -1300,6 +1302,8 @@ private struct CustomGestureTile: View {
                         .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
             }
+            .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesCustomRowPrefix).\(itemId)")
+            .accessibilityValue(isActive ? "active" : "inactive")
             .buttonStyle(.plain)
 
             Button(action: onSettingsTap) {
@@ -1313,6 +1317,7 @@ private struct CustomGestureTile: View {
                     )
                     .padding(.trailing, 0)
             }
+            .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesCustomSettingsButtonPrefix).\(itemId)")
             .buttonStyle(.plain)
         }
     }

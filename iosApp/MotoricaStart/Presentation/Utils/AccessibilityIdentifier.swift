@@ -18,4 +18,6 @@ struct AccessibilityIdentifier {
     static let gesturesSegmentCollectionButton = "AccessibilityIdentifierGesturesSegmentCollectionButton"
     static let gesturesSegmentRotationButton = "AccessibilityIdentifierGesturesSegmentRotationButton"
     static let gesturesSegmentContentContainer = "AccessibilityIdentifierGesturesSegmentContentContainer"
+    static let gesturesRotationEmptyState = "AccessibilityIdentifierGesturesRotationEmptyState"
+    static let gesturesRotationContent = "AccessibilityIdentifierGesturesRotationContent"
 }

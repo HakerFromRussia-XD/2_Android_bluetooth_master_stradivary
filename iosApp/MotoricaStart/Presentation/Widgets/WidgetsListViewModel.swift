@@ -111,6 +111,17 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
 
     private func makeListItem(for widget: Widget) -> ListItemType {
+        if ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget"),
+           widget.id == "ui-test-gestures-widget" {
+            return .gestureOpticV3(
+                GestureListItemViewModel(
+                    widget: widget,
+                    bleManager: bleManager,
+                    openCustomGestureSettings: customGestureSettingsOpener
+                )
+            )
+        }
+
         let widgetCode = WidgetV3Support.widgetCode(from: widget)
 
         switch widgetCode {

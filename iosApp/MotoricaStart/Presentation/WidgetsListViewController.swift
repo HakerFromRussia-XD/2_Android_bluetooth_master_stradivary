@@ -34,6 +34,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var isUiTestSkipSynchronization: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-test-skip-synchronization")
     }
+    private var isUiTestForceGesturesWidget: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget")
+    }
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
@@ -225,6 +228,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private func reloadWidgetsFromShared() {
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
+        if isUiTestForceGesturesWidget,
+           display == 0 {
+            let uiTestPage = makeUiTestGesturesOnlyPage()
+            lastWidgetsSignature = "ui-test-gestures-only"
+            viewModel.update(with: uiTestPage)
+            return
+        }
+
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
         var kotlinWidgets = dataFactory.prepareData(display: display)
@@ -253,6 +264,19 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         viewModel.update(with: mockResponseDTO.toDomain())
         storage.save(response: mockResponseDTO, for: requestDTO)
+    }
+
+    private func makeUiTestGesturesOnlyPage() -> WidgetsPage {
+        let widget = Widget(
+            id: "ui-test-gestures-widget",
+            title: NSLocalizedString("Gestures", comment: ""),
+            title_2: nil,
+            widgetType: .gestureWidget,
+            deviceAddress: 0,
+            parameterID: 0,
+            widget: nil
+        )
+        return WidgetsPage(page: 1, totalPages: 1, widgets: [widget])
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {

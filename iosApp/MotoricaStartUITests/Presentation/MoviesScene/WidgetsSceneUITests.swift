@@ -346,9 +346,90 @@ class WidgetsSceneUITests: XCTestCase {
         }
     }
 
+    func testGesturesRotationFirstLoad_whenDataArrives_thenContentRevealUsesHeightAnimation() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-gestures-default-rotation",
+            "-ui-test-simulate-rotation-group-first-load"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+        
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment must stay selected while loading rotation-group data"
+        )
+
+        let progressSamples = collectRotationRevealProgressSamples(
+            from: selector,
+            duration: 3.0,
+            interval: 0.03
+        )
+        XCTAssertGreaterThan(progressSamples.count, 8, "Not enough reveal progress samples to validate animation")
+
+        guard let minProgress = progressSamples.min(), let maxProgress = progressSamples.max() else {
+            XCTFail("Could not read reveal progress samples")
+            return
+        }
+
+        let increasingSteps = zip(progressSamples, progressSamples.dropFirst())
+            .filter { ($1 - $0) > 0.01 }
+            .count
+
+        XCTAssertLessThan(
+            minProgress,
+            0.25,
+            "Rotation reveal did not start from collapsed height (min progress=\(minProgress))"
+        )
+        XCTAssertGreaterThan(
+            maxProgress,
+            0.95,
+            "Rotation reveal did not reach full height (max progress=\(maxProgress))"
+        )
+        XCTAssertGreaterThanOrEqual(
+            increasingSteps,
+            2,
+            "Rotation reveal changed too abruptly; expected multiple height animation steps"
+        )
+    }
+
     func testGesturesSegmentSwitch_whenTapSegmentAreaOutsideText_thenSegmentChangesOnSimulator() {
         let app = XCUIApplication()
-        app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise", "-ui-test-skip-synchronization"]
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget"
+        ]
         app.launch()
 
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
@@ -775,6 +856,34 @@ class WidgetsSceneUITests: XCTestCase {
             steps: steps,
             rollback: rollback
         )
+    }
+
+    private func collectRotationRevealProgressSamples(
+        from element: XCUIElement,
+        duration: TimeInterval,
+        interval: TimeInterval
+    ) -> [Double] {
+        let deadline = Date().addingTimeInterval(duration)
+        var samples: [Double] = []
+        while Date() < deadline {
+            if let progress = rotationRevealProgress(from: element) {
+                samples.append(progress)
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(interval))
+        }
+        return samples
+    }
+
+    private func rotationRevealProgress(from element: XCUIElement) -> Double? {
+        guard let value = element.value as? String else { return nil }
+        let parts = value.split(separator: ";")
+        for rawPart in parts {
+            let part = rawPart.trimmingCharacters(in: .whitespacesAndNewlines)
+            if part.hasPrefix("progress=") {
+                return Double(part.dropFirst("progress=".count))
+            }
+        }
+        return nil
     }
 
     private func waitForBluetoothFilterSelectedIndex(

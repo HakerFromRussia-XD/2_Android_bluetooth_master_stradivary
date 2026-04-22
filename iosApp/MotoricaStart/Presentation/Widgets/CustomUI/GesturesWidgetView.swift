@@ -26,6 +26,9 @@ struct GesturesWidgetView: View {
     @State private var selectorAnimationRollbackDetected = false
     @State private var selectorPreviousAnimationOffset: CGFloat = 0
     @State private var selectorAnimationDirection: CGFloat = 0
+    @State private var rotationFirstLoadRevealTimer: Timer?
+    @State private var rotationFirstLoadRevealProgress: CGFloat = 1
+    @State private var previousRotationGroupCount: Int = 0
     @State private var segmentContentLockedHeight: CGFloat = 0
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
     // rotation group
@@ -112,6 +115,8 @@ struct GesturesWidgetView: View {
             if !visibleSegments.contains(provider.selectedSegment) {
                 provider.selectedSegment = visibleSegments.first ?? .collection
             }
+            previousRotationGroupCount = provider.rotationGroup.count
+            rotationFirstLoadRevealProgress = 1
             applyCachedSegmentHeightIfAvailable(for: provider.selectedSegment)
             onSegmentChange(provider.selectedSegment)
             onActiveGestureRequest()
@@ -119,9 +124,19 @@ struct GesturesWidgetView: View {
         .onChange(of: provider.selectedSegment) { segment in
             applyCachedSegmentHeightIfAvailable(for: segment)
         }
+        .onChange(of: provider.rotationGroup.count) { newCount in
+            if previousRotationGroupCount == 0,
+               newCount > 0,
+               provider.selectedSegment == .rotationGroup {
+                startRotationFirstLoadRevealAnimation()
+            }
+            previousRotationGroupCount = newCount
+        }
         .onDisappear {
             selectorAnimationTimer?.invalidate()
             selectorAnimationTimer = nil
+            rotationFirstLoadRevealTimer?.invalidate()
+            rotationFirstLoadRevealTimer = nil
         }
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
@@ -447,7 +462,7 @@ struct GesturesWidgetView: View {
         case .collection:
             return "collection"
         case .rotationGroup:
-            return "rotation"
+            return String(format: "rotation;progress=%.3f", rotationFirstLoadRevealProgress)
         case .sprGroup:
             return "spr"
         }
@@ -709,6 +724,20 @@ struct GesturesWidgetView: View {
                 rotationGroupAddButton
             }
         }
+        .mask(
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    Color.white
+                        .frame(
+                            height: max(0, proxy.size.height * rotationFirstLoadRevealProgress),
+                            alignment: .top
+                        )
+                    Spacer(minLength: 0)
+                }
+            }
+        )
+        .accessibilityIdentifier(AccessibilityIdentifier.gesturesRotationContent)
+        .accessibilityValue(String(format: "progress=%.3f", rotationFirstLoadRevealProgress))
     }
     
     private var rotationGroupAddButton: some View {
@@ -784,6 +813,42 @@ struct GesturesWidgetView: View {
                 .frame(width: 180)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityIdentifier(AccessibilityIdentifier.gesturesRotationEmptyState)
+    }
+
+    private func startRotationFirstLoadRevealAnimation() {
+        rotationFirstLoadRevealTimer?.invalidate()
+        rotationFirstLoadRevealTimer = nil
+
+        var initialTransaction = Transaction(animation: nil)
+        initialTransaction.disablesAnimations = true
+        withTransaction(initialTransaction) {
+            rotationFirstLoadRevealProgress = 0
+        }
+
+        let startTime = CACurrentMediaTime()
+        let duration = max(0.001, animationDuration)
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
+            let elapsed = CACurrentMediaTime() - startTime
+            let rawProgress = min(max(elapsed / duration, 0), 1)
+            let easedProgress = easeInOut(progress: rawProgress)
+
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                rotationFirstLoadRevealProgress = easedProgress
+            }
+
+            if rawProgress >= 1 {
+                timer.invalidate()
+                rotationFirstLoadRevealTimer = nil
+                withTransaction(transaction) {
+                    rotationFirstLoadRevealProgress = 1
+                }
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        rotationFirstLoadRevealTimer = timer
     }
 
     private func presentRotationGroupAddGesturesDialog() {

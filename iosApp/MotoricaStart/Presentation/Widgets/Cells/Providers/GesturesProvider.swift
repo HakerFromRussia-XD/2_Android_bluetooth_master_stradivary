@@ -100,6 +100,9 @@ final class GesturesProvider: ObservableObject {
     }
     
     private static func loadSelectedSegment() -> Segment {
+        if ProcessInfo.processInfo.arguments.contains("-ui-test-gestures-default-rotation") {
+            return .rotationGroup
+        }
         let savedValue = UserDefaults.standard.integer(forKey: selectedSegmentDefaultsKey)
         return Segment(rawValue: savedValue) ?? .collection
     }

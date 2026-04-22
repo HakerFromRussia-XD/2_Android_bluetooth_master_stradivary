@@ -427,8 +427,6 @@ class WidgetsSceneUITests: XCTestCase {
     func testGestureSettingsV3_whenOpenCustomGesture7_thenGesturePayloadArrivesAndMapsToFingers() {
         let app = XCUIApplication()
         app.launchArguments += [
-            "-ui-test-fake-ble-device",
-            "-ui-test-ble-noise",
             "-ui-test-skip-synchronization",
             "-ui-test-force-gestures-widget",
             "-ui-test-expose-gesture-settings-state",
@@ -437,14 +435,20 @@ class WidgetsSceneUITests: XCTestCase {
         app.launch()
 
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
 
-        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
-        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
-        firstDeviceCell.tap()
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: preferredDeviceCandidates,
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
+            return
+        }
+        targetDeviceElement.tap()
 
         let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
-        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting preferred BLE device")
 
         let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
         XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
@@ -482,7 +486,7 @@ class WidgetsSceneUITests: XCTestCase {
             ?? gesture7SettingsButton
         buttonToTap.tap()
 
-        let gestureSettingsScreen = app.otherElements[AccessibilityIdentifier.gestureSettingsScreen]
+        let gestureSettingsScreen = app.staticTexts[AccessibilityIdentifier.gestureSettingsScreen]
         XCTAssertTrue(gestureSettingsScreen.waitForExistence(timeout: 6), "Gesture settings screen did not open")
 
         let expectedTokens = [

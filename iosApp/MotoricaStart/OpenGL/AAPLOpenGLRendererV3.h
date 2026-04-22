@@ -30,6 +30,13 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 - (void)updateGestureSettings:(SharedParameterRef *_Nullable)parameterRef
                 parameterData:(NSString *_Nullable)parameterData;
 + (NSDictionary<NSString *, NSNumber *> *_Nonnull)stageDistributionForGesture:(SharedGesture *_Nonnull)gesture;
++ (NSInteger)rawStageForThumbFlexTransfer:(NSInteger)transfer;
++ (NSInteger)rawStageForThumbRotationTransfer:(NSInteger)transfer;
++ (NSInteger)thumbFlexTransferForRawStage:(NSInteger)rawStage;
++ (NSInteger)thumbRotationTransferForRawStage:(NSInteger)rawStage;
++ (int32_t)runtimeGestureStateForClosed:(BOOL)isClosed;
++ (int32_t)transitionGestureStateForClosed:(BOOL)isClosed;
++ (int32_t)saveGestureState;
 - (BOOL)currentGestureState;
 - (NSArray<NSNumber *> *_Nullable)currentOpenToCloseShifts;
 - (NSArray<NSNumber *> *_Nullable)currentCloseToOpenShifts;

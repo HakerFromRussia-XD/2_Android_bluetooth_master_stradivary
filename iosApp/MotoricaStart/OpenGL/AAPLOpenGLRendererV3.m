@@ -206,8 +206,8 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
         _angleMiddleFingerFloat = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;       //  <0.0174 _angleMiddleFingerFloat >1.727
         _angleRingFingerFloat = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;         //  <0.0174 _angleRingFingerFloat   >1.727
         _angleLittleFingerFloat = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;       //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _angleBigFingerFloat = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;       //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _angle_2_BigFingerFloat = (openStage6*1.0f/100*90)/180*M_PI;                //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+        _angleBigFingerFloat = (openStage5*1.0f)/180*M_PI;
+        _angle_2_BigFingerFloat = (openStage6*1.0f)/180*M_PI;
         [self checkingAnglesForValidValues];
         
         _angleForeFingerTransferOld     = (int) (_angleForeFingerFloat/M_PI*180);
@@ -1401,6 +1401,109 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
     _Y = Y;
 }
 
++ (NSInteger)validationRange:(NSInteger)inputNumber {
+    NSInteger value = inputNumber;
+    if (value > 100) {
+        value = 100;
+    }
+    if (value < 0) {
+        value = 0;
+    }
+    return value;
+}
+
++ (NSInteger)rangeConversionWithInput:(NSInteger)inputNumber range:(NSInteger)range offset:(NSInteger)offset {
+    NSInteger validatedInput = [self validationRange:inputNumber];
+    float result = (float)validatedInput / 100.0f * (float)range;
+    result = (float)range - result;
+    result += (float)offset;
+    return (NSInteger)result;
+}
+
++ (NSInteger)inverseRangeConversionWithInput:(NSInteger)inputNumber range:(NSInteger)range offset:(NSInteger)offset {
+    float result = (float)inputNumber / (float)range * 100.0f;
+    result = (float)range - result;
+    result += (float)offset;
+    return (NSInteger)result;
+}
+
++ (NSInteger)rawStageForThumbFlexTransfer:(NSInteger)transfer {
+    NSInteger emitted = 100 - (NSInteger)(((float)(transfer + 60) / 90.0f) * 100.0f);
+    NSInteger angleFromRenderer = 88 - emitted;
+    NSInteger stateValue = (NSInteger)(((float)angleFromRenderer / 100.0f) * 91.0f) - 49;
+    NSInteger rawStage = [self inverseRangeConversionWithInput:stateValue range:85 offset:-53];
+    return [self validationRange:rawStage];
+}
+
++ (NSInteger)rawStageForThumbRotationTransfer:(NSInteger)transfer {
+    NSInteger emitted = 100 - (NSInteger)(((float)transfer / 90.0f) * 100.0f);
+    NSInteger angleFromRenderer = 98 - emitted;
+    NSInteger stateValue = (NSInteger)(((float)angleFromRenderer / 100.0f) * 90.0f);
+    NSInteger rawStage = [self inverseRangeConversionWithInput:stateValue range:85 offset:15];
+    return [self validationRange:rawStage];
+}
+
++ (NSInteger)thumbFlexTransferForRawStage:(NSInteger)rawStage {
+    return [self rangeConversionWithInput:rawStage range:90 offset:-59];
+}
+
++ (NSInteger)thumbRotationTransferForRawStage:(NSInteger)rawStage {
+    return [self rangeConversionWithInput:rawStage range:92 offset:-1];
+}
+
++ (int32_t)runtimeGestureStateForClosed:(BOOL)isClosed {
+    return isClosed ? 1 : 0;
+}
+
++ (int32_t)transitionGestureStateForClosed:(BOOL)isClosed {
+    return [self runtimeGestureStateForClosed:isClosed] + 128;
+}
+
++ (int32_t)saveGestureState {
+    return 255;
+}
+
+- (NSString *)v3GestureSendSituationForState:(int32_t)gestureState {
+    switch (gestureState) {
+        case 0:
+            return @"RUNTIME_OPEN(0)";
+        case 1:
+            return @"RUNTIME_CLOSE(1)";
+        case 128:
+            return @"TRANSITION_OPEN(128)";
+        case 129:
+            return @"TRANSITION_CLOSE(129)";
+        case 255:
+            return @"SAVE(255)";
+        default:
+            return nil;
+    }
+}
+
+- (void)logV3GestureObjectIfNeededBeforeSend {
+    NSString *situation = [self v3GestureSendSituationForState:_gestureWithAddress.gestureState];
+    if (situation == nil) {
+        return;
+    }
+    SharedGesture *gesture = _gestureWithAddress.gesture;
+    if (gesture == nil) {
+        NSLog(@"[V3][BLE_SEND] situation=%@ gesture=nil addressDevice=%d parameterID=%d gestureState=%d",
+              situation,
+              _gestureWithAddress.addressDevice,
+              _gestureWithAddress.parameterID,
+              _gestureWithAddress.gestureState);
+        return;
+    }
+    NSLog(@"[V3][BLE_SEND] situation=%@ gesture={gestureId=%d addressDevice=%d parameterID=%d open=[%d,%d,%d,%d,%d,%d] close=[%d,%d,%d,%d,%d,%d] openToClose=[%d,%d,%d,%d,%d,%d] closeToOpen=[%d,%d,%d,%d,%d,%d] gestureState=%d}",
+          situation,
+          gesture.gestureId, _gestureWithAddress.addressDevice, _gestureWithAddress.parameterID,
+          gesture.openPosition1, gesture.openPosition2, gesture.openPosition3, gesture.openPosition4, gesture.openPosition5, gesture.openPosition6,
+          gesture.closePosition1, gesture.closePosition2, gesture.closePosition3, gesture.closePosition4, gesture.closePosition5, gesture.closePosition6,
+          gesture.openToCloseTimeShift1, gesture.openToCloseTimeShift2, gesture.openToCloseTimeShift3, gesture.openToCloseTimeShift4, gesture.openToCloseTimeShift5, gesture.openToCloseTimeShift6,
+          gesture.closeToOpenTimeShift1, gesture.closeToOpenTimeShift2, gesture.closeToOpenTimeShift3, gesture.closeToOpenTimeShift4, gesture.closeToOpenTimeShift5, gesture.closeToOpenTimeShift6,
+          _gestureWithAddress.gestureState);
+}
+
 - (void) endTouchIvent {
     NSLog(@"Закончили возюкать пальцем по экрану");
     NSLog(@"Маленький палец: %d", _angleLittleFingerTransfer);
@@ -1477,17 +1580,19 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
     }
     NSLog(@"Большой палец: %d", (_angleBigFingerTransfer1+58));
     if (_angleBigFingerTransfer1Old != _angleBigFingerTransfer1) {
-        NSLog(@"Обновили большой палец: %d  старое: %d", (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100)), (100-(int)((_angleBigFingerTransfer1Old+58)*1.0f/86*100)));
+        NSInteger rawStage = [AAPLOpenGLRendererV3 rawStageForThumbFlexTransfer:_angleBigFingerTransfer1];
+        NSInteger transferStage = [AAPLOpenGLRendererV3 thumbFlexTransferForRawStage:rawStage];
+        NSLog(@"Обновили большой палец: raw=%ld transfer=%ld старое transfer=%d", (long)rawStage, (long)transferStage, _angleBigFingerTransfer1Old);
         if (stateGesture == 0) {
             //изменение открытого состояния
-            openStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
-            _gestureWithAddress.gesture.openPosition5 = (int32_t)openStage5;
-            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage5 = %ld  stateGesture = %d", openStage5, stateGesture);
+            openStage5 = transferStage;
+            _gestureWithAddress.gesture.openPosition5 = (int32_t)rawStage;
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage5(raw) = %ld  stateGesture = %d", (long)rawStage, stateGesture);
         } else {
             //изменение закрытого состояния
-            closeStage5 = (100-(int)((_angleBigFingerTransfer1+58)*1.0f/86*100));
-            _gestureWithAddress.gesture.closePosition5 = (int32_t)closeStage5;
-            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage5 = %ld  stateGesture = %d", closeStage5, stateGesture);
+            closeStage5 = transferStage;
+            _gestureWithAddress.gesture.closePosition5 = (int32_t)rawStage;
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage5(raw) = %ld  stateGesture = %d", (long)rawStage, stateGesture);
         }
         [self printGestureSettingsWithAddress];
         [self sendDataToFest];
@@ -1495,17 +1600,19 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
     }
     NSLog(@"Ротация палец: %d", _angleBigFingerTransfer2);
     if (_angleBigFingerTransfer2Old != _angleBigFingerTransfer2) {
-        NSLog(@"Обновили ротацию пальца: %d  старое: %d", (int)(_angleBigFingerTransfer2*1.0f/90*100), (int)(_angleBigFingerTransfer2Old*1.0f/90*100));
+        NSInteger rawStage = [AAPLOpenGLRendererV3 rawStageForThumbRotationTransfer:_angleBigFingerTransfer2];
+        NSInteger transferStage = [AAPLOpenGLRendererV3 thumbRotationTransferForRawStage:rawStage];
+        NSLog(@"Обновили ротацию пальца: raw=%ld transfer=%ld старое transfer=%d", (long)rawStage, (long)transferStage, _angleBigFingerTransfer2Old);
         if (stateGesture == 0) {
             //изменение открытого состояния
-            openStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
-            _gestureWithAddress.gesture.openPosition6 = (int32_t)openStage6;
-            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage6 = %ld  stateGesture = %d", openStage6, stateGesture);
+            openStage6 = transferStage;
+            _gestureWithAddress.gesture.openPosition6 = (int32_t)rawStage;
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   openStage6(raw) = %ld  stateGesture = %d", (long)rawStage, stateGesture);
         } else {
             //изменение закрытого состояния
-            closeStage6 = (int)(_angleBigFingerTransfer2*1.0f/90*100);
-            _gestureWithAddress.gesture.closePosition6 = (int32_t)closeStage6;
-            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage6 = %ld  stateGesture = %d", closeStage6, stateGesture);
+            closeStage6 = transferStage;
+            _gestureWithAddress.gesture.closePosition6 = (int32_t)rawStage;
+            NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца   closeStage6(raw) = %ld  stateGesture = %d", (long)rawStage, stateGesture);
         }
         [self printGestureSettingsWithAddress];
         [self sendDataToFest];
@@ -1535,19 +1642,19 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
         _targetMiddleFingerAngle = (closeStage3*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleMiddleFingerFloat >1.727
         _targetRingFingerAngle = (closeStage2*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleRingFingerFloat   >1.727
         _targetLittleFingerAngle = (closeStage1*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _targetBigFingerAngle = ((100-closeStage5)*1.0f/100*87)/180*M_PI-1.028;    //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _targetBigFingerRotationAngle = (closeStage6*1.0f/100*90)/180*M_PI;        //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+        _targetBigFingerAngle = (closeStage5*1.0f)/180*M_PI;
+        _targetBigFingerRotationAngle = (closeStage6*1.0f)/180*M_PI;
     } else {
         //код перехода в открытое состояние
         _targetForeFingerAngle = (openStage4*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleForeFingerFloat   >1.727
         _targetMiddleFingerAngle = (openStage3*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleMiddleFingerFloat >1.727
         _targetRingFingerAngle = (openStage2*1.0f/100*97.9)/180*M_PI+0.0175;      //  <0.0174 _angleRingFingerFloat   >1.727
         _targetLittleFingerAngle = (openStage1*1.0f/100*97.9)/180*M_PI+0.0175;    //  <0.0174 _angleLittleFingerFloat >1.727  1,7096  98-диапазон в градусах
-        _targetBigFingerAngle = ((100-openStage5)*1.0f/100*87)/180*M_PI-1.028;    //  <-1.029 _angleBigFingerFloat    >0.5059 1,5396  88-диапазон в градусах
-        _targetBigFingerRotationAngle = (openStage6*1.0f/100*90)/180*M_PI;        //  <0      _angle_2_BigFingerFloat >1.58   1,58    90-диапазон в градусах
+        _targetBigFingerAngle = (openStage5*1.0f)/180*M_PI;
+        _targetBigFingerRotationAngle = (openStage6*1.0f)/180*M_PI;
     }
     if (sendTransitionCommand) {
-        _gestureWithAddress.gestureState = stateGesture + 128;
+        _gestureWithAddress.gestureState = [AAPLOpenGLRendererV3 transitionGestureStateForClosed:stateGesture];
         [self printGestureSettingsWithAddress];
         [self sendDataToFestPreservingGestureState];
     }
@@ -1683,25 +1790,26 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
 }
 
 - (void) sendDataToFest {
-    _gestureWithAddress.gestureState = (int32_t)stateGesture;
+    _gestureWithAddress.gestureState = [AAPLOpenGLRendererV3 runtimeGestureStateForClosed:stateGesture];
     [self sendDataToFestPreservingGestureState];
 }
 
 - (void) sendDataToFestPreservingGestureState {
+    [self logV3GestureObjectIfNeededBeforeSend];
     SharedKotlinByteArray *command = [[SharedBLECommandsV3 shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
     [_gestureService sendDataToFestV3WithDataForWrite:command];
 }
 
 - (void) stopVC {
     NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход без сохраниения данных)");
-    _gestureWithAddress.gestureState = 0;
+    _gestureWithAddress.gestureState = [AAPLOpenGLRendererV3 runtimeGestureStateForClosed:NO];
     [self printGestureSettingsWithAddress];
     [self sendDataToFestPreservingGestureState];
     [self deallocAll];
 }
 - (void) stopVCWithSaveData {
     NSLog(@"AAPLOpenGLRenderer   отправка изменения положения пальца (выход с сохраниением данных)");
-    _gestureWithAddress.gestureState = 255;
+    _gestureWithAddress.gestureState = [AAPLOpenGLRendererV3 saveGestureState];
     [self printGestureSettingsWithAddress];
     [self sendDataToFestPreservingGestureState];
     [self deallocAll];
@@ -1812,15 +1920,15 @@ matrix_float4x4 matrix_perspective_right_hand_gl_v3(float fovyRadians, float asp
     openStage2 = distribution[@"openStage2"].integerValue;
     openStage3 = distribution[@"openStage3"].integerValue;
     openStage4 = distribution[@"openStage4"].integerValue;
-    openStage5 = distribution[@"openStage5"].integerValue;
-    openStage6 = distribution[@"openStage6"].integerValue;
+    openStage5 = [AAPLOpenGLRendererV3 thumbFlexTransferForRawStage:distribution[@"openStage5"].integerValue];
+    openStage6 = [AAPLOpenGLRendererV3 thumbRotationTransferForRawStage:distribution[@"openStage6"].integerValue];
     
     closeStage1 = distribution[@"closeStage1"].integerValue;
     closeStage2 = distribution[@"closeStage2"].integerValue;
     closeStage3 = distribution[@"closeStage3"].integerValue;
     closeStage4 = distribution[@"closeStage4"].integerValue;
-    closeStage5 = distribution[@"closeStage5"].integerValue;
-    closeStage6 = distribution[@"closeStage6"].integerValue;
+    closeStage5 = [AAPLOpenGLRendererV3 thumbFlexTransferForRawStage:distribution[@"closeStage5"].integerValue];
+    closeStage6 = [AAPLOpenGLRendererV3 thumbRotationTransferForRawStage:distribution[@"closeStage6"].integerValue];
     
     openToCloseTimeShift1 = _gestureWithAddress.gesture.openToCloseTimeShift1;
     openToCloseTimeShift2 = _gestureWithAddress.gesture.openToCloseTimeShift2;

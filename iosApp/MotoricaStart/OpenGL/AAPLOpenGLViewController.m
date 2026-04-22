@@ -112,7 +112,8 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
         gesture.openPosition4, gesture.openPosition3, gesture.openPosition2, gesture.openPosition1, gesture.openPosition5, gesture.openPosition6,
         gesture.closePosition4, gesture.closePosition3, gesture.closePosition2, gesture.closePosition1, gesture.closePosition5, gesture.closePosition6
     ];
-    self.view.accessibilityValue = summary;
+    deviceName.accessibilityValue = summary;
+    NSLog(@"[UI-TEST][GestureSettings] accessibilityValue=%@", summary);
 }
 
 - (void)injectGestureSettingsV3ForUITestIfNeeded {
@@ -120,10 +121,16 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
         !self.useV3Mode ||
         _gestureNumber != 70 ||
         ![self hasLaunchArgument:GestureSettingsUITestInjectGesture70Flag]) {
+        NSLog(@"[UI-TEST][GestureSettings] skip inject useV3=%d gestureNumber=%ld didInject=%d hasFlag=%d",
+              self.useV3Mode,
+              (long)_gestureNumber,
+              _didInjectGestureSettingsV3ForUITest,
+              [self hasLaunchArgument:GestureSettingsUITestInjectGesture70Flag]);
         return;
     }
 
     _didInjectGestureSettingsV3ForUITest = YES;
+    NSLog(@"[UI-TEST][GestureSettings] injecting payload for gesture 70");
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         SharedParameterRef *parameterRef = [[SharedParameterRef alloc] initWithAddressDevice:0 parameterID:0 dataCode:0];
         [self applyGestureSettingsUpdate:parameterRef parameterData:GestureSettingsUITestGesture70Payload];
@@ -182,7 +189,7 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     _previousX = 0.0f;
     _previousY = 0.0f;
     _didInjectGestureSettingsV3ForUITest = NO;
-    self.view.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
+    deviceName.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
     
     _view = (AAPLOpenGLView *)self.view;
     
@@ -594,8 +601,10 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
         ? [gestureService decodeGestureSettingsV3WithRaw:resolvedParameterData]
         : [gestureService decodeGestureSettingsWithRaw:resolvedParameterData];
     if (gestureSettings == nil) {
+        NSLog(@"[UI-TEST][GestureSettings] decode returned nil useV3=%d data=%@", self.useV3Mode, resolvedParameterData);
         return;
     }
+    NSLog(@"[UI-TEST][GestureSettings] decoded gestureId=%d useV3=%d", gestureSettings.gestureId, self.useV3Mode);
     [self updateGestureSettingsAccessibilityWithGesture:gestureSettings];
     NSLog(@"GestureSettings update (VC) requestGestureSettings gestureId=%ld", (long)gestureSettings.gestureId);
     [_openGLRenderer updateGestureSettings: parameterRef

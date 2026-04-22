@@ -27,7 +27,10 @@ struct GestureListItemViewModel: Equatable, Hashable {
         self.widget = widget
         self.bleManager = bleManager
         self.gestureNameList = GestureListItemViewModel.makeGestureNames()
-        self.isV3Widget = WidgetV3Support.isV3Widget(widget)
+        let isUiTestForcedGesturesWidget =
+            ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget")
+            && widget.id == "ui-test-gestures-widget"
+        self.isV3Widget = isUiTestForcedGesturesWidget || WidgetV3Support.isV3Widget(widget)
         self.bindings = WidgetV3Support.bindings(from: widget)
         
         self.openCustomGestureSettings = openCustomGestureSettings

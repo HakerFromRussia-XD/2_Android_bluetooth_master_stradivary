@@ -15,6 +15,14 @@ final class GestureViewCellV3: UITableViewCell {
     private var cancellable: AnyCancellable?
     private var provider: GesturesProvider?
     private var updatesJob: Kotlinx_coroutines_coreJob?
+    private var didDelayFirstRotationGroupUpdate = false
+    private var didScheduleUiTestRotationGroupSimulation = false
+    private var shouldDelayFirstRotationGroupUpdateForUITest: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-delay-first-rotation-group-update")
+    }
+    private var shouldSimulateRotationGroupFirstLoadForUITest: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-simulate-rotation-group-first-load")
+    }
     private let rotationDebouncer = Debouncer(delay: 1.0)
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -38,6 +46,7 @@ final class GestureViewCellV3: UITableViewCell {
             provider.selectedSegment = .collection
         }
         self.provider = provider
+        scheduleUiTestRotationGroupFirstLoadIfNeeded()
         cancellable?.cancel()
         preservesSuperviewLayoutMargins = false
         contentView.directionalLayoutMargins = .zero
@@ -75,6 +84,10 @@ final class GestureViewCellV3: UITableViewCell {
                 onCustomGestureSettingsTap: { [weak self] item in
                     self?.viewModel.openGestureSettings(for: item)
                 },
+                onRotationGestureTap: { [weak self] item in
+                    guard let self, let provider = self.provider else { return }
+                    self.viewModel.selectRotationGesture(item, provider: provider)
+                },
                 onRotationGestureRemove: { [weak self] index in
                     guard let self, let provider = self.provider else { return }
                     self.viewModel.removeRotationGesture(at: index, provider: provider)
@@ -99,9 +112,6 @@ final class GestureViewCellV3: UITableViewCell {
 
         if let currentActiveGestureId = viewModel.currentActiveGestureId() {
             applyActiveGesture(currentActiveGestureId)
-        }
-        if let currentRotationGroup = viewModel.currentRotationGroup(provider: provider) {
-            applyRotationGroupWithoutAnimation(currentRotationGroup)
         }
 
         updatesJob?.cancel(cause: nil)
@@ -136,6 +146,8 @@ final class GestureViewCellV3: UITableViewCell {
         cancellable = nil
         updatesJob?.cancel(cause: nil)
         updatesJob = nil
+        didDelayFirstRotationGroupUpdate = false
+        didScheduleUiTestRotationGroupSimulation = false
         provider = nil
         contentConfiguration = nil
     }
@@ -150,10 +162,50 @@ final class GestureViewCellV3: UITableViewCell {
     }
 
     private func applyRotationGroupWithoutAnimation(_ rotationGroup: [GesturesProvider.GestureDisplayItem]) {
+        if shouldDelayFirstRotationGroupUpdateForUITest,
+           didDelayFirstRotationGroupUpdate == false,
+           provider?.rotationGroup.isEmpty == true,
+           rotationGroup.isEmpty == false {
+            didDelayFirstRotationGroupUpdate = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                self?.applyRotationGroupWithoutAnimationNow(rotationGroup)
+            }
+            return
+        }
+
+        applyRotationGroupWithoutAnimationNow(rotationGroup)
+    }
+
+    private func applyRotationGroupWithoutAnimationNow(_ rotationGroup: [GesturesProvider.GestureDisplayItem]) {
         var transaction = Transaction(animation: nil)
         transaction.disablesAnimations = true
         withTransaction(transaction) { [weak self] in
             self?.provider?.rotationGroup = rotationGroup
+        }
+    }
+
+    private func scheduleUiTestRotationGroupFirstLoadIfNeeded() {
+        guard shouldSimulateRotationGroupFirstLoadForUITest,
+              didScheduleUiTestRotationGroupSimulation == false,
+              let provider else {
+            return
+        }
+
+        didScheduleUiTestRotationGroupSimulation = true
+        let simulatedGestures = Array(provider.factoryGestures.prefix(3)).map { item in
+            GesturesProvider.GestureDisplayItem(
+                id: item.id,
+                title: item.title,
+                subtitle: item.subtitle,
+                image: item.image
+            )
+        }
+
+        guard !simulatedGestures.isEmpty else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+            guard let self, let provider = self.provider else { return }
+            guard provider.rotationGroup.isEmpty else { return }
+            self.applyRotationGroupWithoutAnimation(simulatedGestures)
         }
     }
 

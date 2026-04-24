@@ -450,6 +450,7 @@ class BLEParserV3(
     }
     private fun parseGestureZeroAlloc(payload: ByteArrayView?): GestureV3 {
         // парсинг PWCE_GET_GESTURE_SETTING
+        platformLog("parseGesture", payload.toString())
         if (payload == null || payload.length < 26) {
             return GestureV3()
         }

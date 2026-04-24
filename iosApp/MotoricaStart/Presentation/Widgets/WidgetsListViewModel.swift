@@ -29,7 +29,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
-    func setCustomGestureSettingsOpener(_ handler: @escaping (Int) -> Void)
+    func setCustomGestureSettingsOpener(_ handler: @escaping (Int, Bool) -> Void)
 }
 
 protocol WidgetsListViewModelOutput {
@@ -53,7 +53,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     private let searchWidgetsUseCase: SearchWidgetsUseCase
     private let actions: WidgetsListViewModelActions?
     private let bleManager: BleManagerKmm
-    private var customGestureSettingsOpener: ((Int) -> Void)?
+    private var customGestureSettingsOpener: ((Int, Bool) -> Void)?
     
     var currentPage: Int = 0
     var totalPageCount: Int = 1
@@ -111,6 +111,17 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
 
     private func makeListItem(for widget: Widget) -> ListItemType {
+        if ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget"),
+           widget.id == "ui-test-gestures-widget" {
+            return .gestureOpticV3(
+                GestureListItemViewModel(
+                    widget: widget,
+                    bleManager: bleManager,
+                    openCustomGestureSettings: customGestureSettingsOpener
+                )
+            )
+        }
+
         let widgetCode = WidgetV3Support.widgetCode(from: widget)
 
         switch widgetCode {
@@ -246,7 +257,7 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
         )
     }
     
-    func setCustomGestureSettingsOpener(_ handler: @escaping (Int) -> Void) {
+    func setCustomGestureSettingsOpener(_ handler: @escaping (Int, Bool) -> Void) {
         customGestureSettingsOpener = handler
     }
 }

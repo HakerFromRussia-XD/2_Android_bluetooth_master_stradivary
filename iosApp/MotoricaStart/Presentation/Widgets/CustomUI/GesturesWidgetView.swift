@@ -26,6 +26,9 @@ struct GesturesWidgetView: View {
     @State private var selectorAnimationRollbackDetected = false
     @State private var selectorPreviousAnimationOffset: CGFloat = 0
     @State private var selectorAnimationDirection: CGFloat = 0
+    @State private var rotationFirstLoadRevealTimer: Timer?
+    @State private var rotationFirstLoadRevealProgress: CGFloat = 1
+    @State private var previousRotationGroupCount: Int = 0
     @State private var segmentContentLockedHeight: CGFloat = 0
     @State private var cachedSegmentHeights: [GesturesProvider.Segment: CGFloat] = [:]
     // rotation group
@@ -57,6 +60,7 @@ struct GesturesWidgetView: View {
     var onFactoryGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onCustomGestureSettingsTap: (GesturesProvider.GestureDisplayItem) -> Void
+    var onRotationGestureTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRotationGestureRemove: (Int) -> Void
     var onRotationGestureAdd: ([GesturesProvider.GestureDisplayItem]) -> Void
     var onRotationGesturesReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
@@ -71,6 +75,7 @@ struct GesturesWidgetView: View {
         onFactoryGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onCustomGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onCustomGestureSettingsTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
+        onRotationGestureTap: @escaping (GesturesProvider.GestureDisplayItem) -> Void,
         onRotationGestureRemove: @escaping (Int) -> Void,
         onRotationGestureAdd: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
         onRotationGesturesReorder: @escaping ([GesturesProvider.GestureDisplayItem]) -> Void,
@@ -84,6 +89,7 @@ struct GesturesWidgetView: View {
         self.onFactoryGestureTap = onFactoryGestureTap
         self.onCustomGestureTap = onCustomGestureTap
         self.onCustomGestureSettingsTap = onCustomGestureSettingsTap
+        self.onRotationGestureTap = onRotationGestureTap
         self.onRotationGestureRemove = onRotationGestureRemove
         self.onRotationGestureAdd = onRotationGestureAdd
         self.onRotationGesturesReorder = onRotationGesturesReorder
@@ -112,6 +118,8 @@ struct GesturesWidgetView: View {
             if !visibleSegments.contains(provider.selectedSegment) {
                 provider.selectedSegment = visibleSegments.first ?? .collection
             }
+            previousRotationGroupCount = provider.rotationGroup.count
+            rotationFirstLoadRevealProgress = 1
             applyCachedSegmentHeightIfAvailable(for: provider.selectedSegment)
             onSegmentChange(provider.selectedSegment)
             onActiveGestureRequest()
@@ -119,9 +127,19 @@ struct GesturesWidgetView: View {
         .onChange(of: provider.selectedSegment) { segment in
             applyCachedSegmentHeightIfAvailable(for: segment)
         }
+        .onChange(of: provider.rotationGroup.count) { newCount in
+            if previousRotationGroupCount == 0,
+               newCount > 0,
+               provider.selectedSegment == .rotationGroup {
+                startRotationFirstLoadRevealAnimation()
+            }
+            previousRotationGroupCount = newCount
+        }
         .onDisappear {
             selectorAnimationTimer?.invalidate()
             selectorAnimationTimer = nil
+            rotationFirstLoadRevealTimer?.invalidate()
+            rotationFirstLoadRevealTimer = nil
         }
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
@@ -245,14 +263,18 @@ struct GesturesWidgetView: View {
                                 .font(.system(size: 12, weight: .light))
                                 .foregroundColor(segment == provider.selectedSegment ? .white : Color("ubi4_deactivate_text"))
                                 .animation(nil, value: provider.selectedSegment)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .contentShape(Rectangle())
                                 .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
                         .accessibilityIdentifier(accessibilityIdentifier(for: segment))
                         .animation(nil, value: provider.selectedSegment)
                         .buttonStyle(.plain)
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(2)
             }
             .overlay(
@@ -443,7 +465,7 @@ struct GesturesWidgetView: View {
         case .collection:
             return "collection"
         case .rotationGroup:
-            return "rotation"
+            return String(format: "rotation;progress=%.3f", rotationFirstLoadRevealProgress)
         case .sprGroup:
             return "spr"
         }
@@ -624,6 +646,7 @@ struct GesturesWidgetView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
                     ForEach(provider.customGestures) { item in
                         CustomGestureTile(
+                            itemId: item.id,
                             title: item.title,
                             subtitle: item.subtitle,
                             isActive: provider.activeGestureId == item.id,
@@ -692,6 +715,10 @@ struct GesturesWidgetView: View {
         VStack(spacing: 12) {
             RotationGesturesReorderView(
                 items: $provider.rotationGroup,
+                activeGestureId: provider.activeGestureId,
+                onTap: { item in
+                    onRotationGestureTap(item)
+                },
                 onRemove: { index in
                     presentRotationDeleteDialog(for: index)
                     print("onRemove 1 \(index)")
@@ -705,6 +732,20 @@ struct GesturesWidgetView: View {
                 rotationGroupAddButton
             }
         }
+        .mask(
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    Color.white
+                        .frame(
+                            height: max(0, proxy.size.height * rotationFirstLoadRevealProgress),
+                            alignment: .top
+                        )
+                    Spacer(minLength: 0)
+                }
+            }
+        )
+        .accessibilityIdentifier(AccessibilityIdentifier.gesturesRotationContent)
+        .accessibilityValue(String(format: "progress=%.3f", rotationFirstLoadRevealProgress))
     }
     
     private var rotationGroupAddButton: some View {
@@ -780,6 +821,42 @@ struct GesturesWidgetView: View {
                 .frame(width: 180)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityIdentifier(AccessibilityIdentifier.gesturesRotationEmptyState)
+    }
+
+    private func startRotationFirstLoadRevealAnimation() {
+        rotationFirstLoadRevealTimer?.invalidate()
+        rotationFirstLoadRevealTimer = nil
+
+        var initialTransaction = Transaction(animation: nil)
+        initialTransaction.disablesAnimations = true
+        withTransaction(initialTransaction) {
+            rotationFirstLoadRevealProgress = 0
+        }
+
+        let startTime = CACurrentMediaTime()
+        let duration = max(0.001, animationDuration)
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
+            let elapsed = CACurrentMediaTime() - startTime
+            let rawProgress = min(max(elapsed / duration, 0), 1)
+            let easedProgress = easeInOut(progress: rawProgress)
+
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                rotationFirstLoadRevealProgress = easedProgress
+            }
+
+            if rawProgress >= 1 {
+                timer.invalidate()
+                rotationFirstLoadRevealTimer = nil
+                withTransaction(transaction) {
+                    rotationFirstLoadRevealProgress = 1
+                }
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        rotationFirstLoadRevealTimer = timer
     }
 
     private func presentRotationGroupAddGesturesDialog() {
@@ -1186,6 +1263,7 @@ private struct GestureTile: View {
 }
 
 private struct CustomGestureTile: View {
+    let itemId: Int
     let title: String
     let subtitle: String?
     let isActive: Bool
@@ -1224,6 +1302,8 @@ private struct CustomGestureTile: View {
                         .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
                 )
             }
+            .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesCustomRowPrefix).\(itemId)")
+            .accessibilityValue(isActive ? "active" : "inactive")
             .buttonStyle(.plain)
 
             Button(action: onSettingsTap) {
@@ -1237,6 +1317,7 @@ private struct CustomGestureTile: View {
                     )
                     .padding(.trailing, 0)
             }
+            .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesCustomSettingsButtonPrefix).\(itemId)")
             .buttonStyle(.plain)
         }
     }
@@ -1245,6 +1326,8 @@ private struct CustomGestureTile: View {
 // MARK: - rotation group
 private struct RotationGesturesReorderView: View {
     @Binding var items: [GesturesProvider.GestureDisplayItem]
+    var activeGestureId: Int?
+    var onTap: (GesturesProvider.GestureDisplayItem) -> Void
     var onRemove: (Int) -> Void
     var onReorder: ([GesturesProvider.GestureDisplayItem]) -> Void
 
@@ -1264,9 +1347,14 @@ private struct RotationGesturesReorderView: View {
             VStack(spacing: 0) {
                 ForEach(items) { item in
                     RotationGestureRow(
+                        itemId: item.id,
                         title: item.title,
+                        isActive: activeGestureId == item.id,
                         isDragging: draggedItem == item,
                         isLast: item == items.last,
+                        onTap: {
+                            onTap(item)
+                        },
                         onRemove: {
                             if let index = items.firstIndex(of: item) {
                                 onRemove(index)
@@ -1502,22 +1590,31 @@ private struct RotationGestureRowFramePreferenceKey: PreferenceKey {
 }
 
 private struct RotationGestureRow<Handle: View>: View {
+    let itemId: Int
     let title: String
+    var isActive: Bool
     var isDragging: Bool
     var isLast: Bool
+    var onTap: () -> Void
     var onRemove: () -> Void
     let handle: Handle
 
     init(
+        itemId: Int,
         title: String,
+        isActive: Bool,
         isDragging: Bool,
         isLast: Bool,
+        onTap: @escaping () -> Void,
         onRemove: @escaping () -> Void,
         @ViewBuilder handle: () -> Handle
     ) {
+        self.itemId = itemId
         self.title = title
+        self.isActive = isActive
         self.isDragging = isDragging
         self.isLast = isLast
+        self.onTap = onTap
         self.onRemove = onRemove
         self.handle = handle()
     }
@@ -1527,7 +1624,9 @@ private struct RotationGestureRow<Handle: View>: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 12, weight: .light))
-                    .foregroundColor(.white)
+                    .foregroundColor(isActive ? Color("ubi4_active") : .white)
+                    .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesRotationRowTitlePrefix).\(itemId)")
+                    .accessibilityValue(isActive ? "active" : "inactive")
             }
             Spacer()
             Button(action: onRemove) {
@@ -1539,6 +1638,12 @@ private struct RotationGestureRow<Handle: View>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("\(AccessibilityIdentifier.gesturesRotationRowPrefix).\(itemId)")
+        .accessibilityValue(isActive ? "active" : "inactive")
+        .accessibilityAddTraits(.isButton)
         .background(
             Group {
                 if isDragging {

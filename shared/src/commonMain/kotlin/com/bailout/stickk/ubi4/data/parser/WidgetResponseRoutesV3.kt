@@ -76,7 +76,7 @@ object WidgetResponseRoutesV3 {
 
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
-            responseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt(),
+            responseSubcommand = PWCE_GET_GESTURE_SETTING.number.toInt(),
             parameterKey = P_KEY_GESTURE_SETTING,
             emitTarget = WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT
         ),

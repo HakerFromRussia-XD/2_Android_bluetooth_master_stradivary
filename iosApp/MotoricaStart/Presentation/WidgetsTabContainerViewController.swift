@@ -13,6 +13,7 @@ class WidgetsTabContainerViewController: UIViewController {
     private enum Constants {
         static let rootTransitionDuration: TimeInterval = 0.35
     }
+    private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
     private static let sharedStatusBarViewModel: StatusBarViewModel = {
         let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
@@ -46,6 +47,8 @@ class WidgetsTabContainerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = tabsBackgroundColor
+        view.isOpaque = true
         observeBleConnectionState()
         observeBatteryPercent()
         embedStatusBar()
@@ -61,6 +64,8 @@ class WidgetsTabContainerViewController: UIViewController {
 
     private func embedContentController() {
         addChild(contentViewController)
+        contentViewController.view.backgroundColor = tabsBackgroundColor
+        contentViewController.view.isOpaque = true
         contentViewController.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(contentViewController.view)
 

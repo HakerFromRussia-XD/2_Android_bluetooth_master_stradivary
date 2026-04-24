@@ -34,6 +34,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var isUiTestSkipSynchronization: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-test-skip-synchronization")
     }
+    private var isUiTestForceGesturesWidget: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget")
+    }
 
     private var widgetsTableViewController: WidgetsListTableViewController?
     private var widgetsUpdateJob: Kotlinx_coroutines_coreJob?
@@ -58,10 +61,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var hasReceivedWidgetsLoadingProgress = false
     private var hasRetriedSynchronizationWithoutProgress = false
     private var open3DGestureId: Int?
+    private var open3DGestureIsV3 = false
     private var lastWidgetsSignature: String?
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
+    private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
     private static func notifyGlobalSynchronizationStateDidChange() {
         NotificationCenter.default.post(
@@ -91,7 +96,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        viewModel.setCustomGestureSettingsOpener { [weak self] gestureId in
+        viewModel.setCustomGestureSettingsOpener { [weak self] gestureId, isV3 in
             DispatchQueue.main.async {
                 let animationsWereEnabled = UIView.areAnimationsEnabled
                 if !animationsWereEnabled {
@@ -99,6 +104,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 }
                 
                 self?.open3DGestureId = gestureId
+                self?.open3DGestureIsV3 = isV3
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
             }
         }
@@ -224,6 +230,14 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 
     private func reloadWidgetsFromShared() {
         print("[WIDGET_COORDINATOR] reloadWidgetsFromShared")
+        if isUiTestForceGesturesWidget,
+           display == 0 {
+            let uiTestPage = makeUiTestGesturesOnlyPage()
+            lastWidgetsSignature = "ui-test-gestures-only"
+            viewModel.update(with: uiTestPage)
+            return
+        }
+
         let dataFactory = DataFactory()
         //TODO: тут можно включать фейковые виджеты (2)
         var kotlinWidgets = dataFactory.prepareData(display: display)
@@ -250,10 +264,21 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
-        storage.save(response: mockResponseDTO, for: requestDTO) { [weak self] responseDTO in
-            guard let self = self else { return }
-            self.viewModel.update(with: responseDTO.toDomain())
-        }
+        viewModel.update(with: mockResponseDTO.toDomain())
+        storage.save(response: mockResponseDTO, for: requestDTO)
+    }
+
+    private func makeUiTestGesturesOnlyPage() -> WidgetsPage {
+        let widget = Widget(
+            id: "ui-test-gestures-widget",
+            title: NSLocalizedString("Gestures", comment: ""),
+            title_2: nil,
+            widgetType: .gestureWidget,
+            deviceAddress: 0,
+            parameterID: 0,
+            widget: nil
+        )
+        return WidgetsPage(page: 1, totalPages: 1, widgets: [widget])
     }
 
     private func bind(to viewModel: WidgetsListViewModel) {
@@ -294,6 +319,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         } else if segue.identifier == "go3DGripperSettings",
             let destinationVC = segue.destination as? AAPLOpenGLViewController {
             destinationVC.gestureNumber = open3DGestureId ?? 0
+            destinationVC.useV3Mode = open3DGestureIsV3
         }
     }
 
@@ -326,6 +352,13 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func setupViews() {
+        view.backgroundColor = tabsBackgroundColor
+        view.isOpaque = true
+        contentView?.backgroundColor = tabsBackgroundColor
+        widgetsListContainer?.backgroundColor = tabsBackgroundColor
+        suggestionsListContainer?.backgroundColor = .clear
+        tableViewWidgets?.backgroundColor = tabsBackgroundColor
+        tableViewWidgets?.isOpaque = true
         title = viewModel.screenTitle
         title = screenTitleOverride ?? viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle

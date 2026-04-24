@@ -15,6 +15,21 @@ extension Notification.Name {
     static let gestureSettingsViewModelDidUpdateV3 = Notification.Name("GestureSettingsV3ViewModelDidUpdate")
 }
 
+private func intValue(from value: Any?) -> Int? {
+    switch value {
+    case let kotlinInt as KotlinInt:
+        return Int(kotlinInt.intValue)
+    case let kotlinLong as KotlinLong:
+        return Int(kotlinLong.intValue)
+    case let kotlinUInt as KotlinUInt:
+        return Int(kotlinUInt.intValue)
+    case let number as NSNumber:
+        return number.intValue
+    default:
+        return nil
+    }
+}
+
 @objcMembers
 final class GestureSettingsViewModel: NSObject {
     static let shared = GestureSettingsViewModel()
@@ -43,6 +58,68 @@ final class GestureSettingsViewModel: NSObject {
 }
 
 @objcMembers
+final class GestureSettingsViewModelV3: NSObject {
+    static let shared = GestureSettingsViewModelV3()
+    private(set) var latestParameterRef: ParameterRef?
+    private(set) var latestParameterData: String?
+
+    private override init() {
+        super.init()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleGestureSettingsUpdate(_:)),
+            name: .gestureSettingsDidUpdateV3,
+            object: nil
+        )
+    }
+
+    @objc private func handleGestureSettingsUpdate(_ notification: Notification) {
+        guard let parameterInfo = notification.userInfo?["dataV3"] as? ParameterInfo<AnyObject, AnyObject, AnyObject, AnyObject> else {
+            return
+        }
+        guard
+            let parameterID = intValue(from: parameterInfo.parameterID),
+            let dataCode = intValue(from: parameterInfo.dataCode),
+            let deviceAddress = intValue(from: parameterInfo.deviceAddress)
+        else {
+            return
+        }
+
+        let parameterRef = ParameterRef(
+            addressDevice: Int32(deviceAddress),
+            parameterID: Int32(parameterID),
+            dataCode: Int32(dataCode)
+        )
+
+        var parameterData = WidgetStateBridgeV3.shared.getCurrent(
+            addressDevice: Int32(deviceAddress),
+            parameterID: Int32(parameterID),
+            dataCode: Int32(dataCode)
+        )?.serializedValue
+
+        if parameterData == nil,
+           let typedParameterInfo = parameterInfo as? ParameterInfo<KotlinInt, KotlinInt, KotlinInt, KotlinInt> {
+            parameterData = ParameterProvider.Companion().getParameterV3(parameterInfo: typedParameterInfo).data
+        }
+
+        guard let resolvedParameterData = parameterData else {
+            return
+        }
+
+        latestParameterRef = parameterRef
+        latestParameterData = resolvedParameterData
+        NotificationCenter.default.post(
+            name: .gestureSettingsViewModelDidUpdateV3,
+            object: self,
+            userInfo: [
+                "data": parameterRef,
+                "parameterData": resolvedParameterData
+            ]
+        )
+    }
+}
+
+@objcMembers
 final class GestureService: NSObject {
     static let shared = GestureService()
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
@@ -54,6 +131,7 @@ final class GestureService: NSObject {
     override init() {
         super.init()
         _ = GestureSettingsViewModel.shared
+        _ = GestureSettingsViewModelV3.shared
     }
     
     @objc public func setNameGesture(numberGesture: Int, name: String) {
@@ -88,13 +166,59 @@ final class GestureService: NSObject {
         guard !raw.isEmpty else { return nil }
         return SerializationObjects.shared.decodeGesture(raw: "\"\(raw)\"")
     }
+    @objc(decodeGestureSettingsV3WithRaw:)
+    public func decodeGestureSettingsV3(raw: String) -> Gesture? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        guard
+            let data = trimmed.data(using: .utf8),
+            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            return nil
+        }
+
+        let keys = [
+            "gestureId",
+            "openPosition1", "openPosition2", "openPosition3", "openPosition4", "openPosition5", "openPosition6",
+            "closePosition1", "closePosition2", "closePosition3", "closePosition4", "closePosition5", "closePosition6",
+            "openToCloseTimeShift1", "openToCloseTimeShift2", "openToCloseTimeShift3", "openToCloseTimeShift4", "openToCloseTimeShift5", "openToCloseTimeShift6",
+            "closeToOpenTimeShift1", "closeToOpenTimeShift2", "closeToOpenTimeShift3", "closeToOpenTimeShift4", "closeToOpenTimeShift5", "closeToOpenTimeShift6"
+        ]
+
+        let hex = keys
+            .map { key -> String in
+                let value = max(0, min(255, intValue(from: json[key]) ?? 0))
+                return String(format: "%02X", value)
+            }
+            .joined()
+
+        return SerializationObjects.shared.decodeGesture(raw: "\"\(hex)\"")
+    }
 
     @objc public func getFingersDelaySwitch() -> Int { 1 }
     @objc public func sendDataToFest(dataForWrite: KotlinByteArray) {
-        GestureListItemViewModel.sendFestData(
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
             data: dataForWrite,
-            bleManager: bleManager
+            command: gatt.MAIN_CHANNEL_CHARACTERISTIC,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
         )
+    }
+    @objc(sendDataToFestV3WithDataForWrite:)
+    public func sendDataToFestV3(dataForWrite: KotlinByteArray) {
+        let gatt = SampleGattAttributes()
+        bleManager.sendBytesKmm(
+            data: dataForWrite,
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+    @objc(requestGestureSettingsV3WithGestureId:)
+    public func requestGestureSettingsV3(gestureId: Int) {
+        let data = BLECommandsV3.shared.requestGestureInfo(gestureId: Int32(gestureId))
+        sendDataToFestV3(dataForWrite: data)
     }
 
     func loadNames() -> [String] {

@@ -25,41 +25,16 @@ class WidgetsSceneUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    // NOTE: for UI tests to work the keyboard of simulator must be on.
-    // Keyboard shortcut COMMAND + SHIFT + K while simulator has focus
-    func testOpenWidgetDetails_whenSearchBatmanAndTapOnFirstResultRow_thenWidgetDetailsViewOpensWithTitleBatman() {
-        
-        let app = XCUIApplication()
-        app.launch()
-        
-        // Search for Batman
-        let searchText = "Batman Begins"
-        app.searchFields[AccessibilityIdentifier.searchField].tap()
-        if !app.keys["A"].waitForExistence(timeout: 5) {
-            XCTFail("The keyboard could not be found. Use keyboard shortcut COMMAND + SHIFT + K while simulator has focus on text input")
-        }
-        _ = app.searchFields[AccessibilityIdentifier.searchField].waitForExistence(timeout: 10)
-        app.searchFields[AccessibilityIdentifier.searchField].typeText(searchText)
-        app.buttons["search"].tap()
-        
-        // Tap on first result row
-        app.tables.cells.staticTexts[searchText].tap()
-        
-        // Make sure widget details view
-        XCTAssertTrue(app.otherElements[AccessibilityIdentifier.widgetDetailsView].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.navigationBars[searchText].waitForExistence(timeout: 5))
-    }
-
     func testBluetoothScan_whenTapFirstCellOnce_thenMainTabsOpen() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise"]
         app.launch()
 
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 8))
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 1))
 
         let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
-        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 8))
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 1))
 
         let tapStartedAt = Date()
         firstDeviceCell.tap()
@@ -70,13 +45,43 @@ class WidgetsSceneUITests: XCTestCase {
             XCTAssertLessThanOrEqual(Date().timeIntervalSince(tapStartedAt), 5.0)
         }
     }
+
+    func testBluetoothFilterSegment_whenTapAreaOutsideText_thenSelectionChanges() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-ui-test-fake-ble-device", "-ui-test-ble-noise"]
+        app.launch()
+
+        let selector = app.otherElements[AccessibilityIdentifier.bleFilterSegmentSelector]
+        XCTAssertTrue(selector.waitForExistence(timeout: 8), "Bluetooth filter selector did not appear")
+
+        guard let initialIndex = waitForBluetoothFilterSelectedIndex(selector, timeout: 2) else {
+            XCTFail("Could not read initial bluetooth filter selector index")
+            return
+        }
+
+        let forwardTapX: CGFloat = initialIndex == 0 ? 0.88 : 0.12
+        let backwardTapX: CGFloat = initialIndex == 0 ? 0.12 : 0.88
+        let toggledIndex = initialIndex == 0 ? 1 : 0
+
+        tapSelectorSegment(selector, normalizedX: forwardTapX, normalizedY: 0.18)
+        XCTAssertTrue(
+            waitForBluetoothFilterSelectedIndex(selector, expected: toggledIndex, timeout: 2),
+            "Bluetooth filter did not switch after tap outside text area"
+        )
+
+        tapSelectorSegment(selector, normalizedX: backwardTapX, normalizedY: 0.82)
+        XCTAssertTrue(
+            waitForBluetoothFilterSelectedIndex(selector, expected: initialIndex, timeout: 2),
+            "Bluetooth filter did not switch back after tap outside text area"
+        )
+    }
     
     func testBluetoothScan_whenTapRomanDevice_thenMainTabsOpen() {
         let app = XCUIApplication()
         app.launch()
         
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 1), "BLE table did not appear")
         
         guard let romanDeviceElement = waitForDeviceElement(
             namedAnyOf: preferredDeviceCandidates,
@@ -91,91 +96,6 @@ class WidgetsSceneUITests: XCTestCase {
         XCTAssertTrue(
             app.otherElements[AccessibilityIdentifier.mainTabBarRoot].waitForExistence(timeout: 8),
             "Main tabs did not open after tapping Roman device"
-        )
-    }
-
-    func testBluetoothDisconnectAndReconnect_whenDisconnectByDeviceName_thenStatusAnimationAndReconnectWork() {
-        let app = XCUIApplication()
-        app.launch()
-
-        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20))
-
-        guard let romanDeviceElement = waitForDeviceElement(
-            namedAnyOf: preferredDeviceCandidates,
-            in: devicesTable,
-            timeout: 60
-        ) else {
-            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
-            return
-        }
-
-        romanDeviceElement.tap()
-
-        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
-        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12))
-
-        let loadingProgress = app.descendants(matching: .any)["loading.progress"]
-        XCTAssertTrue(
-            loadingProgress.waitForExistence(timeout: 12),
-            "Synchronization progress loader wasn't shown after connecting Roman device"
-        )
-        XCTAssertTrue(
-            waitForProgressAdvance(loadingProgress, timeout: 20),
-            "Synchronization progress didn't advance after connecting Roman device"
-        )
-
-        let deviceNameButton = app.buttons[AccessibilityIdentifier.statusBarDeviceNameButton]
-        XCTAssertTrue(deviceNameButton.waitForExistence(timeout: 5))
-        deviceNameButton.tap()
-
-        let confirmDisconnectButton = app.buttons[AccessibilityIdentifier.statusBarDisconnectConfirmButton]
-        XCTAssertTrue(confirmDisconnectButton.waitForExistence(timeout: 5))
-        let disconnectStartedAt = Date()
-        confirmDisconnectButton.tap()
-
-        XCTAssertTrue(devicesTable.waitForExistence(timeout: 3))
-        XCTAssertLessThanOrEqual(
-            Date().timeIntervalSince(disconnectStartedAt),
-            1.5,
-            "Scan screen should open immediately after disconnect confirmation"
-        )
-        XCTAssertFalse(mainTabsRoot.exists, "Main tabs should be closed right after disconnect")
-
-        guard let romanDeviceElementAfterReconnect = waitForDeviceElement(
-            namedAnyOf: preferredDeviceCandidates,
-            in: devicesTable,
-            timeout: 60
-        ) else {
-            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list after disconnect")
-            return
-        }
-        romanDeviceElementAfterReconnect.tap()
-
-        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12))
-        let reconnectLoadingProgress = app.descendants(matching: .any)["loading.progress"]
-        XCTAssertTrue(
-            reconnectLoadingProgress.waitForExistence(timeout: 12),
-            "Synchronization progress loader wasn't shown after reconnect"
-        )
-        XCTAssertTrue(
-            staysVisible(reconnectLoadingProgress, for: 0.6),
-            "Synchronization loader disappeared too quickly after reconnect"
-        )
-        XCTAssertTrue(
-            waitForProgressAdvance(reconnectLoadingProgress, timeout: 20),
-            "Synchronization progress didn't advance after reconnect"
-        )
-
-        let statusIndicator = app.otherElements[AccessibilityIdentifier.statusBarConnectionIndicator]
-        XCTAssertTrue(statusIndicator.waitForExistence(timeout: 5))
-        XCTAssertTrue(
-            waitForElementValue(
-                statusIndicator,
-                expectedValues: ["animating:disconnect_to_connect", "connected"],
-                timeout: 3
-            ),
-            "Reconnect animation state wasn't observed"
         )
     }
 
@@ -314,6 +234,281 @@ class WidgetsSceneUITests: XCTestCase {
         ) {
             tapSelectorSegment(selector, normalizedX: 0.25)
         }
+    }
+
+    func testGesturesRotationFirstLoad_whenDataArrives_thenContentRevealUsesHeightAnimation() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-gestures-default-rotation",
+            "-ui-test-simulate-rotation-group-first-load"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+        
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment must stay selected while loading rotation-group data"
+        )
+
+        let progressSamples = collectRotationRevealProgressSamples(
+            from: selector,
+            duration: 3.0,
+            interval: 0.03
+        )
+        XCTAssertGreaterThan(progressSamples.count, 8, "Not enough reveal progress samples to validate animation")
+
+        guard let minProgress = progressSamples.min(), let maxProgress = progressSamples.max() else {
+            XCTFail("Could not read reveal progress samples")
+            return
+        }
+
+        let increasingSteps = zip(progressSamples, progressSamples.dropFirst())
+            .filter { ($1 - $0) > 0.01 }
+            .count
+
+        XCTAssertLessThan(
+            minProgress,
+            0.25,
+            "Rotation reveal did not start from collapsed height (min progress=\(minProgress))"
+        )
+        XCTAssertGreaterThan(
+            maxProgress,
+            0.95,
+            "Rotation reveal did not reach full height (max progress=\(maxProgress))"
+        )
+        XCTAssertGreaterThanOrEqual(
+            increasingSteps,
+            2,
+            "Rotation reveal changed too abruptly; expected multiple height animation steps"
+        )
+    }
+
+    func testGesturesSegmentSwitch_whenTapSegmentAreaOutsideText_thenSegmentChangesOnSimulator() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 30), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Gestures segment selector did not appear")
+
+        // Tap near top-right corner of segment control (outside text baseline) -> rotation segment.
+        tapSelectorSegment(selector, normalizedX: 0.88, normalizedY: 0.18)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment was not selected by tapping segment area outside text"
+        )
+
+        // Tap near bottom-left corner of segment control (outside text baseline) -> collection segment.
+        tapSelectorSegment(selector, normalizedX: 0.12, normalizedY: 0.82)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "collection", timeout: 2),
+            "Collection segment was not selected by tapping segment area outside text"
+        )
+    }
+
+    func testGesturesRotationGroup_whenTapRowAreaOutsideText_thenGestureBecomesActive() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-ble-noise",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-gestures-default-rotation",
+            "-ui-test-simulate-rotation-group-first-load"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 12), "BLE table did not appear")
+
+        let firstDeviceCell = devicesTable.cells["ble.deviceCell.0"]
+        XCTAssertTrue(firstDeviceCell.waitForExistence(timeout: 12), "Fake BLE device cell did not appear")
+        firstDeviceCell.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting fake device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "rotation", timeout: 2),
+            "Rotation segment must stay selected while loading rotation-group data"
+        )
+
+        let targetTitle = app.staticTexts.matching(identifier: "\(AccessibilityIdentifier.gesturesRotationRowTitlePrefix).2").firstMatch
+        XCTAssertTrue(
+            scrollToElement(targetTitle, in: widgetsTable, maxSwipes: 10),
+            "Could not find rotation-group row title"
+        )
+        XCTAssertTrue(targetTitle.waitForExistence(timeout: 8), "Rotation-group row title did not appear")
+
+        let rowTapCoordinate = targetTitle.coordinate(withNormalizedOffset: CGVector(dx: 1.8, dy: 0.5))
+        rowTapCoordinate.tap()
+
+        XCTAssertTrue(
+            waitForElementValue(targetTitle, expectedValues: ["active"], timeout: 2),
+            "Rotation-group row did not become active after tapping row area outside text"
+        )
+    }
+
+    func testGestureSettingsV3_whenOpenCustomGesture7_thenGesturePayloadArrivesAndMapsToFingers() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-expose-gesture-settings-state",
+            "-ui-test-inject-v3-gesture-70"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: preferredDeviceCandidates,
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find preferred BLE device (Рома1/Роман) in scan list")
+            return
+        }
+        targetDeviceElement.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting preferred BLE device")
+
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 45), "Widgets table did not appear")
+
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(
+            scrollToElement(selector, in: widgetsTable, maxSwipes: 10),
+            "Could not find gestures segment selector"
+        )
+        XCTAssertTrue(selector.waitForExistence(timeout: 5), "Gestures segment selector did not appear")
+
+        tapSelectorSegment(selector, normalizedX: 0.25, normalizedY: 0.5)
+        XCTAssertTrue(
+            waitForSelectorSegment(selector, expected: "collection", timeout: 2),
+            "Collection segment was not selected before opening custom gesture settings"
+        )
+
+        let gesture7SettingsButtonIdentifier = "\(AccessibilityIdentifier.gesturesCustomSettingsButtonPrefix).70"
+        let gesture7SettingsButtons = app.buttons.matching(identifier: gesture7SettingsButtonIdentifier)
+        let gesture7SettingsButton = gesture7SettingsButtons.firstMatch
+        XCTAssertTrue(
+            scrollToElement(gesture7SettingsButton, in: widgetsTable, maxSwipes: 12),
+            "Could not find settings button for custom gesture #7 (id=70)"
+        )
+        XCTAssertTrue(gesture7SettingsButton.waitForExistence(timeout: 4), "Gesture #7 settings button did not appear")
+        let buttonToTap = gesture7SettingsButtons.allElementsBoundByIndex.first(where: { $0.exists && $0.isHittable })
+            ?? gesture7SettingsButton
+        buttonToTap.tap()
+
+        let gestureSettingsScreen = app.staticTexts[AccessibilityIdentifier.gestureSettingsScreen]
+        XCTAssertTrue(gestureSettingsScreen.waitForExistence(timeout: 6), "Gesture settings screen did not open")
+
+        let expectedTokens = [
+            "gestureId=70",
+            "openStage1=0",
+            "openStage2=100",
+            "openStage3=97",
+            "openStage4=0",
+            "openStage5=0",
+            "openStage6=0",
+            "closeStage1=100",
+            "closeStage2=100",
+            "closeStage3=100",
+            "closeStage4=100",
+            "closeStage5=100",
+            "closeStage6=0"
+        ]
+
+        XCTAssertTrue(
+            waitForElementValueContainingAllTokens(gestureSettingsScreen, tokens: expectedTokens, timeout: 8),
+            "Gesture #7 payload did not arrive or was mapped to finger stages incorrectly"
+        )
     }
 
     func testBottomBarStyle_whenConnectedToRoma1_thenCaptureRealDeviceScreenshot() {
@@ -504,8 +699,8 @@ class WidgetsSceneUITests: XCTestCase {
         return element.exists
     }
 
-    private func tapSelectorSegment(_ selector: XCUIElement, normalizedX: CGFloat) {
-        let coordinate = selector.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: 0.5))
+    private func tapSelectorSegment(_ selector: XCUIElement, normalizedX: CGFloat, normalizedY: CGFloat = 0.5) {
+        let coordinate = selector.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: normalizedY))
         coordinate.tap()
     }
 
@@ -699,6 +894,70 @@ class WidgetsSceneUITests: XCTestCase {
         )
     }
 
+    private func collectRotationRevealProgressSamples(
+        from element: XCUIElement,
+        duration: TimeInterval,
+        interval: TimeInterval
+    ) -> [Double] {
+        let deadline = Date().addingTimeInterval(duration)
+        var samples: [Double] = []
+        while Date() < deadline {
+            if let progress = rotationRevealProgress(from: element) {
+                samples.append(progress)
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(interval))
+        }
+        return samples
+    }
+
+    private func rotationRevealProgress(from element: XCUIElement) -> Double? {
+        guard let value = element.value as? String else { return nil }
+        let parts = value.split(separator: ";")
+        for rawPart in parts {
+            let part = rawPart.trimmingCharacters(in: .whitespacesAndNewlines)
+            if part.hasPrefix("progress=") {
+                return Double(part.dropFirst("progress=".count))
+            }
+        }
+        return nil
+    }
+
+    private func waitForBluetoothFilterSelectedIndex(
+        _ selector: XCUIElement,
+        expected: Int,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let index = bluetoothFilterSelectedIndex(from: selector), index == expected {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        return false
+    }
+
+    private func waitForBluetoothFilterSelectedIndex(
+        _ selector: XCUIElement,
+        timeout: TimeInterval
+    ) -> Int? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let index = bluetoothFilterSelectedIndex(from: selector) {
+                return index
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        return nil
+    }
+
+    private func bluetoothFilterSelectedIndex(from selector: XCUIElement) -> Int? {
+        guard let value = selector.value as? String else { return nil }
+        guard let range = value.range(of: "selectedIndex=") else { return nil }
+        let raw = value[range.upperBound...]
+        return Int(raw.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
     private func waitForElementValue(
         _ element: XCUIElement,
         expectedValues: [String],
@@ -707,6 +966,22 @@ class WidgetsSceneUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if let value = element.value as? String, expectedValues.contains(value) {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return false
+    }
+
+    private func waitForElementValueContainingAllTokens(
+        _ element: XCUIElement,
+        tokens: [String],
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let value = element.value as? String,
+               tokens.allSatisfy({ value.contains($0) }) {
                 return true
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.1))

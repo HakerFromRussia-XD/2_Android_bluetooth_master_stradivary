@@ -18,6 +18,7 @@ final class MainTabBarController: UITabBarController {
     private let synchronizationRestrictedTabTags: Set<Int> = [0, 3]
     private let selectedTabItemColor = UIColor(named: "ubi4_white") ?? .white
     private let unselectedTabItemColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
+    private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
@@ -59,6 +60,8 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = tabsBackgroundColor
+        view.isOpaque = true
         view.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarRoot
         setupTabs()
         tabBar.backgroundColor = UIColor(named: "ubi4_dark_back")

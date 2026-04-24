@@ -126,7 +126,7 @@ class DataFactory {
         return listOfNotNull(
             toWidgetItemS(
                 ParameterWidgetCode.PWCE_SWITCH.number.toInt(),
-                "auto_login",
+                "Авто логин",
                 widget
             )
         )

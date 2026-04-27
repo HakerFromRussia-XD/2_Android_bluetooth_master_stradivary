@@ -17,6 +17,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 
 data class WidgetResponseRouteV3(
     val command: Int,
@@ -108,6 +110,18 @@ object WidgetResponseRoutesV3 {
             command = GUI_CONTROL.number.toInt(),
             responseSubcommand = GMCE_GET_SCREEN_TIMEOUT.number.toInt(),
             parameterKey = P_KEY_SCREEN_TIMEOUT,
+            emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_SPEED_SETTINGS.number.toInt(),
+            parameterKey = P_KEY_SPEED_SETTINGS,
+            emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt(),
+            parameterKey = P_KEY_FORCE_SETTINGS,
             emitTarget = WidgetEmitTargetV3.SLIDER_FLOW
         ),
         WidgetResponseRouteV3(

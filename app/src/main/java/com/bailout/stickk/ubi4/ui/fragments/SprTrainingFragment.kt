@@ -117,7 +117,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         // подписка на прогресс обучения модели
 //        subscribeTrainingUpload()
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

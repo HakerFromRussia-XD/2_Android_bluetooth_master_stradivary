@@ -25,6 +25,8 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import kotlin.native.ObjCName
@@ -758,8 +760,8 @@ object PreferenceKeysUbi4 {
         PWCE_GET_COLLECTION_GESTURE_INFO  (0x2B),
         PWCE_GET_USER_GESTURE_INFO        (0x2C),
 
-//        PWCE_SET_EMG_GAIN_VALUE           (0X2D),
-//        PWCE_GET_EMG_GAIN_VALUE           (0X2E),
+//      PWCE_SET_EMG_GAIN_VALUE           (0X2D),
+//      PWCE_GET_EMG_GAIN_VALUE           (0X2E),
 
         PWCE_SET_THRESHOLD_VALUE          (0X2F),
         PWCE_GET_THRESHOLD_VALUE          (0X30),
@@ -785,9 +787,13 @@ object PreferenceKeysUbi4 {
         PWCE_SET_GESTURE_CHANGE_MODE      (0x2D),
         PWCE_GET_GESTURE_CHANGE_MODE      (0x2E),
 
+        PWCE_SET_SPEED_SETTINGS           (0x3D),
+        PWCE_GET_SPEED_SETTINGS           (0x3E),
+
+        PWCE_SET_FORCE_SETTINGS           (0x3F),
+        PWCE_GET_FORCE_SETTINGS           (0x40),
+
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
-
-
 
     }
 
@@ -967,6 +973,18 @@ object PreferenceKeysUbi4 {
             ),
             P_KEY_EMG_MAX_GAIN_VALUE to ParameterMetaV3(
                 parameterInfo = ParameterInfo(EMG_MASTER_CONTROL.number.toInt(), EMCE_SET_EMG_MAX_GAIN_VALUE.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_SPEED_SETTINGS to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_SPEED_SETTINGS.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.SLIDER,
+                widgetKind = WidgetKindV3.SLIDER,
+                valuePath = "sliderValue"
+            ),
+            P_KEY_FORCE_SETTINGS to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_FORCE_SETTINGS.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.SLIDER,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "sliderValue"

@@ -73,6 +73,9 @@ final class MainTabBarController: UITabBarController {
         applyTabBarContentInsets(topPadding: tabItemTopPadding)
         
         selectedIndex = 1 // Sensors tab by default
+        DispatchQueue.main.async { [weak self] in
+            self?.forceUpdateTabBarItemColors()
+        }
         registerKeyboardObservers()
         registerSynchronizationObservers()
         updateSynchronizationRestrictedTabAvailability()
@@ -91,7 +94,7 @@ final class MainTabBarController: UITabBarController {
             unifyTabBarItemFonts()
             didUpdateTabBarFonts = true
         }
-        applyTabBarControlTintFallback()
+        forceUpdateTabBarItemColors()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -256,8 +259,9 @@ final class MainTabBarController: UITabBarController {
         ]
         let focusedAttributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: minSize),
-            .foregroundColor: selectedColor
+            .foregroundColor: normalColor
         ]
+        
         for item in items {
             item.setTitleTextAttributes(normalAttributes, for: .normal)
             item.setTitleTextAttributes(selectedAttributes, for: .selected)
@@ -292,18 +296,31 @@ final class MainTabBarController: UITabBarController {
         appearance.stackedItemSpacing = 0
 
         func tune(_ layout: inout UITabBarItemAppearance) {
+
             layout.normal.iconColor = unselected
+
             layout.selected.iconColor = selected
+
             layout.disabled.iconColor = unselected
-            layout.focused.iconColor = selected
+
+            layout.focused.iconColor = unselected   // FIX
+
             layout.normal.titleTextAttributes[.foregroundColor] = unselected
+
             layout.selected.titleTextAttributes[.foregroundColor] = selected
+
             layout.disabled.titleTextAttributes[.foregroundColor] = unselected
-            layout.focused.titleTextAttributes[.foregroundColor] = selected
+
+            layout.focused.titleTextAttributes[.foregroundColor] = unselected // FIX
+
             layout.normal.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+
             layout.selected.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+
             layout.disabled.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+
             layout.focused.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+
         }
 
         tune(&appearance.stackedLayoutAppearance)      // iPhone, подпись под иконкой
@@ -327,37 +344,52 @@ final class MainTabBarController: UITabBarController {
         applyTabBarContentInsets(topPadding: tabItemTopPadding)
         unifyTabBarItemFonts()
         sanitizeTabBarSelectionOverlaysIfNeeded()
-        applyTabBarControlTintFallback()
+        forceUpdateTabBarItemColors()
+        DispatchQueue.main.async { [weak self] in
+            self?.forceUpdateTabBarItemColors()
+        }
     }
 
     private func applyTabBarControlTintFallback() {
-        let controls = tabBarButtonControls()
-        guard !controls.isEmpty else { return }
-
-        let clampedSelectedIndex = max(0, min(selectedIndex, controls.count - 1))
-
-        for (index, control) in controls.enumerated() {
-            let isSelectedControl = index == clampedSelectedIndex
-            let color = (!control.isEnabled || !control.isUserInteractionEnabled)
-                ? unselectedTabItemColor
-                : (isSelectedControl ? selectedTabItemColor : unselectedTabItemColor)
-            control.tintColor = color
-            applyTintRecursively(in: control, color: color)
-        }
-        tabBar.tintColor = selectedTabItemColor
-        tabBar.unselectedItemTintColor = unselectedTabItemColor
+        forceUpdateTabBarItemColors()
     }
 
     private func tabBarButtonControls() -> [UIControl] {
-        let controls = tabBar.subviews.compactMap { $0 as? UIControl }
-        let tabButtons = controls.filter {
-            let className = String(describing: type(of: $0)).lowercased()
-            return className.contains("tabbarbutton")
+        var result: [UIControl] = []
+
+        func collectControls(from view: UIView) {
+            if let control = view as? UIControl {
+                let className = String(describing: type(of: control)).lowercased()
+                let looksLikeTabButton = className.contains("tabbarbutton") || className.contains("tabbaritem")
+
+                if looksLikeTabButton,
+                   !control.isHidden,
+                   control.bounds.width > 0,
+                   control.bounds.height > 0 {
+                    result.append(control)
+                }
+            }
+
+            for subview in view.subviews {
+                collectControls(from: subview)
+            }
         }
-        let source = tabButtons.isEmpty ? controls : tabButtons
-        return source
-            .filter { !$0.isHidden && $0.bounds.width > 0 && $0.bounds.height > 0 }
-            .sorted { $0.frame.minX < $1.frame.minX }
+
+        collectControls(from: tabBar)
+
+        if result.isEmpty {
+            result = tabBar.subviews
+                .compactMap { $0 as? UIControl }
+                .filter { !$0.isHidden && $0.bounds.width > 0 && $0.bounds.height > 0 }
+        }
+
+        return result
+            .removingDuplicatesByObjectIdentity()
+            .sorted { first, second in
+                let firstFrame = first.convert(first.bounds, to: tabBar)
+                let secondFrame = second.convert(second.bounds, to: tabBar)
+                return firstFrame.midX < secondFrame.midX
+            }
     }
 
     private func applyTintRecursively(in view: UIView, color: UIColor) {
@@ -375,6 +407,57 @@ final class MainTabBarController: UITabBarController {
         }
         for subview in view.subviews {
             applyTintRecursively(in: subview, color: color)
+        }
+    }
+
+    private func forceUpdateTabBarItemColors() {
+        guard #available(iOS 26.0, *) else { return }
+        guard let items = tabBar.items else { return }
+
+        let selectedTag = selectedViewController?.tabBarItem.tag
+        let controls = tabBarButtonControls()
+        guard !controls.isEmpty else { return }
+
+        for (index, control) in controls.enumerated() {
+            guard items.indices.contains(index) else { continue }
+
+            let item = items[index]
+            let color = item.tag == selectedTag
+                ? selectedTabItemColor
+                : unselectedTabItemColor
+
+            item.setTitleTextAttributes([.foregroundColor: color], for: .normal)
+            item.setTitleTextAttributes([.foregroundColor: color], for: .selected)
+            item.setTitleTextAttributes([.foregroundColor: color], for: .focused)
+            item.setTitleTextAttributes([.foregroundColor: unselectedTabItemColor], for: .disabled)
+
+            control.isSelected = item.tag == selectedTag
+            control.isHighlighted = false
+            control.tintColor = color
+            updateTabBarVisualElements(in: control, color: color)
+            control.setNeedsLayout()
+            control.layoutIfNeeded()
+        }
+
+        tabBar.tintColor = selectedTabItemColor
+        tabBar.unselectedItemTintColor = unselectedTabItemColor
+        tabBar.setNeedsLayout()
+    }
+
+    private func updateTabBarVisualElements(in view: UIView, color: UIColor) {
+        view.tintColor = color
+
+        if let label = view as? UILabel {
+            label.textColor = color
+            label.highlightedTextColor = color
+        }
+
+        if let imageView = view as? UIImageView {
+            imageView.tintColor = color
+        }
+
+        for subview in view.subviews {
+            updateTabBarVisualElements(in: subview, color: color)
         }
     }
 
@@ -441,11 +524,16 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func installTabButtonHighlightSuppressorIfNeeded() {
-        guard #available(iOS 26.0, *), !didInstallTabButtonHighlightSuppressor else { return }
-        let controls = tabBar.subviews.compactMap { $0 as? UIControl }
+        guard #available(iOS 26.0, *) else { return }
+
+        let controls = tabBarButtonControls()
         guard !controls.isEmpty else { return }
 
         for control in controls {
+            control.removeTarget(self, action: #selector(handleTabButtonTouchDown(_:)), for: [.touchDown, .touchDragEnter])
+            control.removeTarget(self, action: #selector(handleTabButtonTouchMove(_:)), for: .touchDragInside)
+            control.removeTarget(self, action: #selector(handleTabButtonTouchEnd(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit])
+
             control.addTarget(self, action: #selector(handleTabButtonTouchDown(_:)), for: [.touchDown, .touchDragEnter])
             control.addTarget(self, action: #selector(handleTabButtonTouchMove(_:)), for: .touchDragInside)
             control.addTarget(self, action: #selector(handleTabButtonTouchEnd(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit])
@@ -453,6 +541,21 @@ final class MainTabBarController: UITabBarController {
 
         didInstallTabButtonHighlightSuppressor = true
     }
+private extension Array where Element: AnyObject {
+    func removingDuplicatesByObjectIdentity() -> [Element] {
+        var seen = Set<ObjectIdentifier>()
+        var result: [Element] = []
+
+        for element in self {
+            let identifier = ObjectIdentifier(element)
+            if seen.insert(identifier).inserted {
+                result.append(element)
+            }
+        }
+
+        return result
+    }
+}
 
     @objc
     private func handleTabButtonTouchDown(_ sender: UIControl) {
@@ -577,7 +680,14 @@ extension MainTabBarController: UITabBarControllerDelegate {
     }
 
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        scheduleTabBarColorRefreshBurst()
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshTabBarItemColors()
+            self?.forceUpdateTabBarItemColors()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.forceUpdateTabBarItemColors()
+        }
     }
 
     func tabBarController(_ tabBarController: UITabBarController,

@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ui.bottom
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.IdRes
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.KEY_SECRET_ITEM_VISIBLE
@@ -94,6 +95,10 @@ class BottomNavigationController(private val bottomNavigation: BottomNavigationV
 
     fun refresh(computeVisibleDisplays: () -> Set<Int>) {
         applyVisibility(computeVisibleDisplays())
+    }
+
+    fun isItemVisible(@IdRes itemId: Int): Boolean {
+        return bottomNavigation.menu.findItem(itemId)?.isVisible == true
     }
 
     fun toggleSecretItem() {

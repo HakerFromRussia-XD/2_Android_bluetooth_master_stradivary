@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHelpBinding
-import com.bailout.stickk.databinding.Ubi4FragmentSensorSettingsBinding
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -18,8 +17,6 @@ import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
-import com.bailout.stickk.ubi4.data.widget.endStructures.*
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import kotlinx.coroutines.launch
 
@@ -36,7 +33,15 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         setupSystemBack()
         initUi()
         renderVisibility()
-        observeWidgetsUpdates()
+        observeNavigationUpdates()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (_binding != null) {
+            lastRenderedVisibilityState = null
+            renderVisibility()
+        }
     }
 
     private fun setupSystemBack() {
@@ -56,7 +61,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         ubi4SensorsSettingsBtn.setOnClickListener { openScreen(SensorsFragmentHelpUBI4()) }
         ubi4SettingsGestureBtn.setOnClickListener { openScreen(GestureSettingsFragmentHelpUBI4()) }
         ubi4TrainingBtn.setOnClickListener { }
-        ubi4AdvancedSettingsBtn.setOnClickListener { }
+        ubi4AdvancedSettingsBtn.setOnClickListener { openScreen(AdvancedSettingsFragmentHelpUBI4()) }
 
         // Prostheses use
         ubi4HowProsthesesWorksBtn.setOnClickListener { openScreen(HowProsthesesWorksFragmentUBI4()) }
@@ -75,7 +80,7 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         root.requestFocus()
     }
 
-    private fun observeWidgetsUpdates() {
+    private fun observeNavigationUpdates() {
         viewLifecycleOwner.lifecycleScope.launch {
             UiState.updateFlow.collect {
                 renderVisibility()
@@ -85,34 +90,15 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
 
 
     private fun renderVisibility() = with(binding) {
-        val widgets = UiState.listWidgets
-
-        if (widgets.isEmpty()) {
-            val emptyState = VisibilityState(
-                hasSensors = false,
-                hasGestures = false,
-                hasTraining = false,
-                hasSpecialSettings = false
-            )
-            if (lastRenderedVisibilityState == emptyState) return@with
-
-            applyVisibilityState(emptyState)
-            lastRenderedVisibilityState = emptyState
-            return@with
-        }
-
-        val displays = widgets.mapNotNull { it.extractDisplayOrNull() }.toSet()
-
-        val hasSensors = 1 in displays
-        val hasGestures = (0 in displays)
-        val hasTraining = 3 in displays
-        val hasSpecialSettings = 2 in displays
+        val main = activity as? MainActivityUBI4 ?: return@with
+        main.refreshBottomNavVisibility()
+        val bottomNavigationController = main.getBottomNavigationController()
 
         val newState = VisibilityState(
-            hasSensors = hasSensors,
-            hasGestures = hasGestures,
-            hasTraining = hasTraining,
-            hasSpecialSettings = hasSpecialSettings
+            hasSensors = bottomNavigationController.isItemVisible(R.id.page_2),
+            hasGestures = bottomNavigationController.isItemVisible(R.id.page_1),
+            hasTraining = bottomNavigationController.isItemVisible(R.id.page_3),
+            hasSpecialSettings = bottomNavigationController.isItemVisible(R.id.page_4)
         )
         if (lastRenderedVisibilityState == newState) return@with
 
@@ -121,8 +107,9 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
     }
 
     private fun applyVisibilityState(state: VisibilityState) = with(binding) {
-        // Sensors: у строки нет id контейнера, поэтому скрываем кнопку-оверлей.
-        setVisibleIfChanged(ubi4SensorsSettingsBtn, state.hasSensors)
+        (ubi4SensorsSettingsBtn.parent as? View)?.let {
+            setVisibleIfChanged(it, state.hasSensors)
+        } ?: setVisibleIfChanged(ubi4SensorsSettingsBtn, state.hasSensors)
         setVisibleIfChanged(ubi4GestureCustomizationRl, state.hasGestures)
         setVisibleIfChanged(ubi4TrainingRl, state.hasTraining)
         setVisibleIfChanged(ubi4AdvancedSettingsRl, state.hasSpecialSettings)
@@ -132,31 +119,6 @@ class HelpFragmentUBI4 : Fragment(R.layout.ubi4_fragment_help) {
         if (view.isVisible != isVisible) {
             view.isVisible = isVisible
         }
-    }
-
-    private fun Any.extractDisplayOrNull(): Int? = when (this) {
-        is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
-
-        is CommandParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is CommandParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
-
-        is PlotParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is PlotParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
-
-        is OpticStartLearningWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-
-        is ToggleSliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is ToggleSliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
-
-        is SwitchParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is SwitchParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
-
-        is SliderParameterWidgetEStruct -> baseParameterWidgetEStruct.baseParameterWidgetStruct.display
-        is SliderParameterWidgetSStruct -> baseParameterWidgetSStruct.baseParameterWidgetStruct.display
-
-
-
-        else -> null
     }
 
     private fun openScreen(fragment: Fragment) {

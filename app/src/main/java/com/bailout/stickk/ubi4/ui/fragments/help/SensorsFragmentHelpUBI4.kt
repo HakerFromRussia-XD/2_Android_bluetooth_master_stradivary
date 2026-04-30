@@ -49,10 +49,8 @@ class SensorsFragmentHelpUBI4 : Fragment(R.layout.ubi4_fragment_sensor_settings)
         ubi4ShowInteractiveInstructionBtn.setOnClickListener { /* no-op */ }
 
         // Навигация на другие help-экраны (фрагменты UBI4)
-//        ubi4SettingsGestureBtn.setOnClickListener { openHelpScreen(GesturesHelpFragmentUBI4()) }
-//        ubi4AdvancedSettingsBtn.setOnClickListener {
-//            openHelpScreen(HelpMonoAdvancedSettingsFragmentUBI4())
-//        }
+        ubi4SettingsGestureBtn.setOnClickListener { openHelpScreen(GestureSettingsFragmentHelpUBI4()) }
+        ubi4AdvancedSettingsBtn.setOnClickListener { openHelpScreen(AdvancedSettingsFragmentHelpUBI4()) }
 
         // Видимость как в legacy
         val adv = settings.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4)

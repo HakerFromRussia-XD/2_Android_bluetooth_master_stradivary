@@ -11,8 +11,6 @@ class CollectionGesturesProvider {
 
     companion object {
 
-
-
         fun getCollectionGestures(): ArrayList<Gesture> {
             val ctx = applicationContext()
 

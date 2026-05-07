@@ -224,7 +224,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 is NetworkResult.Success -> {
                     token = res.value.token
                     isTokenLoaded = true
-                    revealVersionsWhenReady()
+                    binding.preloaderLav.visibility = View.GONE
+                    binding.accountRv.visibility = View.VISIBLE
                     requestUserData()
                 }
                 is NetworkResult.Error -> {
@@ -283,7 +284,10 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             when (val res = api.getDevicesList(clientId, token, locate)) {
                 is NetworkResult.Success -> {
                     val devices: List<DeviceInList_DEV> = res.value
-                    devices.firstOrNull { it.serialNumber == serialNumber }?.id?.let { requestDeviceInfo(it) }
+                    devices
+                        .firstOrNull { it.serialNumber == serialNumber }
+                        ?.id
+                        ?.let { requestDeviceInfo(it) }
                 }
                 is NetworkResult.Error -> {
                     binding.refreshLayout.setRefreshing(false)
@@ -332,31 +336,59 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun saveDeviceInfo(info: DeviceInfo) {
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, simplificationName(info.model?.name.orEmpty()))
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, info.size?.name.orEmpty())
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, info.side?.name.orEmpty())
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, info.status?.name.orEmpty())
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, info.dateTransfer.orEmpty())
-        main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, info.guaranteePeriod.orEmpty())
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS,
+            simplificationName(info.model?.name.orEmpty())
+        )
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS,
+            info.size?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS,
+            info.side?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS,
+            info.status?.name.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS,
+            info.dateTransfer.orEmpty()
+        )
+        main?.saveString(
+            PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
+            info.guaranteePeriod.orEmpty()
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {
-        isTokenLoaded = true
-        isBoardsRendered = true
-        binding.accountRv.visibility = View.VISIBLE
         binding.preloaderLav.visibility = View.GONE
-        updateAccountSafe(AccountMainUBI4Item("avatarUrl", fname, sname, "Ivanovich", driverVersion, bmsVersion, sensorsVersion))
-
-        val keys = listOf(
-            PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE,
-            PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS,
-            PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS,
-            PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
-            PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS,
-            PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS
-        )
-        keys.forEach { main?.saveString(it, "") }
+        binding.accountRv.visibility = View.VISIBLE
+        binding.apply {
+            val item = AccountMainUBI4Item(
+                avatarUrl      = "avatarUrl",
+                name           = fname,
+                surname        = sname,
+                patronymic     = "Ivanovich",
+                versionDriver  = driverVersion,
+                versionBms     = bmsVersion,
+                versionSensors = sensorsVersion
+            )
+            updateAccountSafe(item)
+        }
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
+        main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
     private fun checkMultigrib(): Boolean = main?.mDeviceType?.contains(ConstantManagerUBI4.DEVICE_TYPE_FEST_X) == true

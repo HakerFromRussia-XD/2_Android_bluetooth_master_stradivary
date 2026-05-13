@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
@@ -52,6 +53,7 @@ import com.bailout.stickk.ubi4.models.ble.GestureV3
 import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
@@ -74,6 +76,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.showToast
 import kotlinx.coroutines.CoroutineScope
@@ -169,6 +172,8 @@ class BLEParserV3(
             else -> {
                 if (payload.length == 0) {
                     platformLog("[parseReceivedData]", "payload empty for command=${receivePacket.command}")
+                } else if (receivePacket.command == WRITE_FW_COMMAND.number.toInt()) {
+                    handleFirmwareCommand(receivePacket, payload)
                 } else {
                     val responseSubcommand = payload.u8(0)
                     if (receivePacket.command == GUI_CONTROL.number.toInt() &&
@@ -202,6 +207,52 @@ class BLEParserV3(
             "sendBytesKmm",
             "А тут разрешаем протолкнуть следующую команду allowNextV3 "
         )
+    }
+
+    private fun handleFirmwareCommand(
+        packet: UbiPacketView,
+        payload: ByteArrayView
+    ) {
+        val subcommand = payload.u8(0)
+        val status = payload.getOrZero(1)
+        val commandStatus = subcommand to status
+
+        platformLog(
+            "FW_FLOW_V3",
+            "NOTIFY ← subcommand=0x${subcommand.toString(16)} status=0x${status.toString(16)}"
+        )
+
+        when (subcommand) {
+            PreferenceKeysUbi4.FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number.toInt() -> {
+                val runType = PreferenceKeysUbi4.RunProgramType.values()
+                    .firstOrNull { it.code == status }
+                    ?: PreferenceKeysUbi4.RunProgramType.MAIN_APP
+                FirmwareInfoState.runProgramTypeFlow.tryEmit(packet.address to runType)
+            }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.CHECK_NEW_FW.number.toInt() -> {
+                FirmwareInfoState.checkNewFwFlow.tryEmit(status)
+                FirmwareInfoState.firmwareCommandStatusFlow.tryEmit(commandStatus)
+            }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number.toInt() -> {
+                val info = payload.copyFrom(1).toMaxChunkSizeInfo()
+                FirmwareInfoState.maxChunkSizeFlow.tryEmit(packet.address to info)
+            }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.PRELOAD_INFO.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.LOAD_NEW_FW.number.toInt(),
+            PreferenceKeysUbi4.FirmwareManagerCommand.CALCULATE_CRC.number.toInt() -> {
+                FirmwareInfoState.firmwareCommandStatusFlow.tryEmit(commandStatus)
+            }
+
+            PreferenceKeysUbi4.FirmwareManagerCommand.COMPLETE_UPDATE.number.toInt() -> {
+                val result = PreferenceKeysUbi4.CrcResult.from(status)
+                val isGood = result == PreferenceKeysUbi4.CrcResult.GOOD_CRC_FIRMWARE
+                FirmwareInfoState.completeCrcFlow.tryEmit(isGood)
+                FirmwareInfoState.updateCompleteFlow.tryEmit(Unit)
+            }
+        }
     }
 
     private fun handleWidgetRoute(
@@ -908,6 +959,12 @@ class BLEParserV3(
             .padStart(2, '0')
     private fun ByteArrayView.u8(i: Int): Int = bytes[offset + i].toInt() and 0xFF
     private fun ByteArrayView.s8(i: Int): Int = bytes[offset + i].toInt()
+    private fun ByteArrayView.getOrZero(i: Int): Int =
+        if (i in 0 until length) u8(i) else 0
+
+    private fun ByteArrayView.copyFrom(i: Int): ByteArray =
+        if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
+
     // при добавлении нового виджета в generatedHardcodeWidgets
     // не нужно вручную выставлять widgetPosition/widgetId — они назначатся здесь по порядку.
     private fun assignWidgetOrder(widgets: MutableSet<Any>): MutableSet<Any> {

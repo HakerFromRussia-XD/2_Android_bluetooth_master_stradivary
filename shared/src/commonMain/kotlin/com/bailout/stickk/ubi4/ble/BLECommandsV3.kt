@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
@@ -10,6 +11,70 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 object BLECommandsV3 {
+    fun requestRunProgramTypeFw(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.GET_RUN_PROGRAM_TYPE.number.toInt(),
+            deviceAddress
+        )
+    }
+
+    fun jumpToBootloaderFw(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.JUMP_TO_BOOTLOADER.number.toInt(),
+            deviceAddress
+        )
+    }
+
+    fun requestUploadAttributeFw(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.GET_MAX_CHANK_SIZE.number.toInt(),
+            deviceAddress
+        )
+    }
+
+    fun requestCheckNewFw(deviceAddress: Int, fwDesc: ByteArray): ByteArray {
+        return sendLongCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.CHECK_NEW_FW.number.toInt(),
+            byteArrayOf(deviceAddress.toByte()) + fwDesc
+        )
+    }
+
+    fun requestPreloadInfoFw(deviceAddress: Int, fwSize: Int): ByteArray {
+        return sendLongCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.PRELOAD_INFO.number.toInt(),
+            byteArrayOf(deviceAddress.toByte()) + fwSize.toUInt32Le()
+        )
+    }
+
+    fun sendLoadNewFw(deviceAddress: Int, offset: Int, chunk: ByteArray): ByteArray {
+        return sendLongCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.LOAD_NEW_FW.number.toInt(),
+            byteArrayOf(deviceAddress.toByte()) + offset.toUInt32Le() + chunk
+        )
+    }
+
+    fun requestCalculateCrcFw(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.CALCULATE_CRC.number.toInt(),
+            deviceAddress
+        )
+    }
+
+    fun requestCompleteUpdateFw(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            WRITE_FW_COMMAND.number.toInt(),
+            FirmwareManagerCommand.COMPLETE_UPDATE.number.toInt(),
+            deviceAddress
+        )
+    }
+
     fun requestDeviceData(): ByteArray {
         val header = byteArrayOf(
             0x00,
@@ -245,4 +310,12 @@ object BLECommandsV3 {
         }
         return result
     }
+
+    private fun Int.toUInt32Le(): ByteArray =
+        byteArrayOf(
+            (this and 0xFF).toByte(),
+            ((this shr 8) and 0xFF).toByte(),
+            ((this shr 16) and 0xFF).toByte(),
+            ((this shr 24) and 0xFF).toByte()
+        )
 }

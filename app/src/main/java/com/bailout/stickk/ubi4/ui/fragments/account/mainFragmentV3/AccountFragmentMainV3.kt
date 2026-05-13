@@ -519,17 +519,36 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun showFirmwareFilesDialog(boardItem: BootloaderBoardItemUBI4) {
-        val fromAssets = FirmwareAssets.collectAssetZips(requireContext(), "").map { (name, path) ->
-            FirmwareFileItem(name, FirmwareAssets.copyToCache(requireContext(), path))
-        }
+        val fromDir: List<FirmwareFileItem> = requireActivity()
+            .getExternalFilesDir(null)
+            ?.listFiles { f -> f.extension.equals("zip", ignoreCase = true) }
+            ?.map { f -> FirmwareFileItem(name = f.name, file = f) }
+            ?: emptyList()
+
+        val fromAssets: List<FirmwareFileItem> =
+            FirmwareAssets.collectAssetZips(requireContext(), dir = "")
+                .map { (displayName, assetPath) ->
+                    val file = FirmwareAssets.copyToCache(requireContext(), assetPath)
+                    FirmwareFileItem(name = displayName, file = file)
+                }
+
+        val items: MutableList<FirmwareFileItem> = (fromDir + fromAssets)
+            .distinctBy { it.name.lowercase() }
+            .sortedBy { it.name.lowercase() }
+            .toMutableList()
+
         val view = layoutInflater.inflate(R.layout.ubi4_dialog_firmware_files, null)
         val dialog = AlertDialog.Builder(requireContext()).setView(view).create()
         val rv = view.findViewById<RecyclerView>(R.id.dialogFirmwareFileRv)
         rv.layoutManager = LinearLayoutManager(requireContext())
-        rv.adapter = FirmwareFilesAdapter(fromAssets.toMutableList(), object : FirmwareFilesAdapter.OnFileActionListener {
-            override fun onDelete(p: Int, f: FirmwareFileItem) {}
-            override fun onSelect(p: Int, f: FirmwareFileItem, done: () -> Unit) {
-                main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, f) {}
+        rv.adapter = FirmwareFilesAdapter(items, object : FirmwareFilesAdapter.OnFileActionListener {
+            override fun onDelete(position: Int, fileItem: FirmwareFileItem) {
+                items.removeAt(position)
+                rv.adapter?.notifyItemRemoved(position)
+            }
+
+            override fun onSelect(position: Int, fileItem: FirmwareFileItem, onComplete: () -> Unit) {
+                main?.dialogManager?.showConfirmSendFirmwareFileDialog(boardItem, fileItem) {}
                 dialog.dismiss()
             }
         })

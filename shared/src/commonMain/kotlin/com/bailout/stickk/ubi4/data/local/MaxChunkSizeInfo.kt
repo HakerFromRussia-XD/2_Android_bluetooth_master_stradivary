@@ -1,7 +1,5 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local
 
-import io.ktor.utils.io.core.ByteOrder
-
 data class MaxChunkSizeInfo(
     val chunkSize: Int,
     val timeoutMs: Int,
@@ -29,7 +27,12 @@ fun ByteArray.toMaxChunkSizeInfo(): MaxChunkSizeInfo {
     // 4) Новый формат: минимум 8+2 резерв = 10 байт
     require(this.size >= 10) { "GET_MAX_CHANK_SIZE payload corrupted: ${this.size} B" }
 
-    val bytesInterval     = (this[2].toUByte().toInt() or (this[3].toUByte().toInt() shl 8))
+    val bytesInterval     = (
+        this[2].toUByte().toInt()
+            or (this[3].toUByte().toInt() shl 8)
+            or (this[4].toUByte().toInt() shl 16)
+            or (this[5].toUByte().toInt() shl 24)
+    )
     val timeoutMs         = (this[6].toUByte().toInt() or (this[7].toUByte().toInt() shl 8))
     val flashClearDelayMs = (this[8].toUByte().toInt() or (this[9].toUByte().toInt() shl 8))
 

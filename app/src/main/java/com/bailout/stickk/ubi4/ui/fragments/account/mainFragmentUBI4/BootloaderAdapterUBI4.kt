@@ -53,8 +53,10 @@ class BootloaderAdapterUBI4(
             localVersions = buildLocalVersionMap(holder.itemView.context)
             Log.d("fw_local", "catalog=$localVersions")
         }
-        val key = aliasOrNormalize(item.boardName)   // "omg module" -> "omg_program"
-        val local = localVersions?.get(key)          // например "0.1.5"
+        val keys = aliasesOrNormalize(item.boardName) // "bms" -> ["bms", "bms_program"]
+        val local = keys
+            .mapNotNull { key -> localVersions?.get(key) }
+            .reduceOrNull(::maxVersion)
         val highlight = isLocalVersionNewer(deviceVersion = item.version, localVersion = local)
 
         val defColor = (holder.updateBtn.tag as? Int)
@@ -73,17 +75,19 @@ class BootloaderAdapterUBI4(
 
     // Алиасы названий платы -> префикс файла (добавляй по мере надобности)
     private val boardAliases = mapOf(
-        "omg module" to "omg_program",
-        "cpu module" to "cpu_program",
-        "bms" to "bms",
-        "emg sense" to "emg_sense",
-        "fest h and f" to "fest_h_and_f",
-        "gui" to "gui"
+        "omg module" to listOf("omg_program", "omg_module"),
+        "cpu module" to listOf("cpu_program", "cpu_module"),
+        "bms" to listOf("bms", "bms_program"),
+        "emg sense" to listOf("emg_sense"),
+        "fest h and f" to listOf("fest_h_and_f", "fh_fam"),
+        "fh-fam" to listOf("fh_fam"),
+        "fh fam" to listOf("fh_fam"),
+        "gui" to listOf("gui")
     )
 
-    private fun aliasOrNormalize(boardName: String): String {
+    private fun aliasesOrNormalize(boardName: String): List<String> {
         val n = boardName.trim().lowercase()
-        return boardAliases[n] ?: normalize(n)
+        return boardAliases[n] ?: listOf(normalize(n))
     }
 
     private fun normalize(s: String): String =

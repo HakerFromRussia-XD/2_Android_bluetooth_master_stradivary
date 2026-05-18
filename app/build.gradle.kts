@@ -122,12 +122,8 @@ dependencies {
 
     // dagger 2
     implementation("com.google.dagger:dagger:2.56")
-    "kapt"("com.google.dagger:dagger-compiler:2.56"){
-        exclude(group = "com.google.guava", module = "guava")
-    }
-    "kapt"("com.google.dagger:dagger-android-processor:2.56"){
-        exclude(group = "com.google.guava", module = "guava")
-    }
+    "kapt"("com.google.dagger:dagger-compiler:2.56")
+    "kapt"("com.google.dagger:dagger-android-processor:2.56")
 //    runtimeOnly("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
 //    implementation("com.google.guava:guava:33.1.0-android")
 

@@ -97,6 +97,9 @@ object BLECommandsV3 {
         header[4] = calculationCRC(header).toByte()
         return header
     }
+    fun requestTelemetryData(): ByteArray {
+        return request(PWCE_GET_TELEMETRY_DATA.number.toInt())
+    }
     fun requestWithCommand(command: Int, subcommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,

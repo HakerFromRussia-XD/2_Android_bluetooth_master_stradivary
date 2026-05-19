@@ -228,14 +228,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onBackPressedDispatcher.onBackPressed()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            main.bleCommandWithQueue(
-//                requestWithCommand(GUI_CONTROL.number.toInt(),GMCE_GET_LEFT_RIGHT_HAND.number.toInt()),
-//                SERIALPORTCHAR_UUID,
-//                WRITE){}
-//
-//            platformLog("BLEParserV3", "runCommandBtn")
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            main.getBLEController().requestTelemetryDataV3()
+        }
 
         val accountPb = binding.accountPb.apply {
             max = 100

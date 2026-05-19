@@ -3,10 +3,12 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.EMG_MASTER_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.SUB_DEVICE_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_TELEMETRY_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_SETTING
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
@@ -59,6 +61,7 @@ class CrcAndBleCommandsV3Test {
     @Test
     fun `basic command builders should encode subcommands and crc`() {
         val request = BLECommandsV3.request(subcommand = 0x33)
+        val telemetryRequest = BLECommandsV3.requestTelemetryData()
         val requestWithCommand = BLECommandsV3.requestWithCommand(command = 0x55, subcommand = 0x66)
         val gestureInfoRequest = BLECommandsV3.requestGestureInfo(gestureId = 12)
         val sendSubcommand = BLECommandsV3.sendSubcommand(subcommand = 0x21, parameter = 0xAB)
@@ -67,6 +70,10 @@ class CrcAndBleCommandsV3Test {
         assertEquals(PROSTHESIS_MODULE_CONTROL.number.toInt(), request[1].toInt() and 0xFF)
         assertEquals(0x33, request[2].toInt() and 0xFF)
         assertEquals(crcExcludeLast(request), request.last().toInt() and 0xFF)
+
+        assertEquals(PROSTHESIS_MODULE_CONTROL.number.toInt(), telemetryRequest[1].toInt() and 0xFF)
+        assertEquals(PWCE_GET_TELEMETRY_DATA.number.toInt(), telemetryRequest[2].toInt() and 0xFF)
+        assertEquals(crcExcludeLast(telemetryRequest), telemetryRequest.last().toInt() and 0xFF)
 
         assertEquals(0x55, requestWithCommand[1].toInt() and 0xFF)
         assertEquals(0x66, requestWithCommand[2].toInt() and 0xFF)
@@ -93,7 +100,7 @@ class CrcAndBleCommandsV3Test {
         val payload = packet.copyOfRange(5, packet.size)
 
         assertEquals(9, packet.size)
-        assertEquals(PROSTHESIS_MODULE_CONTROL.number.toInt(), header[1].toInt() and 0xFF)
+        assertEquals(EMG_MASTER_CONTROL.number.toInt(), header[1].toInt() and 0xFF)
         assertEquals(EMCE_SET_EMG_GAIN_VALUE.number.toInt(), payload[0].toInt() and 0xFF)
         assertEquals(88, payload[1].toInt() and 0xFF)
         assertEquals(77, payload[2].toInt() and 0xFF)

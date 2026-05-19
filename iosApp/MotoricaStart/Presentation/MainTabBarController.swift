@@ -541,22 +541,6 @@ final class MainTabBarController: UITabBarController {
 
         didInstallTabButtonHighlightSuppressor = true
     }
-private extension Array where Element: AnyObject {
-    func removingDuplicatesByObjectIdentity() -> [Element] {
-        var seen = Set<ObjectIdentifier>()
-        var result: [Element] = []
-
-        for element in self {
-            let identifier = ObjectIdentifier(element)
-            if seen.insert(identifier).inserted {
-                result.append(element)
-            }
-        }
-
-        return result
-    }
-}
-
     @objc
     private func handleTabButtonTouchDown(_ sender: UIControl) {
         suppressTabButtonHighlight(sender)
@@ -737,5 +721,21 @@ private final class TabBarFadeAnimator: NSObject, UIViewControllerAnimatedTransi
             }
             transitionContext.completeTransition(completed)
         })
+    }
+}
+
+private extension Array where Element: AnyObject {
+    func removingDuplicatesByObjectIdentity() -> [Element] {
+        var seen = Set<ObjectIdentifier>()
+        var result: [Element] = []
+
+        for element in self {
+            let identifier = ObjectIdentifier(element)
+            if seen.insert(identifier).inserted {
+                result.append(element)
+            }
+        }
+
+        return result
     }
 }

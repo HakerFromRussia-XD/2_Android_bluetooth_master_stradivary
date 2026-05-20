@@ -191,6 +191,17 @@ class BLEParserV3(
                         command = receivePacket.command,
                         responseSubcommand = responseSubcommand
                     )
+                    if (receivePacket.command == PROSTHESIS_MODULE_CONTROL.number.toInt() &&
+                        responseSubcommand == PWCE_GET_TELEMETRY_DATA.number.toInt()
+                    ) {
+                        logTelemetryData(receivePacket, receiveDataString)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
                     if (route == null) {
                         platformLog(
                             "[parseReceivedData]",
@@ -292,6 +303,40 @@ class BLEParserV3(
             }
         }
     }
+
+    private fun logTelemetryData(
+        packet: UbiPacketView,
+        receiveDataString: String
+    ) {
+        val payloadBytes = packet.payload.toByteArray()
+        val telemetryBytes =
+            if (payloadBytes.size > 1) payloadBytes.copyOfRange(1, payloadBytes.size) else ByteArray(0)
+        val moduleAddress = telemetryBytes.u8OrNull(0)
+        val moduleName = telemetryBytes.asciiNullTerminated(offset = 2, size = 16).ifBlank { "UNKNOWN" }
+        val serialNumber = telemetryBytes.u32LeOrNull(offset = 18)
+        val serialHex = serialNumber
+            ?.toString(16)
+            ?.uppercase()
+            ?.padStart(8, '0')
+            ?.let { "0x$it" }
+            ?: "UNKNOWN"
+
+        platformLog(
+            "TelemetryV3",
+            "RX telemetry parsed: moduleAddress=$moduleAddress moduleName=\"$moduleName\" " +
+                "serialNumber=${serialNumber ?: "UNKNOWN"} serialHex=$serialHex"
+        )
+        platformLog(
+            "TelemetryV3",
+            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
+                "payloadBytes=${packet.payloadLength} telemetryBytes=${telemetryBytes.size} " +
+                "headerCrcError=${packet.headerCrcError} payloadCrcError=${packet.payloadCrcError} " +
+                "raw=$receiveDataString payloadHex=[${payloadBytes.toHexSpaced()}] " +
+                "telemetryHex=[${telemetryBytes.toHexSpaced()}] " +
+                "telemetryUInt8=[${telemetryBytes.toUInt8Csv()}] "
+        )
+    }
+
     private fun handleBatteryStatus(payload: ByteArrayView) {
         val battery = parseBmsStatusCombinedZeroAlloc(payload)
         val normalizedBatLevel = if (battery.batLevel == 0) 1 else battery.batLevel
@@ -843,6 +888,46 @@ class BLEParserV3(
 
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
+
+    private fun ByteArray.toHexSpaced(): String =
+        joinToString(" ") { byte ->
+            (byte.toInt() and 0xFF)
+                .toString(16)
+                .uppercase()
+                .padStart(2, '0')
+        }
+
+    private fun ByteArray.toUInt8Csv(): String =
+        joinToString(",") { byte -> (byte.toInt() and 0xFF).toString() }
+
+    private fun ByteArray.toPrintableAscii(): String =
+        buildString(size) {
+            this@toPrintableAscii.forEach { byte ->
+                val value = byte.toInt() and 0xFF
+                append(if (value in 32..126) value.toChar() else '.')
+            }
+        }
+
+    private fun ByteArray.u8OrNull(index: Int): Int? =
+        getOrNull(index)?.toInt()?.and(0xFF)
+
+    private fun ByteArray.u32LeOrNull(offset: Int): Long? {
+        if (offset < 0 || offset + 4 > size) return null
+        return (this[offset].toLong() and 0xFF) or
+            ((this[offset + 1].toLong() and 0xFF) shl 8) or
+            ((this[offset + 2].toLong() and 0xFF) shl 16) or
+            ((this[offset + 3].toLong() and 0xFF) shl 24)
+    }
+
+    private fun ByteArray.asciiNullTerminated(offset: Int, size: Int): String {
+        if (offset < 0 || offset >= this.size || size <= 0) return ""
+        return copyOfRange(offset, (offset + size).coerceAtMost(this.size))
+            .takeWhile { byte -> byte.toInt() != 0 }
+            .map { byte -> byte.toInt() and 0xFF }
+            .filter { value -> value in 32..126 }
+            .map { value -> value.toChar() }
+            .joinToString("")
+    }
 
     // при добавлении нового виджета в generatedHardcodeWidgets
     // не нужно вручную выставлять widgetPosition/widgetId — они назначатся здесь по порядку.

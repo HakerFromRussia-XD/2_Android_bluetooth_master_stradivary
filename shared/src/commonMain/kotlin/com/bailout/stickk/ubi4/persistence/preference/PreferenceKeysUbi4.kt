@@ -792,6 +792,7 @@ object PreferenceKeysUbi4 {
 
         PWCE_SET_FORCE_SETTINGS           (0x3F),
         PWCE_GET_FORCE_SETTINGS           (0x40),
+        PWCE_GET_TELEMETRY_DATA           (0x41),
 
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
 

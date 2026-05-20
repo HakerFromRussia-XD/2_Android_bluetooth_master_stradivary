@@ -786,6 +786,20 @@ class BLEController(private val bleManager: BleManagerKmm) {
             UiState.fullInitInProgress.value = false
         }
     }
+
+    fun requestTelemetryDataV3() {
+        val packet = BLECommandsV3.requestTelemetryData()
+        Log.d(
+            "TelemetryV3",
+            "TX PWCE_GET_TELEMETRY_DATA packet=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+        main.bleCommandWithQueue(
+            packet,
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {}
+    }
+
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
     }

@@ -104,6 +104,16 @@ class BLEParserV3(
         val chargeCurrent: Int
     )
 
+    private data class TelemetryDataV3(
+        val telemetryVersion: Int?,
+        val telemetrySubversion: Int?,
+        val deviceUuidPrefix: String,
+        val deviceUuid: Long?,
+        val gestureMovementCount: List<Long?>,
+        val userGestureMovementCount: List<Long?>,
+        val actualSize: Int
+    )
+
     fun parseReceivedSensorsData(data: ByteArray) {
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
 
@@ -311,10 +321,8 @@ class BLEParserV3(
         val payloadBytes = packet.payload.toByteArray()
         val telemetryBytes =
             if (payloadBytes.size > 1) payloadBytes.copyOfRange(1, payloadBytes.size) else ByteArray(0)
-        val moduleAddress = telemetryBytes.u8OrNull(0)
-        val moduleName = telemetryBytes.asciiNullTerminated(offset = 2, size = 16).ifBlank { "UNKNOWN" }
-        val serialNumber = telemetryBytes.u32LeOrNull(offset = 18)
-        val serialHex = serialNumber
+        val telemetry = parseTelemetryData(telemetryBytes)
+        val uuidHex = telemetry.deviceUuid
             ?.toString(16)
             ?.uppercase()
             ?.padStart(8, '0')
@@ -323,19 +331,37 @@ class BLEParserV3(
 
         platformLog(
             "TelemetryV3",
-            "RX telemetry parsed: moduleAddress=$moduleAddress moduleName=\"$moduleName\" " +
-                "serialNumber=${serialNumber ?: "UNKNOWN"} serialHex=$serialHex"
+            "RX telemetry parsed: dataCode=30 name=DTCE_TELEMETRY_DATA " +
+                "version=${telemetry.telemetryVersion ?: "UNKNOWN"}.${telemetry.telemetrySubversion ?: "UNKNOWN"} " +
+                "size=${telemetry.actualSize}/146 device_UUID_prefix=\"${telemetry.deviceUuidPrefix.ifBlank { "UNKNOWN" }}\" " +
+                "device_UUID=${telemetry.deviceUuid ?: "UNKNOWN"} device_UUID_hex=$uuidHex " +
+                "gesture_movement_count=${telemetry.gestureMovementCount.toCompactJsonArray()} " +
+                "user_gesture_movement_count=${telemetry.userGestureMovementCount.toCompactJsonArray()}"
         )
-        platformLog(
-            "TelemetryV3",
-            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
-                "payloadBytes=${packet.payloadLength} telemetryBytes=${telemetryBytes.size} " +
-                "headerCrcError=${packet.headerCrcError} payloadCrcError=${packet.payloadCrcError} " +
-                "raw=$receiveDataString payloadHex=[${payloadBytes.toHexSpaced()}] " +
-                "telemetryHex=[${telemetryBytes.toHexSpaced()}] " +
-                "telemetryUInt8=[${telemetryBytes.toUInt8Csv()}] "
-        )
+
+//        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")
+
+//        platformLog(
+//            "TelemetryV3",
+//            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
+//                "payloadBytes=${packet.payloadLength} telemetryBytes=${telemetryBytes.size} " +
+//                "headerCrcError=${packet.headerCrcError} payloadCrcError=${packet.payloadCrcError} " +
+//                "raw=$receiveDataString payloadHex=[${payloadBytes.toHexSpaced()}] " +
+//                "telemetryHex=[${telemetryBytes.toHexSpaced()}]"
+//        )
     }
+
+    private fun parseTelemetryData(telemetryBytes: ByteArray): TelemetryDataV3 =
+        TelemetryDataV3(
+            telemetryVersion = telemetryBytes.u8OrNull(0),
+            telemetrySubversion = telemetryBytes.u8OrNull(1),
+            deviceUuidPrefix = telemetryBytes.asciiNullTerminated(offset = 2, size = 16),
+            deviceUuid = telemetryBytes.u32LeOrNull(offset = 18),
+            gestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 22, count = 16),
+            userGestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 86, count = 15),
+            actualSize = telemetryBytes.size
+        )
+
 
     private fun handleBatteryStatus(payload: ByteArrayView) {
         val battery = parseBmsStatusCombinedZeroAlloc(payload)
@@ -487,127 +513,6 @@ class BLEParserV3(
             deviceCode = deviceCode,
             isBoot = isBoot,
             fwVersion = fwVersion,
-        )
-    }
-    private fun parseThresholdZeroAlloc(payload: ByteArrayView?): ThresholdsV3 {
-        //парсинг PWCE_GET_THRESHOLD_VALUE
-        if (payload == null || payload.length < 3) { return ThresholdsV3() }
-
-        val subcommand = payload.u8(0)
-        val openThreshold = payload.u8(1)
-        val closeThreshold = payload.u8(2)
-
-        return ThresholdsV3(
-            openThreshold = openThreshold,
-            closeThreshold = closeThreshold
-        )
-    }
-    private fun parseEMGGainZeroAlloc(payload: ByteArrayView?): EMGGainsV3 {
-        // парсинг PWCE_GET_EMG_GAIN
-        if (payload == null || payload.length < 3) { return EMGGainsV3() }
-
-        val subcommand = payload.u8(0)
-        val openGain = payload.u8(1)
-        val closeGain = payload.u8(2)
-
-        return EMGGainsV3(
-            openGain = openGain,
-            closeGain = closeGain
-        )
-    }
-    private fun parseToggleZeroAlloc(payload: ByteArrayView?): ToggleV3 {
-        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
-        if (payload == null || payload.length < 2) { return ToggleV3() }
-        val subcommand = payload.u8(0)
-
-        return ToggleV3(
-            toggleValue = payload.u8(1)
-        )
-    }
-    private fun parseSpinnerZeroAlloc(payload: ByteArrayView?): SpinnerV3 {
-        if (payload == null || payload.length < 2) { return SpinnerV3() }
-        val subcommand = payload.u8(0)
-        return SpinnerV3(
-            spinnerValue = payload.u8(1)
-        )
-    }
-    private fun parseSwitchZeroAlloc(payload: ByteArrayView?): SwitcherV3 {
-        if (payload == null || payload.length < 2) { return SwitcherV3() }
-        val subcommand = payload.u8(0)
-        return SwitcherV3(
-            checked = payload.u8(1) != 0
-        )
-    }
-    private fun parseCurrentGestureZeroAlloc(payload: ByteArrayView?): CurrentGestureV3 {
-        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
-        if (payload == null || payload.length < 2) { return CurrentGestureV3(0) }
-        val subcommand = payload.u8(0)
-        val currentGesture = payload.u8(1)
-
-        return CurrentGestureV3(currentGesture)
-    }
-    private fun parseGestureZeroAlloc(payload: ByteArrayView?): GestureV3 {
-        // парсинг PWCE_GET_GESTURE_SETTING
-        platformLog("parseGesture", payload.toString())
-        if (payload == null || payload.length < 26) {
-            return GestureV3()
-        }
-        val subcommand = payload.u8(0)
-
-        return GestureV3(
-            gestureId = payload.u8(1),
-
-            openPosition1 = payload.u8(2),
-            openPosition2 = payload.u8(3),
-            openPosition3 = payload.u8(4),
-            openPosition4 = payload.u8(5),
-            openPosition5 = payload.u8(6),
-            openPosition6 = payload.u8(7),
-
-            closePosition1 = payload.u8(8),
-            closePosition2 = payload.u8(9),
-            closePosition3 = payload.u8(10),
-            closePosition4 = payload.u8(11),
-            closePosition5 = payload.u8(12),
-            closePosition6 = payload.u8(13),
-
-            openToCloseTimeShift1 = payload.u8(14),
-            openToCloseTimeShift2 = payload.u8(15),
-            openToCloseTimeShift3 = payload.u8(16),
-            openToCloseTimeShift4 = payload.u8(17),
-            openToCloseTimeShift5 = payload.u8(18),
-            openToCloseTimeShift6 = payload.u8(19),
-
-            closeToOpenTimeShift1 = payload.u8(20),
-            closeToOpenTimeShift2 = payload.u8(21),
-            closeToOpenTimeShift3 = payload.u8(22),
-            closeToOpenTimeShift4 = payload.u8(23),
-            closeToOpenTimeShift5 = payload.u8(24),
-            closeToOpenTimeShift6 = payload.u8(25)
-        )
-    }
-    private fun parseGestureGroupeZeroAlloc(payload: ByteArrayView?): RotationGroupV3 {
-        // парсинг PWCE_GET_CURRENT_GESTURE_NUM
-        if (payload == null || payload.length < 17) { return RotationGroupV3() }
-        val subcommand = payload.u8(0)
-
-        return RotationGroupV3(
-            gesture1Id = payload.u8(1)     ,
-            gesture1ImageId = payload.u8(2),
-            gesture2Id = payload.u8(3)     ,
-            gesture2ImageId = payload.u8(4),
-            gesture3Id = payload.u8(5)     ,
-            gesture3ImageId = payload.u8(6),
-            gesture4Id = payload.u8(7)     ,
-            gesture4ImageId = payload.u8(8),
-            gesture5Id = payload.u8(9)     ,
-            gesture5ImageId = payload.u8(10),
-            gesture6Id = payload.u8(11)     ,
-            gesture6ImageId = payload.u8(12),
-            gesture7Id = payload.u8(13)     ,
-            gesture7ImageId = payload.u8(14),
-            gesture8Id = payload.u8(15)     ,
-            gesture8ImageId = payload.u8(16),
         )
     }
 
@@ -1010,24 +915,6 @@ class BLEParserV3(
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
 
-    private fun ByteArray.toHexSpaced(): String =
-        joinToString(" ") { byte ->
-            (byte.toInt() and 0xFF)
-                .toString(16)
-                .uppercase()
-                .padStart(2, '0')
-        }
-
-    private fun ByteArray.toUInt8Csv(): String =
-        joinToString(",") { byte -> (byte.toInt() and 0xFF).toString() }
-
-    private fun ByteArray.toPrintableAscii(): String =
-        buildString(size) {
-            this@toPrintableAscii.forEach { byte ->
-                val value = byte.toInt() and 0xFF
-                append(if (value in 32..126) value.toChar() else '.')
-            }
-        }
 
     private fun ByteArray.u8OrNull(index: Int): Int? =
         getOrNull(index)?.toInt()?.and(0xFF)
@@ -1039,6 +926,37 @@ class BLEParserV3(
             ((this[offset + 2].toLong() and 0xFF) shl 16) or
             ((this[offset + 3].toLong() and 0xFF) shl 24)
     }
+
+    private fun ByteArray.u32LeArrayOrNulls(offset: Int, count: Int): List<Long?> =
+        List(count) { index -> u32LeOrNull(offset + index * 4) }
+
+    private fun List<Long?>.toCompactJsonArray(): String =
+        joinToString(prefix = "[", postfix = "]", separator = ",") { value ->
+            value?.toString() ?: "null"
+        }
+
+    private fun String.toJsonString(): String =
+        buildString(length + 2) {
+            append('"')
+            this@toJsonString.forEach { char ->
+                when (char) {
+                    '\\' -> append("\\\\")
+                    '"' -> append("\\\"")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    else -> {
+                        if (char.code < 32) {
+                            append("\\u")
+                            append(char.code.toString(16).uppercase().padStart(4, '0'))
+                        } else {
+                            append(char)
+                        }
+                    }
+                }
+            }
+            append('"')
+        }
 
     private fun ByteArray.asciiNullTerminated(offset: Int, size: Int): String {
         if (offset < 0 || offset >= this.size || size <= 0) return ""

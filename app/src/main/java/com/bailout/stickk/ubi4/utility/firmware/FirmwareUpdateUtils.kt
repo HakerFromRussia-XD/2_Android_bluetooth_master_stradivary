@@ -1,15 +1,12 @@
 package com.bailout.stickk.ubi4.utility.firmware
 
 import android.util.Log
-import java.io.BufferedReader
+import com.bailout.stickk.ubi4.firmware.FirmwareInfoDescriptorBuilder
+import com.bailout.stickk.ubi4.firmware.FirmwareUpdatePackage
 import java.io.File
-import java.io.FileInputStream
 import java.io.InputStreamReader
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.charset.Charset
 import java.util.Properties
-import java.util.zip.ZipInputStream
+import java.util.zip.ZipFile
 
 object FirmwareUpdateUtils {
 
@@ -22,107 +19,62 @@ object FirmwareUpdateUtils {
         private set
 
     fun buildFwInfoDescriptor(zipFile: File): ByteArray {
-        val ini = Properties().apply {
-            ZipInputStream(FileInputStream(zipFile)).use { zis ->
-                generateSequence { zis.nextEntry }
-                    .first { it.name.equals("FW_ini.ini", ignoreCase = true) }
-                    .also { BufferedReader(InputStreamReader(zis)).use(this::load) }
-            }
-        }
-
-        // Логируем все ключи
-        ini.stringPropertyNames().forEach { k ->
-            Log.e("FW_INI", "$k = ${ini.getProperty(k)}")
-        }
-
-        val boardName         = ini.getProperty("BoardName",               "Unknown")
-        val boardVersion      = ini.getProperty("BoardVersion",            "0").toInt()
-        val boardSubVersion   = ini.getProperty("BoardSubVersion",         "0").toInt()
-        val boardRevision     = ini.getProperty("BoardRevision",           "0").toInt()
-        val boardSubRevision  = ini.getProperty("BoardSubRevision",        "0").toInt()
-        val boardInstance     = ini.getProperty("BoardInstance",           "0").toInt()
-        val boardType         = ini.getProperty("BoardType",               "0").toInt()
-        val boardCode         = ini.getProperty("BoardCode",               "0").toInt()
-        val boardAddInfoType  = ini.getProperty("BoardAdditionalInfoType", "0").toInt()
-        val boardAddInfo      = ini.getProperty("BoardAdditionalInfo",     "0").toLong()
-
-        val fwName            = ini.getProperty("FwName",                  "")
-        val fwMajorVersion    = ini.getProperty("FwMajorVersion",          "0").toInt()
-        val fwMinorVersion    = ini.getProperty("FwMinorVersion",          "0").toInt()
-        val fwQuickFixVersion = ini.getProperty("FwQuickFix",               "0").toInt()
-        val fwSinceLastTag    = ini.getProperty("FWSinceLastTag",          "0").toInt()
-
-        val fwLabel           = ini.getProperty("FwLabel",                 "")
-        val fwType            = ini.getProperty("FWType",                  "0").toInt()
-        val fwCode            = ini.getProperty("FWCode",                  "0").toInt()
-
-        val fwStartAddress    = ini.getProperty("FWStartAddress",          "0").toLong()
-        val fwSize            = ini.getProperty("FWsize",                  "0").toLong()
-        val fwCrc             = ini.getProperty("FWCRC",                   "0").toLong()
-
-        val sdkMajorVersion   = ini.getProperty("SDKMajorVersion",         "0").toInt()
-        val sdkMinorVersion   = ini.getProperty("SDKMinorVersion",         "0").toInt()
-        val sdkQuickFixVersion= ini.getProperty("SDKQuickFix",             "0").toInt()
-        val sdkSinceLastTag   = ini.getProperty("SDKSinceLastTag",         "0").toInt()
-
-        val fwAddInfoType     = ini.getProperty("FWAdditionalInfoType",    "0").toInt()
-        val fwAddInfo         = ini.getProperty("FWAdditionalInfo",        "0").toLong()
-        lastLocalVersionString = "$fwMajorVersion.$fwMinorVersion.$fwQuickFixVersion.$fwSinceLastTag"
-
-        Log.e("FW_NAME", "boardName = $boardName")
-        Log.e("FW_NAME", "boardVersion = $boardVersion")
-        Log.e("FW_NAME", "boardBuild = $boardInstance")
-
-        fun fixedField(s: String, len: Int): ByteArray {
-            val b = s.toByteArray(Charset.forName("UTF-8"))
-            return ByteArray(len).apply {
-                val n = b.size.coerceAtMost(len)
-                System.arraycopy(b, 0, this, 0, n)
-                if (n < len) this[n] = 0
-            }
-        }
-
-        lastFwSize = fwSize
-        lastFwCrc  = fwCrc
-        val structSize = 120
-        return ByteBuffer.allocate(structSize)
-            .order(ByteOrder.LITTLE_ENDIAN)
-            .apply {
-                put(fixedField(boardName, 32))
-                put(boardVersion.toByte())
-                put(boardSubVersion.toByte())
-                put(boardRevision.toByte())
-                put(boardSubRevision.toByte())
-                putShort(boardInstance.toShort())
-                put(boardType.toByte())
-                put(boardCode.toByte())
-
-                put(boardAddInfoType.toByte())
-                putInt(boardAddInfo.toInt())
-
-                put(fixedField(fwName, 32))
-                put(fwMajorVersion.toByte())
-                put(fwMinorVersion.toByte())
-                put(fwQuickFixVersion.toByte())
-                put(fwSinceLastTag.toByte())
-
-                put(fixedField(fwLabel, 16))
-                put(fwType.toByte())
-                put(fwCode.toByte())
-
-                putInt(fwStartAddress.toInt())
-                putInt(fwSize.toInt())
-                putInt(fwCrc.toInt())
-
-                put(sdkMajorVersion.toByte())
-                put(sdkMinorVersion.toByte())
-                put(sdkQuickFixVersion.toByte())
-                put(sdkSinceLastTag.toByte())
-
-                put(fwAddInfoType.toByte())
-                putInt(fwAddInfo.toInt())
-            }.array()
+        return readFirmwareDescriptor(zipFile).bytes
     }
 
+    fun readFirmwarePackage(zipFile: File): FirmwareUpdatePackage {
+        val descriptor = readFirmwareDescriptor(zipFile)
+        val payload = readFirmwareBytes(zipFile)
+        return FirmwareUpdatePackage(
+            name = zipFile.name,
+            descriptor = descriptor.bytes,
+            payload = payload,
+            descriptorFirmwareSize = descriptor.firmwareSize,
+            descriptorFirmwareCrc = descriptor.firmwareCrc,
+            localVersionString = descriptor.localVersionString
+        )
+    }
+
+    fun readFirmwareBytes(zipFile: File): ByteArray =
+        ZipFile(zipFile).use { zip ->
+            val entry = zip.entries().toList()
+                .first { !it.isDirectory && it.name.endsWith(".bin", ignoreCase = true) }
+            zip.getInputStream(entry).use { it.readBytes() }
+        }
+
+    private fun readFirmwareDescriptor(zipFile: File) =
+        readIniProperties(zipFile)
+            .also(::logIniProperties)
+            .let { ini ->
+                FirmwareInfoDescriptorBuilder.build(ini.toStringMap()).also { descriptor ->
+                    lastFwSize = descriptor.firmwareSize
+                    lastFwCrc = descriptor.firmwareCrc
+                    lastLocalVersionString = descriptor.localVersionString
+
+                    Log.e("FW_NAME", "boardName = ${ini.getProperty("BoardName", "Unknown")}")
+                    Log.e("FW_NAME", "boardVersion = ${ini.getProperty("BoardVersion", "0")}")
+                    Log.e("FW_NAME", "boardBuild = ${ini.getProperty("BoardInstance", "0")}")
+                }
+            }
+
+    private fun readIniProperties(zipFile: File): Properties =
+        ZipFile(zipFile).use { zip ->
+            val entry = zip.entries().toList()
+                .first { !it.isDirectory && it.name.equals("FW_ini.ini", ignoreCase = true) }
+            Properties().apply {
+                zip.getInputStream(entry).use { input ->
+                    InputStreamReader(input).use { reader -> load(reader) }
+                }
+            }
+        }
+
+    private fun logIniProperties(ini: Properties) {
+        ini.stringPropertyNames().forEach { key ->
+            Log.e("FW_INI", "$key = ${ini.getProperty(key)}")
+        }
+    }
+
+    private fun Properties.toStringMap(): Map<String, String> =
+        stringPropertyNames().associateWith { key -> getProperty(key) }
 
 }

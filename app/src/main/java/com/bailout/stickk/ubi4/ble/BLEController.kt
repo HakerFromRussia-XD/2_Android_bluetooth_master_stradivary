@@ -49,6 +49,7 @@ import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
@@ -800,6 +801,22 @@ class BLEController(private val bleManager: BleManagerKmm) {
         ) {}
     }
 
+    fun requestSerialNumberV3() {
+        val packet = requestWithCommand(
+            DEVICE_INFORMATION.number.toInt(),
+            GET_SERIAL_NUMBER.number
+        )
+        Log.d(
+            "DeviceSerialV3",
+            "TX GET_SERIAL_NUMBER packet=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+        main.bleCommandWithQueue(
+            packet,
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {}
+    }
+
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
     }
@@ -889,6 +906,14 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = requestWithCommand(
+                    DEVICE_INFORMATION.number.toInt(),
+                    GET_SERIAL_NUMBER.number
+                ),
+                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
+                expectedResponseSubcommand = GET_SERIAL_NUMBER.number
             )
         )
     }

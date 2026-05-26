@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
@@ -72,6 +73,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
@@ -91,6 +93,8 @@ class BLEParserV3(
     private var countErrors = 0
     private val deviceSize = 7
     var baseParameterWidgetSStruct: MutableSet<Any> = mutableSetOf()
+
+
     data class SubDeviceInfo(
         val address: Int,        // 0..255
         val deviceType: Int,     // 0..255
@@ -102,6 +106,16 @@ class BLEParserV3(
         val batLevel: Int,
         val chargeStatus: Int,
         val chargeCurrent: Int
+    )
+
+    private data class TelemetryDataV3(
+        val telemetryVersion: Int?,
+        val telemetrySubversion: Int?,
+        val deviceUuidPrefix: String,
+        val deviceUuid: Long?,
+        val gestureMovementCount: List<Long?>,
+        val userGestureMovementCount: List<Long?>,
+        val actualSize: Int
     )
 
     fun parseReceivedSensorsData(data: ByteArray) {
@@ -285,6 +299,24 @@ class BLEParserV3(
 
         ParameterStoreV3.put(parameterInfo, typedValue)
 
+        if (route.parameterKey == P_KEY_SET_SERIAL_NUMBER) {
+            when (typedValue) {
+                is ParameterTypedValueV3.Text ->
+                    platformLog("DeviceSerialV3", "RX serial_number=\"${typedValue.value}\"")
+                is ParameterTypedValueV3.UInt32 -> {
+                    val serialHex = typedValue.value
+                        .toString(16)
+                        .uppercase()
+                        .padStart(8, '0')
+                    platformLog(
+                        "DeviceSerialV3",
+                        "RX serial_number=${typedValue.value} serial_hex=0x$serialHex"
+                    )
+                }
+                else -> Unit
+            }
+        }
+
         ParameterCodecRegistryV3
             .encodeToSerialized(parameterMeta.codecId, typedValue)
             ?.let { encoded ->
@@ -300,6 +332,7 @@ class BLEParserV3(
                 WidgetEmitTargetV3.GESTURE_GROUP_FLOW -> gestureGroupFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT ->
                     RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
+                WidgetEmitTargetV3.NO_UI -> Unit
             }
         }
     }
@@ -311,10 +344,8 @@ class BLEParserV3(
         val payloadBytes = packet.payload.toByteArray()
         val telemetryBytes =
             if (payloadBytes.size > 1) payloadBytes.copyOfRange(1, payloadBytes.size) else ByteArray(0)
-        val moduleAddress = telemetryBytes.u8OrNull(0)
-        val moduleName = telemetryBytes.asciiNullTerminated(offset = 2, size = 16).ifBlank { "UNKNOWN" }
-        val serialNumber = telemetryBytes.u32LeOrNull(offset = 18)
-        val serialHex = serialNumber
+        val telemetry = parseTelemetryData(telemetryBytes)
+        val uuidHex = telemetry.deviceUuid
             ?.toString(16)
             ?.uppercase()
             ?.padStart(8, '0')
@@ -323,19 +354,37 @@ class BLEParserV3(
 
         platformLog(
             "TelemetryV3",
-            "RX telemetry parsed: moduleAddress=$moduleAddress moduleName=\"$moduleName\" " +
-                "serialNumber=${serialNumber ?: "UNKNOWN"} serialHex=$serialHex"
+            "RX telemetry parsed: dataCode=30 name=DTCE_TELEMETRY_DATA " +
+                "version=${telemetry.telemetryVersion ?: "UNKNOWN"}.${telemetry.telemetrySubversion ?: "UNKNOWN"} " +
+                "size=${telemetry.actualSize}/146 device_UUID_prefix=\"${telemetry.deviceUuidPrefix.ifBlank { "UNKNOWN" }}\" " +
+                "device_UUID=${telemetry.deviceUuid ?: "UNKNOWN"} device_UUID_hex=$uuidHex " +
+                "gesture_movement_count=${telemetry.gestureMovementCount.toCompactJsonArray()} " +
+                "user_gesture_movement_count=${telemetry.userGestureMovementCount.toCompactJsonArray()}"
         )
-        platformLog(
-            "TelemetryV3",
-            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
-                "payloadBytes=${packet.payloadLength} telemetryBytes=${telemetryBytes.size} " +
-                "headerCrcError=${packet.headerCrcError} payloadCrcError=${packet.payloadCrcError} " +
-                "raw=$receiveDataString payloadHex=[${payloadBytes.toHexSpaced()}] " +
-                "telemetryHex=[${telemetryBytes.toHexSpaced()}] " +
-                "telemetryUInt8=[${telemetryBytes.toUInt8Csv()}] "
-        )
+
+//        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")
+
+//        platformLog(
+//            "TelemetryV3",
+//            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
+//                "payloadBytes=${packet.payloadLength} telemetryBytes=${telemetryBytes.size} " +
+//                "headerCrcError=${packet.headerCrcError} payloadCrcError=${packet.payloadCrcError} " +
+//                "raw=$receiveDataString payloadHex=[${payloadBytes.toHexSpaced()}] " +
+//                "telemetryHex=[${telemetryBytes.toHexSpaced()}]"
+//        )
     }
+
+    private fun parseTelemetryData(telemetryBytes: ByteArray): TelemetryDataV3 =
+        TelemetryDataV3(
+            telemetryVersion = telemetryBytes.u8OrNull(0),
+            telemetrySubversion = telemetryBytes.u8OrNull(1),
+            deviceUuidPrefix = telemetryBytes.asciiNullTerminated(offset = 2, size = 16),
+            deviceUuid = telemetryBytes.u32LeOrNull(offset = 18),
+            gestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 22, count = 16),
+            userGestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 86, count = 15),
+            actualSize = telemetryBytes.size
+        )
+
 
     private fun handleBatteryStatus(payload: ByteArrayView) {
         val battery = parseBmsStatusCombinedZeroAlloc(payload)
@@ -630,6 +679,14 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
         ),"Имя протеза%Записать"))
+
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 4,
+            widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER),
+            )
+        ),"Серийный номер%Записать"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
@@ -889,24 +946,6 @@ class BLEParserV3(
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
 
-    private fun ByteArray.toHexSpaced(): String =
-        joinToString(" ") { byte ->
-            (byte.toInt() and 0xFF)
-                .toString(16)
-                .uppercase()
-                .padStart(2, '0')
-        }
-
-    private fun ByteArray.toUInt8Csv(): String =
-        joinToString(",") { byte -> (byte.toInt() and 0xFF).toString() }
-
-    private fun ByteArray.toPrintableAscii(): String =
-        buildString(size) {
-            this@toPrintableAscii.forEach { byte ->
-                val value = byte.toInt() and 0xFF
-                append(if (value in 32..126) value.toChar() else '.')
-            }
-        }
 
     private fun ByteArray.u8OrNull(index: Int): Int? =
         getOrNull(index)?.toInt()?.and(0xFF)
@@ -918,6 +957,37 @@ class BLEParserV3(
             ((this[offset + 2].toLong() and 0xFF) shl 16) or
             ((this[offset + 3].toLong() and 0xFF) shl 24)
     }
+
+    private fun ByteArray.u32LeArrayOrNulls(offset: Int, count: Int): List<Long?> =
+        List(count) { index -> u32LeOrNull(offset + index * 4) }
+
+    private fun List<Long?>.toCompactJsonArray(): String =
+        joinToString(prefix = "[", postfix = "]", separator = ",") { value ->
+            value?.toString() ?: "null"
+        }
+
+    private fun String.toJsonString(): String =
+        buildString(length + 2) {
+            append('"')
+            this@toJsonString.forEach { char ->
+                when (char) {
+                    '\\' -> append("\\\\")
+                    '"' -> append("\\\"")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    else -> {
+                        if (char.code < 32) {
+                            append("\\u")
+                            append(char.code.toString(16).uppercase().padStart(4, '0'))
+                        } else {
+                            append(char)
+                        }
+                    }
+                }
+            }
+            append('"')
+        }
 
     private fun ByteArray.asciiNullTerminated(offset: Int, size: Int): String {
         if (offset < 0 || offset >= this.size || size <= 0) return ""

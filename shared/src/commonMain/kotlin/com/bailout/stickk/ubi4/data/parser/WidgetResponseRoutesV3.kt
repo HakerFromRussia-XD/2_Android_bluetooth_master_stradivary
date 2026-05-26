@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.parser
 
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
@@ -17,6 +18,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 
@@ -33,7 +35,8 @@ enum class WidgetEmitTargetV3 {
     THRESHOLD_FLOW,
     CURRENT_GESTURE_FLOW,
     GESTURE_GROUP_FLOW,
-    GESTURE_SETTINGS_EVENT
+    GESTURE_SETTINGS_EVENT,
+    NO_UI
 }
 
 object WidgetResponseRoutesV3 {
@@ -129,6 +132,12 @@ object WidgetResponseRoutesV3 {
             responseSubcommand = GMCE_GET_LEFT_RIGHT_HAND.number.toInt(),
             parameterKey = P_KEY_LEFT_RIGHT_HAND,
             emitTarget = WidgetEmitTargetV3.SPINNER_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = DEVICE_INFORMATION.number.toInt(),
+            responseSubcommand = GET_SERIAL_NUMBER.number,
+            parameterKey = P_KEY_SET_SERIAL_NUMBER,
+            emitTarget = WidgetEmitTargetV3.NO_UI
         ),
     )
 

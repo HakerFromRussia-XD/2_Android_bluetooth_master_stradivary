@@ -6,12 +6,15 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.state.ConnectionState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.testing.RecordingBleCommandExecutor
 import com.bailout.stickk.ubi4.testing.ensureWidgetRepoInitializedForTests
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -96,6 +99,18 @@ class ParserCoverageTest {
                 parser.parseReceivedData(longPacket(address = 1, command = command, payload = payload))
             }
         }
+        parser.parseReceivedData(
+            longPacket(
+                address = 1,
+                command = PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION.number.toInt(),
+                payload = byteArrayOf(
+                    PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER.number.toByte()
+                ) + "FEST-FO-0000008".encodeToByteArray() + byteArrayOf(0x00)
+            )
+        )
+        val serialInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
+        val serialValue = ParameterStoreV3.get(serialInfo) as? ParameterTypedValueV3.Text
+        assertEquals("FEST-FO-0000008", serialValue?.value)
 
         runCatching { parser.generatedHardcodeWidgets() }
 

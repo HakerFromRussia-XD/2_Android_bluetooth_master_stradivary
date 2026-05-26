@@ -13,7 +13,8 @@ enum class ParameterCodecIdV3 {
     ROTATION_GROUP,
     GESTURE_SETTINGS,
     SWITCHER,
-    TEXT
+    TEXT,
+    UINT32
 }
 
 enum class WidgetKindV3 {
@@ -35,4 +36,3 @@ data class ParameterMetaV3(
     val widgetKind: WidgetKindV3 = WidgetKindV3.UNKNOWN,
     val valuePath: String = ""
 )
-

@@ -115,6 +115,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
         serialNumber = main?.mDeviceName ?: serialNumber
         serialNumber = deviceName ?: serialNumber
+//        serialNumber = "FEST-F-06879"
         System.err.println("TEST SERIAL NUMBER $serialNumber")
         return binding.root
     }

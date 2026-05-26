@@ -34,6 +34,7 @@ sealed interface ParameterTypedValueV3 {
     data class GestureSettings(val value: GestureV3) : ParameterTypedValueV3
     data class Switcher(val value: SwitcherV3) : ParameterTypedValueV3
     data class Text(val value: String) : ParameterTypedValueV3
+    data class UInt32(val value: Long) : ParameterTypedValueV3
 }
 
 object ParameterStoreV3 {
@@ -75,4 +76,3 @@ object ParameterStoreV3 {
         _values.value = emptyMap()
     }
 }
-

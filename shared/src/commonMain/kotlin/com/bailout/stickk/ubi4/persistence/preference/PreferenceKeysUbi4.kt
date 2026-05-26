@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_CLOSE_THRESHOLD
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
@@ -965,6 +966,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.TEXT,
                 widgetKind = WidgetKindV3.TEXT_INPUT,
                 valuePath = "text"
+            ),
+            P_KEY_SET_SERIAL_NUMBER to ParameterMetaV3(
+                parameterInfo = ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_SERIAL_NUMBER.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.TEXT,
+                widgetKind = WidgetKindV3.TEXT_INPUT,
+                valuePath = "serialNumber"
             ),
             P_KEY_TEST_SWITCHER to ParameterMetaV3(
                 parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),

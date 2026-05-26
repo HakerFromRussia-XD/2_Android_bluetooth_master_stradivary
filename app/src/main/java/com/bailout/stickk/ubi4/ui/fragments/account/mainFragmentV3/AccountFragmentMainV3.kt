@@ -61,7 +61,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     private var clientId = 0
     private var encryptionManager: EncryptionManagerUtilsUbi4? = null
     private var encryptionResult: String? = null
-    private var serialNumber = "FEST-F-05670"
+    private var serialNumber = "FEST-F-06879"
     private var fname: String = ""
     private var sname: String = ""
     private var locate: String = "en"

@@ -36,7 +36,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_HAND_CONTROL_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
@@ -122,6 +124,11 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.requestWithCommand(
                             command = DEVICE_INFORMATION.number.toInt(),
                             subcommand = GET_DEVICE_NAME.number
+                        )
+                    SET_SERIAL_NUMBER.number ->
+                        BLECommandsV3.requestWithCommand(
+                            command = DEVICE_INFORMATION.number.toInt(),
+                            subcommand = GET_SERIAL_NUMBER.number
                         )
                     else ->
                         BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
@@ -241,6 +248,7 @@ object WidgetCommandBridgeV3 {
             }
             DEVICE_INFORMATION.number.toInt() -> when (parameterInfo.dataCode) {
                 GET_DEVICE_NAME.number -> SET_DEVICE_NAME.number
+                GET_SERIAL_NUMBER.number -> SET_SERIAL_NUMBER.number
                 else -> parameterInfo.dataCode
             }
             else -> parameterInfo.dataCode

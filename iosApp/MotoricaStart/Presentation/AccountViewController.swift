@@ -283,8 +283,9 @@ final class AccountViewController: UIViewController {
     }
 
     private func currentSerialNumber() -> String {
-        let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
-        return DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
+//        let storedName = (try? keyValueStorage.load(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)) ?? ""
+//        return DeviceNameBridgeV3.shared.displayName(deviceName: storedName)
+        return "FEST-F-06879"
     }
 
     private func currentLanguageCode() -> String {
@@ -665,8 +666,7 @@ private final class AccountDetailRow: UIView {
             phoneButton.setImage(UIImage(named: "ic_phone_call")?.withRenderingMode(.alwaysTemplate), for: .normal)
             phoneButton.tintColor = textColor
             phoneButton.addAction(UIAction { _ in
-                let digits = phone.filter { "+0123456789".contains($0) }
-                guard let url = URL(string: "tel://\(digits)") else { return }
+                guard let url = PhoneDialURLFormatter.dialURL(from: phone) else { return }
                 UIApplication.shared.open(url)
             }, for: .touchUpInside)
             phoneButton.translatesAutoresizingMaskIntoConstraints = false

@@ -166,6 +166,9 @@
 			9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
 			A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
 			A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
+			ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
+			ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+			ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 			C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
 		C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
 		C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
@@ -212,6 +215,8 @@
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
 			1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
 			B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
+			ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
+			ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
 			1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -577,9 +582,10 @@
 				children = (
 					1FFFC83D221B02BA007D99D2 /* Info.plist */,
 					E6E882E600C188FAACCC417D /* ObservableTests.swift */,
-					534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
-					1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
-					B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
+						534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
+						1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
+						B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
+						ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
 				);
 				path = MotoricaStartTests;
 				sourceTree = "<group>";
@@ -657,6 +663,7 @@
 				1F57F8D123C656F600981E09 /* AccessibilityIdentifier.swift */,
 				1FA2048F242F528E000C4B56 /* LoadingView.swift */,
 				65588F982EA0E343005CF5BA /* LoadingContainerView.swift */,
+				ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1399,6 +1406,7 @@
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
+				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Widget.swift in Sources */,
 				65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */,
@@ -1421,10 +1429,12 @@
 				buildActionMask = 2147483647;
 				files = (
 					A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
-					DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
-					F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
-					A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
-					C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
+						DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
+						F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+						A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
+						ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
+						ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
+						C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
 					5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
 					C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
 					C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,

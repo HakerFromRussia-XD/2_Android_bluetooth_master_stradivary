@@ -13,6 +13,7 @@ import platform.CoreCrypto.kCCAlgorithmAES
 import platform.CoreCrypto.kCCBlockSizeAES128
 import platform.CoreCrypto.kCCEncrypt
 import platform.CoreCrypto.kCCKeySizeAES256
+import platform.CoreCrypto.kCCOptionECBMode
 import platform.CoreCrypto.kCCOptionPKCS7Padding
 import platform.CoreCrypto.kCCSuccess
 import platform.Security.SecRandomCopyBytes
@@ -20,7 +21,9 @@ import platform.Security.kSecRandomDefault
 
 actual class EncryptionManagerUtilsUbi4 actual constructor() {
     /**
-     * Шифрует входную строку и возвращает Base64(IV + cipherText) или null при ошибке.
+     * Шифрует входную строку и возвращает Base64(random16 + cipherText) или null при ошибке.
+     * Android использует Cipher.getInstance("AES"), что на серверной стороне соответствует AES/ECB/PKCS7.
+     * Первые 16 случайных байт сохраняем для совместимости с уже существующим форматом запроса.
      */
     @OptIn(ExperimentalForeignApi::class)
     actual fun encrypt(plain: String): String? {
@@ -43,10 +46,10 @@ actual class EncryptionManagerUtilsUbi4 actual constructor() {
                             CCCrypt(
                                 op = kCCEncrypt,
                                 alg = kCCAlgorithmAES,
-                                options = kCCOptionPKCS7Padding,
+                                options = kCCOptionPKCS7Padding or kCCOptionECBMode,
                                 key = keyPinned.addressOf(0),
                                 keyLength = kCCKeySizeAES256.convert(),
-                                iv = ivPinned.addressOf(0),
+                                iv = null,
                                 dataIn = inputPinned.addressOf(0),
                                 dataInLength = input.size.convert(),
                                 dataOut = outputPinned.addressOf(0),

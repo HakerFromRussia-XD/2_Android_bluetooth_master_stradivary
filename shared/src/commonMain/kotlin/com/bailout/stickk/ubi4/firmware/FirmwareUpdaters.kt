@@ -174,6 +174,7 @@ class Ubi4FirmwareUpdater(
         }
 
         logger.debug(TAG, "All $offset firmware bytes sent")
+
     }
 
     // CALCULATE_CRC/COMPLETE_UPDATE: запускает CRC-проверку и подтверждает завершение записи.

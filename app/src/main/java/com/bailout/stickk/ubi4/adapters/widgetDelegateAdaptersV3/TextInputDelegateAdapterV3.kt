@@ -12,6 +12,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
+import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -64,13 +66,20 @@ class TextInputDelegateAdapterV3(
             ContextCompat.getColor(root.context, R.color.ubi4_deactivate_text)
         )
         val parameterInfo = extractParameterInfo(item)
-        if (parameterInfo != null && isDeviceNameParameter(parameterInfo)) {
-            setupByteLimitWatcher(widgetInputEt)
-            setupCurrentDeviceNamePrefill(widgetInputEt)
-        } else {
-            removeByteLimitWatcher(widgetInputEt)
-            widgetInputEt.setOnClickListener(null)
-            widgetInputEt.setOnTouchListener(null)
+        when {
+            parameterInfo != null && isDeviceNameParameter(parameterInfo) -> {
+                setupByteLimitWatcher(widgetInputEt)
+                setupCurrentDeviceNamePrefill(widgetInputEt)
+            }
+            parameterInfo != null && isSerialNumberParameter(parameterInfo) -> {
+                removeByteLimitWatcher(widgetInputEt)
+                setupCurrentSerialNumberPrefill(widgetInputEt, parameterInfo)
+            }
+            else -> {
+                removeByteLimitWatcher(widgetInputEt)
+                widgetInputEt.setOnClickListener(null)
+                widgetInputEt.setOnTouchListener(null)
+            }
         }
         overlayViews.add(sendBtnOverlay)
         applyTextInputSendButtonLockState(sendBtnOverlay)
@@ -253,6 +262,36 @@ class TextInputDelegateAdapterV3(
         input.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_UP) {
                 fillCurrentName()
+            }
+            false
+        }
+    }
+
+    private fun setupCurrentSerialNumberPrefill(
+        input: EditText,
+        parameterInfo: ParameterInfo<Int, Int, Int, Int>
+    ) {
+        fun fillCurrentSerialNumber() {
+            val rawSerialNumber = (ParameterStoreV3.get(parameterInfo) as? ParameterTypedValueV3.Text)
+                ?.value
+                ?.takeUnless { it.isBlank() }
+                ?: main.getCurrentSerial()?.takeUnless { it.isBlank() }
+                ?: main.mDeviceName?.takeUnless { it.isBlank() }
+                ?: runCatching { connectedDeviceName }.getOrNull()?.takeUnless { it.isBlank() }
+                ?: main.intent?.getStringExtra(EXTRAS_DEVICE_NAME)?.takeUnless { it.isBlank() }
+                ?: return
+
+            val displaySerialNumber = NameUtil.getDisplayName(rawSerialNumber)
+            if (displaySerialNumber.isBlank()) return
+
+            input.setText(displaySerialNumber)
+            input.setSelection(displaySerialNumber.length)
+        }
+
+        input.setOnClickListener { fillCurrentSerialNumber() }
+        input.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_UP) {
+                fillCurrentSerialNumber()
             }
             false
         }

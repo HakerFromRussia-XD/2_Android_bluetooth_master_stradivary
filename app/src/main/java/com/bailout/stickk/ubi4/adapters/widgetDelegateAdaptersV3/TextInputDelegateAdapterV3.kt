@@ -2,23 +2,29 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.EditText
 import androidx.core.content.ContextCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTextInputBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
-import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DEVICE_NAME_PREFIX
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,8 +63,15 @@ class TextInputDelegateAdapterV3(
         widgetInputUnderline.setBackgroundColor(
             ContextCompat.getColor(root.context, R.color.ubi4_deactivate_text)
         )
-        setupByteLimitWatcher(widgetInputEt)
-        setupCurrentDeviceNamePrefill(widgetInputEt)
+        val parameterInfo = extractParameterInfo(item)
+        if (parameterInfo != null && isDeviceNameParameter(parameterInfo)) {
+            setupByteLimitWatcher(widgetInputEt)
+            setupCurrentDeviceNamePrefill(widgetInputEt)
+        } else {
+            removeByteLimitWatcher(widgetInputEt)
+            widgetInputEt.setOnClickListener(null)
+            widgetInputEt.setOnTouchListener(null)
+        }
         overlayViews.add(sendBtnOverlay)
         applyTextInputSendButtonLockState(sendBtnOverlay)
         observeInteractionState()
@@ -71,40 +84,102 @@ class TextInputDelegateAdapterV3(
                 return@setOnClickListener
             }
 
-            val parameterInfo = when (val widget = item.widget) {
-                is CommandParameterWidgetSStruct ->
-                    widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.firstOrNull()
-                is CommandParameterWidgetEStruct ->
-                    widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.firstOrNull()
-                else -> null
-            }
-
             if (parameterInfo == null) {
                 main.showToast("Параметр команды не найден")
 //                Log.w("TextInputDelegateAdapterV3", "No parameterInfo for widget: ${item.widget::class.java.simpleName}")
                 return@setOnClickListener
             }
 
-            val normalizedSuffix = enteredText
-                .removePrefix(DEVICE_NAME_PREFIX)
-                .removePrefix("-")
-            val valueWithPrefix = DEVICE_NAME_PREFIX + normalizedSuffix
-            val nullTerminatedData = valueWithPrefix.toByteArray(StandardCharsets.UTF_8) + byteArrayOf(0x00)
-            val payload = BLECommandsV3.sendLongCommand(
-                command = parameterInfo.parameterID,
-                subcommand = parameterInfo.dataCode,
-                data = nullTerminatedData
-            )
+            val isDeviceName = isDeviceNameParameter(parameterInfo)
+            val isSerialNumber = isSerialNumberParameter(parameterInfo)
+            val transportText = if (isDeviceName) {
+                val normalizedSuffix = enteredText
+                    .removePrefix(DEVICE_NAME_PREFIX)
+                    .removePrefix("-")
+                DEVICE_NAME_PREFIX + normalizedSuffix
+            } else {
+                enteredText
+            }
 
-            main.bleCommandWithQueue(payload, SERIALPORTCHAR_UUID, WRITE) {}
-            main.applyDeviceNameImmediately(valueWithPrefix)
-            main.showToast("Имя установлено")
+            val payload = WidgetCommandBridgeV3.buildSetText(
+                parameterID = parameterInfo.parameterID,
+                dataCode = parameterInfo.dataCode,
+                deviceAddress = parameterInfo.deviceAddress,
+                text = transportText
+            ) ?: run {
+                if (isSerialNumber) {
+                    main.showToast("Не удалось подготовить серийный номер")
+                } else {
+                    main.showToast("Не удалось подготовить команду")
+                }
+                return@setOnClickListener
+            }
+
+            val readAfterSetPayload = if (isSerialNumber) {
+                WidgetCommandBridgeV3.buildReadRequest(
+                    parameterID = parameterInfo.parameterID,
+                    dataCode = parameterInfo.dataCode
+                )
+            } else {
+                null
+            }
+
+            if (isSerialNumber) {
+                Log.d(
+                    "DeviceSerialV3",
+                    "TX set_serial input=\"$enteredText\" packet=${EncodeByteToHex.bytesToHexString(payload)}"
+                )
+            }
+
+            main.bleCommandWithQueue(payload, SERIALPORTCHAR_UUID, WRITE) {
+                if (isSerialNumber && readAfterSetPayload != null) {
+                    Log.d(
+                        "DeviceSerialV3",
+                        "TX get_serial_after_set packet=${EncodeByteToHex.bytesToHexString(readAfterSetPayload)}"
+                    )
+                    main.bleCommandWithQueue(readAfterSetPayload, SERIALPORTCHAR_UUID, WRITE) {}
+                }
+            }
+            when {
+                isDeviceName -> {
+                    main.applyDeviceNameImmediately(transportText)
+                    main.showToast("Имя установлено")
+                }
+                isSerialNumber ->
+                    main.showToast("Серийный номер записан")
+                else ->
+                    main.showToast("Значение отправлено")
+            }
         }
     }
 
     override fun isForViewType(item: Any): Boolean = item is TextInputItemV3
 
     override fun TextInputItemV3.getItemId(): Any = "$title-$buttonTitle"
+
+    private fun extractParameterInfo(item: TextInputItemV3): ParameterInfo<Int, Int, Int, Int>? {
+        return when (val widget = item.widget) {
+            is CommandParameterWidgetSStruct ->
+                widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.firstOrNull()
+            is CommandParameterWidgetEStruct ->
+                widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.firstOrNull()
+            else -> null
+        }
+    }
+
+    private fun isDeviceNameParameter(parameterInfo: ParameterInfo<Int, Int, Int, Int>): Boolean {
+        val deviceNameInfo = ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME)
+        return parameterInfo.parameterID == deviceNameInfo.parameterID &&
+            parameterInfo.dataCode == deviceNameInfo.dataCode &&
+            parameterInfo.deviceAddress == deviceNameInfo.deviceAddress
+    }
+
+    private fun isSerialNumberParameter(parameterInfo: ParameterInfo<Int, Int, Int, Int>): Boolean {
+        val serialNumberInfo = ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER)
+        return parameterInfo.parameterID == serialNumberInfo.parameterID &&
+            parameterInfo.dataCode == serialNumberInfo.dataCode &&
+            parameterInfo.deviceAddress == serialNumberInfo.deviceAddress
+    }
 
     private fun observeInteractionState() {
         if (interactionJob?.isActive == true) return
@@ -122,10 +197,7 @@ class TextInputDelegateAdapterV3(
     }
 
     private fun setupByteLimitWatcher(input: EditText) {
-        val existingWatcher = input.getTag(R.id.tag_text_input_limit_watcher) as? TextWatcher
-        if (existingWatcher != null) {
-            input.removeTextChangedListener(existingWatcher)
-        }
+        removeByteLimitWatcher(input)
 
         val watcher = object : TextWatcher {
             private var isInternalChange = false
@@ -151,6 +223,14 @@ class TextInputDelegateAdapterV3(
 
         input.addTextChangedListener(watcher)
         input.setTag(R.id.tag_text_input_limit_watcher, watcher)
+    }
+
+    private fun removeByteLimitWatcher(input: EditText) {
+        val existingWatcher = input.getTag(R.id.tag_text_input_limit_watcher) as? TextWatcher
+        if (existingWatcher != null) {
+            input.removeTextChangedListener(existingWatcher)
+            input.setTag(R.id.tag_text_input_limit_watcher, null)
+        }
     }
 
     private fun setupCurrentDeviceNamePrefill(input: EditText) {

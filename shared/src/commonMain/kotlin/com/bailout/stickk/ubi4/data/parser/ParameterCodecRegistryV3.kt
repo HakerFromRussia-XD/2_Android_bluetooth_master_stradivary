@@ -146,6 +146,10 @@ object ParameterCodecRegistryV3 {
                 val bytes = payload.toByteArray().drop(1).takeWhile { it.toInt() != 0 }.toByteArray()
                 ParameterTypedValueV3.Text(bytes.decodeToString())
             }
+            ParameterCodecIdV3.UINT32 -> {
+                if (payload == null || payload.length < 5) return null
+                ParameterTypedValueV3.UInt32(payload.u32Le(1))
+            }
             ParameterCodecIdV3.NONE -> null
         }
     }
@@ -177,6 +181,10 @@ object ParameterCodecRegistryV3 {
                     ParameterTypedValueV3.Switcher(json.decodeFromString<SwitcherV3>(data))
                 ParameterCodecIdV3.TEXT ->
                     ParameterTypedValueV3.Text(data)
+                ParameterCodecIdV3.UINT32 -> {
+                    val value = parseUInt32(data) ?: return@runCatching null
+                    ParameterTypedValueV3.UInt32(value)
+                }
                 ParameterCodecIdV3.NONE -> null
             }
         }.onFailure {
@@ -200,6 +208,7 @@ object ParameterCodecRegistryV3 {
                 ParameterCodecIdV3.GESTURE_SETTINGS -> json.encodeToString((typedValue as ParameterTypedValueV3.GestureSettings).value)
                 ParameterCodecIdV3.SWITCHER -> json.encodeToString((typedValue as ParameterTypedValueV3.Switcher).value)
                 ParameterCodecIdV3.TEXT -> (typedValue as ParameterTypedValueV3.Text).value
+                ParameterCodecIdV3.UINT32 -> (typedValue as ParameterTypedValueV3.UInt32).value.toString()
                 ParameterCodecIdV3.NONE -> null
             }
         }.onFailure {
@@ -240,9 +249,47 @@ object ParameterCodecRegistryV3 {
                 val text = (action as? ParameterCodecActionV3.SetText)?.text ?: return null
                 ParameterEncodedActionV3.ByteArrayValue(text.encodeToByteArray())
             }
+            ParameterCodecIdV3.UINT32 -> {
+                val text = (action as? ParameterCodecActionV3.SetText)?.text ?: return null
+                val value = parseUInt32(text) ?: return null
+                ParameterEncodedActionV3.ByteArrayValue(value.toUInt32LeBytes())
+            }
             else -> null
         }
     }
 }
 
+private val uint32TokenRegex = Regex("""0[xX][0-9a-fA-F]+|\d+""")
+
 private fun ByteArrayView.u8(i: Int): Int = this[i].toInt() and 0xFF
+private fun ByteArrayView.u32Le(i: Int): Long =
+    (u8(i).toLong()) or
+        (u8(i + 1).toLong() shl 8) or
+        (u8(i + 2).toLong() shl 16) or
+        (u8(i + 3).toLong() shl 24)
+
+private fun parseUInt32(value: String): Long? {
+    val normalized = value.trim().replace("_", "")
+    if (normalized.isBlank()) return null
+
+    val token = uint32TokenRegex.findAll(normalized)
+        .lastOrNull()
+        ?.value
+        ?: return null
+
+    val parsed = if (token.startsWith("0x", ignoreCase = true)) {
+        token.drop(2).toLongOrNull(radix = 16)
+    } else {
+        token.toLongOrNull()
+    }
+
+    return parsed?.takeIf { it in 0L..0xFFFF_FFFFL }
+}
+
+private fun Long.toUInt32LeBytes(): ByteArray =
+    byteArrayOf(
+        (this and 0xFF).toByte(),
+        ((this shr 8) and 0xFF).toByte(),
+        ((this shr 16) and 0xFF).toByte(),
+        ((this shr 24) and 0xFF).toByte()
+    )

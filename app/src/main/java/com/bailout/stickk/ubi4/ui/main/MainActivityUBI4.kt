@@ -229,7 +229,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-            main.getBLEController().requestTelemetryDataV3()
+            main.getBLEController().requestSerialNumberV3()
         }
 
         val accountPb = binding.accountPb.apply {

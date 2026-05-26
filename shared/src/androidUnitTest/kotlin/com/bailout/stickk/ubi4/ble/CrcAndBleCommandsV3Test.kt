@@ -3,9 +3,12 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.EMG_MASTER_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.SUB_DEVICE_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_SETTING
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_TELEMETRY_DATA
@@ -13,6 +16,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_SETTING
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager.GET_ALL_SUB_DEVICE
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -106,6 +110,36 @@ class CrcAndBleCommandsV3Test {
         assertEquals(77, payload[2].toInt() and 0xFF)
         assertEquals(crcExcludeLast(header), header.last().toInt() and 0xFF)
         assertEquals(crcExcludeLast(payload), payload.last().toInt() and 0xFF)
+    }
+
+    @Test
+    fun `serial number widget command should encode full text`() {
+        val serialNumber = "FEST-FO-0000008"
+        val packet = WidgetCommandBridgeV3.buildSetText(
+            parameterID = DEVICE_INFORMATION.number.toInt(),
+            dataCode = SET_SERIAL_NUMBER.number,
+            deviceAddress = 1,
+            text = serialNumber
+        )!!
+        val header = packet.copyOfRange(0, 5)
+        val payload = packet.copyOfRange(5, packet.size)
+
+        assertEquals(0x80, header[0].toInt() and 0xFF)
+        assertEquals(DEVICE_INFORMATION.number.toInt(), header[1].toInt() and 0xFF)
+        assertEquals(payload.size - 1, header[2].toInt() and 0xFF)
+        assertEquals(SET_SERIAL_NUMBER.number, payload[0].toInt() and 0xFF)
+        assertEquals(serialNumber, payload.copyOfRange(1, payload.size - 2).decodeToString())
+        assertEquals(0x00, payload[payload.size - 2].toInt() and 0xFF)
+        assertEquals(crcExcludeLast(header), header.last().toInt() and 0xFF)
+        assertEquals(crcExcludeLast(payload), payload.last().toInt() and 0xFF)
+
+        val readPacket = WidgetCommandBridgeV3.buildReadRequest(
+            parameterID = DEVICE_INFORMATION.number.toInt(),
+            dataCode = SET_SERIAL_NUMBER.number
+        )!!
+        assertEquals(DEVICE_INFORMATION.number.toInt(), readPacket[1].toInt() and 0xFF)
+        assertEquals(GET_SERIAL_NUMBER.number, readPacket[2].toInt() and 0xFF)
+        assertEquals(crcExcludeLast(readPacket), readPacket.last().toInt() and 0xFF)
     }
 
     @Test

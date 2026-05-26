@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
@@ -72,6 +73,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
@@ -91,6 +93,8 @@ class BLEParserV3(
     private var countErrors = 0
     private val deviceSize = 7
     var baseParameterWidgetSStruct: MutableSet<Any> = mutableSetOf()
+
+
     data class SubDeviceInfo(
         val address: Int,        // 0..255
         val deviceType: Int,     // 0..255
@@ -295,6 +299,24 @@ class BLEParserV3(
 
         ParameterStoreV3.put(parameterInfo, typedValue)
 
+        if (route.parameterKey == P_KEY_SET_SERIAL_NUMBER) {
+            when (typedValue) {
+                is ParameterTypedValueV3.Text ->
+                    platformLog("DeviceSerialV3", "RX serial_number=\"${typedValue.value}\"")
+                is ParameterTypedValueV3.UInt32 -> {
+                    val serialHex = typedValue.value
+                        .toString(16)
+                        .uppercase()
+                        .padStart(8, '0')
+                    platformLog(
+                        "DeviceSerialV3",
+                        "RX serial_number=${typedValue.value} serial_hex=0x$serialHex"
+                    )
+                }
+                else -> Unit
+            }
+        }
+
         ParameterCodecRegistryV3
             .encodeToSerialized(parameterMeta.codecId, typedValue)
             ?.let { encoded ->
@@ -310,6 +332,7 @@ class BLEParserV3(
                 WidgetEmitTargetV3.GESTURE_GROUP_FLOW -> gestureGroupFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT ->
                     RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
+                WidgetEmitTargetV3.NO_UI -> Unit
             }
         }
     }
@@ -656,6 +679,14 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
         ),"Имя протеза%Записать"))
+
+        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+            display = 4,
+            widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
+            parameterInfoSet = mutableSetOf(
+                ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER),
+            )
+        ),"Серийный номер%Записать"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),

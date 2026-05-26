@@ -86,6 +86,9 @@ class WidgetsTabContainerViewController: UIViewController {
         let hostingController = UIHostingController(
             rootView: StatusBarView(
                 viewModel: statusBarViewModel,
+                onAccountTap: { [weak self] in
+                    self?.openAccount()
+                },
                 onDisconnectConfirmed: { [weak self] in
                     self?.handleDisconnectConfirmed()
                 }
@@ -107,6 +110,11 @@ class WidgetsTabContainerViewController: UIViewController {
         ].compactMap { $0 })
 
         hostingController.didMove(toParent: self)
+    }
+
+    private func openAccount() {
+        if navigationController?.topViewController is AccountViewController { return }
+        navigationController?.pushViewController(AccountViewController(), animated: true)
     }
 
     func updateStatusBar(serialNumber: String? = nil, batteryLevel: Double? = nil, isConnected: Bool? = nil) {

@@ -15,10 +15,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountCustomerServiceBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
+import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
@@ -36,7 +36,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
     private var testSerialNumber = "FEST-F-05670"
-    private var myRequests: Requests? = null
+    private var myRequests: RequestsUBI4? = null
 
     private var _binding: Ubi4FragmentPersonalAccountCustomerServiceBinding? = null
     private val binding get() = requireNotNull(_binding)
@@ -55,7 +55,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         gson = Gson()
-        myRequests = Requests()
+        myRequests = RequestsUBI4()
         //TODO Узнать у Ромы нужно ли перенести encryptionManager = EncryptionManagerUtils.instance в UBI4
         // ответ от Ромы: можно использовать старый из UBI3 как тут и сделано
         encryptionManager = EncryptionManagerUtils.instance

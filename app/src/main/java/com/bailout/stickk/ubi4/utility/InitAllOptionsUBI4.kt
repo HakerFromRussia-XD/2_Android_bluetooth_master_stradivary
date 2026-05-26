@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.utility
 
 
-import AllOptions
+import AllOptionsV3
 import android.content.Context
 import android.content.SharedPreferences
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -19,7 +19,7 @@ class InitAllOptionsUBI4(context: Context, mDeviceAddress: String) {
         maximumPoints = mSettings!!.getInt(mDeviceAddress + PreferenceKeysUbi4.MAXIMUM_POINTS, 0)
         numberOfCups = mSettings!!.getInt(mDeviceAddress + PreferenceKeysUbi4.NUMBER_OF_CUPS, 0)
 
-        myAllOptions = AllOptions(
+        myAllOptionsV3 = AllOptionsV3(
             gameLaunchRate = "$gameLaunchRate",
             maximumPoints = "$maximumPoints",
             numberOfCups = "$numberOfCups")
@@ -27,6 +27,6 @@ class InitAllOptionsUBI4(context: Context, mDeviceAddress: String) {
 
 
     companion object {
-        var myAllOptions by Delegates.notNull<AllOptions>()
+        var myAllOptionsV3 by Delegates.notNull<AllOptionsV3>()
     }
 }

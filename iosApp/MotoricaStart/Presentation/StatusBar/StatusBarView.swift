@@ -21,6 +21,7 @@ struct StatusBarView: View {
     }
 
     @ObservedObject var viewModel: StatusBarViewModel
+    var onAccountTap: (() -> Void)?
     var onDisconnectConfirmed: (() -> Void)?
     @State private var isDisconnectDialogPresented = false
     @State private var isDisconnectDialogVisible = false
@@ -29,10 +30,16 @@ struct StatusBarView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "person.crop.circle")
-                .font(.system(size: Constants.iconSize, weight: .regular))
-                .foregroundColor(Color("ubi4_white"))
-                .accessibilityLabel(Text("Вход в личный кабинет"))
+            Button {
+                onAccountTap?()
+            } label: {
+                Image(systemName: "person.crop.circle")
+                    .font(.system(size: Constants.iconSize, weight: .regular))
+                    .foregroundColor(Color("ubi4_white"))
+                    .frame(width: 36, height: 36)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Вход в личный кабинет"))
 
             Spacer()
 

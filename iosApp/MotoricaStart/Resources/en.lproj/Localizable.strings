@@ -53,3 +53,24 @@
 "spr_abduction" = "Abduction";
 "spr_pronation" = "Pronation";
 "spr_supination" = "Supination";
+
+"Account" = "Account";
+"General" = "General";
+"Customer Service" = "Customer Service";
+"Prosthesis Information" = "Prosthesis Information";
+"Software information" = "Software information";
+"Version App" = "Version App";
+"Update" = "Update";
+"Firmware update" = "Firmware update";
+"Firmware file selection is not available on iOS yet." = "Firmware file selection is not available on iOS yet.";
+"OK" = "OK";
+"Date of receipt of prosthesis" = "Date of receipt of prosthesis";
+"Warranty expiration date" = "Warranty expiration date";
+"Your manager" = "Your manager";
+"Prosthesis status" = "Prosthesis status";
+"Prosthesis model" = "Prosthesis model";
+"Prosthesis size" = "Prosthesis size";
+"Hand side" = "Hand side";
+"Rotator type" = "Rotator type";
+"Touchscreen finger pads" = "Touchscreen finger pads";
+"Battery type" = "Battery type";

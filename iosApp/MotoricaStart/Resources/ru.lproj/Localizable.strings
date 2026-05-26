@@ -55,3 +55,23 @@
 "spr_pronation" = "Пронация";
 "spr_supination" = "Супинация";
 
+"Account" = "Личный кабинет";
+"General" = "Общее";
+"Customer Service" = "Сервис и гарантия";
+"Prosthesis Information" = "Информация о протезе";
+"Software information" = "Информация о ПО";
+"Version App" = "Версия приложения";
+"Update" = "Обновить";
+"Firmware update" = "Обновление прошивки";
+"Firmware file selection is not available on iOS yet." = "Выбор файла прошивки на iOS пока недоступен.";
+"OK" = "OK";
+"Date of receipt of prosthesis" = "Дата получения протеза";
+"Warranty expiration date" = "Дата окончания гарантии";
+"Your manager" = "Ваш менеджер";
+"Prosthesis status" = "Статус протеза";
+"Prosthesis model" = "Модель протеза";
+"Prosthesis size" = "Размер протеза";
+"Hand side" = "Сторона руки";
+"Rotator type" = "Тип ротатора";
+"Touchscreen finger pads" = "Сенсорные накладки пальцев";
+"Battery type" = "Тип аккумулятора";

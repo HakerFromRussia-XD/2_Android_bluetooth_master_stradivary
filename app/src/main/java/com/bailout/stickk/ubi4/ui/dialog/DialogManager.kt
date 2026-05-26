@@ -12,13 +12,14 @@ import android.widget.ProgressBar
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.ble.BleFirmwareUpdater
-import com.bailout.stickk.ubi4.ble.BleFirmwareUpdaterV3
+import com.bailout.stickk.ubi4.ble.AndroidFirmwareCommandSender
 import com.bailout.stickk.ubi4.ble.AndroidFirmwareUpdateLogger
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateCoordinator
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateProtocol
 import com.bailout.stickk.ubi4.firmware.FirmwareUpdateResult
+import com.bailout.stickk.ubi4.firmware.Ubi4FirmwareUpdater
+import com.bailout.stickk.ubi4.firmware.V3FirmwareUpdater
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderBoardItemUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -34,11 +35,15 @@ class DialogManager(
     private val viewLifecycleOwner: LifecycleOwner,
     private val onDisconnectConfirmed: () -> Unit,
     ) {
-    private val updater = BleFirmwareUpdater()
-    private val updaterV3 = BleFirmwareUpdaterV3()
     private val firmwareUpdateCoordinator = FirmwareUpdateCoordinator(
-        ubi4Updater = updater.sharedUpdater,
-        v3Updater = updaterV3.sharedUpdater,
+        ubi4Updater = Ubi4FirmwareUpdater(
+            sender = AndroidFirmwareCommandSender,
+            logger = AndroidFirmwareUpdateLogger
+        ),
+        v3Updater = V3FirmwareUpdater(
+            sender = AndroidFirmwareCommandSender,
+            logger = AndroidFirmwareUpdateLogger
+        ),
         logger = AndroidFirmwareUpdateLogger
     )
     private var currentDialog: Dialog? = null

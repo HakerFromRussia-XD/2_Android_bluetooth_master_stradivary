@@ -10,12 +10,9 @@ import UIKit
 import shared
 
 class WidgetsTabContainerViewController: UIViewController {
-    private enum Constants {
-        static let rootTransitionDuration: TimeInterval = 0.35
-    }
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
-    private static let sharedStatusBarViewModel: StatusBarViewModel = {
+    static let sharedStatusBarViewModel: StatusBarViewModel = {
         let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
         return StatusBarViewModel(isConnected: initialState == 2)
     }()
@@ -29,7 +26,6 @@ class WidgetsTabContainerViewController: UIViewController {
     private var deviceNameObserver: NSObjectProtocol?
     private var bleStateJob: Kotlinx_coroutines_coreJob?
     private var batteryPercentJob: Kotlinx_coroutines_coreJob?
-    private var isDisconnectFlowInProgress = false
 
     private var isUiTestForceConnectedStatus: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-test-force-connected-status")
@@ -136,40 +132,7 @@ class WidgetsTabContainerViewController: UIViewController {
     }
 
     private func handleDisconnectConfirmed() {
-        guard !isDisconnectFlowInProgress else { return }
-        isDisconnectFlowInProgress = true
-        defer { isDisconnectFlowInProgress = false }
-
-        BLEComponents.shared.bleManager.disconnectFromDevice()
-        keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
-        statusBarViewModel.update(serialNumber: "—", batteryLevel: 0, isConnected: false)
-        UiStateBridge.shared.resetWidgetsState()
-        WidgetsListViewController.resetGlobalSynchronizationState()
-
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let bluetoothVC = appDelegate.appDIContainer
-            .makeBluetoothSceneDIContainer()
-            .makeBluetoothListViewController()
-        guard let window = appDelegate.window else {
-            if let navigationController = navigationController {
-                navigationController.setViewControllers([bluetoothVC], animated: false)
-            }
-            return
-        }
-
-        let transition = CATransition()
-        transition.type = .push
-        transition.subtype = .fromRight
-        transition.duration = Constants.rootTransitionDuration
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        window.layer.add(transition, forKey: kCATransition)
-
-        if let rootNavigationController = window.rootViewController as? UINavigationController {
-            rootNavigationController.setViewControllers([bluetoothVC], animated: false)
-        } else {
-            window.rootViewController = StatusBarNavigationController(rootViewController: bluetoothVC)
-        }
-        window.makeKeyAndVisible()
+        StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
     }
 
     private func observeDeviceNameUpdates() {

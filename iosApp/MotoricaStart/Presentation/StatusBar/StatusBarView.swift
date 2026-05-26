@@ -20,8 +20,16 @@ struct StatusBarView: View {
         static let batteryRingSize: CGFloat = 28
     }
 
+    enum LeadingButton {
+        case account
+        case back
+    }
+
     @ObservedObject var viewModel: StatusBarViewModel
+    var leadingButton: LeadingButton = .account
+    var isDisconnectActionEnabled = true
     var onAccountTap: (() -> Void)?
+    var onBackTap: (() -> Void)?
     var onDisconnectConfirmed: (() -> Void)?
     @State private var isDisconnectDialogPresented = false
     @State private var isDisconnectDialogVisible = false
@@ -31,20 +39,21 @@ struct StatusBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             Button {
-                onAccountTap?()
+                handleLeadingButtonTap()
             } label: {
-                Image(systemName: "person.crop.circle")
-                    .font(.system(size: Constants.iconSize, weight: .regular))
+                leadingButtonImage
+                    .font(.system(size: leadingButton == .back ? 24 : Constants.iconSize, weight: .regular))
                     .foregroundColor(Color("ubi4_white"))
                     .frame(width: 36, height: 36)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Text("Вход в личный кабинет"))
+            .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
 
             Spacer()
 
             HStack(spacing: 8) {
                 Button {
+                    guard isDisconnectActionEnabled else { return }
                     guard viewModel.serialNumber != "—", !viewModel.serialNumber.isEmpty else { return }
                     presentDisconnectDialog()
                 } label: {
@@ -91,6 +100,29 @@ struct StatusBarView: View {
             )
             .interactiveDismissDisabled()
             .background(ClearFullScreenBackgroundView())
+        }
+    }
+
+    @ViewBuilder
+    private var leadingButtonImage: some View {
+        switch leadingButton {
+        case .account:
+            Image(systemName: "person.crop.circle")
+        case .back:
+            Image("ic_arrow_left")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .padding(7)
+        }
+    }
+
+    private func handleLeadingButtonTap() {
+        switch leadingButton {
+        case .account:
+            onAccountTap?()
+        case .back:
+            onBackTap?()
         }
     }
 

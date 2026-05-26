@@ -1,3 +1,4 @@
+import SwiftUI
 import UIKit
 import shared
 
@@ -22,7 +23,7 @@ final class AccountViewController: UIViewController {
     private let contentStack = UIStackView()
     private let refreshControl = UIRefreshControl()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
-    private let topBar = AccountTopBarView()
+    private var statusBarHostingController: UIHostingController<StatusBarView>?
 
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
     private let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
@@ -67,20 +68,35 @@ final class AccountViewController: UIViewController {
     }
 
     private func setupTopBar() {
-        topBar.configure(title: currentSerialNumber(), textColor: textColor, borderColor: borderColor)
-        topBar.onBack = { [weak self] in self?.navigationController?.popViewController(animated: true) }
-        topBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(topBar)
+        let hostingController = UIHostingController(
+            rootView: StatusBarView(
+                viewModel: WidgetsTabContainerViewController.sharedStatusBarViewModel,
+                leadingButton: .back,
+                onBackTap: { [weak self] in
+                    self?.navigationController?.popViewController(animated: true)
+                },
+                onDisconnectConfirmed: { [weak self] in
+                    StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
+                }
+            )
+        )
+        statusBarHostingController = hostingController
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        view.addSubview(hostingController.view)
 
         NSLayoutConstraint.activate([
-            topBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topBar.heightAnchor.constraint(equalToConstant: 51)
+            hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            hostingController.view.heightAnchor.constraint(equalToConstant: StatusBarView.Constants.height)
         ])
+        hostingController.didMove(toParent: self)
     }
 
     private func setupScrollView() {
+        guard let statusBarView = statusBarHostingController?.view else { return }
         scrollView.backgroundColor = backgroundColor
         scrollView.alwaysBounceVertical = true
         scrollView.refreshControl = refreshControl
@@ -96,7 +112,7 @@ final class AccountViewController: UIViewController {
         scrollView.addSubview(contentStack)
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 8),
+            scrollView.topAnchor.constraint(equalTo: statusBarView.bottomAnchor, constant: 8),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -342,15 +358,14 @@ private class AccountDetailsViewController: UIViewController {
         var phone: String?
     }
 
-    private let topTitle: String
     private let stack = UIStackView()
+    private var statusBarHostingController: UIHostingController<StatusBarView>?
     private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
     private let cardColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
     private let borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444)
     private let textColor = UIColor.accountColor("ubi4_white", fallback: 0xFCFCFC)
 
     init(topTitle: String) {
-        self.topTitle = topTitle
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -373,11 +388,23 @@ private class AccountDetailsViewController: UIViewController {
     private func setupView() {
         view.backgroundColor = backgroundColor
 
-        let topBar = AccountTopBarView()
-        topBar.configure(title: topTitle, textColor: textColor, borderColor: borderColor)
-        topBar.onBack = { [weak self] in self?.navigationController?.popViewController(animated: true) }
-        topBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(topBar)
+        let statusBar = UIHostingController(
+            rootView: StatusBarView(
+                viewModel: WidgetsTabContainerViewController.sharedStatusBarViewModel,
+                leadingButton: .back,
+                onBackTap: { [weak self] in
+                    self?.navigationController?.popViewController(animated: true)
+                },
+                onDisconnectConfirmed: { [weak self] in
+                    StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
+                }
+            )
+        )
+        statusBarHostingController = statusBar
+        addChild(statusBar)
+        statusBar.view.translatesAutoresizingMaskIntoConstraints = false
+        statusBar.view.backgroundColor = .clear
+        view.addSubview(statusBar.view)
 
         stack.axis = .vertical
         stack.spacing = 0
@@ -387,15 +414,16 @@ private class AccountDetailsViewController: UIViewController {
         view.addSubview(card)
 
         NSLayoutConstraint.activate([
-            topBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topBar.heightAnchor.constraint(equalToConstant: 51),
+            statusBar.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            statusBar.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            statusBar.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            statusBar.view.heightAnchor.constraint(equalToConstant: StatusBarView.Constants.height),
 
-            card.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 32),
+            card.topAnchor.constraint(equalTo: statusBar.view.bottomAnchor, constant: 32),
             card.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: AccountMetrics.sideInset),
             card.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -AccountMetrics.sideInset)
         ])
+        statusBar.didMove(toParent: self)
     }
 
     func addRows(_ rows: [DetailRow]) {
@@ -412,71 +440,6 @@ private class AccountDetailsViewController: UIViewController {
                 stack.addArrangedSubview(AccountDivider(color: borderColor))
             }
         }
-    }
-}
-
-private final class AccountTopBarView: UIView {
-    var onBack: (() -> Void)?
-
-    private let titleLabel = UILabel()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(title: String, textColor: UIColor, borderColor: UIColor) {
-        titleLabel.text = title
-        titleLabel.textColor = textColor
-        layer.borderColor = borderColor.cgColor
-    }
-
-    private func setup() {
-        backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
-
-        let backButton = UIButton(type: .custom)
-        backButton.backgroundColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
-        backButton.layer.cornerRadius = 17
-        backButton.layer.borderWidth = 1
-        backButton.layer.borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444).cgColor
-        backButton.setImage(UIImage(named: "ic_arrow_left")?.withRenderingMode(.alwaysTemplate), for: .normal)
-        backButton.tintColor = UIColor.accountColor("ubi4_white", fallback: 0xFCFCFC)
-        backButton.imageView?.contentMode = .scaleAspectFit
-        backButton.addAction(UIAction { [weak self] _ in self?.onBack?() }, for: .touchUpInside)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(backButton)
-
-        titleLabel.font = .accountInterSemibold(size: 18)
-        titleLabel.textAlignment = .center
-        titleLabel.lineBreakMode = .byTruncatingMiddle
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(titleLabel)
-
-        let divider = UIView()
-        divider.backgroundColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444)
-        divider.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(divider)
-
-        NSLayoutConstraint.activate([
-            backButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
-            backButton.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            backButton.widthAnchor.constraint(equalToConstant: 34),
-            backButton.heightAnchor.constraint(equalToConstant: 34),
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: backButton.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: backButton.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -64),
-
-            divider.leadingAnchor.constraint(equalTo: leadingAnchor),
-            divider.trailingAnchor.constraint(equalTo: trailingAnchor),
-            divider.bottomAnchor.constraint(equalTo: bottomAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 1)
-        ])
     }
 }
 

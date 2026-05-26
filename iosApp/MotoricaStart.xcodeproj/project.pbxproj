@@ -169,6 +169,7 @@
 			ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
 			ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 			ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+			ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
 			C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
 		C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
 		C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
@@ -217,6 +218,7 @@
 			B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
 			ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
 			ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
+			ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
 			1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -843,6 +845,7 @@
 			children = (
 				652E2BD02F2B97C10084F557 /* StatusBarViewModel.swift */,
 				652E2BCE2F2B97AB0084F557 /* StatusBarView.swift */,
+				ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */,
 			);
 			path = StatusBar;
 			sourceTree = "<group>";
@@ -1331,6 +1334,7 @@
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
 				652E2BCF2F2B97AD0084F557 /* StatusBarView.swift in Sources */,
+				ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
 				659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */,
 				1FF53EB423688893008D6CCC /* DataTransferError+ConnectionError.swift in Sources */,

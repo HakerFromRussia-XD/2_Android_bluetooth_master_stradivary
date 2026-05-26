@@ -48,6 +48,7 @@ struct StatusBarView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
+            .accessibilityIdentifier(leadingButton == .back ? "AccessibilityIdentifierStatusBarBackButton" : AccessibilityIdentifier.statusBarAccountButton)
 
             Spacer()
 

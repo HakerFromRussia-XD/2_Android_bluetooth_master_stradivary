@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         SharedBootstrapper.shared.initialize()
         AppAppearance.setupAppearance()
+        FirmwareDocumentsDirectory.prepareSharedFolder()
     
         
         

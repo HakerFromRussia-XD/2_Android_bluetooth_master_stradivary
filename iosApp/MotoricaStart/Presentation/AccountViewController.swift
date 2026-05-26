@@ -17,7 +17,8 @@ final class AccountViewController: UIViewController {
     private var boardModeJob: Kotlinx_coroutines_coreJob?
     private var profile: AccountBridgeProfile?
     private var boards: [AccountBridgeBoard] = []
-    private var latestFirmwareVersions: [String: String] = [:]
+    private var firmwareFileNames: [String] = []
+    private lazy var firmwareUpdateController = AccountFirmwareUpdateController(presentingViewController: self)
 
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
@@ -44,7 +45,7 @@ final class AccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        latestFirmwareVersions = FirmwareVersionCatalog.load()
+        firmwareFileNames = firmwareUpdateController.availableFirmwareFileNames()
         setupView()
         observeBoardMode()
         reloadAccount()
@@ -62,6 +63,7 @@ final class AccountViewController: UIViewController {
 
     private func setupView() {
         view.backgroundColor = backgroundColor
+        view.accessibilityIdentifier = AccessibilityIdentifier.accountRoot
         setupTopBar()
         setupScrollView()
         setupActivityIndicator()
@@ -162,7 +164,7 @@ final class AccountViewController: UIViewController {
     }
 
     @objc private func handleRefresh() {
-        latestFirmwareVersions = FirmwareVersionCatalog.load()
+        firmwareFileNames = firmwareUpdateController.availableFirmwareFileNames()
         reloadAccount()
     }
 
@@ -278,12 +280,15 @@ final class AccountViewController: UIViewController {
             section.addRow(
                 AccountBoardRow(
                     board: board,
-                    latestFirmwareVersions: latestFirmwareVersions,
+                    firmwareFileNames: firmwareFileNames,
                     textColor: textColor,
                     inactiveTextColor: inactiveTextColor,
                     activeColor: activeColor
                 ) { [weak self] in
-                    self?.showFirmwarePickerUnavailable()
+                    guard let self else { return }
+                    self.firmwareUpdateController.showFirmwarePicker(for: board) { [weak self] in
+                        self?.handleRefresh()
+                    }
                 }
             )
             section.addDivider(color: borderColor)
@@ -314,15 +319,6 @@ final class AccountViewController: UIViewController {
         return languageCode == "ru" ? "ru" : "en"
     }
 
-    private func showFirmwarePickerUnavailable() {
-        let alert = UIAlertController(
-            title: NSLocalizedString("Firmware update", comment: ""),
-            message: NSLocalizedString("Firmware file selection is not available on iOS yet.", comment: ""),
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-        present(alert, animated: true)
-    }
 }
 
 private final class AccountCustomerServiceViewController: AccountDetailsViewController {
@@ -660,7 +656,7 @@ private final class AccountDetailRow: UIView {
 private final class AccountBoardRow: UIView {
     init(
         board: AccountBridgeBoard,
-        latestFirmwareVersions: [String: String],
+        firmwareFileNames: [String],
         textColor: UIColor,
         inactiveTextColor: UIColor,
         activeColor: UIColor,
@@ -669,7 +665,7 @@ private final class AccountBoardRow: UIView {
         super.init(frame: .zero)
         setup(
             board: board,
-            latestFirmwareVersions: latestFirmwareVersions,
+            firmwareFileNames: firmwareFileNames,
             textColor: textColor,
             inactiveTextColor: inactiveTextColor,
             activeColor: activeColor,
@@ -684,7 +680,7 @@ private final class AccountBoardRow: UIView {
 
     private func setup(
         board: AccountBridgeBoard,
-        latestFirmwareVersions: [String: String],
+        firmwareFileNames: [String],
         textColor: UIColor,
         inactiveTextColor: UIColor,
         activeColor: UIColor,
@@ -694,6 +690,9 @@ private final class AccountBoardRow: UIView {
 
         let titleLabel = UILabel()
         titleLabel.text = board.boardName
+        let boardKey = accountAccessibilityKey(board.boardName)
+        accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardRowPrefix).\(boardKey)"
+        accessibilityValue = "board=\(board.boardName);version=\(board.version);bootloader=\(board.isInBootloader)"
         titleLabel.font = .accountOpenSansRegular(size: 14)
         titleLabel.textColor = textColor
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -701,6 +700,8 @@ private final class AccountBoardRow: UIView {
 
         let versionLabel = UILabel()
         versionLabel.text = board.version
+        versionLabel.accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardVersionPrefix).\(boardKey)"
+        versionLabel.accessibilityValue = board.version
         versionLabel.font = .accountOpenSansSemibold(size: 12)
         versionLabel.textColor = textColor
         versionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -708,6 +709,8 @@ private final class AccountBoardRow: UIView {
 
         let bootloaderLabel = UILabel()
         bootloaderLabel.text = "▷"
+        bootloaderLabel.accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardBootloaderPrefix).\(boardKey)"
+        bootloaderLabel.accessibilityValue = board.isInBootloader ? "bootloader=true" : "bootloader=false"
         bootloaderLabel.font = .accountOpenSansSemibold(size: 12)
         bootloaderLabel.textColor = textColor
         bootloaderLabel.isHidden = !board.isInBootloader
@@ -716,10 +719,15 @@ private final class AccountBoardRow: UIView {
 
         let updateButton = UIButton(type: .system)
         updateButton.setTitle(NSLocalizedString("Update", comment: ""), for: .normal)
+        updateButton.accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardUpdateButtonPrefix).\(boardKey)"
         updateButton.titleLabel?.font = .accountOpenSansSemibold(size: 12)
-        let localVersion = FirmwareVersionCatalog.localVersion(for: board.boardName, in: latestFirmwareVersions)
-        let highlight = FirmwareVersionCatalog.isLocalVersionNewer(deviceVersion: board.version, localVersion: localVersion)
+        let highlight = FirmwareVersionCatalog.shared.shouldHighlightUpdate(
+            boardName: board.boardName,
+            deviceVersion: board.version,
+            fileNames: firmwareFileNames
+        )
         updateButton.setTitleColor(board.canUpdate ? (highlight ? activeColor : textColor) : inactiveTextColor, for: .normal)
+        updateButton.accessibilityValue = "board=\(board.boardName);version=\(board.version);updateAvailable=\(highlight);enabled=\(board.canUpdate)"
         updateButton.isEnabled = board.canUpdate
         updateButton.addAction(UIAction { _ in updateAction() }, for: .touchUpInside)
         updateButton.translatesAutoresizingMaskIntoConstraints = false
@@ -742,89 +750,7 @@ private final class AccountBoardRow: UIView {
     }
 }
 
-private enum FirmwareVersionCatalog {
-    private static let aliases: [String: [String]] = [
-        "omg module": ["omg_program", "omg_module"],
-        "cpu module": ["cpu_program", "cpu_module"],
-        "bms": ["bms", "bms_program"],
-        "emg sense": ["emg_sense"],
-        "fest h and f": ["fest_h_and_f", "fh_fam"],
-        "fh-fam": ["fh_fam"],
-        "fh fam": ["fh_fam"],
-        "gui": ["gui"]
-    ]
-
-    static func load() -> [String: String] {
-        var names: [String] = []
-        names += Bundle.main.urls(forResourcesWithExtension: "zip", subdirectory: nil)?.map(\.lastPathComponent) ?? []
-        names += (FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first)
-            .flatMap { try? FileManager.default.contentsOfDirectory(at: $0, includingPropertiesForKeys: nil) }?
-            .filter { $0.pathExtension.lowercased() == "zip" }
-            .map(\.lastPathComponent) ?? []
-
-        var result: [String: String] = [:]
-        for name in names {
-            let base = (name as NSString).deletingPathExtension
-            let lowerBase = base.lowercased()
-            let marker = lowerBase.range(of: "_v", options: .backwards) ?? lowerBase.range(of: "-v", options: .backwards)
-            let keySource = marker.map { String(base[..<$0.lowerBound]) } ?? base
-            let key = normalize(keySource)
-            guard let version = parseVersionFromFileName(base) else { continue }
-            if let previous = result[key] {
-                result[key] = maxVersion(previous, version)
-            } else {
-                result[key] = version
-            }
-        }
-        return result
-    }
-
-    static func localVersion(for boardName: String, in catalog: [String: String]) -> String? {
-        let normalized = boardName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let keys = aliases[normalized] ?? [normalize(normalized)]
-        return keys.compactMap { catalog[$0] }.reduce(nil) { partial, version in
-            guard let partial else { return version }
-            return maxVersion(partial, version)
-        }
-    }
-
-    static func isLocalVersionNewer(deviceVersion: String?, localVersion: String?) -> Bool {
-        let dev = parseVersion(deviceVersion)
-        let loc = parseVersion(localVersion)
-        if loc.isEmpty { return false }
-        if dev.isEmpty { return true }
-        for index in 0..<max(dev.count, loc.count) {
-            let d = index < dev.count ? dev[index] : 0
-            let l = index < loc.count ? loc[index] : 0
-            if l > d { return true }
-            if l < d { return false }
-        }
-        return false
-    }
-
-    private static func parseVersionFromFileName(_ base: String) -> String? {
-        let lower = base.lowercased()
-        let marker = lower.range(of: "_v", options: .backwards) ?? lower.range(of: "-v", options: .backwards)
-        guard let marker else { return nil }
-        let version = lower[marker.upperBound...].prefix { $0.isNumber || $0 == "." }
-        return version.isEmpty ? nil : String(version)
-    }
-
-    private static func parseVersion(_ raw: String?) -> [Int] {
-        guard let raw, !raw.isEmpty, raw != "—", raw.lowercased() != "unknown" else { return [] }
-        return raw.split(separator: ".").compactMap { Int($0) }
-    }
-
-    private static func maxVersion(_ first: String, _ second: String) -> String {
-        isLocalVersionNewer(deviceVersion: first, localVersion: second) ? second : first
-    }
-
-    private static func normalize(_ value: String) -> String {
-        value.lowercased().replacingOccurrences(of: "-", with: "_").replacingOccurrences(of: " ", with: "_")
-    }
-}
-
-private extension UIColor {
+extension UIColor {
     static func accountColor(_ name: String, fallback hex: UInt32) -> UIColor {
         UIColor(named: name) ?? UIColor(
             red: CGFloat((hex >> 16) & 0xFF) / 255,
@@ -833,6 +759,16 @@ private extension UIColor {
             alpha: 1
         )
     }
+}
+
+func accountAccessibilityKey(_ value: String) -> String {
+    let allowed = CharacterSet.alphanumerics
+    let normalized = value.lowercased().unicodeScalars.map { scalar -> String in
+        allowed.contains(scalar) ? String(scalar) : "-"
+    }.joined()
+    return normalized
+        .split(separator: "-")
+        .joined(separator: "-")
 }
 
 private extension UIFont {
@@ -854,7 +790,7 @@ private extension UIFont {
     }
 }
 
-private extension UIViewController {
+extension UIViewController {
     func showToast(_ message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         present(alert, animated: true)

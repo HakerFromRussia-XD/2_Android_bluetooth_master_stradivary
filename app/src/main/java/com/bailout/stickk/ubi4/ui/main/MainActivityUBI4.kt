@@ -229,7 +229,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-            main.getBLEController().requestSerialNumberV3()
+//            main.getBLEController().requestSerialNumberV3()
+            main.getBLEController().requestTelemetryDataV3()
         }
 
         val accountPb = binding.accountPb.apply {
@@ -705,7 +706,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.w("SyncProgressDialog", "ensureSyncDialogShown: activity is finishing/destroyed, skip")
             return
         }
-
         syncShownOnce = true
         observeSyncProgress()
     }

@@ -46,6 +46,8 @@ import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStr
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow
+import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
@@ -360,6 +362,10 @@ class BLEParserV3(
                 "device_UUID=${telemetry.deviceUuid ?: "UNKNOWN"} device_UUID_hex=$uuidHex " +
                 "gesture_movement_count=${telemetry.gestureMovementCount.toCompactJsonArray()} " +
                 "user_gesture_movement_count=${telemetry.userGestureMovementCount.toCompactJsonArray()}"
+        )
+        telemetryGestureCountersFlow.value = TelemetryGestureCounters(
+            baseGestureMovementCount = telemetry.gestureMovementCount.map { it ?: 0L },
+            customGestureMovementCount = telemetry.userGestureMovementCount.map { it ?: 0L }
         )
 
 //        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")

@@ -660,6 +660,8 @@
     <string name="save_and_use_gestures">Сохранение настроек и использование жестов</string>
     <string name="press_save_button_to_store_gesture">После достижения желаемого положения открытого и закрытого состояния жеста, необходимо нажать кнопку “сохранить”, располагающуюся в нижней части экрана.</string>
     <string name="press_button_to_use_gesture_frame_becomes_green">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Рамка станет зеленым цветом</string>
+    <string name="gesture_usage_chart_title">Счетчик жестов</string>
+    <string name="gesture_usage_empty">Нет использованных жестов</string>
 
     <string-array name="numbers">
         <item>0</item>

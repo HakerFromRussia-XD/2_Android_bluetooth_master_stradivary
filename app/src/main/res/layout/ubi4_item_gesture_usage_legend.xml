@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ubi4_gray"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/gestureUsageLegendDividerV"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/ubi4_gray_border" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/gestureUsageLegendContentCl"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp">
+
+        <View
+            android:id="@+id/gestureUsageLegendColorV"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@color/ubi4_active"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/gestureUsageLegendTitleTv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:maxLines="2"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/gestureUsageLegendCountTv"
+            app:layout_constraintStart_toEndOf="@id/gestureUsageLegendColorV"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Power grip / Key grip" />
+
+        <TextView
+            android:id="@+id/gestureUsageLegendCountTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:minWidth="34dp"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="19" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

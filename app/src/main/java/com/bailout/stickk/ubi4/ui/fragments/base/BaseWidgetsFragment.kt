@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GestureUsageChartDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SliderDelegateAdapter
@@ -76,6 +77,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     protected val adapterWidgets : CompositeDelegateAdapter by lazy {
         // [new widgets V3] тут подключаем DelegateAdapter нового типа виджета в общий CompositeDelegateAdapter
         CompositeDelegateAdapter(
+            GestureUsageChartDelegateAdapter(),
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),

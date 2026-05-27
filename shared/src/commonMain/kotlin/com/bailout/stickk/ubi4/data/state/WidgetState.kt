@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.concurrent.Volatile
 import kotlin.properties.Delegates
 
+data class TelemetryGestureCounters(
+    val baseGestureMovementCount: List<Long> = emptyList(),
+    val customGestureMovementCount: List<Long> = emptyList()
+)
+
 object WidgetState {
     var plotArrayFlow: MutableStateFlow<PlotParameterRef> by Delegates.notNull()
     var rotationGroupFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
@@ -36,6 +41,7 @@ object WidgetState {
     var switcherFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureGroupFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    val telemetryGestureCountersFlow = MutableStateFlow(TelemetryGestureCounters())
 
     @Volatile
     var dbSnapshotAppliedWithCrc: Boolean = false

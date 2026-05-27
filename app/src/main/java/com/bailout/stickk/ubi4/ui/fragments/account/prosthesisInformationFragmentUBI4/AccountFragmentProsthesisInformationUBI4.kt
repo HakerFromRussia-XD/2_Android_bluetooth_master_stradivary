@@ -77,7 +77,7 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
                 prosthesisModel = main?.loadText(PreferenceKeysUbi4.ACCOUNT_MODEL_PROSTHESIS).toString(),
                 prosthesisSize = main?.loadText(PreferenceKeysUbi4.ACCOUNT_SIZE_PROSTHESIS).toString(),
                 handSide = main?.loadText(PreferenceKeysUbi4.ACCOUNT_SIDE_PROSTHESIS).toString(),
-                rotatorType = main?.loadText(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS).toString(),
+                rotatorType = main?.loadText(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS).orDash(),
                 touchscreenFingerPads = main?.loadText(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS).toString(),
                 batteryType = main?.loadText(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS).toString())
         )
@@ -126,6 +126,9 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
         _binding = null
         super.onDestroyView()
     }
+
+    private fun String?.orDash(): String =
+        takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"
 
     companion object {
         var accountProsthesisInformationList by Delegates.notNull<ArrayList<AccountProsthesisInformationItemUBI4>>()

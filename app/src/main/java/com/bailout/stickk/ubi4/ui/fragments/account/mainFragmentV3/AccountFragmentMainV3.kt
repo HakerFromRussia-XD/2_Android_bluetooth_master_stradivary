@@ -360,7 +360,44 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
             info.guaranteePeriod.orEmpty()
         )
+
+        System.err.println("Device Info model: ${info.model?.name}")
+        System.err.println("Device Info size: ${info.size?.name}")
+        System.err.println("Device Info side: ${info.side?.name}")
+        System.err.println("Device Info status: ${info.status?.name}")
+        System.err.println("Device Info date transfer: ${info.dateTransfer}")
+        System.err.println("Device Info guarantee period: ${info.guaranteePeriod}")
+        System.err.println("Device Info options: ${info.options.size}")
+        var rotatorSet = false
+        var accumulatorSet = false
+        var touchscreenFingersSet = false
+        for (option in info.options) {
+            if (option.id == 3) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name.orDash())
+                System.err.println("Device Info rotator: ${option.value?.name}")
+                rotatorSet = true
+            }
+            if (option.id == 15) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info accumulator: ${option.value?.name}")
+                accumulatorSet = true
+            }
+            if (option.id == 5) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
+                touchscreenFingersSet = true
+            }
+        }
+        if (!rotatorSet) {
+            main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "-")
+            System.err.println("Device Info rotator NOT SET")
+        }
+        if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
+        if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
     }
+
+    private fun String?.orDash(): String =
+        takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {

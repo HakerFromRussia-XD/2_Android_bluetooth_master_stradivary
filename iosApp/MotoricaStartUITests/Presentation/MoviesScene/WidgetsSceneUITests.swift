@@ -636,7 +636,7 @@ class WidgetsSceneUITests: XCTestCase {
 
         XCTAssertTrue(
             waitForDropdownOptionButtons(in: app, triggerButton: triggerButton, minimum: 2, timeout: 5),
-            "Spinner dropdown did not open (options below trigger button were not detected)"
+            "Spinner dropdown did not open (options near trigger button were not detected)"
         )
 
         let dropdownCluster = dropdownPanelButtons(in: app, triggerButton: triggerButton)
@@ -1101,15 +1101,20 @@ class WidgetsSceneUITests: XCTestCase {
         guard !triggerFrame.isEmpty else { return [] }
 
         let maxHorizontalDelta = max(44.0, triggerFrame.width * 0.4)
-        let minY = triggerFrame.maxY + 4
-        let maxY = triggerFrame.maxY + 420
+        let lowerMinY = triggerFrame.maxY + 4
+        let lowerMaxY = triggerFrame.maxY + 420
+        let upperMinY = triggerFrame.minY - 420
+        let upperMaxY = triggerFrame.minY - 4
 
         return app.descendants(matching: .button)
             .allElementsBoundByIndex
             .filter { button in
+                let isVerticallyNearTrigger =
+                    (button.frame.minY >= lowerMinY && button.frame.maxY <= lowerMaxY) ||
+                    (button.frame.minY >= upperMinY && button.frame.maxY <= upperMaxY)
+
                 button.exists &&
-                button.frame.minY >= minY &&
-                button.frame.maxY <= maxY &&
+                isVerticallyNearTrigger &&
                 abs(button.frame.midX - triggerFrame.midX) <= maxHorizontalDelta &&
                 button.frame.width >= triggerFrame.width * 0.6
             }

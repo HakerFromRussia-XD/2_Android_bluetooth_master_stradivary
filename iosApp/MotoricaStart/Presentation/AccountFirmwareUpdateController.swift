@@ -93,22 +93,23 @@ final class AccountFirmwareUpdateController {
                     }
 
                     self.stalledProgressWorkItem?.cancel()
-                    self.dialogPresenter.dismissCurrent(animated: false)
-                    if event.isSuccess {
-                        self.presentingViewController?.showToast(event.message)
-                        AccountBridge.shared.refreshBoardsAfterFirmwareUpdate(
-                            deviceAddress: board.deviceAddress,
-                            previousVersion: board.version
-                        ) { _ in
-                            DispatchQueue.main.async {
-                                onFinished()
+                    self.dialogPresenter.dismissCurrent(animated: true) {
+                        if event.isSuccess {
+                            self.presentingViewController?.showToast(event.message)
+                            AccountBridge.shared.refreshBoardsAfterFirmwareUpdate(
+                                deviceAddress: board.deviceAddress,
+                                previousVersion: board.version
+                            ) { _ in
+                                DispatchQueue.main.async {
+                                    onFinished()
+                                }
                             }
+                        } else {
+                            self.dialogPresenter.showWarning(
+                                title: NSLocalizedString("Loading error", comment: ""),
+                                message: event.message
+                            )
                         }
-                    } else {
-                        self.dialogPresenter.showWarning(
-                            title: NSLocalizedString("Loading error", comment: ""),
-                            message: event.message
-                        )
                     }
                 }
             }

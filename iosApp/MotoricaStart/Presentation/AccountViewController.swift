@@ -792,10 +792,85 @@ private extension UIFont {
 
 extension UIViewController {
     func showToast(_ message: String) {
-        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        present(alert, animated: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            alert.dismiss(animated: true)
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.showToast(message)
+            }
+            return
+        }
+
+        let toastTag = 707_197
+        view.viewWithTag(toastTag)?.removeFromSuperview()
+
+        let container = UIView()
+        container.tag = toastTag
+        container.backgroundColor = UIColor.accountColor("ubi4_gray", fallback: 0x373737)
+        container.layer.cornerRadius = 12
+        container.layer.borderWidth = 1
+        container.layer.borderColor = UIColor.accountColor("ubi4_gray_border", fallback: 0x444444).cgColor
+        container.layer.shadowColor = UIColor.black.cgColor
+        container.layer.shadowOpacity = 0.7
+        container.layer.shadowRadius = 12
+        container.layer.shadowOffset = CGSize(width: 0, height: 8)
+        container.alpha = 0
+        container.transform = CGAffineTransform(translationX: 0, y: 12)
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconView = UIImageView(image: UIImage(named: "ic_logo"))
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = UILabel()
+        label.text = message
+        label.textColor = UIColor.accountColor("ubi4_white", fallback: 0xFFFFFF)
+        label.font = .systemFont(ofSize: 12, weight: .light)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(iconView)
+        container.addSubview(label)
+        view.addSubview(container)
+
+        NSLayoutConstraint.activate([
+            container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            container.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 40),
+            container.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -40),
+            container.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
+
+            iconView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 22),
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 32),
+            iconView.heightAnchor.constraint(equalToConstant: 32),
+
+            label.topAnchor.constraint(greaterThanOrEqualTo: container.topAnchor, constant: 12),
+            label.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 18),
+            label.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -24),
+            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            label.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -12)
+        ])
+
+        UIView.animate(
+            withDuration: 0.2,
+            delay: 0,
+            options: [.curveEaseOut, .beginFromCurrentState]
+        ) {
+            container.alpha = 1
+            container.transform = .identity
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak container] in
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0,
+                options: [.curveEaseIn, .beginFromCurrentState]
+            ) {
+                container?.alpha = 0
+                container?.transform = CGAffineTransform(translationX: 0, y: 12)
+            } completion: { _ in
+                container?.removeFromSuperview()
+            }
         }
     }
 }

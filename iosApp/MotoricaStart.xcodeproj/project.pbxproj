@@ -8,8 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		19B079BAF376328CFA27B243 /* WidgetV3Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */; };
-			1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
-			ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */; };
+		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
 		1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0CEFCE23436B67004141FA /* ConnectionError.swift */; };
 		1F16031D2426919300C173C6 /* AppFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F16031C2426919300C173C6 /* AppFlowCoordinator.swift */; };
@@ -147,7 +146,6 @@
 		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
 		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
 		65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */; };
-		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
 		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
 		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
@@ -159,23 +157,25 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		66F6A1012F53CE9B00A1B2C3 /* connect_to_disconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */; };
 		66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */; };
 		66F6A1032F53CE9B00A1B2C3 /* reconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
-			9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
-			9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
-			A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
-			A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
-			ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
-			ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
-			ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
-			ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
-			ABCD02012F9C000100000001 /* AccountFirmwareModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */; };
-			ABCD02022F9C000100000001 /* FirmwareArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */; };
-			ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */; };
-			ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */; };
-			C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
+		9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
+		A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
+		A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
+		ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
+		ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+		ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+		ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
+		ABCD02012F9C000100000001 /* AccountFirmwareModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */; };
+		ABCD02022F9C000100000001 /* FirmwareArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */; };
+		ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */; };
+		ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */; };
+		ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */; };
+		C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
 		C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
 		C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
 		DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */; };
@@ -219,18 +219,9 @@
 /* Begin PBXFileReference section */
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
-			1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
-			B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
-			ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
-			ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
-			ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
-			ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareModels.swift; sourceTree = "<group>"; };
-			ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareArchiveReader.swift; sourceTree = "<group>"; };
-			ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareDialogPresenter.swift; sourceTree = "<group>"; };
-			ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareUpdateController.swift; sourceTree = "<group>"; };
-			1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
+		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
-		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchWidgetsUseCase.swift; sourceTree = "<group>"; };
 		1F0CEFCE23436B67004141FA /* ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionError.swift; sourceTree = "<group>"; };
@@ -360,8 +351,6 @@
 		65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
 		65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
 		65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
-		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
-		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
 		65EAF4962EE8232500B3C49D /* temple.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
 		65EAF4972EE8232500B3C49D /* reflect.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
@@ -385,11 +374,22 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
+		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
+		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = connect_to_disconnect.lottie; sourceTree = "<group>"; };
 		66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = disconnect_to_connect.lottie; sourceTree = "<group>"; };
 		66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = reconnect.lottie; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
 		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
+		ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
+		ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
+		ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
+		ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareModels.swift; sourceTree = "<group>"; };
+		ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareArchiveReader.swift; sourceTree = "<group>"; };
+		ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareDialogPresenter.swift; sourceTree = "<group>"; };
+		ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareUpdateController.swift; sourceTree = "<group>"; };
+		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
+		B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
 		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherViewCellV3.swift; sourceTree = "<group>"; };
 		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
 		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerViewCellV3.swift; sourceTree = "<group>"; };
@@ -447,10 +447,10 @@
 		};
 		1F02DE3E22F876C100E40C3A /* MoviesScene */ = {
 			isa = PBXGroup;
-				children = (
-					1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */,
-					ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */,
-				);
+			children = (
+				1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */,
+				ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */,
+			);
 			path = MoviesScene;
 			sourceTree = "<group>";
 		};
@@ -590,19 +590,19 @@
 			path = MotoricaStart;
 			sourceTree = "<group>";
 		};
-			1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
-				isa = PBXGroup;
-				children = (
-					1FFFC83D221B02BA007D99D2 /* Info.plist */,
-					E6E882E600C188FAACCC417D /* ObservableTests.swift */,
-						534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
-						1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
-						B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
-						ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
-				);
-				path = MotoricaStartTests;
-				sourceTree = "<group>";
-			};
+		1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
+			isa = PBXGroup;
+			children = (
+				1FFFC83D221B02BA007D99D2 /* Info.plist */,
+				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
+				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
+				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
+				B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
+				ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
+			);
+			path = MotoricaStartTests;
+			sourceTree = "<group>";
+		};
 		1FA533AD201E205000747E55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1313,11 +1313,11 @@
 		1F02DE2E22F8507500E40C3A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
-				files = (
-					1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */,
-					ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */,
-					1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
-				);
+			files = (
+				1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */,
+				ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */,
+				1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1FA53385201E1FDE00747E55 /* Sources */ = {
@@ -1448,20 +1448,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-			1FA53399201E1FDE00747E55 /* Sources */ = {
-				isa = PBXSourcesBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
-					A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
-						DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
-						F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
-						A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
-						ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
-						ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
-						C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
-					5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
-					C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
-					C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
+		1FA53399201E1FDE00747E55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
+				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
+				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
+				ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
+				ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
+				C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
+				5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
+				C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
+				C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
 				2E0B07D814145BA62D8870DC /* BLEDevice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1505,54 +1505,54 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-			1F02DE3A22F8507500E40C3A /* Debug */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_OBJC_WEAK = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
-						"@loader_path/Frameworks",
-					);
-					MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-					MTL_FAST_MATH = YES;
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_TARGET_NAME = MotoricaStart;
-				};
-				name = Debug;
+		1F02DE3A22F8507500E40C3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStart;
 			};
-			1F02DE3B22F8507500E40C3A /* Release */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_OBJC_WEAK = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
-						"@loader_path/Frameworks",
-					);
-					MTL_FAST_MATH = YES;
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_TARGET_NAME = MotoricaStart;
-				};
-				name = Release;
+			name = Debug;
+		};
+		1F02DE3B22F8507500E40C3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStart;
+			};
+			name = Release;
 		};
 		1FA533A4201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1754,54 +1754,54 @@
 			};
 			name = Release;
 		};
-			1FA533AA201E1FDE00747E55 /* Debug */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_MODULES = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
+		1FA533AA201E1FDE00747E55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-					OTHER_SWIFT_FLAGS = "";
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
-				};
-				name = Debug;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
 			};
-			1FA533AB201E1FDE00747E55 /* Release */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_MODULES = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
+			name = Debug;
+		};
+		1FA533AB201E1FDE00747E55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-					OTHER_SWIFT_FLAGS = "";
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
-				};
-				name = Release;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
+			};
+			name = Release;
 		};
 /* End XCBuildConfiguration section */
 

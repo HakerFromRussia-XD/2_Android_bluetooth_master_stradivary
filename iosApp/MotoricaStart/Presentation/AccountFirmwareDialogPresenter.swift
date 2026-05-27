@@ -36,9 +36,9 @@ final class AccountFirmwareDialogPresenter {
     ) {
         if let filesDialog = currentDialog as? FirmwareFilesDialogViewController {
             filesDialog.showConfirm(
-                title: NSLocalizedString("Are you sure you want to update software version?", comment: ""),
+                title: NSLocalizedString("Are you sure you want to update your software version?", comment: ""),
                 onConfirm: { [weak self] in
-                    self?.dismissCurrent(animated: false) {
+                    self?.dismissCurrent(animated: true) {
                         DispatchQueue.main.async {
                             onConfirm()
                         }
@@ -52,10 +52,10 @@ final class AccountFirmwareDialogPresenter {
         }
 
         let dialog = FirmwareConfirmDialogViewController(
-            title: NSLocalizedString("Are you sure you want to update software version?", comment: ""),
+            title: NSLocalizedString("Are you sure you want to update your software version?", comment: ""),
             colors: colors,
             onConfirm: { [weak self] in
-                self?.dismissCurrent(animated: false) {
+                self?.dismissCurrent(animated: true) {
                     DispatchQueue.main.async {
                         onConfirm()
                     }
@@ -90,8 +90,16 @@ final class AccountFirmwareDialogPresenter {
             return
         }
         self.currentDialog = nil
-        currentDialog.dismiss(animated: animated) {
-            completion?()
+        if animated, let firmwareDialog = currentDialog as? FirmwareBaseDialogViewController {
+            firmwareDialog.animateOut {
+                currentDialog.dismiss(animated: false) {
+                    completion?()
+                }
+            }
+        } else {
+            currentDialog.dismiss(animated: false) {
+                completion?()
+            }
         }
     }
 
@@ -112,8 +120,9 @@ final class AccountFirmwareDialogPresenter {
             DispatchQueue.main.async {
                 self.currentDialog = dialog
                 dialog.modalPresentationStyle = .overFullScreen
-                dialog.modalTransitionStyle = .crossDissolve
-                self.presentingViewController?.present(dialog, animated: true)
+                self.presentingViewController?.present(dialog, animated: false) {
+                    (dialog as? FirmwareBaseDialogViewController)?.animateIn()
+                }
             }
         }
     }
@@ -129,6 +138,10 @@ struct FirmwareDialogColors {
 }
 
 class FirmwareBaseDialogViewController: UIViewController {
+    private enum Animation {
+        static let duration: TimeInterval = 0.3
+    }
+
     let card = UIView()
     let colors: FirmwareDialogColors
 
@@ -144,10 +157,13 @@ class FirmwareBaseDialogViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.45)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.65)
+        view.alpha = 0
         card.translatesAutoresizingMaskIntoConstraints = false
         card.backgroundColor = colors.gray
-        card.layer.cornerRadius = 16
+        card.layer.cornerRadius = 14
+        card.layer.borderWidth = 0
+        card.layer.borderColor = colors.border.cgColor
         card.layer.masksToBounds = true
         view.addSubview(card)
         NSLayoutConstraint.activate([
@@ -155,6 +171,29 @@ class FirmwareBaseDialogViewController: UIViewController {
             card.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             card.widthAnchor.constraint(equalToConstant: 270)
         ])
+    }
+
+    func animateIn() {
+        view.alpha = 0
+        UIView.animate(
+            withDuration: Animation.duration,
+            delay: 0,
+            options: [.curveEaseInOut, .beginFromCurrentState]
+        ) {
+            self.view.alpha = 1
+        }
+    }
+
+    func animateOut(completion: @escaping () -> Void) {
+        UIView.animate(
+            withDuration: Animation.duration,
+            delay: 0,
+            options: [.curveEaseInOut, .beginFromCurrentState]
+        ) {
+            self.view.alpha = 0
+        } completion: { _ in
+            completion()
+        }
     }
 
     func addDivider(below view: UIView) -> UIView {
@@ -279,48 +318,13 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
     }
 
     func showConfirm(title: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
-        card.subviews.forEach { $0.removeFromSuperview() }
-        card.backgroundColor = colors.gray
-        view.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
-        card.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
-
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.textColor = colors.text
-        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        titleLabel.textAlignment = .center
-        titleLabel.numberOfLines = 3
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        card.addSubview(titleLabel)
-
-        let divider1 = addDivider(below: titleLabel)
-        let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
-        let cancel = makeActionButton(title: NSLocalizedString("Cancel", comment: ""), font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
-        ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
-        cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
-        card.addSubview(ok)
-        let divider2 = addDivider(below: ok)
-        card.addSubview(cancel)
-
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
-            titleLabel.bottomAnchor.constraint(equalTo: card.topAnchor, constant: 72),
-
-            ok.topAnchor.constraint(equalTo: divider1.bottomAnchor),
-            ok.leadingAnchor.constraint(equalTo: card.leadingAnchor),
-            ok.trailingAnchor.constraint(equalTo: card.trailingAnchor),
-            ok.heightAnchor.constraint(equalToConstant: 44),
-
-            divider2.topAnchor.constraint(equalTo: ok.bottomAnchor),
-
-            cancel.topAnchor.constraint(equalTo: divider2.bottomAnchor),
-            cancel.leadingAnchor.constraint(equalTo: card.leadingAnchor),
-            cancel.trailingAnchor.constraint(equalTo: card.trailingAnchor),
-            cancel.heightAnchor.constraint(equalToConstant: 52),
-            cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor)
-        ])
+        UIView.transition(
+            with: card,
+            duration: 0.3,
+            options: [.transitionCrossDissolve, .beginFromCurrentState]
+        ) {
+            self.configureConfirmContent(title: title, onConfirm: onConfirm, onCancel: onCancel)
+        }
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -378,6 +382,75 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
             return
         }
         tableView.backgroundView = nil
+    }
+
+    private func configureConfirmContent(title: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
+        card.subviews.forEach { $0.removeFromSuperview() }
+        card.backgroundColor = colors.gray
+        card.layer.cornerRadius = 16
+        view.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
+        card.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.textColor = colors.text
+        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 3
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(titleLabel)
+
+        let divider1 = UIView()
+        divider1.backgroundColor = colors.border
+        divider1.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(divider1)
+
+        let ok = makeActionButton(
+            title: NSLocalizedString("OK", comment: ""),
+            font: .systemFont(ofSize: 18, weight: .bold),
+            action: onConfirm
+        )
+        let cancel = makeActionButton(
+            title: NSLocalizedString("Cancel", comment: ""),
+            font: .systemFont(ofSize: 18, weight: .regular),
+            action: onCancel
+        )
+        ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
+        cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
+        card.addSubview(ok)
+
+        let divider2 = UIView()
+        divider2.backgroundColor = colors.border
+        divider2.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(divider2)
+        card.addSubview(cancel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+
+            divider1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            divider1.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            divider1.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            divider1.heightAnchor.constraint(equalToConstant: 1),
+
+            ok.topAnchor.constraint(equalTo: divider1.bottomAnchor),
+            ok.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            ok.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            ok.heightAnchor.constraint(equalToConstant: 44),
+
+            divider2.topAnchor.constraint(equalTo: ok.bottomAnchor),
+            divider2.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            divider2.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            divider2.heightAnchor.constraint(equalToConstant: 1),
+
+            cancel.topAnchor.constraint(equalTo: divider2.bottomAnchor),
+            cancel.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            cancel.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            cancel.heightAnchor.constraint(equalToConstant: 52),
+            cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor)
+        ])
     }
 }
 
@@ -453,6 +526,7 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        card.layer.cornerRadius = 16
         view.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
         card.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
 
@@ -465,20 +539,30 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
         title.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(title)
 
-        let divider1 = addDivider(below: title)
+        let divider1 = UIView()
+        divider1.backgroundColor = colors.border
+        divider1.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(divider1)
         let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
         let cancel = makeActionButton(title: NSLocalizedString("Cancel", comment: ""), font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
         ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
         cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
         card.addSubview(ok)
-        let divider2 = addDivider(below: ok)
+        let divider2 = UIView()
+        divider2.backgroundColor = colors.border
+        divider2.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(divider2)
         card.addSubview(cancel)
 
         NSLayoutConstraint.activate([
             title.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
             title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
             title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
-            title.bottomAnchor.constraint(equalTo: card.topAnchor, constant: 72),
+
+            divider1.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
+            divider1.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            divider1.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            divider1.heightAnchor.constraint(equalToConstant: 1),
 
             ok.topAnchor.constraint(equalTo: divider1.bottomAnchor),
             ok.leadingAnchor.constraint(equalTo: card.leadingAnchor),
@@ -486,6 +570,9 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
             ok.heightAnchor.constraint(equalToConstant: 44),
 
             divider2.topAnchor.constraint(equalTo: ok.bottomAnchor),
+            divider2.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            divider2.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            divider2.heightAnchor.constraint(equalToConstant: 1),
 
             cancel.topAnchor.constraint(equalTo: divider2.bottomAnchor),
             cancel.leadingAnchor.constraint(equalTo: card.leadingAnchor),
@@ -510,7 +597,7 @@ final class FirmwareProgressDialogViewController: FirmwareBaseDialogViewControll
         card.accessibilityIdentifier = AccessibilityIdentifier.firmwareProgressDialog
 
         let title = UILabel()
-        title.text = NSLocalizedString("Firmware is being downloaded", comment: "")
+        title.text = NSLocalizedString("File is being downloaded", comment: "")
         title.textColor = colors.text
         title.font = .systemFont(ofSize: 18, weight: .bold)
         title.textAlignment = .center

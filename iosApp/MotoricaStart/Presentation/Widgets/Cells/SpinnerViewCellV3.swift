@@ -11,6 +11,8 @@ final class SpinnerViewCellV3: UITableViewCell {
     private var isDropdownExpanded = false
     private var dropdownFrameInCell: CGRect = .zero
     private var dropdownItemFramesInCell: [Int: CGRect] = [:]
+    private let estimatedDropdownItemHeight: CGFloat = 50
+    private let dropdownVerticalGap: CGFloat = 8
 
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -57,6 +59,9 @@ final class SpinnerViewCellV3: UITableViewCell {
                 },
                 onExpandedChanged: { [weak self] isExpanded in
                     self?.updateDropdownState(isExpanded: isExpanded)
+                },
+                shouldOpenDropdownAbove: { [weak self] in
+                    self?.shouldOpenDropdownAbove() ?? false
                 },
                 onDropdownFrameChanged: { [weak self] frame in
                     self?.dropdownFrameInCell = frame
@@ -147,8 +152,8 @@ final class SpinnerViewCellV3: UITableViewCell {
         // Keep visual geometry unchanged, but provide a fallback hit region when SwiftUI
         // frame preferences are not ready at the exact tap moment.
         let estimatedX = max(0, bounds.width - 8 - 220)
-        let estimatedY: CGFloat = 60
-        let estimatedHeight = CGFloat(itemCount * 50 + max(0, itemCount - 1))
+        let estimatedHeight = estimatedDropdownHeight(itemCount: itemCount)
+        let estimatedY: CGFloat = provider?.opensAbove == true ? -estimatedHeight : 60
         return CGRect(x: estimatedX, y: estimatedY, width: 220, height: estimatedHeight)
     }
 
@@ -162,6 +167,51 @@ final class SpinnerViewCellV3: UITableViewCell {
             dropdownFrameInCell = .zero
             dropdownItemFramesInCell = [:]
         }
+    }
+
+    private func shouldOpenDropdownAbove() -> Bool {
+        guard let provider, provider.items.isEmpty == false else { return false }
+        guard let window else { return false }
+
+        let dropdownHeight = estimatedDropdownHeight(itemCount: provider.items.count)
+        let cellFrame = convert(bounds, to: window)
+        let visibleBounds = dropdownVisibleBounds(in: window)
+        let availableBelow = visibleBounds.maxY - cellFrame.maxY - dropdownVerticalGap
+        let availableAbove = cellFrame.minY - visibleBounds.minY - dropdownVerticalGap
+
+        return availableBelow < dropdownHeight && availableAbove > availableBelow
+    }
+
+    private func estimatedDropdownHeight(itemCount: Int) -> CGFloat {
+        CGFloat(itemCount) * estimatedDropdownItemHeight + CGFloat(max(0, itemCount - 1))
+    }
+
+    private func dropdownVisibleBounds(in window: UIWindow) -> CGRect {
+        var visibleBounds = window.bounds.inset(by: window.safeAreaInsets)
+
+        if let tableView = hostingTableView {
+            let tableFrame = tableView.convert(tableView.bounds, to: window)
+            visibleBounds = visibleBounds.intersection(tableFrame)
+        }
+
+        if let tabBar = nearestTabBar(), tabBar.isHidden == false, tabBar.alpha > 0.01 {
+            let tabBarFrame = tabBar.convert(tabBar.bounds, to: window)
+            let maxY = min(visibleBounds.maxY, tabBarFrame.minY)
+            visibleBounds.size.height = max(0, maxY - visibleBounds.minY)
+        }
+
+        return visibleBounds.isNull ? window.bounds.inset(by: window.safeAreaInsets) : visibleBounds
+    }
+
+    private func nearestTabBar() -> UITabBar? {
+        var responder: UIResponder? = self
+        while let current = responder {
+            if let tabBarController = current as? UITabBarController {
+                return tabBarController.tabBar
+            }
+            responder = current.next
+        }
+        return nil
     }
 
     private var hostingTableView: UITableView? {
@@ -179,6 +229,7 @@ private final class SpinnerProviderV3: ObservableObject {
     let items: [String]
     @Published var selectedIndex: Int
     @Published var isExpanded: Bool = false
+    @Published var opensAbove: Bool = false
 
     init(title: String, items: [String], selectedIndex: Int) {
         self.title = title
@@ -196,6 +247,7 @@ private struct SpinnerRowViewV3: View {
     @ObservedObject var provider: SpinnerProviderV3
     let onSelect: (Int) -> Void
     let onExpandedChanged: (Bool) -> Void
+    let shouldOpenDropdownAbove: () -> Bool
     let onDropdownFrameChanged: (CGRect) -> Void
     let onDropdownItemFramesChanged: ([Int: CGRect]) -> Void
 
@@ -230,7 +282,12 @@ private struct SpinnerRowViewV3: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Button {
-                provider.isExpanded.toggle()
+                if provider.isExpanded {
+                    provider.isExpanded = false
+                } else {
+                    provider.opensAbove = shouldOpenDropdownAbove()
+                    provider.isExpanded = true
+                }
             } label: {
                 HStack(spacing: 6) {
                     Text(provider.selectedTitle)
@@ -260,11 +317,11 @@ private struct SpinnerRowViewV3: View {
             }
             .buttonStyle(.plain)
             .frame(width: Layout.dropdownWidth)
-            .overlay(alignment: .topTrailing) {
+            .overlay(alignment: provider.opensAbove ? .bottomTrailing : .topTrailing) {
                 if provider.isExpanded {
                     dropdownPanel
                         .frame(width: Layout.dropdownWidth)
-                        .padding(.top, Layout.panelTopOffset)
+                        .padding(provider.opensAbove ? .bottom : .top, Layout.panelTopOffset)
                         .background(
                             GeometryReader { proxy in
                                 Color.clear.preference(
@@ -403,6 +460,7 @@ struct SpinnerRowViewV3_Previews: PreviewProvider {
                 ),
                 onSelect: { _ in },
                 onExpandedChanged: { _ in },
+                shouldOpenDropdownAbove: { false },
                 onDropdownFrameChanged: { _ in },
                 onDropdownItemFramesChanged: { _ in }
             )

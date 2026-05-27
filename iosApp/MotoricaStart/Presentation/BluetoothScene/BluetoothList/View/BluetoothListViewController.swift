@@ -363,6 +363,10 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         let device = viewModel.devices[indexPath.row]
         cell.setupModel(model: device) // Настройка данных в ячейке
         cell.accessibilityIdentifier = "ble.deviceCell.\(indexPath.row)"
+        cell.isAccessibilityElement = true
+        cell.accessibilityLabel = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
+        cell.accessibilityValue = "rssi=\(device.rssi);uuid=\(device.uuid.uuidString)"
+        cell.accessibilityTraits.insert(.button)
         if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
             cell.backgroundColor = UIColor(named: "ubi4_active")
         } else {

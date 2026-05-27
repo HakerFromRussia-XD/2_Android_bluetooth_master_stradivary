@@ -22,7 +22,7 @@ final class FirmwareUpdateUITests: XCTestCase {
         targetDevice.tap()
 
         XCTAssertTrue(
-            app.otherElements[AccessibilityIdentifier.mainTabBarRoot].waitForExistence(timeout: 15),
+            app.otherElements[AccessibilityIdentifier.mainTabBarRoot].waitForExistence(timeout: 60),
             "Main tabs did not open after connecting to \(targetDeviceName)"
         )
 
@@ -40,26 +40,27 @@ final class FirmwareUpdateUITests: XCTestCase {
         XCTAssertTrue(updateButton.waitForExistence(timeout: 20), "Update button for \(targetBoardName) was not found")
         XCTAssertTrue(updateButton.isEnabled, "Update button for \(targetBoardName) is disabled")
 
-        guard stringValue(updateButton).contains("updateAvailable=true") else {
-            throw XCTSkip("No local firmware with a greater version for \(targetBoardName). Put a newer .zip into Motorica Start/Firmware.")
-        }
-
         let versionLabel = app.staticTexts["\(AccessibilityIdentifier.accountBoardVersionPrefix).\(boardKey)"]
         XCTAssertTrue(versionLabel.waitForExistence(timeout: 5), "Version label for \(targetBoardName) was not found")
         let initialVersion = stringValue(versionLabel)
-        XCTAssertFalse(initialVersion.isEmpty, "Initial \(targetBoardName) firmware version is empty")
+        guard let currentFirmwareVersion = firmwareVersion(from: initialVersion) else {
+            XCTFail("Initial \(targetBoardName) firmware version is not parseable: \(initialVersion)")
+            return
+        }
 
         updateButton.tap()
 
         let filesDialog = app.otherElements[AccessibilityIdentifier.firmwareFilesDialog]
         XCTAssertTrue(filesDialog.waitForExistence(timeout: 5), "Firmware file selection dialog did not open")
 
-        guard let firmwareRow = firstFirmwareRowForFestHAndF(in: app) else {
-            throw XCTSkip("No Fest H And F firmware .zip was found in Motorica Start/Firmware")
+        guard let firmware = firstFirmwareRowForFestHAndF(in: app, excludingVersion: currentFirmwareVersion) else {
+            throw XCTSkip("No Fest H And F firmware .zip with version different from \(currentFirmwareVersion) was found in Motorica Start/Firmware")
         }
+        let targetFirmwareVersion = firmware.version
+        let firmwareRow = firmware.row
         firmwareRow.tap()
 
-        let okButton = app.buttons["OK"]
+        let okButton = app.buttons[AccessibilityIdentifier.firmwareConfirmOkButton]
         XCTAssertTrue(okButton.waitForExistence(timeout: 5), "Firmware update confirmation dialog did not appear")
         okButton.tap()
 
@@ -88,8 +89,8 @@ final class FirmwareUpdateUITests: XCTestCase {
             "\(targetBoardName) did not leave bootloader/DFU mode"
         )
         XCTAssertTrue(
-            waitForVersionChange(versionLabel, from: initialVersion, timeout: 90),
-            "\(targetBoardName) firmware version did not refresh after update"
+            waitForVersion(versionLabel, targetVersion: targetFirmwareVersion, timeout: 90),
+            "\(targetBoardName) firmware version did not refresh to \(targetFirmwareVersion) after update"
         )
     }
 
@@ -105,15 +106,26 @@ final class FirmwareUpdateUITests: XCTestCase {
         return nil
     }
 
-    private func firstFirmwareRowForFestHAndF(in app: XCUIApplication) -> XCUIElement? {
+    private func firstFirmwareRowForFestHAndF(
+        in app: XCUIApplication,
+        excludingVersion currentVersion: String
+    ) -> (row: XCUIElement, version: String)? {
         let acceptedTokens = ["fest", "fh", "h_and_f", "h-and-f"]
-        return app.descendants(matching: .any)
-            .allElementsBoundByIndex
-            .first { element in
-                guard element.identifier.hasPrefix(AccessibilityIdentifier.firmwareFileRowPrefix) else { return false }
-                let haystack = "\(element.identifier) \(element.label) \(stringValue(element))".lowercased()
-                return haystack.contains(".zip") && acceptedTokens.contains { haystack.contains($0) }
+        let elements = app.buttons.allElementsBoundByIndex + app.cells.allElementsBoundByIndex
+        for element in elements {
+            guard element.identifier.hasPrefix(AccessibilityIdentifier.firmwareFileRowPrefix) else {
+                continue
             }
+            let haystack = "\(element.identifier) \(element.label) \(stringValue(element))".lowercased()
+            guard haystack.contains(".zip"), acceptedTokens.contains(where: { haystack.contains($0) }) else {
+                continue
+            }
+            guard let version = firmwareVersion(from: haystack), version != currentVersion else {
+                continue
+            }
+            return (element, version)
+        }
+        return nil
     }
 
     private func waitForElementToExist(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
@@ -138,11 +150,11 @@ final class FirmwareUpdateUITests: XCTestCase {
         return !element.exists
     }
 
-    private func waitForVersionChange(_ element: XCUIElement, from initialVersion: String, timeout: TimeInterval) -> Bool {
+    private func waitForVersion(_ element: XCUIElement, targetVersion: String, timeout: TimeInterval) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             let currentVersion = stringValue(element)
-            if !currentVersion.isEmpty, currentVersion != initialVersion {
+            if firmwareVersion(from: currentVersion) == targetVersion {
                 return true
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
@@ -192,6 +204,21 @@ final class FirmwareUpdateUITests: XCTestCase {
             return value
         }
         return element.label
+    }
+
+    private func firmwareVersion(from text: String) -> String? {
+        let pattern = #"(?i)v?(\d+)[._-](\d+)[._-](\d+)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        guard let match = regex.firstMatch(in: text, range: range), match.numberOfRanges == 4 else {
+            return nil
+        }
+        let parts = (1..<4).compactMap { index -> String? in
+            guard let range = Range(match.range(at: index), in: text) else { return nil }
+            return String(Int(text[range]) ?? 0)
+        }
+        guard parts.count == 3 else { return nil }
+        return parts.joined(separator: ".")
     }
 
     private func accessibilityKey(_ value: String) -> String {

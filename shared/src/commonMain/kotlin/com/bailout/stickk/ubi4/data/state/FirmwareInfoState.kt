@@ -22,6 +22,7 @@ object FirmwareInfoState {
     val completeCrcFlow      = MutableSharedFlow<Boolean>(replay = 1)
     val updateCompleteFlow   = MutableSharedFlow<Unit>(replay = 1)
     val finishSystemUpdateFlow = MutableSharedFlow<Unit>(replay = 1)
+    val boardListUpdatedFlow = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1)
 
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {
         _firmwareInfoFlow.tryEmit(fw)

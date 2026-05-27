@@ -23,8 +23,7 @@ final class AccountFirmwareDialogPresenter {
         let dialog = FirmwareFilesDialogViewController(
             files: files,
             colors: colors,
-            onSelect: { [weak self] file in
-                self?.dismissCurrent(animated: false)
+            onSelect: { file in
                 onSelect(file)
             },
             onDelete: onDelete
@@ -35,12 +34,32 @@ final class AccountFirmwareDialogPresenter {
     func showConfirmSendFirmwareFile(
         onConfirm: @escaping () -> Void
     ) {
+        if let filesDialog = currentDialog as? FirmwareFilesDialogViewController {
+            filesDialog.showConfirm(
+                title: NSLocalizedString("Are you sure you want to update software version?", comment: ""),
+                onConfirm: { [weak self] in
+                    self?.dismissCurrent(animated: false) {
+                        DispatchQueue.main.async {
+                            onConfirm()
+                        }
+                    }
+                },
+                onCancel: { [weak self] in
+                    self?.dismissCurrent(animated: true)
+                }
+            )
+            return
+        }
+
         let dialog = FirmwareConfirmDialogViewController(
             title: NSLocalizedString("Are you sure you want to update software version?", comment: ""),
             colors: colors,
             onConfirm: { [weak self] in
-                self?.dismissCurrent(animated: false)
-                onConfirm()
+                self?.dismissCurrent(animated: false) {
+                    DispatchQueue.main.async {
+                        onConfirm()
+                    }
+                }
             },
             onCancel: { [weak self] in
                 self?.dismissCurrent(animated: true)
@@ -65,9 +84,15 @@ final class AccountFirmwareDialogPresenter {
         present(dialog)
     }
 
-    func dismissCurrent(animated: Bool) {
-        currentDialog?.dismiss(animated: animated)
-        currentDialog = nil
+    func dismissCurrent(animated: Bool, completion: (() -> Void)? = nil) {
+        guard let currentDialog = self.currentDialog else {
+            completion?()
+            return
+        }
+        self.currentDialog = nil
+        currentDialog.dismiss(animated: animated) {
+            completion?()
+        }
     }
 
     private var colors: FirmwareDialogColors {
@@ -82,11 +107,15 @@ final class AccountFirmwareDialogPresenter {
     }
 
     private func present(_ dialog: UIViewController) {
-        dismissCurrent(animated: false)
-        currentDialog = dialog
-        dialog.modalPresentationStyle = .overFullScreen
-        dialog.modalTransitionStyle = .crossDissolve
-        presentingViewController?.present(dialog, animated: true)
+        dismissCurrent(animated: false) { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.currentDialog = dialog
+                dialog.modalPresentationStyle = .overFullScreen
+                dialog.modalTransitionStyle = .crossDissolve
+                self.presentingViewController?.present(dialog, animated: true)
+            }
+        }
     }
 }
 
@@ -153,11 +182,12 @@ class FirmwareBaseDialogViewController: UIViewController {
     }
 }
 
-private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewController {
+private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewController, UITableViewDataSource, UITableViewDelegate {
     private var files: [AccountFirmwareFile]
     private let onSelect: (AccountFirmwareFile) -> Void
     private let onDelete: (AccountFirmwareFile) -> Void
-    private let stack = UIStackView()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let cellReuseIdentifier = "FirmwareFileCell"
 
     init(
         files: [AccountFirmwareFile],
@@ -195,11 +225,18 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         listContainer.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(listContainer)
 
-        stack.axis = .vertical
-        stack.spacing = 0
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        listContainer.addSubview(stack)
-        rebuildRows()
+        tableView.backgroundColor = .clear
+        tableView.separatorColor = colors.border
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        tableView.rowHeight = 44
+        tableView.tableFooterView = UIView()
+        tableView.allowsSelection = true
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(FirmwareFileCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        listContainer.addSubview(tableView)
+        updateEmptyState()
 
         let divider = UIView()
         divider.backgroundColor = colors.border
@@ -223,10 +260,10 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
             listContainer.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
             listContainer.heightAnchor.constraint(equalToConstant: 352),
 
-            stack.topAnchor.constraint(equalTo: listContainer.topAnchor),
-            stack.leadingAnchor.constraint(equalTo: listContainer.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: listContainer.trailingAnchor),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: listContainer.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: listContainer.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: listContainer.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: listContainer.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: listContainer.bottomAnchor),
 
             divider.topAnchor.constraint(equalTo: listContainer.bottomAnchor, constant: 16),
             divider.leadingAnchor.constraint(equalTo: card.leadingAnchor),
@@ -241,97 +278,159 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         ])
     }
 
-    private func rebuildRows() {
-        stack.arrangedSubviews.forEach {
-            stack.removeArrangedSubview($0)
-            $0.removeFromSuperview()
+    func showConfirm(title: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
+        card.subviews.forEach { $0.removeFromSuperview() }
+        card.backgroundColor = colors.gray
+        view.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
+        card.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.textColor = colors.text
+        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 3
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(titleLabel)
+
+        let divider1 = addDivider(below: titleLabel)
+        let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
+        let cancel = makeActionButton(title: NSLocalizedString("Cancel", comment: ""), font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
+        ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
+        cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
+        card.addSubview(ok)
+        let divider2 = addDivider(below: ok)
+        card.addSubview(cancel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+            titleLabel.bottomAnchor.constraint(equalTo: card.topAnchor, constant: 72),
+
+            ok.topAnchor.constraint(equalTo: divider1.bottomAnchor),
+            ok.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            ok.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            ok.heightAnchor.constraint(equalToConstant: 44),
+
+            divider2.topAnchor.constraint(equalTo: ok.bottomAnchor),
+
+            cancel.topAnchor.constraint(equalTo: divider2.bottomAnchor),
+            cancel.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            cancel.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            cancel.heightAnchor.constraint(equalToConstant: 52),
+            cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor)
+        ])
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        files.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = (tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as? FirmwareFileCell)
+            ?? FirmwareFileCell(style: .default, reuseIdentifier: cellReuseIdentifier)
+        let file = files[indexPath.row]
+
+        cell.configure(file: file, colors: colors) { [weak self] in
+            self?.select(file)
         }
 
+        if file.isDeletable {
+            let delete = UIButton(type: .system)
+            delete.setImage(UIImage(systemName: "trash"), for: .normal)
+            delete.tintColor = colors.text
+            delete.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+            delete.addAction(UIAction { [weak self] _ in
+                guard let self else { return }
+                self.onDelete(file)
+                self.files.removeAll { $0.url == file.url }
+                self.updateEmptyState()
+                tableView.reloadData()
+            }, for: .touchUpInside)
+            cell.accessoryView = delete
+        } else {
+            cell.accessoryView = nil
+        }
+
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+        select(files[indexPath.row])
+    }
+
+    private func select(_ file: AccountFirmwareFile) {
+        view.accessibilityValue = "selected=\(file.name)"
+        tableView.isUserInteractionEnabled = false
+        onSelect(file)
+    }
+
+    private func updateEmptyState() {
         if files.isEmpty {
             let empty = UILabel()
             empty.text = NSLocalizedString("No firmware files", comment: "")
             empty.textColor = colors.text.withAlphaComponent(0.65)
             empty.font = .systemFont(ofSize: 12, weight: .semibold)
             empty.textAlignment = .center
-            empty.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            stack.addArrangedSubview(empty)
+            tableView.backgroundView = empty
             return
         }
-
-        files.forEach { file in
-            let row = FirmwareFileRow(colors: colors, file: file) { [weak self] in
-                self?.onSelect(file)
-            } onDelete: { [weak self] in
-                guard let self else { return }
-                self.onDelete(file)
-                self.files.removeAll { $0.url == file.url }
-                self.rebuildRows()
-            }
-            stack.addArrangedSubview(row)
-        }
+        tableView.backgroundView = nil
     }
 }
 
-private final class FirmwareFileRow: UIControl {
-    init(
-        colors: FirmwareDialogColors,
-        file: AccountFirmwareFile,
-        onSelect: @escaping () -> Void,
-        onDelete: @escaping () -> Void
-    ) {
-        super.init(frame: .zero)
-        heightAnchor.constraint(equalToConstant: 44).isActive = true
-        isAccessibilityElement = true
-        accessibilityIdentifier = "\(AccessibilityIdentifier.firmwareFileRowPrefix).\(accountAccessibilityKey(file.name))"
-        accessibilityLabel = file.name
-        accessibilityValue = "file=\(file.name);deletable=\(file.isDeletable)"
+private final class FirmwareFileCell: UITableViewCell {
+    private var onSelect: (() -> Void)?
+    private let titleButton = UIButton(type: .system)
 
-        let title = UILabel()
-        title.text = file.name
-        title.textColor = colors.text
-        title.font = .systemFont(ofSize: 12, weight: .bold)
-        title.lineBreakMode = .byTruncatingMiddle
-        title.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(title)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+        selectionStyle = .none
 
-        let delete = UIButton(type: .system)
-        delete.setImage(UIImage(systemName: "trash"), for: .normal)
-        delete.tintColor = colors.text
-        delete.isHidden = !file.isDeletable
-        delete.addAction(UIAction { [weak delete] _ in
-            delete?.isUserInteractionEnabled = false
-            onDelete()
+        titleButton.contentHorizontalAlignment = .leading
+        titleButton.titleLabel?.lineBreakMode = .byTruncatingMiddle
+        titleButton.addAction(UIAction { [weak self] _ in
+            self?.onSelect?()
         }, for: .touchUpInside)
-        delete.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(delete)
-
-        let divider = UIView()
-        divider.backgroundColor = colors.border
-        divider.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(divider)
-
-        addAction(UIAction { _ in onSelect() }, for: .touchUpInside)
+        titleButton.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(titleButton)
 
         NSLayoutConstraint.activate([
-            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            title.trailingAnchor.constraint(lessThanOrEqualTo: delete.leadingAnchor, constant: -10),
-            title.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            delete.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            delete.centerYAnchor.constraint(equalTo: centerYAnchor),
-            delete.widthAnchor.constraint(equalToConstant: 24),
-            delete.heightAnchor.constraint(equalToConstant: 24),
-
-            divider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            divider.bottomAnchor.constraint(equalTo: bottomAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 1)
+            titleButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+            titleButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            titleButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            titleButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(file: AccountFirmwareFile, colors: FirmwareDialogColors, onSelect: @escaping () -> Void) {
+        self.onSelect = onSelect
+        let identifier = "\(AccessibilityIdentifier.firmwareFileRowPrefix).\(accountAccessibilityKey(file.name))"
+        titleButton.setTitle(file.name, for: .normal)
+        titleButton.setTitleColor(colors.text, for: .normal)
+        titleButton.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        titleButton.accessibilityIdentifier = identifier
+        titleButton.accessibilityLabel = file.name
+        titleButton.accessibilityValue = "file=\(file.name);deletable=\(file.isDeletable)"
+        titleButton.accessibilityTraits.insert(.button)
+        isAccessibilityElement = false
+        accessibilityIdentifier = identifier
+        accessibilityLabel = file.name
+        accessibilityValue = "file=\(file.name);deletable=\(file.isDeletable)"
+    }
+
+    override func accessibilityActivate() -> Bool {
+        onSelect?()
+        return true
     }
 }
 
@@ -354,6 +453,8 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
+        card.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmDialog
 
         let title = UILabel()
         title.text = dialogTitle
@@ -366,9 +467,11 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
 
         let divider1 = addDivider(below: title)
         let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
-        let divider2 = addDivider(below: ok)
         let cancel = makeActionButton(title: NSLocalizedString("Cancel", comment: ""), font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
+        ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
+        cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
         card.addSubview(ok)
+        let divider2 = addDivider(below: ok)
         card.addSubview(cancel)
 
         NSLayoutConstraint.activate([

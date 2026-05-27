@@ -96,7 +96,14 @@ final class AccountFirmwareUpdateController {
                     self.dialogPresenter.dismissCurrent(animated: false)
                     if event.isSuccess {
                         self.presentingViewController?.showToast(event.message)
-                        onFinished()
+                        AccountBridge.shared.refreshBoardsAfterFirmwareUpdate(
+                            deviceAddress: board.deviceAddress,
+                            previousVersion: board.version
+                        ) { _ in
+                            DispatchQueue.main.async {
+                                onFinished()
+                            }
+                        }
                     } else {
                         self.dialogPresenter.showWarning(
                             title: NSLocalizedString("Loading error", comment: ""),

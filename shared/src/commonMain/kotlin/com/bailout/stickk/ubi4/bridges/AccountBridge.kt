@@ -4,6 +4,9 @@ import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters
+import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.firmware.FirmwareTransportChannel
+import com.bailout.stickk.ubi4.firmware.PlatformFirmwareCommandSender
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -11,7 +14,10 @@ import com.bailout.stickk.ubi4.utility.EncryptionManagerUtilsUbi4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.min
 
 data class AccountBridgeProfile(
@@ -131,6 +137,42 @@ object AccountBridge {
                 )
             }
         }
+
+    fun refreshBoardsAfterFirmwareUpdate(
+        deviceAddress: Int,
+        previousVersion: String,
+        callback: (List<AccountBridgeBoard>) -> Unit
+    ): Job = coroutineScope.launch {
+        val oldVersion = previousVersion.takeIf { it.isNotBlank() && it != "-" }
+        repeat(8) {
+            var refreshedBoards: List<AccountBridgeBoard>? = null
+            val waitForRefresh = async {
+                withTimeoutOrNull(1_500) {
+                FirmwareInfoState.boardListUpdatedFlow.first {
+                    val boards = currentBoards()
+                    val target = boards.firstOrNull { board -> board.deviceAddress == deviceAddress }
+                    if (oldVersion == null || target == null || target.version != oldVersion) {
+                        refreshedBoards = boards
+                        true
+                    } else {
+                        false
+                    }
+                }
+                true
+                } ?: false
+            }
+            PlatformFirmwareCommandSender.send(
+                BLECommandsV3.requestDeviceData(),
+                FirmwareTransportChannel.V3_SERIAL
+            )
+            val wasRefreshed = waitForRefresh.await()
+            if (wasRefreshed) {
+                callback(refreshedBoards ?: currentBoards())
+                return@launch
+            }
+        }
+        callback(currentBoards())
+    }
 
     private suspend fun requestTokenWithRetry(api: Ubi4RequestsApi, encrypted: String): String? {
         repeat(4) { attempt ->

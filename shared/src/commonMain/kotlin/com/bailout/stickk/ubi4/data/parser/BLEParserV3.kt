@@ -181,6 +181,7 @@ class BLEParserV3(
                     }
 
                     updateFlow.emit(1)
+                    FirmwareInfoState.boardListUpdatedFlow.tryEmit(Unit)
                 }
             }
             else -> {

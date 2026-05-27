@@ -1,4 +1,5 @@
 import UIKit
+import shared
 
 final class AccountFirmwareDialogPresenter {
     private weak var presentingViewController: UIViewController?
@@ -36,7 +37,8 @@ final class AccountFirmwareDialogPresenter {
     ) {
         if let filesDialog = currentDialog as? FirmwareFilesDialogViewController {
             filesDialog.showConfirm(
-                title: NSLocalizedString("Are you sure you want to update your software version?", comment: ""),
+                title: FirmwareLocalizedText.prosthesesUpdateTitle,
+                message: FirmwareLocalizedText.startUpdateMessage,
                 onConfirm: { [weak self] in
                     self?.dismissCurrent(animated: true) {
                         DispatchQueue.main.async {
@@ -52,7 +54,8 @@ final class AccountFirmwareDialogPresenter {
         }
 
         let dialog = FirmwareConfirmDialogViewController(
-            title: NSLocalizedString("Are you sure you want to update your software version?", comment: ""),
+            title: FirmwareLocalizedText.prosthesesUpdateTitle,
+            message: FirmwareLocalizedText.startUpdateMessage,
             colors: colors,
             onConfirm: { [weak self] in
                 self?.dismissCurrent(animated: true) {
@@ -135,6 +138,28 @@ struct FirmwareDialogColors {
     let text: UIColor
     let action: UIColor
     let active: UIColor
+}
+
+private enum FirmwareAndroidStyle {
+    static let deleteColor = UIColor.accountColor("ubi4_no_system_red", fallback: 0xFF453A)
+
+    static func titleFont(size: CGFloat) -> UIFont {
+        UIFont(name: "SFProText-Bold", size: size)
+            ?? .systemFont(ofSize: size, weight: .bold)
+    }
+
+    static func displayLightFont(size: CGFloat) -> UIFont {
+        UIFont(name: "SFProDisplay-Light", size: size)
+            ?? .systemFont(ofSize: size, weight: .light)
+    }
+
+    static func displayLightBoldFont(size: CGFloat) -> UIFont {
+        let base = displayLightFont(size: size)
+        guard let descriptor = base.fontDescriptor.withSymbolicTraits(.traitBold) else {
+            return .systemFont(ofSize: size, weight: .bold)
+        }
+        return UIFont(descriptor: descriptor, size: size)
+    }
 }
 
 class FirmwareBaseDialogViewController: UIViewController {
@@ -221,6 +246,73 @@ class FirmwareBaseDialogViewController: UIViewController {
     }
 }
 
+enum FirmwareLocalizedText {
+    static var prosthesesUpdateTitle: String {
+        SharedRes.strings().prostheses_update_ready_for_installation.desc().localized()
+    }
+
+    static var startUpdateMessage: String {
+        SharedRes.strings().do_you_want_to_start_updating.desc().localized()
+    }
+
+    static var updatingPrefix: String {
+        SharedRes.strings().updating_0.desc().localized()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    static var loadingErrorTitle: String {
+        SharedRes.strings().loading_error.desc().localized()
+    }
+
+    static var firmwareDownloadFailedMessage: String {
+        SharedRes.strings().the_firmware_file_was_not_successfully_downloaded.desc().localized()
+    }
+
+    static var updateInstalledMessage: String {
+        SharedRes.strings().update_installed.desc().localized()
+    }
+
+    static var okTitle: String {
+        SharedRes.strings().ok.desc().localized()
+    }
+
+    static var noTitle: String {
+        SharedRes.strings().no.desc().localized()
+    }
+
+    static func updatingProgress(_ progress: Int) -> String {
+        "\(updatingPrefix) \(progress)%"
+    }
+
+    static func bridgeErrorMessage(_ rawMessage: String) -> String {
+        if rawMessage.hasPrefix("Не удалось начать обновление") {
+            return rawMessage.replacingOccurrences(
+                of: "Не удалось начать обновление",
+                with: NSLocalizedString("Failed to start update", comment: "")
+            )
+        }
+        if rawMessage.hasPrefix("Модуль не готов к записи") {
+            return rawMessage.replacingOccurrences(
+                of: "Модуль не готов к записи",
+                with: NSLocalizedString("Module is not ready for writing", comment: "")
+            )
+        }
+        if rawMessage == "Не удалось подготовить память для прошивки" {
+            return NSLocalizedString("Failed to prepare memory for firmware", comment: "")
+        }
+        if rawMessage == "CRC mismatch! Обновление не удалось." {
+            return NSLocalizedString("CRC mismatch! Update failed.", comment: "")
+        }
+        if rawMessage.hasPrefix("Обновление не удалось:") {
+            return rawMessage.replacingOccurrences(
+                of: "Обновление не удалось",
+                with: NSLocalizedString("Update failed", comment: "")
+            )
+        }
+        return rawMessage
+    }
+}
+
 private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewController, UITableViewDataSource, UITableViewDelegate {
     private var files: [AccountFirmwareFile]
     private let onSelect: (AccountFirmwareFile) -> Void
@@ -249,14 +341,14 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         let title = UILabel()
         title.text = NSLocalizedString("Select firmware file", comment: "")
         title.textColor = colors.text
-        title.font = .systemFont(ofSize: 18, weight: .bold)
+        title.font = FirmwareAndroidStyle.titleFont(size: 18)
         title.textAlignment = .center
         title.numberOfLines = 2
         title.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(title)
 
         let listContainer = UIView()
-        listContainer.backgroundColor = colors.gray
+        listContainer.backgroundColor = colors.back
         listContainer.layer.cornerRadius = 12
         listContainer.layer.borderWidth = 1
         listContainer.layer.borderColor = colors.border.cgColor
@@ -264,9 +356,8 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         listContainer.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(listContainer)
 
-        tableView.backgroundColor = .clear
-        tableView.separatorColor = colors.border
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        tableView.backgroundColor = colors.back
+        tableView.separatorStyle = .none
         tableView.rowHeight = 44
         tableView.tableFooterView = UIView()
         tableView.allowsSelection = true
@@ -283,7 +374,7 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         card.addSubview(divider)
         let cancel = makeActionButton(
             title: NSLocalizedString("Cancel", comment: ""),
-            font: .systemFont(ofSize: 17, weight: .regular)
+            font: FirmwareAndroidStyle.displayLightFont(size: 17)
         ) { [weak self] in
             self?.dismiss(animated: true)
         }
@@ -317,13 +408,13 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         ])
     }
 
-    func showConfirm(title: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
+    func showConfirm(title: String, message: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
         UIView.transition(
             with: card,
             duration: 0.3,
             options: [.transitionCrossDissolve, .beginFromCurrentState]
         ) {
-            self.configureConfirmContent(title: title, onConfirm: onConfirm, onCancel: onCancel)
+            self.configureConfirmContent(title: title, message: message, onConfirm: onConfirm, onCancel: onCancel)
         }
     }
 
@@ -336,26 +427,15 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
             ?? FirmwareFileCell(style: .default, reuseIdentifier: cellReuseIdentifier)
         let file = files[indexPath.row]
 
-        cell.configure(file: file, colors: colors) { [weak self] in
+        cell.configure(file: file, colors: colors, onSelect: { [weak self] in
             self?.select(file)
-        }
-
-        if file.isDeletable {
-            let delete = UIButton(type: .system)
-            delete.setImage(UIImage(systemName: "trash"), for: .normal)
-            delete.tintColor = colors.text
-            delete.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-            delete.addAction(UIAction { [weak self] _ in
-                guard let self else { return }
-                self.onDelete(file)
-                self.files.removeAll { $0.url == file.url }
-                self.updateEmptyState()
-                tableView.reloadData()
-            }, for: .touchUpInside)
-            cell.accessoryView = delete
-        } else {
-            cell.accessoryView = nil
-        }
+        }, onDelete: { [weak self, weak tableView] in
+            guard let self, let tableView else { return }
+            self.onDelete(file)
+            self.files.removeAll { $0.url == file.url }
+            self.updateEmptyState()
+            tableView.reloadData()
+        })
 
         return cell
     }
@@ -372,19 +452,10 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
     }
 
     private func updateEmptyState() {
-        if files.isEmpty {
-            let empty = UILabel()
-            empty.text = NSLocalizedString("No firmware files", comment: "")
-            empty.textColor = colors.text.withAlphaComponent(0.65)
-            empty.font = .systemFont(ofSize: 12, weight: .semibold)
-            empty.textAlignment = .center
-            tableView.backgroundView = empty
-            return
-        }
         tableView.backgroundView = nil
     }
 
-    private func configureConfirmContent(title: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
+    private func configureConfirmContent(title: String, message: String, onConfirm: @escaping () -> Void, onCancel: @escaping () -> Void) {
         card.subviews.forEach { $0.removeFromSuperview() }
         card.backgroundColor = colors.gray
         card.layer.cornerRadius = 16
@@ -400,18 +471,27 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(titleLabel)
 
+        let messageLabel = UILabel()
+        messageLabel.text = message
+        messageLabel.textColor = colors.text
+        messageLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        messageLabel.textAlignment = .center
+        messageLabel.numberOfLines = 0
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(messageLabel)
+
         let divider1 = UIView()
         divider1.backgroundColor = colors.border
         divider1.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(divider1)
 
         let ok = makeActionButton(
-            title: NSLocalizedString("OK", comment: ""),
+            title: FirmwareLocalizedText.okTitle,
             font: .systemFont(ofSize: 18, weight: .bold),
             action: onConfirm
         )
         let cancel = makeActionButton(
-            title: NSLocalizedString("Cancel", comment: ""),
+            title: FirmwareLocalizedText.noTitle,
             font: .systemFont(ofSize: 18, weight: .regular),
             action: onCancel
         )
@@ -430,7 +510,11 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
             titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
 
-            divider1.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            messageLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 42),
+            messageLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -42),
+
+            divider1.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 16),
             divider1.leadingAnchor.constraint(equalTo: card.leadingAnchor),
             divider1.trailingAnchor.constraint(equalTo: card.trailingAnchor),
             divider1.heightAnchor.constraint(equalToConstant: 1),
@@ -456,7 +540,11 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
 
 private final class FirmwareFileCell: UITableViewCell {
     private var onSelect: (() -> Void)?
-    private let titleButton = UIButton(type: .system)
+    private var onDelete: (() -> Void)?
+    private let rowButton = UIButton(type: .custom)
+    private let titleLabel = UILabel()
+    private let deleteButton = UIButton(type: .custom)
+    private let divider = UIView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -464,19 +552,47 @@ private final class FirmwareFileCell: UITableViewCell {
         contentView.backgroundColor = .clear
         selectionStyle = .none
 
-        titleButton.contentHorizontalAlignment = .leading
-        titleButton.titleLabel?.lineBreakMode = .byTruncatingMiddle
-        titleButton.addAction(UIAction { [weak self] _ in
+        rowButton.backgroundColor = .clear
+        rowButton.addAction(UIAction { [weak self] _ in
             self?.onSelect?()
         }, for: .touchUpInside)
-        titleButton.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(titleButton)
+        rowButton.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(rowButton)
+
+        titleLabel.lineBreakMode = .byTruncatingMiddle
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(titleLabel)
+
+        deleteButton.setImage(FirmwareTrashIcon.image(color: FirmwareAndroidStyle.deleteColor, size: CGSize(width: 20, height: 20)), for: .normal)
+        deleteButton.imageView?.contentMode = .center
+        deleteButton.addAction(UIAction { [weak self] _ in
+            self?.onDelete?()
+        }, for: .touchUpInside)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(deleteButton)
+
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(divider)
 
         NSLayoutConstraint.activate([
-            titleButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            titleButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            titleButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            titleButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            rowButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+            rowButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            rowButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            rowButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: deleteButton.leadingAnchor, constant: -8),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+
+            deleteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            deleteButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            deleteButton.widthAnchor.constraint(equalToConstant: 24),
+            deleteButton.heightAnchor.constraint(equalToConstant: 24),
+
+            divider.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            divider.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            divider.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
 
@@ -485,16 +601,31 @@ private final class FirmwareFileCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(file: AccountFirmwareFile, colors: FirmwareDialogColors, onSelect: @escaping () -> Void) {
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onSelect = nil
+        onDelete = nil
+    }
+
+    func configure(
+        file: AccountFirmwareFile,
+        colors: FirmwareDialogColors,
+        onSelect: @escaping () -> Void,
+        onDelete: @escaping () -> Void
+    ) {
         self.onSelect = onSelect
+        self.onDelete = file.isDeletable ? onDelete : nil
         let identifier = "\(AccessibilityIdentifier.firmwareFileRowPrefix).\(accountAccessibilityKey(file.name))"
-        titleButton.setTitle(file.name, for: .normal)
-        titleButton.setTitleColor(colors.text, for: .normal)
-        titleButton.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
-        titleButton.accessibilityIdentifier = identifier
-        titleButton.accessibilityLabel = file.name
-        titleButton.accessibilityValue = "file=\(file.name);deletable=\(file.isDeletable)"
-        titleButton.accessibilityTraits.insert(.button)
+        titleLabel.text = file.name
+        titleLabel.textColor = colors.text
+        titleLabel.font = FirmwareAndroidStyle.displayLightBoldFont(size: 12)
+        divider.backgroundColor = colors.border
+        deleteButton.isHidden = !file.isDeletable
+        deleteButton.isUserInteractionEnabled = file.isDeletable
+        rowButton.accessibilityIdentifier = identifier
+        rowButton.accessibilityLabel = file.name
+        rowButton.accessibilityValue = "file=\(file.name);deletable=\(file.isDeletable)"
+        rowButton.accessibilityTraits.insert(.button)
         isAccessibilityElement = false
         accessibilityIdentifier = identifier
         accessibilityLabel = file.name
@@ -507,18 +638,75 @@ private final class FirmwareFileCell: UITableViewCell {
     }
 }
 
+private enum FirmwareTrashIcon {
+    static func image(color: UIColor, size: CGSize) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = UIScreen.main.scale
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            color.setStroke()
+            let scaleX = size.width / 20
+            let scaleY = size.height / 20
+            func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+                CGPoint(x: x * scaleX, y: y * scaleY)
+            }
+
+            stroke(points: [point(16.875, 4.375), point(3.125, 4.375)], width: 2)
+            stroke(points: [point(8.125, 8.125), point(8.125, 13.125)], width: 1.5)
+            stroke(points: [point(11.875, 8.125), point(11.875, 13.125)], width: 1.5)
+
+            let body = UIBezierPath()
+            body.move(to: point(15.625, 4.375))
+            body.addLine(to: point(15.625, 16.25))
+            body.addCurve(to: point(15, 16.875), controlPoint1: point(15.625, 16.416), controlPoint2: point(15.559, 16.575))
+            body.addLine(to: point(5, 16.875))
+            body.addCurve(to: point(4.375, 16.25), controlPoint1: point(4.834, 16.875), controlPoint2: point(4.675, 16.809))
+            body.addLine(to: point(4.375, 4.375))
+            configure(path: body, width: 1.5)
+            body.stroke()
+
+            let handle = UIBezierPath()
+            handle.move(to: point(13.125, 4.375))
+            handle.addLine(to: point(13.125, 3.125))
+            handle.addCurve(to: point(11.875, 1.875), controlPoint1: point(13.125, 2.793), controlPoint2: point(12.993, 2.476))
+            handle.addLine(to: point(8.125, 1.875))
+            handle.addCurve(to: point(6.875, 3.125), controlPoint1: point(7.793, 1.875), controlPoint2: point(7.476, 2.007))
+            handle.addLine(to: point(6.875, 4.375))
+            configure(path: handle, width: 1.5)
+            handle.stroke()
+        }
+    }
+
+    private static func stroke(points: [CGPoint], width: CGFloat) {
+        let path = UIBezierPath()
+        guard let first = points.first else { return }
+        path.move(to: first)
+        points.dropFirst().forEach { path.addLine(to: $0) }
+        configure(path: path, width: width)
+        path.stroke()
+    }
+
+    private static func configure(path: UIBezierPath, width: CGFloat) {
+        path.lineWidth = width
+        path.lineCapStyle = .round
+        path.lineJoinStyle = .round
+    }
+}
+
 private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewController {
     private let dialogTitle: String
+    private let dialogMessage: String
     private let onConfirm: () -> Void
     private let onCancel: () -> Void
 
     init(
         title: String,
+        message: String,
         colors: FirmwareDialogColors,
         onConfirm: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.dialogTitle = title
+        self.dialogMessage = message
         self.onConfirm = onConfirm
         self.onCancel = onCancel
         super.init(colors: colors)
@@ -539,12 +727,21 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
         title.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(title)
 
+        let message = UILabel()
+        message.text = dialogMessage
+        message.textColor = colors.text
+        message.font = .systemFont(ofSize: 14, weight: .regular)
+        message.textAlignment = .center
+        message.numberOfLines = 0
+        message.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(message)
+
         let divider1 = UIView()
         divider1.backgroundColor = colors.border
         divider1.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(divider1)
-        let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
-        let cancel = makeActionButton(title: NSLocalizedString("Cancel", comment: ""), font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
+        let ok = makeActionButton(title: FirmwareLocalizedText.okTitle, font: .systemFont(ofSize: 18, weight: .bold), action: onConfirm)
+        let cancel = makeActionButton(title: FirmwareLocalizedText.noTitle, font: .systemFont(ofSize: 18, weight: .regular), action: onCancel)
         ok.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmOkButton
         cancel.accessibilityIdentifier = AccessibilityIdentifier.firmwareConfirmCancelButton
         card.addSubview(ok)
@@ -559,7 +756,11 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
             title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
             title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
 
-            divider1.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
+            message.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
+            message.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 42),
+            message.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -42),
+
+            divider1.topAnchor.constraint(equalTo: message.bottomAnchor, constant: 16),
             divider1.leadingAnchor.constraint(equalTo: card.leadingAnchor),
             divider1.trailingAnchor.constraint(equalTo: card.trailingAnchor),
             divider1.heightAnchor.constraint(equalToConstant: 1),
@@ -585,6 +786,7 @@ private final class FirmwareConfirmDialogViewController: FirmwareBaseDialogViewC
 
 final class FirmwareProgressDialogViewController: FirmwareBaseDialogViewController {
     private let progressView = UIProgressView(progressViewStyle: .default)
+    private let progressLabel = UILabel()
 
     override init(colors: FirmwareDialogColors) {
         super.init(colors: colors)
@@ -597,13 +799,20 @@ final class FirmwareProgressDialogViewController: FirmwareBaseDialogViewControll
         card.accessibilityIdentifier = AccessibilityIdentifier.firmwareProgressDialog
 
         let title = UILabel()
-        title.text = NSLocalizedString("File is being downloaded", comment: "")
+        title.text = FirmwareLocalizedText.prosthesesUpdateTitle
         title.textColor = colors.text
         title.font = .systemFont(ofSize: 18, weight: .bold)
         title.textAlignment = .center
         title.numberOfLines = 2
         title.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(title)
+
+        progressLabel.text = FirmwareLocalizedText.updatingProgress(0)
+        progressLabel.textColor = colors.text
+        progressLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        progressLabel.textAlignment = .center
+        progressLabel.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(progressLabel)
 
         progressView.progressTintColor = colors.active
         progressView.trackTintColor = colors.border
@@ -620,6 +829,10 @@ final class FirmwareProgressDialogViewController: FirmwareBaseDialogViewControll
             title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
             title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
 
+            progressLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16),
+            progressLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 42),
+            progressLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -42),
+
             progressView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 8),
             progressView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -8),
             progressView.centerYAnchor.constraint(equalTo: card.centerYAnchor, constant: 26)
@@ -627,6 +840,7 @@ final class FirmwareProgressDialogViewController: FirmwareBaseDialogViewControll
     }
 
     func update(progress: Int) {
+        progressLabel.text = FirmwareLocalizedText.updatingProgress(progress)
         progressView.setProgress(Float(progress) / 100, animated: true)
         progressView.accessibilityValue = "progress=\(progress)"
     }
@@ -674,7 +888,7 @@ private final class FirmwareWarningDialogViewController: FirmwareBaseDialogViewC
         divider.backgroundColor = colors.border
         divider.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(divider)
-        let ok = makeActionButton(title: NSLocalizedString("OK", comment: ""), font: .systemFont(ofSize: 18, weight: .bold), action: onClose)
+        let ok = makeActionButton(title: FirmwareLocalizedText.okTitle, font: .systemFont(ofSize: 18, weight: .bold), action: onClose)
         card.addSubview(ok)
 
         NSLayoutConstraint.activate([

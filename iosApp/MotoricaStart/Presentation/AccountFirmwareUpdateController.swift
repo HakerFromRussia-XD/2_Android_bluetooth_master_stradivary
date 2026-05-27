@@ -95,7 +95,7 @@ final class AccountFirmwareUpdateController {
                     self.stalledProgressWorkItem?.cancel()
                     self.dialogPresenter.dismissCurrent(animated: true) {
                         if event.isSuccess {
-                            self.presentingViewController?.showToast(event.message)
+                            self.presentingViewController?.showToast(FirmwareLocalizedText.updateInstalledMessage)
                             AccountBridge.shared.refreshBoardsAfterFirmwareUpdate(
                                 deviceAddress: board.deviceAddress,
                                 previousVersion: board.version
@@ -106,8 +106,8 @@ final class AccountFirmwareUpdateController {
                             }
                         } else {
                             self.dialogPresenter.showWarning(
-                                title: NSLocalizedString("Loading error", comment: ""),
-                                message: event.message
+                                title: FirmwareLocalizedText.loadingErrorTitle,
+                                message: FirmwareLocalizedText.bridgeErrorMessage(event.message)
                             )
                         }
                     }
@@ -115,7 +115,7 @@ final class AccountFirmwareUpdateController {
             }
         } catch {
             dialogPresenter.showWarning(
-                title: NSLocalizedString("Loading error", comment: ""),
+                title: FirmwareLocalizedText.loadingErrorTitle,
                 message: error.localizedDescription
             )
         }
@@ -125,8 +125,8 @@ final class AccountFirmwareUpdateController {
         stalledProgressWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
             self?.dialogPresenter.showWarning(
-                title: NSLocalizedString("Loading error", comment: ""),
-                message: NSLocalizedString("The firmware file was not successfully downloaded", comment: "")
+                title: FirmwareLocalizedText.loadingErrorTitle,
+                message: FirmwareLocalizedText.firmwareDownloadFailedMessage
             )
         }
         stalledProgressWorkItem = workItem

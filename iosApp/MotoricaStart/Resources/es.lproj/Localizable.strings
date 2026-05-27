@@ -45,6 +45,11 @@
 "Update" = "Actualizar";
 "Firmware update" = "Actualización de firmware";
 "Firmware file selection is not available on iOS yet." = "La selección del archivo de firmware aún no está disponible en iOS.";
+"Failed to start update" = "No se pudo iniciar la actualización";
+"Module is not ready for writing" = "El módulo no está listo para escritura";
+"Failed to prepare memory for firmware" = "No se pudo preparar la memoria para el firmware";
+"CRC mismatch! Update failed." = "CRC no coincide. Error de actualización.";
+"Update failed" = "Error de actualización";
 "OK" = "OK";
 "Date of receipt of prosthesis" = "Fecha de recepción de la prótesis";
 "Warranty expiration date" = "Fecha de vencimiento de la garantía";

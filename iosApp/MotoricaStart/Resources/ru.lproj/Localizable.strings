@@ -64,6 +64,11 @@
 "Update" = "Обновить";
 "Firmware update" = "Обновление прошивки";
 "Firmware file selection is not available on iOS yet." = "Выбор файла прошивки на iOS пока недоступен.";
+"Failed to start update" = "Не удалось начать обновление";
+"Module is not ready for writing" = "Модуль не готов к записи";
+"Failed to prepare memory for firmware" = "Не удалось подготовить память для прошивки";
+"CRC mismatch! Update failed." = "CRC mismatch! Обновление не удалось.";
+"Update failed" = "Обновление не удалось";
 "OK" = "OK";
 "Date of receipt of prosthesis" = "Дата получения протеза";
 "Warranty expiration date" = "Дата окончания гарантии";

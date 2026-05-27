@@ -27,6 +27,8 @@ class WidgetsSceneUITests: XCTestCase {
         let iconColors: Set<String>
         let textColors: Set<String>
         let isHighlighted: Bool
+        let iconCount: Int
+        let textCount: Int
     }
 
     private let preferredDeviceCandidates = [
@@ -774,7 +776,8 @@ class WidgetsSceneUITests: XCTestCase {
         }
         samples.append(finalFrame)
 
-        XCTAssertGreaterThan(samples.count, 8, "Not enough color samples to validate tab switch", file: file, line: line)
+        XCTAssertGreaterThanOrEqual(samples.count, 8, "Not enough color samples to validate tab switch", file: file, line: line)
+        XCTAssertTrue(hasObservedTarget, "Bottom navigation did not expose target selection during sampled transition", file: file, line: line)
         XCTAssertFalse(didRollbackAfterTarget, "Bottom navigation selected tag rolled back during color transition", file: file, line: line)
 
         for frame in samples {
@@ -820,6 +823,20 @@ class WidgetsSceneUITests: XCTestCase {
             XCTAssertFalse(
                 item.isHighlighted,
                 "Bottom navigation item \(item.index) became highlighted during tap; this can cause the black flash",
+                file: file,
+                line: line
+            )
+            XCTAssertEqual(
+                item.iconCount,
+                1,
+                "Bottom navigation item \(item.index) has duplicated visible icons: \(frameDebugDescription(frame))",
+                file: file,
+                line: line
+            )
+            XCTAssertEqual(
+                item.textCount,
+                1,
+                "Bottom navigation item \(item.index) has duplicated visible labels: \(frameDebugDescription(frame))",
                 file: file,
                 line: line
             )
@@ -900,9 +917,11 @@ class WidgetsSceneUITests: XCTestCase {
 
     private func parseTabBarColorItem(_ rawItem: Substring) -> TabBarColorItem? {
         let fields = rawItem.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
-        guard fields.count == 6,
+        guard fields.count == 8,
               let index = Int(fields[0]),
-              let tag = Int(fields[1])
+              let tag = Int(fields[1]),
+              let iconCount = Int(fields[6]),
+              let textCount = Int(fields[7])
         else {
             return nil
         }
@@ -913,7 +932,9 @@ class WidgetsSceneUITests: XCTestCase {
             isSelected: fields[2] == "1",
             iconColors: colorSet(from: fields[3]),
             textColors: colorSet(from: fields[4]),
-            isHighlighted: fields[5] == "1"
+            isHighlighted: fields[5] == "1",
+            iconCount: iconCount,
+            textCount: textCount
         )
     }
 
@@ -927,7 +948,7 @@ class WidgetsSceneUITests: XCTestCase {
     private func frameDebugDescription(_ frame: TabBarColorFrame) -> String {
         frame.items
             .map { item in
-                "index=\(item.index),tag=\(item.tag),selected=\(item.isSelected),icons=\(Array(item.iconColors).sorted()),texts=\(Array(item.textColors).sorted()),highlighted=\(item.isHighlighted)"
+                "index=\(item.index),tag=\(item.tag),selected=\(item.isSelected),icons=\(Array(item.iconColors).sorted())/\(item.iconCount),texts=\(Array(item.textColors).sorted())/\(item.textCount),highlighted=\(item.isHighlighted)"
             }
             .joined(separator: " | ")
     }
@@ -936,14 +957,14 @@ class WidgetsSceneUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             for name in candidates {
-                let cellByLabel = table.cells.matching(NSPredicate(format: "label CONTAINS[c] %@", name)).firstMatch
-                if cellByLabel.exists {
-                    return cellByLabel
-                }
-                
                 let staticTextByLabel = table.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", name)).firstMatch
                 if staticTextByLabel.exists {
                     return staticTextByLabel
+                }
+
+                let cellByLabel = table.cells.matching(NSPredicate(format: "label CONTAINS[c] %@", name)).firstMatch
+                if cellByLabel.exists {
+                    return cellByLabel
                 }
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.4))

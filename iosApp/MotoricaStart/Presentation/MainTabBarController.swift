@@ -8,12 +8,26 @@ import UIKit
 import shared
 
 final class MainTabBarController: UITabBarController {
+    private struct TabBarContentDescriptor {
+        let title: String
+        let imageName: String
+        let tag: Int
+    }
+
+    private struct NativeTabBarContentLayout {
+        let iconFrame: CGRect?
+        let titleFrame: CGRect?
+        let titleFont: UIFont?
+    }
+
     private let appDIContainer: AppDIContainer
     private var didUpdateTabBarFonts = false
     private var didDisableTabBarContinuousInteractionGestures = false
     private var didInstallTabButtonHighlightSuppressor = false
+#if DEBUG
     private var tabBarColorProbeDisplayLink: CADisplayLink?
     private let tabBarColorProbeView = UILabel()
+#endif
     
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
@@ -21,6 +35,10 @@ final class MainTabBarController: UITabBarController {
     private let selectedTabItemColor = UIColor(named: "ubi4_white") ?? .white
     private let unselectedTabItemColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
+    private let iOS26TabIconVerticalOffset: CGFloat = -6
+    private let tabBarContentOverlayView = UIView()
+    private var tabBarContentDescriptors: [TabBarContentDescriptor] = []
+    private var tabBarContentViews: [MainTabBarContentItemView] = []
     private var keyboardWillShowObserver: NSObjectProtocol?
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
@@ -84,6 +102,8 @@ final class MainTabBarController: UITabBarController {
 #if DEBUG
         configureTabBarColorProbeIfNeeded()
 #endif
+        configureTabBarContentOverlayIfNeeded()
+        updateTabBarContentOverlay(animated: false)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -100,6 +120,10 @@ final class MainTabBarController: UITabBarController {
             didUpdateTabBarFonts = true
         }
         forceUpdateTabBarItemColors()
+        configureTabBarContentOverlayIfNeeded()
+        layoutTabBarContentOverlayIfNeeded()
+        hideNativeTabBarContentIfNeeded()
+        updateTabBarContentOverlay(animated: false)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -117,43 +141,54 @@ final class MainTabBarController: UITabBarController {
             closeWidgetQueriesSuggestions: {}
         )
         
+        let gesturesTitle = NSLocalizedString("Gestures", comment: "")
+        let sensorsTitle = NSLocalizedString("Sensors", comment: "")
+        let specialTitle = NSLocalizedString("Special settings", comment: "")
         let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
-        gesturesVC.tabBarItem = UITabBarItem(
-            title: NSLocalizedString("Gestures", comment: ""),
-            image: tabIcon(named: "ic_gestures"),
+        gesturesVC.tabBarItem = makeTabBarItem(
+            title: gesturesTitle,
+            imageName: "ic_gestures",
             tag: 0
         )
         gesturesVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabGesturesItem
 
         let sensorsVC = widgetsDI.makeSensorsTabViewController(actions: actions)
-        sensorsVC.tabBarItem = UITabBarItem(
-            title: NSLocalizedString("Sensors", comment: ""),
-            image: tabIcon(named: "ic_sensors"),
+        sensorsVC.tabBarItem = makeTabBarItem(
+            title: sensorsTitle,
+            imageName: "ic_sensors",
             tag: 1
         )
 
         let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
-        specialVC.tabBarItem = UITabBarItem(
-            title: NSLocalizedString("Special settings", comment: ""),
-            image: tabIcon(named: "ic_mechanics"),
+        specialVC.tabBarItem = makeTabBarItem(
+            title: specialTitle,
+            imageName: "ic_mechanics",
             tag: 3
         )
         specialVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabSpecialSettingsItem
 
         var controllers: [UIViewController] = [gesturesVC, sensorsVC]
+        var descriptors: [TabBarContentDescriptor] = [
+            TabBarContentDescriptor(title: gesturesTitle, imageName: "ic_gestures", tag: 0),
+            TabBarContentDescriptor(title: sensorsTitle, imageName: "ic_sensors", tag: 1)
+        ]
 
         let trainingWidgets = DataFactory().prepareData(display: 3)
         if !trainingWidgets.isEmpty {
+            let trainingTitle = NSLocalizedString("Training", comment: "")
             let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
-            trainingVC.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("Training", comment: ""),
-                image: tabIcon(named: "ic_trophy"),
+            trainingVC.tabBarItem = makeTabBarItem(
+                title: trainingTitle,
+                imageName: "ic_trophy",
                 tag: 2
             )
             controllers.append(trainingVC)
+            descriptors.append(TabBarContentDescriptor(title: trainingTitle, imageName: "ic_trophy", tag: 2))
         }
 
         controllers.append(specialVC)
+        descriptors.append(TabBarContentDescriptor(title: specialTitle, imageName: "ic_mechanics", tag: 3))
+        tabBarContentDescriptors = descriptors
         viewControllers = controllers
     }
 
@@ -272,6 +307,9 @@ final class MainTabBarController: UITabBarController {
             item.setTitleTextAttributes(selectedAttributes, for: .selected)
             item.setTitleTextAttributes(disabledAttributes, for: .disabled)
             item.setTitleTextAttributes(focusedAttributes, for: .focused)
+            if #available(iOS 26.0, *) {
+                item.setTitleTextAttributes(normalAttributes, for: .highlighted)
+            }
         }
     }
     
@@ -280,8 +318,13 @@ final class MainTabBarController: UITabBarController {
 
         // 1) Смещаем иконки вниз (появляется "воздух" сверху)
         for item in items {
-            item.imageInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: -topPadding, right: 0)
-            item.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+            if #available(iOS 26.0, *) {
+                item.imageInsets = .zero
+                item.titlePositionAdjustment = .zero
+            } else {
+                item.imageInsets = UIEdgeInsets(top: topPadding, left: 0, bottom: -topPadding, right: 0)
+                item.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
+            }
         }
 
         // 2) Полностью настраиваем Appearance, чтобы НЕ сломать цвета
@@ -301,6 +344,29 @@ final class MainTabBarController: UITabBarController {
         appearance.stackedItemSpacing = 0
 
         func tune(_ layout: inout UITabBarItemAppearance) {
+            if #available(iOS 26.0, *) {
+                let normalTitleAttributes: [NSAttributedString.Key: Any] = [
+                    .foregroundColor: unselected
+                ]
+                let selectedTitleAttributes: [NSAttributedString.Key: Any] = [
+                    .foregroundColor: selected
+                ]
+                layout.normal.iconColor = unselected
+                layout.selected.iconColor = selected
+                layout.disabled.iconColor = unselected
+                layout.focused.iconColor = unselected
+
+                layout.normal.titleTextAttributes = normalTitleAttributes
+                layout.selected.titleTextAttributes = selectedTitleAttributes
+                layout.disabled.titleTextAttributes = normalTitleAttributes
+                layout.focused.titleTextAttributes = normalTitleAttributes
+
+                layout.normal.titlePositionAdjustment = .zero
+                layout.selected.titlePositionAdjustment = .zero
+                layout.disabled.titlePositionAdjustment = .zero
+                layout.focused.titlePositionAdjustment = .zero
+                return
+            }
 
             layout.normal.iconColor = unselected
 
@@ -325,7 +391,6 @@ final class MainTabBarController: UITabBarController {
             layout.disabled.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
 
             layout.focused.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: topPadding / 2)
-
         }
 
         tune(&appearance.stackedLayoutAppearance)      // iPhone, подпись под иконкой
@@ -339,10 +404,209 @@ final class MainTabBarController: UITabBarController {
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
         }
+        if #available(iOS 26.0, *) {
+            for item in items {
+                item.standardAppearance = appearance
+                item.scrollEdgeAppearance = appearance
+            }
+        } else {
+            for item in items {
+                item.selectedImage = item.image?.withRenderingMode(.alwaysTemplate)
+            }
+        }
+    }
+
+    private func makeTabBarItem(title: String, imageName: String, tag: Int) -> UITabBarItem {
+        return UITabBarItem(
+            title: title,
+            image: tabIcon(named: imageName),
+            tag: tag
+        )
     }
 
     private func tabIcon(named name: String) -> UIImage? {
         UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
+    }
+
+    private func configureTabBarContentOverlayIfNeeded() {
+        guard #available(iOS 26.0, *), !tabBarContentDescriptors.isEmpty else { return }
+
+        if tabBarContentOverlayView.superview == nil {
+            tabBarContentOverlayView.isUserInteractionEnabled = false
+            tabBarContentOverlayView.accessibilityElementsHidden = true
+            tabBarContentOverlayView.backgroundColor = .clear
+            tabBarContentOverlayView.translatesAutoresizingMaskIntoConstraints = false
+
+            tabBar.addSubview(tabBarContentOverlayView)
+            NSLayoutConstraint.activate([
+                tabBarContentOverlayView.leadingAnchor.constraint(equalTo: tabBar.leadingAnchor),
+                tabBarContentOverlayView.trailingAnchor.constraint(equalTo: tabBar.trailingAnchor),
+                tabBarContentOverlayView.topAnchor.constraint(equalTo: tabBar.topAnchor),
+                tabBarContentOverlayView.bottomAnchor.constraint(equalTo: tabBar.bottomAnchor)
+            ])
+        }
+
+        let currentTags = tabBarContentViews.map(\.tagValue)
+        let expectedTags = tabBarContentDescriptors.map(\.tag)
+        guard currentTags != expectedTags else { return }
+
+        tabBarContentViews.forEach { $0.removeFromSuperview() }
+
+        tabBarContentViews = tabBarContentDescriptors.map { descriptor in
+            MainTabBarContentItemView(
+                title: descriptor.title,
+                image: tabIcon(named: descriptor.imageName),
+                tagValue: descriptor.tag,
+                topPadding: 0,
+                iconVerticalOffset: iOS26TabIconVerticalOffset
+            )
+        }
+
+        tabBarContentViews.forEach { view in
+            view.translatesAutoresizingMaskIntoConstraints = true
+            tabBarContentOverlayView.addSubview(view)
+        }
+        layoutTabBarContentOverlayIfNeeded()
+        hideNativeTabBarContentIfNeeded()
+    }
+
+    private func layoutTabBarContentOverlayIfNeeded() {
+        guard #available(iOS 26.0, *),
+              tabBarContentOverlayView.superview != nil,
+              !tabBarContentViews.isEmpty else { return }
+
+        tabBar.layoutIfNeeded()
+        tabBarContentOverlayView.layoutIfNeeded()
+
+        let controls = tabBarButtonControls()
+        if controls.count == tabBarContentViews.count {
+            for (index, pair) in zip(tabBarContentViews, controls).enumerated() {
+                let (itemView, control) = pair
+                itemView.frame = control.convert(control.bounds, to: tabBarContentOverlayView)
+                let descriptor = tabBarContentDescriptors.indices.contains(index) ? tabBarContentDescriptors[index] : nil
+                if let nativeLayout = nativeTabBarContentLayout(in: control, matchingTitle: descriptor?.title) {
+                    itemView.applyNativeLayout(
+                        iconFrame: nativeLayout.iconFrame,
+                        titleFrame: nativeLayout.titleFrame,
+                        titleFont: nativeLayout.titleFont
+                    )
+                } else {
+                    itemView.resetToFallbackLayout(topPadding: tabItemTopPadding)
+                }
+            }
+            return
+        }
+
+        let itemWidth = tabBarContentOverlayView.bounds.width / CGFloat(tabBarContentViews.count)
+        for (index, itemView) in tabBarContentViews.enumerated() {
+            itemView.frame = CGRect(
+                x: CGFloat(index) * itemWidth,
+                y: 0,
+                width: itemWidth,
+                height: tabBarContentOverlayView.bounds.height
+            )
+            itemView.resetToFallbackLayout(topPadding: tabItemTopPadding)
+        }
+    }
+
+    private func nativeTabBarContentLayout(in control: UIControl, matchingTitle title: String?) -> NativeTabBarContentLayout? {
+        let imageViews = collectSubviews(in: control, as: UIImageView.self)
+            .filter { imageView in
+                imageView.image != nil &&
+                imageView.bounds.width > 0 &&
+                imageView.bounds.height > 0 &&
+                imageView.bounds.width <= 80 &&
+                imageView.bounds.height <= 80
+            }
+            .sorted { first, second in
+                let firstFrame = first.convert(first.bounds, to: control)
+                let secondFrame = second.convert(second.bounds, to: control)
+                return abs(firstFrame.midX - control.bounds.midX) < abs(secondFrame.midX - control.bounds.midX)
+            }
+
+        let labels = collectSubviews(in: control, as: UILabel.self)
+            .filter { label in
+                guard let text = label.text, !text.isEmpty else { return false }
+                if let title, text != title {
+                    return false
+                }
+                return label.bounds.width > 0 && label.bounds.height > 0
+            }
+            .sorted { first, second in
+                let firstFrame = first.convert(first.bounds, to: control)
+                let secondFrame = second.convert(second.bounds, to: control)
+                return abs(firstFrame.midX - control.bounds.midX) < abs(secondFrame.midX - control.bounds.midX)
+            }
+
+        guard let imageView = imageViews.first ?? collectSubviews(in: control, as: UIImageView.self)
+            .first(where: { $0.image != nil && $0.bounds.width > 0 && $0.bounds.height > 0 }),
+              let label = labels.first ?? collectSubviews(in: control, as: UILabel.self)
+            .first(where: { $0.text?.isEmpty == false && $0.bounds.width > 0 && $0.bounds.height > 0 }) else {
+            return nil
+        }
+
+        return NativeTabBarContentLayout(
+            iconFrame: imageView.convert(imageView.bounds, to: tabBarContentOverlayView),
+            titleFrame: label.convert(label.bounds, to: tabBarContentOverlayView),
+            titleFont: label.font
+        )
+    }
+
+    private func collectSubviews<T: UIView>(in view: UIView, as type: T.Type) -> [T] {
+        var result: [T] = []
+
+        func collect(from current: UIView) {
+            if let typed = current as? T {
+                result.append(typed)
+            }
+            for subview in current.subviews {
+                collect(from: subview)
+            }
+        }
+
+        collect(from: view)
+        return result
+    }
+
+    private func hideNativeTabBarContentIfNeeded() {
+        guard #available(iOS 26.0, *), tabBarContentOverlayView.superview != nil else { return }
+
+        func hideNativeContent(in view: UIView) {
+            for subview in view.subviews {
+                if subview === tabBarContentOverlayView || subview.isDescendant(of: tabBarContentOverlayView) {
+                    continue
+                }
+
+                if subview is UILabel || subview is UIImageView {
+                    subview.isHidden = true
+                    subview.alpha = 0
+                    subview.tintColor = .clear
+                    if let label = subview as? UILabel {
+                        label.textColor = .clear
+                        label.highlightedTextColor = .clear
+                    }
+                }
+
+                hideNativeContent(in: subview)
+            }
+        }
+
+        hideNativeContent(in: tabBar)
+        tabBar.bringSubviewToFront(tabBarContentOverlayView)
+    }
+
+    private func updateTabBarContentOverlay(animated: Bool) {
+        guard #available(iOS 26.0, *) else { return }
+
+        let selectedTag = selectedViewController?.tabBarItem.tag
+        for itemView in tabBarContentViews {
+            itemView.setSelected(
+                itemView.tagValue == selectedTag,
+                selectedColor: selectedTabItemColor,
+                unselectedColor: unselectedTabItemColor,
+                animated: animated
+            )
+        }
     }
 
     private func refreshTabBarItemColors() {
@@ -350,8 +614,10 @@ final class MainTabBarController: UITabBarController {
         unifyTabBarItemFonts()
         sanitizeTabBarSelectionOverlaysIfNeeded()
         forceUpdateTabBarItemColors()
+        updateTabBarContentOverlay(animated: true)
         DispatchQueue.main.async { [weak self] in
             self?.forceUpdateTabBarItemColors()
+            self?.updateTabBarContentOverlay(animated: false)
         }
     }
 
@@ -397,36 +663,13 @@ final class MainTabBarController: UITabBarController {
             }
     }
 
-    private func applyTintRecursively(in view: UIView, color: UIColor) {
-        view.tintColor = color
-        if let label = view as? UILabel {
-            label.textColor = color
-            label.highlightedTextColor = color
-        } else if let button = view as? UIButton {
-            button.setTitleColor(color, for: .normal)
-            button.setTitleColor(color, for: .selected)
-            button.setTitleColor(color, for: .highlighted)
-            button.setTitleColor(color, for: .disabled)
-        } else if let imageView = view as? UIImageView {
-            imageView.tintColor = color
-        }
-        for subview in view.subviews {
-            applyTintRecursively(in: subview, color: color)
-        }
-    }
-
     private func forceUpdateTabBarItemColors() {
         guard #available(iOS 26.0, *) else { return }
         guard let items = tabBar.items else { return }
 
         let selectedTag = selectedViewController?.tabBarItem.tag
-        let controls = tabBarButtonControls()
-        guard !controls.isEmpty else { return }
 
-        for (index, control) in controls.enumerated() {
-            guard items.indices.contains(index) else { continue }
-
-            let item = items[index]
+        for item in items {
             let color = item.tag == selectedTag
                 ? selectedTabItemColor
                 : unselectedTabItemColor
@@ -434,39 +677,24 @@ final class MainTabBarController: UITabBarController {
             item.setTitleTextAttributes([.foregroundColor: color], for: .normal)
             item.setTitleTextAttributes([.foregroundColor: color], for: .selected)
             item.setTitleTextAttributes([.foregroundColor: color], for: .focused)
+            item.setTitleTextAttributes([.foregroundColor: color], for: .highlighted)
             item.setTitleTextAttributes([.foregroundColor: unselectedTabItemColor], for: .disabled)
 
-            control.isSelected = item.tag == selectedTag
-            control.isHighlighted = false
-            control.tintColor = color
-            updateTabBarVisualElements(in: control, color: color)
-            control.setNeedsLayout()
-            control.layoutIfNeeded()
+            if #available(iOS 15.0, *) {
+                item.standardAppearance = tabBar.standardAppearance
+                item.scrollEdgeAppearance = tabBar.scrollEdgeAppearance
+            }
         }
 
         tabBar.tintColor = selectedTabItemColor
         tabBar.unselectedItemTintColor = unselectedTabItemColor
         tabBar.setNeedsLayout()
+        layoutTabBarContentOverlayIfNeeded()
+        hideNativeTabBarContentIfNeeded()
+        updateTabBarContentOverlay(animated: false)
 #if DEBUG
         updateTabBarColorProbeValue()
 #endif
-    }
-
-    private func updateTabBarVisualElements(in view: UIView, color: UIColor) {
-        view.tintColor = color
-
-        if let label = view as? UILabel {
-            label.textColor = color
-            label.highlightedTextColor = color
-        }
-
-        if let imageView = view as? UIImageView {
-            imageView.tintColor = color
-        }
-
-        for subview in view.subviews {
-            updateTabBarVisualElements(in: subview, color: color)
-        }
     }
 
     private func scheduleTabBarColorRefreshBurst() {
@@ -658,7 +886,9 @@ final class MainTabBarController: UITabBarController {
 
     deinit {
         pendingTabColorRefreshWorkItems.forEach { $0.cancel() }
+#if DEBUG
         tabBarColorProbeDisplayLink?.invalidate()
+#endif
         if let keyboardWillShowObserver {
             NotificationCenter.default.removeObserver(keyboardWillShowObserver)
         }
@@ -668,6 +898,117 @@ final class MainTabBarController: UITabBarController {
         if let synchronizationStateObserver {
             NotificationCenter.default.removeObserver(synchronizationStateObserver)
         }
+    }
+}
+
+private final class MainTabBarContentItemView: UIView {
+    let tagValue: Int
+
+    private let iconView = UIImageView()
+    private let titleLabel = UILabel()
+    private var usesNativeLayout = false
+    private var fallbackTopPadding: CGFloat
+    private let iconVerticalOffset: CGFloat
+
+    var iconColor: UIColor {
+        iconView.tintColor
+    }
+
+    var titleColor: UIColor {
+        titleLabel.textColor
+    }
+
+    init(title: String, image: UIImage?, tagValue: Int, topPadding: CGFloat, iconVerticalOffset: CGFloat) {
+        self.tagValue = tagValue
+        self.fallbackTopPadding = topPadding
+        self.iconVerticalOffset = iconVerticalOffset
+        super.init(frame: .zero)
+        isUserInteractionEnabled = false
+        backgroundColor = .clear
+
+        iconView.image = image
+        iconView.contentMode = .scaleAspectFit
+        iconView.tintColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
+
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 10)
+        titleLabel.textAlignment = .center
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.75
+        titleLabel.textColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
+
+        addSubview(iconView)
+        addSubview(titleLabel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard !usesNativeLayout else { return }
+
+        let iconSize = CGSize(width: 28, height: 28)
+        let titleSize = titleLabel.sizeThatFits(CGSize(width: max(bounds.width - 4, 0), height: .greatestFiniteMagnitude))
+        let totalHeight = iconSize.height + 2 + titleSize.height
+        let startY = ((bounds.height - totalHeight) / 2) + fallbackTopPadding
+
+        iconView.frame = CGRect(
+            x: (bounds.width - iconSize.width) / 2,
+            y: startY + iconVerticalOffset,
+            width: iconSize.width,
+            height: iconSize.height
+        )
+        titleLabel.frame = CGRect(
+            x: 2,
+            y: iconView.frame.maxY + 2,
+            width: max(bounds.width - 4, 0),
+            height: titleSize.height
+        )
+    }
+
+    func applyNativeLayout(iconFrame: CGRect?, titleFrame: CGRect?, titleFont: UIFont?) {
+        usesNativeLayout = true
+
+        if let titleFont {
+            titleLabel.font = titleFont
+        }
+
+        if let iconFrame {
+            iconView.frame = convert(iconFrame, from: superview).offsetBy(dx: 0, dy: iconVerticalOffset)
+        }
+
+        if let titleFrame {
+            titleLabel.frame = convert(titleFrame, from: superview)
+        }
+    }
+
+    func resetToFallbackLayout(topPadding: CGFloat) {
+        usesNativeLayout = false
+        fallbackTopPadding = topPadding
+        setNeedsLayout()
+    }
+
+    func setSelected(_ isSelected: Bool, selectedColor: UIColor, unselectedColor: UIColor, animated: Bool) {
+        let color = isSelected ? selectedColor : unselectedColor
+        let changes = {
+            self.iconView.tintColor = color
+            self.titleLabel.textColor = color
+        }
+
+        guard animated else {
+            changes()
+            return
+        }
+
+        UIView.animate(
+            withDuration: 0.18,
+            delay: 0,
+            options: [.beginFromCurrentState, .allowUserInteraction, .curveEaseInOut],
+            animations: changes
+        )
     }
 }
 
@@ -685,10 +1026,12 @@ extension MainTabBarController: UITabBarControllerDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.refreshTabBarItemColors()
             self?.forceUpdateTabBarItemColors()
+            self?.updateTabBarContentOverlay(animated: true)
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
             self?.forceUpdateTabBarItemColors()
+            self?.updateTabBarContentOverlay(animated: false)
         }
     }
 
@@ -749,12 +1092,14 @@ private extension MainTabBarController {
             let control = controls.indices.contains(index) ? controls[index] : nil
             let tag = item.tag
             let isSelected = tag == selectedTag
-            let iconColors = colorsForVisibleImageViews(in: tabBar, itemIndex: index, itemCount: items.count)
-            let textColors = colorsForVisibleLabels(in: tabBar, itemIndex: index, itemCount: items.count)
+            let visibleImageViews = visibleImageViews(in: tabBar, itemIndex: index, itemCount: items.count)
+            let visibleLabels = visibleLabels(in: tabBar, itemIndex: index, itemCount: items.count)
+            let iconColors = visibleImageViews.map { colorHex($0.tintColor) }.removingDuplicates()
+            let textColors = visibleLabels.map { colorHex($0.textColor) }.removingDuplicates()
             let iconValue = iconColors.isEmpty ? "_" : iconColors.joined(separator: "+")
             let textValue = textColors.isEmpty ? "_" : textColors.joined(separator: "+")
             let highlighted = control?.isHighlighted == true ? "1" : "0"
-            return "\(index),\(tag),\(isSelected ? "1" : "0"),\(iconValue),\(textValue),\(highlighted)"
+            return "\(index),\(tag),\(isSelected ? "1" : "0"),\(iconValue),\(textValue),\(highlighted),\(visibleImageViews.count),\(visibleLabels.count)"
         }
 
         let payload = [
@@ -768,19 +1113,17 @@ private extension MainTabBarController {
         tabBarColorProbeView.text = payload
     }
 
-    func colorsForVisibleImageViews(in view: UIView, itemIndex: Int, itemCount: Int) -> [String] {
-        collectVisibleSubviews(in: view, as: UIImageView.self)
+    func visibleImageViews(in view: UIView, itemIndex: Int, itemCount: Int) -> [UIImageView] {
+        return collectVisibleSubviews(in: view, as: UIImageView.self)
+            .filter { $0.image != nil }
             .filter { isView($0, inTabItemIndex: itemIndex, itemCount: itemCount) }
-            .map { colorHex($0.tintColor) }
-            .removingDuplicates()
     }
 
-    func colorsForVisibleLabels(in view: UIView, itemIndex: Int, itemCount: Int) -> [String] {
-        collectVisibleSubviews(in: view, as: UILabel.self)
+    func visibleLabels(in view: UIView, itemIndex: Int, itemCount: Int) -> [UILabel] {
+        return collectVisibleSubviews(in: view, as: UILabel.self)
             .filter { $0 !== tabBarColorProbeView }
+            .filter { $0.text?.isEmpty == false }
             .filter { isView($0, inTabItemIndex: itemIndex, itemCount: itemCount) }
-            .map { colorHex($0.textColor) }
-            .removingDuplicates()
     }
 
     func isView(_ view: UIView, inTabItemIndex itemIndex: Int, itemCount: Int) -> Bool {

@@ -14,6 +14,21 @@ class WidgetsSceneUITests: XCTestCase {
         let rollback: Bool
     }
 
+    private struct TabBarColorFrame {
+        let selectedTag: Int
+        let allowedColors: Set<String>
+        let items: [TabBarColorItem]
+    }
+
+    private struct TabBarColorItem {
+        let index: Int
+        let tag: Int
+        let isSelected: Bool
+        let iconColors: Set<String>
+        let textColors: Set<String>
+        let isHighlighted: Bool
+    }
+
     private let preferredDeviceCandidates = [
         "FTHS3-Рома1",
         "Рома1",
@@ -567,6 +582,64 @@ class WidgetsSceneUITests: XCTestCase {
         }
     }
 
+    func testBottomNavigation_whenSwitchingTabs_thenIconAndTextColorsStayOnUbi4PaletteWithoutFlicker() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-skip-synchronization",
+            "-ui-test-tabbar-color-probe"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["111111"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device 111111 in scan list")
+            return
+        }
+        targetDeviceElement.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open after connecting to BLE device 111111")
+
+        let colorProbe = app.descendants(matching: .any)[AccessibilityIdentifier.mainTabBarColorProbe]
+        XCTAssertTrue(colorProbe.waitForExistence(timeout: 3), "Tab bar color probe did not appear")
+
+        guard let initialFrame = waitForTabBarColorFrame(colorProbe, timeout: 3) else {
+            XCTFail("Tab bar color probe did not publish state; label=\(colorProbe.label); value=\(String(describing: colorProbe.value))")
+            return
+        }
+        assertTabBarColorFrameIsStable(initialFrame, expectedSelectedTag: initialFrame.selectedTag)
+
+        let buttons = sortedTabBarButtons(in: app)
+        XCTAssertGreaterThanOrEqual(buttons.count, 3, "Expected at least three bottom navigation buttons")
+        XCTAssertEqual(
+            buttons.count,
+            initialFrame.items.count,
+            "Tab bar button count and color probe item count differ"
+        )
+
+        for targetIndex in buttons.indices {
+            guard let currentFrame = waitForTabBarColorFrame(colorProbe, timeout: 1),
+                  let targetItem = currentFrame.items.first(where: { $0.index == targetIndex })
+            else {
+                XCTFail("Could not resolve tab color state before tapping index \(targetIndex)")
+                return
+            }
+
+            assertBottomNavigationColorTransition(
+                tabRoot: colorProbe,
+                targetButton: buttons[targetIndex],
+                targetTag: targetItem.tag,
+                startTag: currentFrame.selectedTag
+            )
+        }
+    }
+
     func testSpecialSettingsSpinner_whenTapOption_thenDropdownClosesAndSelectionIsApplied() {
         let app = XCUIApplication()
         app.launch()
@@ -656,6 +729,207 @@ class WidgetsSceneUITests: XCTestCase {
             waitForButtonLabel(triggerButton, expectedValues: [expectedSelectedLabel], timeout: 4),
             "Spinner selection was not applied after tapping dropdown option"
         )
+    }
+
+    private func sortedTabBarButtons(in app: XCUIApplication) -> [XCUIElement] {
+        app.tabBars.buttons.allElementsBoundByIndex
+            .filter { $0.exists }
+            .sorted { $0.frame.midX < $1.frame.midX }
+    }
+
+    private func assertBottomNavigationColorTransition(
+        tabRoot: XCUIElement,
+        targetButton: XCUIElement,
+        targetTag: Int,
+        startTag: Int,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        var samples: [TabBarColorFrame] = []
+        if let beforeTap = tabBarColorFrame(from: tabRoot) {
+            samples.append(beforeTap)
+        }
+
+        targetButton.tap()
+
+        let deadline = Date().addingTimeInterval(0.8)
+        var hasObservedTarget = false
+        var didRollbackAfterTarget = false
+
+        while Date() < deadline {
+            if let frame = tabBarColorFrame(from: tabRoot) {
+                if frame.selectedTag == targetTag {
+                    hasObservedTarget = true
+                } else if hasObservedTarget && frame.selectedTag == startTag && startTag != targetTag {
+                    didRollbackAfterTarget = true
+                }
+                samples.append(frame)
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.016))
+        }
+
+        guard let finalFrame = waitForTabBarColorFrame(tabRoot, selectedTag: targetTag, timeout: 2) else {
+            XCTFail("Bottom navigation did not end on selected tag \(targetTag)", file: file, line: line)
+            return
+        }
+        samples.append(finalFrame)
+
+        XCTAssertGreaterThan(samples.count, 8, "Not enough color samples to validate tab switch", file: file, line: line)
+        XCTAssertFalse(didRollbackAfterTarget, "Bottom navigation selected tag rolled back during color transition", file: file, line: line)
+
+        for frame in samples {
+            assertTabBarColorFrameIsStable(frame, expectedSelectedTag: frame.selectedTag, file: file, line: line)
+        }
+
+        assertTabBarColorFrameIsStable(finalFrame, expectedSelectedTag: targetTag, file: file, line: line)
+    }
+
+    private func assertTabBarColorFrameIsStable(
+        _ frame: TabBarColorFrame,
+        expectedSelectedTag: Int,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let expectedWhite = "#FCFCFC"
+        let expectedInactive = "#838383"
+        let expectedAllowedColors: Set<String> = [expectedWhite, expectedInactive]
+        let allowedColors = frame.allowedColors.isEmpty ? expectedAllowedColors : frame.allowedColors
+
+        XCTAssertEqual(
+            allowedColors,
+            expectedAllowedColors,
+            "Tab bar probe expected only ubi4_white and ubi4_deactivate_text",
+            file: file,
+            line: line
+        )
+
+        for item in frame.items {
+            let observedColors = item.iconColors.union(item.textColors)
+            XCTAssertFalse(
+                observedColors.contains("#000000"),
+                "Black flicker detected in bottom navigation item \(item.index): \(frameDebugDescription(frame))",
+                file: file,
+                line: line
+            )
+            XCTAssertTrue(
+                observedColors.isSubset(of: expectedAllowedColors),
+                "Unexpected bottom navigation color(s) \(observedColors) in item \(item.index): \(frameDebugDescription(frame))",
+                file: file,
+                line: line
+            )
+            XCTAssertFalse(
+                item.isHighlighted,
+                "Bottom navigation item \(item.index) became highlighted during tap; this can cause the black flash",
+                file: file,
+                line: line
+            )
+
+            let expectedColor = item.tag == expectedSelectedTag ? expectedWhite : expectedInactive
+            XCTAssertEqual(
+                item.iconColors,
+                Set([expectedColor]),
+                "Bottom navigation icon color does not match selected state for item \(item.index): \(frameDebugDescription(frame))",
+                file: file,
+                line: line
+            )
+            XCTAssertEqual(
+                item.textColors,
+                Set([expectedColor]),
+                "Bottom navigation text color does not match selected state for item \(item.index): \(frameDebugDescription(frame))",
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    private func waitForTabBarColorFrame(
+        _ tabRoot: XCUIElement,
+        selectedTag: Int? = nil,
+        timeout: TimeInterval
+    ) -> TabBarColorFrame? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let frame = tabBarColorFrame(from: tabRoot),
+               selectedTag == nil || frame.selectedTag == selectedTag {
+                return frame
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        guard let frame = tabBarColorFrame(from: tabRoot) else { return nil }
+        if let selectedTag, frame.selectedTag != selectedTag {
+            return nil
+        }
+        return frame
+    }
+
+    private func tabBarColorFrame(from tabRoot: XCUIElement) -> TabBarColorFrame? {
+        let value = (tabRoot.value as? String).flatMap { $0.isEmpty ? nil : $0 } ?? tabRoot.label
+        guard !value.isEmpty else { return nil }
+
+        var selectedTag: Int?
+        var allowedColors = Set<String>()
+        var items: [TabBarColorItem] = []
+
+        for rawPart in value.split(separator: ";") {
+            let part = String(rawPart)
+            if part.hasPrefix("selectedTag=") {
+                selectedTag = Int(part.dropFirst("selectedTag=".count))
+            } else if part.hasPrefix("allowed=") {
+                allowedColors = Set(
+                    part
+                        .dropFirst("allowed=".count)
+                        .split(separator: ",")
+                        .map(String.init)
+                )
+            } else if part.hasPrefix("items=") {
+                items = part
+                    .dropFirst("items=".count)
+                    .split(separator: "|")
+                    .compactMap(parseTabBarColorItem)
+            }
+        }
+
+        guard let selectedTag, !items.isEmpty else { return nil }
+        return TabBarColorFrame(
+            selectedTag: selectedTag,
+            allowedColors: allowedColors,
+            items: items
+        )
+    }
+
+    private func parseTabBarColorItem(_ rawItem: Substring) -> TabBarColorItem? {
+        let fields = rawItem.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
+        guard fields.count == 6,
+              let index = Int(fields[0]),
+              let tag = Int(fields[1])
+        else {
+            return nil
+        }
+
+        return TabBarColorItem(
+            index: index,
+            tag: tag,
+            isSelected: fields[2] == "1",
+            iconColors: colorSet(from: fields[3]),
+            textColors: colorSet(from: fields[4]),
+            isHighlighted: fields[5] == "1"
+        )
+    }
+
+    private func colorSet(from rawValue: String) -> Set<String> {
+        if rawValue == "_" {
+            return []
+        }
+        return Set(rawValue.split(separator: "+").map(String.init))
+    }
+
+    private func frameDebugDescription(_ frame: TabBarColorFrame) -> String {
+        frame.items
+            .map { item in
+                "index=\(item.index),tag=\(item.tag),selected=\(item.isSelected),icons=\(Array(item.iconColors).sorted()),texts=\(Array(item.textColors).sorted()),highlighted=\(item.isHighlighted)"
+            }
+            .joined(separator: " | ")
     }
 
     private func waitForDeviceElement(namedAnyOf candidates: [String], in table: XCUIElement, timeout: TimeInterval) -> XCUIElement? {
@@ -1113,7 +1387,7 @@ class WidgetsSceneUITests: XCTestCase {
                     (button.frame.minY >= lowerMinY && button.frame.maxY <= lowerMaxY) ||
                     (button.frame.minY >= upperMinY && button.frame.maxY <= upperMaxY)
 
-                button.exists &&
+                return button.exists &&
                 isVerticallyNearTrigger &&
                 abs(button.frame.midX - triggerFrame.midX) <= maxHorizontalDelta &&
                 button.frame.width >= triggerFrame.width * 0.6

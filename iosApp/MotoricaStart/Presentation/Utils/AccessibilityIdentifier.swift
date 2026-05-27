@@ -6,6 +6,7 @@ struct AccessibilityIdentifier {
     static let bleDevicesTable = "AccessibilityIdentifierBLEDevicesTable"
     static let bleFilterSegmentSelector = "AccessibilityIdentifierBLEFilterSegmentSelector"
     static let mainTabBarRoot = "AccessibilityIdentifierMainTabBarRoot"
+    static let mainTabBarColorProbe = "AccessibilityIdentifierMainTabBarColorProbe"
     static let mainTabGesturesItem = "AccessibilityIdentifierMainTabGesturesItem"
     static let mainTabSpecialSettingsItem = "AccessibilityIdentifierMainTabSpecialSettingsItem"
     static let widgetsResyncButton = "AccessibilityIdentifierWidgetsResyncButton"

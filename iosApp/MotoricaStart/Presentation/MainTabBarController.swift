@@ -12,6 +12,8 @@ final class MainTabBarController: UITabBarController {
     private var didUpdateTabBarFonts = false
     private var didDisableTabBarContinuousInteractionGestures = false
     private var didInstallTabButtonHighlightSuppressor = false
+    private var tabBarColorProbeDisplayLink: CADisplayLink?
+    private let tabBarColorProbeView = UILabel()
     
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
@@ -79,6 +81,9 @@ final class MainTabBarController: UITabBarController {
         registerKeyboardObservers()
         registerSynchronizationObservers()
         updateSynchronizationRestrictedTabAvailability()
+#if DEBUG
+        configureTabBarColorProbeIfNeeded()
+#endif
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -442,6 +447,9 @@ final class MainTabBarController: UITabBarController {
         tabBar.tintColor = selectedTabItemColor
         tabBar.unselectedItemTintColor = unselectedTabItemColor
         tabBar.setNeedsLayout()
+#if DEBUG
+        updateTabBarColorProbeValue()
+#endif
     }
 
     private func updateTabBarVisualElements(in view: UIView, color: UIColor) {
@@ -544,17 +552,26 @@ final class MainTabBarController: UITabBarController {
     @objc
     private func handleTabButtonTouchDown(_ sender: UIControl) {
         suppressTabButtonHighlight(sender)
+#if DEBUG
+        updateTabBarColorProbeValue()
+#endif
     }
 
     @objc
     private func handleTabButtonTouchMove(_ sender: UIControl) {
         suppressTabButtonHighlight(sender)
+#if DEBUG
+        updateTabBarColorProbeValue()
+#endif
     }
 
     @objc
     private func handleTabButtonTouchEnd(_ sender: UIControl) {
         suppressTabButtonHighlight(sender)
         scheduleTabBarColorRefreshBurst()
+#if DEBUG
+        updateTabBarColorProbeValue()
+#endif
     }
 
     private func suppressTabButtonHighlight(_ control: UIControl) {
@@ -641,6 +658,7 @@ final class MainTabBarController: UITabBarController {
 
     deinit {
         pendingTabColorRefreshWorkItems.forEach { $0.cancel() }
+        tabBarColorProbeDisplayLink?.invalidate()
         if let keyboardWillShowObserver {
             NotificationCenter.default.removeObserver(keyboardWillShowObserver)
         }
@@ -680,6 +698,153 @@ extension MainTabBarController: UITabBarControllerDelegate {
         nil
     }
 }
+
+#if DEBUG
+private extension MainTabBarController {
+    var isTabBarColorProbeEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-test-tabbar-color-probe")
+    }
+
+    func configureTabBarColorProbeIfNeeded() {
+        guard isTabBarColorProbeEnabled, tabBarColorProbeDisplayLink == nil else { return }
+
+        tabBarColorProbeView.isAccessibilityElement = true
+        tabBarColorProbeView.accessibilityIdentifier = AccessibilityIdentifier.mainTabBarColorProbe
+        tabBarColorProbeView.backgroundColor = .clear
+        tabBarColorProbeView.textColor = .clear
+        tabBarColorProbeView.font = .systemFont(ofSize: 1)
+        tabBarColorProbeView.numberOfLines = 1
+        tabBarColorProbeView.isUserInteractionEnabled = false
+        tabBarColorProbeView.translatesAutoresizingMaskIntoConstraints = false
+        if tabBarColorProbeView.superview == nil {
+            view.addSubview(tabBarColorProbeView)
+            NSLayoutConstraint.activate([
+                tabBarColorProbeView.widthAnchor.constraint(equalToConstant: 1),
+                tabBarColorProbeView.heightAnchor.constraint(equalToConstant: 1),
+                tabBarColorProbeView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                tabBarColorProbeView.topAnchor.constraint(equalTo: view.topAnchor)
+            ])
+        }
+
+        updateTabBarColorProbeValue()
+
+        let displayLink = CADisplayLink(target: self, selector: #selector(handleTabBarColorProbeTick))
+        displayLink.preferredFrameRateRange = CAFrameRateRange(minimum: 30, maximum: 120, preferred: 60)
+        displayLink.add(to: .main, forMode: .common)
+        tabBarColorProbeDisplayLink = displayLink
+    }
+
+    @objc
+    func handleTabBarColorProbeTick() {
+        updateTabBarColorProbeValue()
+    }
+
+    func updateTabBarColorProbeValue() {
+        guard isTabBarColorProbeEnabled else { return }
+
+        let selectedTag = selectedViewController?.tabBarItem.tag ?? -1
+        let items = tabBar.items ?? []
+        let controls = tabBarButtonControls()
+        let itemStates = items.enumerated().map { index, item -> String in
+            let control = controls.indices.contains(index) ? controls[index] : nil
+            let tag = item.tag
+            let isSelected = tag == selectedTag
+            let iconColors = colorsForVisibleImageViews(in: tabBar, itemIndex: index, itemCount: items.count)
+            let textColors = colorsForVisibleLabels(in: tabBar, itemIndex: index, itemCount: items.count)
+            let iconValue = iconColors.isEmpty ? "_" : iconColors.joined(separator: "+")
+            let textValue = textColors.isEmpty ? "_" : textColors.joined(separator: "+")
+            let highlighted = control?.isHighlighted == true ? "1" : "0"
+            return "\(index),\(tag),\(isSelected ? "1" : "0"),\(iconValue),\(textValue),\(highlighted)"
+        }
+
+        let payload = [
+            "selectedTag=\(selectedTag)",
+            "allowed=\(colorHex(selectedTabItemColor)),\(colorHex(unselectedTabItemColor))",
+            "items=\(itemStates.joined(separator: "|"))"
+        ].joined(separator: ";")
+
+        tabBarColorProbeView.accessibilityLabel = payload
+        tabBarColorProbeView.accessibilityValue = payload
+        tabBarColorProbeView.text = payload
+    }
+
+    func colorsForVisibleImageViews(in view: UIView, itemIndex: Int, itemCount: Int) -> [String] {
+        collectVisibleSubviews(in: view, as: UIImageView.self)
+            .filter { isView($0, inTabItemIndex: itemIndex, itemCount: itemCount) }
+            .map { colorHex($0.tintColor) }
+            .removingDuplicates()
+    }
+
+    func colorsForVisibleLabels(in view: UIView, itemIndex: Int, itemCount: Int) -> [String] {
+        collectVisibleSubviews(in: view, as: UILabel.self)
+            .filter { $0 !== tabBarColorProbeView }
+            .filter { isView($0, inTabItemIndex: itemIndex, itemCount: itemCount) }
+            .map { colorHex($0.textColor) }
+            .removingDuplicates()
+    }
+
+    func isView(_ view: UIView, inTabItemIndex itemIndex: Int, itemCount: Int) -> Bool {
+        guard itemCount > 0, tabBar.bounds.width > 0 else { return false }
+
+        let frame = view.convert(view.bounds, to: tabBar)
+        guard !frame.isEmpty else { return false }
+
+        let itemWidth = tabBar.bounds.width / CGFloat(itemCount)
+        let minX = CGFloat(itemIndex) * itemWidth
+        let maxX = itemIndex == itemCount - 1 ? tabBar.bounds.maxX : minX + itemWidth
+        return frame.midX >= minX && frame.midX < maxX
+    }
+
+    func collectVisibleSubviews<T: UIView>(in view: UIView, as type: T.Type) -> [T] {
+        var result: [T] = []
+
+        func collect(from current: UIView) {
+            guard !current.isHidden, current.alpha > 0.01 else { return }
+            if let typed = current as? T, typed.bounds.width > 0, typed.bounds.height > 0 {
+                result.append(typed)
+            }
+            for subview in current.subviews {
+                collect(from: subview)
+            }
+        }
+
+        collect(from: view)
+        return result
+    }
+
+    func colorHex(_ color: UIColor) -> String {
+        let resolved = color.resolvedColor(with: traitCollection)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        guard resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return String(describing: resolved)
+        }
+
+        return String(
+            format: "#%02X%02X%02X",
+            Int(round(red * 255)),
+            Int(round(green * 255)),
+            Int(round(blue * 255))
+        )
+    }
+}
+
+private extension Array where Element: Hashable {
+    func removingDuplicates() -> [Element] {
+        var seen = Set<Element>()
+        var result: [Element] = []
+
+        for element in self where seen.insert(element).inserted {
+            result.append(element)
+        }
+
+        return result
+    }
+}
+#endif
 
 private final class TabBarFadeAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     private let duration: TimeInterval

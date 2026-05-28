@@ -120,6 +120,7 @@
 		65AA00012F8F000100AAA001 /* PlotViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */; };
 		65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */; };
 		65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCA022F90000100ACCA01 /* AccountViewController.swift */; };
+		65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* HelpViewController.swift */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
@@ -328,6 +329,7 @@
 		65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotViewCellV3.swift; sourceTree = "<group>"; };
 		65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModelV3.swift; sourceTree = "<group>"; };
 		65ACCA022F90000100ACCA01 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
+		65BEEF022F91000100BEEF02 /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetsListViewModelActions.swift; path = ../../WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
@@ -705,6 +707,7 @@
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
+				65BEEF022F91000100BEEF02 /* HelpViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
 				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
 				ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */,
@@ -1430,6 +1433,7 @@
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
+				65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */,
 				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Widget.swift in Sources */,

@@ -85,6 +85,9 @@ class WidgetsTabContainerViewController: UIViewController {
                 onAccountTap: { [weak self] in
                     self?.openAccount()
                 },
+                onHelpTap: { [weak self] in
+                    self?.openHelp()
+                },
                 onDisconnectConfirmed: { [weak self] in
                     self?.handleDisconnectConfirmed()
                 }
@@ -111,6 +114,11 @@ class WidgetsTabContainerViewController: UIViewController {
     private func openAccount() {
         if navigationController?.topViewController is AccountViewController { return }
         navigationController?.pushViewController(AccountViewController(), animated: true)
+    }
+
+    private func openHelp() {
+        if navigationController?.topViewController is HelpViewController { return }
+        navigationController?.pushViewController(HelpViewController(), animated: true)
     }
 
     func updateStatusBar(serialNumber: String? = nil, batteryLevel: Double? = nil, isConnected: Bool? = nil) {

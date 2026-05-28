@@ -12,6 +12,7 @@ struct AccessibilityIdentifier {
     static let widgetsResyncButton = "AccessibilityIdentifierWidgetsResyncButton"
     static let widgetsTable = "AccessibilityIdentifierWidgetsTable"
     static let statusBarAccountButton = "AccessibilityIdentifierStatusBarAccountButton"
+    static let statusBarHelpButton = "AccessibilityIdentifierStatusBarHelpButton"
     static let statusBarDeviceNameButton = "AccessibilityIdentifierStatusBarDeviceNameButton"
     static let statusBarConnectionIndicator = "AccessibilityIdentifierStatusBarConnectionIndicator"
     static let statusBarDisconnectConfirmButton = "AccessibilityIdentifierStatusBarDisconnectConfirmButton"

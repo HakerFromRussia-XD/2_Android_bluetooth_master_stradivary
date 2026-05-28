@@ -29,6 +29,7 @@ struct StatusBarView: View {
     var leadingButton: LeadingButton = .account
     var isDisconnectActionEnabled = true
     var onAccountTap: (() -> Void)?
+    var onHelpTap: (() -> Void)?
     var onBackTap: (() -> Void)?
     var onDisconnectConfirmed: (() -> Void)?
     @State private var isDisconnectDialogPresented = false
@@ -38,17 +39,33 @@ struct StatusBarView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Button {
-                handleLeadingButtonTap()
-            } label: {
-                leadingButtonImage
-                    .font(.system(size: leadingButton == .back ? 24 : Constants.iconSize, weight: .regular))
-                    .foregroundColor(Color("ubi4_white"))
-                    .frame(width: 36, height: 36)
+            HStack(spacing: 4) {
+                Button {
+                    handleLeadingButtonTap()
+                } label: {
+                    leadingButtonImage
+                        .font(.system(size: leadingButton == .back ? 24 : Constants.iconSize, weight: .regular))
+                        .foregroundColor(Color("ubi4_white"))
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
+                .accessibilityIdentifier(leadingButton == .back ? "AccessibilityIdentifierStatusBarBackButton" : AccessibilityIdentifier.statusBarAccountButton)
+
+                if leadingButton == .account, onHelpTap != nil {
+                    Button {
+                        onHelpTap?()
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: Constants.iconSize, weight: .regular))
+                            .foregroundColor(Color("ubi4_white"))
+                            .frame(width: 36, height: 36)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(SharedRes.strings().help.desc().localized()))
+                    .accessibilityIdentifier(AccessibilityIdentifier.statusBarHelpButton)
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
-            .accessibilityIdentifier(leadingButton == .back ? "AccessibilityIdentifierStatusBarBackButton" : AccessibilityIdentifier.statusBarAccountButton)
 
             Spacer()
 

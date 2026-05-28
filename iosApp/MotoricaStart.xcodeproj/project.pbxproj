@@ -95,6 +95,9 @@
 		655830362DBBAEB400744D5C /* DeviceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 655830352DBBAEB400744D5C /* DeviceCell.xib */; };
 		6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830382DBBAF4100744D5C /* OpenSans-wght.ttf */; };
 		6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* Inter.ttf */; };
+		655830402DBBAF4100744D5C /* font_open_sans_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */; };
+		655830412DBBAF4100744D5C /* font_open_sans_semi_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */; };
+		655830442DBBAF4100744D5C /* font_inter_semi_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */; };
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
 		65588F932E9CF31B005CF5BA /* SwitchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchProvider.swift */; };
@@ -307,6 +310,9 @@
 		655830352DBBAEB400744D5C /* DeviceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DeviceCell.xib; sourceTree = "<group>"; };
 		655830372DBBAF4100744D5C /* Inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter.ttf; sourceTree = "<group>"; };
 		655830382DBBAF4100744D5C /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
+		6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_open_sans_regular.ttf; sourceTree = "<group>"; };
+		6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_open_sans_semi_bold.ttf; sourceTree = "<group>"; };
+		655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_inter_semi_bold.ttf; sourceTree = "<group>"; };
 		6558303C2DBBAFE300744D5C /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
 		65588F922E9CF31A005CF5BA /* SwitchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchProvider.swift; sourceTree = "<group>"; };
@@ -883,6 +889,9 @@
 				65519BE82DF31E37006E985F /* sf_pro_display_light.otf */,
 				655830372DBBAF4100744D5C /* Inter.ttf */,
 				655830382DBBAF4100744D5C /* OpenSans-wght.ttf */,
+				6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */,
+				6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */,
+				655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */,
 				65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */,
 			);
 			path = Fontes;
@@ -1234,6 +1243,9 @@
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,
 				6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */,
+				655830402DBBAF4100744D5C /* font_open_sans_regular.ttf in Resources */,
+				655830412DBBAF4100744D5C /* font_open_sans_semi_bold.ttf in Resources */,
+				655830442DBBAF4100744D5C /* font_inter_semi_bold.ttf in Resources */,
 				65EAF4822ED865D400B3C49D /* indication.lottie in Resources */,
 				65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */,
 				65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */,

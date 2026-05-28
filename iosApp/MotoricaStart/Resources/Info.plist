@@ -45,6 +45,9 @@
 		<string>sf_pro_text_bold.otf</string>
 		<string>sf_pro_display_light.otf</string>
 		<string>Inter.ttf</string>
+		<string>font_open_sans_regular.ttf</string>
+		<string>font_open_sans_semi_bold.ttf</string>
+		<string>font_inter_semi_bold.ttf</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>

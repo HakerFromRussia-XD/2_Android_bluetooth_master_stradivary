@@ -15,6 +15,8 @@ struct StatusBarView: View {
     enum Constants {
         static let height: CGFloat = 44
         static let iconSize: CGFloat = 22
+        static let leadingButtonSize: CGFloat = 34
+        static let leadingIconSize: CGFloat = 24
         static let statusIndicatorVisualSize: CGFloat = 14
         static let statusIndicatorRenderSize: CGFloat = 14
         static let batteryRingSize: CGFloat = 28
@@ -39,14 +41,13 @@ struct StatusBarView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 Button {
                     handleLeadingButtonTap()
                 } label: {
-                    leadingButtonImage
-                        .font(.system(size: leadingButton == .back ? 24 : Constants.iconSize, weight: .regular))
-                        .foregroundColor(Color("ubi4_white"))
-                        .frame(width: 36, height: 36)
+                    statusBarButtonBackground {
+                        leadingButtonImage
+                    }
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
@@ -56,10 +57,14 @@ struct StatusBarView: View {
                     Button {
                         onHelpTap?()
                     } label: {
-                        Image(systemName: "questionmark.circle")
-                            .font(.system(size: Constants.iconSize, weight: .regular))
-                            .foregroundColor(Color("ubi4_white"))
-                            .frame(width: 36, height: 36)
+                        statusBarButtonBackground {
+                            Ubi4QuestionIcon()
+                                .stroke(
+                                    Color("ubi4_white"),
+                                    style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+                                )
+                                .frame(width: Constants.leadingIconSize, height: Constants.leadingIconSize)
+                        }
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(Text(SharedRes.strings().help.desc().localized()))
@@ -125,14 +130,33 @@ struct StatusBarView: View {
     private var leadingButtonImage: some View {
         switch leadingButton {
         case .account:
-            Image(systemName: "person.crop.circle")
+            Ubi4AccountIcon()
+                .stroke(
+                    Color("ubi4_white"),
+                    style: StrokeStyle(lineWidth: 1.4, lineCap: .round, lineJoin: .round)
+                )
+                .frame(width: Constants.leadingIconSize, height: Constants.leadingIconSize)
         case .back:
             Image("ic_arrow_left")
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .padding(7)
+                .foregroundColor(Color("ubi4_white"))
+                .frame(width: 22, height: 22)
         }
+    }
+
+    private func statusBarButtonBackground<Icon: View>(@ViewBuilder icon: () -> Icon) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color("ubi4_gray"))
+                .overlay(
+                    Circle()
+                        .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                )
+            icon()
+        }
+        .frame(width: Constants.leadingButtonSize, height: Constants.leadingButtonSize)
     }
 
     private func handleLeadingButtonTap() {
@@ -193,6 +217,65 @@ struct StatusBarView: View {
         withTransaction(transaction) {
             updates()
         }
+    }
+}
+
+private struct Ubi4AccountIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let scale = min(rect.width, rect.height) / 24
+        let origin = CGPoint(
+            x: rect.midX - 12 * scale,
+            y: rect.midY - 12 * scale
+        )
+        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: origin.x + x * scale, y: origin.y + y * scale)
+        }
+
+        path.move(to: point(4, 21))
+        path.addLine(to: point(4, 18.5))
+        path.addCurve(to: point(9.5, 13), control1: point(4, 15.462), control2: point(6.462, 13))
+        path.addLine(to: point(14.5, 13))
+        path.addCurve(to: point(20, 18.5), control1: point(17.538, 13), control2: point(20, 15.462))
+        path.addLine(to: point(20, 21))
+
+        path.move(to: point(8, 21))
+        path.addLine(to: point(8, 18))
+        path.move(to: point(16, 21))
+        path.addLine(to: point(16, 18))
+
+        path.move(to: point(16, 6.5))
+        path.addCurve(to: point(12, 10.5), control1: point(16, 8.709), control2: point(14.209, 10.5))
+        path.addCurve(to: point(8, 6.5), control1: point(9.791, 10.5), control2: point(8, 8.709))
+        path.addCurve(to: point(12, 2.5), control1: point(8, 4.291), control2: point(9.791, 2.5))
+        path.addCurve(to: point(16, 6.5), control1: point(14.209, 2.5), control2: point(16, 4.291))
+        return path
+    }
+}
+
+private struct Ubi4QuestionIcon: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let scale = min(rect.width, rect.height) / 24
+        let origin = CGPoint(
+            x: rect.midX - 12 * scale,
+            y: rect.midY - 12 * scale
+        )
+        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: origin.x + x * scale, y: origin.y + y * scale)
+        }
+
+        path.move(to: point(12, 19))
+        path.addLine(to: point(12.01, 19))
+        path.move(to: point(8.217, 7.697))
+        path.addCurve(to: point(12, 5), control1: point(8.758, 6.128), control2: point(10.247, 5))
+        path.addCurve(to: point(16, 9), control1: point(14.209, 5), control2: point(16, 6.791))
+        path.addCurve(to: point(13.558, 12.685), control1: point(16, 10.656), control2: point(14.993, 12.078))
+        path.addCurve(to: point(12.317, 13.277), control1: point(12.817, 12.999), control2: point(12.447, 13.156))
+        path.addCurve(to: point(12.061, 13.663), control1: point(12.163, 13.421), control2: point(12.134, 13.465))
+        path.addCurve(to: point(12, 14.6), control1: point(12, 13.83), control2: point(12, 14.087))
+        path.addLine(to: point(12, 16))
+        return path
     }
 }
 

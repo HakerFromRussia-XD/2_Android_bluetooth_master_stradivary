@@ -15,11 +15,12 @@
 - Старое приложение скопировано в `iosApp/OldMotoricaStart` без `Pods`, `build`, `.git`, `xcuserdata` и `.DS_Store`.
 - В новый проект CocoaPods не подключались. Legacy target использует уже добавленную SPM-зависимость `DGCharts`; старые ссылки `Charts` адаптированы под `DGCharts`.
 - Добавлен отдельный framework target `OldMotoricaStart`, который изолирует старые Swift-классы от основного target `MotoricaStart`.
-- Старый `Main.storyboard` собирается как ресурс `OldMotoricaStart.framework`; `ScanDeviceNib.xib`, старые assets и локализации доступны основному app bundle там, где старый код грузит их через `Bundle.main`, `UINib(..., bundle: nil)`, `UIImage(named:)` и `NSLocalizedString`.
+- Старый `Main.storyboard` собирается как ресурс `OldMotoricaStart.framework`; для старого `UINib(..., bundle: nil)` в main bundle добавлена интеграционная копия `ScanDeviceNib.xib` с фиксированным `customModule="OldMotoricaStart"`, исходный xib в `iosApp/OldMotoricaStart` не изменяется.
 - Добавлена интеграционная папка `iosApp/MotoricaStart/OldMotoricaStartIntegration` с классификацией устройств, storage-ключами объединенного scan flow и launcher-адаптером старой ветки.
 - Экран сканирования нового приложения теперь выбирает внешний вид по `merged.hasConnectedNewProsthesis`: до первого нового подключения бело-голубой режим, после подключения к новому протезу серо-белый режим.
 - Бело-голубой режим должен быть не стилизацией нового экрана, а копией старого scan UI: UIKit `UISegmentedControl` с порядком `Протезы | Все устройства`, top=80, height=60, старая белая таблица без modern-оформления и legacy-ячейка с черным названием и серым RSSI.
 - Область status bar должна окрашиваться в цвет активного scan-экрана: верхний цвет старого градиента для бело-голубого режима и `ubi4_back` для серо-белого режима.
+- Список устройств в обоих scan UI должен ограничиваться нижней safe area и скроллиться внутри своей рамки, не уходя под home indicator.
 - Фильтр "Протезы" учитывает и новые UBI4/V3 маркеры из KMM, и старые маркеры legacy-протезов.
 - Выбор нового протеза идет по текущему KMM-пути; выбор старого протеза открывает legacy-интерфейс через `OldMotoricaStartLauncher`.
 - Проверки сборки пройдены:
@@ -29,12 +30,14 @@
   - `xcodebuild` `MotoricaStart` для iOS Simulator;
   - `xcodebuild` `MotoricaStart` для реального устройства `iPhone` `00008110-0018148C029A401E`.
 - Реальная device-проверка: `MotoricaStart.app` установлен и запущен на подключенном `iPhone` через `devicectl`; процесс `MotoricaStart` виден на устройстве.
+- Реальная BLE-проверка 2026-06-01 на `iPhone` `00008110-0018148C029A401E`:
+  - `FEST-H-04921` найден в scan list как `FEST-XFTHS04921`; после выбора открылся legacy root `OldMotoricaStart`, старый `ScanViewController` перешел в `SensorsViewController`, CoreBluetooth показал `Device ready` для `FEST-XFTHS04921`;
+  - `111111` найден в scan list как `FTHS3-111111`; после выбора открылся новый `MotoricaStart.MainTabBarController`, legacy root не появился, CoreBluetooth показал `Device ready` для BLE-девайса `FTHS3-111111`.
+- Для совместимости с неизмененным старым `DataManager.loadAll` добавлен adapter, который перед legacy flow временно убирает новую папку `Documents/Firmware` из корня `Documents`, а перед новым firmware UI возвращает ее обратно.
 
-Осталось проверить на живых BLE-протезах:
+Осталось дополнительно проверить на живых BLE-протезах:
 
 - первый запуск показывает бело-голубой scan screen;
-- старый протез открывает старую ветку и работает со старым протоколом;
-- новый UBI4/V3 протез открывает KMM-ветку;
 - после первого нового подключения повторный запуск показывает серо-белый scan screen;
 - из серо-белого режима старый протез все еще открывает legacy-ветку.
 
@@ -218,8 +221,8 @@ Android-эталон:
 - `xcodebuild` для device/generic iOS.
 - Запуск приложения на устройстве с Bluetooth.
 - Первый запуск: бело-голубой scan screen.
-- Выбор старого протеза: открывается старый интерфейс, читаются старые характеристики, работают настройки/жесты/3D.
-- Выбор нового UBI4/V3 протеза: открывается текущий интерфейс, работает KMM connect, widgets/status bar/sync.
+- Выбор старого протеза: открывается старый интерфейс, читаются старые характеристики, работают настройки/жесты/3D. Реально проверено на `FEST-H-04921` до открытия старого `SensorsViewController`.
+- Выбор нового UBI4/V3 протеза: открывается текущий интерфейс, работает KMM connect, widgets/status bar/sync. Реально проверено на `111111` до открытия `MainTabBarController`.
 - Повторный запуск после нового протеза: scan screen серо-белый.
 - После серо-белого scan screen выбор старого протеза все еще открывает старую ветку.
 - Smart connection старой ветки не ломает новый auto/manual connect.

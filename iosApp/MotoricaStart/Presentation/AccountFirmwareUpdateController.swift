@@ -145,6 +145,7 @@ enum FirmwareDocumentsDirectory {
     private static let firmwareFolderName = "Firmware"
 
     static func prepareSharedFolder() {
+        LegacyDocumentsCompatibility.restoreNewAppDocumentsIfNeeded()
         guard let firmwareFolder = firmwareFolderURL else { return }
         try? FileManager.default.createDirectory(
             at: firmwareFolder,

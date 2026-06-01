@@ -16,7 +16,7 @@ class DeviceCell: UITableViewCell {
     @IBOutlet private weak var containerView: UIView!
     
     func setupModel(model: BLEDevice) {
-        deviceNameText.text = DeviceNameBridgeV3.shared.displayName(deviceName: model.name)
+        deviceNameText.text = BluetoothScanDeviceNameFormatter.displayName(model.name)
         rssi.text = String(model.rssi)
         
 //        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))

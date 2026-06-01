@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="font_open_sans_bold.ttf">
+            <string>OpenSans-Bold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="ScanDeviceNib" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="DeviceCell" rowHeight="120" id="t7f-ye-X5y" customClass="DeviceCell" customModule="OldMotoricaStart">
+            <rect key="frame" x="0.0" y="0.0" width="521" height="120"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="t7f-ye-X5y" id="OYP-yg-PeJ">
+                <rect key="frame" x="0.0" y="0.0" width="521" height="120"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BAu-ct-Grm">
+                        <rect key="frame" x="0.0" y="0.0" width="521" height="64"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="ToDo Item" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yWT-Kg-8Xg">
+                                <rect key="frame" x="0.0" y="-3" width="521" height="42"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" name="OpenSans-Bold" family="Open Sans" pointSize="15"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="highlightedColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="shadowColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="rssi" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GcN-oK-ZDu">
+                                <rect key="frame" x="478.66666666666669" y="21.666666666666664" width="26.333333333333314" height="20.666666666666664"/>
+                                <fontDescription key="fontDescription" name="OpenSans-Bold" family="Open Sans" pointSize="15"/>
+                                <color key="textColor" red="0.71372549019607845" green="0.71372549019607845" blue="0.71372549019607845" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="highlightedColor" red="0.47451311349999997" green="0.47450375560000002" blue="0.47451013330000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" name="white"/>
+                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="GcN-oK-ZDu" secondAttribute="trailing" constant="16" id="1PO-21-1lo"/>
+                            <constraint firstItem="yWT-Kg-8Xg" firstAttribute="centerX" secondItem="BAu-ct-Grm" secondAttribute="centerX" id="3Rx-ce-cfI"/>
+                            <constraint firstItem="yWT-Kg-8Xg" firstAttribute="leading" secondItem="BAu-ct-Grm" secondAttribute="leading" id="Rh6-kG-Fk1"/>
+                            <constraint firstAttribute="trailing" secondItem="yWT-Kg-8Xg" secondAttribute="trailing" id="Sve-DI-JR1"/>
+                            <constraint firstItem="GcN-oK-ZDu" firstAttribute="centerY" secondItem="BAu-ct-Grm" secondAttribute="centerY" id="b9t-bA-ZeQ"/>
+                            <constraint firstAttribute="height" constant="64" id="dPy-BA-Az4"/>
+                            <constraint firstItem="yWT-Kg-8Xg" firstAttribute="centerY" secondItem="BAu-ct-Grm" secondAttribute="centerY" constant="-1.5" id="iWA-uQ-RFG"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="BAu-ct-Grm" firstAttribute="centerX" secondItem="OYP-yg-PeJ" secondAttribute="centerX" id="GEu-GZ-Oad"/>
+                    <constraint firstAttribute="bottom" secondItem="BAu-ct-Grm" secondAttribute="bottom" id="Hqq-54-jeM"/>
+                    <constraint firstItem="BAu-ct-Grm" firstAttribute="leading" secondItem="OYP-yg-PeJ" secondAttribute="leading" id="ael-zv-cBV"/>
+                    <constraint firstAttribute="trailing" secondItem="BAu-ct-Grm" secondAttribute="trailing" id="ebF-gZ-U6r"/>
+                    <constraint firstItem="BAu-ct-Grm" firstAttribute="centerY" secondItem="OYP-yg-PeJ" secondAttribute="centerY" id="xMa-5a-Ys1"/>
+                    <constraint firstItem="BAu-ct-Grm" firstAttribute="top" secondItem="OYP-yg-PeJ" secondAttribute="top" id="yYG-gO-JuK"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="deviceNameText" destination="yWT-Kg-8Xg" id="i8C-Lo-hdK"/>
+                <outlet property="rssi" destination="GcN-oK-ZDu" id="UGc-8p-Atx"/>
+            </connections>
+            <point key="canvasLocation" x="367.17557251908397" y="5.6338028169014089"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <namedColor name="white">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

@@ -116,6 +116,76 @@ class WidgetsSceneUITests: XCTestCase {
         )
     }
 
+    func testMergedScanRealDevice_whenTapFestH04921_thenLegacyFlowOpens() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertFalse(
+            app.otherElements[AccessibilityIdentifier.mainTabBarRoot].exists,
+            "New MainTabBar opened for FEST-H-04921, expected legacy flow"
+        )
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Sensors", "opening sensor sensitivity", "Driver", "Датчики"],
+                in: app,
+                timeout: 45
+            ),
+            "Legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        let screenshotAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshotAttachment.name = "legacy-flow-after-fest"
+        screenshotAttachment.lifetime = .keepAlways
+        add(screenshotAttachment)
+    }
+
+    func testMergedScanRealDevice_whenTap111111_thenNewFlowOpens() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-ui-test-skip-synchronization"]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["111111"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device 111111 in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.mainTabBarRoot].waitForExistence(timeout: 12),
+            "Main tabs did not open after tapping BLE device 111111"
+        )
+        XCTAssertFalse(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].exists,
+            "Legacy OldMotoricaStart root opened for 111111, expected new flow"
+        )
+    }
+
     func testMainTabs_whenSynchronizationInProgress_thenGesturesAndSpecialTabsAreBlockedUntilCompletion() {
         let app = XCUIApplication()
         app.launch()
@@ -970,6 +1040,24 @@ class WidgetsSceneUITests: XCTestCase {
             RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         }
         return nil
+    }
+
+    private func waitForAnyStaticText(
+        containingAnyOf candidates: [String],
+        in app: XCUIApplication,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            for candidate in candidates {
+                let element = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", candidate)).firstMatch
+                if element.exists {
+                    return true
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        }
+        return false
     }
 
     private func scrollToElement(_ element: XCUIElement, in table: XCUIElement, maxSwipes: Int) -> Bool {

@@ -197,6 +197,7 @@
 		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
 		9D3E0949925503A806B2B1D0 /* MergedScanStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */; };
 		9E28B0D6E4AC1AA31980C83A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB7B911C3F0581B638A06D53 /* Main.storyboard */; };
+		9E28B0D7E4AC1AA31980C83A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */; };
 		9F62A9FB5109F89DF0DC2BD2 /* DialogRecalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */; };
 		9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
 		A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
@@ -211,6 +212,8 @@
 		ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */; };
 		ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */; };
 		ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */; };
+		ABCD05022FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
+		ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
 		AFBA3DF021E8EC4CC9B99E86 /* InstractionFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */; };
 		B1AB5C2D2B0641576839ECAB /* InstractionProsthisesUseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */; };
 		BBBB4A3CD3FC342880C56B2A /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */; };
@@ -280,7 +283,7 @@
 		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
 		0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MergedScanStorageKeys.swift; path = MotoricaStart/OldMotoricaStartIntegration/MergedScanStorageKeys.swift; sourceTree = "<group>"; };
-		0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = ScanDeviceNib.xib; path = OldMotoricaStart/MotoricaStart/Nibs/ScanDeviceNib.xib; sourceTree = "<group>"; };
+		0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = ScanDeviceNib.xib; path = MotoricaStart/OldMotoricaStartIntegration/Resources/ScanDeviceNib.xib; sourceTree = "<group>"; };
 		0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogCalibrationViewController.swift; path = ViewControllers/Dialogs/DialogCalibrationViewController.swift; sourceTree = "<group>"; };
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
 		0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogDisconnectViewController.swift; path = ViewControllers/Dialogs/DialogDisconnectViewController.swift; sourceTree = "<group>"; };
@@ -473,6 +476,7 @@
 		8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProsthesisFamilyClassifier.swift; path = MotoricaStart/OldMotoricaStartIntegration/ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
 		8EB13250E9AD082075E3BD08 /* DataManger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataManger.swift; path = Utility/DataManger.swift; sourceTree = "<group>"; };
 		92ECA664C1220B2658F99A5A /* Solution.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Solution.swift; path = ViewControllers/Main/Solution.swift; sourceTree = "<group>"; };
+		9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = OldMotoricaStart/MotoricaStart/Res/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogFingersDelayViewController.swift; path = ViewControllers/Dialogs/DialogFingersDelayViewController.swift; sourceTree = "<group>"; };
 		A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogResetViewController.swift; path = ViewControllers/Dialogs/DialogResetViewController.swift; sourceTree = "<group>"; };
 		A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContainerViewController.swift; path = Utility/ContainerViewController.swift; sourceTree = "<group>"; };
@@ -485,6 +489,7 @@
 		ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareDialogPresenter.swift; sourceTree = "<group>"; };
 		ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareUpdateController.swift; sourceTree = "<group>"; };
 		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
+		ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothScanDeviceNameFormatter.swift; sourceTree = "<group>"; };
 		B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SaveObject.swift; path = Utility/SaveObject.swift; sourceTree = "<group>"; };
 		B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtentionTextField.swift; path = Utility/ExtentionTextField.swift; sourceTree = "<group>"; };
 		B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
@@ -968,6 +973,7 @@
 			children = (
 				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
 				BB7B911C3F0581B638A06D53 /* Main.storyboard */,
+				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
 			);
 			name = OldMotoricaStartResources;
 			sourceTree = "<group>";
@@ -1153,6 +1159,7 @@
 				659A45AD2DB92C63002BE2BC /* DIContainer */,
 				659A45A62DB929BE002BE2BC /* BluetoothList */,
 				6558303C2DBBAFE300744D5C /* DeviceCell.swift */,
+				ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */,
 				655830312DBBAE8F00744D5C /* ScanItem.swift */,
 				655830352DBBAEB400744D5C /* DeviceCell.xib */,
 			);
@@ -1546,6 +1553,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E28B0D6E4AC1AA31980C83A /* Main.storyboard in Resources */,
+				9E28B0D7E4AC1AA31980C83A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1725,6 +1733,7 @@
 				1F9035272307528F00DEA4BD /* CoreDataWidgetsQueriesStorage.swift in Sources */,
 				1FE49D92230AA7C200D1D42E /* WidgetsListViewModel.swift in Sources */,
 				6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */,
+				ABCD05022FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */,
 				1FB0903A2437651700DBE132 /* UIViewController+AddBehaviors.swift in Sources */,
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
@@ -1782,6 +1791,7 @@
 				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
 				ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
 				ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
+				ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */,
 				C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
 				5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
 				C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,

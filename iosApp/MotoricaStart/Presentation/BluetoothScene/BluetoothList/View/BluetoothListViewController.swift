@@ -149,7 +149,7 @@ final class BluetoothListViewController: UIViewController {
                 else { return }
                 self.logTouch("connectionCallback", details: "uuid=\(uuid.uuidString)")
                 self.tableViewDevices.reloadData() // перезагружаем строки, чтобы отобразить цвет подключения
-                let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
+                let displayName = BluetoothScanDeviceNameFormatter.displayName(device.name)
                 self.showConnectionToast("Подключено: \(displayName)")
                 print("[BLE-CONNECT] Подключено: \(displayName)")
             }
@@ -410,10 +410,10 @@ final class BluetoothListViewController: UIViewController {
         let maxAllowedHeight = availableTableHeight(minimumHeight: minimumHeight)
         let contentHeight = max(tableViewDevices.contentSize.height, minimumHeight)
         let targetHeight = min(contentHeight, maxAllowedHeight)
+        tableViewDevices.isScrollEnabled = tableViewDevices.contentSize.height > targetHeight + 0.5
 
         guard abs(tableHeightConstraint.constant - targetHeight) > 0.5 else { return }
         tableHeightConstraint.constant = targetHeight
-        tableViewDevices.isScrollEnabled = tableViewDevices.contentSize.height > targetHeight + 0.5
         if animated {
             UIView.animate(
                 withDuration: 0.3,
@@ -546,7 +546,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         }
         cell.accessibilityIdentifier = "ble.deviceCell.\(indexPath.row)"
         cell.isAccessibilityElement = true
-        cell.accessibilityLabel = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
+        cell.accessibilityLabel = BluetoothScanDeviceNameFormatter.displayName(device.name)
         cell.accessibilityValue = "rssi=\(device.rssi);uuid=\(device.uuid.uuidString)"
         cell.accessibilityTraits.insert(.button)
         return cell
@@ -839,7 +839,7 @@ private final class LegacyScanDeviceCell: UITableViewCell {
     }
 
     func setupModel(model: BLEDevice) {
-        deviceNameText.text = LegacyScanDeviceNameFormatter.cleanName(deviceName: model.name)
+        deviceNameText.text = BluetoothScanDeviceNameFormatter.displayName(model.name)
         rssi.text = String(model.rssi)
     }
 
@@ -898,36 +898,6 @@ private final class LegacyScanDeviceCell: UITableViewCell {
             rssi.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
             rssi.centerYAnchor.constraint(equalTo: whiteContainerView.centerYAnchor)
         ])
-    }
-}
-
-private enum LegacyScanDeviceNameFormatter {
-    static func cleanName(deviceName: String) -> String {
-        guard deviceName.contains("FEST-X"), deviceName.count > 10, !deviceName.contains(" ") else {
-            return deviceName
-        }
-
-        let prefixStart = deviceName.index(deviceName.startIndex, offsetBy: 6)
-        let prefixEnd = deviceName.index(prefixStart, offsetBy: 4)
-        let namePrefix = String(deviceName[prefixStart..<prefixEnd])
-        let nameCode = String(deviceName[prefixEnd..<deviceName.endIndex])
-
-        switch namePrefix {
-        case "FTFS":
-            return "FEST-F-\(nameCode)"
-        case "FTHS":
-            return "FEST-H-\(nameCode)"
-        case "FTFO":
-            return "FEST-FO-\(nameCode)"
-        case "FTHO":
-            return "FEST-HO-\(nameCode)"
-        case "FTEP":
-            return "FEST-EP-\(nameCode)"
-        case "FTEB":
-            return "FEST-EB-\(nameCode)"
-        default:
-            return deviceName
-        }
     }
 }
 

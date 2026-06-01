@@ -6,7 +6,7 @@ enum MergedProsthesisFamily: String, Codable {
     case unknown
 }
 
-enum MergedScanAppearanceMode {
+enum MergedScanAppearanceMode: Equatable {
     case legacyBlue
     case modernGray
 }

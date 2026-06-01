@@ -13,6 +13,7 @@ import shared
 final class BluetoothListViewController: UIViewController {
     private enum Constants {
         static let rootTransitionDuration: TimeInterval = 0.35
+        static let tableBottomInset: CGFloat = 16
     }
 
     static let storyboardID = "BluetoothListViewController"
@@ -24,7 +25,19 @@ final class BluetoothListViewController: UIViewController {
     private var lastRenderedDeviceIDs: [UUID] = []
     private var backgroundGradientLayer: CAGradientLayer?
     private weak var tableContainerView: UIView?
+    private weak var legacySegmentedControl: UISegmentedControl?
+    private let statusBarBackgroundView = UIView()
     
+    private enum FilterIndex {
+        static let allDevices = 0
+        static let prosthetics = 1
+    }
+
+    private enum LegacySegmentIndex {
+        static let prosthetics = 0
+        static let allDevices = 1
+    }
+
     private let filterSegmentTitles = ["Все устройства", "Протезы"]
     private let filterSegmentProvider = BluetoothFilterSegmentProvider(selectedSegmentIndex: 0)
     private lazy var bottomButton: UIButton = {
@@ -64,47 +77,10 @@ final class BluetoothListViewController: UIViewController {
         title = "BLE Devices"
         // Скрываем навигационную панель (верхнюю строку)
         navigationController?.navigationBar.isHidden = true
-        
-        // настройка внешнего вида фильтра списка устройств
-        let segmentContainer = UIView()
-        segmentContainer.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(segmentContainer)
-        segmentContainer.backgroundColor = UIColor.clear
-        NSLayoutConstraint.activate([
-           segmentContainer.heightAnchor.constraint(equalToConstant: 48),
-           segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-           segmentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-           segmentContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8)
-        ])
-        let safeInitialIndex = min(max(viewModel.currentFilterIndex, 0), filterSegmentTitles.count - 1)
-        filterSegmentProvider.selectedSegmentIndex = safeInitialIndex
-        let segmentSelectorHost = UIHostingController(
-            rootView: BluetoothSegmentSelectorView(
-                provider: filterSegmentProvider,
-                titles: filterSegmentTitles,
-                appearanceMode: scanAppearanceMode
-            )
-        )
-        addChild(segmentSelectorHost)
-        segmentContainer.addSubview(segmentSelectorHost.view)
-        segmentSelectorHost.view.backgroundColor = UIColor.clear
-        segmentSelectorHost.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            segmentSelectorHost.view.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor),
-            segmentSelectorHost.view.trailingAnchor.constraint(equalTo: segmentContainer.trailingAnchor),
-            segmentSelectorHost.view.topAnchor.constraint(equalTo: segmentContainer.topAnchor),
-            segmentSelectorHost.view.bottomAnchor.constraint(equalTo: segmentContainer.bottomAnchor)
-        ])
-        segmentSelectorHost.didMove(toParent: self)
-        filterSegmentProvider.$selectedSegmentIndex
-            .removeDuplicates()
-            .dropFirst()
-            .sink { [weak self] selectedIndex in
-                self?.viewModel.applyFilter(index: selectedIndex)
-            }
-            .store(in: &cancellables)
-        
-        
+        setupStatusBarBackgroundView()
+
+        let modernSegmentContainer = setupFilterControl()
+
         // настройка внешнего вида списка
         let tableContainer = UIView()
         tableContainerView = tableContainer
@@ -128,18 +104,29 @@ final class BluetoothListViewController: UIViewController {
         // (dataSource, delegate и регистрация ячейки остаются прежними)
         tableViewDevices.dataSource = self
         tableViewDevices.delegate = self
-        tableViewDevices.register(UINib(nibName: "DeviceCell", bundle: nil), forCellReuseIdentifier: DeviceCell.identifier)
+        registerDeviceCell()
         tableViewDevices.tableFooterView = UIView(frame: .zero)
         applyStaticAppearance(tableContainer: tableContainer)
         tableViewDevices.delaysContentTouches = false
-        tableViewDevices.rowHeight = 64
-        tableViewDevices.estimatedRowHeight = 64
+        applyTableMetrics()
         tableViewDevices.accessibilityIdentifier = AccessibilityIdentifier.bleDevicesTable
+        let tableTopConstraint: NSLayoutConstraint
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            tableTopConstraint = tableContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 132)
+        case .modernGray:
+            guard let modernSegmentContainer else {
+                assertionFailure("Modern scan layout requires segment container")
+                tableTopConstraint = tableContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 72)
+                break
+            }
+            tableTopConstraint = tableContainer.topAnchor.constraint(equalTo: modernSegmentContainer.bottomAnchor, constant: 16)
+        }
         // Assistant: ограничения для контейнера и таблицы
         NSLayoutConstraint.activate([
             tableContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableContainer.topAnchor.constraint(equalTo: segmentContainer.bottomAnchor, constant: 16),
+            tableTopConstraint,
             tableContainer.heightAnchor.constraint(equalTo: tableViewDevices.heightAnchor),
             
             tableViewDevices.leadingAnchor.constraint(equalTo: tableContainer.leadingAnchor),
@@ -224,18 +211,162 @@ final class BluetoothListViewController: UIViewController {
                 containerView.backgroundColor = backgroundColor
             }
         }
+        applyStatusBarBackgroundColor()
+        view.bringSubviewToFront(statusBarBackgroundView)
         updateTableHeight()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applyStatusBarBackgroundColor()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        applyStatusBarBackgroundColor()
+    }
+
+    private func setupStatusBarBackgroundView() {
+        statusBarBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+        statusBarBackgroundView.isUserInteractionEnabled = false
+        view.addSubview(statusBarBackgroundView)
+        NSLayoutConstraint.activate([
+            statusBarBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            statusBarBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            statusBarBackgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            statusBarBackgroundView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+        ])
+        applyStatusBarBackgroundColor()
+    }
+
+    private func applyStatusBarBackgroundColor() {
+        let backgroundColor = statusBarBackgroundColor
+        statusBarBackgroundView.backgroundColor = backgroundColor
+        (UIApplication.shared.delegate as? AppDelegate)?.updateStatusBarOverlay(backgroundColor: backgroundColor)
+    }
+
+    private var statusBarBackgroundColor: UIColor {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            return legacyTopColor
+        case .modernGray:
+            return UIColor(named: "ubi4_back") ?? .black
+        }
+    }
+
+    private func setupFilterControl() -> UIView? {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            setupLegacyFilterControl()
+            return nil
+        case .modernGray:
+            return setupModernFilterControl()
+        }
+    }
+
+    private func setupLegacyFilterControl() {
+        let items = [
+            NSLocalizedString("prosthetics", comment: ""),
+            NSLocalizedString("all_devices", comment: "")
+        ]
+        let control = LegacyScanSegmentedControl(items: items)
+        legacySegmentedControl = control
+        control.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(control)
+        NSLayoutConstraint.activate([
+            control.heightAnchor.constraint(equalToConstant: 60),
+            control.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            control.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            control.topAnchor.constraint(equalTo: view.topAnchor, constant: 80)
+        ])
+
+        control.selectedSegmentIndex = legacySegmentIndex(for: viewModel.currentFilterIndex)
+        control.addTarget(self, action: #selector(legacyFilterChanged), for: .valueChanged)
+        control.layer.borderWidth = 2
+        control.layer.borderColor = UIColor(named: "backgroung_filter")?.cgColor
+        control.backgroundColor = UIColor(named: "white")
+        control.setTitleTextAttributes(
+            [.foregroundColor: UIColor(named: "deselected_text_filter") ?? UIColor.darkGray],
+            for: .normal
+        )
+        control.setTitleTextAttributes([.foregroundColor: UIColor.black], for: .selected)
+    }
+
+    private func setupModernFilterControl() -> UIView {
+        let segmentContainer = UIView()
+        segmentContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(segmentContainer)
+        segmentContainer.backgroundColor = UIColor.clear
+        NSLayoutConstraint.activate([
+            segmentContainer.heightAnchor.constraint(equalToConstant: 48),
+            segmentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            segmentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            segmentContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8)
+        ])
+        let safeInitialIndex = min(max(viewModel.currentFilterIndex, 0), filterSegmentTitles.count - 1)
+        filterSegmentProvider.selectedSegmentIndex = safeInitialIndex
+        let segmentSelectorHost = UIHostingController(
+            rootView: BluetoothSegmentSelectorView(
+                provider: filterSegmentProvider,
+                titles: filterSegmentTitles,
+                appearanceMode: scanAppearanceMode
+            )
+        )
+        addChild(segmentSelectorHost)
+        segmentContainer.addSubview(segmentSelectorHost.view)
+        segmentSelectorHost.view.backgroundColor = UIColor.clear
+        segmentSelectorHost.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            segmentSelectorHost.view.leadingAnchor.constraint(equalTo: segmentContainer.leadingAnchor),
+            segmentSelectorHost.view.trailingAnchor.constraint(equalTo: segmentContainer.trailingAnchor),
+            segmentSelectorHost.view.topAnchor.constraint(equalTo: segmentContainer.topAnchor),
+            segmentSelectorHost.view.bottomAnchor.constraint(equalTo: segmentContainer.bottomAnchor)
+        ])
+        segmentSelectorHost.didMove(toParent: self)
+        filterSegmentProvider.$selectedSegmentIndex
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] selectedIndex in
+                self?.viewModel.applyFilter(index: selectedIndex)
+            }
+            .store(in: &cancellables)
+        return segmentContainer
+    }
+
+    @objc private func legacyFilterChanged(target: UISegmentedControl) {
+        let filterIndex = target.selectedSegmentIndex == LegacySegmentIndex.prosthetics
+            ? FilterIndex.prosthetics
+            : FilterIndex.allDevices
+        viewModel.applyFilter(index: filterIndex)
+    }
+
+    private func legacySegmentIndex(for filterIndex: Int) -> Int {
+        filterIndex == FilterIndex.prosthetics ? LegacySegmentIndex.prosthetics : LegacySegmentIndex.allDevices
+    }
+
+    private func registerDeviceCell() {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            tableViewDevices.register(LegacyScanDeviceCell.self, forCellReuseIdentifier: LegacyScanDeviceCell.identifier)
+        case .modernGray:
+            tableViewDevices.register(UINib(nibName: "DeviceCell", bundle: nil), forCellReuseIdentifier: DeviceCell.identifier)
+        }
+    }
+
+    private func applyTableMetrics() {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            tableViewDevices.rowHeight = 64
+            tableViewDevices.estimatedRowHeight = 64
+            tableViewDevices.separatorInset = .zero
+        case .modernGray:
+            tableViewDevices.rowHeight = 64
+            tableViewDevices.estimatedRowHeight = 64
+        }
+    }
+
     func updateConstraints() {
-        tableHeightConstraint.constant = tableViewDevices.contentSize.height
-        UIView.animate(withDuration: 0.33,
-                       delay: 0.0,
-                       options: .curveEaseIn,
-                       animations: {
-                            self.view.layoutIfNeeded()
-                        },
-                       completion: nil)
+        updateTableHeight(animated: true)
     }
     
     //TODO: тут можно включать автоконнекшн (1)
@@ -268,15 +399,21 @@ final class BluetoothListViewController: UIViewController {
     // Функция обновления высоты таблицы
     private func updateTableHeight(animated: Bool = false) {
         let minHeight: CGFloat = 64
-        let bottomInset: CGFloat = 16
-        let bottomLimitY = view.bounds.height - view.safeAreaInsets.bottom - bottomInset
-        let topY = tableViewDevices.frame.minY
-        let maxAllowedHeight = max(minHeight, bottomLimitY - topY)
-        let contentHeight = max(tableViewDevices.contentSize.height, minHeight)
+        let shouldKeepVisibleEmptyRow: Bool
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            shouldKeepVisibleEmptyRow = viewModel.currentFilterIndex == FilterIndex.allDevices || !viewModel.devices.isEmpty
+        case .modernGray:
+            shouldKeepVisibleEmptyRow = true
+        }
+        let minimumHeight = shouldKeepVisibleEmptyRow ? minHeight : 0
+        let maxAllowedHeight = availableTableHeight(minimumHeight: minimumHeight)
+        let contentHeight = max(tableViewDevices.contentSize.height, minimumHeight)
         let targetHeight = min(contentHeight, maxAllowedHeight)
 
         guard abs(tableHeightConstraint.constant - targetHeight) > 0.5 else { return }
         tableHeightConstraint.constant = targetHeight
+        tableViewDevices.isScrollEnabled = tableViewDevices.contentSize.height > targetHeight + 0.5
         if animated {
             UIView.animate(
                 withDuration: 0.3,
@@ -288,6 +425,20 @@ final class BluetoothListViewController: UIViewController {
         } else {
             view.layoutIfNeeded()
         }
+    }
+
+    private func availableTableHeight(minimumHeight: CGFloat) -> CGFloat {
+        guard view.bounds.height > 0 else { return max(tableHeightConstraint.constant, minimumHeight) }
+
+        let tableTopY: CGFloat
+        if let tableContainerView, tableContainerView.superview != nil {
+            tableTopY = tableContainerView.frame.minY
+        } else {
+            tableTopY = tableViewDevices.convert(.zero, to: view).y
+        }
+
+        let bottomLimitY = view.bounds.height - view.safeAreaInsets.bottom - Constants.tableBottomInset
+        return max(minimumHeight, bottomLimitY - tableTopY)
     }
     
     private var isTableInteractionInProgress: Bool {
@@ -306,15 +457,19 @@ final class BluetoothListViewController: UIViewController {
     }
     
     private func refreshVisibleDeviceCells() {
-        for case let cell as DeviceCell in tableViewDevices.visibleCells {
+        for cell in tableViewDevices.visibleCells {
             guard let indexPath = tableViewDevices.indexPath(for: cell),
                   viewModel.devices.indices.contains(indexPath.row) else { continue }
             let device = viewModel.devices[indexPath.row]
-            cell.setupModel(model: device)
-            if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
-                cell.backgroundColor = UIColor(named: "ubi4_active")
-            } else {
-                cell.backgroundColor = defaultDeviceCellBackgroundColor
+            if let legacyCell = cell as? LegacyScanDeviceCell {
+                legacyCell.setupModel(model: device)
+            } else if let modernCell = cell as? DeviceCell {
+                modernCell.setupModel(model: device)
+                if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
+                    modernCell.backgroundColor = UIColor(named: "ubi4_active")
+                } else {
+                    modernCell.backgroundColor = defaultDeviceCellBackgroundColor
+                }
             }
         }
     }
@@ -369,19 +524,31 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { viewModel.devices.count }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: DeviceCell.identifier, for: indexPath) as! DeviceCell
         let device = viewModel.devices[indexPath.row]
-        cell.setupModel(model: device) // Настройка данных в ячейке
+        let cell: UITableViewCell
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            let legacyCell = tableView.dequeueReusableCell(
+                withIdentifier: LegacyScanDeviceCell.identifier,
+                for: indexPath
+            ) as! LegacyScanDeviceCell
+            legacyCell.setupModel(model: device)
+            cell = legacyCell
+        case .modernGray:
+            let modernCell = tableView.dequeueReusableCell(withIdentifier: DeviceCell.identifier, for: indexPath) as! DeviceCell
+            modernCell.setupModel(model: device) // Настройка данных в ячейке
+            if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
+                modernCell.backgroundColor = UIColor(named: "ubi4_active")
+            } else {
+                modernCell.backgroundColor = defaultDeviceCellBackgroundColor
+            }
+            cell = modernCell
+        }
         cell.accessibilityIdentifier = "ble.deviceCell.\(indexPath.row)"
         cell.isAccessibilityElement = true
         cell.accessibilityLabel = DeviceNameBridgeV3.shared.displayName(deviceName: device.name)
         cell.accessibilityValue = "rssi=\(device.rssi);uuid=\(device.uuid.uuidString)"
         cell.accessibilityTraits.insert(.button)
-        if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
-            cell.backgroundColor = UIColor(named: "ubi4_active")
-        } else {
-            cell.backgroundColor = defaultDeviceCellBackgroundColor
-        }
         return cell
     }
     
@@ -458,6 +625,9 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         else {
             resetTransitionState()
             return false
+        }
+        if let statusBarColor = UIColor(named: "ubi4_back") {
+            appDelegate.updateStatusBarOverlay(backgroundColor: statusBarColor)
         }
         let tabBarController = MainTabBarController(appDIContainer: appDelegate.appDIContainer)
         if let window = appDelegate.window {
@@ -567,9 +737,11 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         switch scanAppearanceMode {
         case .legacyBlue:
             tableViewDevices.backgroundColor = .white
-            tableViewDevices.layer.borderColor = UIColor(named: "backgroung_filter")?.cgColor
-            tableViewDevices.layer.borderWidth = 2
-            tableContainer.layer.shadowOpacity = 0.18
+            tableViewDevices.tintColor = .clear
+            tableViewDevices.layer.borderWidth = 0
+            tableViewDevices.separatorInset = .zero
+            tableViewDevices.sectionIndexTrackingBackgroundColor = .clear
+            tableContainer.layer.shadowOpacity = 0
         case .modernGray:
             tableViewDevices.backgroundColor = UIColor(named: "ubi4_gray")
             tableViewDevices.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
@@ -578,13 +750,18 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    private func applyLegacyBlueBackground() {
-        let topColor = UIColor(red: 0, green: 0.4745098039, blue: 0.568627451, alpha: 1)
-        let bottomColor = UIColor(red: 0.2823529412, green: 0.6941176471, blue: 0.7490196078, alpha: 1)
+    private var legacyTopColor: UIColor {
+        UIColor(red: 0, green: 0.4745098039, blue: 0.568627451, alpha: 1)
+    }
 
-        containerView.backgroundColor = topColor
+    private var legacyBottomColor: UIColor {
+        UIColor(red: 0.2823529412, green: 0.6941176471, blue: 0.7490196078, alpha: 1)
+    }
+
+    private func applyLegacyBlueBackground() {
+        containerView.backgroundColor = legacyTopColor
         let gradientLayer = backgroundGradientLayer ?? CAGradientLayer()
-        gradientLayer.colors = [topColor.cgColor, bottomColor.cgColor]
+        gradientLayer.colors = [legacyTopColor.cgColor, legacyBottomColor.cgColor]
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
         gradientLayer.frame = containerView.bounds
@@ -641,6 +818,136 @@ extension UIImage{
     
         guard let cgImage = image?.cgImage else { return nil }
         self.init(cgImage: cgImage)
+    }
+}
+
+private final class LegacyScanDeviceCell: UITableViewCell {
+    static let identifier = "LegacyScanDeviceCell"
+
+    private let whiteContainerView = UIView()
+    private let deviceNameText = UILabel()
+    private let rssi = UILabel()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+
+    func setupModel(model: BLEDevice) {
+        deviceNameText.text = LegacyScanDeviceNameFormatter.cleanName(deviceName: model.name)
+        rssi.text = String(model.rssi)
+    }
+
+    private func setupView() {
+        backgroundColor = .white
+        contentView.backgroundColor = .white
+        clipsToBounds = true
+        preservesSuperviewLayoutMargins = true
+        indentationWidth = 10
+
+        whiteContainerView.translatesAutoresizingMaskIntoConstraints = false
+        whiteContainerView.backgroundColor = UIColor(named: "white") ?? .white
+        whiteContainerView.tintColor = .clear
+        whiteContainerView.isUserInteractionEnabled = false
+        contentView.addSubview(whiteContainerView)
+
+        deviceNameText.translatesAutoresizingMaskIntoConstraints = false
+        deviceNameText.textAlignment = .center
+        deviceNameText.lineBreakMode = .byTruncatingTail
+        deviceNameText.baselineAdjustment = .alignBaselines
+        deviceNameText.adjustsFontSizeToFitWidth = false
+        deviceNameText.font = UIFont(name: "OpenSans-Bold", size: 15)
+            ?? UIFont(name: "OpenSansRoman-SemiBold", size: 15)
+            ?? .boldSystemFont(ofSize: 15)
+        deviceNameText.textColor = .black
+        deviceNameText.backgroundColor = .clear
+        deviceNameText.tintColor = .clear
+        whiteContainerView.addSubview(deviceNameText)
+
+        rssi.translatesAutoresizingMaskIntoConstraints = false
+        rssi.textAlignment = .natural
+        rssi.lineBreakMode = .byTruncatingTail
+        rssi.baselineAdjustment = .alignBaselines
+        rssi.font = UIFont(name: "OpenSans-Bold", size: 15)
+            ?? UIFont(name: "OpenSansRoman-SemiBold", size: 15)
+            ?? .boldSystemFont(ofSize: 15)
+        rssi.textColor = UIColor(red: 0.7137254902, green: 0.7137254902, blue: 0.7137254902, alpha: 1)
+        rssi.highlightedTextColor = UIColor(red: 0.4745131135, green: 0.4745037556, blue: 0.4745101333, alpha: 1)
+        whiteContainerView.addSubview(rssi)
+
+        let containerHeight = whiteContainerView.heightAnchor.constraint(equalToConstant: 64)
+        containerHeight.priority = .defaultHigh
+
+        NSLayoutConstraint.activate([
+            whiteContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            whiteContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            whiteContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            whiteContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            containerHeight,
+
+            deviceNameText.leadingAnchor.constraint(equalTo: whiteContainerView.leadingAnchor),
+            deviceNameText.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor),
+            deviceNameText.centerXAnchor.constraint(equalTo: whiteContainerView.centerXAnchor),
+            deviceNameText.centerYAnchor.constraint(equalTo: whiteContainerView.centerYAnchor, constant: -1.5),
+
+            rssi.trailingAnchor.constraint(equalTo: whiteContainerView.trailingAnchor, constant: -16),
+            rssi.centerYAnchor.constraint(equalTo: whiteContainerView.centerYAnchor)
+        ])
+    }
+}
+
+private enum LegacyScanDeviceNameFormatter {
+    static func cleanName(deviceName: String) -> String {
+        guard deviceName.contains("FEST-X"), deviceName.count > 10, !deviceName.contains(" ") else {
+            return deviceName
+        }
+
+        let prefixStart = deviceName.index(deviceName.startIndex, offsetBy: 6)
+        let prefixEnd = deviceName.index(prefixStart, offsetBy: 4)
+        let namePrefix = String(deviceName[prefixStart..<prefixEnd])
+        let nameCode = String(deviceName[prefixEnd..<deviceName.endIndex])
+
+        switch namePrefix {
+        case "FTFS":
+            return "FEST-F-\(nameCode)"
+        case "FTHS":
+            return "FEST-H-\(nameCode)"
+        case "FTFO":
+            return "FEST-FO-\(nameCode)"
+        case "FTHO":
+            return "FEST-HO-\(nameCode)"
+        case "FTEP":
+            return "FEST-EP-\(nameCode)"
+        case "FTEB":
+            return "FEST-EB-\(nameCode)"
+        default:
+            return deviceName
+        }
+    }
+}
+
+private final class LegacyScanSegmentedControl: UISegmentedControl {
+    private let segmentInset: CGFloat = 5
+    private let segmentImage: UIImage? = UIImage(color: UIColor.white)
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        layer.cornerRadius = bounds.height / 2
+        let foregroundIndex = numberOfSegments
+        if subviews.indices.contains(foregroundIndex),
+           let foregroundImageView = subviews[foregroundIndex] as? UIImageView {
+            foregroundImageView.bounds = foregroundImageView.bounds.insetBy(dx: segmentInset, dy: segmentInset)
+            foregroundImageView.image = segmentImage
+            foregroundImageView.layer.removeAnimation(forKey: "SelectionBounds")
+            foregroundImageView.layer.masksToBounds = true
+            foregroundImageView.layer.cornerRadius = foregroundImageView.bounds.height / 2
+        }
     }
 }
 

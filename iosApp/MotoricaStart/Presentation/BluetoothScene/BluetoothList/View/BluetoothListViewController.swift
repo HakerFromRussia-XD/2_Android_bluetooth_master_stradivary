@@ -22,6 +22,8 @@ final class BluetoothListViewController: UIViewController {
     private var isUserInteractingWithDevicesList = false
     private var pendingDevicesReloadAfterInteraction = false
     private var lastRenderedDeviceIDs: [UUID] = []
+    private var backgroundGradientLayer: CAGradientLayer?
+    private weak var tableContainerView: UIView?
     
     private let filterSegmentTitles = ["Все устройства", "Протезы"]
     private let filterSegmentProvider = BluetoothFilterSegmentProvider(selectedSegmentIndex: 0)
@@ -40,6 +42,7 @@ final class BluetoothListViewController: UIViewController {
     
     private let viewModel: BluetoothListViewModel
     private var cancellables = Set<AnyCancellable>()
+    private var scanAppearanceMode: MergedScanAppearanceMode { viewModel.initialScanAppearanceMode }
 
     // Инициализатор для UIStoryboard.instantiate
     init?(coder: NSCoder, viewModel: BluetoothListViewModel) {
@@ -78,7 +81,8 @@ final class BluetoothListViewController: UIViewController {
         let segmentSelectorHost = UIHostingController(
             rootView: BluetoothSegmentSelectorView(
                 provider: filterSegmentProvider,
-                titles: filterSegmentTitles
+                titles: filterSegmentTitles,
+                appearanceMode: scanAppearanceMode
             )
         )
         addChild(segmentSelectorHost)
@@ -103,6 +107,7 @@ final class BluetoothListViewController: UIViewController {
         
         // настройка внешнего вида списка
         let tableContainer = UIView()
+        tableContainerView = tableContainer
         tableContainer.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableContainer)
         tableContainer.layer.shadowColor = UIColor.black.cgColor
@@ -125,9 +130,7 @@ final class BluetoothListViewController: UIViewController {
         tableViewDevices.delegate = self
         tableViewDevices.register(UINib(nibName: "DeviceCell", bundle: nil), forCellReuseIdentifier: DeviceCell.identifier)
         tableViewDevices.tableFooterView = UIView(frame: .zero)
-        tableViewDevices.backgroundColor = UIColor(named: "ubi4_gray")
-        tableViewDevices.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
-        tableViewDevices.layer.borderWidth = 1
+        applyStaticAppearance(tableContainer: tableContainer)
         tableViewDevices.delaysContentTouches = false
         tableViewDevices.rowHeight = 64
         tableViewDevices.estimatedRowHeight = 64
@@ -211,8 +214,15 @@ final class BluetoothListViewController: UIViewController {
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if let backgroundColor = UIColor(named: "ubi4_back") {
-            containerView.backgroundColor = backgroundColor
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            applyLegacyBlueBackground()
+        case .modernGray:
+            backgroundGradientLayer?.removeFromSuperlayer()
+            backgroundGradientLayer = nil
+            if let backgroundColor = UIColor(named: "ubi4_back") {
+                containerView.backgroundColor = backgroundColor
+            }
         }
         updateTableHeight()
     }
@@ -304,7 +314,7 @@ final class BluetoothListViewController: UIViewController {
             if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
                 cell.backgroundColor = UIColor(named: "ubi4_active")
             } else {
-                cell.backgroundColor = UIColor(named: "ubi4_gray")
+                cell.backgroundColor = defaultDeviceCellBackgroundColor
             }
         }
     }
@@ -370,7 +380,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         if let connectedID = viewModel.connectedDeviceID, connectedID == device.id {
             cell.backgroundColor = UIColor(named: "ubi4_active")
         } else {
-            cell.backgroundColor = UIColor(named: "ubi4_gray")
+            cell.backgroundColor = defaultDeviceCellBackgroundColor
         }
         return cell
     }
@@ -427,8 +437,16 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             )
             UiStateBridge.shared.resetWidgetsState()
             WidgetsListViewController.resetGlobalSynchronizationState()
-            self.viewModel.connect(to: selectedDevice)
-            guard self.openMainTabBar() else { return }
+            switch self.viewModel.family(for: selectedDevice) {
+            case .newKmm:
+                self.viewModel.connect(to: selectedDevice)
+                guard self.openMainTabBar() else { return }
+            case .oldLegacy:
+                self.openLegacyBranch(for: selectedDevice)
+            case .unknown:
+                self.showConnectionToast("Неизвестное устройство")
+                self.resetTransitionState()
+            }
         }
     }
     
@@ -452,6 +470,27 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
         }
         navigationController.setViewControllers([tabBarController], animated: false)
         return true
+    }
+
+    private func openLegacyBranch(for device: BLEDevice) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+              let window = appDelegate.window else {
+            resetTransitionState()
+            return
+        }
+
+        viewModel.markOldSelection(device: device)
+        viewModel.onDisappear()
+        let legacyRoot = OldMotoricaStartLauncherAdapter().makeRootViewController(for: device)
+
+        let transition = CATransition()
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.duration = Constants.rootTransitionDuration
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        window.layer.add(transition, forKey: kCATransition)
+        window.rootViewController = legacyRoot
+        window.makeKeyAndVisible()
     }
     
     private func resetTransitionState() {
@@ -514,6 +553,47 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
 //        viewModel.connectToDevice(at: index)
 //        openMainTabBar()
     }
+
+    private var defaultDeviceCellBackgroundColor: UIColor {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            return .white
+        case .modernGray:
+            return UIColor(named: "ubi4_gray") ?? .white
+        }
+    }
+
+    private func applyStaticAppearance(tableContainer: UIView) {
+        switch scanAppearanceMode {
+        case .legacyBlue:
+            tableViewDevices.backgroundColor = .white
+            tableViewDevices.layer.borderColor = UIColor(named: "backgroung_filter")?.cgColor
+            tableViewDevices.layer.borderWidth = 2
+            tableContainer.layer.shadowOpacity = 0.18
+        case .modernGray:
+            tableViewDevices.backgroundColor = UIColor(named: "ubi4_gray")
+            tableViewDevices.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
+            tableViewDevices.layer.borderWidth = 1
+            tableContainer.layer.shadowOpacity = 0.25
+        }
+    }
+
+    private func applyLegacyBlueBackground() {
+        let topColor = UIColor(red: 0, green: 0.4745098039, blue: 0.568627451, alpha: 1)
+        let bottomColor = UIColor(red: 0.2823529412, green: 0.6941176471, blue: 0.7490196078, alpha: 1)
+
+        containerView.backgroundColor = topColor
+        let gradientLayer = backgroundGradientLayer ?? CAGradientLayer()
+        gradientLayer.colors = [topColor.cgColor, bottomColor.cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        gradientLayer.frame = containerView.bounds
+
+        if backgroundGradientLayer == nil {
+            containerView.layer.insertSublayer(gradientLayer, at: 0)
+            backgroundGradientLayer = gradientLayer
+        }
+    }
 }
 extension String {
     /// A data representation of the hexadecimal bytes in this string.
@@ -575,6 +655,7 @@ private final class BluetoothFilterSegmentProvider: ObservableObject {
 private struct BluetoothSegmentSelectorView: View {
     @ObservedObject var provider: BluetoothFilterSegmentProvider
     let titles: [String]
+    let appearanceMode: MergedScanAppearanceMode
 
     @State private var selectorDisplayOffset: CGFloat = 0
     @State private var isSelectorOffsetInitialized = false
@@ -590,15 +671,15 @@ private struct BluetoothSegmentSelectorView: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("ubi4_gray"))
+                    .fill(palette.background)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                            .stroke(palette.border, lineWidth: 1)
                     )
                     .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
 
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("ubi4_back"))
+                    .fill(palette.selectedBackground)
                     .padding(1)
                     .frame(width: segmentWidth)
                     .offset(x: selectorDisplayOffset)
@@ -608,7 +689,7 @@ private struct BluetoothSegmentSelectorView: View {
                         Button(action: { select(index: index) }) {
                             Text(title)
                                 .font(.system(size: 12, weight: .light))
-                                .foregroundColor(index == provider.selectedSegmentIndex ? .white : Color("ubi4_deactivate_text"))
+                                .foregroundColor(index == provider.selectedSegmentIndex ? palette.selectedText : palette.normalText)
                                 .animation(nil, value: provider.selectedSegmentIndex)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .contentShape(Rectangle())
@@ -655,6 +736,27 @@ private struct BluetoothSegmentSelectorView: View {
     private var clampedSelectedIndex: Int {
         guard !titles.isEmpty else { return 0 }
         return min(max(provider.selectedSegmentIndex, 0), titles.count - 1)
+    }
+
+    private var palette: SegmentPalette {
+        switch appearanceMode {
+        case .legacyBlue:
+            return SegmentPalette(
+                background: Color("white"),
+                border: Color("backgroung_filter"),
+                selectedBackground: Color("white"),
+                selectedText: .black,
+                normalText: Color("deselected_text_filter")
+            )
+        case .modernGray:
+            return SegmentPalette(
+                background: Color("ubi4_gray"),
+                border: Color("ubi4_gray_border"),
+                selectedBackground: Color("ubi4_back"),
+                selectedText: .white,
+                normalText: Color("ubi4_deactivate_text")
+            )
+        }
     }
 
     private func segmentHighlightOffset(segmentWidth: CGFloat) -> CGFloat {
@@ -739,6 +841,14 @@ private struct BluetoothSegmentSelectorView: View {
         }
         return CGFloat(easedValue)
     }
+}
+
+private struct SegmentPalette {
+    let background: Color
+    let border: Color
+    let selectedBackground: Color
+    let selectedText: Color
+    let normalText: Color
 }
 
 private struct InlineNetworkConfig: NetworkConfigurable {

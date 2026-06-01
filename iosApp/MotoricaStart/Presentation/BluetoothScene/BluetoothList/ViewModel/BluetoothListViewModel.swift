@@ -24,9 +24,12 @@ final class BluetoothListViewModel {
     
     private let repository: BluetoothRepository
     private let keyValueStorage: KeyValueStorage
+    private let familyClassifier = ProsthesisFamilyClassifier()
+    private let appearanceStore: MergedScanAppearanceStore
     private var cancellables = Set<AnyCancellable>()
     
     var currentFilterIndex: Int { selectedFilterIndex }
+    var initialScanAppearanceMode: MergedScanAppearanceMode { appearanceStore.initialAppearanceMode }
     
     init(
         bleManager: BleManagerKmm,
@@ -38,6 +41,7 @@ final class BluetoothListViewModel {
         // При инициализации читаем сохранённый фильтр
 //        selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
         self.keyValueStorage = keyValueStorage
+        self.appearanceStore = MergedScanAppearanceStore(keyValueStorage: keyValueStorage)
         restorePersistedState()
         // Подписываемся на поток найденных устройств
 //        repository.scannedDevicesPublisher
@@ -131,9 +135,9 @@ final class BluetoothListViewModel {
             print("[BLE-Filter] allDevices")
             devices = allDevices
         } else {
-            print("[BLE-Filter] ubi4 or v3 family")
+            print("[BLE-Filter] known prosthesis family")
             devices = allDevices.filter {
-                UiInterfaceModeBridgeV3.shared.isUbiDeviceFamily(deviceName: $0.name)
+                familyClassifier.isKnownProsthesis(deviceName: $0.name)
             }
         }
     }
@@ -151,6 +155,14 @@ final class BluetoothListViewModel {
         guard devices.indices.contains(index) else { return nil }
         return devices[index]
     }
+
+    func family(for device: BLEDevice) -> MergedProsthesisFamily {
+        familyClassifier.family(for: device.name)
+    }
+
+    func markOldSelection(device: BLEDevice) {
+        appearanceStore.markOldSelection(device: device)
+    }
     
     func connect(to device: BLEDevice) {
         let indexDescription = devices.firstIndex(where: { $0.id == device.id }).map(String.init) ?? "snapshot"
@@ -162,6 +174,7 @@ final class BluetoothListViewModel {
         } catch {
             print("[Storage] failed to persist selected device name: \(error)")
         }
+        appearanceStore.markNewConnection(device: device)
         _ = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
         connectedDeviceID = nil
         logConnect("[BLE-CONNECT] phase=stopScan")

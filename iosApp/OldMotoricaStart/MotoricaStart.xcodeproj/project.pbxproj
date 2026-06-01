@@ -1,0 +1,755 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		52B6D39B1FDD80F0004B2614 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B6D39A1FDD80F0004B2614 /* AppDelegate.swift */; };
+		52B6D3A51FDD80F0004B2614 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 52B6D3A31FDD80F0004B2614 /* LaunchScreen.storyboard */; };
+		52B6D3AD1FDD810A004B2614 /* ScanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B6D3AC1FDD810A004B2614 /* ScanItem.swift */; };
+		52B6D3AF1FDD81C2004B2614 /* DataManger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B6D3AE1FDD81C2004B2614 /* DataManger.swift */; };
+		52B6D3B11FDD8D3F004B2614 /* ToDoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B6D3B01FDD8D3F004B2614 /* ToDoTableViewCell.swift */; };
+		52DCC2431FEC3AEE006B2A74 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52DCC2421FEC3AEE006B2A74 /* ContainerViewController.swift */; };
+		55934A9498DB86819FA3CC6B /* Pods_MotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E2FBA477B8594AE099672A3 /* Pods_MotoricaStart.framework */; };
+		651711302926262000FB00AE /* DialogSelectScaleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6517112F2926262000FB00AE /* DialogSelectScaleViewController.swift */; };
+		6517113229262C5A00FB00AE /* DialogConfirmationScaleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6517113129262C5A00FB00AE /* DialogConfirmationScaleViewController.swift */; };
+		651711342927AE6100FB00AE /* DialogResetINDYViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651711332927AE6100FB00AE /* DialogResetINDYViewController.swift */; };
+		652D4ADF268DC0FE007D0700 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D4ADE268DC0FE007D0700 /* Quote.swift */; };
+		652D4AE2268DC12A007D0700 /* ModelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D4AE1268DC12A007D0700 /* ModelController.swift */; };
+		653F397527A68F980042AC88 /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 653F397427A68F980042AC88 /* AAPLMathUtilities.m */; };
+		653F397827A690610042AC88 /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 653F397727A690610042AC88 /* AAPLMeshData.mm */; };
+		653F397C27A698BC0042AC88 /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 653F397B27A698BC0042AC88 /* Meshes */; };
+		653F398427A698D90042AC88 /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F397E27A698D90042AC88 /* temple.vsh */; };
+		653F398527A698D90042AC88 /* reflect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F397F27A698D90042AC88 /* reflect.fsh */; };
+		653F398627A698D90042AC88 /* temple.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F398027A698D90042AC88 /* temple.fsh */; };
+		653F398727A698D90042AC88 /* select_fragment_shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F398127A698D90042AC88 /* select_fragment_shader.fsh */; };
+		653F398827A698D90042AC88 /* select_vertex_shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F398227A698D90042AC88 /* select_vertex_shader.vsh */; };
+		653F398927A698D90042AC88 /* reflect.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 653F398327A698D90042AC88 /* reflect.vsh */; };
+		653F4B0F2A21534500F34CFF /* DialogDisconnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653F4B0E2A21534500F34CFF /* DialogDisconnectViewController.swift */; };
+		6543880727A5A7390065E4A7 /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6543880627A5A7390065E4A7 /* AAPLOpenGLViewController.m */; };
+		6543880A27A5AB7D0065E4A7 /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6543880927A5AB7C0065E4A7 /* AAPLOpenGLRenderer.m */; };
+		6548D9E82689CB7F00ABC38C /* SaveObjectString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6548D9E72689CB7F00ABC38C /* SaveObjectString.swift */; };
+		6548D9EA268B545300ABC38C /* GestureSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6548D9E9268B545300ABC38C /* GestureSettingsViewController.swift */; };
+		6548D9EC268CB3CB00ABC38C /* GribSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6548D9EB268CB3CB00ABC38C /* GribSettingsViewController.swift */; };
+		657C5B5B29FAA9EC00C0EF22 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 657C5B5D29FAA9EC00C0EF22 /* Main.storyboard */; };
+		657C5B6329FABC1B00C0EF22 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 657C5B6529FABC1B00C0EF22 /* Localizable.strings */; };
+		657D0EC22793FE1300066215 /* Grib3DSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657D0EC12793FE1300066215 /* Grib3DSettingsViewController.swift */; };
+		658EBEB52BB18CDA00C7027B /* DialogSoftResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658EBEB42BB18CDA00C7027B /* DialogSoftResetViewController.swift */; };
+		658EBEB72BB194A300C7027B /* DialogGesturesResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658EBEB62BB194A300C7027B /* DialogGesturesResetViewController.swift */; };
+		658EBEB92BB2E3DD00C7027B /* DialogPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658EBEB82BB2E3DD00C7027B /* DialogPasswordViewController.swift */; };
+		658EBEBB2BB2F1B500C7027B /* DialogSetSerialNumberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658EBEBA2BB2F1B500C7027B /* DialogSetSerialNumberViewController.swift */; };
+		65981C022B0B86D000050D3A /* inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 65981C012B0B86D000050D3A /* inter.ttf */; };
+		65981C042B0B8C2500050D3A /* InstractionControlsInTheAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65981C032B0B8C2500050D3A /* InstractionControlsInTheAppViewController.swift */; };
+		659AE25427AA9522003821CF /* AdvancedSettinsFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659AE25327AA9522003821CF /* AdvancedSettinsFesthViewController.swift */; };
+		65A8BF7F2A16905F009561D4 /* DialogWaitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF7E2A16905F009561D4 /* DialogWaitViewController.swift */; };
+		65A8BF842A1BB673009561D4 /* ScanDeviceNib.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65A8BF832A1BB673009561D4 /* ScanDeviceNib.xib */; };
+		65A8BF892A1BBBED009561D4 /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF882A1BBBED009561D4 /* DeviceCell.swift */; };
+		65A8BF8B2A1BBE2E009561D4 /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A8BF8A2A1BBE2E009561D4 /* ScanViewController.swift */; };
+		65B7FE9A2B0D35450065565C /* InstractionProsthisesUseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B7FE992B0D35450065565C /* InstractionProsthisesUseViewController.swift */; };
+		65B856AD2BACA76D00F76F34 /* NameUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B856AC2BACA76D00F76F34 /* NameUtil.swift */; };
+		65BACE712A7BEBB600C64E9D /* InstractionFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BACE702A7BEBB600C64E9D /* InstractionFesthViewController.swift */; };
+		65EB56F0291E7C2900FFC9A6 /* DialogRecalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EB56EF291E7C2900FFC9A6 /* DialogRecalibrationViewController.swift */; };
+		65EB56F329238E9100FFC9A6 /* DialogCalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EB56F229238E9100FFC9A6 /* DialogCalibrationViewController.swift */; };
+		65EB56F529239E1600FFC9A6 /* DialogResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EB56F429239E1600FFC9A6 /* DialogResetViewController.swift */; };
+		65F865B6286C8F7F0035CF64 /* DialogFingersDelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F865B5286C8F7F0035CF64 /* DialogFingersDelayViewController.swift */; };
+		65FA91BE2B599F4D000BD822 /* ExtentionTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FA91BD2B599F4D000BD822 /* ExtentionTextField.swift */; };
+		65FE9CA52A867EB900DEC82B /* OpenSans-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 65FE9CA42A867EB900DEC82B /* OpenSans-wght.ttf */; };
+		65FFAA7F28800A78006C8733 /* DialogCalibrationStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FFAA7E28800A78006C8733 /* DialogCalibrationStatusViewController.swift */; };
+		FA6DEC82263C73AF00ED9775 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA6DEC81263C73AE00ED9775 /* Assets.xcassets */; };
+		FA6DEC84263D4D8E00ED9775 /* SaveObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DEC83263D4D8E00ED9775 /* SaveObject.swift */; };
+		FA74B90C263C2C3F00BC1CBA /* AdvencedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74B90B263C2C3F00BC1CBA /* AdvencedSettingsViewController.swift */; };
+		FA8C6FD926276E1B003E70B8 /* SensorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8C6FD826276E1B003E70B8 /* SensorsViewController.swift */; };
+		FAE46566263995DE006CA3EF /* SampleGattAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE46565263995DE006CA3EF /* SampleGattAttributes.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0E2FBA477B8594AE099672A3 /* Pods_MotoricaStart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MotoricaStart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		41B836BD689EA9F19775A84B /* Pods-MotoricaStart.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.debug.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.debug.xcconfig"; sourceTree = "<group>"; };
+		52B6D3971FDD80F0004B2614 /* MotoricaStart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStart.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		52B6D39A1FDD80F0004B2614 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		52B6D3A41FDD80F0004B2614 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		52B6D3A61FDD80F0004B2614 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		52B6D3AC1FDD810A004B2614 /* ScanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanItem.swift; sourceTree = "<group>"; };
+		52B6D3AE1FDD81C2004B2614 /* DataManger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManger.swift; sourceTree = "<group>"; };
+		52B6D3B01FDD8D3F004B2614 /* ToDoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoTableViewCell.swift; sourceTree = "<group>"; };
+		52DCC2421FEC3AEE006B2A74 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
+		6517112F2926262000FB00AE /* DialogSelectScaleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogSelectScaleViewController.swift; sourceTree = "<group>"; };
+		6517113129262C5A00FB00AE /* DialogConfirmationScaleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogConfirmationScaleViewController.swift; sourceTree = "<group>"; };
+		651711332927AE6100FB00AE /* DialogResetINDYViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogResetINDYViewController.swift; sourceTree = "<group>"; };
+		652D4ADE268DC0FE007D0700 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
+		652D4AE1268DC12A007D0700 /* ModelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelController.swift; sourceTree = "<group>"; };
+		653F397427A68F980042AC88 /* AAPLMathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLMathUtilities.m; sourceTree = "<group>"; };
+		653F397627A68FAF0042AC88 /* AAPLMathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMathUtilities.h; sourceTree = "<group>"; };
+		653F397727A690610042AC88 /* AAPLMeshData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLMeshData.mm; sourceTree = "<group>"; };
+		653F397927A690730042AC88 /* AAPLMeshData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMeshData.h; sourceTree = "<group>"; };
+		653F397A27A690E20042AC88 /* AAPLCommonDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLCommonDefinitions.h; sourceTree = "<group>"; };
+		653F397B27A698BC0042AC88 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
+		653F397E27A698D90042AC88 /* temple.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
+		653F397F27A698D90042AC88 /* reflect.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
+		653F398027A698D90042AC88 /* temple.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.fsh; sourceTree = "<group>"; };
+		653F398127A698D90042AC88 /* select_fragment_shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_fragment_shader.fsh; sourceTree = "<group>"; };
+		653F398227A698D90042AC88 /* select_vertex_shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_vertex_shader.vsh; sourceTree = "<group>"; };
+		653F398327A698D90042AC88 /* reflect.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.vsh; sourceTree = "<group>"; };
+		653F4B0E2A21534500F34CFF /* DialogDisconnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogDisconnectViewController.swift; sourceTree = "<group>"; };
+		6543880527A5A7390065E4A7 /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
+		6543880627A5A7390065E4A7 /* AAPLOpenGLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLViewController.m; sourceTree = "<group>"; };
+		6543880827A5A9690065E4A7 /* AAPLOpenGLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLViewController.h; sourceTree = "<group>"; };
+		6543880927A5AB7C0065E4A7 /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
+		6543880B27A5AB9D0065E4A7 /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
+		6543880C27A5ABB20065E4A7 /* AAPLGLHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
+		6548D9E72689CB7F00ABC38C /* SaveObjectString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveObjectString.swift; sourceTree = "<group>"; };
+		6548D9E9268B545300ABC38C /* GestureSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureSettingsViewController.swift; sourceTree = "<group>"; };
+		6548D9EB268CB3CB00ABC38C /* GribSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GribSettingsViewController.swift; sourceTree = "<group>"; };
+		657C5B5C29FAA9EC00C0EF22 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
+		657C5B6029FABAA900C0EF22 /* ru */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
+		657C5B6429FABC1B00C0EF22 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		657C5B6629FABC2000C0EF22 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		657D0EC12793FE1300066215 /* Grib3DSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grib3DSettingsViewController.swift; sourceTree = "<group>"; };
+		658EBEB42BB18CDA00C7027B /* DialogSoftResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogSoftResetViewController.swift; sourceTree = "<group>"; };
+		658EBEB62BB194A300C7027B /* DialogGesturesResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGesturesResetViewController.swift; sourceTree = "<group>"; };
+		658EBEB82BB2E3DD00C7027B /* DialogPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogPasswordViewController.swift; sourceTree = "<group>"; };
+		658EBEBA2BB2F1B500C7027B /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
+		65981C012B0B86D000050D3A /* inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = inter.ttf; sourceTree = "<group>"; };
+		65981C032B0B8C2500050D3A /* InstractionControlsInTheAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstractionControlsInTheAppViewController.swift; sourceTree = "<group>"; };
+		659AE25327AA9522003821CF /* AdvancedSettinsFesthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettinsFesthViewController.swift; sourceTree = "<group>"; };
+		65A8BF7E2A16905F009561D4 /* DialogWaitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogWaitViewController.swift; sourceTree = "<group>"; };
+		65A8BF832A1BB673009561D4 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ScanDeviceNib.xib; sourceTree = "<group>"; };
+		65A8BF882A1BBBED009561D4 /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
+		65A8BF8A2A1BBE2E009561D4 /* ScanViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanViewController.swift; sourceTree = "<group>"; };
+		65B7FE992B0D35450065565C /* InstractionProsthisesUseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstractionProsthisesUseViewController.swift; sourceTree = "<group>"; };
+		65B856AC2BACA76D00F76F34 /* NameUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameUtil.swift; sourceTree = "<group>"; };
+		65BACE702A7BEBB600C64E9D /* InstractionFesthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstractionFesthViewController.swift; sourceTree = "<group>"; };
+		65EB56EF291E7C2900FFC9A6 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
+		65EB56F229238E9100FFC9A6 /* DialogCalibrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogCalibrationViewController.swift; sourceTree = "<group>"; };
+		65EB56F429239E1600FFC9A6 /* DialogResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogResetViewController.swift; sourceTree = "<group>"; };
+		65F865B5286C8F7F0035CF64 /* DialogFingersDelayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogFingersDelayViewController.swift; sourceTree = "<group>"; };
+		65FA91BD2B599F4D000BD822 /* ExtentionTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtentionTextField.swift; sourceTree = "<group>"; };
+		65FE9CA42A867EB900DEC82B /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
+		65FFAA7E28800A78006C8733 /* DialogCalibrationStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogCalibrationStatusViewController.swift; sourceTree = "<group>"; };
+		CFE4A5C8947B7BDF3DC01BC1 /* Pods-MotoricaStart.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MotoricaStart.release.xcconfig"; path = "Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart.release.xcconfig"; sourceTree = "<group>"; };
+		FA6DEC81263C73AE00ED9775 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FA6DEC83263D4D8E00ED9775 /* SaveObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveObject.swift; sourceTree = "<group>"; };
+		FA74B90B263C2C3F00BC1CBA /* AdvencedSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvencedSettingsViewController.swift; sourceTree = "<group>"; };
+		FA8C6FD826276E1B003E70B8 /* SensorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorsViewController.swift; sourceTree = "<group>"; };
+		FAE46565263995DE006CA3EF /* SampleGattAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGattAttributes.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		52B6D3941FDD80F0004B2614 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55934A9498DB86819FA3CC6B /* Pods_MotoricaStart.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		490FD7C6CA9B8C86DBAD55D8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0E2FBA477B8594AE099672A3 /* Pods_MotoricaStart.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		52B6D38E1FDD80F0004B2614 = {
+			isa = PBXGroup;
+			children = (
+				52B6D3991FDD80F0004B2614 /* MotoricaStart */,
+				6543880D27A5ABCA0065E4A7 /* Common */,
+				52B6D3981FDD80F0004B2614 /* Products */,
+				79443FF0FA944FD61C844F13 /* Pods */,
+				490FD7C6CA9B8C86DBAD55D8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		52B6D3981FDD80F0004B2614 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				52B6D3971FDD80F0004B2614 /* MotoricaStart.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		52B6D3991FDD80F0004B2614 /* MotoricaStart */ = {
+			isa = PBXGroup;
+			children = (
+				65A8BF802A1BB505009561D4 /* Nibs */,
+				6543880427A5A71B0065E4A7 /* OpenGL */,
+				652D4AE0268DC105007D0700 /* test transition */,
+				52B6D39A1FDD80F0004B2614 /* AppDelegate.swift */,
+				657C5B5D29FAA9EC00C0EF22 /* Main.storyboard */,
+				652D4AE3268DE97D007D0700 /* ViewControllers */,
+				652D4AE4268DE9CF007D0700 /* Utility */,
+				652D4AE5268DEA20007D0700 /* Res */,
+				52B6D3A61FDD80F0004B2614 /* Info.plist */,
+				657C5B6529FABC1B00C0EF22 /* Localizable.strings */,
+			);
+			path = MotoricaStart;
+			sourceTree = "<group>";
+		};
+		652D4AE0268DC105007D0700 /* test transition */ = {
+			isa = PBXGroup;
+			children = (
+				652D4ADE268DC0FE007D0700 /* Quote.swift */,
+				652D4AE1268DC12A007D0700 /* ModelController.swift */,
+			);
+			path = "test transition";
+			sourceTree = "<group>";
+		};
+		652D4AE3268DE97D007D0700 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				65A8BF872A1BBBC0009561D4 /* Cells */,
+				65A8BF862A1BBB7C009561D4 /* Dialogs */,
+				65A8BF852A1BBB5F009561D4 /* Main */,
+				6572031D2AE9334100DB3267 /* Help */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		652D4AE4268DE9CF007D0700 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				FAE46565263995DE006CA3EF /* SampleGattAttributes.swift */,
+				52DCC2421FEC3AEE006B2A74 /* ContainerViewController.swift */,
+				52B6D3B01FDD8D3F004B2614 /* ToDoTableViewCell.swift */,
+				52B6D3AC1FDD810A004B2614 /* ScanItem.swift */,
+				FA6DEC83263D4D8E00ED9775 /* SaveObject.swift */,
+				6548D9E72689CB7F00ABC38C /* SaveObjectString.swift */,
+				52B6D3AE1FDD81C2004B2614 /* DataManger.swift */,
+				65FA91BD2B599F4D000BD822 /* ExtentionTextField.swift */,
+				65B856AC2BACA76D00F76F34 /* NameUtil.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		652D4AE5268DEA20007D0700 /* Res */ = {
+			isa = PBXGroup;
+			children = (
+				FA6DEC81263C73AE00ED9775 /* Assets.xcassets */,
+				52B6D3A31FDD80F0004B2614 /* LaunchScreen.storyboard */,
+				652D4AE6268DEA37007D0700 /* Fontes */,
+			);
+			path = Res;
+			sourceTree = "<group>";
+		};
+		652D4AE6268DEA37007D0700 /* Fontes */ = {
+			isa = PBXGroup;
+			children = (
+				65981C012B0B86D000050D3A /* inter.ttf */,
+				65FE9CA42A867EB900DEC82B /* OpenSans-wght.ttf */,
+			);
+			path = Fontes;
+			sourceTree = "<group>";
+		};
+		653F397D27A698D90042AC88 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				653F397E27A698D90042AC88 /* temple.vsh */,
+				653F397F27A698D90042AC88 /* reflect.fsh */,
+				653F398027A698D90042AC88 /* temple.fsh */,
+				653F398127A698D90042AC88 /* select_fragment_shader.fsh */,
+				653F398227A698D90042AC88 /* select_vertex_shader.vsh */,
+				653F398327A698D90042AC88 /* reflect.vsh */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
+		6543880427A5A71B0065E4A7 /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				6543880827A5A9690065E4A7 /* AAPLOpenGLViewController.h */,
+				6543880627A5A7390065E4A7 /* AAPLOpenGLViewController.m */,
+				6543880C27A5ABB20065E4A7 /* AAPLGLHeaders.h */,
+				6543880B27A5AB9D0065E4A7 /* AAPLOpenGLRenderer.h */,
+				6543880927A5AB7C0065E4A7 /* AAPLOpenGLRenderer.m */,
+				6543880527A5A7390065E4A7 /* MotoricaStart-Bridging-Header.h */,
+				653F397D27A698D90042AC88 /* shaders */,
+			);
+			path = OpenGL;
+			sourceTree = "<group>";
+		};
+		6543880D27A5ABCA0065E4A7 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				653F397A27A690E20042AC88 /* AAPLCommonDefinitions.h */,
+				653F397927A690730042AC88 /* AAPLMeshData.h */,
+				653F397727A690610042AC88 /* AAPLMeshData.mm */,
+				653F397627A68FAF0042AC88 /* AAPLMathUtilities.h */,
+				653F397427A68F980042AC88 /* AAPLMathUtilities.m */,
+				653F397B27A698BC0042AC88 /* Meshes */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		6572031D2AE9334100DB3267 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				65BACE702A7BEBB600C64E9D /* InstractionFesthViewController.swift */,
+				65981C032B0B8C2500050D3A /* InstractionControlsInTheAppViewController.swift */,
+				65B7FE992B0D35450065565C /* InstractionProsthisesUseViewController.swift */,
+			);
+			path = Help;
+			sourceTree = "<group>";
+		};
+		65A8BF802A1BB505009561D4 /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				65A8BF832A1BB673009561D4 /* ScanDeviceNib.xib */,
+			);
+			path = Nibs;
+			sourceTree = "<group>";
+		};
+		65A8BF852A1BBB5F009561D4 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				FA8C6FD826276E1B003E70B8 /* SensorsViewController.swift */,
+				FA74B90B263C2C3F00BC1CBA /* AdvencedSettingsViewController.swift */,
+				659AE25327AA9522003821CF /* AdvancedSettinsFesthViewController.swift */,
+				6548D9E9268B545300ABC38C /* GestureSettingsViewController.swift */,
+				6548D9EB268CB3CB00ABC38C /* GribSettingsViewController.swift */,
+				657D0EC12793FE1300066215 /* Grib3DSettingsViewController.swift */,
+				65A8BF8A2A1BBE2E009561D4 /* ScanViewController.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		65A8BF862A1BBB7C009561D4 /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				65F865B5286C8F7F0035CF64 /* DialogFingersDelayViewController.swift */,
+				65FFAA7E28800A78006C8733 /* DialogCalibrationStatusViewController.swift */,
+				65EB56EF291E7C2900FFC9A6 /* DialogRecalibrationViewController.swift */,
+				65EB56F229238E9100FFC9A6 /* DialogCalibrationViewController.swift */,
+				65EB56F429239E1600FFC9A6 /* DialogResetViewController.swift */,
+				658EBEB42BB18CDA00C7027B /* DialogSoftResetViewController.swift */,
+				658EBEB62BB194A300C7027B /* DialogGesturesResetViewController.swift */,
+				6517112F2926262000FB00AE /* DialogSelectScaleViewController.swift */,
+				6517113129262C5A00FB00AE /* DialogConfirmationScaleViewController.swift */,
+				651711332927AE6100FB00AE /* DialogResetINDYViewController.swift */,
+				65A8BF7E2A16905F009561D4 /* DialogWaitViewController.swift */,
+				653F4B0E2A21534500F34CFF /* DialogDisconnectViewController.swift */,
+				658EBEB82BB2E3DD00C7027B /* DialogPasswordViewController.swift */,
+				658EBEBA2BB2F1B500C7027B /* DialogSetSerialNumberViewController.swift */,
+			);
+			path = Dialogs;
+			sourceTree = "<group>";
+		};
+		65A8BF872A1BBBC0009561D4 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				65A8BF882A1BBBED009561D4 /* DeviceCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		79443FF0FA944FD61C844F13 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				41B836BD689EA9F19775A84B /* Pods-MotoricaStart.debug.xcconfig */,
+				CFE4A5C8947B7BDF3DC01BC1 /* Pods-MotoricaStart.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		52B6D3961FDD80F0004B2614 /* MotoricaStart */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52B6D3A91FDD80F0004B2614 /* Build configuration list for PBXNativeTarget "MotoricaStart" */;
+			buildPhases = (
+				AEF1240769A8626B60CD7FF6 /* [CP] Check Pods Manifest.lock */,
+				52B6D3931FDD80F0004B2614 /* Sources */,
+				52B6D3941FDD80F0004B2614 /* Frameworks */,
+				52B6D3951FDD80F0004B2614 /* Resources */,
+				D93C42D218033BC969B1F476 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MotoricaStart;
+			productName = TodoApp;
+			productReference = 52B6D3971FDD80F0004B2614 /* MotoricaStart.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		52B6D38F1FDD80F0004B2614 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0920;
+				LastUpgradeCheck = 1250;
+				ORGANIZATIONNAME = "Brian Advent";
+				TargetAttributes = {
+					52B6D3961FDD80F0004B2614 = {
+						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1250;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 52B6D3921FDD80F0004B2614 /* Build configuration list for PBXProject "MotoricaStart" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ru,
+			);
+			mainGroup = 52B6D38E1FDD80F0004B2614;
+			productRefGroup = 52B6D3981FDD80F0004B2614 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				52B6D3961FDD80F0004B2614 /* MotoricaStart */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		52B6D3951FDD80F0004B2614 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				653F398627A698D90042AC88 /* temple.fsh in Resources */,
+				65FE9CA52A867EB900DEC82B /* OpenSans-wght.ttf in Resources */,
+				657C5B6329FABC1B00C0EF22 /* Localizable.strings in Resources */,
+				653F398927A698D90042AC88 /* reflect.vsh in Resources */,
+				653F397C27A698BC0042AC88 /* Meshes in Resources */,
+				65981C022B0B86D000050D3A /* inter.ttf in Resources */,
+				653F398427A698D90042AC88 /* temple.vsh in Resources */,
+				65A8BF842A1BB673009561D4 /* ScanDeviceNib.xib in Resources */,
+				657C5B5B29FAA9EC00C0EF22 /* Main.storyboard in Resources */,
+				653F398727A698D90042AC88 /* select_fragment_shader.fsh in Resources */,
+				52B6D3A51FDD80F0004B2614 /* LaunchScreen.storyboard in Resources */,
+				653F398827A698D90042AC88 /* select_vertex_shader.vsh in Resources */,
+				FA6DEC82263C73AF00ED9775 /* Assets.xcassets in Resources */,
+				653F398527A698D90042AC88 /* reflect.fsh in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AEF1240769A8626B60CD7FF6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MotoricaStart-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D93C42D218033BC969B1F476 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftAlgorithms/Algorithms.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Algorithms.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MotoricaStart/Pods-MotoricaStart-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		52B6D3931FDD80F0004B2614 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A8BF892A1BBBED009561D4 /* DeviceCell.swift in Sources */,
+				65FFAA7F28800A78006C8733 /* DialogCalibrationStatusViewController.swift in Sources */,
+				6543880727A5A7390065E4A7 /* AAPLOpenGLViewController.m in Sources */,
+				658EBEB92BB2E3DD00C7027B /* DialogPasswordViewController.swift in Sources */,
+				FA74B90C263C2C3F00BC1CBA /* AdvencedSettingsViewController.swift in Sources */,
+				65F865B6286C8F7F0035CF64 /* DialogFingersDelayViewController.swift in Sources */,
+				52B6D39B1FDD80F0004B2614 /* AppDelegate.swift in Sources */,
+				653F397527A68F980042AC88 /* AAPLMathUtilities.m in Sources */,
+				6543880A27A5AB7D0065E4A7 /* AAPLOpenGLRenderer.m in Sources */,
+				52B6D3AD1FDD810A004B2614 /* ScanItem.swift in Sources */,
+				52B6D3AF1FDD81C2004B2614 /* DataManger.swift in Sources */,
+				658EBEB52BB18CDA00C7027B /* DialogSoftResetViewController.swift in Sources */,
+				658EBEB72BB194A300C7027B /* DialogGesturesResetViewController.swift in Sources */,
+				65EB56F329238E9100FFC9A6 /* DialogCalibrationViewController.swift in Sources */,
+				FA8C6FD926276E1B003E70B8 /* SensorsViewController.swift in Sources */,
+				65981C042B0B8C2500050D3A /* InstractionControlsInTheAppViewController.swift in Sources */,
+				65BACE712A7BEBB600C64E9D /* InstractionFesthViewController.swift in Sources */,
+				651711302926262000FB00AE /* DialogSelectScaleViewController.swift in Sources */,
+				52B6D3B11FDD8D3F004B2614 /* ToDoTableViewCell.swift in Sources */,
+				652D4AE2268DC12A007D0700 /* ModelController.swift in Sources */,
+				651711342927AE6100FB00AE /* DialogResetINDYViewController.swift in Sources */,
+				6548D9E82689CB7F00ABC38C /* SaveObjectString.swift in Sources */,
+				657D0EC22793FE1300066215 /* Grib3DSettingsViewController.swift in Sources */,
+				52DCC2431FEC3AEE006B2A74 /* ContainerViewController.swift in Sources */,
+				65B7FE9A2B0D35450065565C /* InstractionProsthisesUseViewController.swift in Sources */,
+				65FA91BE2B599F4D000BD822 /* ExtentionTextField.swift in Sources */,
+				6548D9EA268B545300ABC38C /* GestureSettingsViewController.swift in Sources */,
+				65A8BF7F2A16905F009561D4 /* DialogWaitViewController.swift in Sources */,
+				65EB56F0291E7C2900FFC9A6 /* DialogRecalibrationViewController.swift in Sources */,
+				FAE46566263995DE006CA3EF /* SampleGattAttributes.swift in Sources */,
+				659AE25427AA9522003821CF /* AdvancedSettinsFesthViewController.swift in Sources */,
+				653F4B0F2A21534500F34CFF /* DialogDisconnectViewController.swift in Sources */,
+				6517113229262C5A00FB00AE /* DialogConfirmationScaleViewController.swift in Sources */,
+				658EBEBB2BB2F1B500C7027B /* DialogSetSerialNumberViewController.swift in Sources */,
+				653F397827A690610042AC88 /* AAPLMeshData.mm in Sources */,
+				65A8BF8B2A1BBE2E009561D4 /* ScanViewController.swift in Sources */,
+				65B856AD2BACA76D00F76F34 /* NameUtil.swift in Sources */,
+				65EB56F529239E1600FFC9A6 /* DialogResetViewController.swift in Sources */,
+				FA6DEC84263D4D8E00ED9775 /* SaveObject.swift in Sources */,
+				652D4ADF268DC0FE007D0700 /* Quote.swift in Sources */,
+				6548D9EC268CB3CB00ABC38C /* GribSettingsViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		52B6D3A31FDD80F0004B2614 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				52B6D3A41FDD80F0004B2614 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		657C5B5D29FAA9EC00C0EF22 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				657C5B5C29FAA9EC00C0EF22 /* en */,
+				657C5B6029FABAA900C0EF22 /* ru */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		657C5B6529FABC1B00C0EF22 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				657C5B6429FABC1B00C0EF22 /* en */,
+				657C5B6629FABC2000C0EF22 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		52B6D3A71FDD80F0004B2614 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "GLES_SILENCE_DEPRECATION=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		52B6D3A81FDD80F0004B2614 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "GLES_SILENCE_DEPRECATION=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		52B6D3AA1FDD80F0004B2614 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 41B836BD689EA9F19775A84B /* Pods-MotoricaStart.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 26;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.4.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		52B6D3AB1FDD80F0004B2614 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CFE4A5C8947B7BDF3DC01BC1 /* Pods-MotoricaStart.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 26;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.medical";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.4.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		52B6D3921FDD80F0004B2614 /* Build configuration list for PBXProject "MotoricaStart" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52B6D3A71FDD80F0004B2614 /* Debug */,
+				52B6D3A81FDD80F0004B2614 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52B6D3A91FDD80F0004B2614 /* Build configuration list for PBXNativeTarget "MotoricaStart" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52B6D3AA1FDD80F0004B2614 /* Debug */,
+				52B6D3AB1FDD80F0004B2614 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 52B6D38F1FDD80F0004B2614 /* Project object */;
+}

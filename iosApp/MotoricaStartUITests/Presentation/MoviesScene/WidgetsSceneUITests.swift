@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 class WidgetsSceneUITests: XCTestCase {
     private enum SegmentAnimationDirection {
@@ -31,12 +32,31 @@ class WidgetsSceneUITests: XCTestCase {
         let textCount: Int
     }
 
+    private struct LegacyBleCapturedCommand {
+        let sequence: Int
+        let type: String
+        let characteristic: String
+        let bytes: String
+        let caseValue: String
+    }
+
+    private struct LegacyBleExpectedCommand {
+        let actionName: String
+        let expectedDescription: String
+        let type: String
+        let characteristics: [String]
+        let minimumCount: Int
+        let requiredBytes: String?
+        let minimumDistinctBytes: Int?
+    }
+
     private let preferredDeviceCandidates = [
         "FTHS3-Рома1",
         "Рома1",
         "Роман",
         "FTHS3-Роман",
     ]
+    private let legacyBleCommandProbeIdentifier = "legacyBleCommandProbe"
 
     override func setUp() {
         continueAfterFailure = false
@@ -313,6 +333,114 @@ class WidgetsSceneUITests: XCTestCase {
 
         let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
         XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+        selectAllDevicesFilterIfVisible(in: app)
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921", "FEST-XFTHS04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            attachLegacyBleProbeValue(dumpUIStatePage(in: app, pageIndex: 0), name: "merged-old-app-short-ble-probe-scan-state")
+            XCTFail("Could not find BLE device FEST-H-04921 in merged scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Merged legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForLegacySensorsScreen(in: app, timeout: 45),
+            "Merged legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        recordLegacyAdvancedSettingsState(
+            in: app,
+            attachmentName: "merged-old-app-advanced-settings-state-after-fest"
+        )
+        app.terminate()
+    }
+
+    func testStandaloneOldAppRealDevice_whenExerciseAdvancedSettingsControls_thenEmitBleCommandMarkers() {
+        let app = XCUIApplication(bundleIdentifier: "com.motorica.startt")
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        if !waitForLegacySensorsScreen(in: app, timeout: 8) {
+            guard let targetDeviceElement = waitForLegacyDeviceElement(
+                namedAnyOf: ["FEST-H-04921"],
+                in: app,
+                timeout: 60
+            ) else {
+                XCTFail("Could not find BLE device FEST-H-04921 in standalone old app scan list")
+                return
+            }
+
+            targetDeviceElement.tap()
+            XCTAssertTrue(
+                waitForLegacySensorsScreen(in: app, timeout: 45),
+                "Standalone old app legacy sensors UI did not appear after tapping FEST-H-04921"
+            )
+        }
+
+        XCTAssertTrue(openLegacyAdvancedSettings(in: app), "Standalone old app advanced settings did not open")
+        exerciseLegacyAdvancedSettingsControls(in: app, runName: "standalone-old-app", probeSession: nil)
+        app.terminate()
+    }
+
+    func testMergedOldAppRealDevice_whenExerciseAdvancedSettingsControls_thenEmitBleCommandMarkers() {
+        let app = XCUIApplication()
+        let probeSession = configureLegacyBleCommandLogEnvironment(for: app)
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        XCTAssertTrue(
+            waitForLegacyBleProbeReady(session: probeSession, in: app, timeout: 5),
+            "Legacy BLE command probe did not start in merged app"
+        )
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+        selectAllDevicesFilterIfVisible(in: app)
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921", "FEST-XFTHS04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in merged scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Merged legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForLegacySensorsScreen(in: app, timeout: 45),
+            "Merged legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        XCTAssertTrue(openLegacyAdvancedSettings(in: app), "Merged old app advanced settings did not open")
+        exerciseLegacyAdvancedSettingsControls(in: app, runName: "merged-old-app", probeSession: probeSession)
+        app.terminate()
+    }
+
+    func testMergedOldAppRealDevice_whenTapOpen_thenCapturesLegacyMotorBleCommandWithinOneSecond() {
+        let app = XCUIApplication()
+        let probeSession = configureLegacyBleCommandLogEnvironment(for: app)
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        XCTAssertTrue(
+            waitForLegacyBleProbeReady(session: probeSession, in: app, timeout: 5),
+            "Legacy BLE command probe did not appear"
+        )
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
 
         guard let targetDeviceElement = waitForDeviceElement(
             namedAnyOf: ["FEST-H-04921"],
@@ -333,11 +461,148 @@ class WidgetsSceneUITests: XCTestCase {
             "Merged legacy sensors UI did not appear after tapping FEST-H-04921"
         )
 
-        recordLegacyAdvancedSettingsState(
-            in: app,
-            attachmentName: "merged-old-app-advanced-settings-state-after-fest"
+        let initialProbeValue = legacyBleProbeValue(session: probeSession, in: app) ?? "count=0 last=none"
+        let initialCount = legacyBleProbeCount(from: initialProbeValue) ?? 0
+        print("[BLE_COMMAND_SHORT_TEST] initialProbeValue=\"\(initialProbeValue)\"")
+
+        XCTAssertTrue(
+            tapLegacyButtonVisible(titled: "OPEN", in: app),
+            "Could not tap visible OPEN button"
         )
+
+        guard let capturedProbeValue = waitForLegacyMotorBleCommandCapture(
+            after: initialCount,
+            session: probeSession,
+            in: app,
+            timeout: 1.0
+        ) else {
+            let finalProbeValue = legacyBleProbeValue(session: probeSession, in: app) ?? "probe value missing"
+            attachLegacyBleProbeValue(finalProbeValue, name: "merged-old-app-short-ble-probe-failed")
+            XCTFail("No OPEN/CLOSE motor BLE command was captured within 1 second. Probe: \(finalProbeValue)")
+            return
+        }
+
+        attachLegacyBleProbeValue(capturedProbeValue, name: "merged-old-app-short-ble-probe-captured")
+        print("[BLE_COMMAND_SHORT_TEST] capturedProbeValue=\"\(capturedProbeValue)\"")
         app.terminate()
+    }
+
+    @discardableResult
+    private func configureLegacyBleCommandLogEnvironment(for app: XCUIApplication) -> String {
+        let probeSession = UUID().uuidString
+        app.launchArguments += ["-legacy-ble-command-probe"]
+        app.launchEnvironment["OS_ACTIVITY_DT_MODE"] = "YES"
+        app.launchEnvironment["NSUnbufferedIO"] = "YES"
+        app.launchEnvironment["MOTORICA_LEGACY_BLE_COMMAND_PROBE"] = "1"
+        app.launchEnvironment["MOTORICA_LEGACY_BLE_COMMAND_PROBE_SESSION"] = probeSession
+        return probeSession
+    }
+
+    private func waitForLegacyBleProbeReady(
+        session: String,
+        in app: XCUIApplication,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if legacyBleProbeValue(session: session, in: app) != nil {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        return false
+    }
+
+    private func legacyBleProbeValue(session: String, in app: XCUIApplication) -> String? {
+        if let pasteboardValue = UIPasteboard(name: UIPasteboard.Name("com.motorica.legacyBleCommandProbe"), create: false)?.string,
+           pasteboardValue.contains("session=\(session)") {
+            return pasteboardValue
+        }
+
+        let probe = app.descendants(matching: .any)[legacyBleCommandProbeIdentifier]
+        guard probe.exists else {
+            return nil
+        }
+
+        if let value = probe.value as? String, !value.isEmpty {
+            return value.contains("session=\(session)") ? value : nil
+        }
+
+        let label = probe.label
+        guard !label.isEmpty, label.contains("session=\(session)") else {
+            return nil
+        }
+        return label
+    }
+
+    private func legacyBleProbeCount(from value: String) -> Int? {
+        let pattern = #"count=(\d+)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return nil
+        }
+
+        let nsRange = NSRange(value.startIndex..<value.endIndex, in: value)
+        guard let match = regex.firstMatch(in: value, range: nsRange),
+              let range = Range(match.range(at: 1), in: value) else {
+            return nil
+        }
+
+        return Int(value[range])
+    }
+
+    private func waitForLegacyMotorBleCommandCapture(
+        after initialCount: Int,
+        session: String,
+        in app: XCUIApplication,
+        timeout: TimeInterval
+    ) -> String? {
+        let motorCharacteristics = [
+            "43680002-4D74-1001-726B-526F64696F6E",
+            "43680003-4D74-1001-726B-526F64696F6E",
+            "43686172-4D74-726B-0002-526F64696F6E",
+            "43686172-4D74-726B-0003-526F64696F6E"
+        ]
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if let value = legacyBleProbeValue(session: session, in: app),
+               let count = legacyBleProbeCount(from: value),
+               count > initialCount,
+               motorCharacteristics.contains(where: { value.localizedCaseInsensitiveContains($0) }) {
+                return value
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        return nil
+    }
+
+    private func attachLegacyBleProbeValue(_ value: String, name: String) {
+        let attachment = XCTAttachment(
+            data: Data(value.utf8),
+            uniformTypeIdentifier: "public.plain-text"
+        )
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func selectAllDevicesFilterIfVisible(in app: XCUIApplication) {
+        for title in ["All devices", "Все устройства"] {
+            let button = app.buttons.matching(NSPredicate(format: "label ==[c] %@", title)).firstMatch
+            if button.waitForExistence(timeout: 0.5) {
+                button.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+                return
+            }
+
+            let staticText = app.staticTexts.matching(NSPredicate(format: "label ==[c] %@", title)).firstMatch
+            if staticText.waitForExistence(timeout: 0.5) {
+                staticText.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+                return
+            }
+        }
     }
 
     func testMergedScanRealDevice_whenTap111111_thenNewFlowOpens() {
@@ -1304,16 +1569,640 @@ class WidgetsSceneUITests: XCTestCase {
             .first
     }
 
-    private func recordLegacyAdvancedSettingsState(in app: XCUIApplication, attachmentName: String) {
-        guard let advancedSettingsButton = legacyAdvancedSettingsButton(in: app) else {
-            XCTFail("Legacy advanced settings button did not appear")
-            return
+    private func exerciseLegacyAdvancedSettingsControls(
+        in app: XCUIApplication,
+        runName: String,
+        probeSession: String?
+    ) {
+        print("[BLE_COMMAND_TEST_BEGIN] run=\(runName)")
+        let commandSettleTime: TimeInterval = 0
+        let dialogCommandSettleTime: TimeInterval = 0
+        let noCommandSettleTime: TimeInterval = 0
+        var expectedCommands: [LegacyBleExpectedCommand] = []
+        var noBleExpectedActions: [String] = []
+
+        func expectCommand(
+            actionName: String,
+            expectedDescription: String,
+            type: String = "WRITE",
+            characteristics: [String],
+            minimumCount: Int = 1,
+            requiredBytes: String? = nil,
+            minimumDistinctBytes: Int? = nil
+        ) {
+            expectedCommands.append(
+                LegacyBleExpectedCommand(
+                    actionName: actionName,
+                    expectedDescription: expectedDescription,
+                    type: type,
+                    characteristics: characteristics,
+                    minimumCount: minimumCount,
+                    requiredBytes: requiredBytes,
+                    minimumDistinctBytes: minimumDistinctBytes
+                )
+            )
         }
 
-        XCTAssertTrue(advancedSettingsButton.isHittable, "Legacy advanced settings button is not hittable")
+        func noteNoBleExpected(actionName: String, expectation: String) {
+            noBleExpectedActions.append("\(actionName): \(expectation)")
+        }
+
+        scrollLegacyAdvancedSettingsToTop(in: app)
+        attachLegacyVisibleState(in: app, runName: runName, phase: "top-before-actions")
+
+        let probeStartCount: Int
+        if let probeSession {
+            _ = waitForLegacyBleProbeDrain(
+                session: probeSession,
+                in: app,
+                runName: runName,
+                quietPeriod: 0.5,
+                timeout: 5.0
+            )
+            let probeValue = legacyBleProbeValue(session: probeSession, in: app) ?? "count=0 last=none"
+            probeStartCount = legacyBleProbeCount(from: probeValue) ?? 0
+            print("[BLE_COMMAND_TEST_BASELINE] run=\(runName) startCount=\(probeStartCount) value=\"\(probeValue)\"")
+        } else {
+            probeStartCount = 0
+        }
+
+        expectCommand(
+            actionName: "shutdown current sliders 1-6",
+            expectedDescription: "old source: SHUTDOWN_CURRENT_NEW_VM on every shutdown current slider stop",
+            characteristics: ["4368000C-4D74-1001-726B-526F64696F6E"],
+            minimumCount: 1,
+            minimumDistinctBytes: 2
+        )
+
+        for index in 1...6 {
+            performLegacyCommandProbeAction(
+                runName: runName,
+                actionName: "shutdown current \(index) slider",
+                expectation: "BLE write: SHUTDOWN_CURRENT_NEW(_VM)",
+                settleTime: commandSettleTime
+            ) {
+                guard let slider = legacySliderVisible(nearText: "shutdown current \(index)", in: app) else {
+                    return false
+                }
+                slider.adjust(toNormalizedSliderPosition: 0.18 + CGFloat(index) * 0.08)
+                return true
+            }
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "swap button open close switch",
+            expectation: "no BLE command expected: local state only",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "swap button open close switch",
+                expectation: "old source only saves SWAP_BUTTONS_OPEN_CLOSE"
+            )
+            guard let control = legacySwitchVisible(nearText: "swap button open/close", in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "write serial number FEST-H-04921 accepted",
+            expectation: "BLE write with confirmation: SERIAL_NUMBER_NEW_VM",
+            settleTime: dialogCommandSettleTime
+        ) {
+            expectCommand(
+                actionName: "write serial number FEST-H-04921 accepted",
+                expectedDescription: "old source writes validationAndConversionSerialNumber(FEST-H-04921) to SERIAL_NUMBER_NEW_VM",
+                characteristics: ["43680300-4D74-1001-726B-526F64696F6E"],
+                requiredBytes: "464553542D58465448533034393231"
+            )
+            guard setVisibleLegacySerialNumber("FEST-H-04921", in: app),
+                  tapLegacyButtonVisible(titled: "WRITE", in: app) else {
+                return false
+            }
+
+            guard completeLegacyPasswordIfNeeded(in: app, password: "0889") else {
+                return false
+            }
+
+            return tapDialogButton(titledAnyOf: ["OK", "ОК", "ok"], in: app)
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "prosthesis blocking switch enabled",
+            expectation: "BLE write: ROTATION_GESTURE_NEW_VM",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "prosthesis blocking switch enabled",
+                expectedDescription: "old source writes ROTATION_GESTURE_NEW_VM after prosthesis blocking switch",
+                characteristics: ["43680400-4D74-1001-726B-526F64696F6E"]
+            )
+            guard tapLegacySwitchVisibleAndLeaveOn(nearText: "prosthesis blocking", in: app) else {
+                return false
+            }
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "hold to lock time slider",
+            expectation: "BLE write: ROTATION_GESTURE_NEW_VM",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "hold to lock time slider",
+                expectedDescription: "old source writes ROTATION_GESTURE_NEW_VM after hold-to-lock slider stop",
+                characteristics: ["43680400-4D74-1001-726B-526F64696F6E"]
+            )
+            guard let slider = legacySliderVisible(
+                nearAnyText: ["hold to lock time", "длина пика"],
+                fallbackUserLabel: "timeForBlocking",
+                in: app
+            ) else {
+                return false
+            }
+            slider.adjust(toNormalizedSliderPosition: 0.45)
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "single channel control switch",
+            expectation: "BLE write: SET_ONE_CHANNEL_NEW(_VM)",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "single channel control switch",
+                expectedDescription: "old source writes SET_ONE_CHANNEL_NEW_VM after single channel switch",
+                characteristics: ["43680007-4D74-1001-726B-526F64696F6E"]
+            )
+            guard let control = legacySwitchVisible(nearText: "single channel control", in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "gesture switching by sensors switch",
+            expectation: "BLE write: ROTATION_GESTURE_NEW(_VM)",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "gesture switching by sensors switch",
+                expectedDescription: "old source writes ROTATION_GESTURE_NEW_VM after gesture switching by sensors switch",
+                characteristics: ["43680400-4D74-1001-726B-526F64696F6E"]
+            )
+            guard tapLegacySwitchVisibleAndLeaveOn(
+                nearAnyText: ["gesture switching by sensors", "переключение жеста сенсорами"],
+                in: app
+            ) else {
+                return false
+            }
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "time at rest slider",
+            expectation: "BLE write: ROTATION_GESTURE_NEW_VM",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "time at rest slider",
+                expectedDescription: "old source writes ROTATION_GESTURE_NEW_VM after time-at-rest slider stop",
+                characteristics: ["43680400-4D74-1001-726B-526F64696F6E"]
+            )
+            guard let slider = legacySliderVisible(
+                nearAnyText: ["time at rest", "время в упоре"],
+                fallbackUserLabel: "timeAtRest",
+                in: app
+            ) else {
+                return false
+            }
+            slider.adjust(toNormalizedSliderPosition: 0.55)
+            return true
+        }
+
+        scrollLegacyAdvancedSettingsToBottomOnce(in: app)
+        attachLegacyVisibleState(in: app, runName: runName, phase: "bottom-before-actions")
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "active gestures switch",
+            expectation: "BLE write: SET_REVERSE_NEW_VM and ROTATION_GESTURE_NEW_VM",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "active gestures switch",
+                expectedDescription: "old source writes SET_REVERSE_NEW_VM and then ROTATION_GESTURE_NEW_VM",
+                characteristics: ["43680006-4D74-1001-726B-526F64696F6E"]
+            )
+            expectCommand(
+                actionName: "active gestures switch",
+                expectedDescription: "old source writes SET_REVERSE_NEW_VM and then ROTATION_GESTURE_NEW_VM",
+                characteristics: ["43680400-4D74-1001-726B-526F64696F6E"]
+            )
+            guard let control = legacyActiveGesturesSwitchVisible(in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "calibration status button",
+            expectation: "BLE read: STATUS_CALIBRATION_NEW_VM",
+            settleTime: commandSettleTime
+        ) {
+            expectCommand(
+                actionName: "calibration status button",
+                expectedDescription: "old source reads STATUS_CALIBRATION_NEW_VM in calibration status dialog",
+                type: "READ",
+                characteristics: ["43680009-4D74-1001-726B-526F64696F6E"]
+            )
+            guard tapLegacyButtonVisible(titled: "CALIBRATION STATUS", in: app) else {
+                return false
+            }
+            _ = tapDialogButton(titledAnyOf: ["OK", "ok", "close", "закрыть"], in: app)
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "calibration button accepted",
+            expectation: "BLE write after dialog accept: CALIBRATION_NEW(_VM)",
+            settleTime: dialogCommandSettleTime
+        ) {
+            expectCommand(
+                actionName: "calibration button accepted",
+                expectedDescription: "old source writes CALIBRATION_NEW_VM after calibration dialog accept",
+                characteristics: ["43680008-4D74-1001-726B-526F64696F6E"]
+            )
+            guard tapLegacyButtonVisible(titled: "CALIBRATION", in: app) else {
+                return false
+            }
+            return tapDialogButton(titledAnyOf: ["start", "START", "начать"], in: app)
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "hand side switch",
+            expectation: "no immediate BLE command expected: local state used by calibration",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "hand side switch",
+                expectation: "old source only saves HAND_SIDE; calibration later uses this value"
+            )
+            guard let control = legacySwitchVisible(nearText: "hand side", in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "fingers delay switch",
+            expectation: "no BLE command expected: local state only",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "fingers delay switch",
+                expectation: "old source only saves FINGERS_DELAY_SWITCH"
+            )
+            guard let control = legacySwitchVisible(nearText: "changing the fingers delay time", in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "smart connection switch",
+            expectation: "no BLE command expected: local state only",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "smart connection switch",
+                expectation: "old source only saves SMART_CONNECTION"
+            )
+            guard let control = legacySwitchVisible(nearText: "smart connection", occurrence: 0, in: app) else {
+                return false
+            }
+            control.tap()
+            return true
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "soft reset button cancelled",
+            expectation: "no BLE command expected before reset dialog accept",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "soft reset button cancelled",
+                expectation: "old source writes reset only after dialog accept; this test cancels"
+            )
+            guard tapLegacyButtonVisible(titled: "SOFT RESET TO FACTORY SETTINGS", in: app) else {
+                return false
+            }
+            return tapDialogButton(titledAnyOf: ["cancel", "Cancel", "отмена"], in: app)
+        }
+
+        performLegacyCommandProbeAction(
+            runName: runName,
+            actionName: "hard reset button cancelled",
+            expectation: "no BLE command expected before reset dialog accept",
+            settleTime: noCommandSettleTime
+        ) {
+            noteNoBleExpected(
+                actionName: "hard reset button cancelled",
+                expectation: "old source writes reset only after dialog accept; this test cancels"
+            )
+            guard tapLegacyButtonVisible(titled: "RESET TO FACTORY SETTINGS", in: app) else {
+                return false
+            }
+            return tapDialogButton(titledAnyOf: ["cancel", "Cancel", "отмена"], in: app)
+        }
+
+        let finalProbeValue: String?
+        if let probeSession {
+            finalProbeValue = waitForLegacyBleProbeDrain(
+                session: probeSession,
+                in: app,
+                runName: runName,
+                quietPeriod: 1.0,
+                timeout: 20.0
+            ) ?? legacyBleProbeValue(session: probeSession, in: app)
+        } else {
+            waitForLegacyBleQueueDrain(runName: runName)
+            finalProbeValue = nil
+        }
+
+        if let probeSession, let finalProbeValue {
+            let allCommands = legacyBleCommands(from: finalProbeValue)
+            let actionCommands = allCommands.filter { $0.sequence > probeStartCount }
+            let report = legacyBleCommandComparisonReport(
+                runName: runName,
+                session: probeSession,
+                startCount: probeStartCount,
+                finalProbeValue: finalProbeValue,
+                commands: actionCommands,
+                expectedCommands: expectedCommands,
+                noBleExpectedActions: noBleExpectedActions
+            )
+            attachLegacyBleProbeValue(report, name: "\(runName)-advanced-settings-ble-command-history")
+
+            let missingExpectations = legacyBleMissingExpectations(
+                expectedCommands,
+                in: actionCommands
+            )
+            XCTAssertTrue(
+                missingExpectations.isEmpty,
+                "Merged legacy advanced settings BLE commands missing/incorrect: \(missingExpectations.joined(separator: "; "))"
+            )
+        } else if probeSession != nil {
+            XCTFail("Legacy BLE command probe value was not available after advanced settings actions")
+        }
+
+        let stateDump = collectScrollableUIState(in: app, maxScrollPages: 2)
+        let attachment = XCTAttachment(
+            data: Data(stateDump.utf8),
+            uniformTypeIdentifier: "public.plain-text"
+        )
+        attachment.name = "\(runName)-advanced-settings-state-after-command-probe"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        print("[BLE_COMMAND_TEST_END] run=\(runName)")
+    }
+
+    private func performLegacyCommandProbeAction(
+        runName: String,
+        actionName: String,
+        expectation: String,
+        settleTime: TimeInterval,
+        action: () -> Bool
+    ) {
+        print("[BLE_COMMAND_TEST_ACTION] run=\(runName) action=\"\(actionName)\" expectation=\"\(expectation)\" phase=begin")
+        XCTAssertTrue(action(), "Could not perform legacy command probe action: \(actionName)")
+        if settleTime > 0 {
+            RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+        }
+        print("[BLE_COMMAND_TEST_ACTION] run=\(runName) action=\"\(actionName)\" phase=end")
+    }
+
+    private func waitForLegacyBleQueueDrain(runName: String) {
+        print("[BLE_COMMAND_TEST_DRAIN] run=\(runName) phase=begin")
+        RunLoop.current.run(until: Date().addingTimeInterval(8.0))
+        print("[BLE_COMMAND_TEST_DRAIN] run=\(runName) phase=end")
+    }
+
+    private func waitForLegacyBleProbeDrain(
+        session: String,
+        in app: XCUIApplication,
+        runName: String,
+        quietPeriod: TimeInterval,
+        timeout: TimeInterval
+    ) -> String? {
+        print("[BLE_COMMAND_TEST_DRAIN] run=\(runName) phase=probe-begin quietPeriod=\(quietPeriod) timeout=\(timeout)")
+        let deadline = Date().addingTimeInterval(timeout)
+        var lastValue = legacyBleProbeValue(session: session, in: app)
+        var lastCount = lastValue.flatMap { legacyBleProbeCount(from: $0) } ?? 0
+        var lastChange = Date()
+
+        while Date() < deadline {
+            if let value = legacyBleProbeValue(session: session, in: app) {
+                let count = legacyBleProbeCount(from: value) ?? lastCount
+                if count != lastCount || value != lastValue {
+                    lastValue = value
+                    lastCount = count
+                    lastChange = Date()
+                } else if Date().timeIntervalSince(lastChange) >= quietPeriod {
+                    print("[BLE_COMMAND_TEST_DRAIN] run=\(runName) phase=probe-end count=\(lastCount)")
+                    return value
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+
+        print("[BLE_COMMAND_TEST_DRAIN] run=\(runName) phase=probe-timeout count=\(lastCount)")
+        return lastValue
+    }
+
+    private func legacyBleCommands(from probeValue: String) -> [LegacyBleCapturedCommand] {
+        let historyText: String
+        if let historyRange = probeValue.range(of: " history=") {
+            historyText = String(probeValue[historyRange.upperBound...])
+        } else {
+            historyText = probeValue
+        }
+
+        let pattern = #"seq=(\d+) type=([^ ]+) characteristic=([^ ]+) bytes=([^ ]*) case=([^|]*)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return []
+        }
+
+        let nsRange = NSRange(historyText.startIndex..<historyText.endIndex, in: historyText)
+        return regex.matches(in: historyText, range: nsRange).compactMap { match in
+            guard
+                let sequenceRange = Range(match.range(at: 1), in: historyText),
+                let typeRange = Range(match.range(at: 2), in: historyText),
+                let characteristicRange = Range(match.range(at: 3), in: historyText),
+                let bytesRange = Range(match.range(at: 4), in: historyText),
+                let caseRange = Range(match.range(at: 5), in: historyText),
+                let sequence = Int(historyText[sequenceRange])
+            else {
+                return nil
+            }
+
+            return LegacyBleCapturedCommand(
+                sequence: sequence,
+                type: String(historyText[typeRange]),
+                characteristic: String(historyText[characteristicRange]),
+                bytes: String(historyText[bytesRange]),
+                caseValue: String(historyText[caseRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        }
+    }
+
+    private func legacyBleCommandComparisonReport(
+        runName: String,
+        session: String,
+        startCount: Int,
+        finalProbeValue: String,
+        commands: [LegacyBleCapturedCommand],
+        expectedCommands: [LegacyBleExpectedCommand],
+        noBleExpectedActions: [String]
+    ) -> String {
+        var lines: [String] = []
+        lines.append("run=\(runName)")
+        lines.append("session=\(session)")
+        lines.append("startCount=\(startCount)")
+        lines.append("capturedActionCommandCount=\(commands.count)")
+        lines.append("")
+        lines.append("Expected old-code BLE commands:")
+        for expectation in expectedCommands {
+            let matches = legacyBleMatches(for: expectation, in: commands)
+            let distinctBytes = Set(matches.map(\.bytes)).sorted()
+            let status = legacyBleExpectationIsMet(expectation, matches: matches) ? "OK" : "MISSING"
+            lines.append(
+                "- \(status) action=\"\(expectation.actionName)\" type=\(expectation.type) characteristics=\(expectation.characteristics.joined(separator: ",")) count=\(matches.count) distinctBytes=\(distinctBytes.count) requiredBytes=\(expectation.requiredBytes ?? "none") expectation=\"\(expectation.expectedDescription)\""
+            )
+            if !distinctBytes.isEmpty {
+                lines.append("  bytes=\(distinctBytes.joined(separator: ","))")
+            }
+        }
+        lines.append("")
+        lines.append("Controls where old source does not send an immediate BLE command:")
+        if noBleExpectedActions.isEmpty {
+            lines.append("- none")
+        } else {
+            for action in noBleExpectedActions {
+                lines.append("- \(action)")
+            }
+        }
+        lines.append("")
+        lines.append("Captured commands after baseline:")
+        if commands.isEmpty {
+            lines.append("- none")
+        } else {
+            for command in commands {
+                lines.append(
+                    "- seq=\(command.sequence) type=\(command.type) characteristic=\(command.characteristic) bytes=\(command.bytes) case=\(command.caseValue)"
+                )
+            }
+        }
+        lines.append("")
+        lines.append("Raw final probe value:")
+        lines.append(finalProbeValue)
+        return lines.joined(separator: "\n")
+    }
+
+    private func legacyBleMissingExpectations(
+        _ expectations: [LegacyBleExpectedCommand],
+        in commands: [LegacyBleCapturedCommand]
+    ) -> [String] {
+        expectations.compactMap { expectation in
+            let matches = legacyBleMatches(for: expectation, in: commands)
+            guard legacyBleExpectationIsMet(expectation, matches: matches) else {
+                let distinctBytesCount = Set(matches.map(\.bytes)).count
+                return "\(expectation.actionName) expected \(expectation.type) \(expectation.characteristics.joined(separator: ",")) minCount=\(expectation.minimumCount) actualCount=\(matches.count) distinctBytes=\(distinctBytesCount) requiredBytes=\(expectation.requiredBytes ?? "none")"
+            }
+            return nil
+        }
+    }
+
+    private func legacyBleMatches(
+        for expectation: LegacyBleExpectedCommand,
+        in commands: [LegacyBleCapturedCommand]
+    ) -> [LegacyBleCapturedCommand] {
+        commands.filter { command in
+            command.type.caseInsensitiveCompare(expectation.type) == .orderedSame &&
+                expectation.characteristics.contains { characteristic in
+                    command.characteristic.caseInsensitiveCompare(characteristic) == .orderedSame
+                }
+        }
+    }
+
+    private func legacyBleExpectationIsMet(
+        _ expectation: LegacyBleExpectedCommand,
+        matches: [LegacyBleCapturedCommand]
+    ) -> Bool {
+        guard matches.count >= expectation.minimumCount else {
+            return false
+        }
+        if let requiredBytes = expectation.requiredBytes,
+           !matches.contains(where: { $0.bytes.caseInsensitiveCompare(requiredBytes) == .orderedSame }) {
+            return false
+        }
+        if let minimumDistinctBytes = expectation.minimumDistinctBytes,
+           Set(matches.map(\.bytes)).count < minimumDistinctBytes {
+            return false
+        }
+        return true
+    }
+
+    private func openLegacyAdvancedSettings(in app: XCUIApplication) -> Bool {
+        _ = waitForLegacySynchronizationReady(in: app, timeout: 45)
+
+        guard let advancedSettingsButton = legacyAdvancedSettingsButton(in: app) else {
+            return false
+        }
+
         advancedSettingsButton.tap()
-        XCTAssertTrue(
-            waitForAnyVisibleElement(
+        if waitForAnyVisibleElement(
+            containingAnyOf: [
+                "shutdown current",
+                "single channel",
+                "smart connection",
+                "active gestures",
+                "serial number",
+                "ток отключения",
+                "одноканальное",
+                "серийный"
+            ],
+            in: app,
+            timeout: 20
+        ) {
+            return true
+        }
+
+        if tapDialogButton(titledAnyOf: ["OK", "ОК", "ok", "close", "закрыть"], in: app) {
+            _ = waitForLegacySynchronizationReady(in: app, timeout: 45)
+            guard let retryButton = legacyAdvancedSettingsButton(in: app) else {
+                return false
+            }
+            retryButton.tap()
+            return waitForAnyVisibleElement(
                 containingAnyOf: [
                     "shutdown current",
                     "single channel",
@@ -1325,10 +2214,610 @@ class WidgetsSceneUITests: XCTestCase {
                     "серийный"
                 ],
                 in: app,
-                timeout: 12
-            ),
-            "Legacy advanced settings screen did not open"
+                timeout: 20
+            )
+        }
+
+        return false
+    }
+
+    private func waitForLegacySynchronizationReady(in app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            let syncReady = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", "Sync 100"))
+                .firstMatch
+            if syncReady.exists {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        }
+        return false
+    }
+
+    private func scrollLegacyAdvancedSettingsToTop(in app: XCUIApplication) {
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.waitForExistence(timeout: 2) else { return }
+
+        scrollView.swipeDown()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+    }
+
+    private func scrollLegacyAdvancedSettingsToBottomOnce(in app: XCUIApplication) {
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.waitForExistence(timeout: 2) else { return }
+
+        let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.88))
+        let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08))
+        start.press(forDuration: 0.01, thenDragTo: end)
+        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+    }
+
+    private func attachLegacyVisibleState(in app: XCUIApplication, runName: String, phase: String) {
+        let attachment = XCTAttachment(
+            data: Data(dumpUIStatePage(in: app, pageIndex: 0).utf8),
+            uniformTypeIdentifier: "public.plain-text"
         )
+        attachment.name = "\(runName)-advanced-settings-\(phase)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func legacySliderVisible(
+        nearText text: String,
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        guard let label = legacyStaticTextVisibleNow(
+            matching: NSPredicate(format: "label CONTAINS[c] %@", text),
+            occurrence: occurrence,
+            in: app
+        ) else {
+            return nil
+        }
+
+        let labelFrame = label.frame
+        return app.sliders.allElementsBoundByIndex
+            .filter { slider in
+                slider.exists &&
+                    isElementFrameVisible(slider.frame, in: app) &&
+                    abs(slider.frame.midY - labelFrame.midY) < 60
+            }
+            .sorted { lhs, rhs in
+                abs(lhs.frame.midY - labelFrame.midY) < abs(rhs.frame.midY - labelFrame.midY)
+            }
+            .first
+    }
+
+    private func legacySliderVisible(
+        nearAnyText texts: [String],
+        occurrence: Int = 0,
+        fallbackUserLabel: String? = nil,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        for text in texts {
+            if let slider = legacySliderVisible(nearText: text, occurrence: occurrence, in: app) {
+                return slider
+            }
+        }
+
+        if let fallbackUserLabel {
+            let slider = app.sliders[fallbackUserLabel]
+            if slider.exists && isElementFrameVisible(slider.frame, in: app) {
+                return slider
+            }
+        }
+
+        return nil
+    }
+
+    private func legacySwitchVisible(
+        nearText text: String,
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        guard let label = legacyStaticTextVisibleNow(
+            matching: NSPredicate(format: "label CONTAINS[c] %@", text),
+            occurrence: occurrence,
+            in: app
+        ) else {
+            return nil
+        }
+
+        let labelFrame = label.frame
+        return app.switches.allElementsBoundByIndex
+            .filter { control in
+                control.exists &&
+                    isElementFrameVisible(control.frame, in: app) &&
+                    abs(control.frame.midY - labelFrame.midY) < 60
+            }
+            .sorted { lhs, rhs in
+                abs(lhs.frame.midY - labelFrame.midY) < abs(rhs.frame.midY - labelFrame.midY)
+            }
+            .first
+    }
+
+    private func legacySwitchVisible(
+        nearAnyText texts: [String],
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        for text in texts {
+            if let control = legacySwitchVisible(nearText: text, occurrence: occurrence, in: app) {
+                return control
+            }
+        }
+        return nil
+    }
+
+    private func legacyActiveGesturesSwitchVisible(in app: XCUIApplication) -> XCUIElement? {
+        legacySwitchVisible(nearText: "smart connection", occurrence: 1, in: app) ??
+            legacySwitchVisible(nearText: "количество активных жестов", in: app) ??
+            legacySwitchVisible(nearText: "active gestures", in: app)
+    }
+
+    private func tapLegacySwitchVisibleAndLeaveOn(nearText text: String, in app: XCUIApplication) -> Bool {
+        guard let control = legacySwitchVisible(nearText: text, in: app) else {
+            return false
+        }
+        return tapLegacySwitchVisibleAndLeaveOn(control)
+    }
+
+    private func tapLegacySwitchVisibleAndLeaveOn(nearAnyText texts: [String], in app: XCUIApplication) -> Bool {
+        guard let control = legacySwitchVisible(nearAnyText: texts, in: app) else {
+            return false
+        }
+        return tapLegacySwitchVisibleAndLeaveOn(control)
+    }
+
+    private func tapLegacySwitchVisibleAndLeaveOn(_ control: XCUIElement) -> Bool {
+        guard control.exists else {
+            return false
+        }
+
+        let wasOn = isSwitchOn(control)
+        print("[BLE_COMMAND_TEST_SWITCH_INITIAL] value=\"\(wasOn ? "on" : "off")\"")
+        control.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+
+        if wasOn {
+            control.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+
+        return true
+    }
+
+    private func tapLegacyButtonVisible(titled title: String, in app: XCUIApplication) -> Bool {
+        let predicate = NSPredicate(format: "label ==[c] %@", title)
+        guard let button = legacyButtonVisibleNow(matching: predicate, in: app) else {
+            return false
+        }
+
+        button.tap()
+        return true
+    }
+
+    private func legacySlider(
+        nearText text: String,
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        guard let label = legacyStaticText(containing: text, occurrence: occurrence, in: app),
+              makeElementVisible(label, in: app) else {
+            return nil
+        }
+
+        let labelFrame = label.frame
+        return app.sliders.allElementsBoundByIndex
+            .filter { slider in
+                slider.exists &&
+                isElementFrameVisible(slider.frame, in: app) &&
+                abs(slider.frame.midY - labelFrame.midY) < 60
+            }
+            .sorted { lhs, rhs in
+                abs(lhs.frame.midY - labelFrame.midY) < abs(rhs.frame.midY - labelFrame.midY)
+            }
+            .first
+    }
+
+    private func legacySlider(
+        nearAnyText texts: [String],
+        occurrence: Int = 0,
+        fallbackUserLabel: String? = nil,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        for text in texts {
+            if let slider = legacySlider(nearText: text, occurrence: occurrence, in: app) {
+                return slider
+            }
+        }
+
+        if let fallbackUserLabel {
+            let slider = app.sliders[fallbackUserLabel]
+            if slider.waitForExistence(timeout: 0.5),
+               makeElementVisible(slider, in: app) {
+                return slider
+            }
+        }
+
+        return nil
+    }
+
+    private func legacySwitch(
+        nearText text: String,
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        guard let label = legacyStaticText(containing: text, occurrence: occurrence, in: app),
+              makeElementVisible(label, in: app) else {
+            return nil
+        }
+
+        let labelFrame = label.frame
+        return app.switches.allElementsBoundByIndex
+            .filter { control in
+                control.exists &&
+                isElementFrameVisible(control.frame, in: app) &&
+                abs(control.frame.midY - labelFrame.midY) < 60
+            }
+            .sorted { lhs, rhs in
+                abs(lhs.frame.midY - labelFrame.midY) < abs(rhs.frame.midY - labelFrame.midY)
+            }
+            .first
+    }
+
+    private func legacySwitch(
+        nearAnyText texts: [String],
+        occurrence: Int = 0,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        for text in texts {
+            if let control = legacySwitch(nearText: text, occurrence: occurrence, in: app) {
+                return control
+            }
+        }
+        return nil
+    }
+
+    private func legacyActiveGesturesSwitch(in app: XCUIApplication) -> XCUIElement? {
+        legacySwitch(nearText: "smart connection", occurrence: 1, in: app) ??
+            legacySwitch(nearText: "количество активных жестов", in: app) ??
+            legacySwitch(nearText: "active gestures", in: app)
+    }
+
+    private func tapLegacySwitchAndLeaveOn(nearText text: String, in app: XCUIApplication) -> Bool {
+        guard let control = legacySwitch(nearText: text, in: app) else {
+            return false
+        }
+        return tapLegacySwitchAndLeaveOn(control, in: app)
+    }
+
+    private func tapLegacySwitchAndLeaveOn(nearAnyText texts: [String], in app: XCUIApplication) -> Bool {
+        guard let control = legacySwitch(nearAnyText: texts, in: app) else {
+            return false
+        }
+        return tapLegacySwitchAndLeaveOn(control, in: app)
+    }
+
+    private func tapLegacySwitchAndLeaveOn(_ control: XCUIElement, in app: XCUIApplication) -> Bool {
+        guard makeElementVisible(control, in: app) else {
+            return false
+        }
+
+        let wasOn = isSwitchOn(control)
+        print("[BLE_COMMAND_TEST_SWITCH_INITIAL] value=\"\(wasOn ? "on" : "off")\"")
+        control.tap()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+
+        if wasOn {
+            control.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+
+        return true
+    }
+
+    private func isSwitchOn(_ control: XCUIElement) -> Bool {
+        if let value = control.value as? String {
+            return value == "1" || value.lowercased() == "on"
+        }
+        return false
+    }
+
+    private func tapLegacyButton(titled title: String, in app: XCUIApplication) -> Bool {
+        let predicate = NSPredicate(format: "label ==[c] %@", title)
+        guard let button = legacyButton(matching: predicate, in: app),
+              makeElementVisible(button, in: app) else {
+            return false
+        }
+
+        button.tap()
+        return true
+    }
+
+    private func tapDialogButton(titledAnyOf titles: [String], in app: XCUIApplication) -> Bool {
+        for title in titles {
+            let predicate = NSPredicate(format: "label ==[c] %@", title)
+            let button = app.buttons.matching(predicate).firstMatch
+            if button.waitForExistence(timeout: 1.5) {
+                button.tap()
+                return true
+            }
+        }
+        return false
+    }
+
+    private func setLegacySerialNumber(_ serialNumber: String, in app: XCUIApplication) -> Bool {
+        var textField = legacyVisibleTextField(
+            containingAnyOf: ["serial number", "серийник протеза"],
+            in: app
+        )
+
+        if textField == nil {
+            let scrollView = app.scrollViews.firstMatch
+            if scrollView.exists {
+                scrollView.swipeDown()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+            }
+            textField = legacyVisibleTextField(
+                containingAnyOf: ["serial number", "серийник протеза"],
+                in: app
+            )
+        }
+
+        guard let textField else {
+            return false
+        }
+
+        textField.tap()
+        clearAndType(serialNumber, in: textField)
+        let returnButton = app.keyboards.buttons["Return"]
+        if returnButton.exists {
+            returnButton.tap()
+        }
+        return true
+    }
+
+    private func setVisibleLegacySerialNumber(_ serialNumber: String, in app: XCUIApplication) -> Bool {
+        guard let textField = legacyVisibleTextField(
+            containingAnyOf: ["serial number", "серийник протеза"],
+            in: app
+        ) else {
+            return false
+        }
+
+        textField.tap()
+        clearAndType(serialNumber, in: textField)
+        let returnButton = app.keyboards.buttons["Return"]
+        if returnButton.exists {
+            returnButton.tap()
+        }
+        return true
+    }
+
+    private func completeLegacyPasswordIfNeeded(in app: XCUIApplication, password: String) -> Bool {
+        if waitForLegacySetSerialNumberConfirmation(in: app, timeout: 1.0) {
+            return true
+        }
+
+        if waitForAnyVisibleElement(
+            containingAnyOf: ["Enter password", "Введите пароль"],
+            in: app,
+            timeout: 1.5
+        ) {
+            let passwordField = app.secureTextFields.firstMatch.exists
+                ? app.secureTextFields.firstMatch
+                : app.textFields.firstMatch
+            guard passwordField.waitForExistence(timeout: 1.0) else {
+                return false
+            }
+            passwordField.tap()
+            clearAndType(password, in: passwordField)
+            guard tapDialogButton(titledAnyOf: ["OK", "ОК", "ok"], in: app) else {
+                return false
+            }
+        }
+
+        return waitForLegacySetSerialNumberConfirmation(in: app, timeout: 2.0)
+    }
+
+    private func waitForLegacySetSerialNumberConfirmation(in app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        waitForAnyVisibleElement(
+            containingAnyOf: [
+                "Setting the serial number",
+                "serial number of the prosthesis",
+                "Установка серийного номера",
+                "нового серийного номера"
+            ],
+            in: app,
+            timeout: timeout
+        )
+    }
+
+    private func legacyStaticText(
+        containing text: String,
+        occurrence: Int,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", text)
+        if let match = legacyStaticTextVisibleNow(matching: predicate, occurrence: occurrence, in: app) {
+            return match
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.waitForExistence(timeout: 1) else {
+            return nil
+        }
+
+        scrollLegacyAdvancedSettingsToTop(in: app)
+        for _ in 0..<2 {
+            if let match = legacyStaticTextVisibleNow(matching: predicate, occurrence: occurrence, in: app) {
+                return match
+            }
+            scrollView.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+
+        return nil
+    }
+
+    private func legacyStaticTextVisibleNow(
+        matching predicate: NSPredicate,
+        occurrence: Int,
+        in app: XCUIApplication
+    ) -> XCUIElement? {
+        let matches = app.staticTexts
+            .matching(predicate)
+            .allElementsBoundByIndex
+            .filter { $0.exists && isElementFrameVisible($0.frame, in: app) }
+            .sorted { lhs, rhs in
+                if lhs.frame.minY == rhs.frame.minY {
+                    return lhs.frame.minX < rhs.frame.minX
+                }
+                return lhs.frame.minY < rhs.frame.minY
+            }
+
+        guard occurrence < matches.count else {
+            return nil
+        }
+        return matches[occurrence]
+    }
+
+    private func legacyButton(matching predicate: NSPredicate, in app: XCUIApplication) -> XCUIElement? {
+        if let button = legacyButtonVisibleNow(matching: predicate, in: app) {
+            return button
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.waitForExistence(timeout: 1) else {
+            return nil
+        }
+
+        scrollLegacyAdvancedSettingsToTop(in: app)
+        for _ in 0..<2 {
+            if let button = legacyButtonVisibleNow(matching: predicate, in: app) {
+                return button
+            }
+            scrollView.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+
+        return nil
+    }
+
+    private func legacyButtonVisibleNow(matching predicate: NSPredicate, in app: XCUIApplication) -> XCUIElement? {
+        app.buttons
+            .matching(predicate)
+            .allElementsBoundByIndex
+            .filter { $0.exists && isElementFrameVisible($0.frame, in: app) }
+            .sorted { lhs, rhs in
+                if lhs.frame.minY == rhs.frame.minY {
+                    return lhs.frame.minX < rhs.frame.minX
+                }
+                return lhs.frame.minY < rhs.frame.minY
+            }
+            .first
+    }
+
+    private func legacyTextField(nearText text: String, in app: XCUIApplication) -> XCUIElement? {
+        guard let label = legacyStaticText(containing: text, occurrence: 0, in: app),
+              makeElementVisible(label, in: app) else {
+            return nil
+        }
+
+        let labelFrame = label.frame
+        let textFields = app.textFields.allElementsBoundByIndex + app.secureTextFields.allElementsBoundByIndex
+        return textFields
+            .filter { textField in
+                textField.exists &&
+                isElementFrameVisible(textField.frame, in: app) &&
+                abs(textField.frame.midY - labelFrame.midY) < 90
+            }
+            .sorted { lhs, rhs in
+                abs(lhs.frame.midY - labelFrame.midY) < abs(rhs.frame.midY - labelFrame.midY)
+            }
+            .first
+    }
+
+    private func legacyVisibleTextField(containingAnyOf texts: [String], in app: XCUIApplication) -> XCUIElement? {
+        let textFields = app.textFields.allElementsBoundByIndex + app.secureTextFields.allElementsBoundByIndex
+        let visibleTextFields = textFields
+            .filter { $0.exists && isElementFrameVisible($0.frame, in: app) }
+            .sorted { lhs, rhs in
+                if lhs.frame.minY == rhs.frame.minY {
+                    return lhs.frame.minX < rhs.frame.minX
+                }
+                return lhs.frame.minY < rhs.frame.minY
+            }
+
+        for text in texts {
+            if let textField = visibleTextFields.first(where: { textField in
+                let label = textField.label.lowercased()
+                let value = (textField.value as? String ?? "").lowercased()
+                return label.contains(text.lowercased()) || value.contains(text.lowercased())
+            }) {
+                return textField
+            }
+        }
+
+        return visibleTextFields.first
+    }
+
+    private func clearAndType(_ text: String, in element: XCUIElement) {
+        if let currentValue = element.value as? String,
+           !currentValue.isEmpty,
+           !currentValue.lowercased().contains("serial number"),
+           !currentValue.lowercased().contains("серийник") {
+            element.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count))
+        }
+        element.typeText(text)
+    }
+
+    private func makeElementVisible(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        maxSwipes: Int = 2
+    ) -> Bool {
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return element.exists && isElementFrameVisible(element.frame, in: app)
+        }
+
+        for _ in 0..<maxSwipes {
+            guard element.exists else {
+                scrollView.swipeUp()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+                continue
+            }
+
+            if isElementFrameVisible(element.frame, in: app) {
+                return true
+            }
+
+            let windowFrame = app.windows.firstMatch.frame
+            if element.frame.minY < windowFrame.minY + 30 {
+                scrollView.swipeDown()
+            } else {
+                scrollView.swipeUp()
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+        }
+
+        return element.exists && isElementFrameVisible(element.frame, in: app)
+    }
+
+    private func isElementFrameVisible(_ frame: CGRect, in app: XCUIApplication) -> Bool {
+        guard !frame.isEmpty else { return false }
+        let windowFrame = app.windows.firstMatch.frame
+        return frame.maxY > windowFrame.minY + 10 &&
+            frame.minY < windowFrame.maxY - 10 &&
+            frame.maxX > windowFrame.minX + 10 &&
+            frame.minX < windowFrame.maxX - 10
+    }
+
+    private func recordLegacyAdvancedSettingsState(in app: XCUIApplication, attachmentName: String) {
+        XCTAssertTrue(openLegacyAdvancedSettings(in: app), "Legacy advanced settings screen did not open")
 
         RunLoop.current.run(until: Date().addingTimeInterval(5))
         let stateDump = collectScrollableUIState(in: app, maxScrollPages: 6)
@@ -1443,49 +2932,8 @@ class WidgetsSceneUITests: XCTestCase {
         return lines.joined(separator: "\n")
     }
 
-    private func formatUIStateElement(_ element: XCUIElement, index: Int) -> String {
-        let frame = element.frame
-        let value = element.value.map { "\($0)" } ?? ""
-        return [
-            "index=\(index)",
-            "type=\(element.elementType.rawValue)",
-            "identifier=\(escapeStateText(element.identifier))",
-            "label=\(escapeStateText(element.label))",
-            "value=\(escapeStateText(value))",
-            "selected=\(element.isSelected ? "1" : "0")",
-            "enabled=\(element.isEnabled ? "1" : "0")",
-            "frame=\(Int(frame.minX)),\(Int(frame.minY)),\(Int(frame.width)),\(Int(frame.height))"
-        ].joined(separator: ";")
-    }
-
     private func visibleStateSignature(in app: XCUIApplication) -> String {
         String(app.debugDescription.prefix(6000))
-    }
-
-    private func stateElements(in app: XCUIApplication) -> [XCUIElement] {
-        let elementTypes: [XCUIElement.ElementType] = [
-            .staticText,
-            .button,
-            .switch,
-            .slider,
-            .segmentedControl,
-            .textField,
-            .cell,
-            .scrollView
-        ]
-
-        return elementTypes.flatMap { elementType in
-            app.descendants(matching: elementType).allElementsBoundByIndex
-        }
-        .filter { element in
-            element.exists && !element.frame.isEmpty
-        }
-    }
-
-    private func escapeStateText(_ text: String) -> String {
-        text
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: ";", with: "\\;")
     }
 
     private func scrollToElement(_ element: XCUIElement, in table: XCUIElement, maxSwipes: Int) -> Bool {

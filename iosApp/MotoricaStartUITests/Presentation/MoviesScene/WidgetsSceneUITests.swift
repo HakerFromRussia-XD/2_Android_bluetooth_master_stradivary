@@ -277,6 +277,69 @@ class WidgetsSceneUITests: XCTestCase {
         add(screenshotAttachment)
     }
 
+    func testStandaloneOldAppRealDevice_whenTapFestH04921_thenRecordAdvancedSettingsState() {
+        let app = XCUIApplication(bundleIdentifier: "com.motorica.startt")
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        if !waitForLegacySensorsScreen(in: app, timeout: 8) {
+            guard let targetDeviceElement = waitForLegacyDeviceElement(
+                namedAnyOf: ["FEST-H-04921"],
+                in: app,
+                timeout: 60
+            ) else {
+                XCTFail("Could not find BLE device FEST-H-04921 in standalone old app scan list")
+                return
+            }
+
+            targetDeviceElement.tap()
+            XCTAssertTrue(
+                waitForLegacySensorsScreen(in: app, timeout: 45),
+                "Standalone old app legacy sensors UI did not appear after tapping FEST-H-04921"
+            )
+        }
+
+        recordLegacyAdvancedSettingsState(
+            in: app,
+            attachmentName: "standalone-old-app-advanced-settings-state-after-fest"
+        )
+        app.terminate()
+    }
+
+    func testMergedOldAppRealDevice_whenTapFestH04921_thenRecordAdvancedSettingsState() {
+        let app = XCUIApplication()
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in merged scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Merged legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForLegacySensorsScreen(in: app, timeout: 45),
+            "Merged legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        recordLegacyAdvancedSettingsState(
+            in: app,
+            attachmentName: "merged-old-app-advanced-settings-state-after-fest"
+        )
+        app.terminate()
+    }
+
     func testMergedScanRealDevice_whenTap111111_thenNewFlowOpens() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-skip-synchronization"]
@@ -1239,6 +1302,190 @@ class WidgetsSceneUITests: XCTestCase {
             }
             .sorted { $0.frame.minX > $1.frame.minX }
             .first
+    }
+
+    private func recordLegacyAdvancedSettingsState(in app: XCUIApplication, attachmentName: String) {
+        guard let advancedSettingsButton = legacyAdvancedSettingsButton(in: app) else {
+            XCTFail("Legacy advanced settings button did not appear")
+            return
+        }
+
+        XCTAssertTrue(advancedSettingsButton.isHittable, "Legacy advanced settings button is not hittable")
+        advancedSettingsButton.tap()
+        XCTAssertTrue(
+            waitForAnyVisibleElement(
+                containingAnyOf: [
+                    "shutdown current",
+                    "single channel",
+                    "smart connection",
+                    "active gestures",
+                    "serial number",
+                    "ток отключения",
+                    "одноканальное",
+                    "серийный"
+                ],
+                in: app,
+                timeout: 12
+            ),
+            "Legacy advanced settings screen did not open"
+        )
+
+        RunLoop.current.run(until: Date().addingTimeInterval(5))
+        let stateDump = collectScrollableUIState(in: app, maxScrollPages: 6)
+        let attachment = XCTAttachment(
+            data: Data(stateDump.utf8),
+            uniformTypeIdentifier: "public.plain-text"
+        )
+        attachment.name = attachmentName
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func legacyAdvancedSettingsButton(in app: XCUIApplication) -> XCUIElement? {
+        let directButton = app.buttons["settings"]
+        if directButton.waitForExistence(timeout: 5) {
+            return directButton
+        }
+
+        let settingsPredicate = NSPredicate(format: "label ==[c] %@", "settings")
+        let labeledButton = app.buttons.matching(settingsPredicate).firstMatch
+        if labeledButton.waitForExistence(timeout: 3) {
+            return labeledButton
+        }
+
+        return nil
+    }
+
+    private func waitForLegacySensorsScreen(in app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        waitForAnyStaticText(
+            containingAnyOf: ["Activity Sensors", "opening sensor sensitivity", "Driver", "Датчики"],
+            in: app,
+            timeout: timeout
+        )
+    }
+
+    private func waitForLegacyDeviceElement(
+        namedAnyOf candidates: [String],
+        in app: XCUIApplication,
+        timeout: TimeInterval
+    ) -> XCUIElement? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            for name in candidates {
+                let predicate = NSPredicate(format: "label CONTAINS[c] %@", name)
+                let staticText = app.staticTexts.matching(predicate).firstMatch
+                if staticText.exists {
+                    return staticText
+                }
+
+                let cell = app.cells.matching(predicate).firstMatch
+                if cell.exists {
+                    return cell
+                }
+
+                let button = app.buttons.matching(predicate).firstMatch
+                if button.exists {
+                    return button
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        }
+        return nil
+    }
+
+    private func dismissBluetoothPermissionIfNeeded() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts.firstMatch
+        guard alert.waitForExistence(timeout: 2) else { return }
+
+        for title in ["OK", "Allow", "Разрешить"] {
+            let button = alert.buttons[title]
+            if button.exists {
+                button.tap()
+                return
+            }
+        }
+    }
+
+    private func collectScrollableUIState(in app: XCUIApplication, maxScrollPages: Int) -> String {
+        var pages: [String] = []
+        var previousPageSignature: String?
+
+        for pageIndex in 0..<maxScrollPages {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.8))
+            pages.append(dumpUIStatePage(in: app, pageIndex: pageIndex))
+
+            let currentSignature = visibleStateSignature(in: app)
+            if currentSignature == previousPageSignature {
+                break
+            }
+            previousPageSignature = currentSignature
+
+            let scrollView = app.scrollViews.firstMatch
+            guard scrollView.exists else {
+                break
+            }
+            scrollView.swipeUp()
+        }
+
+        return pages.joined(separator: "\n\n")
+    }
+
+    private func dumpUIStatePage(in app: XCUIApplication, pageIndex: Int) -> String {
+        let screenFrame = app.windows.firstMatch.frame
+        var lines = [
+            "page=\(pageIndex)",
+            "timestamp=\(Date())",
+            "screen=\(Int(screenFrame.width))x\(Int(screenFrame.height))",
+            app.debugDescription
+        ]
+
+        return lines.joined(separator: "\n")
+    }
+
+    private func formatUIStateElement(_ element: XCUIElement, index: Int) -> String {
+        let frame = element.frame
+        let value = element.value.map { "\($0)" } ?? ""
+        return [
+            "index=\(index)",
+            "type=\(element.elementType.rawValue)",
+            "identifier=\(escapeStateText(element.identifier))",
+            "label=\(escapeStateText(element.label))",
+            "value=\(escapeStateText(value))",
+            "selected=\(element.isSelected ? "1" : "0")",
+            "enabled=\(element.isEnabled ? "1" : "0")",
+            "frame=\(Int(frame.minX)),\(Int(frame.minY)),\(Int(frame.width)),\(Int(frame.height))"
+        ].joined(separator: ";")
+    }
+
+    private func visibleStateSignature(in app: XCUIApplication) -> String {
+        String(app.debugDescription.prefix(6000))
+    }
+
+    private func stateElements(in app: XCUIApplication) -> [XCUIElement] {
+        let elementTypes: [XCUIElement.ElementType] = [
+            .staticText,
+            .button,
+            .switch,
+            .slider,
+            .segmentedControl,
+            .textField,
+            .cell,
+            .scrollView
+        ]
+
+        return elementTypes.flatMap { elementType in
+            app.descendants(matching: elementType).allElementsBoundByIndex
+        }
+        .filter { element in
+            element.exists && !element.frame.isEmpty
+        }
+    }
+
+    private func escapeStateText(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: ";", with: "\\;")
     }
 
     private func scrollToElement(_ element: XCUIElement, in table: XCUIElement, maxSwipes: Int) -> Bool {

@@ -157,6 +157,126 @@ class WidgetsSceneUITests: XCTestCase {
         add(screenshotAttachment)
     }
 
+    func testMergedScanRealDevice_whenTapLegacyGestureSettings_thenGestureConfiguratorOpens() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Sensors", "opening sensor sensitivity", "Driver", "Датчики"],
+                in: app,
+                timeout: 45
+            ),
+            "Legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        guard let legacyGestureSettingsButton = legacyGestureSettingsButton(in: app, deviceName: "FEST-H-04921") else {
+            XCTFail("Legacy gesture settings button did not appear")
+            return
+        }
+        XCTAssertTrue(legacyGestureSettingsButton.isHittable, "Legacy gesture settings button is not hittable")
+        legacyGestureSettingsButton.tap()
+
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Gestures", "gesture switching by sensors", "GESTURE 1", "ЖЕСТ"],
+                in: app,
+                timeout: 10
+            ),
+            "Legacy gesture configurator did not open"
+        )
+
+        let screenshotAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshotAttachment.name = "legacy-gesture-configurator-after-fest"
+        screenshotAttachment.lifetime = .keepAlways
+        add(screenshotAttachment)
+    }
+
+    func testMergedScanRealDevice_whenTapLegacyGestureGear_thenGestureGripperConfiguratorOpens() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Sensors", "opening sensor sensitivity", "Driver", "Датчики"],
+                in: app,
+                timeout: 45
+            ),
+            "Legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        guard let legacyGestureSettingsButton = legacyGestureSettingsButton(in: app, deviceName: "FEST-H-04921") else {
+            XCTFail("Legacy gesture settings button did not appear")
+            return
+        }
+        XCTAssertTrue(legacyGestureSettingsButton.isHittable, "Legacy gesture settings button is not hittable")
+        legacyGestureSettingsButton.tap()
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Gestures", "gesture switching by sensors", "GESTURE 1", "ЖЕСТ"],
+                in: app,
+                timeout: 10
+            ),
+            "Legacy gesture screen did not open"
+        )
+
+        guard let gesture2SettingsButton = legacyGestureGearButton(in: app, gestureLabel: "gesture 2") else {
+            XCTFail("Legacy gesture 2 settings button did not appear")
+            return
+        }
+        XCTAssertTrue(gesture2SettingsButton.isHittable, "Legacy gesture 2 settings button is not hittable")
+        gesture2SettingsButton.tap()
+        XCTAssertTrue(
+            waitForAnyVisibleElement(
+                containingAnyOf: ["open state", "Activity Gripper", "little finger"],
+                in: app,
+                timeout: 10
+            ),
+            "Legacy gripper configurator did not open after tapping gesture gear"
+        )
+
+        let screenshotAttachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshotAttachment.name = "legacy-gesture-gripper-configurator-after-fest"
+        screenshotAttachment.lifetime = .keepAlways
+        add(screenshotAttachment)
+    }
+
     func testMergedScanRealDevice_whenTap111111_thenNewFlowOpens() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-skip-synchronization"]
@@ -1058,6 +1178,67 @@ class WidgetsSceneUITests: XCTestCase {
             RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         }
         return false
+    }
+
+    private func waitForAnyVisibleElement(
+        containingAnyOf candidates: [String],
+        in app: XCUIApplication,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            for candidate in candidates {
+                let predicate = NSPredicate(format: "label CONTAINS[c] %@", candidate)
+                if app.staticTexts.matching(predicate).firstMatch.exists ||
+                    app.buttons.matching(predicate).firstMatch.exists {
+                    return true
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+        }
+        return false
+    }
+
+    private func legacyGestureSettingsButton(in app: XCUIApplication, deviceName: String) -> XCUIElement? {
+        let deviceNameElement = app.staticTexts
+            .matching(NSPredicate(format: "label CONTAINS[c] %@", deviceName))
+            .firstMatch
+        guard deviceNameElement.waitForExistence(timeout: 5) else { return nil }
+
+        let markerFrame = deviceNameElement.frame
+        return app.buttons.allElementsBoundByIndex
+            .filter { button in
+                button.exists &&
+                button.frame.minX > markerFrame.maxX &&
+                abs(button.frame.midY - markerFrame.midY) < 50 &&
+                button.frame.width <= 80 &&
+                button.frame.height <= 80
+            }
+            .sorted { $0.frame.minX < $1.frame.minX }
+            .first
+    }
+
+    private func legacyGestureGearButton(in app: XCUIApplication, gestureLabel: String) -> XCUIElement? {
+        if app.buttons["settings2"].exists {
+            return app.buttons["settings2"]
+        }
+
+        let gestureButton = app.buttons
+            .matching(NSPredicate(format: "label CONTAINS[c] %@", gestureLabel))
+            .firstMatch
+        guard gestureButton.waitForExistence(timeout: 5) else { return nil }
+
+        let markerFrame = gestureButton.frame
+        return app.buttons.allElementsBoundByIndex
+            .filter { button in
+                button.exists &&
+                button.frame.width <= markerFrame.width * 0.45 &&
+                abs(button.frame.midY - markerFrame.midY) < max(24, markerFrame.height * 0.5) &&
+                button.frame.minX > markerFrame.midX &&
+                button.frame.maxX <= markerFrame.maxX + 24
+            }
+            .sorted { $0.frame.minX > $1.frame.minX }
+            .first
     }
 
     private func scrollToElement(_ element: XCUIElement, in table: XCUIElement, maxSwipes: Int) -> Bool {

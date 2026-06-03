@@ -626,6 +626,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             resetTransitionState()
             return false
         }
+        LegacyDocumentsCompatibility.restoreNewAppDocumentsIfNeeded()
         if let statusBarColor = UIColor(named: "ubi4_back") {
             appDelegate.updateStatusBarOverlay(backgroundColor: statusBarColor)
         }

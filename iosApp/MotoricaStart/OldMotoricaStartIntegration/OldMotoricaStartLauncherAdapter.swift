@@ -1,4 +1,5 @@
 import UIKit
+import ObjectiveC
 import OldMotoricaStart
 
 final class OldMotoricaStartLauncherAdapter {
@@ -6,6 +7,7 @@ final class OldMotoricaStartLauncherAdapter {
 
     func makeRootViewController(for device: BLEDevice) -> UIViewController {
         LegacyDocumentsCompatibility.prepareDocumentsForLegacyFlow()
+        LegacyAccessibilityMarkerBridge.installIfNeeded()
         let rootViewController = launcher.makeRootViewController(
             connectionHint: .init(
                 deviceName: device.name,
@@ -13,50 +15,122 @@ final class OldMotoricaStartLauncherAdapter {
             )
         )
         rootViewController.view.accessibilityIdentifier = AccessibilityIdentifier.oldMotoricaStartRoot
+        LegacyAccessibilityMarkerBridge.applyMarkers(to: rootViewController.view)
         return rootViewController
     }
 }
 
-enum LegacyDocumentsCompatibility {
-    private static let firmwareFolderName = "Firmware"
-    private static let stashFolderName = "OldMotoricaStartHiddenDocuments"
+private enum LegacyAccessibilityMarkerBridge {
+    private static var isInstalled = false
 
-    static func prepareDocumentsForLegacyFlow() {
-        stashDocumentItemIfNeeded(named: firmwareFolderName)
-    }
-
-    static func restoreNewAppDocumentsIfNeeded() {
-        restoreDocumentItemIfNeeded(named: firmwareFolderName)
-    }
-
-    private static func stashDocumentItemIfNeeded(named itemName: String) {
-        guard let sourceURL = documentsURL?.appendingPathComponent(itemName),
-              let stashRootURL,
-              FileManager.default.fileExists(atPath: sourceURL.path) else {
+    static func installIfNeeded() {
+        guard !isInstalled,
+              let originalMethod = class_getInstanceMethod(
+                UIViewController.self,
+                #selector(UIViewController.viewDidAppear(_:))
+              ),
+              let swizzledMethod = class_getInstanceMethod(
+                UIViewController.self,
+                #selector(UIViewController.motoricaLegacy_viewDidAppear(_:))
+              ) else {
             return
         }
 
-        let destinationURL = stashRootURL.appendingPathComponent(itemName)
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+        isInstalled = true
+    }
+
+    static func applyMarkersIfNeeded(for viewController: UIViewController) {
+        guard Bundle(for: type(of: viewController)) == Bundle(for: OldMotoricaStartLauncher.self) else {
+            return
+        }
+
+        applyMarkers(to: viewController.view)
+    }
+
+    static func applyMarkers(to view: UIView) {
+        if (view.accessibilityIdentifier ?? "").isEmpty,
+           let restorationIdentifier = view.restorationIdentifier,
+           !restorationIdentifier.isEmpty {
+            view.accessibilityIdentifier = restorationIdentifier
+        }
+
+        view.subviews.forEach(applyMarkers)
+    }
+}
+
+private extension UIViewController {
+    @objc dynamic func motoricaLegacy_viewDidAppear(_ animated: Bool) {
+        motoricaLegacy_viewDidAppear(animated)
+        LegacyAccessibilityMarkerBridge.applyMarkersIfNeeded(for: self)
+    }
+}
+
+enum LegacyDocumentsCompatibility {
+    private static let stashFolderName = "OldMotoricaStartHiddenDocuments"
+
+    static func prepareDocumentsForLegacyFlow() {
+        stashNonLegacyDocumentItemsIfNeeded()
+    }
+
+    static func restoreNewAppDocumentsIfNeeded() {
+        restoreAllStashedDocumentItemsIfNeeded()
+    }
+
+    private static func stashNonLegacyDocumentItemsIfNeeded() {
+        guard let documentsURL, let stashRootURL else {
+            return
+        }
+
         do {
             try FileManager.default.createDirectory(at: stashRootURL, withIntermediateDirectories: true)
-            try moveOrMergeItem(from: sourceURL, to: destinationURL)
+            let contents = try FileManager.default.contentsOfDirectory(
+                at: documentsURL,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: []
+            )
+
+            for sourceURL in contents where !isLegacySaveObjectStringFile(sourceURL) {
+                let destinationURL = stashRootURL.appendingPathComponent(sourceURL.lastPathComponent)
+                try moveOrMergeItem(from: sourceURL, to: destinationURL)
+            }
         } catch {
             print("LegacyDocumentsCompatibility stash failed: \(error)")
         }
     }
 
-    private static func restoreDocumentItemIfNeeded(named itemName: String) {
-        guard let sourceURL = stashRootURL?.appendingPathComponent(itemName),
-              let destinationURL = documentsURL?.appendingPathComponent(itemName),
-              FileManager.default.fileExists(atPath: sourceURL.path) else {
+    private static func restoreAllStashedDocumentItemsIfNeeded() {
+        guard let documentsURL, let stashRootURL,
+              FileManager.default.fileExists(atPath: stashRootURL.path) else {
             return
         }
 
         do {
-            try moveOrMergeItem(from: sourceURL, to: destinationURL)
+            try FileManager.default.createDirectory(at: documentsURL, withIntermediateDirectories: true)
+            let contents = try FileManager.default.contentsOfDirectory(
+                at: stashRootURL,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: []
+            )
+
+            for sourceURL in contents {
+                let destinationURL = documentsURL.appendingPathComponent(sourceURL.lastPathComponent)
+                try moveOrMergeItem(from: sourceURL, to: destinationURL)
+            }
         } catch {
             print("LegacyDocumentsCompatibility restore failed: \(error)")
         }
+    }
+
+    private static func isLegacySaveObjectStringFile(_ url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
+              !isDirectory.boolValue,
+              let data = FileManager.default.contents(atPath: url.path) else {
+            return false
+        }
+
+        return (try? JSONDecoder().decode(LegacySaveObjectStringProbe.self, from: data)) != nil
     }
 
     private static func moveOrMergeItem(from sourceURL: URL, to destinationURL: URL) throws {
@@ -124,4 +198,9 @@ enum LegacyDocumentsCompatibility {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
             .appendingPathComponent(stashFolderName, isDirectory: true)
     }
+}
+
+private struct LegacySaveObjectStringProbe: Decodable {
+    let key: String
+    let value: String
 }

@@ -148,7 +148,7 @@
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
-		65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* HelpViewController.swift */; };
+		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
 		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
 		65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4772ED865D400B3C49D /* adduction.lottie */; };
 		65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47D2ED865D400B3C49D /* pronation.lottie */; };
@@ -169,7 +169,6 @@
 		65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4972EE8232500B3C49D /* reflect.fsh */; };
 		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
 		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
-		65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */; };
 		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
 		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
 		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
@@ -181,6 +180,10 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */; };
+		66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */; };
+		66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11730B2AA0000000007 /* AAPLMeshData.mm */; };
+		66A0D10430B2AA0000000004 /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */; };
 		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		66F6A1012F53CE9B00A1B2C3 /* connect_to_disconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */; };
 		66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */; };
@@ -279,7 +282,7 @@
 
 /* Begin PBXFileReference section */
 		0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSetSerialNumberViewController.swift; path = ViewControllers/Dialogs/DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
-		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = OldMotoricaStart/MotoricaStart/ru.lproj/Main.storyboard; sourceTree = "<group>"; };
+		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
 		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
 		0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MergedScanStorageKeys.swift; path = MotoricaStart/OldMotoricaStartIntegration/MergedScanStorageKeys.swift; sourceTree = "<group>"; };
@@ -288,7 +291,7 @@
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
 		0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogDisconnectViewController.swift; path = ViewControllers/Dialogs/DialogDisconnectViewController.swift; sourceTree = "<group>"; };
 		0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionFesthViewController.swift; path = ViewControllers/Help/InstractionFesthViewController.swift; sourceTree = "<group>"; };
-		125B4091EFDB6B194BFDAF0D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = en; path = OldMotoricaStart/MotoricaStart/en.lproj/Main.storyboard; sourceTree = "<group>"; };
+		125B4091EFDB6B194BFDAF0D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
 		14B1AB212B9961B39846E022 /* NewViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewViewController.swift; path = ViewControllers/NewViewController.swift; sourceTree = "<group>"; };
 		1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogPasswordViewController.swift; path = ViewControllers/Dialogs/DialogPasswordViewController.swift; sourceTree = "<group>"; };
@@ -422,7 +425,7 @@
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
-		65BEEF022F91000100BEEF02 /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
+		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
 		65EAF4772ED865D400B3C49D /* adduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = adduction.lottie; sourceTree = "<group>"; };
 		65EAF4782ED865D400B3C49D /* close.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = close.lottie; sourceTree = "<group>"; };
@@ -464,6 +467,31 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
+		66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLViewController.m; sourceTree = "<group>"; };
+		66A0D11230B2AA0000000002 /* AAPLOpenGLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLViewController.h; sourceTree = "<group>"; };
+		66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
+		66A0D11430B2AA0000000004 /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
+		66A0D11530B2AA0000000005 /* AAPLCommonDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLCommonDefinitions.h; sourceTree = "<group>"; };
+		66A0D11630B2AA0000000006 /* AAPLMeshData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMeshData.h; sourceTree = "<group>"; };
+		66A0D11730B2AA0000000007 /* AAPLMeshData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLMeshData.mm; sourceTree = "<group>"; };
+		66A0D11830B2AA0000000008 /* AAPLMathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMathUtilities.h; sourceTree = "<group>"; };
+		66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLMathUtilities.m; sourceTree = "<group>"; };
+		66A0D11A30B2AA000000000A /* AAPLGLHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
+		66A0D11B30B2AA000000000B /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
+		66A0D11C30B2AA000000000C /* temple.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
+		66A0D11D30B2AA000000000D /* reflect.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
+		66A0D11E30B2AA000000000E /* temple.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.fsh; sourceTree = "<group>"; };
+		66A0D11F30B2AA000000000F /* select_fragment_shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_fragment_shader.fsh; sourceTree = "<group>"; };
+		66A0D12230B2AA0000000010 /* select_vertex_shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_vertex_shader.vsh; sourceTree = "<group>"; };
+		66A0D12330B2AA0000000011 /* reflect.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.vsh; sourceTree = "<group>"; };
+		66A0D12430B2AA0000000012 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
+		66A0D12530B2AA0000000013 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		66A0D12630B2AA0000000014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		66A0D12730B2AA0000000015 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		66A0D12830B2AA0000000016 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		66A0D12930B2AA0000000017 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		66A0D12A30B2AA0000000018 /* inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = inter.ttf; sourceTree = "<group>"; };
+		66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
 		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
 		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = connect_to_disconnect.lottie; sourceTree = "<group>"; };
@@ -476,8 +504,8 @@
 		8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProsthesisFamilyClassifier.swift; path = MotoricaStart/OldMotoricaStartIntegration/ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
 		8EB13250E9AD082075E3BD08 /* DataManger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataManger.swift; path = Utility/DataManger.swift; sourceTree = "<group>"; };
 		92ECA664C1220B2658F99A5A /* Solution.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Solution.swift; path = ViewControllers/Main/Solution.swift; sourceTree = "<group>"; };
-		9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = OldMotoricaStart/MotoricaStart/Res/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogFingersDelayViewController.swift; path = ViewControllers/Dialogs/DialogFingersDelayViewController.swift; sourceTree = "<group>"; };
+		9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogResetViewController.swift; path = ViewControllers/Dialogs/DialogResetViewController.swift; sourceTree = "<group>"; };
 		A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContainerViewController.swift; path = Utility/ContainerViewController.swift; sourceTree = "<group>"; };
 		AAF856B454911936C8985160 /* SensorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SensorsViewController.swift; path = ViewControllers/Main/SensorsViewController.swift; sourceTree = "<group>"; };
@@ -499,7 +527,7 @@
 		C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogCalibrationStatusViewController.swift; path = ViewControllers/Dialogs/DialogCalibrationStatusViewController.swift; sourceTree = "<group>"; };
 		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherViewCellV3.swift; sourceTree = "<group>"; };
 		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
-		CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = ScanDeviceNib.xib; path = OldMotoricaStart/MotoricaStart/Nibs/ScanDeviceNib.xib; sourceTree = "<group>"; };
+		CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = ScanDeviceNib.xib; sourceTree = "<group>"; };
 		D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SensorsSettingsViewController.swift; sourceTree = "<group>"; };
 		D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncherAdapter.swift; sourceTree = "<group>"; };
 		D49918A44DFD5C9869C6120B /* Test.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
@@ -564,7 +592,6 @@
 			children = (
 				2419EE98408CF865A2FC843A /* OldMotoricaStartLauncher.swift */,
 			);
-			name = LegacyModule;
 			path = LegacyModule;
 			sourceTree = "<group>";
 		};
@@ -703,7 +730,7 @@
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
 				BE50AA02FFA21E4D38F57F3E /* OldMotoricaStart */,
-				4655C070B08971C77B707D63 /* OldMotoricaStartResources */,
+				6548CB2D2FD04F0E00F22595 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -850,7 +877,7 @@
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
-				65BEEF022F91000100BEEF02 /* HelpViewController.swift */,
+				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
 				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
 				ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */,
@@ -968,62 +995,141 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
-		4655C070B08971C77B707D63 /* OldMotoricaStartResources */ = {
-			isa = PBXGroup;
-			children = (
-				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
-				BB7B911C3F0581B638A06D53 /* Main.storyboard */,
-				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
-			);
-			name = OldMotoricaStartResources;
-			sourceTree = "<group>";
-		};
 		619F2EB2B178C1E40C15D1BE /* MotoricaStart */ = {
 			isa = PBXGroup;
 			children = (
+				66A0D12C30B2AA000000001A /* Nibs */,
+				66A0D12030B2AA000000000A /* OpenGL */,
+				66A0D13530B2AA0000000023 /* test transition */,
+				66A0D12530B2AA0000000013 /* AppDelegate.swift */,
+				BB7B911C3F0581B638A06D53 /* Main.storyboard */,
+				66A0D12D30B2AA000000001B /* ViewControllers */,
+				66A0D13230B2AA0000000020 /* Utility */,
+				66A0D13330B2AA0000000021 /* Res */,
 				D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */,
 				D49918A44DFD5C9869C6120B /* Test.swift */,
+				66A0D12630B2AA0000000014 /* Info.plist */,
+				66A0D13730B2AA0000000025 /* Localizable.strings */,
+			);
+			path = MotoricaStart;
+			sourceTree = "<group>";
+		};
+		66A0D12C30B2AA000000001A /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
+			);
+			path = Nibs;
+			sourceTree = "<group>";
+		};
+		66A0D12D30B2AA000000001B /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12E30B2AA000000001C /* Cells */,
+				66A0D12F30B2AA000000001D /* Dialogs */,
+				66A0D13030B2AA000000001E /* Main */,
+				66A0D13130B2AA000000001F /* Help */,
+				14B1AB212B9961B39846E022 /* NewViewController.swift */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		66A0D12E30B2AA000000001C /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				34E178902751905FCE40A8EA /* DeviceCell.swift */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		66A0D12F30B2AA000000001D /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */,
+				C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */,
+				05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */,
+				0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */,
+				A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */,
+				514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */,
+				C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */,
+				FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */,
+				C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */,
+				D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */,
+				DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */,
+				0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */,
+				1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */,
+				0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */,
+			);
+			name = Dialogs;
+			sourceTree = "<group>";
+		};
+		66A0D13030B2AA000000001E /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				AAF856B454911936C8985160 /* SensorsViewController.swift */,
+				5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */,
+				8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */,
+				470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */,
+				C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */,
+				5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */,
+				24A21C86558B3D2B20C076DB /* ScanViewController.swift */,
+				92ECA664C1220B2658F99A5A /* Solution.swift */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		66A0D13130B2AA000000001F /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */,
+				284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */,
+				EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */,
+			);
+			name = Help;
+			sourceTree = "<group>";
+		};
+		66A0D13230B2AA0000000020 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */,
 				A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */,
+				F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */,
+				DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */,
+				B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */,
+				DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */,
 				8EB13250E9AD082075E3BD08 /* DataManger.swift */,
 				B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */,
 				223CF016196B6967172646FC /* NameUtil.swift */,
-				41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */,
-				B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */,
-				DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */,
-				DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */,
-				F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */,
-				34E178902751905FCE40A8EA /* DeviceCell.swift */,
-				C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */,
-				0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */,
-				C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */,
-				0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */,
-				9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */,
-				C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */,
-				1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */,
-				05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */,
-				D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */,
-				A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */,
-				FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */,
-				0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */,
-				514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */,
-				DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */,
-				284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */,
-				0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */,
-				EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */,
-				8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */,
-				5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */,
-				470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */,
-				5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */,
-				C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */,
-				24A21C86558B3D2B20C076DB /* ScanViewController.swift */,
-				AAF856B454911936C8985160 /* SensorsViewController.swift */,
-				92ECA664C1220B2658F99A5A /* Solution.swift */,
-				14B1AB212B9961B39846E022 /* NewViewController.swift */,
+			);
+			name = Utility;
+			sourceTree = "<group>";
+		};
+		66A0D13330B2AA0000000021 /* Res */ = {
+			isa = PBXGroup;
+			children = (
+				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
+				66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */,
+				66A0D13430B2AA0000000022 /* Fontes */,
+			);
+			path = Res;
+			sourceTree = "<group>";
+		};
+		66A0D13430B2AA0000000022 /* Fontes */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12A30B2AA0000000018 /* inter.ttf */,
+				66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */,
+			);
+			path = Fontes;
+			sourceTree = "<group>";
+		};
+		66A0D13530B2AA0000000023 /* test transition */ = {
+			isa = PBXGroup;
+			children = (
 				5D0A2EFC768621B75CB1EECF /* ModelController.swift */,
 				6FB559B71FA408288BC5EAD2 /* Quote.swift */,
 			);
-			name = MotoricaStart;
-			path = MotoricaStart;
+			name = "test transition";
 			sourceTree = "<group>";
 		};
 		651DDBA52EFC1E0200199FD8 /* KeyValueStorage */ = {
@@ -1077,6 +1183,17 @@
 				879CE4BA7E64F65F6C347434 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6548CB2D2FD04F0E00F22595 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */,
+				8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */,
+				F08EA300139F5D74EF1D1B60 /* OldMotoricaStartLauncherAdapter.swift */,
+				0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		655830392DBBAF4100744D5C /* Fontes */ = {
@@ -1228,7 +1345,6 @@
 				2AE5297769ECE7ED5AAF9F75 /* ProsthesisFamilyClassifier.swift */,
 				D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */,
 			);
-			name = OldMotoricaStartIntegration;
 			path = OldMotoricaStartIntegration;
 			sourceTree = "<group>";
 		};
@@ -1308,6 +1424,46 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		66A0D12030B2AA000000000A /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11230B2AA0000000002 /* AAPLOpenGLViewController.h */,
+				66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */,
+				66A0D11A30B2AA000000000A /* AAPLGLHeaders.h */,
+				66A0D11430B2AA0000000004 /* AAPLOpenGLRenderer.h */,
+				66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */,
+				66A0D11B30B2AA000000000B /* MotoricaStart-Bridging-Header.h */,
+				66A0D13630B2AA0000000024 /* shaders */,
+			);
+			path = OpenGL;
+			sourceTree = "<group>";
+		};
+		66A0D12130B2AA000000000B /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11530B2AA0000000005 /* AAPLCommonDefinitions.h */,
+				66A0D11630B2AA0000000006 /* AAPLMeshData.h */,
+				66A0D11730B2AA0000000007 /* AAPLMeshData.mm */,
+				66A0D11830B2AA0000000008 /* AAPLMathUtilities.h */,
+				66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */,
+				66A0D12430B2AA0000000012 /* Meshes */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		66A0D13630B2AA0000000024 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11C30B2AA000000000C /* temple.vsh */,
+				66A0D11D30B2AA000000000D /* reflect.fsh */,
+				66A0D11E30B2AA000000000E /* temple.fsh */,
+				66A0D11F30B2AA000000000F /* select_fragment_shader.fsh */,
+				66A0D12230B2AA0000000010 /* select_vertex_shader.vsh */,
+				66A0D12330B2AA0000000011 /* reflect.vsh */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
 		879CE4BA7E64F65F6C347434 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1320,8 +1476,8 @@
 			isa = PBXGroup;
 			children = (
 				619F2EB2B178C1E40C15D1BE /* MotoricaStart */,
+				66A0D12130B2AA000000000B /* Common */,
 			);
-			name = OldMotoricaStart;
 			path = OldMotoricaStart;
 			sourceTree = "<group>";
 		};
@@ -1635,6 +1791,10 @@
 				DFA0929479404E0DCBC94CA1 /* ModelController.swift in Sources */,
 				3569CC2AD9B8189FCB6509CD /* Quote.swift in Sources */,
 				2564F9E855BEC16FAFA8A696 /* OldMotoricaStartLauncher.swift in Sources */,
+				66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */,
+				66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */,
+				66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */,
+				66A0D10430B2AA0000000004 /* AAPLMathUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1694,7 +1854,6 @@
 				1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */,
 				65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */,
 				65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */,
-				65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */,
 				66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */,
 				1FC2C9632301FEC0001AE47E /* WidgetQueryUDS+Mapping.swift in Sources */,
 				1F1FC48A22E3693100BCBA8D /* DataTransferService.swift in Sources */,
@@ -1759,7 +1918,7 @@
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
-				65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */,
+				65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */,
 				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Widget.swift in Sources */,
@@ -1849,6 +2008,23 @@
 				04458DA986D9D296B1D88111 /* ru */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		66A0D13730B2AA0000000025 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66A0D12730B2AA0000000015 /* en */,
+				66A0D12830B2AA0000000016 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66A0D12930B2AA0000000017 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -2163,7 +2339,13 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/MotoricaStart/OldMotoricaStartIntegration/ObjCCompatibility",
+					"$(SRCROOT)/OldMotoricaStart/Common",
+					"$(SRCROOT)/OldMotoricaStart/MotoricaStart/OpenGL",
+					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
+				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2176,6 +2358,7 @@
 				PRODUCT_NAME = OldMotoricaStart;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "MotoricaStart-Swift.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -2195,7 +2378,13 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/MotoricaStart/OldMotoricaStartIntegration/ObjCCompatibility",
+					"$(SRCROOT)/OldMotoricaStart/Common",
+					"$(SRCROOT)/OldMotoricaStart/MotoricaStart/OpenGL",
+					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
+				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2208,6 +2397,7 @@
 				PRODUCT_NAME = OldMotoricaStart;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "MotoricaStart-Swift.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

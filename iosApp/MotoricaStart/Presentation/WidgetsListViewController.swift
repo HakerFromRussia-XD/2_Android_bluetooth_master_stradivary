@@ -317,7 +317,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             widgetsTableViewController?.viewModel = viewModel
             viewModel.viewDidLoad()
         } else if segue.identifier == "go3DGripperSettings",
-            let destinationVC = segue.destination as? AAPLOpenGLViewController {
+            let destinationVC = segue.destination as? AAPLOpenGLViewControllerV3 {
             destinationVC.gestureNumber = open3DGestureId ?? 0
             destinationVC.useV3Mode = open3DGestureIsV3
         }

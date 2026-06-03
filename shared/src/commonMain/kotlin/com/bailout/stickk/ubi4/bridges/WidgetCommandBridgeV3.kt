@@ -74,7 +74,6 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_CURRENT_GESTURE_NUM.number.toInt())
                     PWCE_SET_GESTURE_GROUPE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt())
-
                     PWCE_SET_GESTURE_CHANGE_MODE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt())
                     else ->

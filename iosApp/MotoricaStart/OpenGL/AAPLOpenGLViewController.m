@@ -5,7 +5,6 @@ Abstract:
 Implementation of the cross-platform view controller and cross-platform view that displays OpenGL content.
 */
 #import "AAPLOpenGLViewController.h"
-#import "AAPLOpenGLRenderer.h"
 #import "AAPLOpenGLRendererV3.h"
 #import "MotoricaStart-Swift.h"
 
@@ -14,7 +13,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
 #define PlatformGLContext EAGLContext
 
 
-@implementation AAPLOpenGLView
+@implementation AAPLOpenGLViewV3
 
 + (Class) layerClass
 {
@@ -23,9 +22,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 @end
 
-@implementation AAPLOpenGLViewController
+@implementation AAPLOpenGLViewControllerV3
 {
-    AAPLOpenGLView *_view;
+    AAPLOpenGLViewV3 *_view;
     id _openGLRenderer;
     GestureService *gestureService;
     PlatformGLContext *_context;
@@ -276,19 +275,14 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     _didInjectGestureSettingsV3ForUITest = NO;
     deviceName.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
     
-    _view = (AAPLOpenGLView *)self.view;
+    _view = (AAPLOpenGLViewV3 *)self.view;
     
     [self prepareView];
 
     [self makeCurrentContext];
 
-    if (self.useV3Mode) {
-        _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
-                                                                  gestureNumber:_gestureNumber];
-    } else {
-        _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
-                                                               gestureNumber:_gestureNumber];
-    }
+    _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
+                                                              gestureNumber:_gestureNumber];
 
     if(!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");

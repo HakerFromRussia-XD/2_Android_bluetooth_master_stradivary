@@ -19,6 +19,7 @@ final class BluetoothListViewController: UIViewController {
     static let storyboardID = "BluetoothListViewController"
     
     private var didTriggerFakeConnection = false
+    private var didAttemptSmartScanAutoConnection = false
     private var isTransitioningToMainTabBar = false
     private var isUserInteractingWithDevicesList = false
     private var pendingDevicesReloadAfterInteraction = false
@@ -173,6 +174,7 @@ final class BluetoothListViewController: UIViewController {
                 if currentDeviceIDs == self.lastRenderedDeviceIDs {
                     self.logTouch("skipReload", details: "reason=same-ids count=\(devices.count)")
                     self.refreshVisibleDeviceCells()
+                    self.attemptSmartScanAutoConnectionIfNeeded()
                     return
                 }
                 
@@ -182,8 +184,22 @@ final class BluetoothListViewController: UIViewController {
                     self.tableViewDevices.reloadData()
                 }
                 self.updateTableHeight(animated: true)
+                self.attemptSmartScanAutoConnectionIfNeeded()
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .smartConnectionSettingsDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                guard let self else { return }
+                let isEnabled = notification.userInfo?["isEnabled"] as? Bool
+                    ?? self.viewModel.isSmartScanAutoConnectionEnabled
+                guard isEnabled else { return }
+                self.didAttemptSmartScanAutoConnection = false
+                self.attemptSmartScanAutoConnectionIfNeeded()
+            }
+            .store(in: &cancellables)
+
         viewModel.onAppear()
         
         
@@ -453,6 +469,7 @@ final class BluetoothListViewController: UIViewController {
             tableViewDevices.reloadData()
         }
         updateTableHeight(animated: true)
+        attemptSmartScanAutoConnectionIfNeeded()
         logTouch("flushPendingReload", details: "rows=\(tableViewDevices.numberOfRows(inSection: 0))")
     }
     
@@ -480,6 +497,27 @@ final class BluetoothListViewController: UIViewController {
         let message = "[BLE-TAP-TRACE] t=\(timestamp) event=\(event)\(suffix)"
         NSLog("%@", message)
         print(message)
+    }
+
+    private func attemptSmartScanAutoConnectionIfNeeded() {
+        guard !didAttemptSmartScanAutoConnection,
+              !isTransitioningToMainTabBar,
+              !isTableInteractionInProgress,
+              viewModel.isSmartScanAutoConnectionEnabled,
+              let device = viewModel.smartScanAutoConnectionCandidate() else {
+            return
+        }
+
+        didAttemptSmartScanAutoConnection = true
+        isTransitioningToMainTabBar = true
+        isUserInteractingWithDevicesList = false
+        tableViewDevices.isUserInteractionEnabled = false
+        tableViewDevices.allowsSelection = false
+        logTouch(
+            "smartAutoConnect",
+            details: "name=\(device.name) uuid=\(device.uuid.uuidString)"
+        )
+        startConnectionFlow(for: device, sourceDetails: "smart-auto")
     }
 
 }
@@ -594,13 +632,20 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             resetTransitionState()
             return
         }
-        
+
+        startConnectionFlow(
+            for: selectedDevice,
+            sourceDetails: "row=\(indexPath.row)"
+        )
+    }
+
+    private func startConnectionFlow(for selectedDevice: BLEDevice, sourceDetails: String) {
         // Запрос на открытие WidgetsListViewController через координатор
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.logTouch(
                 "connectStart",
-                details: "row=\(indexPath.row) name=\(selectedDevice.name) uuid=\(selectedDevice.uuid.uuidString)"
+                details: "\(sourceDetails) name=\(selectedDevice.name) uuid=\(selectedDevice.uuid.uuidString)"
             )
             UiStateBridge.shared.resetWidgetsState()
             WidgetsListViewController.resetGlobalSynchronizationState()

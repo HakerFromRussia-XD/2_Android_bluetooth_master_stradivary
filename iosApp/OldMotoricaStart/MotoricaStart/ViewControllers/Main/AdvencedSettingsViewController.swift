@@ -140,11 +140,10 @@ class AdvencedSettingsViewController: UIViewController {
     @IBAction func smartConnectionControlSwitch(_ sender: UISwitch) {
         if (sender.isOn) {
             smartConnectionControlText.text = NSLocalizedString("on", comment: "")
-            saveDataString(key: sampleGattAttributes.SMART_CONNECTION, value: "1")
         } else {
             smartConnectionControlText.text = NSLocalizedString("off", comment: "")
-            saveDataString(key: sampleGattAttributes.SMART_CONNECTION, value: "0")
         }
+        LegacySmartConnectionStateStore.setEnabled(sender.isOn)
     }
     @IBAction func startWriteSerialNumber(_ sender: UIButton) {
         self.view.endEditing(true)

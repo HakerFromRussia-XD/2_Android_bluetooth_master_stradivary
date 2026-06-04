@@ -106,7 +106,8 @@ actual class BleManagerKmm actual constructor() {
     private var expectedServicesCount = 0
     private var discoveredServicesWithCharacteristics = 0
     private var reconnectTargetUuid: String? = null
-    private var autoReconnectEnabled = false
+    private var pendingManualConnectUuid: String? = null
+    private var autoReconnectEnabled = true
     private var reconnectScanActive = false
 
     @OptIn(ExperimentalForeignApi::class)
@@ -166,11 +167,17 @@ actual class BleManagerKmm actual constructor() {
             discovered[device.id] = didDiscoverPeripheral
 
             val targetUuid = reconnectTargetUuid
-            if (autoReconnectEnabled && targetUuid != null && device.id.equals(targetUuid, ignoreCase = true)) {
+            val manualTargetUuid = pendingManualConnectUuid
+            val isReconnectTarget = targetUuid != null && device.id.equals(targetUuid, ignoreCase = true)
+            val isManualTarget = manualTargetUuid != null && device.id.equals(manualTargetUuid, ignoreCase = true)
+            if ((autoReconnectEnabled && isReconnectTarget) || isManualTarget) {
                 platformLog("[BLE-RECONNECT]", "target device found in scan, reconnecting: ${device.id}")
                 if (reconnectScanActive) {
                     central.stopScan()
                     reconnectScanActive = false
+                }
+                if (isManualTarget) {
+                    pendingManualConnectUuid = null
                 }
                 BLEState.publishConnecting()
                 central.connectPeripheral(didDiscoverPeripheral, options = null)
@@ -193,7 +200,7 @@ actual class BleManagerKmm actual constructor() {
             connectedDevice = BleDeviceKmm(didConnectPeripheral, 0)
             selectedDevice = didConnectPeripheral
             reconnectTargetUuid = didConnectPeripheral.identifier.UUIDString()
-            autoReconnectEnabled = true
+            pendingManualConnectUuid = null
             didConnectPeripheral.delegate = this
             didNotifyCharacteristicsReady = false
             servicesMass.clear()
@@ -320,6 +327,7 @@ actual class BleManagerKmm actual constructor() {
 
     actual fun connectToDevice(uuid: String) {
         reconnectTargetUuid = uuid
+        pendingManualConnectUuid = uuid
         autoReconnectEnabled = true
 
         val discoveredPeripheral = discovered.entries
@@ -341,6 +349,7 @@ actual class BleManagerKmm actual constructor() {
         platformLog("[BLE-CONNECT]", "manual disconnect requested")
         autoReconnectEnabled = false
         reconnectTargetUuid = null
+        pendingManualConnectUuid = null
         reconnectScanActive = false
         manager.stopScan()
 
@@ -763,14 +772,14 @@ actual class BleManagerKmm actual constructor() {
     }
 
     private fun startAutoReconnect(peripheral: CBPeripheral) {
-        if (!autoReconnectEnabled) {
-            return
-        }
-
         reconnectTargetUuid = peripheral.identifier.UUIDString()
         selectedDevice = null
         connectedDevice = null
         didNotifyCharacteristicsReady = false
+
+        if (!autoReconnectEnabled) {
+            return
+        }
 
         platformLog("[BLE-RECONNECT]", "start auto reconnect flow for ${peripheral.identifier.UUIDString()}")
 

@@ -63,3 +63,124 @@ final class BluetoothScanDeviceNameFormatterTests: XCTestCase {
         )
     }
 }
+
+final class SmartConnectionSettingsStoreTests: XCTestCase {
+    private struct LegacySaveObjectString: Codable {
+        let key: String
+        let value: String
+    }
+
+    private var userDefaults: UserDefaults!
+    private var documentsDirectory: URL!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        userDefaults = UserDefaults(suiteName: "SmartConnectionSettingsStoreTests")
+        userDefaults.removePersistentDomain(forName: "SmartConnectionSettingsStoreTests")
+        documentsDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: documentsDirectory, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        if let documentsDirectory {
+            try? FileManager.default.removeItem(at: documentsDirectory)
+        }
+        userDefaults.removePersistentDomain(forName: "SmartConnectionSettingsStoreTests")
+        userDefaults = nil
+        documentsDirectory = nil
+        try super.tearDownWithError()
+    }
+
+    func testCurrentValue_defaultsToEnabledAndPersistsBothKeys() throws {
+        let store = makeStore()
+
+        XCTAssertTrue(store.currentValue())
+        XCTAssertTrue(userDefaults.bool(forKey: "SET_MODE_SMART_CONNECTION"))
+        XCTAssertEqual(try loadLegacyValue(for: "SMART_CONNECTION"), "1")
+    }
+
+    func testSetEnabled_writesLegacyAndNewAutoConnectionKeys() throws {
+        let store = makeStore()
+
+        store.setEnabled(false, notify: false)
+
+        XCTAssertFalse(userDefaults.bool(forKey: "SET_MODE_SMART_CONNECTION"))
+        XCTAssertEqual(try loadLegacyValue(for: "SMART_CONNECTION"), "0")
+    }
+
+    func testScanAutoConnectionDeactivationKeepsSmartEnabledUntilLaunchReset() throws {
+        let store = makeStore()
+
+        store.deactivateScanAutoConnectionUntilNextLaunch()
+
+        XCTAssertTrue(store.currentValue())
+        XCTAssertTrue(userDefaults.bool(forKey: "SET_MODE_SMART_CONNECTION"))
+        XCTAssertEqual(try loadLegacyValue(for: "SMART_CONNECTION"), "1")
+        XCTAssertEqual(try loadLegacyValue(for: "DEACTIVATE_SMART_CONNECTION"), "1")
+        XCTAssertFalse(store.isScanAutoConnectionAllowed)
+
+        store.resetScanAutoConnectionDeactivationForLaunch()
+
+        XCTAssertTrue(store.isScanAutoConnectionAllowed)
+        XCTAssertEqual(try loadLegacyValue(for: "DEACTIVATE_SMART_CONNECTION"), "0")
+    }
+
+    func testCurrentValue_prefersLegacyKeyAndMirrorsToUserDefaults() throws {
+        try writeLegacyValue(key: "SMART_CONNECTION", value: "0")
+        userDefaults.set(true, forKey: "SET_MODE_SMART_CONNECTION")
+        let store = makeStore()
+
+        XCTAssertFalse(store.currentValue())
+        XCTAssertFalse(userDefaults.bool(forKey: "SET_MODE_SMART_CONNECTION"))
+    }
+
+    func testScanAutoConnectionTargetStore_readsMergedAndLegacyTargets() throws {
+        let keyValueStorage = UserDefaultsKeyValueStorage(userDefaults: userDefaults)
+        try keyValueStorage.save(
+            "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            for: MergedScanStorageKeys.lastNewDeviceUUID
+        )
+        try keyValueStorage.save(
+            "FEST-H-04922",
+            for: MergedScanStorageKeys.lastOldDeviceName
+        )
+        try writeLegacyValue(
+            key: "LAST_CONNECTION",
+            value: "11111111-2222-3333-4444-555555555555"
+        )
+        try writeLegacyValue(key: "DEVICE_NAME", value: "fest-h-04922")
+
+        let targetStore = SmartScanAutoConnectionTargetStore(
+            keyValueStorage: keyValueStorage,
+            documentsDirectory: documentsDirectory
+        )
+
+        XCTAssertEqual(
+            targetStore.targetUUIDs(),
+            Set([
+                "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
+                "11111111-2222-3333-4444-555555555555"
+            ])
+        )
+        XCTAssertEqual(targetStore.targetNames(), Set(["FEST-H-04922"]))
+    }
+
+    private func makeStore() -> SmartConnectionSettingsStore {
+        SmartConnectionSettingsStore(
+            userDefaults: userDefaults,
+            documentsDirectory: documentsDirectory
+        )
+    }
+
+    private func loadLegacyValue(for key: String) throws -> String {
+        let data = try Data(contentsOf: documentsDirectory.appendingPathComponent(key, isDirectory: false))
+        return try JSONDecoder().decode(LegacySaveObjectString.self, from: data).value
+    }
+
+    private func writeLegacyValue(key: String, value: String) throws {
+        let object = LegacySaveObjectString(key: key, value: value)
+        let data = try JSONEncoder().encode(object)
+        try data.write(to: documentsDirectory.appendingPathComponent(key, isDirectory: false))
+    }
+}

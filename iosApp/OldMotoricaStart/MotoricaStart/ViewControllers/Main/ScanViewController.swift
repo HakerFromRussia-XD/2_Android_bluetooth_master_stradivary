@@ -80,6 +80,7 @@ import Foundation
         let titleTextAttributes2 = [NSAttributedStringKey.foregroundColor: UIColor.black]
         UISegmentedControl.appearance().setTitleTextAttributes(titleTextAttributes2, for: .selected)
         NotificationCenter.default.addObserver(self, selector: #selector(readWriteToBLENotification), name: .notificationFromSensorsViewController, object: nil)
+        LegacySmartConnectionStateStore.ensureDefaultIfNeeded()
         saveDataString(key: sampleGattAttributes.DEACTIVATE_SMART_CONNECTION, value: "0")
         print("TEST!!!! viewDidLoad()" )
         
@@ -196,10 +197,14 @@ import Foundation
             }
         }
         
-        if (smartConnectionActivate && !deactivateSmartConnection) {
+        if (LegacySmartConnectionStateStore.isAutoConnectionAllowed()) {
             if (previousConnectionUUID == peripheral.identifier.uuidString.uppercased()) {
                 centralManager.stopScan()
                 myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] (_) in
+                    guard LegacySmartConnectionStateStore.isAutoConnectionAllowed() else {
+                        myTimer.invalidate()
+                        return
+                    }
                     print("did REConnect")
                     centralManager.connect(peripheral, options: nil)
                 }
@@ -632,7 +637,7 @@ import Foundation
             loadDataString()
         }
         if (!smartConnectionActivateOn) {
-            saveDataString(key: sampleGattAttributes.SMART_CONNECTION, value: "1")
+            LegacySmartConnectionStateStore.setEnabled(true, notify: false)
             loadDataString()
         }
         
@@ -646,7 +651,7 @@ import Foundation
                 previousConnectionUUID = item.value
             }
             if (item.key == sampleGattAttributes.SMART_CONNECTION) {
-                smartConnectionActivate = item.value.boolValue
+                smartConnectionActivate = LegacySmartConnectionStateStore.currentValue()
             }
             if (item.key == sampleGattAttributes.DEACTIVATE_SMART_CONNECTION) {
                 deactivateSmartConnection = item.value.boolValue
@@ -867,5 +872,3 @@ extension ScanViewController: UITableViewDelegate, UITableViewDataSource{
         performSegue(withIdentifier: "goSensorsSettings", sender: nil)
     }
 }
-
-

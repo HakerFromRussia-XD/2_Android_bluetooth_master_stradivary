@@ -26,6 +26,8 @@ final class BluetoothListViewModel {
     private let keyValueStorage: KeyValueStorage
     private let familyClassifier = ProsthesisFamilyClassifier()
     private let appearanceStore: MergedScanAppearanceStore
+    private let autoConnectionTargetStore: SmartScanAutoConnectionTargetStore
+    private let smartConnectionStore = SmartConnectionSettingsStore()
     private var cancellables = Set<AnyCancellable>()
     
     var currentFilterIndex: Int { selectedFilterIndex }
@@ -42,6 +44,7 @@ final class BluetoothListViewModel {
 //        selectedFilterIndex = UserDefaults.standard.integer(forKey: filterKey)
         self.keyValueStorage = keyValueStorage
         self.appearanceStore = MergedScanAppearanceStore(keyValueStorage: keyValueStorage)
+        self.autoConnectionTargetStore = SmartScanAutoConnectionTargetStore(keyValueStorage: keyValueStorage)
         restorePersistedState()
         // Подписываемся на поток найденных устройств
 //        repository.scannedDevicesPublisher
@@ -181,6 +184,48 @@ final class BluetoothListViewModel {
         bleManager.stopScanKmm()
         logConnect("[BLE-CONNECT] phase=connect")
         bleManager.connectToDevice(uuid: device.uuid.uuidString)
+    }
+
+    var isSmartScanAutoConnectionEnabled: Bool {
+        smartConnectionStore.isScanAutoConnectionAllowed
+    }
+
+    func smartScanAutoConnectionCandidate() -> BLEDevice? {
+        guard !isUiTestFakeDeviceEnabled else { return nil }
+        guard smartConnectionStore.isScanAutoConnectionAllowed else { return nil }
+
+        let prosthesisDevices = allDevices.filter {
+            familyClassifier.isKnownProsthesis(deviceName: $0.name)
+        }
+        guard !prosthesisDevices.isEmpty else { return nil }
+
+        let targetUUIDs = autoConnectionTargetStore.targetUUIDs()
+        if !targetUUIDs.isEmpty,
+           let device = prosthesisDevices.first(where: { device in
+               guard let normalizedUUID = SmartScanAutoConnectionTargetStore.normalizedUUID(device.uuid.uuidString) else {
+                   return false
+               }
+               return targetUUIDs.contains(normalizedUUID)
+           }) {
+            return device
+        }
+
+        let targetNames = autoConnectionTargetStore.targetNames()
+        if !targetNames.isEmpty,
+           let device = prosthesisDevices.first(where: { device in
+               let candidateNames = [
+                   device.name,
+                   BluetoothScanDeviceNameFormatter.displayName(device.name)
+               ].compactMap(SmartScanAutoConnectionTargetStore.normalizedName)
+               return candidateNames.contains(where: targetNames.contains)
+           }) {
+            return device
+        }
+
+        guard targetUUIDs.isEmpty, targetNames.isEmpty, prosthesisDevices.count == 1 else {
+            return nil
+        }
+        return prosthesisDevices[0]
     }
     
     func sendBytes() {

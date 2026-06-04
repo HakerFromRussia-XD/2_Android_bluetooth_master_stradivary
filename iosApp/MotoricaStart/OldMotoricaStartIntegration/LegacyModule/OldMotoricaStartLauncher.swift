@@ -48,7 +48,7 @@ private enum LegacyConnectionStateStore {
         save(key: Key.deviceName, value: hint.deviceName)
         save(key: Key.deviceMac, value: normalizedUUID)
         save(key: Key.lastConnection, value: normalizedUUID)
-        save(key: Key.smartConnection, value: "1")
+        LegacySmartConnectionStateStore.ensureDefaultIfNeeded()
         save(key: Key.deactivateSmartConnection, value: "0")
         save(key: Key.statusConnection, value: "1")
         save(key: Key.useMultigrab, value: isKnownLegacyMultigrab ? "USE" : "0")
@@ -58,5 +58,91 @@ private enum LegacyConnectionStateStore {
 
     private static func save(key: String, value: String) {
         DataManager.save(SaveObjectString(key: key, value: value), with: key)
+    }
+}
+
+extension Notification.Name {
+    static let smartConnectionSettingsDidChange = Notification.Name("SmartConnectionSettingsStore.didChange")
+}
+
+enum LegacySmartConnectionStateStore {
+    private enum Key {
+        static let newAutoConnection = "SET_MODE_SMART_CONNECTION"
+        static let legacySmartConnection = "SMART_CONNECTION"
+        static let legacyDeactivateSmartConnection = "DEACTIVATE_SMART_CONNECTION"
+    }
+
+    static func ensureDefaultIfNeeded(defaultValue: Bool = true) {
+        _ = currentValue(defaultValue: defaultValue)
+    }
+
+    static func currentValue(defaultValue: Bool = true) -> Bool {
+        if let legacyValue = loadLegacyBool(for: Key.legacySmartConnection) {
+            mirrorToUserDefaults(legacyValue)
+            return legacyValue
+        }
+
+        if UserDefaults.standard.object(forKey: Key.newAutoConnection) != nil {
+            let value = UserDefaults.standard.bool(forKey: Key.newAutoConnection)
+            saveLegacyBool(value, for: Key.legacySmartConnection)
+            return value
+        }
+
+        saveLegacyBool(defaultValue, for: Key.legacySmartConnection)
+        mirrorToUserDefaults(defaultValue)
+        return defaultValue
+    }
+
+    static func setEnabled(_ enabled: Bool, notify: Bool = true) {
+        saveLegacyBool(enabled, for: Key.legacySmartConnection)
+        if enabled {
+            saveLegacyBool(false, for: Key.legacyDeactivateSmartConnection)
+        }
+        mirrorToUserDefaults(enabled)
+
+        guard notify else { return }
+        NotificationCenter.default.post(
+            name: .smartConnectionSettingsDidChange,
+            object: nil,
+            userInfo: ["isEnabled": enabled]
+        )
+    }
+
+    static func isAutoConnectionAllowed() -> Bool {
+        currentValue() && !(loadLegacyBool(for: Key.legacyDeactivateSmartConnection) ?? false)
+    }
+
+    private static func mirrorToUserDefaults(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: Key.newAutoConnection)
+    }
+
+    private static func loadLegacyBool(for key: String) -> Bool? {
+        guard let data = try? Data(contentsOf: legacyURL(for: key)),
+              let object = try? JSONDecoder().decode(SaveObjectString.self, from: data),
+              object.key == key else {
+            return nil
+        }
+        return boolValue(from: object.value)
+    }
+
+    private static func saveLegacyBool(_ value: Bool, for key: String) {
+        DataManager.save(SaveObjectString(key: key, value: value ? "1" : "0"), with: key)
+    }
+
+    private static func legacyURL(for key: String) -> URL {
+        FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(key, isDirectory: false)
+    }
+
+    private static func boolValue(from rawValue: String) -> Bool {
+        switch rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "1", "true", "yes":
+            return true
+        case "0", "false", "no":
+            return false
+        default:
+            return (rawValue as NSString).boolValue
+        }
     }
 }

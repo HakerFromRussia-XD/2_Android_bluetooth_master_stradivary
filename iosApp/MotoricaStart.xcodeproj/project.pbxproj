@@ -201,6 +201,7 @@
 		97F01AA2FA388FA6425E2525 /* NameUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223CF016196B6967172646FC /* NameUtil.swift */; };
 		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
 		9D3E0949925503A806B2B1D0 /* MergedScanStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */; };
+		9D3E094A925503A806B2B1D1 /* MergedScanStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */; };
 		9E28B0D6E4AC1AA31980C83A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB7B911C3F0581B638A06D53 /* Main.storyboard */; };
 		9E28B0D7E4AC1AA31980C83A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */; };
 		9F62A9FB5109F89DF0DC2BD2 /* DialogRecalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */; };
@@ -1963,6 +1964,7 @@
 				5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
 				C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
 				C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
+				9D3E094A925503A806B2B1D1 /* MergedScanStorageKeys.swift in Sources */,
 				2E0B07D814145BA62D8870DC /* BLEDevice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -11,6 +11,7 @@ enum StatusBarDisconnectCoordinator {
         defer { isDisconnectFlowInProgress = false }
 
         let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
+        SmartConnectionSettingsStore().deactivateScanAutoConnectionUntilNextLaunch()
         BLEComponents.shared.bleManager.disconnectFromDevice()
         keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
         WidgetsTabContainerViewController.sharedStatusBarViewModel.update(

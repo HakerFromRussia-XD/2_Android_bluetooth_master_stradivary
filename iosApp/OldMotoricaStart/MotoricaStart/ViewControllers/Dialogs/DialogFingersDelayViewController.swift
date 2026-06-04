@@ -61,7 +61,10 @@ import UIKit
     
     private var gestureNumber = 0
     private var gestureTableStr = ""
-    private var gestureTable: [String] = []
+    private var gestureTableBigStr = ""
+    private var gestureTable: [Int] = []
+    private var gestureTableBig: [Int] = []
+    private var typeMultigribNewVM = 0
     
     
     override func viewDidLoad() {
@@ -166,14 +169,10 @@ import UIKit
     
     //MARK: отправка/запрос ble команд
     private func sendDataToFestX (characteristic: String) {
-        let dataForWrite = Data([UInt8(gestureNumber-1), UInt8(openStage4!),UInt8(openStage3!), UInt8(openStage2!),
-                         UInt8(openStage1!), UInt8(openStage5!), UInt8(openStage6!), UInt8(closeStage4!),
-                         UInt8(closeStage3!), UInt8(closeStage2!), UInt8(closeStage1!), UInt8(closeStage5!),
-                         UInt8(closeStage6!), UInt8(fingerOpenStateDelay1), UInt8(fingerOpenStateDelay2),
-                         UInt8(fingerOpenStateDelay3), UInt8(fingerOpenStateDelay4), UInt8(fingerOpenStateDelay5),
-                         UInt8(fingerOpenStateDelay6), UInt8(fingerCloseStateDelay1), UInt8(fingerCloseStateDelay2),
-                         UInt8(fingerCloseStateDelay3), UInt8(fingerCloseStateDelay4), UInt8(fingerCloseStateDelay5),
-                         UInt8(fingerCloseStateDelay6)])
+        guard let dataForWrite = makeDelayCommandPayload() else {
+            print("DialogFingersDelayViewController: cannot send fingers delay, gesture stages are not loaded")
+            return
+        }
         SensorsViewController.myInteractiveQueueComandWithConfirmation(dataForWrite: dataForWrite, characteristic: characteristic, countRestart: 50)
     }
     private func readDataFromFestX (characteristic: String) {
@@ -226,7 +225,14 @@ import UIKit
             }
             if (item.key == sampleGattAttributes.ADD_GESTURE_NEW) {
                 gestureTableStr = item.value;
-                gestureTable = gestureTableStr.components(separatedBy: " ")
+                gestureTable = parseGestureTable(gestureTableStr)
+            }
+            if (item.key == sampleGattAttributes.ADD_GESTURE_NEW_BIG) {
+                gestureTableBigStr = item.value;
+                gestureTableBig = parseGestureTable(gestureTableBigStr)
+            }
+            if (item.key == sampleGattAttributes.USE_MULTIGRAB_FESTX) {
+                typeMultigribNewVM = Int(item.value) ?? 0
             }
         }
         for item in savingParametrsMassString
@@ -259,24 +265,124 @@ import UIKit
                 rotationDelayNum.text = String(Int(slide6.value)*10) + NSLocalizedString("_ms", comment: "")
             }
             if (item.key == sampleGattAttributes.GESTURE_EDITING_NUM) {
-                gestureNumber = Int(item.value)!;
-                openStage4 = Int(gestureTable[12*(gestureNumber-1)+0]);
-                openStage3 = Int(gestureTable[12*(gestureNumber-1)+1]);
-                openStage2 = Int(gestureTable[12*(gestureNumber-1)+2]);
-                openStage1 = Int(gestureTable[12*(gestureNumber-1)+3]);
-                openStage5 = Int(gestureTable[12*(gestureNumber-1)+4]);
-                openStage6 = Int(gestureTable[12*(gestureNumber-1)+5]);
-                
-                closeStage4 = Int(gestureTable[12*(gestureNumber-1)+6]);
-                closeStage3 = Int(gestureTable[12*(gestureNumber-1)+7]);
-                closeStage2 = Int(gestureTable[12*(gestureNumber-1)+8]);
-                closeStage1 = Int(gestureTable[12*(gestureNumber-1)+9]);
-                closeStage5 = Int(gestureTable[12*(gestureNumber-1)+10]);
-                closeStage6 = Int(gestureTable[12*(gestureNumber-1)+11]);
-                
+                guard let savedGestureNumber = Int(item.value) else { return }
+                gestureNumber = savedGestureNumber;
+                loadGestureStages()
             }
         }
     }
+
+    private func parseGestureTable(_ value: String) -> [Int] {
+        return value.split(separator: " ").compactMap { Int($0) }
+    }
+
+    private func loadGestureStages() {
+        guard gestureNumber > 0 else { return }
+
+        if (SensorsViewController.versionDriverGreaterThan237) {
+            loadFestXStages(from: gestureTableBig, startIndex: 12 * (gestureNumber - 2))
+            return
+        }
+
+        if (typeMultigribNewVM == 1) {
+            loadFestXStages(from: gestureTable, startIndex: 12 * (gestureNumber - 1))
+        } else {
+            loadFestHStages(from: gestureTable, startIndex: 12 * (gestureNumber - 2))
+        }
+    }
+
+    private func loadFestXStages(from table: [Int], startIndex: Int) {
+        guard let values = gestureStageValues(from: table, startIndex: startIndex) else { return }
+
+        openStage4 = values[0]
+        openStage3 = values[1]
+        openStage2 = values[2]
+        openStage1 = values[3]
+        openStage5 = values[4]
+        openStage6 = values[5]
+
+        closeStage4 = values[6]
+        closeStage3 = values[7]
+        closeStage2 = values[8]
+        closeStage1 = values[9]
+        closeStage5 = values[10]
+        closeStage6 = values[11]
+    }
+
+    private func loadFestHStages(from table: [Int], startIndex: Int) {
+        guard let values = gestureStageValues(from: table, startIndex: startIndex) else { return }
+
+        openStage1 = values[0]
+        openStage2 = values[1]
+        openStage3 = values[2]
+        openStage4 = values[3]
+        openStage5 = values[4]
+        openStage6 = values[5]
+
+        closeStage1 = values[6]
+        closeStage2 = values[7]
+        closeStage3 = values[8]
+        closeStage4 = values[9]
+        closeStage5 = values[10]
+        closeStage6 = values[11]
+    }
+
+    private func gestureStageValues(from table: [Int], startIndex: Int) -> [Int]? {
+        guard startIndex >= 0, startIndex + 11 < table.count else {
+            print("DialogFingersDelayViewController: gesture table does not contain stages for gesture \(gestureNumber), startIndex \(startIndex), count \(table.count)")
+            return nil
+        }
+
+        return Array(table[startIndex...(startIndex + 11)])
+    }
+
+    private func makeDelayCommandPayload() -> Data? {
+        guard
+            gestureNumber > 0,
+            let gestureNumberByte = byte(gestureNumber - 1),
+            let openStage4Byte = byte(openStage4),
+            let openStage3Byte = byte(openStage3),
+            let openStage2Byte = byte(openStage2),
+            let openStage1Byte = byte(openStage1),
+            let openStage5Byte = byte(openStage5),
+            let openStage6Byte = byte(openStage6),
+            let closeStage4Byte = byte(closeStage4),
+            let closeStage3Byte = byte(closeStage3),
+            let closeStage2Byte = byte(closeStage2),
+            let closeStage1Byte = byte(closeStage1),
+            let closeStage5Byte = byte(closeStage5),
+            let closeStage6Byte = byte(closeStage6),
+            let fingerOpenStateDelay1Byte = byte(fingerOpenStateDelay1),
+            let fingerOpenStateDelay2Byte = byte(fingerOpenStateDelay2),
+            let fingerOpenStateDelay3Byte = byte(fingerOpenStateDelay3),
+            let fingerOpenStateDelay4Byte = byte(fingerOpenStateDelay4),
+            let fingerOpenStateDelay5Byte = byte(fingerOpenStateDelay5),
+            let fingerOpenStateDelay6Byte = byte(fingerOpenStateDelay6),
+            let fingerCloseStateDelay1Byte = byte(fingerCloseStateDelay1),
+            let fingerCloseStateDelay2Byte = byte(fingerCloseStateDelay2),
+            let fingerCloseStateDelay3Byte = byte(fingerCloseStateDelay3),
+            let fingerCloseStateDelay4Byte = byte(fingerCloseStateDelay4),
+            let fingerCloseStateDelay5Byte = byte(fingerCloseStateDelay5),
+            let fingerCloseStateDelay6Byte = byte(fingerCloseStateDelay6)
+        else {
+            return nil
+        }
+
+        return Data([gestureNumberByte, openStage4Byte, openStage3Byte, openStage2Byte,
+                     openStage1Byte, openStage5Byte, openStage6Byte, closeStage4Byte,
+                     closeStage3Byte, closeStage2Byte, closeStage1Byte, closeStage5Byte,
+                     closeStage6Byte, fingerOpenStateDelay1Byte, fingerOpenStateDelay2Byte,
+                     fingerOpenStateDelay3Byte, fingerOpenStateDelay4Byte, fingerOpenStateDelay5Byte,
+                     fingerOpenStateDelay6Byte, fingerCloseStateDelay1Byte, fingerCloseStateDelay2Byte,
+                     fingerCloseStateDelay3Byte, fingerCloseStateDelay4Byte, fingerCloseStateDelay5Byte,
+                     fingerCloseStateDelay6Byte])
+    }
+
+    private func byte(_ value: Int?) -> UInt8? {
+        guard let value = value, value >= 0, value <= 255 else { return nil }
+        return UInt8(value)
+    }
+
     private func loadDataString() {
         savingParametrsMassString = [SaveObjectString]()
         savingParametrsMassString = DataManager.loadAll(SaveObjectString.self)

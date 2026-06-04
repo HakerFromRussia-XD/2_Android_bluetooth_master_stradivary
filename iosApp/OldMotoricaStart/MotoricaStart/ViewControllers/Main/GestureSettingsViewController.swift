@@ -665,10 +665,20 @@ import UIKit
     @objc public func getUseFestX() -> Int {
         savingParametrsMassString = [SaveObjectString]()
         savingParametrsMassString = DataManager.loadAll(SaveObjectString.self)
+        var deviceName = ""
         for item in savingParametrsMassString {
-            if (item.key == sampleGattAttributes.USE_MULTIGRAB_FESTX) {
-                return Int(item.value)!;
+            if (item.key == sampleGattAttributes.DEVICE_NAME) {
+                deviceName = item.value
             }
+            if (item.key == sampleGattAttributes.USE_MULTIGRAB_FESTX) {
+                let savedUseFestX = Int(item.value) ?? 0
+                if (savedUseFestX == 1) {
+                    return 1
+                }
+            }
+        }
+        if (deviceName.localizedCaseInsensitiveContains(sampleGattAttributes.FESTX_NAME)) {
+            return 1
         }
         return 0;
     }
@@ -1084,4 +1094,3 @@ import UIKit
         }
     }
 }
-

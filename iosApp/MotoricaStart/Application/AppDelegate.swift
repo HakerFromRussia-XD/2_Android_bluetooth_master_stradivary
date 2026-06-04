@@ -40,6 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
+        LegacyBleCommandBridge.startIfNeeded()
         LegacyBleCommandProbe.startIfNeeded { [weak self] in
             self?.window
         }

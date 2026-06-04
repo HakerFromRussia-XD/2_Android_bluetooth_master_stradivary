@@ -49,6 +49,8 @@ import Foundation
     var myTimer = Timer()
     var reseivedFirstNotifyData: Bool = false
     var selectedDeviceName = ""
+    var directConnectionHint: OldMotoricaStartLauncher.ConnectionHint?
+    private var didConsumeDirectConnectionHint = false
     @objc var gestureTable = [[[Int]]] (repeating: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] , count: 7)
     @objc var gestureTableBig = [[[Int]]] (repeating: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] , count: 13)
     @objc var byteEnabledGesture: Int = 0
@@ -82,6 +84,7 @@ import Foundation
         NotificationCenter.default.addObserver(self, selector: #selector(readWriteToBLENotification), name: .notificationFromSensorsViewController, object: nil)
         LegacySmartConnectionStateStore.ensureDefaultIfNeeded()
         saveDataString(key: sampleGattAttributes.DEACTIVATE_SMART_CONNECTION, value: "0")
+        applyDirectConnectionPresentationIfNeeded()
         print("TEST!!!! viewDidLoad()" )
         
         
@@ -168,6 +171,7 @@ import Foundation
         print("UUID-addr Name: \(String(describing: peripheral.name))")
         loadDataString()
         var saveMacInMemory = true
+        var resolvedDeviceName = title
         for item in savingParametrsMassString
         {
             if (item.key == peripheral.identifier.uuidString.uppercased()) {
@@ -192,28 +196,27 @@ import Foundation
             {
                 if (item.key == peripheral.identifier.uuidString.uppercased()) {
                     selectedDeviceName = item.value
+                    resolvedDeviceName = item.value
                     addBleDevice(title: item.value, RSSI: RSSI, peripheral: peripheral)
                 }
             }
         }
+
+        if handleDirectConnectionIfNeeded(
+            peripheral: peripheral,
+            deviceName: resolvedDeviceName
+        ) {
+            return
+        }
         
         if (LegacySmartConnectionStateStore.isAutoConnectionAllowed()) {
             if (previousConnectionUUID == peripheral.identifier.uuidString.uppercased()) {
-                centralManager.stopScan()
-                myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] (_) in
-                    guard LegacySmartConnectionStateStore.isAutoConnectionAllowed() else {
-                        myTimer.invalidate()
-                        return
-                    }
-                    print("did REConnect")
-                    centralManager.connect(peripheral, options: nil)
-                }
-                selectedDevice = peripheral
-                saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: selectedDeviceName)
-                saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: previousConnectionUUID)
-                
-                saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: peripheral.identifier.uuidString.uppercased())
-                performSegue(withIdentifier: "goSensorsSettings", sender: nil)
+                beginConnection(
+                    peripheral: peripheral,
+                    deviceName: selectedDeviceName,
+                    uuid: previousConnectionUUID,
+                    shouldContinue: { LegacySmartConnectionStateStore.isAutoConnectionAllowed() }
+                )
             }
         }
     }
@@ -858,17 +861,85 @@ extension ScanViewController: UITableViewDelegate, UITableViewDataSource{
         selectDeviceToConnect(indexPath)
     }
     func selectDeviceToConnect(_ indexPath:IndexPath) {
-        centralManager.stopScan()
-        myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] (_) in
-            print("did REConnect")
-            centralManager.connect(devices[indexPath.row].peripheral, options: nil)
+        let device = devices[indexPath.row]
+        beginConnection(
+            peripheral: device.peripheral,
+            deviceName: device.title,
+            uuid: device.peripheral.identifier.uuidString.uppercased()
+        )
+    }
+}
+
+private extension ScanViewController {
+    func applyDirectConnectionPresentationIfNeeded() {
+        guard directConnectionHint != nil else { return }
+        tableViewDevices?.isHidden = true
+        segmentedConrol.isHidden = true
+        view.accessibilityIdentifier = "legacy.directConnectionScanBridge"
+    }
+
+    func handleDirectConnectionIfNeeded(peripheral: CBPeripheral, deviceName: String) -> Bool {
+        guard let hint = directConnectionHint,
+              !didConsumeDirectConnectionHint,
+              matchesDirectConnectionHint(hint, peripheral: peripheral, deviceName: deviceName) else {
+            return false
         }
-        selectedDevice = devices[indexPath.row].peripheral
-        
-        saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: (devices[indexPath.row].title))
-        saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: selectedDevice!.identifier.uuidString.uppercased())
-        
-        saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: devices[indexPath.row].peripheral.identifier.uuidString.uppercased())
+
+        didConsumeDirectConnectionHint = true
+        directConnectionHint = nil
+        beginConnection(
+            peripheral: peripheral,
+            deviceName: deviceName,
+            uuid: peripheral.identifier.uuidString.uppercased()
+        )
+        return true
+    }
+
+    func matchesDirectConnectionHint(
+        _ hint: OldMotoricaStartLauncher.ConnectionHint,
+        peripheral: CBPeripheral,
+        deviceName: String
+    ) -> Bool {
+        let peripheralUUID = peripheral.identifier.uuidString.uppercased()
+        if peripheralUUID == hint.deviceUUID.uppercased() {
+            return true
+        }
+
+        let hintNames = normalizedDirectConnectionNames(for: hint.deviceName)
+        let candidateNames = normalizedDirectConnectionNames(for: deviceName)
+            .union(normalizedDirectConnectionNames(for: peripheral.name ?? ""))
+        return !hintNames.isDisjoint(with: candidateNames)
+    }
+
+    func normalizedDirectConnectionNames(for rawName: String) -> Set<String> {
+        let cleanName = NameUtil().getCleanName(deviceName: rawName)
+        return Set([rawName, cleanName].map {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        }.filter { !$0.isEmpty })
+    }
+
+    func beginConnection(
+        peripheral: CBPeripheral,
+        deviceName: String,
+        uuid: String,
+        shouldContinue: @escaping () -> Bool = { true }
+    ) {
+        centralManager.stopScan()
+        myTimer.invalidate()
+        myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (_) in
+            guard let self else { return }
+            guard shouldContinue() else {
+                self.myTimer.invalidate()
+                return
+            }
+            print("did REConnect")
+            self.centralManager.connect(peripheral, options: nil)
+        }
+        selectedDevice = peripheral
+
+        saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: deviceName)
+        saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: uuid)
+        saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: uuid)
         performSegue(withIdentifier: "goSensorsSettings", sender: nil)
     }
 }

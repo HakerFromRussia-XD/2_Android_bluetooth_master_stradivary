@@ -1,6 +1,11 @@
 import UIKit
 
 public final class OldMotoricaStartLauncher {
+    public enum LaunchMode {
+        case showScan
+        case connectToHint
+    }
+
     public struct ConnectionHint {
         public let deviceName: String
         public let deviceUUID: String
@@ -13,13 +18,33 @@ public final class OldMotoricaStartLauncher {
 
     public init() {}
 
-    public func makeRootViewController(connectionHint: ConnectionHint?) -> UIViewController {
+    public func makeRootViewController(
+        connectionHint: ConnectionHint?,
+        launchMode: LaunchMode = .showScan
+    ) -> UIViewController {
         if let connectionHint = connectionHint {
             LegacyConnectionStateStore.seedSmartConnection(with: connectionHint)
         }
 
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle(for: OldMotoricaStartLauncher.self))
-        return storyboard.instantiateInitialViewController() ?? UIViewController()
+        let rootViewController = storyboard.instantiateInitialViewController() ?? UIViewController()
+        if launchMode == .connectToHint, let connectionHint {
+            configureDirectConnection(on: rootViewController, connectionHint: connectionHint)
+        }
+        return rootViewController
+    }
+
+    private func configureDirectConnection(on rootViewController: UIViewController, connectionHint: ConnectionHint) {
+        if let scanViewController = rootViewController as? ScanViewController {
+            scanViewController.directConnectionHint = connectionHint
+            return
+        }
+
+        guard let navigationController = rootViewController as? UINavigationController else { return }
+        navigationController.viewControllers
+            .compactMap { $0 as? ScanViewController }
+            .first?
+            .directConnectionHint = connectionHint
     }
 }
 

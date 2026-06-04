@@ -12,7 +12,8 @@ final class OldMotoricaStartLauncherAdapter {
             connectionHint: .init(
                 deviceName: device.name,
                 deviceUUID: device.uuid.uuidString
-            )
+            ),
+            launchMode: .connectToHint
         )
         LegacyAppearanceCompatibility.apply(to: rootViewController)
         rootViewController.view.accessibilityIdentifier = AccessibilityIdentifier.oldMotoricaStartRoot

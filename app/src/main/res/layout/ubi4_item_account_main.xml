@@ -30,13 +30,12 @@
         android:layout_marginTop="0dp"
         android:fontFamily="@font/font_inter_semi_bold"
         android:gravity="center"
-        android:text="Ivan Sergeevich"
         android:textColor="@color/ubi4_white"
         android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
+        tools:text="Ivan Sergeevich" />
 
     <TextView
         android:id="@+id/ubi4_app_prostheses_use_title_tv"

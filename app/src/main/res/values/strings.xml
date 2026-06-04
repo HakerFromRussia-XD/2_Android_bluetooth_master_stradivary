@@ -662,6 +662,12 @@
     <string name="press_button_to_use_gesture_frame_becomes_green">To use the gesture, press its button. The frame will turn green.</string>
     <string name="gesture_usage_chart_title">Gesture counter</string>
     <string name="gesture_usage_empty">No used gestures</string>
+    <string name="gesture_usage_total">Total:\n%1$d</string>
+    <string name="no_user_data_on_server">No user data on server</string>
+    <string name="select_firmware_file">Select firmware file</string>
+    <string name="update_firmware">Update</string>
+    <string name="update_board" formatted="true">Update %1$s</string>
+    <string name="unknown_board">Unknown</string>
 
     <string-array name="numbers">
         <item>0</item>

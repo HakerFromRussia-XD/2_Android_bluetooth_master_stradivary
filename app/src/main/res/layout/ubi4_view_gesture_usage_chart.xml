@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/ubi4_back"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="6dp">
+    android:background="@color/transparent"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/gestureUsageRootLl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/ubi4_view_with_corners_back_inside"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ubi4_view_with_corners_gray_outside"
+        android:elevation="3dp"
         android:orientation="vertical"
         android:paddingStart="10dp"
         android:paddingTop="8dp"
         android:paddingEnd="10dp"
-        android:paddingBottom="10dp">
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/gestureUsageTitleTv"
@@ -42,6 +50,20 @@
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/gestureUsageTotalTv"
+                android:layout_width="96dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="Всего:\n92"
+                tools:visibility="visible" />
+
+            <TextView
                 android:id="@+id/gestureUsageEmptyTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,4 +83,4 @@
             android:layout_marginTop="4dp"
             android:orientation="vertical" />
     </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -91,6 +91,16 @@ class BLEParserV3(
     private val bleCommandExecutor: BleCommandExecutor,
     private val bleManager: BleManagerKmm
 ) {
+    private companion object {
+        const val TELEMETRY_EXPECTED_SIZE = 158
+        const val TELEMETRY_DEVICE_UUID_OFFSET = 2
+        const val TELEMETRY_DEVICE_UUID_SIZE = 32
+        const val TELEMETRY_GESTURE_MOVEMENT_COUNT_OFFSET = 34
+        const val TELEMETRY_GESTURE_MOVEMENT_COUNT_COUNT = 16
+        const val TELEMETRY_USER_GESTURE_MOVEMENT_COUNT_OFFSET = 98
+        const val TELEMETRY_USER_GESTURE_MOVEMENT_COUNT_COUNT = 15
+    }
+
     private var mConnected = false
     private var countErrors = 0
     private val deviceSize = 7
@@ -113,8 +123,7 @@ class BLEParserV3(
     private data class TelemetryDataV3(
         val telemetryVersion: Int?,
         val telemetrySubversion: Int?,
-        val deviceUuidPrefix: String,
-        val deviceUuid: Long?,
+        val deviceUuid: String,
         val gestureMovementCount: List<Long?>,
         val userGestureMovementCount: List<Long?>,
         val actualSize: Int
@@ -347,19 +356,12 @@ class BLEParserV3(
         val telemetryBytes =
             if (payloadBytes.size > 1) payloadBytes.copyOfRange(1, payloadBytes.size) else ByteArray(0)
         val telemetry = parseTelemetryData(telemetryBytes)
-        val uuidHex = telemetry.deviceUuid
-            ?.toString(16)
-            ?.uppercase()
-            ?.padStart(8, '0')
-            ?.let { "0x$it" }
-            ?: "UNKNOWN"
 
         platformLog(
             "TelemetryV3",
             "RX telemetry parsed: dataCode=30 name=DTCE_TELEMETRY_DATA " +
                 "version=${telemetry.telemetryVersion ?: "UNKNOWN"}.${telemetry.telemetrySubversion ?: "UNKNOWN"} " +
-                "size=${telemetry.actualSize}/146 device_UUID_prefix=\"${telemetry.deviceUuidPrefix.ifBlank { "UNKNOWN" }}\" " +
-                "device_UUID=${telemetry.deviceUuid ?: "UNKNOWN"} device_UUID_hex=$uuidHex " +
+                "size=${telemetry.actualSize}/$TELEMETRY_EXPECTED_SIZE DeviceUUID=\"${telemetry.deviceUuid.ifBlank { "UNKNOWN" }}\" " +
                 "gesture_movement_count=${telemetry.gestureMovementCount.toCompactJsonArray()} " +
                 "user_gesture_movement_count=${telemetry.userGestureMovementCount.toCompactJsonArray()}"
         )
@@ -369,7 +371,6 @@ class BLEParserV3(
         )
 
 //        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")
-
 //        platformLog(
 //            "TelemetryV3",
 //            "RX PWCE_GET_TELEMETRY_DATA address=${packet.address} type=${packet.type} " +
@@ -384,10 +385,18 @@ class BLEParserV3(
         TelemetryDataV3(
             telemetryVersion = telemetryBytes.u8OrNull(0),
             telemetrySubversion = telemetryBytes.u8OrNull(1),
-            deviceUuidPrefix = telemetryBytes.asciiNullTerminated(offset = 2, size = 16),
-            deviceUuid = telemetryBytes.u32LeOrNull(offset = 18),
-            gestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 22, count = 16),
-            userGestureMovementCount = telemetryBytes.u32LeArrayOrNulls(offset = 86, count = 15),
+            deviceUuid = telemetryBytes.asciiNullTerminated(
+                offset = TELEMETRY_DEVICE_UUID_OFFSET,
+                size = TELEMETRY_DEVICE_UUID_SIZE
+            ),
+            gestureMovementCount = telemetryBytes.u32LeArrayOrNulls(
+                offset = TELEMETRY_GESTURE_MOVEMENT_COUNT_OFFSET,
+                count = TELEMETRY_GESTURE_MOVEMENT_COUNT_COUNT
+            ),
+            userGestureMovementCount = telemetryBytes.u32LeArrayOrNulls(
+                offset = TELEMETRY_USER_GESTURE_MOVEMENT_COUNT_OFFSET,
+                count = TELEMETRY_USER_GESTURE_MOVEMENT_COUNT_COUNT
+            ),
             actualSize = telemetryBytes.size
         )
 

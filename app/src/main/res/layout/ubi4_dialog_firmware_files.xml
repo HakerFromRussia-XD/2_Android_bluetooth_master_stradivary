@@ -34,7 +34,7 @@
                 android:fontFamily="@font/sf_pro_text_bold"
                 android:gravity="center"
                 android:maxLines="2"
-                android:text="Select firmware file"
+                android:text="@string/select_firmware_file"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="18sp"

@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
@@ -264,7 +265,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         if (attemptedRequest++ < 4) requestToken()
         else {
             showInfoWithoutConnection()
-            Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                mContext,
+                getString(SharedRes.strings.no_user_data_on_server.resourceId),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
     private fun requestUserData() {
@@ -425,7 +430,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) {
                 showFirmwareFilesDialog(item)
-                Toast.makeText(requireContext(), "Update ${item.boardName}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(SharedRes.strings.update_board.resourceId, item.boardName),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -635,10 +644,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         rebuildBoardNameCache()
 
         // 2) Строим список
-        val builtBoards = buildList {
+        val allBoards = buildList {
             fullInicializeConnectionStruct?.let { cpu ->
                 val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
-                val nameCpu = boardNameByAddr[0] ?: "Unknown"
+                val nameCpu = boardNameByAddr[0] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameCpu,
@@ -654,7 +663,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             baseSubDevicesInfoStructSet.forEach { sub ->
                 val addr = sub.deviceAddress
                 val versionSub = fwVersions.getOrDefault(addr, "—")
-                val nameSub = boardNameByAddr[addr] ?: "Unknown"
+                val nameSub = boardNameByAddr[addr] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameSub,
@@ -668,8 +677,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             }
         }
             .distinctBy { it.deviceAddress }
+        val builtBoards = allBoards.filter {
+            it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
+                !it.boardName.equals("Unknown", ignoreCase = true)
+        }
 
-        if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
+        if (allBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
 
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)

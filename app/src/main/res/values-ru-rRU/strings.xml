@@ -49,7 +49,7 @@
     <string name="action_Trigger8">классический инвертированный</string>classic inverted
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>
-    <string name="lesson_eight_error_unknown">Unknown error: %s</string>
+    <string name="lesson_eight_error_unknown">Неизвестная ошибка: %s</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="illumination">Подсветка</string>
     <string name="closing">закрытие</string>
@@ -662,6 +662,12 @@
     <string name="press_button_to_use_gesture_frame_becomes_green">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Рамка станет зеленым цветом</string>
     <string name="gesture_usage_chart_title">Счетчик жестов</string>
     <string name="gesture_usage_empty">Нет использованных жестов</string>
+    <string name="gesture_usage_total">Всего:\n%1$d</string>
+    <string name="no_user_data_on_server">Нет данных пользователя на сервере</string>
+    <string name="select_firmware_file">Выберите файл прошивки</string>
+    <string name="update_firmware">Обновить</string>
+    <string name="update_board" formatted="true">Обновить %1$s</string>
+    <string name="unknown_board">Неизвестно</string>
 
     <string-array name="numbers">
         <item>0</item>

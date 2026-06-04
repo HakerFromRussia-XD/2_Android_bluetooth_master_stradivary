@@ -159,7 +159,7 @@ abstract class BaseWidgetsFragment : Fragment() {
                 }
             ),
             GesturesDelegateAdapterV3 (
-                coroutineScope = viewLifecycleOwner.lifecycleScope, // см. пункт 2 ниже
+                coroutineScope = main?.lifecycleScope, // см. пункт 2 ниже
                 gestureNameList = gestureNameList,
                 onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
                 onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },

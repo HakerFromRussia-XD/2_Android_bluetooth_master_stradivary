@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.ColorInt
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ItemGestureUsageLegendBinding
 import com.bailout.stickk.databinding.Ubi4ViewGestureUsageChartBinding
 import com.github.mikephil.charting.data.PieData
@@ -53,13 +54,16 @@ class GestureUsageChartView @JvmOverloads constructor(
 
         binding.gestureUsageEmptyTv.visibility = if (visibleItems.isEmpty()) View.VISIBLE else View.GONE
         binding.gestureUsagePieChart.visibility = if (visibleItems.isEmpty()) View.GONE else View.VISIBLE
+        binding.gestureUsageTotalTv.visibility = if (visibleItems.isEmpty()) View.GONE else View.VISIBLE
         binding.gestureUsageLegendLl.removeAllViews()
 
         if (visibleItems.isEmpty()) {
             binding.gestureUsagePieChart.clear()
+            binding.gestureUsageTotalTv.text = context.getString(R.string.gesture_usage_total, 0L)
             return
         }
 
+        val totalCount = visibleItems.sumOf { it.count }
         val entries = visibleItems.map { PieEntry(it.count.toFloat(), it.title) }
         val dataSet = PieDataSet(entries, "").apply {
             colors = visibleItems.map { it.color }
@@ -75,6 +79,7 @@ class GestureUsageChartView @JvmOverloads constructor(
         }
 
         binding.gestureUsagePieChart.data = PieData(dataSet)
+        binding.gestureUsageTotalTv.text = context.getString(R.string.gesture_usage_total, totalCount)
         binding.gestureUsagePieChart.invalidate()
         visibleItems.forEach(::addLegendRow)
     }

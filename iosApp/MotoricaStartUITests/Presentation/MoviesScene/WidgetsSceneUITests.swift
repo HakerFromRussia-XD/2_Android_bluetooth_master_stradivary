@@ -50,6 +50,13 @@ class WidgetsSceneUITests: XCTestCase {
         let minimumDistinctBytes: Int?
     }
 
+    private struct LegacyBleForbiddenCommand {
+        let actionName: String
+        let reason: String
+        let type: String
+        let characteristics: [String]
+    }
+
     private let preferredDeviceCandidates = [
         "FTHS3-Рома1",
         "Рома1",
@@ -428,6 +435,147 @@ class WidgetsSceneUITests: XCTestCase {
         app.terminate()
     }
 
+    func testMergedOldAppRealDevice_whenAcceptLegacyResetDialogs_thenCapturesResetBleCommands() {
+        let app = XCUIApplication()
+        let probeSession = configureLegacyBleCommandLogEnvironment(for: app)
+        app.launch()
+        dismissBluetoothPermissionIfNeeded()
+
+        XCTAssertTrue(
+            waitForLegacyBleProbeReady(session: probeSession, in: app, timeout: 5),
+            "Legacy BLE command probe did not start in merged app"
+        )
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+        selectAllDevicesFilterIfVisible(in: app)
+
+        guard let targetDeviceElement = waitForDeviceElement(
+            namedAnyOf: ["FEST-H-04921", "FEST-XFTHS04921"],
+            in: devicesTable,
+            timeout: 60
+        ) else {
+            XCTFail("Could not find BLE device FEST-H-04921 in merged scan list")
+            return
+        }
+
+        targetDeviceElement.tap()
+        XCTAssertTrue(
+            app.otherElements[AccessibilityIdentifier.oldMotoricaStartRoot].waitForExistence(timeout: 10),
+            "Merged legacy OldMotoricaStart root did not open after tapping FEST-H-04921"
+        )
+        XCTAssertTrue(
+            waitForLegacySensorsScreen(in: app, timeout: 45),
+            "Merged legacy sensors UI did not appear after tapping FEST-H-04921"
+        )
+
+        guard let legacyGestureSettingsButton = legacyGestureSettingsButton(in: app, deviceName: "FEST-H-04921") else {
+            XCTFail("Legacy gesture settings button did not appear")
+            return
+        }
+        XCTAssertTrue(legacyGestureSettingsButton.isHittable, "Legacy gesture settings button is not hittable")
+        legacyGestureSettingsButton.tap()
+        XCTAssertTrue(
+            waitForAnyStaticText(
+                containingAnyOf: ["Activity Gestures", "gesture switching by sensors", "GESTURE 1", "ЖЕСТ"],
+                in: app,
+                timeout: 10
+            ),
+            "Legacy gesture settings screen did not open"
+        )
+
+        var probeValue = waitForLegacyBleProbeDrain(
+            session: probeSession,
+            in: app,
+            runName: "merged-old-app-reset-commands",
+            quietPeriod: 0.5,
+            timeout: 5
+        ) ?? legacyBleProbeValue(session: probeSession, in: app) ?? "count=0 last=none"
+        var baselineCount = legacyBleProbeCount(from: probeValue) ?? 0
+
+        XCTAssertTrue(tapLegacyButtonVisible(titled: "RESET GESTURES", in: app), "Could not tap RESET GESTURES")
+        XCTAssertTrue(tapDialogButton(titledAnyOf: ["OK", "RESET", "reset", "ОК"], in: app), "Could not accept gestures reset dialog")
+        guard let gestureResetProbeValue = waitForLegacyBleCommandCapture(
+            after: baselineCount,
+            session: probeSession,
+            in: app,
+            timeout: 5,
+            characteristics: resetCommandCharacteristics(),
+            requiredBytes: "03"
+        ) else {
+            let value = legacyBleProbeValue(session: probeSession, in: app) ?? "probe value missing"
+            attachLegacyBleProbeValue(value, name: "merged-old-app-reset-commands-gesture-reset-failed")
+            XCTFail("Gesture reset command 03 was not captured. Probe: \(value)")
+            return
+        }
+        attachLegacyBleProbeValue(gestureResetProbeValue, name: "merged-old-app-reset-commands-after-gesture-reset")
+
+        XCTAssertTrue(tapLegacyButtonVisible(titled: " Back ", in: app), "Could not return from gesture settings")
+        XCTAssertTrue(waitForLegacySensorsScreen(in: app, timeout: 10), "Legacy sensors screen did not reappear after gesture settings")
+
+        XCTAssertTrue(openLegacyAdvancedSettings(in: app), "Merged old app advanced settings did not open")
+        scrollLegacyAdvancedSettingsToBottomOnce(in: app)
+
+        probeValue = waitForLegacyBleProbeDrain(
+            session: probeSession,
+            in: app,
+            runName: "merged-old-app-reset-commands",
+            quietPeriod: 0.5,
+            timeout: 5
+        ) ?? legacyBleProbeValue(session: probeSession, in: app) ?? gestureResetProbeValue
+        baselineCount = legacyBleProbeCount(from: probeValue) ?? baselineCount
+
+        XCTAssertTrue(tapLegacyButtonVisible(titled: "SOFT RESET TO FACTORY SETTINGS", in: app), "Could not tap SOFT RESET TO FACTORY SETTINGS")
+        XCTAssertTrue(tapDialogButton(titledAnyOf: ["RESET", "reset"], in: app), "Could not accept soft reset dialog")
+        guard let softResetProbeValue = waitForLegacyBleCommandCapture(
+            after: baselineCount,
+            session: probeSession,
+            in: app,
+            timeout: 5,
+            characteristics: resetCommandCharacteristics(),
+            requiredBytes: "02"
+        ) else {
+            let value = legacyBleProbeValue(session: probeSession, in: app) ?? "probe value missing"
+            attachLegacyBleProbeValue(value, name: "merged-old-app-reset-commands-soft-reset-failed")
+            XCTFail("Soft reset command 02 was not captured. Probe: \(value)")
+            return
+        }
+        attachLegacyBleProbeValue(softResetProbeValue, name: "merged-old-app-reset-commands-after-soft-reset")
+
+        scrollLegacyAdvancedSettingsToBottomOnce(in: app)
+        baselineCount = legacyBleProbeCount(from: softResetProbeValue) ?? baselineCount
+
+        XCTAssertTrue(tapLegacyButtonVisible(titled: "RESET TO FACTORY SETTINGS", in: app), "Could not tap RESET TO FACTORY SETTINGS")
+        XCTAssertTrue(tapDialogButton(titledAnyOf: ["RESET", "reset"], in: app), "Could not accept hard reset dialog")
+        guard let hardResetProbeValue = waitForLegacyBleCommandCapture(
+            after: baselineCount,
+            session: probeSession,
+            in: app,
+            timeout: 5,
+            characteristics: resetCommandCharacteristics(),
+            requiredBytes: "01"
+        ) else {
+            let value = legacyBleProbeValue(session: probeSession, in: app) ?? "probe value missing"
+            attachLegacyBleProbeValue(value, name: "merged-old-app-reset-commands-hard-reset-failed")
+            XCTFail("Hard reset command 01 was not captured. Probe: \(value)")
+            return
+        }
+
+        let finalCommands = legacyBleCommands(from: hardResetProbeValue)
+        let resetCommands = finalCommands.filter { command in
+            resetCommandCharacteristics().contains {
+                command.characteristic.caseInsensitiveCompare($0) == .orderedSame
+            }
+        }
+        let report = legacyResetCommandReport(
+            session: probeSession,
+            commands: resetCommands,
+            finalProbeValue: hardResetProbeValue
+        )
+        attachLegacyBleProbeValue(report, name: "merged-old-app-reset-commands-history")
+        app.terminate()
+    }
+
     func testMergedOldAppRealDevice_whenTapOpen_thenCapturesLegacyMotorBleCommandWithinOneSecond() {
         let app = XCUIApplication()
         let probeSession = configureLegacyBleCommandLogEnvironment(for: app)
@@ -575,6 +723,73 @@ class WidgetsSceneUITests: XCTestCase {
         }
 
         return nil
+    }
+
+    private func waitForLegacyBleCommandCapture(
+        after initialCount: Int,
+        session: String,
+        in app: XCUIApplication,
+        timeout: TimeInterval,
+        characteristics: [String],
+        requiredBytes: String
+    ) -> String? {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if let value = legacyBleProbeValue(session: session, in: app) {
+                let commands = legacyBleCommands(from: value).filter { $0.sequence > initialCount }
+                let didCapture = commands.contains { command in
+                    command.type.caseInsensitiveCompare("WRITE") == .orderedSame &&
+                        command.bytes.caseInsensitiveCompare(requiredBytes) == .orderedSame &&
+                        characteristics.contains {
+                            command.characteristic.caseInsensitiveCompare($0) == .orderedSame
+                        }
+                }
+                if didCapture {
+                    return value
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        return nil
+    }
+
+    private func resetCommandCharacteristics() -> [String] {
+        [
+            "43680100-4D74-1001-726B-526F64696F6E",
+            "43686172-4D74-726B-0100-526F64696F6E"
+        ]
+    }
+
+    private func legacyResetCommandReport(
+        session: String,
+        commands: [LegacyBleCapturedCommand],
+        finalProbeValue: String
+    ) -> String {
+        var lines = [
+            "run=merged-old-app-reset-commands",
+            "session=\(session)",
+            "Captured reset commands:"
+        ]
+        if commands.isEmpty {
+            lines.append("- none")
+        } else {
+            for command in commands {
+                lines.append(
+                    "- seq=\(command.sequence) type=\(command.type) characteristic=\(command.characteristic) bytes=\(command.bytes) case=\(command.caseValue)"
+                )
+            }
+        }
+        lines.append("")
+        lines.append("Expected reset payloads:")
+        lines.append("- gestures reset: bytes=03")
+        lines.append("- soft reset: bytes=02")
+        lines.append("- hard reset: bytes=01")
+        lines.append("")
+        lines.append("Raw final probe value:")
+        lines.append(finalProbeValue)
+        return lines.joined(separator: "\n")
     }
 
     private func attachLegacyBleProbeValue(_ value: String, name: String) {
@@ -1579,6 +1794,7 @@ class WidgetsSceneUITests: XCTestCase {
         let dialogCommandSettleTime: TimeInterval = 0
         let noCommandSettleTime: TimeInterval = 0
         var expectedCommands: [LegacyBleExpectedCommand] = []
+        var forbiddenCommands: [LegacyBleForbiddenCommand] = []
         var noBleExpectedActions: [String] = []
 
         func expectCommand(
@@ -1605,6 +1821,22 @@ class WidgetsSceneUITests: XCTestCase {
 
         func noteNoBleExpected(actionName: String, expectation: String) {
             noBleExpectedActions.append("\(actionName): \(expectation)")
+        }
+
+        func forbidCommand(
+            actionName: String,
+            reason: String,
+            type: String = "WRITE",
+            characteristics: [String]
+        ) {
+            forbiddenCommands.append(
+                LegacyBleForbiddenCommand(
+                    actionName: actionName,
+                    reason: reason,
+                    type: type,
+                    characteristics: characteristics
+                )
+            )
         }
 
         scrollLegacyAdvancedSettingsToTop(in: app)
@@ -1912,6 +2144,14 @@ class WidgetsSceneUITests: XCTestCase {
                 actionName: "soft reset button cancelled",
                 expectation: "old source writes reset only after dialog accept; this test cancels"
             )
+            forbidCommand(
+                actionName: "soft reset button cancelled",
+                reason: "cancel must not send RESET_TO_FACTORY_SETTINGS_NEW(_VM)",
+                characteristics: [
+                    "43680100-4D74-1001-726B-526F64696F6E",
+                    "43686172-4D74-726B-0100-526F64696F6E"
+                ]
+            )
             guard tapLegacyButtonVisible(titled: "SOFT RESET TO FACTORY SETTINGS", in: app) else {
                 return false
             }
@@ -1927,6 +2167,14 @@ class WidgetsSceneUITests: XCTestCase {
             noteNoBleExpected(
                 actionName: "hard reset button cancelled",
                 expectation: "old source writes reset only after dialog accept; this test cancels"
+            )
+            forbidCommand(
+                actionName: "hard reset button cancelled",
+                reason: "cancel must not send RESET_TO_FACTORY_SETTINGS_NEW(_VM)",
+                characteristics: [
+                    "43680100-4D74-1001-726B-526F64696F6E",
+                    "43686172-4D74-726B-0100-526F64696F6E"
+                ]
             )
             guard tapLegacyButtonVisible(titled: "RESET TO FACTORY SETTINGS", in: app) else {
                 return false
@@ -1958,6 +2206,7 @@ class WidgetsSceneUITests: XCTestCase {
                 finalProbeValue: finalProbeValue,
                 commands: actionCommands,
                 expectedCommands: expectedCommands,
+                forbiddenCommands: forbiddenCommands,
                 noBleExpectedActions: noBleExpectedActions
             )
             attachLegacyBleProbeValue(report, name: "\(runName)-advanced-settings-ble-command-history")
@@ -1969,6 +2218,15 @@ class WidgetsSceneUITests: XCTestCase {
             XCTAssertTrue(
                 missingExpectations.isEmpty,
                 "Merged legacy advanced settings BLE commands missing/incorrect: \(missingExpectations.joined(separator: "; "))"
+            )
+
+            let forbiddenMatches = legacyBleForbiddenMatches(
+                forbiddenCommands,
+                in: actionCommands
+            )
+            XCTAssertTrue(
+                forbiddenMatches.isEmpty,
+                "Merged legacy advanced settings sent forbidden BLE commands: \(forbiddenMatches.joined(separator: "; "))"
             )
         } else if probeSession != nil {
             XCTFail("Legacy BLE command probe value was not available after advanced settings actions")
@@ -2081,6 +2339,7 @@ class WidgetsSceneUITests: XCTestCase {
         finalProbeValue: String,
         commands: [LegacyBleCapturedCommand],
         expectedCommands: [LegacyBleExpectedCommand],
+        forbiddenCommands: [LegacyBleForbiddenCommand],
         noBleExpectedActions: [String]
     ) -> String {
         var lines: [String] = []
@@ -2099,6 +2358,24 @@ class WidgetsSceneUITests: XCTestCase {
             )
             if !distinctBytes.isEmpty {
                 lines.append("  bytes=\(distinctBytes.joined(separator: ","))")
+            }
+        }
+        lines.append("")
+        lines.append("Forbidden BLE commands:")
+        if forbiddenCommands.isEmpty {
+            lines.append("- none")
+        } else {
+            for forbidden in forbiddenCommands {
+                let matches = legacyBleMatches(for: forbidden, in: commands)
+                let status = matches.isEmpty ? "OK_ABSENT" : "FORBIDDEN_SENT"
+                lines.append(
+                    "- \(status) action=\"\(forbidden.actionName)\" type=\(forbidden.type) characteristics=\(forbidden.characteristics.joined(separator: ",")) count=\(matches.count) reason=\"\(forbidden.reason)\""
+                )
+                for command in matches {
+                    lines.append(
+                        "  sent seq=\(command.sequence) characteristic=\(command.characteristic) bytes=\(command.bytes)"
+                    )
+                }
             }
         }
         lines.append("")
@@ -2141,6 +2418,17 @@ class WidgetsSceneUITests: XCTestCase {
         }
     }
 
+    private func legacyBleForbiddenMatches(
+        _ forbiddenCommands: [LegacyBleForbiddenCommand],
+        in commands: [LegacyBleCapturedCommand]
+    ) -> [String] {
+        forbiddenCommands.flatMap { forbidden in
+            legacyBleMatches(for: forbidden, in: commands).map { command in
+                "\(forbidden.actionName) sent forbidden \(command.type) \(command.characteristic) bytes=\(command.bytes) seq=\(command.sequence)"
+            }
+        }
+    }
+
     private func legacyBleMatches(
         for expectation: LegacyBleExpectedCommand,
         in commands: [LegacyBleCapturedCommand]
@@ -2148,6 +2436,18 @@ class WidgetsSceneUITests: XCTestCase {
         commands.filter { command in
             command.type.caseInsensitiveCompare(expectation.type) == .orderedSame &&
                 expectation.characteristics.contains { characteristic in
+                    command.characteristic.caseInsensitiveCompare(characteristic) == .orderedSame
+                }
+        }
+    }
+
+    private func legacyBleMatches(
+        for forbidden: LegacyBleForbiddenCommand,
+        in commands: [LegacyBleCapturedCommand]
+    ) -> [LegacyBleCapturedCommand] {
+        commands.filter { command in
+            command.type.caseInsensitiveCompare(forbidden.type) == .orderedSame &&
+                forbidden.characteristics.contains { characteristic in
                     command.characteristic.caseInsensitiveCompare(characteristic) == .orderedSame
                 }
         }

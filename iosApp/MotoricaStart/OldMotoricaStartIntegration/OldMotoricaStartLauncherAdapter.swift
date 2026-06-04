@@ -14,9 +14,38 @@ final class OldMotoricaStartLauncherAdapter {
                 deviceUUID: device.uuid.uuidString
             )
         )
+        LegacyAppearanceCompatibility.apply(to: rootViewController)
         rootViewController.view.accessibilityIdentifier = AccessibilityIdentifier.oldMotoricaStartRoot
         LegacyAccessibilityMarkerBridge.applyMarkers(to: rootViewController.view)
         return rootViewController
+    }
+}
+
+private enum LegacyAppearanceCompatibility {
+    static func apply(to viewController: UIViewController) {
+        viewController.overrideUserInterfaceStyle = .light
+        viewController.view.overrideUserInterfaceStyle = .light
+        LegacyDialogAppearanceCompatibility.applyIfNeeded(to: viewController)
+    }
+}
+
+private enum LegacyDialogAppearanceCompatibility {
+    static func applyIfNeeded(to viewController: UIViewController) {
+        guard isLegacyDialog(viewController) else { return }
+
+        viewController.view.motoricaLegacy_forEachVisualEffectView { visualEffectView in
+            if #available(iOS 13.0, *) {
+                visualEffectView.overrideUserInterfaceStyle = .dark
+                visualEffectView.effect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+            } else {
+                visualEffectView.effect = UIBlurEffect(style: .dark)
+            }
+            visualEffectView.contentView.backgroundColor = .clear
+        }
+    }
+
+    private static func isLegacyDialog(_ viewController: UIViewController) -> Bool {
+        String(describing: type(of: viewController)).hasPrefix("Dialog")
     }
 }
 
@@ -25,18 +54,27 @@ private enum LegacyAccessibilityMarkerBridge {
 
     static func installIfNeeded() {
         guard !isInstalled,
-              let originalMethod = class_getInstanceMethod(
+              let originalViewWillAppearMethod = class_getInstanceMethod(
+                UIViewController.self,
+                #selector(UIViewController.viewWillAppear(_:))
+              ),
+              let swizzledViewWillAppearMethod = class_getInstanceMethod(
+                UIViewController.self,
+                #selector(UIViewController.motoricaLegacy_viewWillAppear(_:))
+              ),
+              let originalViewDidAppearMethod = class_getInstanceMethod(
                 UIViewController.self,
                 #selector(UIViewController.viewDidAppear(_:))
               ),
-              let swizzledMethod = class_getInstanceMethod(
+              let swizzledViewDidAppearMethod = class_getInstanceMethod(
                 UIViewController.self,
                 #selector(UIViewController.motoricaLegacy_viewDidAppear(_:))
               ) else {
             return
         }
 
-        method_exchangeImplementations(originalMethod, swizzledMethod)
+        method_exchangeImplementations(originalViewWillAppearMethod, swizzledViewWillAppearMethod)
+        method_exchangeImplementations(originalViewDidAppearMethod, swizzledViewDidAppearMethod)
         isInstalled = true
     }
 
@@ -45,6 +83,7 @@ private enum LegacyAccessibilityMarkerBridge {
             return
         }
 
+        LegacyAppearanceCompatibility.apply(to: viewController)
         applyMarkers(to: viewController.view)
     }
 
@@ -60,9 +99,26 @@ private enum LegacyAccessibilityMarkerBridge {
 }
 
 private extension UIViewController {
+    @objc dynamic func motoricaLegacy_viewWillAppear(_ animated: Bool) {
+        motoricaLegacy_viewWillAppear(animated)
+        LegacyAccessibilityMarkerBridge.applyMarkersIfNeeded(for: self)
+    }
+
     @objc dynamic func motoricaLegacy_viewDidAppear(_ animated: Bool) {
         motoricaLegacy_viewDidAppear(animated)
         LegacyAccessibilityMarkerBridge.applyMarkersIfNeeded(for: self)
+    }
+}
+
+private extension UIView {
+    func motoricaLegacy_forEachVisualEffectView(_ body: (UIVisualEffectView) -> Void) {
+        if let visualEffectView = self as? UIVisualEffectView {
+            body(visualEffectView)
+        }
+
+        subviews.forEach { subview in
+            subview.motoricaLegacy_forEachVisualEffectView(body)
+        }
     }
 }
 

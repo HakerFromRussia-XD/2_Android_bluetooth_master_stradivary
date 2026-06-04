@@ -972,6 +972,12 @@ import UIKit
                 }
             }
         }
+        applyAndroidGestureSettingsVisibility()
+    }
+    private func applyAndroidGestureSettingsVisibility() {
+        gesture2settings.isHidden = true
+        gesture3settings.isHidden = true
+        gesture4settings.isHidden = true
     }
     private func setOldGesturesNum() {
         gesture9.isHidden = true
@@ -1020,6 +1026,7 @@ import UIKit
         if (activeGesture == 12) { setupeButtonActive(button: gesture12, buttonSettings: gesture12settings, gestureLoopImage: gesture12rotation) }
         if (activeGesture == 13) { setupeButtonActive(button: gesture13, buttonSettings: gesture13settings, gestureLoopImage: gesture13rotation) }
         if (activeGesture == 14) { setupeButtonActive(button: gesture14, buttonSettings: gesture14settings, gestureLoopImage: gesture14rotation) }
+        applyAndroidGestureSettingsVisibility()
     }
     private func startReset(translateByte: Data) {
         SensorsViewController.myInteractiveQueueComandWithConfirmation(dataForWrite: translateByte, characteristic: SensorsViewController.sampleGattAttributes.RESET_TO_FACTORY_SETTINGS_NEW_VM, countRestart: 50)

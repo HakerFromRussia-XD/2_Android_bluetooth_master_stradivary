@@ -210,6 +210,7 @@
 		A4EDEC3A3B2EE9ACAE394847 /* SensorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF856B454911936C8985160 /* SensorsViewController.swift */; };
 		A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
 		ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
+		ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */; };
 		ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 		ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 		ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
@@ -515,6 +516,7 @@
 		A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContainerViewController.swift; path = Utility/ContainerViewController.swift; sourceTree = "<group>"; };
 		AAF856B454911936C8985160 /* SensorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SensorsViewController.swift; path = ViewControllers/Main/SensorsViewController.swift; sourceTree = "<group>"; };
 		ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
+		ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolverTests.swift; sourceTree = "<group>"; };
 		ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
 		ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
 		ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareModels.swift; sourceTree = "<group>"; };
@@ -776,6 +778,7 @@
 				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
 				B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
 				ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
+				ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */,
 			);
 			path = MotoricaStartTests;
 			sourceTree = "<group>";
@@ -1958,6 +1961,7 @@
 				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
 				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
 				ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
+				ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */,
 				ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */,
 				C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,

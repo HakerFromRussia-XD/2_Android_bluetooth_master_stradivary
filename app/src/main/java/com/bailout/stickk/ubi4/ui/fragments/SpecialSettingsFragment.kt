@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.doOnNextLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
@@ -28,6 +29,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     private val display = 2
     private var previousMobileSettings: Boolean? = null
     private var isMobileSettings = false
+    private var selectorIndicatorAnimator: ObjectAnimator? = null
 
 
     override fun onResume() {
@@ -42,17 +44,18 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     ): View {
         _binding = Ubi4FragmentSpecialSettingsBinding.inflate(inflater, container, false)
 
-        // Обработчики переключения режимов
-        widgetListUpdater()
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        previousMobileSettings = null
         isMobileSettings = main.getBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
+        activeSettingsFragmentFilterFlow.value = if (isMobileSettings) 2 else 1
         binding.settingsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.settingsRecyclerView.adapter = adapterWidgets
+        widgetListUpdater()
 
         binding.prostheticSettingsBtn.setOnClickListener {
             main.saveBoolean(PreferenceKeysUbi4.LAST_ACTIVE_SETTINGS_FILTER, false)
@@ -74,7 +77,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
 
 
-        binding.settingsSelectorContainer.post { updateUI() }
+        binding.settingsSelectorContainer.post { updateUI(animateSelector = false) }
     }
 
 
@@ -94,7 +97,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 //
 //    }
 
-    private fun updateUI() {
+    private fun updateUI(animateSelector: Boolean = true) {
         val dataSetChanged = (previousMobileSettings == null || previousMobileSettings != isMobileSettings)
         val data = if (isMobileSettings) {
             mDataFactory.mobileWidgets()
@@ -115,7 +118,7 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
         }
 
         if (dataSetChanged) {
-            updateSelectorUI()
+            updateSelectorUI(animateSelector && previousMobileSettings != null)
             previousMobileSettings = isMobileSettings
         }
     }
@@ -123,39 +126,69 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
 
 
 
-    private fun updateSelectorUI() {
+    private fun updateSelectorUI(animate: Boolean = true) {
         val duration = 200L
-        val selectedColor = requireContext().getColor(R.color.white)
-        val unselectedColor = requireContext().getColor(android.R.color.darker_gray)
+        val context = context ?: return
+        val selectedColor = context.getColor(R.color.white)
+        val unselectedColor = context.getColor(android.R.color.darker_gray)
+        val leftTargetColor = if (isMobileSettings) unselectedColor else selectedColor
+        val rightTargetColor = if (isMobileSettings) selectedColor else unselectedColor
         val containerWidth = binding.settingsSelectorContainer.width
+
+        if (containerWidth == 0) {
+            binding.prostheticSettingsBtn.setTextColor(leftTargetColor)
+            binding.mobileSettingsBtn.setTextColor(rightTargetColor)
+            binding.settingsSelectorContainer.doOnNextLayout {
+                if (_binding != null) {
+                    updateSelectorUI(animate = false)
+                }
+            }
+            return
+        }
+
         val halfWidth = containerWidth / 2f
 
         val targetX = if (isMobileSettings) halfWidth else 0f
-        ObjectAnimator.ofFloat(binding.selectorIndicator, "translationX", targetX)
-            .setDuration(duration)
-            .start()
-
-        val leftColorAnim = ObjectAnimator.ofInt(
-            binding.prostheticSettingsBtn,
-            "textColor",
-            if (!isMobileSettings) unselectedColor else selectedColor,
-            if (!isMobileSettings) selectedColor else unselectedColor
-        ).apply {
-            this.duration = duration
-            setEvaluator(ArgbEvaluator())
+        selectorIndicatorAnimator?.cancel()
+        if (animate) {
+            selectorIndicatorAnimator = ObjectAnimator.ofFloat(
+                binding.selectorIndicator,
+                "translationX",
+                targetX
+            ).apply {
+                this.duration = duration
+                start()
+            }
+        } else {
+            binding.selectorIndicator.translationX = targetX
         }
-        leftColorAnim.start()
 
-        val rightColorAnim = ObjectAnimator.ofInt(
-            binding.mobileSettingsBtn,
-            "textColor",
-            if (isMobileSettings) unselectedColor else selectedColor,
-            if (isMobileSettings) selectedColor else unselectedColor
-        ).apply {
-            this.duration = duration
-            setEvaluator(ArgbEvaluator())
+        if (animate) {
+            ObjectAnimator.ofInt(
+                binding.prostheticSettingsBtn,
+                "textColor",
+                binding.prostheticSettingsBtn.currentTextColor,
+                leftTargetColor
+            ).apply {
+                this.duration = duration
+                setEvaluator(ArgbEvaluator())
+                start()
+            }
+
+            ObjectAnimator.ofInt(
+                binding.mobileSettingsBtn,
+                "textColor",
+                binding.mobileSettingsBtn.currentTextColor,
+                rightTargetColor
+            ).apply {
+                this.duration = duration
+                setEvaluator(ArgbEvaluator())
+                start()
+            }
+        } else {
+            binding.prostheticSettingsBtn.setTextColor(leftTargetColor)
+            binding.mobileSettingsBtn.setTextColor(rightTargetColor)
         }
-        rightColorAnim.start()
     }
 
     private fun widgetListUpdater() {
@@ -167,6 +200,8 @@ class SpecialSettingsFragment : BaseWidgetsFragment() {
     }
 
     override fun onDestroyView() {
+        selectorIndicatorAnimator?.cancel()
+        selectorIndicatorAnimator = null
         _binding = null
         super.onDestroyView()
     }

@@ -229,6 +229,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 //        binding.runCommandBtn.setOnClickListener {
+////            main.getBLEController().requestSerialNumberV3()
 //            main.getBLEController().requestTelemetryDataV3()
 //        }
 

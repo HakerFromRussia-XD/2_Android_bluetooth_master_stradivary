@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
@@ -245,7 +246,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         if (attemptedRequest++ < 4) requestToken()
         else {
             showInfoWithoutConnection()
-            Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                mContext,
+                getString(SharedRes.strings.no_user_data_on_server.resourceId),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -356,7 +361,44 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
             info.guaranteePeriod.orEmpty()
         )
+
+        System.err.println("Device Info model: ${info.model?.name}")
+        System.err.println("Device Info size: ${info.size?.name}")
+        System.err.println("Device Info side: ${info.side?.name}")
+        System.err.println("Device Info status: ${info.status?.name}")
+        System.err.println("Device Info date transfer: ${info.dateTransfer}")
+        System.err.println("Device Info guarantee period: ${info.guaranteePeriod}")
+        System.err.println("Device Info options: ${info.options.size}")
+        var rotatorSet = false
+        var accumulatorSet = false
+        var touchscreenFingersSet = false
+        for (option in info.options) {
+            if (option.id == 3) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name.orDash())
+                System.err.println("Device Info rotator: ${option.value?.name}")
+                rotatorSet = true
+            }
+            if (option.id == 15) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info accumulator: ${option.value?.name}")
+                accumulatorSet = true
+            }
+            if (option.id == 5) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
+                touchscreenFingersSet = true
+            }
+        }
+        if (!rotatorSet) {
+            main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "-")
+            System.err.println("Device Info rotator NOT SET")
+        }
+        if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
+        if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
     }
+
+    private fun String?.orDash(): String =
+        takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showInfoWithoutConnection() {
@@ -455,11 +497,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 }
             }"
         )
-        val builtBoards = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
-            val name = boardNameByCode[sub.deviceCode] ?: "Unknown"
+        val allBoards = GlobalParameters.baseSubDevicesInfoStructSet.map { sub ->
+            val name = boardNameByCode[sub.deviceCode] ?: getString(SharedRes.strings.unknown_board.resourceId)
             val fw = sub.fwVersion.takeIf { it.isNotBlank() }
                 ?: "—"
-            if (name == "Unknown") {
+            if (name == getString(SharedRes.strings.unknown_board.resourceId)) {
                 Log.w(
                     BOARD_LOG_TAG,
                     "Unknown board resolved: addr=${sub.deviceAddress}, code=${sub.deviceCode}, fw=$fw, nameByDataCode=${
@@ -469,7 +511,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             }
             BootloaderBoardItemUBI4(name, sub.deviceCode, sub.deviceAddress, true, fw, false)
         }.distinctBy { it.deviceAddress }.sortedBy { it.deviceAddress }
-        if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
+        val builtBoards = allBoards.filter {
+            it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
+                !it.boardName.equals("Unknown", ignoreCase = true)
+        }
+        if (allBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)
         updateBootloaderSafe(builtBoards)

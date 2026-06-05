@@ -480,7 +480,6 @@ object PreferenceKeysUbi4 {
         BLDC_FINGER_DRIVER ( 9, "Bldc finger driver"    ),
         DC_FINGER_DRIVER   (10, "Dc finger driver"      ),
         DIGITAL_ELECTROD   (11, "Digital electrod"      ),
-
         UNKNOWN            ( 0, "Unknown"               );
 
         val title: String get() = "$baseTitle version"

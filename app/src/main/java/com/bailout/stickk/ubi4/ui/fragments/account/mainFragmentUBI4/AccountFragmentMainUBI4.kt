@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.models.user.Manager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
@@ -264,7 +265,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         if (attemptedRequest++ < 4) requestToken()
         else {
             showInfoWithoutConnection()
-            Toast.makeText(mContext, "No user data on server", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                mContext,
+                getString(SharedRes.strings.no_user_data_on_server.resourceId),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
     private fun requestUserData() {
@@ -374,7 +379,44 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             PreferenceKeysUbi4.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS,
             info.guaranteePeriod.orEmpty()
         )
+
+        System.err.println("Device Info model: ${info.model?.name}")
+        System.err.println("Device Info size: ${info.size?.name}")
+        System.err.println("Device Info side: ${info.side?.name}")
+        System.err.println("Device Info status: ${info.status?.name}")
+        System.err.println("Device Info date transfer: ${info.dateTransfer}")
+        System.err.println("Device Info guarantee period: ${info.guaranteePeriod}")
+        System.err.println("Device Info options: ${info.options.size}")
+        var rotatorSet = false
+        var accumulatorSet = false
+        var touchscreenFingersSet = false
+        for (option in info.options) {
+            if (option.id == 3) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name.orDash())
+                System.err.println("Device Info rotator: ${option.value?.name}")
+                rotatorSet = true
+            }
+            if (option.id == 15) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info accumulator: ${option.value?.name}")
+                accumulatorSet = true
+            }
+            if (option.id == 5) {
+                main?.saveString(PreferenceKeysUbi4.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name.orEmpty())
+                System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
+                touchscreenFingersSet = true
+            }
+        }
+        if (!rotatorSet) {
+            main?.saveString(PreferenceKeysUbi4.ACCOUNT_ROTATOR_PROSTHESIS, "-")
+            System.err.println("Device Info rotator NOT SET")
+        }
+        if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
+        if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
     }
+
+    private fun String?.orDash(): String =
+        takeIf { !it.isNullOrBlank() && it != "null" } ?: "-"
 
 
     private fun initAdapter() {
@@ -388,7 +430,11 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) {
                 showFirmwareFilesDialog(item)
-                Toast.makeText(requireContext(), "Update ${item.boardName}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(SharedRes.strings.update_board.resourceId, item.boardName),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -598,10 +644,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         rebuildBoardNameCache()
 
         // 2) Строим список
-        val builtBoards = buildList {
+        val allBoards = buildList {
             fullInicializeConnectionStruct?.let { cpu ->
                 val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
-                val nameCpu = boardNameByAddr[0] ?: "Unknown"
+                val nameCpu = boardNameByAddr[0] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameCpu,
@@ -617,7 +663,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             baseSubDevicesInfoStructSet.forEach { sub ->
                 val addr = sub.deviceAddress
                 val versionSub = fwVersions.getOrDefault(addr, "—")
-                val nameSub = boardNameByAddr[addr] ?: "Unknown"
+                val nameSub = boardNameByAddr[addr] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameSub,
@@ -631,8 +677,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
             }
         }
             .distinctBy { it.deviceAddress }
+        val builtBoards = allBoards.filter {
+            it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
+                !it.boardName.equals("Unknown", ignoreCase = true)
+        }
 
-        if (builtBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
+        if (allBoards.isEmpty() && bootloaderBoardsList.isNotEmpty()) return
 
         bootloaderBoardsList.clear()
         bootloaderBoardsList.addAll(builtBoards)

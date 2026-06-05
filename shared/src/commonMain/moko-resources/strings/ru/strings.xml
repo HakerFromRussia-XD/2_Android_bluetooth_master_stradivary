@@ -49,7 +49,7 @@
 <string name="action_Trigger8">классический инвертированный</string>classic inverted
 <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
 <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>
-<string name="lesson_eight_error_unknown">Unknown error: %s</string>
+<string name="lesson_eight_error_unknown">Неизвестная ошибка: %s</string>
 <string name="hello_blank_fragment">Hello blank fragment</string>
 <string name="illumination">Подсветка</string>
 <string name="closing">закрытие</string>
@@ -665,6 +665,42 @@
 <string name="prosthetic_settings">Hастройки протеза</string>
 <string name="mobile_settings">Мобильные настройки</string>
 <string name="auto_login">Автоматический вход</string>
+<string name="push_me">Нажми меня</string>
+<string name="training_model">Обучение</string>
+<string name="gesture_settings">Настройка жестов</string>
+<string name="is_the_prosthesis_calibrated">Откалиброван ли протез?</string>
+<string name="when_selected_gesture_in_gesture_menu">при выбранном жесте в меню жестов.</string>
+<string name="prosthesis_is_calibrated_by_default_and_first_gesture_is_configured">По умолчанию протез поставляется откалиброванным и с настроенным первым жестом. Проверить правильность калибровки можно нажатием на кнопки “открыть”/”закрыть”</string>
+<string name="if_prosthesis_clenches_into_fist_it_is_calibrated_correctly">Если протез при этом сжимается в кулак, то он откалиброван правильно. Если же он не закрывается в кулак или не двигается, то необходимо повторно нажать кнопку “Калибровка протеза”. Если проблема не ушла, то необходимо обратиться в сервисный центр, для получения консультации.</string>
+<string name="select_active_gesture">Выбор активного жеста</string>
+<string name="after_calibration_you_can_select_active_gesture_in_menu">После проверки калибровки можно перейти к выбору активного схвата в меню жестов.</string>
+<string name="gestures_are_displayed_as_cards_with_name_and_hand_position">На экране отображаются доступные жесты в виде карточек с названием и изображением положения кисти.</string>
+<string name="tap_card_to_select_gesture">Для выбора нужного жеста нажмите на соответствующую карточку.</string>
+<string name="selected_gesture_is_highlighted_and_set_as_active">Выбранный жест будет выделен рамкой. Это означает, что данный схват установлен как активный.</string>
+<string name="prosthesis_uses_selected_gesture_on_open_close">После выбора активного жеста протез будет использовать именно этот схват при сжатии и разжатии.</string>
+<string name="default_gestures_are_ready_to_use">Стандартные жесты уже настроены по умолчанию и готовы к использованию без дополнительной настройки.</string>
+<string name="setup_first_custom_gesture">Настройка первого собственного жеста</string>
+<string name="after_calibration_and_first_gesture_you_can_setup_custom_gestures">После проверки работоспособности калибровки и первого жеста, можно приступить к настройке собственных жестов. Для этого нажмите на кнопку шестерёнки рядом с названием того жеста, который вы хотите настроить.</string>
+<string name="gesture_editor_opens_with_hand_model">После этого откроется окно в котором вы увидите макет кисти протеза в открытом состоянии настраиваемого жеста. Изменение схвата происходит путём нажатием на любой палец и дальнейшего свайпа вверх или вниз по экрану.</string>
+<string name="swipe_length_controls_finger_angle">Длина свайпа регулирует угол сгиба пальца.</string>
+<string name="vertical_swipe_for_fingers_two_axes_for_thumb">При настройке указательного, среднего, безымянного пальцев и мизинца, учитывается свайп только в вертикальном направлении. А для настройки положения большого пальца кисти используются одновременно две оси.</string>
+<string name="thumb_vertical_bend_horizontal_rotation">Вертикальная ось регулирует угол сгиба самого большого пальца, а горизонтальная угол поворота его ротации.</string>
+<string name="swipes_outside_hand_rotate_it">Свайпы вне кисти поворачивают её в пространстве.</string>
+<string name="button_switches_gesture_state">В нижней части экрана находится кнопка переключения схвата настраиваемого жеста.</string>
+<string name="animation_shows_gesture_if_states_differ">Если положение пальцев протеза в открытом и закрытом состоянии не совпадают, то после её нажатия вы увидите анимацию схвата, который будет выполняться при использовании этого жеста.</string>
+<string name="prosthesis_repeats_model_movement">В реальной жизни протез выполнит тоже движение пальцами, что и модель на экране смартфона.</string>
+<string name="closed_state_is_configured_when_switch_is_closed">Перемещая пальцы модели в тот момент, когда кнопка состояния жеста находится в положении “закрытое состояние” вы будете настраивать закрытое положение жеста.</string>
+<string name="you_can_rename_gesture_with_pencil_icon">Также можно ввести для жеста своё имя, нажав на значок карандаша, располагающийся рядом с дефолтным именем жеста.</string>
+<string name="save_and_use_gestures">Сохранение настроек и использование жестов</string>
+<string name="press_save_button_to_store_gesture">После достижения желаемого положения открытого и закрытого состояния жеста, необходимо нажать кнопку “сохранить”, располагающуюся в нижней части экрана.</string>
+<string name="press_button_to_use_gesture_frame_becomes_green">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Рамка станет зеленым цветом</string>
+<string name="gesture_usage_chart_title">Счетчик жестов</string>
+<string name="gesture_usage_empty">Нет использованных жестов</string>
+<string name="no_user_data_on_server">Нет данных пользователя на сервере</string>
+<string name="select_firmware_file">Выберите файл прошивки</string>
+<string name="update_firmware">Обновить</string>
+<string name="update_board" formatted="true">Обновить %1$s</string>
+<string name="unknown_board">Неизвестно</string>
 
 
 <string-array name="numbers">

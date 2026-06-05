@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app ="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp">
 
@@ -11,13 +12,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_open_sans_regular"
-        android:text="Board 08"
         android:layout_marginStart="16dp"
         android:textColor="@color/ubi4_white"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="Board 08"
         />
 
     <TextView
@@ -27,9 +28,9 @@
         android:layout_marginEnd="12dp"
         android:textColor="@color/ubi4_white"
         android:textSize="12sp"
-        android:text="1.922"
         app:layout_constraintEnd_toStartOf="@+id/bootloderStatusTv"
-        app:layout_constraintBaseline_toBaselineOf="@id/board_name_tv"/>
+        app:layout_constraintBaseline_toBaselineOf="@id/board_name_tv"
+        tools:text="1.922" />
 
     <TextView
         android:id="@+id/bootloderStatusTv"
@@ -53,7 +54,7 @@
         android:focusable="true"
         android:background="?attr/selectableItemBackground"
         android:fontFamily="@font/font_open_sans_semi_bold"
-        android:text="Update"
+        android:text="@string/update_firmware"
         android:textColor="@color/ubi4_white"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"

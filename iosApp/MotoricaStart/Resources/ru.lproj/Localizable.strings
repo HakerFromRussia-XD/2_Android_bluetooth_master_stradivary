@@ -19,6 +19,7 @@
 "No internet connection" = "Нет сети";
 "Failed loading widgets" = "Ошибка загрузки виджетов";
 "Search Widgets" = "Поиск виджетов";
+"unsupported_device_connection_message" = "к этому устройству нельзя подключиться приложением";
 
 "collection_of_gestures" = "Коллекция";
 "rotation_group" = "Группа ротации";

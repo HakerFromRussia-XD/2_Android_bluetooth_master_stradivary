@@ -656,7 +656,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             case .oldLegacy:
                 self.openLegacyBranch(for: selectedDevice)
             case .unknown:
-                self.showConnectionToast("Неизвестное устройство")
+                self.showToast(NSLocalizedString("unsupported_device_connection_message", comment: "Unsupported BLE device connection toast"))
                 self.resetTransitionState()
             }
         }

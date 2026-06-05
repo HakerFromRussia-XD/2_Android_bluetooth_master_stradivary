@@ -51,6 +51,7 @@ import Foundation
     var selectedDeviceName = ""
     var directConnectionHint: OldMotoricaStartLauncher.ConnectionHint?
     private var didConsumeDirectConnectionHint = false
+    private var didOpenDirectConnectionSensors = false
     @objc var gestureTable = [[[Int]]] (repeating: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] , count: 7)
     @objc var gestureTableBig = [[[Int]]] (repeating: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] , count: 13)
     @objc var byteEnabledGesture: Int = 0
@@ -84,7 +85,6 @@ import Foundation
         NotificationCenter.default.addObserver(self, selector: #selector(readWriteToBLENotification), name: .notificationFromSensorsViewController, object: nil)
         LegacySmartConnectionStateStore.ensureDefaultIfNeeded()
         saveDataString(key: sampleGattAttributes.DEACTIVATE_SMART_CONNECTION, value: "0")
-        applyDirectConnectionPresentationIfNeeded()
         print("TEST!!!! viewDidLoad()" )
         
         
@@ -119,6 +119,12 @@ import Foundation
         centralManager.delegate = self
         print("TEST!!!! viewWillAppear()")
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        openSensorsForDirectConnectionIfNeeded()
+    }
+
     @objc private func filterChange(target: UISegmentedControl) {
         if target == self.segmentedConrol {
             devices = [ScanItem]()
@@ -154,6 +160,10 @@ import Foundation
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn
         {
+            if connectDirectConnectionPeripheralIfAvailable() {
+                return
+            }
+
             centralManager.scanForPeripherals(withServices: nil,
                                               options: nil)
             print("TEST!!!! scanForPeripherals()" )
@@ -295,8 +305,8 @@ import Foundation
             dataCount = data.count
             data.withUnsafeBytes(
                 {(bytes: UnsafePointer<UInt8>) -> Void in
-                    if (!(selectedDevice?.name?.contains(sampleGattAttributes.FESTH_NAME) ?? false) &&
-                        !(selectedDevice?.name?.contains(sampleGattAttributes.FESTX_NAME) ?? false)){
+                    if (!selectedDeviceMatches(sampleGattAttributes.FESTH_NAME) &&
+                        !selectedDeviceMatches(sampleGattAttributes.FESTX_NAME)){
                         if (bytes[3] == 0 && bytes[4] == 0 && bytes[5] == 0 && bytes[6] == 0 && bytes[7] == 0 && bytes[8] == 0 && bytes[9] == 0) {
                             self.dataForSensorsViewController["numderBytes"] = String(Int(3))
                         } else {
@@ -314,7 +324,7 @@ import Foundation
                         }
                         self.dataForSensorsViewController["synchronized"] = String(100)
                     }
-                    if (selectedDevice?.name?.contains(sampleGattAttributes.FESTH_NAME) ?? false){
+                    if (selectedDeviceMatches(sampleGattAttributes.FESTH_NAME)){
                         if (characteristic.uuid.uuidString == sampleGattAttributes.MIO_MEASUREMENT_NEW) {
                             self.dataForSensorsViewController["sens_1"] = String(Int(bytes[0]))
                             self.dataForSensorsViewController["sens_2"] = String(Int(bytes[1]))
@@ -400,7 +410,7 @@ import Foundation
                             print ("Получили данные из характеристики SET_GESTURE_NEW: ")
                         }
                     } else {
-                        if ((selectedDevice?.name?.contains(sampleGattAttributes.FESTX_NAME)) ?? false) {
+                        if (selectedDeviceMatches(sampleGattAttributes.FESTX_NAME)) {
 //                            print("Получение данных от FEST-X с характеристики: " + characteristic.uuid.uuidString)
                             
                             if (characteristic.uuid.uuidString == sampleGattAttributes.MIO_MEASUREMENT_NEW_VM) {
@@ -871,11 +881,38 @@ extension ScanViewController: UITableViewDelegate, UITableViewDataSource{
 }
 
 private extension ScanViewController {
-    func applyDirectConnectionPresentationIfNeeded() {
-        guard directConnectionHint != nil else { return }
-        tableViewDevices?.isHidden = true
-        segmentedConrol.isHidden = true
-        view.accessibilityIdentifier = "legacy.directConnectionScanBridge"
+    func openSensorsForDirectConnectionIfNeeded() {
+        guard let hint = directConnectionHint,
+              !didOpenDirectConnectionSensors else {
+            return
+        }
+
+        didOpenDirectConnectionSensors = true
+        view.accessibilityIdentifier = "legacy.directConnectionHost"
+        saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: hint.deviceName)
+        saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: hint.deviceUUID.uppercased())
+        saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: hint.deviceUUID.uppercased())
+        showDirectConnectionSensorsScreen()
+        clearDirectConnectionHintIfFinished()
+    }
+
+    func connectDirectConnectionPeripheralIfAvailable() -> Bool {
+        guard let hint = directConnectionHint,
+              !didConsumeDirectConnectionHint,
+              let uuid = UUID(uuidString: hint.deviceUUID),
+              let peripheral = centralManager.retrievePeripherals(withIdentifiers: [uuid]).first else {
+            return false
+        }
+
+        didConsumeDirectConnectionHint = true
+        beginConnection(
+            peripheral: peripheral,
+            deviceName: hint.deviceName,
+            uuid: uuid.uuidString.uppercased(),
+            openSensorsScreen: false
+        )
+        clearDirectConnectionHintIfFinished()
+        return true
     }
 
     func handleDirectConnectionIfNeeded(peripheral: CBPeripheral, deviceName: String) -> Bool {
@@ -886,12 +923,13 @@ private extension ScanViewController {
         }
 
         didConsumeDirectConnectionHint = true
-        directConnectionHint = nil
         beginConnection(
             peripheral: peripheral,
             deviceName: deviceName,
-            uuid: peripheral.identifier.uuidString.uppercased()
+            uuid: peripheral.identifier.uuidString.uppercased(),
+            openSensorsScreen: false
         )
+        clearDirectConnectionHintIfFinished()
         return true
     }
 
@@ -918,14 +956,56 @@ private extension ScanViewController {
         }.filter { !$0.isEmpty })
     }
 
+    func selectedDeviceMatches(_ needle: String) -> Bool {
+        let names = [
+            selectedDevice?.name,
+            selectedDeviceName,
+            directConnectionHint?.deviceName
+        ].compactMap { $0 }
+        return names.contains { $0.contains(needle) }
+    }
+
+    func clearDirectConnectionHintIfFinished() {
+        guard didOpenDirectConnectionSensors && didConsumeDirectConnectionHint else {
+            return
+        }
+        directConnectionHint = nil
+    }
+
+    func showDirectConnectionSensorsScreen() {
+        if let sensorsViewController = storyboard?.instantiateViewController(withIdentifier: "VC2"),
+           let navigationController = navigationController {
+            navigationController.pushViewController(sensorsViewController, animated: false)
+            return
+        }
+
+        UIView.performWithoutAnimation {
+            performSegue(withIdentifier: "goSensorsSettings", sender: nil)
+        }
+    }
+
     func beginConnection(
         peripheral: CBPeripheral,
         deviceName: String,
         uuid: String,
+        openSensorsScreen: Bool = true,
         shouldContinue: @escaping () -> Bool = { true }
     ) {
         centralManager.stopScan()
         myTimer.invalidate()
+        selectedDevice = peripheral
+        selectedDeviceName = deviceName
+
+        saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: deviceName)
+        saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: uuid)
+        saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: uuid)
+
+        guard shouldContinue() else {
+            return
+        }
+
+        print("did Connect request")
+        centralManager.connect(peripheral, options: nil)
         myTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (_) in
             guard let self else { return }
             guard shouldContinue() else {
@@ -935,11 +1015,8 @@ private extension ScanViewController {
             print("did REConnect")
             self.centralManager.connect(peripheral, options: nil)
         }
-        selectedDevice = peripheral
-
-        saveDataString(key: sampleGattAttributes.DEVICE_NAME, value: deviceName)
-        saveDataString(key: sampleGattAttributes.DEVICE_MAC, value: uuid)
-        saveDataString(key: sampleGattAttributes.LAST_CONNECTION, value: uuid)
-        performSegue(withIdentifier: "goSensorsSettings", sender: nil)
+        if openSensorsScreen {
+            performSegue(withIdentifier: "goSensorsSettings", sender: nil)
+        }
     }
 }

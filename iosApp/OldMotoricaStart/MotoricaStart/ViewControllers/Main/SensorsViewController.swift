@@ -67,6 +67,17 @@ import DGCharts
 
     var reseve_sensor_1_data: Int = 0
     var reseve_sensor_2_data: Int = 0
+    var old_reseve_sensor_1_data: Int = 0
+    var old_reseve_sensor_2_data: Int = 0
+    var timerTiks: Int = 3
+    private var current_sensor_1: Double = 0
+    private var current_sensor_2: Double = 0
+    private var start_sensor_1: Double = 0
+    private var start_sensor_2: Double = 0
+    private var target_sensor_1: Double = 0
+    private var target_sensor_2: Double = 0
+    private var rampTick: Int = 0
+    private var chartTimer: Timer?
     
     var open_sens_slide: UInt8 = 0
     var close_sens_slide: UInt8 = 0
@@ -114,6 +125,8 @@ import DGCharts
     public static var versionDriverGreaterThan237: Bool = false
     
     deinit {
+        stopChartTimer()
+        NotificationCenter.default.removeObserver(self)
         print("SensorsViewController_ is being deinitialized")
     }
     
@@ -130,10 +143,6 @@ import DGCharts
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPerehod(gesture:)))
         unlockAdvancedSettings.addGestureRecognizer(longPress)
         
-        Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (_) in
-            self.addEntry (sens1: self.reseve_sensor_1_data, sens2: self.reseve_sensor_2_data)
-        }
-        
         NotificationCenter.default.addObserver(self, selector: #selector(updatingUINotification), name: .notificationReseiveBLEData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(checkStateConnection), name: .notificationCheckStateConnection, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: .notificationDataDialogToSensorsView, object: nil)
@@ -148,6 +157,18 @@ import DGCharts
 //        performSegue(withIdentifier: "goToInstructionFest", sender: nil)
 //        performSegue(withIdentifier: "goToGesturesSettings", sender: nil)
 //        performSegue(withIdentifier: "goToAdvencesSettingsFesth", sender: nil)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if chartTimer == nil {
+            startChartTimer()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        stopChartTimer()
     }
     
     
@@ -178,7 +199,11 @@ import DGCharts
         }
         if (resultDialog == "selectDisconnectAccept") {
             saveDataString(key: SensorsViewController.sampleGattAttributes.DEACTIVATE_SMART_CONNECTION, value: "1")
-            navigationController?.popToRootViewController(animated: true)
+            NotificationCenter.default.post(name: .oldMotoricaStartDidRequestMergedScan, object: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard self?.view.window != nil else { return }
+                self?.navigationController?.popToRootViewController(animated: true)
+            }
         }
     }
     @objc func updatingUINotification(notification: Notification) {
@@ -866,7 +891,8 @@ import DGCharts
     }
     // MARK: - работа с графиком
     func addEntry (sens1: Int, sens2: Int) {
-        let data: ChartData = self.lineChartView.data!
+        guard let lineChartView = lineChartView,
+              let data = lineChartView.data else { return }
 
         var set1 : LineChartDataSet
         var set2 : LineChartDataSet
@@ -878,10 +904,14 @@ import DGCharts
             data.append(set2)
             firstInit = false
         } else {
-            set1 = (data[1] as? LineChartDataSet)!
-            set2 = (data[2] as? LineChartDataSet)!
+            guard
+                let existingSet1 = data[1] as? LineChartDataSet,
+                let existingSet2 = data[2] as? LineChartDataSet
+            else { return }
+            set1 = existingSet1
+            set2 = existingSet2
         }
-        if (set1.count >= 300) {
+        if (set1.count >= 600) {
             zaglushka(bool1: (set1.removeFirst()))
             zaglushka(bool1: (set2.removeFirst()))
         }
@@ -890,31 +920,37 @@ import DGCharts
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens2)), toDataSet: 2)
         
         data.notifyDataChanged()
-        self.lineChartView.notifyDataSetChanged()
-        self.lineChartView.setVisibleXRangeMaximum(300)
-        self.lineChartView.moveViewToX(Double(set2.count - 300))
+        lineChartView.notifyDataSetChanged()
+        lineChartView.setVisibleXRangeMaximum(600)
+        lineChartView.moveViewToX(Double(set2.count - 600))
         self.count += 1
     }
     func initChart() {
-        var data = self.lineChartView.data
+        guard let lineChartView = lineChartView else { return }
+        lineChartView.noDataText = "Нет данных"
+        lineChartView.data = LineChartData()
+        var data = lineChartView.data
         let set1 = LineChartDataSet(entries: [], label: "")
         data = LineChartData(dataSet: set1)
-        var data2 = self.lineChartView.data
+        var data2 = lineChartView.data
         let set2 = LineChartDataSet(entries: [], label: "")
         data2 = LineChartData(dataSet: set2)
-        self.lineChartView.data = data
-        self.lineChartView.data = data2
+        lineChartView.data = data
+        lineChartView.data = data2
         
-        self.lineChartView.isExclusiveTouch = false
-        self.lineChartView.isMultipleTouchEnabled = false
-        self.lineChartView.dragEnabled = false
-        self.lineChartView.dragDecelerationEnabled = false
-        self.lineChartView.setScaleEnabled(false)
-        self.lineChartView.drawGridBackgroundEnabled = false
-        self.lineChartView.pinchZoomEnabled = false
+        lineChartView.highlightPerTapEnabled = false
+        lineChartView.doubleTapToZoomEnabled = false
+        lineChartView.isUserInteractionEnabled = false
+        lineChartView.isExclusiveTouch = false
+        lineChartView.isMultipleTouchEnabled = false
+        lineChartView.dragEnabled = false
+        lineChartView.dragDecelerationEnabled = false
+        lineChartView.setScaleEnabled(false)
+        lineChartView.drawGridBackgroundEnabled = false
+        lineChartView.pinchZoomEnabled = false
         self.lineChartView.backgroundColor = UIColor(named: "transparent")
-        self.lineChartView.legend.enabled = false
-        self.lineChartView.animate(yAxisDuration: 0.7)
+        lineChartView.legend.enabled = false
+        lineChartView.animate(yAxisDuration: 0.7)
         
         let x: XAxis = self.lineChartView.xAxis
         x.labelTextColor = UIColor(named: "transparent")!
@@ -937,7 +973,7 @@ import DGCharts
         set1.axisDependency = YAxis.AxisDependency.left
         set1.lineWidth = 2
         set1.setColor(UIColor(named: "lineColor_open")!)
-        set1.mode = LineChartDataSet.Mode.linear
+        set1.mode = LineChartDataSet.Mode.cubicBezier
         set1.drawCirclesEnabled = false
         set1.drawValuesEnabled = false
         
@@ -948,13 +984,57 @@ import DGCharts
         set2.axisDependency = YAxis.AxisDependency.left
         set2.lineWidth = 2
         set2.setColor(UIColor(named: "lineColor_close")!)
-        set2.mode = LineChartDataSet.Mode.linear
+        set2.mode = LineChartDataSet.Mode.cubicBezier
         set2.drawCirclesEnabled = false
         set2.drawValuesEnabled = false
         
         return set2
     }
     private func zaglushka(bool1: Bool) {    }
+
+    private func startChartTimer() {
+        stopChartTimer()
+        let timer = Timer(timeInterval: 0.01, repeats: true) { [weak self] _ in
+            self?.addSmoothedChartEntry()
+        }
+        RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+        chartTimer = timer
+    }
+
+    private func stopChartTimer() {
+        chartTimer?.invalidate()
+        chartTimer = nil
+    }
+
+    private func addSmoothedChartEntry() {
+        let new1 = Double(reseve_sensor_1_data)
+        let new2 = Double(reseve_sensor_2_data)
+
+        if new1 != target_sensor_1 || new2 != target_sensor_2 {
+            start_sensor_1 = current_sensor_1
+            start_sensor_2 = current_sensor_2
+            target_sensor_1 = new1
+            target_sensor_2 = new2
+            rampTick = 0
+        }
+
+        let ticks = max(1, timerTiks)
+        let progress = min(1.0, Double(rampTick + 1) / Double(ticks))
+        current_sensor_1 = start_sensor_1 + (target_sensor_1 - start_sensor_1) * progress
+        current_sensor_2 = start_sensor_2 + (target_sensor_2 - start_sensor_2) * progress
+
+        addEntry(
+            sens1: Int(current_sensor_1.rounded()),
+            sens2: Int(current_sensor_2.rounded())
+        )
+
+        if rampTick < ticks - 1 {
+            rampTick += 1
+        } else {
+            old_reseve_sensor_1_data = Int(target_sensor_1)
+            old_reseve_sensor_2_data = Int(target_sensor_2)
+        }
+    }
 
     private func requestStartParameters() {
         if (typeMultigribNew) {
@@ -1469,6 +1549,10 @@ extension Notification.Name {
 
 extension Notification.Name {
     static let notificationDataDialogToSensorsView = Notification.Name(rawValue: "notificationDataDialogToSensorsView")
+}
+
+extension Notification.Name {
+    static let oldMotoricaStartDidRequestMergedScan = Notification.Name(rawValue: "OldMotoricaStart.didRequestMergedScan")
 }
 
 extension Data {

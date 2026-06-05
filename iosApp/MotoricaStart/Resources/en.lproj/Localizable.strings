@@ -19,6 +19,7 @@
 "No internet connection" = "No internet connection";
 "Failed loading widgets" = "Failed loading widgets";
 "Search Widgets" = "Search Widgets";
+"unsupported_device_connection_message" = "This app can't connect to this device.";
 
 "collection_of_gestures" = "Collection";
 "rotation_group" = "Rotation group";

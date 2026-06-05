@@ -8,6 +8,7 @@ final class OldMotoricaStartLauncherAdapter {
     func makeRootViewController(for device: BLEDevice) -> UIViewController {
         LegacyDocumentsCompatibility.prepareDocumentsForLegacyFlow()
         LegacyAccessibilityMarkerBridge.installIfNeeded()
+        LegacyMergedScanRouteBridge.installIfNeeded()
         let rootViewController = launcher.makeRootViewController(
             connectionHint: .init(
                 deviceName: device.name,
@@ -19,6 +20,22 @@ final class OldMotoricaStartLauncherAdapter {
         rootViewController.view.accessibilityIdentifier = AccessibilityIdentifier.oldMotoricaStartRoot
         LegacyAccessibilityMarkerBridge.applyMarkers(to: rootViewController.view)
         return rootViewController
+    }
+}
+
+private enum LegacyMergedScanRouteBridge {
+    private static var observer: NSObjectProtocol?
+
+    static func installIfNeeded() {
+        guard observer == nil else { return }
+
+        observer = NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "OldMotoricaStart.didRequestMergedScan"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            StatusBarDisconnectCoordinator.showScanAfterLegacyDisconnect(from: nil)
+        }
     }
 }
 

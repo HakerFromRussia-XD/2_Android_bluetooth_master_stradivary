@@ -6,13 +6,23 @@ enum StatusBarDisconnectCoordinator {
     private static var isDisconnectFlowInProgress = false
 
     static func disconnectAndShowScan(from viewController: UIViewController?) {
+        showMergedScan(from: viewController, disconnectKmm: true)
+    }
+
+    static func showScanAfterLegacyDisconnect(from viewController: UIViewController?) {
+        showMergedScan(from: viewController, disconnectKmm: false)
+    }
+
+    private static func showMergedScan(from viewController: UIViewController?, disconnectKmm: Bool) {
         guard !isDisconnectFlowInProgress else { return }
         isDisconnectFlowInProgress = true
         defer { isDisconnectFlowInProgress = false }
 
         let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
         SmartConnectionSettingsStore().deactivateScanAutoConnectionUntilNextLaunch()
-        BLEComponents.shared.bleManager.disconnectFromDevice()
+        if disconnectKmm {
+            BLEComponents.shared.bleManager.disconnectFromDevice()
+        }
         keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
         WidgetsTabContainerViewController.sharedStatusBarViewModel.update(
             serialNumber: "—",
@@ -21,6 +31,7 @@ enum StatusBarDisconnectCoordinator {
         )
         UiStateBridge.shared.resetWidgetsState()
         WidgetsListViewController.resetGlobalSynchronizationState()
+        LegacyDocumentsCompatibility.restoreNewAppDocumentsIfNeeded()
 
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let bluetoothVC = appDelegate.appDIContainer

@@ -7,7 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03AC1AA39B113799F46BD962 /* DialogFingersDelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */; };
+		059524415962DA54885D8A4C /* DialogDisconnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */; };
+		08007AC27DA9BD554143FCBE /* ExtentionTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */; };
+		0807E314D2AD7270F8F9EA00 /* DialogSoftResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */; };
+		08B7A15BB62822A9C9F8EE0F /* AdvancedSettinsFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */; };
+		0B7CFC7D5F6695E0AAEBDC61 /* DialogPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */; };
 		19B079BAF376328CFA27B243 /* WidgetV3Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */; };
+		1CAC2AC7B91EDBD35BA19AC9 /* DialogResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */; };
 		1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */; };
 		1F05A6CC2220A2CB001E2801 /* SearchWidgetsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */; };
 		1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0CEFCE23436B67004141FA /* ConnectionError.swift */; };
@@ -62,14 +69,27 @@
 		1FFFC832221B0041007D99D2 /* WidgetsQueriesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC828221B0041007D99D2 /* WidgetsQueriesRepository.swift */; };
 		1FFFC835221B0041007D99D2 /* DefaultWidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */; };
 		1FFFC836221B0041007D99D2 /* WidgetsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */; };
+		218EBAA4BCFAFF9BFA74C4F1 /* GribSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */; };
 		2504F9E1A3A7422D61CD66C0 /* ToggleSliderListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */; };
+		2564F9E855BEC16FAFA8A696 /* OldMotoricaStartLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2419EE98408CF865A2FC843A /* OldMotoricaStartLauncher.swift */; };
+		27B2ADF2B3EB55B7D271BB2D /* ProsthesisFamilyClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */; };
 		2E0B07D814145BA62D8870DC /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659A459C2DB92863002BE2BC /* BLEDevice.swift */; };
+		3025268DC68785E88F4FB894 /* DialogCalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */; };
+		3569CC2AD9B8189FCB6509CD /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB559B71FA408288BC5EAD2 /* Quote.swift */; };
+		3570256465AA1C5AA5E22843 /* ScanDeviceNib.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */; };
+		358476E2E5F6D78B23A42E98 /* DialogSelectScaleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */; };
+		37C774BD7165C0DB6E64E3BB /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 65A2A0D02E6F1E2F00D57E7C /* DGCharts */; settings = {ATTRIBUTES = (Required, ); }; };
+		4310E94B94DC0FE6332DA1B0 /* ToDoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */; };
 		44BE111C65C4FFCFE50F26C6 /* SpinnerListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */; };
 		46214BAD4C6C41E5515B0D4F /* SwitcherListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */; };
+		4C80D31455C612D7E8F3BF49 /* Grib3DSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */; };
+		4C8C07FEA55112876C701D91 /* DataManger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB13250E9AD082075E3BD08 /* DataManger.swift */; };
 		4C8CD059C58294B7A3391512 /* TextInputListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */; };
 		4D1159A5E844285D28ACF33A /* TextInputViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */; };
 		5B8E08EEA8917950E21479AC /* SpinnerViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */; };
 		5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
+		5D36410985E74A3F9EEC6F34 /* InstractionControlsInTheAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */; };
+		6173DADD4F30493A477654E9 /* OldMotoricaStartLauncherAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08EA300139F5D74EF1D1B60 /* OldMotoricaStartLauncherAdapter.swift */; };
 		651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
 		651DDBA92EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
 		651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */; };
@@ -96,6 +116,9 @@
 		6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830382DBBAF4100744D5C /* OpenSans-wght.ttf */; };
 		6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830372DBBAF4100744D5C /* Inter.ttf */; };
 		6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6558303C2DBBAFE300744D5C /* DeviceCell.swift */; };
+		655830402DBBAF4100744D5C /* font_open_sans_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */; };
+		655830412DBBAF4100744D5C /* font_open_sans_semi_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */; };
+		655830442DBBAF4100744D5C /* font_inter_semi_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */; };
 		655830672DD4CAA200744D5C /* NumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655830662DD4CAA000744D5C /* NumberGenerator.swift */; };
 		65588F932E9CF31B005CF5BA /* SwitchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F922E9CF31A005CF5BA /* SwitchProvider.swift */; };
 		65588F992EA0E344005CF5BA /* LoadingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65588F982EA0E343005CF5BA /* LoadingContainerView.swift */; };
@@ -119,11 +142,15 @@
 		65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 65A2A0D02E6F1E2F00D57E7C /* DGCharts */; settings = {ATTRIBUTES = (Required, ); }; };
 		65AA00012F8F000100AAA001 /* PlotViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */; };
 		65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */; };
+		65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCA022F90000100ACCA01 /* AccountViewController.swift */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
+		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
+		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
+		65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */; };
 		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
 		65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4772ED865D400B3C49D /* adduction.lottie */; };
 		65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47D2ED865D400B3C49D /* pronation.lottie */; };
@@ -144,8 +171,6 @@
 		65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4972EE8232500B3C49D /* reflect.fsh */; };
 		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
 		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
-		65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */; };
-		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
 		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
 		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
@@ -157,23 +182,68 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */; };
+		66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */; };
+		66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11730B2AA0000000007 /* AAPLMeshData.mm */; };
+		66A0D10430B2AA0000000004 /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */; };
+		66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */; };
 		66F6A1012F53CE9B00A1B2C3 /* connect_to_disconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */; };
 		66F6A1022F53CE9B00A1B2C3 /* disconnect_to_connect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */; };
 		66F6A1032F53CE9B00A1B2C3 /* reconnect.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */; };
+		6B870442F476930832726FBD /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A21C86558B3D2B20C076DB /* ScanViewController.swift */; };
+		6BFFC50DF471B9AC450B1404 /* OldMotoricaStart.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6C0F72E229CF0F5B0005020A /* DispatchQueueType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */; };
-			9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
-			9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
-			A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
-			A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
-			C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+		738F57F11709759F054B0B7D /* DialogResetINDYViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */; };
+		8187ED79640AAC6760442AA1 /* DialogGesturesResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */; };
+		81AA7092DA030BF141752965 /* DialogCalibrationStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */; };
+		8884409F91F91ABEC0F26951 /* OldMotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; };
+		8DE2294FDFC71CB20C3D9DA1 /* SaveObjectString.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */; };
+		97F01AA2FA388FA6425E2525 /* NameUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223CF016196B6967172646FC /* NameUtil.swift */; };
+		9837CE33F5C836857537C67A /* WidgetDescriptorFactoryV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */; };
+		9D3E0949925503A806B2B1D0 /* MergedScanStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */; };
+		9D3E094A925503A806B2B1D1 /* MergedScanStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */; };
+		9E28B0D6E4AC1AA31980C83A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB7B911C3F0581B638A06D53 /* Main.storyboard */; };
+		9E28B0D7E4AC1AA31980C83A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */; };
+		9F62A9FB5109F89DF0DC2BD2 /* DialogRecalibrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */; };
+		9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */; };
+		A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E882E600C188FAACCC417D /* ObservableTests.swift */; };
+		A4EDEC3A3B2EE9ACAE394847 /* SensorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF856B454911936C8985160 /* SensorsViewController.swift */; };
+		A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
+		ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
+		ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */; };
+		ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+		ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
+		ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
+		ABCD02012F9C000100000001 /* AccountFirmwareModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */; };
+		ABCD02022F9C000100000001 /* FirmwareArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */; };
+		ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */; };
+		ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */; };
+		ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */; };
+		ABCD05022FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
+		ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
+		AFBA3DF021E8EC4CC9B99E86 /* InstractionFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */; };
+		B1AB5C2D2B0641576839ECAB /* InstractionProsthisesUseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */; };
+		BBBB4A3CD3FC342880C56B2A /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */; };
+		C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */; };
+		C2FE879582BC46995DD5D2EB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2426E2EC69160471B500191 /* Foundation.framework */; };
 		C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */; };
+		C62753A246FCE51657344F42 /* DialogSetSerialNumberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */; };
 		C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE31612218B17E00C160B9 /* Observable.swift */; };
+		CBCF7EE4CA1E29A7FB122594 /* GestureSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */; };
+		CE8851043038920AD8A827B8 /* DeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E178902751905FCE40A8EA /* DeviceCell.swift */; };
+		D67917EE5B549794C44BF84F /* ScanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */; };
+		D6C9F576AB39FB0DE7342560 /* SaveObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */; };
+		D7C7C5D95CF8D60CD7978280 /* DialogWaitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */; };
+		DA163544AD5F392126FAE55B /* AdvencedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */; };
 		DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */; };
+		DFA0929479404E0DCBC94CA1 /* ModelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0A2EFC768621B75CB1EECF /* ModelController.swift */; };
+		E8CE94DD269D88FC3BABF898 /* DialogConfirmationScaleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */; };
 		F027CF7D36E3FDD6CE7D6703 /* SwitcherViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */; };
 		F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */; };
 		FC2B715C2156FF93002BD59E /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2B715B2156FF93002BD59E /* AppAppearance.swift */; };
 		FC740818216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */; };
 		FC74081A2165574400FE52A5 /* WidgetQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7408192165574400FE52A5 /* WidgetQuery.swift */; };
+		FE702E9D62A85093FE82DEB9 /* SampleGattAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -191,6 +261,13 @@
 			remoteGlobalIDString = 1FA53388201E1FDE00747E55;
 			remoteInfo = MotoricaStart;
 		};
+		E10FA8F3527B6826CFC1233D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 449528174655504589859D99;
+			remoteInfo = OldMotoricaStart;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -200,6 +277,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6BFFC50DF471B9AC450B1404 /* OldMotoricaStart.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -207,11 +285,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSetSerialNumberViewController.swift; path = ViewControllers/Dialogs/DialogSetSerialNumberViewController.swift; sourceTree = "<group>"; };
+		04458DA986D9D296B1D88111 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = ru; path = ru.lproj/Main.storyboard; sourceTree = "<group>"; };
+		05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogRecalibrationViewController.swift; path = ViewControllers/Dialogs/DialogRecalibrationViewController.swift; sourceTree = "<group>"; };
 		05BC2A3AB1FD16957C6AF7F0 /* SwitcherListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherListItemViewModelV3.swift; sourceTree = "<group>"; };
+		0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MergedScanStorageKeys.swift; path = MotoricaStart/OldMotoricaStartIntegration/MergedScanStorageKeys.swift; sourceTree = "<group>"; };
+		0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = ScanDeviceNib.xib; path = MotoricaStart/OldMotoricaStartIntegration/Resources/ScanDeviceNib.xib; sourceTree = "<group>"; };
+		0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogCalibrationViewController.swift; path = ViewControllers/Dialogs/DialogCalibrationViewController.swift; sourceTree = "<group>"; };
 		0BEDAF584E85A587289FEBE7 /* WidgetDescriptorFactoryV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDescriptorFactoryV3.swift; path = Widgets/WidgetDescriptorFactoryV3.swift; sourceTree = "<group>"; };
-			1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
-			B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
-			1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogDisconnectViewController.swift; path = ViewControllers/Dialogs/DialogDisconnectViewController.swift; sourceTree = "<group>"; };
+		0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionFesthViewController.swift; path = ViewControllers/Help/InstractionFesthViewController.swift; sourceTree = "<group>"; };
+		125B4091EFDB6B194BFDAF0D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
+		14B1AB212B9961B39846E022 /* NewViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewViewController.swift; path = ViewControllers/NewViewController.swift; sourceTree = "<group>"; };
+		1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogPasswordViewController.swift; path = ViewControllers/Dialogs/DialogPasswordViewController.swift; sourceTree = "<group>"; };
+		1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsSceneUITests.swift; sourceTree = "<group>"; };
 		1F02DE3622F8507500E40C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F05A6CB2220A2CB001E2801 /* SearchWidgetsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchWidgetsUseCase.swift; sourceTree = "<group>"; };
@@ -272,9 +360,23 @@
 		1FFFC82F221B0041007D99D2 /* DefaultWidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultWidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC830221B0041007D99D2 /* WidgetsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsRepository.swift; sourceTree = "<group>"; };
 		1FFFC83D221B02BA007D99D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = MotoricaStartTests/Info.plist; sourceTree = SOURCE_ROOT; };
+		223CF016196B6967172646FC /* NameUtil.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NameUtil.swift; path = Utility/NameUtil.swift; sourceTree = "<group>"; };
 		2364C942518797C805FD8E29 /* ToggleSliderViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderViewCellV3.swift; sourceTree = "<group>"; };
+		2419EE98408CF865A2FC843A /* OldMotoricaStartLauncher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncher.swift; sourceTree = "<group>"; };
+		24A21C86558B3D2B20C076DB /* ScanViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScanViewController.swift; path = ViewControllers/Main/ScanViewController.swift; sourceTree = "<group>"; };
+		284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionControlsInTheAppViewController.swift; path = ViewControllers/Help/InstractionControlsInTheAppViewController.swift; sourceTree = "<group>"; };
+		2AE5297769ECE7ED5AAF9F75 /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
+		34E178902751905FCE40A8EA /* DeviceCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceCell.swift; path = ViewControllers/Cells/DeviceCell.swift; sourceTree = "<group>"; };
+		41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SampleGattAttributes.swift; path = Utility/SampleGattAttributes.swift; sourceTree = "<group>"; };
+		470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GestureSettingsViewController.swift; path = ViewControllers/Main/GestureSettingsViewController.swift; sourceTree = "<group>"; };
+		514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSoftResetViewController.swift; path = ViewControllers/Dialogs/DialogSoftResetViewController.swift; sourceTree = "<group>"; };
 		534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorageTests.swift; sourceTree = "<group>"; };
 		554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputViewCellV3.swift; sourceTree = "<group>"; };
+		592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OldMotoricaStart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvencedSettingsViewController.swift; path = ViewControllers/Main/AdvencedSettingsViewController.swift; sourceTree = "<group>"; };
+		5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Grib3DSettingsViewController.swift; path = ViewControllers/Main/Grib3DSettingsViewController.swift; sourceTree = "<group>"; };
+		5D0A2EFC768621B75CB1EECF /* ModelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModelController.swift; path = "test transition/ModelController.swift"; sourceTree = "<group>"; };
+		5DD218898AA2AD49F5627DF7 /* OldMotoricaStart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OldMotoricaStart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorage.swift; sourceTree = "<group>"; };
 		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
 		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
@@ -298,6 +400,9 @@
 		655830372DBBAF4100744D5C /* Inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter.ttf; sourceTree = "<group>"; };
 		655830382DBBAF4100744D5C /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
 		6558303C2DBBAFE300744D5C /* DeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCell.swift; sourceTree = "<group>"; };
+		6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_open_sans_regular.ttf; sourceTree = "<group>"; };
+		6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_open_sans_semi_bold.ttf; sourceTree = "<group>"; };
+		655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = font_inter_semi_bold.ttf; sourceTree = "<group>"; };
 		655830662DD4CAA000744D5C /* NumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberGenerator.swift; sourceTree = "<group>"; };
 		65588F922E9CF31A005CF5BA /* SwitchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchProvider.swift; sourceTree = "<group>"; };
 		65588F982EA0E343005CF5BA /* LoadingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingContainerView.swift; sourceTree = "<group>"; };
@@ -318,11 +423,15 @@
 		65A069312E6EFD9500990F76 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
 		65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotViewCellV3.swift; sourceTree = "<group>"; };
 		65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModelV3.swift; sourceTree = "<group>"; };
+		65ACCA022F90000100ACCA01 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
+		65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandBridge.swift; sourceTree = "<group>"; };
+		65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandProbe.swift; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetsListViewModelActions.swift; path = ../../WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
+		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
 		65EAF4772ED865D400B3C49D /* adduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = adduction.lottie; sourceTree = "<group>"; };
 		65EAF4782ED865D400B3C49D /* close.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = close.lottie; sourceTree = "<group>"; };
@@ -341,8 +450,6 @@
 		65EAF4922EE8232500B3C49D /* AAPLGLHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
 		65EAF4932EE8232500B3C49D /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
 		65EAF4942EE8232500B3C49D /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
-		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
-		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		65EAF4952EE8232500B3C49D /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
 		65EAF4962EE8232500B3C49D /* temple.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
 		65EAF4972EE8232500B3C49D /* reflect.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
@@ -366,20 +473,88 @@
 		65F27ED12E6709D200AD5DFD /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		65F27F002E67294700AD5DFD /* CustomSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitcher.swift; sourceTree = "<group>"; };
 		65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsListTableView.swift; sourceTree = "<group>"; };
+		66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLViewController.m; sourceTree = "<group>"; };
+		66A0D11230B2AA0000000002 /* AAPLOpenGLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLViewController.h; sourceTree = "<group>"; };
+		66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRenderer.m; sourceTree = "<group>"; };
+		66A0D11430B2AA0000000004 /* AAPLOpenGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRenderer.h; sourceTree = "<group>"; };
+		66A0D11530B2AA0000000005 /* AAPLCommonDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLCommonDefinitions.h; sourceTree = "<group>"; };
+		66A0D11630B2AA0000000006 /* AAPLMeshData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMeshData.h; sourceTree = "<group>"; };
+		66A0D11730B2AA0000000007 /* AAPLMeshData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLMeshData.mm; sourceTree = "<group>"; };
+		66A0D11830B2AA0000000008 /* AAPLMathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLMathUtilities.h; sourceTree = "<group>"; };
+		66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AAPLMathUtilities.m; sourceTree = "<group>"; };
+		66A0D11A30B2AA000000000A /* AAPLGLHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLGLHeaders.h; sourceTree = "<group>"; };
+		66A0D11B30B2AA000000000B /* MotoricaStart-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MotoricaStart-Bridging-Header.h"; sourceTree = "<group>"; };
+		66A0D11C30B2AA000000000C /* temple.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.vsh; sourceTree = "<group>"; };
+		66A0D11D30B2AA000000000D /* reflect.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.fsh; sourceTree = "<group>"; };
+		66A0D11E30B2AA000000000E /* temple.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = temple.fsh; sourceTree = "<group>"; };
+		66A0D11F30B2AA000000000F /* select_fragment_shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_fragment_shader.fsh; sourceTree = "<group>"; };
+		66A0D12230B2AA0000000010 /* select_vertex_shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = select_vertex_shader.vsh; sourceTree = "<group>"; };
+		66A0D12330B2AA0000000011 /* reflect.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = reflect.vsh; sourceTree = "<group>"; };
+		66A0D12430B2AA0000000012 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
+		66A0D12530B2AA0000000013 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		66A0D12630B2AA0000000014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		66A0D12730B2AA0000000015 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		66A0D12830B2AA0000000016 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		66A0D12930B2AA0000000017 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		66A0D12A30B2AA0000000018 /* inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = inter.ttf; sourceTree = "<group>"; };
+		66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
+		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLOpenGLRendererV3.m; sourceTree = "<group>"; };
+		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
 		66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = connect_to_disconnect.lottie; sourceTree = "<group>"; };
 		66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = disconnect_to_connect.lottie; sourceTree = "<group>"; };
 		66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = reconnect.lottie; sourceTree = "<group>"; };
 		6C0F72E129CF0F5A0005020A /* DispatchQueueType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueType.swift; sourceTree = "<group>"; };
+		6FB559B71FA408288BC5EAD2 /* Quote.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Quote.swift; path = "test transition/Quote.swift"; sourceTree = "<group>"; };
+		8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedSettinsFesthViewController.swift; path = ViewControllers/Main/AdvancedSettinsFesthViewController.swift; sourceTree = "<group>"; };
 		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
+		8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProsthesisFamilyClassifier.swift; path = MotoricaStart/OldMotoricaStartIntegration/ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
+		8EB13250E9AD082075E3BD08 /* DataManger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataManger.swift; path = Utility/DataManger.swift; sourceTree = "<group>"; };
+		92ECA664C1220B2658F99A5A /* Solution.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Solution.swift; path = ViewControllers/Main/Solution.swift; sourceTree = "<group>"; };
+		9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogFingersDelayViewController.swift; path = ViewControllers/Dialogs/DialogFingersDelayViewController.swift; sourceTree = "<group>"; };
+		9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogResetViewController.swift; path = ViewControllers/Dialogs/DialogResetViewController.swift; sourceTree = "<group>"; };
+		A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContainerViewController.swift; path = Utility/ContainerViewController.swift; sourceTree = "<group>"; };
+		AAF856B454911936C8985160 /* SensorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SensorsViewController.swift; path = ViewControllers/Main/SensorsViewController.swift; sourceTree = "<group>"; };
+		ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
+		ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolverTests.swift; sourceTree = "<group>"; };
+		ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
+		ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
+		ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareModels.swift; sourceTree = "<group>"; };
+		ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareArchiveReader.swift; sourceTree = "<group>"; };
+		ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareDialogPresenter.swift; sourceTree = "<group>"; };
+		ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareUpdateController.swift; sourceTree = "<group>"; };
+		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
+		ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothScanDeviceNameFormatter.swift; sourceTree = "<group>"; };
+		B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SaveObject.swift; path = Utility/SaveObject.swift; sourceTree = "<group>"; };
+		B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtentionTextField.swift; path = Utility/ExtentionTextField.swift; sourceTree = "<group>"; };
+		B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
+		C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogGesturesResetViewController.swift; path = ViewControllers/Dialogs/DialogGesturesResetViewController.swift; sourceTree = "<group>"; };
+		C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogConfirmationScaleViewController.swift; path = ViewControllers/Dialogs/DialogConfirmationScaleViewController.swift; sourceTree = "<group>"; };
+		C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GribSettingsViewController.swift; path = ViewControllers/Main/GribSettingsViewController.swift; sourceTree = "<group>"; };
+		C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogCalibrationStatusViewController.swift; path = ViewControllers/Dialogs/DialogCalibrationStatusViewController.swift; sourceTree = "<group>"; };
 		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherViewCellV3.swift; sourceTree = "<group>"; };
 		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
+		CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = ScanDeviceNib.xib; sourceTree = "<group>"; };
+		D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SensorsSettingsViewController.swift; sourceTree = "<group>"; };
+		D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncherAdapter.swift; sourceTree = "<group>"; };
+		D49918A44DFD5C9869C6120B /* Test.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogResetINDYViewController.swift; path = ViewControllers/Dialogs/DialogResetINDYViewController.swift; sourceTree = "<group>"; };
+		DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SaveObjectString.swift; path = Utility/SaveObjectString.swift; sourceTree = "<group>"; };
+		DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogWaitViewController.swift; path = ViewControllers/Dialogs/DialogWaitViewController.swift; sourceTree = "<group>"; };
+		DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScanItem.swift; path = Utility/ScanItem.swift; sourceTree = "<group>"; };
+		DC0E073A4FE83289F27411D6 /* MergedScanStorageKeys.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MergedScanStorageKeys.swift; sourceTree = "<group>"; };
 		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerViewCellV3.swift; sourceTree = "<group>"; };
 		E6E882E600C188FAACCC417D /* ObservableTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
+		EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionProsthisesUseViewController.swift; path = ViewControllers/Help/InstractionProsthisesUseViewController.swift; sourceTree = "<group>"; };
+		F08EA300139F5D74EF1D1B60 /* OldMotoricaStartLauncherAdapter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OldMotoricaStartLauncherAdapter.swift; path = MotoricaStart/OldMotoricaStartIntegration/OldMotoricaStartLauncherAdapter.swift; sourceTree = "<group>"; };
+		F2426E2EC69160471B500191 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToDoTableViewCell.swift; path = Utility/ToDoTableViewCell.swift; sourceTree = "<group>"; };
 		F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerListItemViewModelV3.swift; sourceTree = "<group>"; };
 		FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetV3Support.swift; path = Widgets/V3/WidgetV3Support.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
 		FC740817216555C500FE52A5 /* UserDefaultsWidgetsQueriesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsWidgetsQueriesStorage.swift; sourceTree = "<group>"; };
 		FC7408192165574400FE52A5 /* WidgetQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetQuery.swift; sourceTree = "<group>"; };
+		FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSelectScaleViewController.swift; path = ViewControllers/Dialogs/DialogSelectScaleViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -396,6 +571,7 @@
 			files = (
 				65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */,
 				65588F9E2EA0E499005CF5BA /* Lottie in Frameworks */,
+				8884409F91F91ABEC0F26951 /* OldMotoricaStart.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,9 +582,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		70D79F66DA2435B90FFD07F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2FE879582BC46995DD5D2EB /* Foundation.framework in Frameworks */,
+				37C774BD7165C0DB6E64E3BB /* DGCharts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1E28BEB557F6BF807AF90F4C /* LegacyModule */ = {
+			isa = PBXGroup;
+			children = (
+				2419EE98408CF865A2FC843A /* OldMotoricaStartLauncher.swift */,
+			);
+			path = LegacyModule;
+			sourceTree = "<group>";
+		};
 		1F02DE3322F8507500E40C3A /* MotoricaStartUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -430,6 +623,7 @@
 			isa = PBXGroup;
 			children = (
 				1F02DE3422F8507500E40C3A /* WidgetsSceneUITests.swift */,
+				ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */,
 			);
 			path = MoviesScene;
 			sourceTree = "<group>";
@@ -542,6 +736,8 @@
 				1F02DE3322F8507500E40C3A /* MotoricaStartUITests */,
 				6547845D2DEDA4B0005AF8A3 /* Frameworks */,
 				1FA5338A201E1FDE00747E55 /* Products */,
+				BE50AA02FFA21E4D38F57F3E /* OldMotoricaStart */,
+				6548CB2D2FD04F0E00F22595 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -551,6 +747,8 @@
 				1FA53389201E1FDE00747E55 /* MotoricaStart.app */,
 				1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */,
 				1F02DE3222F8507500E40C3A /* MotoricaStartUITests.xctest */,
+				5DD218898AA2AD49F5627DF7 /* OldMotoricaStart.framework */,
+				592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -566,22 +764,25 @@
 				1FEED0D320231D93000F4EAA /* Infrastructure */,
 				1FEED0D520231F72000F4EAA /* Common */,
 				1FA533AD201E205000747E55 /* Resources */,
+				65CEB79BE270CAB6C4F938E8 /* OldMotoricaStartIntegration */,
 			);
 			path = MotoricaStart;
 			sourceTree = "<group>";
 		};
-			1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
-				isa = PBXGroup;
-				children = (
-					1FFFC83D221B02BA007D99D2 /* Info.plist */,
-					E6E882E600C188FAACCC417D /* ObservableTests.swift */,
-					534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
-					1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
-					B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
-				);
-				path = MotoricaStartTests;
-				sourceTree = "<group>";
-			};
+		1FA533A0201E1FDE00747E55 /* MotoricaStartTests */ = {
+			isa = PBXGroup;
+			children = (
+				1FFFC83D221B02BA007D99D2 /* Info.plist */,
+				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
+				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
+				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
+				B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
+				ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
+				ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */,
+			);
+			path = MotoricaStartTests;
+			sourceTree = "<group>";
+		};
 		1FA533AD201E205000747E55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -655,6 +856,7 @@
 				1F57F8D123C656F600981E09 /* AccessibilityIdentifier.swift */,
 				1FA2048F242F528E000C4B56 /* LoadingView.swift */,
 				65588F982EA0E343005CF5BA /* LoadingContainerView.swift */,
+				ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -682,6 +884,12 @@
 				1FE49D75230AA7C200D1D42E /* WidgetsListViewController.swift */,
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
+				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
+				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
+				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
+				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
+				ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */,
+				ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */,
 				65F27F022E672EFD00AD5DFD /* Widgets */,
 				659A45A52DB929A9002BE2BC /* BluetoothScene */,
 				1FC8B6E4230AF89A005DBF44 /* Utils */,
@@ -795,6 +1003,143 @@
 			path = Repositories;
 			sourceTree = "<group>";
 		};
+		619F2EB2B178C1E40C15D1BE /* MotoricaStart */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12C30B2AA000000001A /* Nibs */,
+				66A0D12030B2AA000000000A /* OpenGL */,
+				66A0D13530B2AA0000000023 /* test transition */,
+				66A0D12530B2AA0000000013 /* AppDelegate.swift */,
+				BB7B911C3F0581B638A06D53 /* Main.storyboard */,
+				66A0D12D30B2AA000000001B /* ViewControllers */,
+				66A0D13230B2AA0000000020 /* Utility */,
+				66A0D13330B2AA0000000021 /* Res */,
+				D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */,
+				D49918A44DFD5C9869C6120B /* Test.swift */,
+				66A0D12630B2AA0000000014 /* Info.plist */,
+				66A0D13730B2AA0000000025 /* Localizable.strings */,
+			);
+			path = MotoricaStart;
+			sourceTree = "<group>";
+		};
+		66A0D12C30B2AA000000001A /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
+			);
+			path = Nibs;
+			sourceTree = "<group>";
+		};
+		66A0D12D30B2AA000000001B /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12E30B2AA000000001C /* Cells */,
+				66A0D12F30B2AA000000001D /* Dialogs */,
+				66A0D13030B2AA000000001E /* Main */,
+				66A0D13130B2AA000000001F /* Help */,
+				14B1AB212B9961B39846E022 /* NewViewController.swift */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		66A0D12E30B2AA000000001C /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				34E178902751905FCE40A8EA /* DeviceCell.swift */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		66A0D12F30B2AA000000001D /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */,
+				C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */,
+				05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */,
+				0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */,
+				A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */,
+				514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */,
+				C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */,
+				FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */,
+				C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */,
+				D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */,
+				DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */,
+				0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */,
+				1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */,
+				0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */,
+			);
+			name = Dialogs;
+			sourceTree = "<group>";
+		};
+		66A0D13030B2AA000000001E /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				AAF856B454911936C8985160 /* SensorsViewController.swift */,
+				5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */,
+				8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */,
+				470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */,
+				C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */,
+				5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */,
+				24A21C86558B3D2B20C076DB /* ScanViewController.swift */,
+				92ECA664C1220B2658F99A5A /* Solution.swift */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		66A0D13130B2AA000000001F /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */,
+				284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */,
+				EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */,
+			);
+			name = Help;
+			sourceTree = "<group>";
+		};
+		66A0D13230B2AA0000000020 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */,
+				A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */,
+				F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */,
+				DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */,
+				B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */,
+				DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */,
+				8EB13250E9AD082075E3BD08 /* DataManger.swift */,
+				B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */,
+				223CF016196B6967172646FC /* NameUtil.swift */,
+			);
+			name = Utility;
+			sourceTree = "<group>";
+		};
+		66A0D13330B2AA0000000021 /* Res */ = {
+			isa = PBXGroup;
+			children = (
+				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
+				66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */,
+				66A0D13430B2AA0000000022 /* Fontes */,
+			);
+			path = Res;
+			sourceTree = "<group>";
+		};
+		66A0D13430B2AA0000000022 /* Fontes */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12A30B2AA0000000018 /* inter.ttf */,
+				66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */,
+			);
+			path = Fontes;
+			sourceTree = "<group>";
+		};
+		66A0D13530B2AA0000000023 /* test transition */ = {
+			isa = PBXGroup;
+			children = (
+				5D0A2EFC768621B75CB1EECF /* ModelController.swift */,
+				6FB559B71FA408288BC5EAD2 /* Quote.swift */,
+			);
+			name = "test transition";
+			sourceTree = "<group>";
+		};
 		651DDBA52EFC1E0200199FD8 /* KeyValueStorage */ = {
 			isa = PBXGroup;
 			children = (
@@ -833,6 +1178,7 @@
 			children = (
 				652E2BD02F2B97C10084F557 /* StatusBarViewModel.swift */,
 				652E2BCE2F2B97AB0084F557 /* StatusBarView.swift */,
+				ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */,
 			);
 			path = StatusBar;
 			sourceTree = "<group>";
@@ -842,8 +1188,20 @@
 			children = (
 				65A069312E6EFD9500990F76 /* Charts.framework */,
 				6547845E2DEDA4B0005AF8A3 /* Shared.xcframework */,
+				879CE4BA7E64F65F6C347434 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6548CB2D2FD04F0E00F22595 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				0A85B9DFE4607AB28ACEB7D3 /* MergedScanStorageKeys.swift */,
+				8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */,
+				F08EA300139F5D74EF1D1B60 /* OldMotoricaStartLauncherAdapter.swift */,
+				0AFA682E4BBF82D9E69114E9 /* ScanDeviceNib.xib */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		655830392DBBAF4100744D5C /* Fontes */ = {
@@ -852,6 +1210,9 @@
 				65519BE82DF31E37006E985F /* sf_pro_display_light.otf */,
 				655830372DBBAF4100744D5C /* Inter.ttf */,
 				655830382DBBAF4100744D5C /* OpenSans-wght.ttf */,
+				6558303E2DBBAF4100744D5C /* font_open_sans_regular.ttf */,
+				6558303F2DBBAF4100744D5C /* font_open_sans_semi_bold.ttf */,
+				655830432DBBAF4100744D5C /* font_inter_semi_bold.ttf */,
 				65682FD12ECF17A100BF2D7A /* sf_pro_text_bold.otf */,
 			);
 			path = Fontes;
@@ -923,6 +1284,7 @@
 				659A45AD2DB92C63002BE2BC /* DIContainer */,
 				659A45A62DB929BE002BE2BC /* BluetoothList */,
 				6558303C2DBBAFE300744D5C /* DeviceCell.swift */,
+				ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */,
 				655830312DBBAE8F00744D5C /* ScanItem.swift */,
 				655830352DBBAEB400744D5C /* DeviceCell.xib */,
 			);
@@ -981,6 +1343,19 @@
 				65B52B0E2DF7062700FE1430 /* CustomSlider.swift */,
 			);
 			path = CustomUI;
+			sourceTree = "<group>";
+		};
+		65CEB79BE270CAB6C4F938E8 /* OldMotoricaStartIntegration */ = {
+			isa = PBXGroup;
+			children = (
+				1E28BEB557F6BF807AF90F4C /* LegacyModule */,
+				65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */,
+				65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */,
+				DC0E073A4FE83289F27411D6 /* MergedScanStorageKeys.swift */,
+				2AE5297769ECE7ED5AAF9F75 /* ProsthesisFamilyClassifier.swift */,
+				D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */,
+			);
+			path = OldMotoricaStartIntegration;
 			sourceTree = "<group>";
 		};
 		65EAF49C2EE8232500B3C49D /* shaders */ = {
@@ -1059,6 +1434,63 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		66A0D12030B2AA000000000A /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11230B2AA0000000002 /* AAPLOpenGLViewController.h */,
+				66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */,
+				66A0D11A30B2AA000000000A /* AAPLGLHeaders.h */,
+				66A0D11430B2AA0000000004 /* AAPLOpenGLRenderer.h */,
+				66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */,
+				66A0D11B30B2AA000000000B /* MotoricaStart-Bridging-Header.h */,
+				66A0D13630B2AA0000000024 /* shaders */,
+			);
+			path = OpenGL;
+			sourceTree = "<group>";
+		};
+		66A0D12130B2AA000000000B /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11530B2AA0000000005 /* AAPLCommonDefinitions.h */,
+				66A0D11630B2AA0000000006 /* AAPLMeshData.h */,
+				66A0D11730B2AA0000000007 /* AAPLMeshData.mm */,
+				66A0D11830B2AA0000000008 /* AAPLMathUtilities.h */,
+				66A0D11930B2AA0000000009 /* AAPLMathUtilities.m */,
+				66A0D12430B2AA0000000012 /* Meshes */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		66A0D13630B2AA0000000024 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D11C30B2AA000000000C /* temple.vsh */,
+				66A0D11D30B2AA000000000D /* reflect.fsh */,
+				66A0D11E30B2AA000000000E /* temple.fsh */,
+				66A0D11F30B2AA000000000F /* select_fragment_shader.fsh */,
+				66A0D12230B2AA0000000010 /* select_vertex_shader.vsh */,
+				66A0D12330B2AA0000000011 /* reflect.vsh */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
+		879CE4BA7E64F65F6C347434 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				F2426E2EC69160471B500191 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		BE50AA02FFA21E4D38F57F3E /* OldMotoricaStart */ = {
+			isa = PBXGroup;
+			children = (
+				619F2EB2B178C1E40C15D1BE /* MotoricaStart */,
+				66A0D12130B2AA000000000B /* Common */,
+			);
+			path = OldMotoricaStart;
+			sourceTree = "<group>";
+		};
 		FC7408122165557500FE52A5 /* PersistentStorages */ = {
 			isa = PBXGroup;
 			children = (
@@ -1072,6 +1504,16 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		79A75363F14F7D46A7CBFBC6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		1F02DE3122F8507500E40C3A /* MotoricaStartUITests */ = {
@@ -1105,6 +1547,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DF3859463BEE7E870508BAB4 /* PBXTargetDependency */,
 			);
 			name = MotoricaStart;
 			productName = CodeChallenge;
@@ -1128,6 +1571,27 @@
 			productName = CodeChallengeTests;
 			productReference = 1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		449528174655504589859D99 /* OldMotoricaStart */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 78016E1F70DA66D627BDEA30 /* Build configuration list for PBXNativeTarget "OldMotoricaStart" */;
+			buildPhases = (
+				79A75363F14F7D46A7CBFBC6 /* Headers */,
+				1B159CCC7141254FB787CA01 /* Sources */,
+				70D79F66DA2435B90FFD07F5 /* Frameworks */,
+				EABA10C776F8919ACD9A26B3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OldMotoricaStart;
+			packageProductDependencies = (
+				65A2A0D02E6F1E2F00D57E7C /* DGCharts */,
+			);
+			productName = OldMotoricaStart;
+			productReference = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -1179,6 +1643,7 @@
 				1FA53388201E1FDE00747E55 /* MotoricaStart */,
 				1FA5339C201E1FDE00747E55 /* MotoricaStartTests */,
 				1F02DE3122F8507500E40C3A /* MotoricaStartUITests */,
+				449528174655504589859D99 /* OldMotoricaStart */,
 			);
 		};
 /* End PBXProject section */
@@ -1203,6 +1668,9 @@
 				1FF082B3239438DC00876A22 /* Localizable.strings in Resources */,
 				6558303A2DBBAF4100744D5C /* OpenSans-wght.ttf in Resources */,
 				6558303B2DBBAF4100744D5C /* Inter.ttf in Resources */,
+				655830402DBBAF4100744D5C /* font_open_sans_regular.ttf in Resources */,
+				655830412DBBAF4100744D5C /* font_open_sans_semi_bold.ttf in Resources */,
+				655830442DBBAF4100744D5C /* font_inter_semi_bold.ttf in Resources */,
 				65EAF4822ED865D400B3C49D /* indication.lottie in Resources */,
 				65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */,
 				65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */,
@@ -1232,6 +1700,7 @@
 				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
 				1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */,
+				3570256465AA1C5AA5E22843 /* ScanDeviceNib.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,6 +1711,15 @@
 				65519BED2DF31E37006E985F /* sf_pro_display_light.otf in Resources */,
 				65682FD42ECF17A100BF2D7A /* sf_pro_text_bold.otf in Resources */,
 				654FEF792E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EABA10C776F8919ACD9A26B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E28B0D6E4AC1AA31980C83A /* Main.storyboard in Resources */,
+				9E28B0D7E4AC1AA31980C83A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1282,11 +1760,60 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1B159CCC7141254FB787CA01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBBB4A3CD3FC342880C56B2A /* ContainerViewController.swift in Sources */,
+				4C8C07FEA55112876C701D91 /* DataManger.swift in Sources */,
+				08007AC27DA9BD554143FCBE /* ExtentionTextField.swift in Sources */,
+				97F01AA2FA388FA6425E2525 /* NameUtil.swift in Sources */,
+				FE702E9D62A85093FE82DEB9 /* SampleGattAttributes.swift in Sources */,
+				D6C9F576AB39FB0DE7342560 /* SaveObject.swift in Sources */,
+				8DE2294FDFC71CB20C3D9DA1 /* SaveObjectString.swift in Sources */,
+				D67917EE5B549794C44BF84F /* ScanItem.swift in Sources */,
+				4310E94B94DC0FE6332DA1B0 /* ToDoTableViewCell.swift in Sources */,
+				CE8851043038920AD8A827B8 /* DeviceCell.swift in Sources */,
+				81AA7092DA030BF141752965 /* DialogCalibrationStatusViewController.swift in Sources */,
+				3025268DC68785E88F4FB894 /* DialogCalibrationViewController.swift in Sources */,
+				E8CE94DD269D88FC3BABF898 /* DialogConfirmationScaleViewController.swift in Sources */,
+				059524415962DA54885D8A4C /* DialogDisconnectViewController.swift in Sources */,
+				03AC1AA39B113799F46BD962 /* DialogFingersDelayViewController.swift in Sources */,
+				8187ED79640AAC6760442AA1 /* DialogGesturesResetViewController.swift in Sources */,
+				0B7CFC7D5F6695E0AAEBDC61 /* DialogPasswordViewController.swift in Sources */,
+				9F62A9FB5109F89DF0DC2BD2 /* DialogRecalibrationViewController.swift in Sources */,
+				738F57F11709759F054B0B7D /* DialogResetINDYViewController.swift in Sources */,
+				1CAC2AC7B91EDBD35BA19AC9 /* DialogResetViewController.swift in Sources */,
+				358476E2E5F6D78B23A42E98 /* DialogSelectScaleViewController.swift in Sources */,
+				C62753A246FCE51657344F42 /* DialogSetSerialNumberViewController.swift in Sources */,
+				0807E314D2AD7270F8F9EA00 /* DialogSoftResetViewController.swift in Sources */,
+				D7C7C5D95CF8D60CD7978280 /* DialogWaitViewController.swift in Sources */,
+				5D36410985E74A3F9EEC6F34 /* InstractionControlsInTheAppViewController.swift in Sources */,
+				AFBA3DF021E8EC4CC9B99E86 /* InstractionFesthViewController.swift in Sources */,
+				B1AB5C2D2B0641576839ECAB /* InstractionProsthisesUseViewController.swift in Sources */,
+				08B7A15BB62822A9C9F8EE0F /* AdvancedSettinsFesthViewController.swift in Sources */,
+				DA163544AD5F392126FAE55B /* AdvencedSettingsViewController.swift in Sources */,
+				CBCF7EE4CA1E29A7FB122594 /* GestureSettingsViewController.swift in Sources */,
+				4C80D31455C612D7E8F3BF49 /* Grib3DSettingsViewController.swift in Sources */,
+				218EBAA4BCFAFF9BFA74C4F1 /* GribSettingsViewController.swift in Sources */,
+				6B870442F476930832726FBD /* ScanViewController.swift in Sources */,
+				A4EDEC3A3B2EE9ACAE394847 /* SensorsViewController.swift in Sources */,
+				DFA0929479404E0DCBC94CA1 /* ModelController.swift in Sources */,
+				3569CC2AD9B8189FCB6509CD /* Quote.swift in Sources */,
+				2564F9E855BEC16FAFA8A696 /* OldMotoricaStartLauncher.swift in Sources */,
+				66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */,
+				66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */,
+				66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */,
+				66A0D10430B2AA0000000004 /* AAPLMathUtilities.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1F02DE2E22F8507500E40C3A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				1F02DE3522F8507500E40C3A /* WidgetsSceneUITests.swift in Sources */,
+				ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */,
 				1F57F8D423C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1321,6 +1848,11 @@
 				659A45A42DB92912002BE2BC /* BluetoothRepositoryImpl.swift in Sources */,
 				659A45A82DB92A06002BE2BC /* BluetoothListViewModel.swift in Sources */,
 				652E2BCF2F2B97AD0084F557 /* StatusBarView.swift in Sources */,
+				ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */,
+				ABCD02012F9C000100000001 /* AccountFirmwareModels.swift in Sources */,
+				ABCD02022F9C000100000001 /* FirmwareArchiveReader.swift in Sources */,
+				ABCD02032F9C000100000001 /* AccountFirmwareDialogPresenter.swift in Sources */,
+				ABCD02042F9C000100000001 /* AccountFirmwareUpdateController.swift in Sources */,
 				659A45AA2DB92A2A002BE2BC /* BluetoothListViewController.swift in Sources */,
 				659A45B22DB92CE3002BE2BC /* BluetoothListCoordinator.swift in Sources */,
 				1FF53EB423688893008D6CCC /* DataTransferError+ConnectionError.swift in Sources */,
@@ -1332,7 +1864,6 @@
 				1FFF1AD5243B966600937EE4 /* PlotListItemViewModel.swift in Sources */,
 				65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */,
 				65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */,
-				65EAF4A52EE8232500B3C49D /* AAPLOpenGLRenderer.m in Sources */,
 				66C0A10130B1000100ABC001 /* AAPLOpenGLRendererV3.m in Sources */,
 				1FC2C9632301FEC0001AE47E /* WidgetQueryUDS+Mapping.swift in Sources */,
 				1F1FC48A22E3693100BCBA8D /* DataTransferService.swift in Sources */,
@@ -1371,6 +1902,7 @@
 				1F9035272307528F00DEA4BD /* CoreDataWidgetsQueriesStorage.swift in Sources */,
 				1FE49D92230AA7C200D1D42E /* WidgetsListViewModel.swift in Sources */,
 				6558303D2DBBAFF500744D5C /* DeviceCell.swift in Sources */,
+				ABCD05022FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */,
 				1FB0903A2437651700DBE132 /* UIViewController+AddBehaviors.swift in Sources */,
 				1F5CE1CD242C303700A9CDE3 /* CoreDataStorage.swift in Sources */,
 				65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */,
@@ -1395,6 +1927,9 @@
 				651DDBA72EFC1EF200199FD8 /* UserDefaultsKeyValueStorage.swift in Sources */,
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
+				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
+				65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */,
+				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				1FA533B2201EE2A500747E55 /* Widget.swift in Sources */,
 				65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */,
@@ -1409,21 +1944,31 @@
 				F027CF7D36E3FDD6CE7D6703 /* SwitcherViewCellV3.swift in Sources */,
 				9F7D569DA056F744D55E6CF4 /* ToggleSliderViewCellV3.swift in Sources */,
 				4D1159A5E844285D28ACF33A /* TextInputViewCellV3.swift in Sources */,
+				9D3E0949925503A806B2B1D0 /* MergedScanStorageKeys.swift in Sources */,
+				27B2ADF2B3EB55B7D271BB2D /* ProsthesisFamilyClassifier.swift in Sources */,
+				6173DADD4F30493A477654E9 /* OldMotoricaStartLauncherAdapter.swift in Sources */,
+				65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */,
+				65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-			1FA53399201E1FDE00747E55 /* Sources */ = {
-				isa = PBXSourcesBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
-					A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
-					DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
-					F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
-					A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
-					C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
-					5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
-					C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
-					C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
+		1FA53399201E1FDE00747E55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
+				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
+				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
+				ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
+				ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */,
+				ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
+				ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */,
+				C9A82D8E870A7436EC39C71C /* Observable.swift in Sources */,
+				5C65FA7171154C3B2DB9BAE1 /* KeyValueStorage.swift in Sources */,
+				C3A4BC9C10A07066B4867C94 /* UserDefaultsKeyValueStorage.swift in Sources */,
+				C0BD6C5B5DA2C337AA6C00E6 /* BluetoothStorageKeys.swift in Sources */,
+				9D3E094A925503A806B2B1D1 /* MergedScanStorageKeys.swift in Sources */,
 				2E0B07D814145BA62D8870DC /* BLEDevice.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1440,6 +1985,12 @@
 			isa = PBXTargetDependency;
 			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
 			targetProxy = 1FA5339E201E1FDE00747E55 /* PBXContainerItemProxy */;
+		};
+		DF3859463BEE7E870508BAB4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OldMotoricaStart;
+			target = 449528174655504589859D99 /* OldMotoricaStart */;
+			targetProxy = E10FA8F3527B6826CFC1233D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1464,57 +2015,83 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
+		BB7B911C3F0581B638A06D53 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				125B4091EFDB6B194BFDAF0D /* en */,
+				04458DA986D9D296B1D88111 /* ru */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		66A0D13730B2AA0000000025 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66A0D12730B2AA0000000015 /* en */,
+				66A0D12830B2AA0000000016 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66A0D12930B2AA0000000017 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-			1F02DE3A22F8507500E40C3A /* Debug */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_OBJC_WEAK = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
-						"@loader_path/Frameworks",
-					);
-					MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-					MTL_FAST_MATH = YES;
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_TARGET_NAME = MotoricaStart;
-				};
-				name = Debug;
+		1F02DE3A22F8507500E40C3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStart;
 			};
-			1F02DE3B22F8507500E40C3A /* Release */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_OBJC_WEAK = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
-						"@loader_path/Frameworks",
-					);
-					MTL_FAST_MATH = YES;
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_TARGET_NAME = MotoricaStart;
-				};
-				name = Release;
+			name = Debug;
+		};
+		1F02DE3B22F8507500E40C3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoricaStart;
+			};
+			name = Release;
 		};
 		1FA533A4201E1FDE00747E55 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1716,54 +2293,131 @@
 			};
 			name = Release;
 		};
-			1FA533AA201E1FDE00747E55 /* Debug */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_MODULES = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
+		1FA533AA201E1FDE00747E55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-					OTHER_SWIFT_FLAGS = "";
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
-				};
-				name = Debug;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
 			};
-			1FA533AB201E1FDE00747E55 /* Release */ = {
-				isa = XCBuildConfiguration;
-				buildSettings = {
-					CLANG_ENABLE_MODULES = YES;
-					CODE_SIGN_IDENTITY = "Apple Development";
-					CODE_SIGN_STYLE = Automatic;
-					DEVELOPMENT_TEAM = R7K637DW83;
-					INFOPLIST_FILE = MotoricaStartTests/Info.plist;
-					IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-					LD_RUNPATH_SEARCH_PATHS = (
-						"$(inherited)",
-						"@executable_path/Frameworks",
+			name = Debug;
+		};
+		1FA533AB201E1FDE00747E55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-					OTHER_SWIFT_FLAGS = "";
-					PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
-					PRODUCT_NAME = "$(TARGET_NAME)";
-					PROVISIONING_PROFILE_SPECIFIER = "";
-					SWIFT_VERSION = 5.0;
-					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
-				};
-				name = Release;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MotoricaStart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MotoricaStart";
+			};
+			name = Release;
+		};
+		C4F40CBDED32F24D3573862B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/MotoricaStart/OldMotoricaStartIntegration/ObjCCompatibility",
+					"$(SRCROOT)/OldMotoricaStart/Common",
+					"$(SRCROOT)/OldMotoricaStart/MotoricaStart/OpenGL",
+					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
+				);
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.old;
+				PRODUCT_MODULE_NAME = OldMotoricaStart;
+				PRODUCT_NAME = OldMotoricaStart;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "MotoricaStart-Swift.h";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		F30DB6F4D80B03429389BCFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = R7K637DW83;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/MotoricaStart/OldMotoricaStartIntegration/ObjCCompatibility",
+					"$(SRCROOT)/OldMotoricaStart/Common",
+					"$(SRCROOT)/OldMotoricaStart/MotoricaStart/OpenGL",
+					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
+				);
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.old;
+				PRODUCT_MODULE_NAME = OldMotoricaStart;
+				PRODUCT_NAME = OldMotoricaStart;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "MotoricaStart-Swift.h";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
@@ -1803,6 +2457,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		78016E1F70DA66D627BDEA30 /* Build configuration list for PBXNativeTarget "OldMotoricaStart" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4F40CBDED32F24D3573862B /* Release */,
+				F30DB6F4D80B03429389BCFC /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

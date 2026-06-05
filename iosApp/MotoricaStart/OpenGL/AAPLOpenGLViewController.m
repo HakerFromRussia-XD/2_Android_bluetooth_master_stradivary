@@ -5,15 +5,15 @@ Abstract:
 Implementation of the cross-platform view controller and cross-platform view that displays OpenGL content.
 */
 #import "AAPLOpenGLViewController.h"
-#import "AAPLOpenGLRenderer.h"
 #import "AAPLOpenGLRendererV3.h"
 #import "MotoricaStart-Swift.h"
 
 #import <UIKit/UIKit.h>
+#import <objc/message.h>
 #define PlatformGLContext EAGLContext
 
 
-@implementation AAPLOpenGLView
+@implementation AAPLOpenGLViewV3
 
 + (Class) layerClass
 {
@@ -22,9 +22,9 @@ Implementation of the cross-platform view controller and cross-platform view tha
 
 @end
 
-@implementation AAPLOpenGLViewController
+@implementation AAPLOpenGLViewControllerV3
 {
-    AAPLOpenGLView *_view;
+    AAPLOpenGLViewV3 *_view;
     id _openGLRenderer;
     GestureService *gestureService;
     PlatformGLContext *_context;
@@ -34,6 +34,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     GLuint _depthRenderbuffer;
     CADisplayLink *_displayLink;
     __weak IBOutlet UIButton *saveBtn;
+    __weak IBOutlet UIButton *state_btn;
     UIView *segmentContainer;
     UIView *stateSegmentBackgroundView;
     UIView *stateSegmentContentView;
@@ -42,11 +43,14 @@ Implementation of the cross-platform view controller and cross-platform view tha
     UIButton *stateCloseButton;
     NSLayoutConstraint *stateHighlightLeadingConstraint;
     NSInteger selectedStateSegmentIndex;
+    __weak IBOutlet UIButton *fingers_delay_btn;
     __weak IBOutlet UIButton *fingersDelayBtn;
+    __weak IBOutlet UITextField *text_field;
     __weak IBOutlet UITextField *textField;
     __weak IBOutlet UILabel *deviceName;
     __weak IBOutlet UIImageView *statusConnection;
     __weak IBOutlet UIButton *renameBtn;
+    StatusBarConnectionIndicatorHostView *connectionStatusIndicatorView;
     UIImage *connectStatus;
     UIImage *disconnectStatus;
     
@@ -58,6 +62,7 @@ Implementation of the cross-platform view controller and cross-platform view tha
     bool showRenameTextField;
     BOOL _gestureSettingsObserverRegistered;
     BOOL _didInjectGestureSettingsV3ForUITest;
+    BOOL _gestureNameTextFieldLayoutConfigured;
 }
 
 
@@ -137,6 +142,193 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     });
 }
 
+- (UIButton *)resolvedFingersDelayButton {
+    return fingersDelayBtn ?: fingers_delay_btn;
+}
+
+- (UITextField *)resolvedTextField {
+    return textField ?: text_field;
+}
+
+- (void)configureGestureHeaderAppearance {
+    UIFont *headerFont = [UIFont systemFontOfSize:14.0 weight:UIFontWeightMedium];
+    UIColor *headerTextColor = [UIColor colorNamed:@"ubi4_white"] ?: UIColor.whiteColor;
+    UIColor *fieldBackgroundColor = [UIColor colorNamed:@"ubi4_gray"] ?: [UIColor colorWithWhite:0.24 alpha:1.0];
+    UIColor *fieldBorderColor = [UIColor colorNamed:@"ubi4_gray_border"] ?: [UIColor colorWithWhite:1.0 alpha:0.18];
+
+    deviceName.font = headerFont;
+    deviceName.textColor = headerTextColor;
+    deviceName.textAlignment = NSTextAlignmentCenter;
+    deviceName.numberOfLines = 1;
+    deviceName.lineBreakMode = NSLineBreakByTruncatingTail;
+    [deviceName setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+
+    UITextField *editableTextField = [self resolvedTextField];
+    editableTextField.font = headerFont;
+    editableTextField.textColor = headerTextColor;
+    editableTextField.textAlignment = NSTextAlignmentCenter;
+    editableTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    editableTextField.borderStyle = UITextBorderStyleNone;
+    editableTextField.backgroundColor = fieldBackgroundColor;
+    editableTextField.layer.cornerRadius = 8.0;
+    editableTextField.layer.borderWidth = 1.0 / UIScreen.mainScreen.scale;
+    editableTextField.layer.borderColor = fieldBorderColor.CGColor;
+    editableTextField.clipsToBounds = YES;
+    editableTextField.adjustsFontSizeToFitWidth = YES;
+    editableTextField.minimumFontSize = 10.0;
+
+    UIView *leftPaddingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
+    UIView *rightPaddingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
+    editableTextField.leftView = leftPaddingView;
+    editableTextField.leftViewMode = UITextFieldViewModeAlways;
+    editableTextField.rightView = rightPaddingView;
+    editableTextField.rightViewMode = UITextFieldViewModeAlways;
+    [editableTextField addTarget:self action:@selector(gestureNameTextFieldEditingChanged:) forControlEvents:UIControlEventEditingChanged];
+
+    [self configureGestureNameTextFieldLayoutIfNeeded];
+}
+
+- (void)configureGestureNameTextFieldLayoutIfNeeded {
+    if (_gestureNameTextFieldLayoutConfigured) {
+        return;
+    }
+
+    UITextField *editableTextField = [self resolvedTextField];
+    if (editableTextField == nil || deviceName == nil) {
+        return;
+    }
+
+    NSMutableArray<NSLayoutConstraint *> *constraintsToDeactivate = [NSMutableArray array];
+    for (NSLayoutConstraint *constraint in self.view.constraints) {
+        BOOL textFieldCenteredOnTitle =
+            constraint.firstItem == editableTextField &&
+            constraint.firstAttribute == NSLayoutAttributeCenterX &&
+            constraint.secondItem == deviceName &&
+            constraint.secondAttribute == NSLayoutAttributeCenterX;
+
+        if (textFieldCenteredOnTitle) {
+            [constraintsToDeactivate addObject:constraint];
+        }
+    }
+
+    if (constraintsToDeactivate.count > 0) {
+        [NSLayoutConstraint deactivateConstraints:constraintsToDeactivate];
+    }
+
+    NSLayoutConstraint *coverTitleStartConstraint =
+        [editableTextField.leadingAnchor constraintLessThanOrEqualToAnchor:deviceName.leadingAnchor constant:-8.0];
+    coverTitleStartConstraint.priority = UILayoutPriorityDefaultHigh;
+
+    NSLayoutConstraint *screenLeadingLimitConstraint =
+        [editableTextField.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:64.0];
+    screenLeadingLimitConstraint.priority = UILayoutPriorityRequired;
+
+    [NSLayoutConstraint activateConstraints:@[
+        coverTitleStartConstraint,
+        screenLeadingLimitConstraint
+    ]];
+
+    [editableTextField setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+    [editableTextField setContentCompressionResistancePriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
+    _gestureNameTextFieldLayoutConfigured = YES;
+}
+
+- (void)gestureNameTextFieldEditingChanged:(UITextField *)sender {
+    [sender invalidateIntrinsicContentSize];
+    [self.view setNeedsLayout];
+    [UIView performWithoutAnimation:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+
+- (void)updateStatusConnectionSizeTo:(CGFloat)size {
+    for (NSLayoutConstraint *constraint in statusConnection.constraints) {
+        if (constraint.firstItem == statusConnection &&
+            constraint.secondItem == nil &&
+            (constraint.firstAttribute == NSLayoutAttributeWidth ||
+             constraint.firstAttribute == NSLayoutAttributeHeight)) {
+            constraint.constant = size;
+        }
+    }
+}
+
+- (void)setupConnectionStatusIndicatorView {
+    if (statusConnection == nil || connectionStatusIndicatorView != nil) {
+        return;
+    }
+
+    [self updateStatusConnectionSizeTo:14.0];
+
+    statusConnection.image = nil;
+    statusConnection.backgroundColor = UIColor.clearColor;
+    statusConnection.contentMode = UIViewContentModeScaleAspectFit;
+    statusConnection.clipsToBounds = NO;
+
+    connectionStatusIndicatorView = [[StatusBarConnectionIndicatorHostView alloc] initWithFrame:CGRectZero];
+    connectionStatusIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
+    [statusConnection addSubview:connectionStatusIndicatorView];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [connectionStatusIndicatorView.leadingAnchor constraintEqualToAnchor:statusConnection.leadingAnchor],
+        [connectionStatusIndicatorView.trailingAnchor constraintEqualToAnchor:statusConnection.trailingAnchor],
+        [connectionStatusIndicatorView.topAnchor constraintEqualToAnchor:statusConnection.topAnchor],
+        [connectionStatusIndicatorView.bottomAnchor constraintEqualToAnchor:statusConnection.bottomAnchor]
+    ]];
+}
+
+- (BOOL)isLegacyOpenGLStoryboard {
+    return state_btn != nil;
+}
+
+- (void)stylizeLegacyStateButton {
+    state_btn.layer.cornerRadius = 21;
+    state_btn.layer.borderWidth = 2;
+    state_btn.layer.borderColor = UIColor.whiteColor.CGColor;
+}
+
+- (id)legacyGestureSettingsController {
+    Class controllerClass = NSClassFromString(@"GestureSettingsViewController");
+    if (controllerClass == nil) {
+        controllerClass = NSClassFromString(@"OldMotoricaStart.GestureSettingsViewController");
+    }
+    if (controllerClass == nil) {
+        return nil;
+    }
+    return [[controllerClass alloc] init];
+}
+
+- (NSInteger)legacyIntegerValueFromSelector:(SEL)selector fallback:(NSInteger)fallback {
+    id controller = [self legacyGestureSettingsController];
+    if (controller == nil || ![controller respondsToSelector:selector]) {
+        return fallback;
+    }
+    typedef NSInteger (*IntegerGetter)(id, SEL);
+    IntegerGetter getter = (IntegerGetter)objc_msgSend;
+    return getter(controller, selector);
+}
+
+- (NSString *)legacyGestureNameForNumber:(NSInteger)number {
+    id controller = [self legacyGestureSettingsController];
+    SEL selector = @selector(getGestureNameWithNumberGesture:);
+    if (controller == nil || ![controller respondsToSelector:selector]) {
+        return nil;
+    }
+    typedef NSString *(*NameGetter)(id, SEL, NSInteger);
+    NameGetter getter = (NameGetter)objc_msgSend;
+    return getter(controller, selector, number);
+}
+
+- (void)legacySetGestureName:(NSString *)name number:(NSInteger)number {
+    id controller = [self legacyGestureSettingsController];
+    SEL selector = @selector(setNameGestureWithNumberGesture:name:);
+    if (controller == nil || ![controller respondsToSelector:selector]) {
+        return;
+    }
+    typedef void (*NameSetter)(id, SEL, NSInteger, NSString *);
+    NameSetter setter = (NameSetter)objc_msgSend;
+    setter(controller, selector, number, name);
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     NSLog(@"viewWillDisappear");
@@ -170,18 +362,40 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     NSLog(@"Отсюда мы начинаем исполнение программы");
     gestureService = [[GestureService alloc] init];
     [self registerGestureSettingsObserverIfNeeded];
-    UIImage *connectStatus = [UIImage imageNamed: @"connect_status.png"];
-    UIImage *disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
+    connectStatus = [UIImage imageNamed: @"connect_status.png"];
+    disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
     [gestureService getDeviceName];
     state = 0;
-    [self setupStateSegmentedControl];
+    if ([self isLegacyOpenGLStoryboard]) {
+        [self stylizeLegacyStateButton];
+        statusConnection.image = ([self legacyIntegerValueFromSelector:@selector(getStatusConnection) fallback:0] == 1)
+            ? connectStatus
+            : disconnectStatus;
+    } else {
+        [self configureGestureHeaderAppearance];
+        [self setupConnectionStatusIndicatorView];
+        [self setupStateSegmentedControl];
+    }
 
     
     
     NSInteger selectedGestureNumber = self.gestureNumber;
-    if (selectedGestureNumber == 0) { selectedGestureNumber = 64; }
+    if ([self isLegacyOpenGLStoryboard]) {
+        selectedGestureNumber = [self legacyIntegerValueFromSelector:@selector(getGestureNum) fallback:0];
+        if (selectedGestureNumber == 0) { selectedGestureNumber = 1; }
+    } else if (selectedGestureNumber == 0) {
+        selectedGestureNumber = 64;
+    }
     _gestureNumber = selectedGestureNumber;
-    deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
+    if ([self isLegacyOpenGLStoryboard]) {
+        NSString *legacyName = [self legacyGestureNameForNumber:_gestureNumber];
+        if (_gestureNumber != 0 && legacyName.length > 4) {
+            legacyName = [legacyName substringFromIndex:4];
+        }
+        deviceName.text = legacyName ?: [NSString stringWithFormat:@"gesture %ld", (long)_gestureNumber];
+    } else {
+        deviceName.text = [gestureService getGestureNameWithNumberGesture: _gestureNumber];
+    }
     
     showRenameTextField = false;
 
@@ -191,19 +405,14 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     _didInjectGestureSettingsV3ForUITest = NO;
     deviceName.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
     
-    _view = (AAPLOpenGLView *)self.view;
+    _view = (AAPLOpenGLViewV3 *)self.view;
     
     [self prepareView];
 
     [self makeCurrentContext];
 
-    if (self.useV3Mode) {
-        _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
-                                                                  gestureNumber:_gestureNumber];
-    } else {
-        _openGLRenderer = [[AAPLOpenGLRenderer alloc] initWithDefaultFBOName:_defaultFBOName
-                                                               gestureNumber:_gestureNumber];
-    }
+    _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
+                                                              gestureNumber:_gestureNumber];
 
     if(!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");
@@ -225,7 +434,9 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    [self selectStateSegmentIndex:selectedStateSegmentIndex animated:NO notifyRenderer:NO];
+    if (segmentContainer != nil) {
+        [self selectStateSegmentIndex:selectedStateSegmentIndex animated:NO notifyRenderer:NO];
+    }
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
@@ -236,8 +447,13 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     
     if (showRenameTextField) {
         NSString *result = @"";
-        result = [result stringByAppendingString:textField.text];
-        [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
+        result = [result stringByAppendingString:[self resolvedTextField].text];
+        if ([self isLegacyOpenGLStoryboard]) {
+            NSString *legacyResult = [@"    " stringByAppendingString:result];
+            [self legacySetGestureName:legacyResult number:_gestureNumber];
+        } else {
+            [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
+        }
     }
 }
 - (IBAction)perehodWithSaveData:(UIButton *)sender {
@@ -251,6 +467,15 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 
 - (void)stateSegmentButtonTapped:(UIButton *)sender {
     [self selectStateSegmentIndex:sender.tag animated:YES notifyRenderer:YES];
+}
+
+- (IBAction)chageState:(UIButton *)sender {
+    state = !state;
+    [state_btn setTitle:(state ? [gestureService gestureStateClose] : [gestureService gestureStateOpen])
+               forState:UIControlStateNormal];
+    if (_openGLRenderer != nil) {
+        [_openGLRenderer changeState:state];
+    }
 }
 
 - (UIButton *)makeStateSegmentButtonWithTitle:(NSString *)title tag:(NSInteger)tag {
@@ -277,6 +502,9 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 }
 
 - (void)selectStateSegmentIndex:(NSInteger)index animated:(BOOL)animated notifyRenderer:(BOOL)notifyRenderer {
+    if (segmentContainer == nil) {
+        return;
+    }
     NSInteger clampedIndex = MAX(0, MIN(1, index));
     selectedStateSegmentIndex = clampedIndex;
     state = (clampedIndex == 1);
@@ -342,21 +570,34 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     }
 }
 
+- (IBAction)openFingersDealyDialog:(UIButton *)sender {
+    if (_openGLRenderer != nil) {
+        [_openGLRenderer openFingersDelayDialog];
+    }
+}
+
 - (IBAction)renameGesture:(UIButton *)sender {
+    UITextField *editableTextField = [self resolvedTextField];
     if (showRenameTextField) {
-        textField.hidden = YES;
-        [textField resignFirstResponder];
+        editableTextField.hidden = YES;
+        [editableTextField resignFirstResponder];
         showRenameTextField = false;
-        deviceName.text = textField.text;
+        deviceName.text = editableTextField.text;
         NSString *result = @"";
-        result = [result stringByAppendingString:textField.text];
-        [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
+        result = [result stringByAppendingString:editableTextField.text];
+        if ([self isLegacyOpenGLStoryboard]) {
+            NSString *legacyResult = [@"    " stringByAppendingString:result];
+            [self legacySetGestureName:legacyResult number:_gestureNumber];
+        } else {
+            [gestureService setNameGestureWithNumberGesture: _gestureNumber name:result];
+        }
         [renameBtn setImage:[UIImage imageNamed:@"rename.png"]   forState:UIControlStateNormal];
     } else {
-        textField.hidden = NO;
-        [textField becomeFirstResponder];
+        editableTextField.hidden = NO;
+        [editableTextField becomeFirstResponder];
         showRenameTextField = true;
-        textField.text = deviceName.text;
+        editableTextField.text = deviceName.text;
+        [self gestureNameTextFieldEditingChanged:editableTextField];
         [renameBtn setImage:[UIImage imageNamed:@"ok.png"]   forState:UIControlStateNormal];
     }
 }
@@ -483,9 +724,14 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     // Set the display link to run on the default run loop (and the main thread).
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
-    if ([gestureService getFingersDelaySwitch]) {
-        [fingersDelayBtn setAlpha:1];
-    } else { [fingersDelayBtn setAlpha:0]; }
+    UIButton *delayButton = [self resolvedFingersDelayButton];
+    BOOL shouldShowDelayButton = [self isLegacyOpenGLStoryboard]
+        ? ([self legacyIntegerValueFromSelector:@selector(getFingersDelaySwitch) fallback:0] &&
+           [self legacyIntegerValueFromSelector:@selector(getUseFestX) fallback:0])
+        : [gestureService getFingersDelaySwitch];
+    if (shouldShowDelayButton) {
+        [delayButton setAlpha:1];
+    } else { [delayButton setAlpha:0]; }
     
 }
 

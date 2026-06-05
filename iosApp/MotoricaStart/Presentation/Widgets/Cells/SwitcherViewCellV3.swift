@@ -10,12 +10,17 @@ final class SwitcherViewCellV3: UITableViewCell {
     private var provider: SwitchProvider?
     private var cancellable: AnyCancellable?
     private var job: Kotlinx_coroutines_coreJob?
+    private var smartConnectionObserver: NSObjectProtocol?
     private var isProgrammaticUpdate = false
 
     override func prepareForReuse() {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+        smartConnectionObserver = nil
         job?.cancel(cause: nil)
         job = nil
         provider = nil
@@ -50,6 +55,12 @@ final class SwitcherViewCellV3: UITableViewCell {
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
 
+        if viewModel.isMobileSmartConnectionSetting {
+            installSmartConnectionObserver()
+            viewModel.requestCurrent()
+            return
+        }
+
         job?.cancel(cause: nil)
         job = WidgetStateBridgeV3.shared.observeUpdates { [weak self] snapshot in
             guard let self, self.viewModel?.matches(snapshot: snapshot) == true else { return }
@@ -72,5 +83,25 @@ final class SwitcherViewCellV3: UITableViewCell {
             return
         }
         viewModel?.sendState(isOn)
+    }
+
+    private func installSmartConnectionObserver() {
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+        smartConnectionObserver = NotificationCenter.default.addObserver(
+            forName: .smartConnectionSettingsDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self else { return }
+            let isOn = notification.userInfo?["isEnabled"] as? Bool
+                ?? self.viewModel?.currentState()
+                ?? true
+            guard self.provider?.isOn != isOn else { return }
+            self.isProgrammaticUpdate = true
+            self.provider?.isOn = isOn
+            self.isProgrammaticUpdate = false
+        }
     }
 }

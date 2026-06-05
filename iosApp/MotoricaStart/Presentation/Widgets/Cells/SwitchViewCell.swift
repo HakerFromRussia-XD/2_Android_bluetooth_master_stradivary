@@ -22,6 +22,7 @@ final class SwitchViewCell: UITableViewCell {
     private var cancellable: AnyCancellable?
     private var provider:   SwitchProvider?
     private var job: Kotlinx_coroutines_coreJob?        // ссылка на корутину
+    private var smartConnectionObserver: NSObjectProtocol?
     private var isProgrammaticUpdate = false
     
     override func awakeFromNib() { super.awakeFromNib() }
@@ -55,6 +56,12 @@ final class SwitchViewCell: UITableViewCell {
         configuration = configuration.margins(.vertical, 4)
         contentConfiguration = configuration
         numberCancellable?.cancel()
+
+        if viewModel.isMobileSmartConnectionSetting {
+            installSmartConnectionObserver()
+            viewModel.requestSwitch()
+            return
+        }
             
         // 3. Запускаем подписку на поток
         job?.cancel(cause: nil)
@@ -69,6 +76,10 @@ final class SwitchViewCell: UITableViewCell {
         super.prepareForReuse()
         cancellable?.cancel()
         cancellable = nil
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+        smartConnectionObserver = nil
         job?.cancel(cause: nil)        // прекращаем наблюдение
         job = nil
         provider    = nil
@@ -78,6 +89,7 @@ final class SwitchViewCell: UITableViewCell {
         
         
     private func updateUI(_ ref: ParameterRef, viewModel: SwitchListItemViewModel) {
+        guard !viewModel.isMobileSmartConnectionSetting else { return }
         guard ref.addressDevice == viewModel.widget.deviceAddress,
               ref.parameterID   == viewModel.widget.parameterID else { return }
         
@@ -87,6 +99,26 @@ final class SwitchViewCell: UITableViewCell {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            guard self.provider?.isOn != isOn else { return }
+            self.isProgrammaticUpdate = true
+            defer { self.isProgrammaticUpdate = false }
+            self.provider?.isOn = isOn
+        }
+    }
+
+    private func installSmartConnectionObserver() {
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+        smartConnectionObserver = NotificationCenter.default.addObserver(
+            forName: .smartConnectionSettingsDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self else { return }
+            let isOn = notification.userInfo?["isEnabled"] as? Bool
+                ?? self.viewModel.cachedSwitchValue()
+                ?? true
             guard self.provider?.isOn != isOn else { return }
             self.isProgrammaticUpdate = true
             defer { self.isProgrammaticUpdate = false }

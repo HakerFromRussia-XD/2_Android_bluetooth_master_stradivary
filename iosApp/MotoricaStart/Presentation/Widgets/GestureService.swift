@@ -13,6 +13,7 @@ extension Notification.Name {
     static let gestureSettingsViewModelDidUpdate = Notification.Name("GestureSettingsViewModelDidUpdate")
     static let gestureSettingsDidUpdateV3 = Notification.Name("GestureSettingsV3DidUpdate")
     static let gestureSettingsViewModelDidUpdateV3 = Notification.Name("GestureSettingsV3ViewModelDidUpdate")
+    static let customGestureNamesDidUpdate = Notification.Name("CustomGestureNamesDidUpdate")
 }
 
 private func intValue(from value: Any?) -> Int? {
@@ -138,6 +139,15 @@ final class GestureService: NSObject {
         let index = numberGesture - 64
         let names = updateName(name, at: index)
         print("Вызвана функция setNameGesture numberGesture = \(numberGesture)  name = \(name)  names = \(names)")
+        NotificationCenter.default.post(
+            name: .customGestureNamesDidUpdate,
+            object: self,
+            userInfo: [
+                "gestureId": numberGesture,
+                "name": name,
+                "names": names
+            ]
+        )
     }
     @objc public func getGestureName(numberGesture: Int) -> String {
         let index = numberGesture - 64

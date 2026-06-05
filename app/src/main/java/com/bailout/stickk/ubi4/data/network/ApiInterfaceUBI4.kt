@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.data.network
 
-import AllOptions
-import TestModel
+import AllOptionsV3
+import SettingsModelV3
 import Token
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DevicesList_DEV
@@ -55,14 +55,14 @@ interface ApiInterfaceUBI4 {
     suspend fun getRequestProthesisSettings(
         @Path("device_id") device_id : String,
         @Header("Authorization") authorization: String
-    ): Response<AllOptions>
+    ): Response<AllOptionsV3>
 
     @POST("/v1/device-mobile-app/{device_id}")
     suspend fun createPost(
         @Path("device_id") device_id : String,
         @Header("Authorization") authorization: String,
-        @Body body: TestModel
-    ): Response<AllOptions>
+        @Body body: SettingsModelV3
+    ): Response<AllOptionsV3>
 
 
     @FormUrlEncoded

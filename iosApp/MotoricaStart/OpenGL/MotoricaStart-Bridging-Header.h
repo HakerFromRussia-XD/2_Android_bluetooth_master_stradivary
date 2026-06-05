@@ -2,5 +2,4 @@
 //  Use this file to import your target's public headers that you would like to expose to Swift.
 //
 #import "AAPLOpenGLViewController.h"
-#import "AAPLOpenGLRenderer.h"
 #import "AAPLOpenGLRendererV3.h"

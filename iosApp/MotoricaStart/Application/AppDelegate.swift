@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         SharedBootstrapper.shared.initialize()
         AppAppearance.setupAppearance()
+        FirmwareDocumentsDirectory.prepareSharedFolder()
+        SmartConnectionSettingsStore().resetScanAutoConnectionDeactivationForLaunch()
     
         
         
@@ -29,15 +31,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.backgroundColor = ubi4BackgroundColor
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        installStatusBarOverlay(backgroundColor: ubi4BackgroundColor)
+        updateStatusBarOverlay(backgroundColor: ubi4BackgroundColor)
         DispatchQueue.main.async { [weak self] in
-            self?.installStatusBarOverlay(backgroundColor: ubi4BackgroundColor)
+            guard let self, let backgroundColor = self.window?.backgroundColor else { return }
+            self.updateStatusBarOverlay(backgroundColor: backgroundColor)
         }
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
+        LegacyBleCommandBridge.startIfNeeded()
+        LegacyBleCommandProbe.startIfNeeded { [weak self] in
+            self?.window
+        }
         return true
     }
 
@@ -45,8 +52,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         CoreDataStorage.shared.saveContext()
     }
 
-    private func installStatusBarOverlay(backgroundColor: UIColor) {
+    func updateStatusBarOverlay(backgroundColor: UIColor) {
         guard let window else { return }
+        window.backgroundColor = backgroundColor
 
         // On Dynamic Island devices statusBarFrame can be shorter than safeAreaInsets.top.
         // We fill the whole top safe area to avoid a visible seam.

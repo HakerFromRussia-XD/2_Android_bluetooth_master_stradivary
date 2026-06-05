@@ -1,6 +1,6 @@
 package com.bailout.stickk.ubi4.data.network
 
-import AllOptions
+import AllOptionsV3
 import Token
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
@@ -94,7 +94,7 @@ class Ubi4RequestsApi(
         decode = { it.body() }
     )
 
-    suspend fun getProthesisSettings(deviceId: String, token: String): NetworkResult<AllOptions> =
+    suspend fun getProthesisSettings(deviceId: String, token: String): NetworkResult<AllOptionsV3> =
         safeGet(
             client = passportClient,
             builder = {

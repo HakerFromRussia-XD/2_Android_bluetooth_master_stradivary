@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountProsthesisInformationBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
-import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
+import com.bailout.stickk.ubi4.data.network.RequestsUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.google.gson.Gson
@@ -33,7 +33,7 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
     private var testSerialNumber = "FEST-F-05670"
-    private var myRequests: Requests? = null
+    private var myRequests: RequestsUBI4? = null
 
     private var _binding: Ubi4FragmentPersonalAccountProsthesisInformationBinding? = null
     private val binding get() = requireNotNull(_binding)
@@ -57,7 +57,7 @@ class AccountFragmentProsthesisInformationUBI4 : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         gson = Gson()
-        myRequests = Requests()
+        myRequests = RequestsUBI4()
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
 

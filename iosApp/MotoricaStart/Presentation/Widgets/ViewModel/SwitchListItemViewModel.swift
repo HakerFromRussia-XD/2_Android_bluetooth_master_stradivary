@@ -11,6 +11,7 @@ struct SwitchListItemViewModel: Equatable, Hashable {
     private static let requestTracker = RequestTracker()
     private static let valueCache = ValueCache()
     private let identifier: String
+    private let smartConnectionStore = SmartConnectionSettingsStore()
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
@@ -18,13 +19,25 @@ struct SwitchListItemViewModel: Equatable, Hashable {
 
 extension SwitchListItemViewModel {
     init(widget: Widget, bleManager: BleManagerKmm) {
-        self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
+        if Self.mobileSettingsKey(for: widget) == SmartConnectionSettingsStore.mobileSettingsKeyAutoLogin {
+            self.identifier = "mobile-\(SmartConnectionSettingsStore.mobileSettingsKeyAutoLogin)"
+        } else {
+            self.identifier = "\(widget.deviceAddress)-\(widget.parameterID)"
+        }
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
     }
+
+    var isMobileSmartConnectionSetting: Bool {
+        Self.mobileSettingsKey(for: widget) == SmartConnectionSettingsStore.mobileSettingsKeyAutoLogin
+    }
     
     func requestSwitch() {
+        if isMobileSmartConnectionSetting {
+            print("[SWITCH][request] skip BLE request for mobile smart connection setting")
+            return
+        }
         let cachedValue = cachedSwitchValue()
         print("[SWITCH][request] identifier=\(identifier) cachedValue=\(String(describing: cachedValue))")
         guard cachedValue == nil else {
@@ -44,6 +57,11 @@ extension SwitchListItemViewModel {
         print("[SWITCH][request] requestSwitch deviceAddress = \(Int32(widget.deviceAddress))   parameterID = \(Int32(widget.parameterID))")
     }
     func sendSwitchState(isOn: Bool) {
+        if isMobileSmartConnectionSetting {
+            smartConnectionStore.setEnabled(isOn)
+            print("[SWITCH][mobile] set smart connection enabled=\(isOn)")
+            return
+        }
         cacheSwitchValue(isOn)
         let data = BLECommands.shared.sendSwitcherCommand(
             addressDevice: Int32(widget.deviceAddress),
@@ -56,6 +74,9 @@ extension SwitchListItemViewModel {
     }
 
     func cachedSwitchValue() -> Bool? {
+        if isMobileSmartConnectionSetting {
+            return smartConnectionStore.isEnabled
+        }
         if let cached = Self.valueCache.value(for: identifier) {
             print("[SWITCH][cache] identifier=\(identifier) return cachedValue=\(cached)")
             return cached
@@ -108,6 +129,12 @@ extension SwitchListItemViewModel {
     static func resetRequestCache() {
         requestTracker.reset()
         valueCache.reset()
+    }
+
+    private static func mobileSettingsKey(for widget: Widget) -> String {
+        WidgetMetadataExtractor
+            .extractBaseStruct(from: widget.widget?.value)?
+            .keyMobileSettings ?? ""
     }
 }
 

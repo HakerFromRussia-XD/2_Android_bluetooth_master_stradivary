@@ -2,7 +2,7 @@ package com.bailout.stickk.new_electronic_by_Rodeon.connection
 
 import com.bailout.stickk.new_electronic_by_Rodeon.models.AllOptions
 import com.bailout.stickk.new_electronic_by_Rodeon.models.DevicesList_DEV
-import com.bailout.stickk.new_electronic_by_Rodeon.models.TestModel
+import com.bailout.stickk.new_electronic_by_Rodeon.models.SettingsModel
 import com.bailout.stickk.new_electronic_by_Rodeon.models.Token
 import com.bailout.stickk.new_electronic_by_Rodeon.models.deviceInfo.DeviceInfo
 import com.bailout.stickk.new_electronic_by_Rodeon.models.user.User
@@ -61,7 +61,7 @@ interface ApiInterface {
     suspend fun createPost(
         @Path("device_id") device_id : String,
         @Header("Authorization") authorization: String,
-        @Body  body: TestModel
+        @Body  body: SettingsModel
     ): Response<AllOptions>
 
 

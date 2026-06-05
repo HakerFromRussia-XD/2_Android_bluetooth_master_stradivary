@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.ArrayMap
 import com.bailout.stickk.new_electronic_by_Rodeon.models.AllOptions
 import com.bailout.stickk.new_electronic_by_Rodeon.models.DeviceInList_DEV
-import com.bailout.stickk.new_electronic_by_Rodeon.models.TestModel
+import com.bailout.stickk.new_electronic_by_Rodeon.models.SettingsModel
 import com.bailout.stickk.new_electronic_by_Rodeon.models.deviceInfo.DeviceInfo
 import com.bailout.stickk.new_electronic_by_Rodeon.models.user.User
 import com.bailout.stickk.new_electronic_by_Rodeon.models.userV2.UserV2
@@ -153,7 +153,7 @@ class Requests {
                 RetrofitInstance.api.createPost(
                     deviceId,
                     "Bearer $token",
-                    TestModel(gson.toJson(classForReceive))
+                    SettingsModel(gson.toJson(classForReceive))
                 )
             } catch (e: HttpException) {
                 error("http error ${e.message}")

@@ -706,6 +706,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.w("SyncProgressDialog", "ensureSyncDialogShown: activity is finishing/destroyed, skip")
             return
         }
+
         syncShownOnce = true
         observeSyncProgress()
     }

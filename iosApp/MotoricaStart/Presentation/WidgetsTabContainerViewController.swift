@@ -10,26 +10,22 @@ import UIKit
 import shared
 
 class WidgetsTabContainerViewController: UIViewController {
-    private enum Constants {
-        static let rootTransitionDuration: TimeInterval = 0.35
-    }
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
 
-    private static let sharedStatusBarViewModel: StatusBarViewModel = {
+    static let sharedStatusBarViewModel: StatusBarViewModel = {
         let initialState = Int(truncating: BLEStateBridge.shared.currentStateOrdinal() as NSNumber)
         return StatusBarViewModel(isConnected: initialState == 2)
     }()
 
-    private let contentViewController: WidgetsListViewController
+    fileprivate let contentViewController: WidgetsListViewController
     private let statusBarViewModel = WidgetsTabContainerViewController.sharedStatusBarViewModel
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
     private var statusBarHeightConstraint: NSLayoutConstraint?
-    private var contentTopConstraint: NSLayoutConstraint?
+    fileprivate var contentTopConstraint: NSLayoutConstraint?
     private var deviceNameObserver: NSObjectProtocol?
     private var bleStateJob: Kotlinx_coroutines_coreJob?
     private var batteryPercentJob: Kotlinx_coroutines_coreJob?
-    private var isDisconnectFlowInProgress = false
 
     private var isUiTestForceConnectedStatus: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-test-force-connected-status")
@@ -81,11 +77,28 @@ class WidgetsTabContainerViewController: UIViewController {
 
         contentViewController.didMove(toParent: self)
     }
+
+    fileprivate var contentChromeTopAnchor: NSLayoutYAxisAnchor {
+        statusBarHostingController?.view.bottomAnchor ?? view.safeAreaLayoutGuide.topAnchor
+    }
+
+    fileprivate func attachContentTop(to anchor: NSLayoutYAxisAnchor, constant: CGFloat = 0) {
+        contentTopConstraint?.isActive = false
+        contentTopConstraint = contentViewController.view.topAnchor.constraint(equalTo: anchor, constant: constant)
+        contentTopConstraint?.isActive = true
+        view.setNeedsLayout()
+    }
     
     private func embedStatusBar() {
         let hostingController = UIHostingController(
             rootView: StatusBarView(
                 viewModel: statusBarViewModel,
+                onAccountTap: { [weak self] in
+                    self?.openAccount()
+                },
+                onHelpTap: { [weak self] in
+                    self?.openHelp()
+                },
                 onDisconnectConfirmed: { [weak self] in
                     self?.handleDisconnectConfirmed()
                 }
@@ -109,6 +122,16 @@ class WidgetsTabContainerViewController: UIViewController {
         hostingController.didMove(toParent: self)
     }
 
+    private func openAccount() {
+        if navigationController?.topViewController is AccountViewController { return }
+        navigationController?.pushViewController(AccountViewController(), animated: true)
+    }
+
+    private func openHelp() {
+        if navigationController?.topViewController is HelpViewController { return }
+        navigationController?.pushViewController(HelpViewController(), animated: true)
+    }
+
     func updateStatusBar(serialNumber: String? = nil, batteryLevel: Double? = nil, isConnected: Bool? = nil) {
         statusBarViewModel.update(serialNumber: serialNumber, batteryLevel: batteryLevel, isConnected: isConnected)
     }
@@ -128,40 +151,7 @@ class WidgetsTabContainerViewController: UIViewController {
     }
 
     private func handleDisconnectConfirmed() {
-        guard !isDisconnectFlowInProgress else { return }
-        isDisconnectFlowInProgress = true
-        defer { isDisconnectFlowInProgress = false }
-
-        BLEComponents.shared.bleManager.disconnectFromDevice()
-        keyValueStorage.removeValue(for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
-        statusBarViewModel.update(serialNumber: "—", batteryLevel: 0, isConnected: false)
-        UiStateBridge.shared.resetWidgetsState()
-        WidgetsListViewController.resetGlobalSynchronizationState()
-
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let bluetoothVC = appDelegate.appDIContainer
-            .makeBluetoothSceneDIContainer()
-            .makeBluetoothListViewController()
-        guard let window = appDelegate.window else {
-            if let navigationController = navigationController {
-                navigationController.setViewControllers([bluetoothVC], animated: false)
-            }
-            return
-        }
-
-        let transition = CATransition()
-        transition.type = .push
-        transition.subtype = .fromRight
-        transition.duration = Constants.rootTransitionDuration
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        window.layer.add(transition, forKey: kCATransition)
-
-        if let rootNavigationController = window.rootViewController as? UINavigationController {
-            rootNavigationController.setViewControllers([bluetoothVC], animated: false)
-        } else {
-            window.rootViewController = StatusBarNavigationController(rootViewController: bluetoothVC)
-        }
-        window.makeKeyAndVisible()
+        StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
     }
 
     private func observeDeviceNameUpdates() {
@@ -215,4 +205,100 @@ class WidgetsTabContainerViewController: UIViewController {
 final class GesturesTabViewController: WidgetsTabContainerViewController {}
 final class SensorsTabViewController: WidgetsTabContainerViewController {}
 final class TrainingTabViewController: WidgetsTabContainerViewController {}
-final class SpecialSettingsTabViewController: WidgetsTabContainerViewController {}
+
+final class SpecialSettingsTabViewController: WidgetsTabContainerViewController {
+    private var selectorHostingController: UIHostingController<SpecialSettingsSourceSelectorView>?
+    private var selectorSource: SpecialSettingsSource = .prosthetic
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        installSelector()
+        applySource(selectorSource, animated: false)
+    }
+
+    private func installSelector() {
+        let selectorView = SpecialSettingsSourceSelectorView(
+            selection: selectorSource,
+            onSelectionChange: { [weak self] source in
+                self?.applySource(source, animated: true)
+            }
+        )
+        let hostingController = UIHostingController(rootView: selectorView)
+        selectorHostingController = hostingController
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.isOpaque = false
+        view.addSubview(hostingController.view)
+
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            hostingController.view.topAnchor.constraint(equalTo: contentChromeTopAnchor, constant: 12),
+            hostingController.view.heightAnchor.constraint(equalToConstant: 48)
+        ])
+
+        attachContentTop(to: hostingController.view.bottomAnchor, constant: 8)
+        hostingController.didMove(toParent: self)
+    }
+
+    private func applySource(_ source: SpecialSettingsSource, animated: Bool) {
+        selectorSource = source
+        contentViewController.setSpecialSettingsSource(source)
+    }
+}
+
+private struct SpecialSettingsSourceSelectorView: View {
+    @State private var selection: SpecialSettingsSource
+    let onSelectionChange: (SpecialSettingsSource) -> Void
+
+    init(
+        selection: SpecialSettingsSource,
+        onSelectionChange: @escaping (SpecialSettingsSource) -> Void
+    ) {
+        _selection = State(initialValue: selection)
+        self.onSelectionChange = onSelectionChange
+    }
+
+    var body: some View {
+        UnifiedSegmentSelectorView(
+            items: [
+                UnifiedSegmentSelectorItem(
+                    id: .prosthetic,
+                    title: SharedRes.strings().prosthetic_settings.desc().localized(),
+                    accessibilityIdentifier: AccessibilityIdentifier.specialSettingsProstheticButton
+                ),
+                UnifiedSegmentSelectorItem(
+                    id: .mobile,
+                    title: SharedRes.strings().mobile_settings.desc().localized(),
+                    accessibilityIdentifier: AccessibilityIdentifier.specialSettingsMobileButton
+                )
+            ],
+            selection: $selection,
+            selectorAccessibilityLabel: "special.settings.segment.selector",
+            selectorAccessibilityIdentifier: AccessibilityIdentifier.specialSettingsSelector,
+            accessibilityValue: { source, offset, maxStep, steps, rollback in
+                String(
+                    format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
+                    source.accessibilityValue,
+                    offset,
+                    maxStep,
+                    steps,
+                    rollback ? "true" : "false"
+                )
+            },
+            onSelectionChange: onSelectionChange
+        )
+    }
+}
+
+private extension SpecialSettingsSource {
+    var accessibilityValue: String {
+        switch self {
+        case .prosthetic:
+            return "prosthetic"
+        case .mobile:
+            return "mobile"
+        }
+    }
+}

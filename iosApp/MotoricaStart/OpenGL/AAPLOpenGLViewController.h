@@ -8,11 +8,11 @@ Header for the cross-platform view controller and cross-platform view that displ
 #define PlatformViewBase UIView
 #define PlatformViewController UIViewController
 
-@interface AAPLOpenGLView : PlatformViewBase
+@interface AAPLOpenGLViewV3 : PlatformViewBase
 
 @end
 
-@interface AAPLOpenGLViewController : PlatformViewController
+@interface AAPLOpenGLViewControllerV3 : PlatformViewController
 
 - (NSInteger) someMethod;
 - (void)setNumberGesture:(NSInteger)number;

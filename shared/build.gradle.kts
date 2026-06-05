@@ -179,6 +179,7 @@ kotlin {
             dependencies {
                 // SQLDelight iOS
 //                api("app.cash.sqldelight:native-driver:2.1.0")
+                implementation("io.ktor:ktor-client-darwin:2.3.12")
                 implementation("androidx.room:room-runtime:2.7.2")
                 api("dev.icerock.moko:resources:0.25.1")
                 api("dev.icerock.moko:graphics:0.9.0")

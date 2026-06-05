@@ -16,7 +16,7 @@ class DeviceCell: UITableViewCell {
     @IBOutlet private weak var containerView: UIView!
     
     func setupModel(model: BLEDevice) {
-        deviceNameText.text = DeviceNameBridgeV3.shared.displayName(deviceName: model.name)
+        deviceNameText.text = BluetoothScanDeviceNameFormatter.displayName(model.name)
         rssi.text = String(model.rssi)
         
 //        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
@@ -37,6 +37,9 @@ class DeviceCell: UITableViewCell {
         
         // Отключаем обработку касаний у фонового контейнера, чтобы вся ячейка отвечала на нажатия.
         containerView.isUserInteractionEnabled = false
+        let highlightView = UIView()
+        highlightView.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+        selectedBackgroundView = highlightView
     }
     
     override func  setSelected(_ selected: Bool, animated: Bool) {

@@ -14,6 +14,7 @@ final class GestureViewCell: UITableViewCell {
     private var rotationJob: Kotlinx_coroutines_coreJob?
     private var bindingJob: Kotlinx_coroutines_coreJob?
     private var activeGestureJob: Kotlinx_coroutines_coreJob?
+    private var gestureNamesObserver: NSObjectProtocol?
     private var didDelayFirstRotationGroupUpdate = false
     private var didScheduleUiTestRotationGroupSimulation = false
     private var shouldDelayFirstRotationGroupUpdateForUITest: Bool {
@@ -47,6 +48,7 @@ final class GestureViewCell: UITableViewCell {
         // 1. Создаём провайдер
         let provider = viewModel.makeProvider()
         self.provider = provider
+        observeGestureNameUpdates()
         scheduleUiTestRotationGroupFirstLoadIfNeeded()
         cancellable?.cancel()
         preservesSuperviewLayoutMargins = false
@@ -147,10 +149,15 @@ final class GestureViewCell: UITableViewCell {
         rotationJob = nil
         activeGestureJob?.cancel(cause: nil)
         activeGestureJob = nil
+        removeGestureNameUpdatesObserver()
         didDelayFirstRotationGroupUpdate = false
         didScheduleUiTestRotationGroupSimulation = false
         provider = nil
         contentConfiguration = nil
+    }
+
+    deinit {
+        removeGestureNameUpdatesObserver()
     }
         
         
@@ -226,6 +233,33 @@ final class GestureViewCell: UITableViewCell {
         transaction.disablesAnimations = true
         withTransaction(transaction) { [weak self] in
             self?.provider?.rotationGroup = rotationGroup
+        }
+    }
+
+    private func observeGestureNameUpdates() {
+        removeGestureNameUpdatesObserver()
+        gestureNamesObserver = NotificationCenter.default.addObserver(
+            forName: .customGestureNamesDidUpdate,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.refreshGestureNames()
+        }
+    }
+
+    private func removeGestureNameUpdatesObserver() {
+        if let gestureNamesObserver {
+            NotificationCenter.default.removeObserver(gestureNamesObserver)
+            self.gestureNamesObserver = nil
+        }
+    }
+
+    private func refreshGestureNames() {
+        guard let viewModel, let provider else { return }
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            viewModel.refreshGestureNames(in: provider)
         }
     }
 

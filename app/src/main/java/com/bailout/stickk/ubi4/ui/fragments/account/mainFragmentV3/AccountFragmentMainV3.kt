@@ -94,13 +94,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         main = activity as? MainActivityUBI4
         mContext = context
 
-        val deviceName = main?.mDeviceName
-        serialNumber = deviceName
-            .takeIf { !it.isNullOrBlank() && it.startsWith("FEST-") }
+        serialNumber = main?.mDeviceName
+            ?.takeIf { it.startsWith("FEST-") }
             ?: serialNumber
-
-        serialNumber = main?.mDeviceName ?: serialNumber
-        serialNumber = deviceName ?: serialNumber
 
         return binding.root
     }

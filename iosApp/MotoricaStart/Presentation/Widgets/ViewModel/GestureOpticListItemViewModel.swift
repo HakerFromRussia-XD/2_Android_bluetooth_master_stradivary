@@ -14,7 +14,9 @@ struct GestureListItemViewModel: Equatable, Hashable {
     let title: String
     let widget: Widget
     let bleManager: BleManagerKmm
-    private let gestureNameList: [String]
+    private var gestureNameList: [String] {
+        GestureListItemViewModel.makeGestureNames()
+    }
     private let parameterInfoSet: Set<ParameterInfoData>
     private let isV3Widget: Bool
     private let bindings: [WidgetV3BindingInfo]
@@ -26,7 +28,6 @@ struct GestureListItemViewModel: Equatable, Hashable {
         self.title = widget.title ?? ""
         self.widget = widget
         self.bleManager = bleManager
-        self.gestureNameList = GestureListItemViewModel.makeGestureNames()
         let isUiTestForcedGesturesWidget =
             ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget")
             && widget.id == "ui-test-gestures-widget"
@@ -91,6 +92,30 @@ extension GestureListItemViewModel {
             activeGestureTitle: nil
         )
     }
+
+    func refreshGestureNames(in provider: GesturesProvider) {
+        let custom = GestureCatalog.customGestures(withTitles: gestureNameList)
+        let catalog = GestureCatalog.factoryGestures + custom
+        let catalogById = Dictionary(uniqueKeysWithValues: catalog.map { ($0.id, $0) })
+
+        provider.customGestures = custom.map { displayItem(from: $0) }
+        provider.rotationGroup = provider.rotationGroup.map { item in
+            guard let gesture = catalogById[item.id] else { return item }
+            return displayItem(from: gesture)
+        }
+
+        provider.sprGestures = provider.sprGestures.map { item in
+            var updatedItem = item
+            if let boundGestureId = item.boundGestureId {
+                updatedItem.subtitle = catalogById[boundGestureId]?.title
+            }
+            return updatedItem
+        }
+
+        if let activeGestureId = provider.activeGestureId {
+            provider.activeGestureTitle = catalogById[activeGestureId]?.title
+        }
+    }
     func selectFactoryGesture(_ item: GesturesProvider.GestureDisplayItem, provider: GesturesProvider) {
         provider.activeGestureId = item.id
         provider.activeGestureTitle = item.title
@@ -140,12 +165,7 @@ extension GestureListItemViewModel {
             guard id != 0,
                   let gesture = catalog.first(where: { $0.id == id }) else { return nil }
 
-            return GesturesProvider.GestureDisplayItem(
-                id: gesture.id,
-                title: gesture.title,
-                subtitle: gesture.subtitle,
-                image: gesture.image
-            )
+            return displayItem(from: gesture)
         }
     }
     func bindingGroup(from parameterData: String) -> [GesturesProvider.SprGestureDisplayItem] {
@@ -440,13 +460,17 @@ extension GestureListItemViewModel {
                   let gesture = catalog.first(where: { $0.id == id })
             else { return nil }
 
-            return GesturesProvider.GestureDisplayItem(
-                id: gesture.id,
-                title: gesture.title,
-                subtitle: gesture.subtitle,
-                image: gesture.image
-            )
+            return displayItem(from: gesture)
         }
+    }
+
+    private func displayItem(from gesture: GestureCatalog.GestureItem) -> GesturesProvider.GestureDisplayItem {
+        GesturesProvider.GestureDisplayItem(
+            id: gesture.id,
+            title: gesture.title,
+            subtitle: gesture.subtitle,
+            image: gesture.image
+        )
     }
 }
 

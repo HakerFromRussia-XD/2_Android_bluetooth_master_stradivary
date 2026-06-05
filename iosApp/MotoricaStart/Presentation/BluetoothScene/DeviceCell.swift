@@ -37,6 +37,9 @@ class DeviceCell: UITableViewCell {
         
         // Отключаем обработку касаний у фонового контейнера, чтобы вся ячейка отвечала на нажатия.
         containerView.isUserInteractionEnabled = false
+        let highlightView = UIView()
+        highlightView.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+        selectedBackgroundView = highlightView
     }
     
     override func  setSelected(_ selected: Bool, animated: Bool) {

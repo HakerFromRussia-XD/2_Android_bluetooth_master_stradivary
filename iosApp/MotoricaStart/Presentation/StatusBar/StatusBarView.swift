@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import shared
 #if canImport(Lottie)
 import Lottie
@@ -429,6 +430,99 @@ private struct ConnectionStatusIndicatorView: View {
             .scaledToFit()
             .accessibilityIdentifier(AccessibilityIdentifier.statusBarConnectionIndicator)
             .accessibilityValue(Text(isConnected ? "connected" : "disconnected"))
+        #endif
+    }
+}
+
+@objcMembers
+final class StatusBarConnectionIndicatorHostView: UIView {
+    private var isConnected: Bool
+    private var hostingController: UIHostingController<StatusBarConnectionIndicatorBridgeView>?
+    private var connectionStateCancellable: AnyCancellable?
+
+    override init(frame: CGRect) {
+        isConnected = WidgetsTabContainerViewController.sharedStatusBarViewModel.isConnected
+        super.init(frame: frame)
+        configure()
+    }
+
+    required init?(coder: NSCoder) {
+        isConnected = WidgetsTabContainerViewController.sharedStatusBarViewModel.isConnected
+        super.init(coder: coder)
+        configure()
+    }
+
+    @objc(updateConnected:)
+    func updateConnected(_ connected: Bool) {
+        guard isConnected != connected else { return }
+        isConnected = connected
+        hostingController?.rootView = makeRootView(isConnected: connected)
+        updateAccessibility(isConnected: connected)
+    }
+
+    private func configure() {
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .clear
+        isOpaque = false
+        clipsToBounds = false
+        isAccessibilityElement = true
+
+        let hostingController = UIHostingController(rootView: makeRootView(isConnected: isConnected))
+        self.hostingController = hostingController
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.isOpaque = false
+        addSubview(hostingController.view)
+
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        updateAccessibility(isConnected: isConnected)
+        connectionStateCancellable = WidgetsTabContainerViewController.sharedStatusBarViewModel.$isConnected
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isConnected in
+                self?.updateConnected(isConnected)
+            }
+    }
+
+    private func makeRootView(isConnected: Bool) -> StatusBarConnectionIndicatorBridgeView {
+        StatusBarConnectionIndicatorBridgeView(isConnected: isConnected)
+    }
+
+    private func updateAccessibility(isConnected: Bool) {
+        accessibilityIdentifier = AccessibilityIdentifier.statusBarConnectionIndicator
+        accessibilityLabel = isConnected ? "Соединение установлено" : "Соединение потеряно"
+        accessibilityValue = isConnected ? "connected" : "disconnected"
+    }
+}
+
+private struct StatusBarConnectionIndicatorBridgeView: View {
+    let isConnected: Bool
+
+    var body: some View {
+        let indicator = ConnectionStatusIndicatorView(isConnected: isConnected)
+            .frame(
+                width: StatusBarView.Constants.statusIndicatorRenderSize,
+                height: StatusBarView.Constants.statusIndicatorRenderSize
+            )
+
+        #if canImport(Lottie)
+        indicator
+            .scaleEffect(0.03)
+            .frame(
+                width: StatusBarView.Constants.statusIndicatorVisualSize,
+                height: StatusBarView.Constants.statusIndicatorVisualSize
+            )
+        #else
+        indicator
+            .frame(
+                width: StatusBarView.Constants.statusIndicatorVisualSize,
+                height: StatusBarView.Constants.statusIndicatorVisualSize
+            )
         #endif
     }
 }

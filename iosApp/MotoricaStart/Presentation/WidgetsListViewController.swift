@@ -2,6 +2,11 @@ import UIKit
 import DGCharts
 import shared
 
+enum SpecialSettingsSource: Hashable {
+    case prosthetic
+    case mobile
+}
+
 extension Notification.Name {
     static let v3PausePlotPointRendering = Notification.Name("V3PausePlotPointRendering")
     static let v3ResumePlotPointRendering = Notification.Name("V3ResumePlotPointRendering")
@@ -63,6 +68,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private var open3DGestureId: Int?
     private var open3DGestureIsV3 = false
     private var lastWidgetsSignature: String?
+    private var specialSettingsSource: SpecialSettingsSource = .prosthetic
     var display: Int32 = 1
     var screenTitleOverride: String?
     let storage = CoreDataWidgetsResponseStorage()
@@ -139,6 +145,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
+        if isSpecialSettingsMobileSource {
+            LoadingView.hide()
+            showWidgetsContent()
+            return
+        }
         if isUiTestSkipSynchronization {
             isSynchronizationCompleted = true
             isSynchronizationInProgress = false
@@ -239,10 +250,16 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         }
 
         let dataFactory = DataFactory()
-        //TODO: тут можно включать фейковые виджеты (2)
-        var kotlinWidgets = dataFactory.prepareData(display: display)
-        if isUiTestSkipSynchronization && kotlinWidgets.isEmpty {
-            kotlinWidgets = dataFactory.fakeData()
+        let kotlinWidgets: [Any]
+        if isSpecialSettingsMobileSource {
+            kotlinWidgets = dataFactory.mobileWidgets()
+        } else {
+            //TODO: тут можно включать фейковые виджеты (2)
+            var prostheticWidgets = dataFactory.prepareData(display: display)
+            if isUiTestSkipSynchronization && prostheticWidgets.isEmpty {
+                prostheticWidgets = dataFactory.fakeData()
+            }
+            kotlinWidgets = prostheticWidgets
         }
         
 //        let kotlinWidgets = dataFactory.fakeData2()
@@ -372,7 +389,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateItems() {
-        if isSynchronizationCompleted {
+        if isSynchronizationCompleted || isSpecialSettingsMobileSource {
             widgetsTableViewController?.reload()
             showWidgetsContent()
         } else {
@@ -381,6 +398,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
 
     private func updateLoading(_ loading: WidgetsListViewModelLoading?) {
+        if isSpecialSettingsMobileSource {
+            showWidgetsContent()
+            widgetsTableViewController?.updateLoading(loading)
+            return
+        }
+
         switch loading {
         case .some(.fullScreen(let state)): beginSynchronization(state: state)
         case .some(.nextPage):
@@ -458,6 +481,12 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     
     private func beginSynchronization(resetState: Bool = false, state: LoadingView.State? = nil) {
+        guard !isSpecialSettingsMobileSource else {
+            LoadingView.hide()
+            showWidgetsContent()
+            return
+        }
+
         if resetState {
             isSynchronizationCompleted = false
             isSynchronizationInProgress = false
@@ -502,6 +531,32 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
 }
 
 extension WidgetsListViewController {
+    func setSpecialSettingsSource(_ source: SpecialSettingsSource) {
+        guard display == 2 else { return }
+        guard specialSettingsSource != source else { return }
+        specialSettingsSource = source
+        lastWidgetsSignature = nil
+        reloadWidgetsFromShared()
+
+        if isSpecialSettingsMobileSource {
+            LoadingView.hide()
+            needsReloadAfterSynchronization = false
+            showWidgetsContent()
+        } else if isViewVisible {
+            if isSynchronizationCompleted {
+                showWidgetsContent()
+            } else if isSynchronizationInProgress {
+                beginSynchronization(state: lastKnownLoadingState ?? defaultLoadingState)
+            } else {
+                UiStateBridge.shared.resetWidgetsState()
+                beginSynchronization(state: defaultLoadingState)
+                viewModel.requestInicializeInformation()
+            }
+        }
+    }
+}
+
+extension WidgetsListViewController {
     static var isGlobalSynchronizationCompleted: Bool {
         globalSynchronizationCompleted
     }
@@ -518,6 +573,10 @@ extension WidgetsListViewController {
 
 
 private extension WidgetsListViewController {
+    var isSpecialSettingsMobileSource: Bool {
+        display == 2 && specialSettingsSource == .mobile
+    }
+
     func presentLoading(with state: LoadingView.State) {
         lastKnownLoadingState = state
         guard isViewVisible else { return }

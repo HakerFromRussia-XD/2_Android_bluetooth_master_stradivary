@@ -126,7 +126,7 @@ class DataFactory {
         return listOfNotNull(
             toWidgetItemS(
                 ParameterWidgetCode.PWCE_SWITCH.number.toInt(),
-                "Авто логин",
+                mobileSettingsLabel(MobileSettingsKey.AUTO_LOGIN),
                 widget
             )
         )
@@ -308,6 +308,13 @@ class DataFactory {
         }
         val langMap = parameterWidgetLabel[langKey] ?: parameterWidgetLabel["en"].orEmpty()
         return langMap[code]?.title ?: "Unknown"
+    }
+
+    private fun mobileSettingsLabel(key: MobileSettingsKey, lang: String = systemLang()): String {
+        val isRussian = lang.startsWith("ru", ignoreCase = true)
+        return when (key) {
+            MobileSettingsKey.AUTO_LOGIN -> if (isRussian) "Автоматический вход" else "Auto login"
+        }
     }
 
     // Общие функции преобразования для виджетов (варианты с labelCode и label)

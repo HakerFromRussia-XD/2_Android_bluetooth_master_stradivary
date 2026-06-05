@@ -84,6 +84,7 @@ class AdvencedSettingsFesthViewController: UIViewController {
     private var setReverse = 0
     private var setModeProsthesis = 0
     private var maxStandCycles = 0
+    private var smartConnectionObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,7 +99,16 @@ class AdvencedSettingsFesthViewController: UIViewController {
     
         NotificationCenter.default.addObserver(self, selector: #selector(checkStateConnection), name: .notificationCheckStateConnection, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(resultDialog), name: .notificationDataDialogs, object: nil)
+        observeSmartConnectionSettings()
+        refreshSmartConnectionControl(animated: false)
     }
+
+    deinit {
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+    }
+
     @objc func checkStateConnection(notification: Notification) {
             guard let dataState = notification.userInfo,
                 let state = dataState["state"] as? String
@@ -435,12 +445,8 @@ class AdvencedSettingsFesthViewController: UIViewController {
         }
     }
     @IBAction func smartConnectionControlSwitch(_ sender: UISwitch) {
-        if (sender.isOn) {
-            smartConnectionControlText.text = NSLocalizedString("on", comment: "")
-        } else {
-            smartConnectionControlText.text = NSLocalizedString("off", comment: "")
-        }
         LegacySmartConnectionStateStore.setEnabled(sender.isOn)
+        applySmartConnectionEnabled(sender.isOn, animated: false)
     }
     @IBAction func reset(_ sender: UIButton) {}
     @IBAction func calibration(_ sender: UIButton) {}
@@ -892,6 +898,32 @@ class AdvencedSettingsFesthViewController: UIViewController {
         let saveObjectString = SaveObjectString(key: key, value: value)
         print("save   key: \(key) value: \(value)")
         DataManager.save(saveObjectString, with: key)
+    }
+
+    private func observeSmartConnectionSettings() {
+        if let smartConnectionObserver {
+            NotificationCenter.default.removeObserver(smartConnectionObserver)
+        }
+        smartConnectionObserver = NotificationCenter.default.addObserver(
+            forName: .smartConnectionSettingsDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            let isEnabled = notification.userInfo?["isEnabled"] as? Bool
+                ?? LegacySmartConnectionStateStore.currentValue()
+            self?.applySmartConnectionEnabled(isEnabled, animated: true)
+        }
+    }
+
+    private func refreshSmartConnectionControl(animated: Bool) {
+        applySmartConnectionEnabled(LegacySmartConnectionStateStore.currentValue(), animated: animated)
+    }
+
+    private func applySmartConnectionEnabled(_ isEnabled: Bool, animated: Bool) {
+        smartConnectionControlText.text = NSLocalizedString(isEnabled ? "on" : "off", comment: "")
+        if smartConnectionControlSwitch.isOn != isEnabled {
+            smartConnectionControlSwitch.setOn(isEnabled, animated: animated)
+        }
     }
 }
 

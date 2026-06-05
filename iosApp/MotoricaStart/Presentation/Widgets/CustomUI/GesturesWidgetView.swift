@@ -10,12 +10,20 @@ import UIKit
 import shared
 import Lottie
 
+struct UnifiedSegmentSelectorItem<ID: Hashable>: Hashable {
+    let id: ID
+    let title: String
+    let accessibilityIdentifier: String
+}
 
-struct GesturesWidgetView: View {
-    
-    // MARK: - Dependencies
-    @ObservedObject var provider: GesturesProvider
-    let visibleSegments: [GesturesProvider.Segment]
+struct UnifiedSegmentSelectorView<ID: Hashable>: View {
+    let items: [UnifiedSegmentSelectorItem<ID>]
+    @Binding var selection: ID
+    let selectorAccessibilityLabel: String
+    let selectorAccessibilityIdentifier: String
+    var accessibilityValue: ((ID, CGFloat, CGFloat, Int, Bool) -> String)?
+    var onSelectionChange: (ID) -> Void
+
     @State private var selectorAccessibilityOffset: CGFloat = 0
     @State private var selectorDisplayOffset: CGFloat = 0
     @State private var selectorSegmentWidth: CGFloat = 0
@@ -26,6 +34,219 @@ struct GesturesWidgetView: View {
     @State private var selectorAnimationRollbackDetected = false
     @State private var selectorPreviousAnimationOffset: CGFloat = 0
     @State private var selectorAnimationDirection: CGFloat = 0
+
+    private var animationDuration: Double { 0.3 }
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let segmentCount = CGFloat(max(items.count, 1))
+            let segmentWidth = width / segmentCount
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("ubi4_gray"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color("ubi4_back"))
+                    .padding(1)
+                    .frame(width: segmentWidth)
+                    .offset(x: selectorDisplayOffset)
+
+                HStack(spacing: 0) {
+                    ForEach(items, id: \.self) { item in
+                        Button(action: { select(item: item) }) {
+                            Text(item.title)
+                                .font(.system(size: 12, weight: .light))
+                                .foregroundColor(item.id == selection ? .white : Color("ubi4_deactivate_text"))
+                                .animation(nil, value: selection)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .contentShape(Rectangle())
+                                .accessibilityIdentifier(item.accessibilityIdentifier)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        .accessibilityIdentifier(item.accessibilityIdentifier)
+                        .animation(nil, value: selection)
+                        .buttonStyle(.plain)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(2)
+            }
+            .overlay(
+                Color.clear
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(selectorAccessibilityLabel)
+                    .accessibilityIdentifier(selectorAccessibilityIdentifier)
+                    .accessibilityValue(selectorAccessibilityValue(segmentWidth: segmentWidth))
+                    .allowsHitTesting(false)
+            )
+            .onAppear {
+                initializeSelectorOffsetIfNeeded(segmentWidth: segmentWidth)
+            }
+            .onChange(of: segmentWidth) { newValue in
+                updateSelectorOffsetForSegmentWidth(newValue)
+            }
+            .onChange(of: selection) { _ in
+                guard segmentWidth > 0 else { return }
+                let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+                if isSelectorOffsetInitialized {
+                    animateSelectorOffset(to: targetOffset)
+                } else {
+                    setSelectorOffsetImmediate(targetOffset)
+                }
+            }
+            .onDisappear {
+                selectorAnimationTimer?.invalidate()
+                selectorAnimationTimer = nil
+            }
+        }
+        .frame(height: 48)
+    }
+
+    private func select(item: UnifiedSegmentSelectorItem<ID>) {
+        guard selection != item.id else { return }
+        UIView.performWithoutAnimation {
+            selection = item.id
+        }
+        onSelectionChange(item.id)
+    }
+
+    private func segmentHighlightOffset(segmentWidth: CGFloat) -> CGFloat {
+        let index = items.firstIndex(where: { $0.id == selection }) ?? 0
+        return CGFloat(index) * segmentWidth
+    }
+
+    private func selectorAccessibilityValue(segmentWidth: CGFloat) -> String {
+        let fallbackOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        let reportedOffset = selectorAccessibilityOffset.isFinite ? selectorAccessibilityOffset : fallbackOffset
+        return accessibilityValue?(
+            selection,
+            reportedOffset,
+            selectorAnimationMaxStep,
+            selectorAnimationStepCount,
+            selectorAnimationRollbackDetected
+        ) ?? String(
+            format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
+            String(describing: selection),
+            reportedOffset,
+            selectorAnimationMaxStep,
+            selectorAnimationStepCount,
+            selectorAnimationRollbackDetected ? "true" : "false"
+        )
+    }
+
+    private func initializeSelectorOffsetIfNeeded(segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        selectorSegmentWidth = segmentWidth
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard !isSelectorOffsetInitialized else {
+            if selectorAnimationTimer == nil {
+                setSelectorOffsetImmediate(targetOffset)
+            }
+            return
+        }
+        setSelectorOffsetImmediate(targetOffset)
+    }
+
+    private func updateSelectorOffsetForSegmentWidth(_ segmentWidth: CGFloat) {
+        guard segmentWidth > 0 else { return }
+        selectorSegmentWidth = segmentWidth
+        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
+        guard isSelectorOffsetInitialized else {
+            setSelectorOffsetImmediate(targetOffset)
+            return
+        }
+        if selectorAnimationTimer == nil {
+            setSelectorOffsetImmediate(targetOffset)
+        } else {
+            animateSelectorOffset(to: targetOffset)
+        }
+    }
+
+    private func setSelectorOffsetImmediate(_ offset: CGFloat) {
+        isSelectorOffsetInitialized = true
+        selectorDisplayOffset = offset
+        selectorAccessibilityOffset = offset
+        selectorPreviousAnimationOffset = offset
+    }
+
+    private func animateSelectorOffset(to targetOffset: CGFloat) {
+        let clampedTarget = targetOffset.isFinite ? targetOffset : 0
+        let startOffset = selectorDisplayOffset
+        let delta = clampedTarget - startOffset
+
+        if abs(delta) < 0.5 {
+            selectorAnimationMaxStep = 0
+            selectorAnimationStepCount = 0
+            selectorAnimationRollbackDetected = false
+            selectorAnimationDirection = 0
+            setSelectorOffsetImmediate(clampedTarget)
+            return
+        }
+
+        selectorAnimationTimer?.invalidate()
+        selectorAnimationMaxStep = 0
+        selectorAnimationStepCount = 0
+        selectorAnimationRollbackDetected = false
+        selectorAnimationDirection = delta >= 0 ? 1 : -1
+        selectorPreviousAnimationOffset = startOffset
+        let startTime = CACurrentMediaTime()
+        let duration = animationDuration
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
+            let elapsed = CACurrentMediaTime() - startTime
+            let progress = min(max(elapsed / duration, 0), 1)
+            let easedProgress = easeInOut(progress: progress)
+            let nextOffset = startOffset + (delta * easedProgress)
+
+            let step = nextOffset - selectorPreviousAnimationOffset
+            if abs(step) > 0.001 {
+                selectorAnimationStepCount += 1
+                selectorAnimationMaxStep = max(selectorAnimationMaxStep, abs(step))
+                if selectorAnimationDirection > 0, step < -0.8 {
+                    selectorAnimationRollbackDetected = true
+                } else if selectorAnimationDirection < 0, step > 0.8 {
+                    selectorAnimationRollbackDetected = true
+                }
+                selectorPreviousAnimationOffset = nextOffset
+            }
+
+            selectorDisplayOffset = nextOffset
+            selectorAccessibilityOffset = nextOffset
+
+            if progress >= 1 {
+                timer.invalidate()
+                selectorAnimationTimer = nil
+                selectorPreviousAnimationOffset = clampedTarget
+                setSelectorOffsetImmediate(clampedTarget)
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        selectorAnimationTimer = timer
+    }
+
+    private func easeInOut(progress: Double) -> CGFloat {
+        let easedValue: Double
+        if progress < 0.5 {
+            easedValue = 2 * progress * progress
+        } else {
+            easedValue = 1 - pow(-2 * progress + 2, 2) / 2
+        }
+        return CGFloat(easedValue)
+    }
+}
+
+
+struct GesturesWidgetView: View {
+
+    // MARK: - Dependencies
+    @ObservedObject var provider: GesturesProvider
+    let visibleSegments: [GesturesProvider.Segment]
     @State private var rotationFirstLoadRevealTimer: Timer?
     @State private var rotationFirstLoadRevealProgress: CGFloat = 1
     @State private var previousRotationGroupCount: Int = 0
@@ -136,8 +357,6 @@ struct GesturesWidgetView: View {
             previousRotationGroupCount = newCount
         }
         .onDisappear {
-            selectorAnimationTimer?.invalidate()
-            selectorAnimationTimer = nil
             rotationFirstLoadRevealTimer?.invalidate()
             rotationFirstLoadRevealTimer = nil
         }
@@ -237,71 +456,31 @@ struct GesturesWidgetView: View {
 
     // MARK: - Segment Selector
     private var segmentSelector: some View {
-        GeometryReader { geo in
-            let width = geo.size.width
-            let segmentCount = CGFloat(max(visibleSegments.count, 1))
-            let segmentWidth = width / segmentCount
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("ubi4_gray"))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("ubi4_gray_border"), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("ubi4_back"))
-                    .padding(1)
-                    .frame(width: segmentWidth)
-                    .offset(x: selectorDisplayOffset)
-
-                HStack(spacing: 0) {
-                    ForEach(visibleSegments, id: \.self) { segment in
-                        Button(action: { select(segment: segment) }) {
-                            Text(segment.title)
-                                .font(.system(size: 12, weight: .light))
-                                .foregroundColor(segment == provider.selectedSegment ? .white : Color("ubi4_deactivate_text"))
-                                .animation(nil, value: provider.selectedSegment)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                .contentShape(Rectangle())
-                                .accessibilityIdentifier(accessibilityIdentifier(for: segment))
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Rectangle())
-                        .accessibilityIdentifier(accessibilityIdentifier(for: segment))
-                        .animation(nil, value: provider.selectedSegment)
-                        .buttonStyle(.plain)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(2)
+        UnifiedSegmentSelectorView(
+            items: visibleSegments.map {
+                UnifiedSegmentSelectorItem(
+                    id: $0,
+                    title: $0.title,
+                    accessibilityIdentifier: accessibilityIdentifier(for: $0)
+                )
+            },
+            selection: $provider.selectedSegment,
+            selectorAccessibilityLabel: "gestures.segment.selector",
+            selectorAccessibilityIdentifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            accessibilityValue: { segment, offset, maxStep, steps, rollback in
+                String(
+                    format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
+                    segmentAccessibilityValue(for: segment),
+                    offset,
+                    maxStep,
+                    steps,
+                    rollback ? "true" : "false"
+                )
+            },
+            onSelectionChange: { segment in
+                onSegmentChange(segment)
             }
-            .overlay(
-                Color.clear
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("gestures.segment.selector")
-                    .accessibilityIdentifier(AccessibilityIdentifier.gesturesSegmentSelector)
-                    .accessibilityValue(segmentSelectorAccessibilityValue(segmentWidth: segmentWidth))
-                    .allowsHitTesting(false)
-            )
-            .onAppear {
-                initializeSelectorOffsetIfNeeded(segmentWidth: segmentWidth)
-            }
-            .onChange(of: segmentWidth) { newValue in
-                updateSelectorOffsetForSegmentWidth(newValue)
-            }
-            .onChange(of: provider.selectedSegment) { _ in
-                guard segmentWidth > 0 else { return }
-                let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
-                if isSelectorOffsetInitialized {
-                    animateSelectorOffset(to: targetOffset)
-                } else {
-                    setSelectorOffsetImmediate(targetOffset)
-                }
-            }
-        }
-        .frame(height: 48)
+        )
     }
     
     @ViewBuilder
@@ -444,11 +623,6 @@ struct GesturesWidgetView: View {
         }
     }
 
-    private func segmentHighlightOffset(segmentWidth: CGFloat) -> CGFloat {
-        let index = visibleSegments.firstIndex(of: provider.selectedSegment) ?? 0
-        return CGFloat(index) * segmentWidth
-    }
-
     private func accessibilityIdentifier(for segment: GesturesProvider.Segment) -> String {
         switch segment {
         case .collection:
@@ -469,116 +643,6 @@ struct GesturesWidgetView: View {
         case .sprGroup:
             return "spr"
         }
-    }
-
-    private func segmentSelectorAccessibilityValue(segmentWidth: CGFloat) -> String {
-        let fallbackOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
-        let reportedOffset = selectorAccessibilityOffset.isFinite ? selectorAccessibilityOffset : fallbackOffset
-        return String(
-            format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
-            segmentAccessibilityValue(for: provider.selectedSegment),
-            reportedOffset,
-            selectorAnimationMaxStep,
-            selectorAnimationStepCount,
-            selectorAnimationRollbackDetected ? "true" : "false"
-        )
-    }
-    
-    private func select(segment: GesturesProvider.Segment) {
-        guard provider.selectedSegment != segment else { return }
-        UIView.performWithoutAnimation {
-            provider.selectedSegment = segment
-        }
-        onSegmentChange(segment)
-    }
-
-    private func initializeSelectorOffsetIfNeeded(segmentWidth: CGFloat) {
-        guard segmentWidth > 0 else { return }
-        selectorSegmentWidth = segmentWidth
-        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
-        guard !isSelectorOffsetInitialized else {
-            if selectorAnimationTimer == nil {
-                setSelectorOffsetImmediate(targetOffset)
-            }
-            return
-        }
-        setSelectorOffsetImmediate(targetOffset)
-    }
-
-    private func updateSelectorOffsetForSegmentWidth(_ segmentWidth: CGFloat) {
-        guard segmentWidth > 0 else { return }
-        selectorSegmentWidth = segmentWidth
-        let targetOffset = segmentHighlightOffset(segmentWidth: segmentWidth)
-        guard isSelectorOffsetInitialized else {
-            setSelectorOffsetImmediate(targetOffset)
-            return
-        }
-        if selectorAnimationTimer == nil {
-            setSelectorOffsetImmediate(targetOffset)
-        } else {
-            animateSelectorOffset(to: targetOffset)
-        }
-    }
-
-    private func setSelectorOffsetImmediate(_ offset: CGFloat) {
-        isSelectorOffsetInitialized = true
-        selectorDisplayOffset = offset
-        selectorAccessibilityOffset = offset
-        selectorPreviousAnimationOffset = offset
-    }
-
-    private func animateSelectorOffset(to targetOffset: CGFloat) {
-        let clampedTarget = targetOffset.isFinite ? targetOffset : 0
-        let startOffset = selectorDisplayOffset
-        let delta = clampedTarget - startOffset
-
-        if abs(delta) < 0.5 {
-            selectorAnimationMaxStep = 0
-            selectorAnimationStepCount = 0
-            selectorAnimationRollbackDetected = false
-            selectorAnimationDirection = 0
-            setSelectorOffsetImmediate(clampedTarget)
-            return
-        }
-
-        selectorAnimationTimer?.invalidate()
-        selectorAnimationMaxStep = 0
-        selectorAnimationStepCount = 0
-        selectorAnimationRollbackDetected = false
-        selectorAnimationDirection = delta >= 0 ? 1 : -1
-        selectorPreviousAnimationOffset = startOffset
-        let startTime = CACurrentMediaTime()
-        let duration = animationDuration
-        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { timer in
-            let elapsed = CACurrentMediaTime() - startTime
-            let progress = min(max(elapsed / duration, 0), 1)
-            let easedProgress = easeInOut(progress: progress)
-            let nextOffset = startOffset + (delta * easedProgress)
-
-            let step = nextOffset - selectorPreviousAnimationOffset
-            if abs(step) > 0.001 {
-                selectorAnimationStepCount += 1
-                selectorAnimationMaxStep = max(selectorAnimationMaxStep, abs(step))
-                if selectorAnimationDirection > 0, step < -0.8 {
-                    selectorAnimationRollbackDetected = true
-                } else if selectorAnimationDirection < 0, step > 0.8 {
-                    selectorAnimationRollbackDetected = true
-                }
-                selectorPreviousAnimationOffset = nextOffset
-            }
-
-            selectorDisplayOffset = nextOffset
-            selectorAccessibilityOffset = nextOffset
-
-            if progress >= 1 {
-                timer.invalidate()
-                selectorAnimationTimer = nil
-                selectorPreviousAnimationOffset = clampedTarget
-                setSelectorOffsetImmediate(clampedTarget)
-            }
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        selectorAnimationTimer = timer
     }
 
     private func easeInOut(progress: Double) -> CGFloat {

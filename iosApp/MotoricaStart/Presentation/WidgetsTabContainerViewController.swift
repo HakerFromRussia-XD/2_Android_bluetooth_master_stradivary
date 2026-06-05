@@ -17,12 +17,12 @@ class WidgetsTabContainerViewController: UIViewController {
         return StatusBarViewModel(isConnected: initialState == 2)
     }()
 
-    private let contentViewController: WidgetsListViewController
+    fileprivate let contentViewController: WidgetsListViewController
     private let statusBarViewModel = WidgetsTabContainerViewController.sharedStatusBarViewModel
     private let keyValueStorage: KeyValueStorage = UserDefaultsKeyValueStorage()
     private var statusBarHostingController: UIHostingController<StatusBarView>?
     private var statusBarHeightConstraint: NSLayoutConstraint?
-    private var contentTopConstraint: NSLayoutConstraint?
+    fileprivate var contentTopConstraint: NSLayoutConstraint?
     private var deviceNameObserver: NSObjectProtocol?
     private var bleStateJob: Kotlinx_coroutines_coreJob?
     private var batteryPercentJob: Kotlinx_coroutines_coreJob?
@@ -76,6 +76,17 @@ class WidgetsTabContainerViewController: UIViewController {
         ].compactMap { $0 })
 
         contentViewController.didMove(toParent: self)
+    }
+
+    fileprivate var contentChromeTopAnchor: NSLayoutYAxisAnchor {
+        statusBarHostingController?.view.bottomAnchor ?? view.safeAreaLayoutGuide.topAnchor
+    }
+
+    fileprivate func attachContentTop(to anchor: NSLayoutYAxisAnchor, constant: CGFloat = 0) {
+        contentTopConstraint?.isActive = false
+        contentTopConstraint = contentViewController.view.topAnchor.constraint(equalTo: anchor, constant: constant)
+        contentTopConstraint?.isActive = true
+        view.setNeedsLayout()
     }
     
     private func embedStatusBar() {
@@ -194,4 +205,100 @@ class WidgetsTabContainerViewController: UIViewController {
 final class GesturesTabViewController: WidgetsTabContainerViewController {}
 final class SensorsTabViewController: WidgetsTabContainerViewController {}
 final class TrainingTabViewController: WidgetsTabContainerViewController {}
-final class SpecialSettingsTabViewController: WidgetsTabContainerViewController {}
+
+final class SpecialSettingsTabViewController: WidgetsTabContainerViewController {
+    private var selectorHostingController: UIHostingController<SpecialSettingsSourceSelectorView>?
+    private var selectorSource: SpecialSettingsSource = .prosthetic
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        installSelector()
+        applySource(selectorSource, animated: false)
+    }
+
+    private func installSelector() {
+        let selectorView = SpecialSettingsSourceSelectorView(
+            selection: selectorSource,
+            onSelectionChange: { [weak self] source in
+                self?.applySource(source, animated: true)
+            }
+        )
+        let hostingController = UIHostingController(rootView: selectorView)
+        selectorHostingController = hostingController
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.isOpaque = false
+        view.addSubview(hostingController.view)
+
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            hostingController.view.topAnchor.constraint(equalTo: contentChromeTopAnchor, constant: 12),
+            hostingController.view.heightAnchor.constraint(equalToConstant: 48)
+        ])
+
+        attachContentTop(to: hostingController.view.bottomAnchor, constant: 8)
+        hostingController.didMove(toParent: self)
+    }
+
+    private func applySource(_ source: SpecialSettingsSource, animated: Bool) {
+        selectorSource = source
+        contentViewController.setSpecialSettingsSource(source)
+    }
+}
+
+private struct SpecialSettingsSourceSelectorView: View {
+    @State private var selection: SpecialSettingsSource
+    let onSelectionChange: (SpecialSettingsSource) -> Void
+
+    init(
+        selection: SpecialSettingsSource,
+        onSelectionChange: @escaping (SpecialSettingsSource) -> Void
+    ) {
+        _selection = State(initialValue: selection)
+        self.onSelectionChange = onSelectionChange
+    }
+
+    var body: some View {
+        UnifiedSegmentSelectorView(
+            items: [
+                UnifiedSegmentSelectorItem(
+                    id: .prosthetic,
+                    title: SharedRes.strings().prosthetic_settings.desc().localized(),
+                    accessibilityIdentifier: AccessibilityIdentifier.specialSettingsProstheticButton
+                ),
+                UnifiedSegmentSelectorItem(
+                    id: .mobile,
+                    title: SharedRes.strings().mobile_settings.desc().localized(),
+                    accessibilityIdentifier: AccessibilityIdentifier.specialSettingsMobileButton
+                )
+            ],
+            selection: $selection,
+            selectorAccessibilityLabel: "special.settings.segment.selector",
+            selectorAccessibilityIdentifier: AccessibilityIdentifier.specialSettingsSelector,
+            accessibilityValue: { source, offset, maxStep, steps, rollback in
+                String(
+                    format: "segment=%@;offset=%.3f;maxStep=%.3f;steps=%d;rollback=%@",
+                    source.accessibilityValue,
+                    offset,
+                    maxStep,
+                    steps,
+                    rollback ? "true" : "false"
+                )
+            },
+            onSelectionChange: onSelectionChange
+        )
+    }
+}
+
+private extension SpecialSettingsSource {
+    var accessibilityValue: String {
+        switch self {
+        case .prosthetic:
+            return "prosthetic"
+        case .mobile:
+            return "mobile"
+        }
+    }
+}

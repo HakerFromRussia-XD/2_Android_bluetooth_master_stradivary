@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
@@ -275,6 +276,16 @@ class SpinnerDelegateAdapterV3 (
 
     private fun sendValue(info: WidgetSpinnerInfo, value: Int) {
         if (!isInteractionEnabled) return
+        val typedValue = ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = value))
+        ParameterStoreV3.put(info.parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(info.parameterInfo)
+        if (parameterMeta != null) {
+            ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+                ParameterProvider.getParameterV3(info.parameterInfo).data = encoded
+            }
+        }
+
         platformLog("SpinnerDelegateAdapterV3", "sendValue info = $info  value = $value")
         main.bleCommandWithQueue(
             BLECommandsV3.sendCommand(

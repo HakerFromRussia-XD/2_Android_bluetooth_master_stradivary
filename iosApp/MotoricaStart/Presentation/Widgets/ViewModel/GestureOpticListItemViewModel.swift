@@ -567,7 +567,7 @@ private enum GestureCatalog {
             GestureItem(
                 id: baseIdentifier + index,
                 title: title,
-                subtitle: NSLocalizedString("Custom gesture", comment: ""),
+                subtitle: SharedLocalizedText.text(SharedRes.strings().custom_gesture),
                 image: nil
             )
         }

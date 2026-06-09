@@ -77,6 +77,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -564,17 +565,17 @@ class BLEParserV3(
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
                 ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
-        ),"Графики"))
+        ), LocalizedWidgetText.graphs))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
-        ),"Чувствительность датчика открытия"))
+        ), LocalizedWidgetText.openingSensorSensitivity))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
-        ),"Чувствительность датчика закрытия"))
+        ), LocalizedWidgetText.closingSensorSensitivity))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
             pressedCommand = 0,
@@ -585,7 +586,7 @@ class BLEParserV3(
                 parameterInfoSet = mutableSetOf(
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_CLOSE_COMMAND.number.toInt(), 6, 1))
-            ),"Открыть%Закрыть")))
+            ), "${LocalizedWidgetText.open}%${LocalizedWidgetText.close}")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 0,
             widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
@@ -594,71 +595,71 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
             )
-        ),"Жесты"))
+        ), LocalizedWidgetText.gestures))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
             increment = 0.1f,
-            unitLabel = "сек",
+            unitLabel = LocalizedWidgetText.secondsShort,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_EMG_CHANGE_GESTURE),
                 )
-            ),"Переключение жестов сенсорами")))
+            ), LocalizedWidgetText.gestureSwitchingBySensors)))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
             increment = 0.1f,
-            unitLabel = "сек",
+            unitLabel = LocalizedWidgetText.secondsShort,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_EMG_MOVEMENT_LOCK),
                 )
-            ),"Блокировка движения с ЕМГ")))
+            ), LocalizedWidgetText.emgMovementLock)))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
             minProgress = 20,
             maxProgress = 100,
             increment = 0.1f,
-            unitLabel = "сек",
+            unitLabel = LocalizedWidgetText.secondsShort,
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 2,
                 widgetCode = PWCE_TOGGLE_SLIDER_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
                 )
-            ),"Время работы экрана")))
+            ), LocalizedWidgetText.screenTimeout)))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
-        ),"Максимальная чувствительность датчиков"))
+        ), LocalizedWidgetText.maximumSensorSensitivity))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_FORCE_SETTINGS))
-        ),"Настройка силы"))
+        ), LocalizedWidgetText.forceSetting))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS))
-        ),"Настройка скорости"))
+        ), LocalizedWidgetText.speedSetting))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Нормальный","Спортивный","Плавное управление силой","Плавное управление скоростью","Плавное управление силой и скоростью"),0),
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(LocalizedWidgetText.handControlModes(), 0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SPINBOX_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
             )
-        ),"Режим работы протеза")))
+        ), LocalizedWidgetText.prosthesisOperatingMode)))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                listOf("Без действия", "Перейти в открытое положение"),
+                LocalizedWidgetText.gestureChangeActions(),
                 0
             ),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
@@ -667,34 +668,34 @@ class BLEParserV3(
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE),
                 )
-            ),"Действие при смене жеста")))
+            ), LocalizedWidgetText.gestureChangeAction)))
 
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт"),0),
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(LocalizedWidgetText.emgControlModes(), 0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 4,
                 widgetCode = PWCE_SPINBOX_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_EMG_CONTROL_MODE),
                 )
-            ),"Режим работы ЕМГ")))
+            ), LocalizedWidgetText.emgOperatingMode)))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("Левая","Правая"),0),
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(LocalizedWidgetText.handSides(), 0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 4,
                 widgetCode = PWCE_SPINBOX_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
                 )
-            ),"Сторона руки")))
+            ), LocalizedWidgetText.handSide)))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_SET_DEVICE_NAME),
             )
-        ),"Имя протеза%Записать"))
+        ), "${LocalizedWidgetText.prosthesisName}%${LocalizedWidgetText.write}"))
 
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
@@ -702,12 +703,12 @@ class BLEParserV3(
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_SET_SERIAL_NUMBER),
             )
-        ),"Серийный номер%Записать"))
+        ), "${LocalizedWidgetText.serialNumber}%${LocalizedWidgetText.write}"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
-        ),"Калибровка протеза"))
+        ), LocalizedWidgetText.prosthesisCalibration))
 
 
         baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)

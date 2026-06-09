@@ -151,8 +151,8 @@
 <string name="sens">"сенсоры: "</string>
 <string name="open_threshold">порог открытия</string>
 <string name="close_threshold">порог закрытия</string>
-<string name="opening_sensor_sensitivity">чувствительность датчика открытия</string>
-<string name="closing_sensor_sensitivity">чувствительность датчика закрытия</string>
+<string name="opening_sensor_sensitivity">Чувствительность датчика открытия</string>
+<string name="closing_sensor_sensitivity">Чувствительность датчика закрытия</string>
 <string name="settings_blocking">блокировка настроек</string>
 <string name="settings_blocking_massage">сначала отключите блокировку</string>
 <string name="waiting_for_data_transfer_from_the_prosthesis">ожидание передачи данных с протеза</string>
@@ -186,7 +186,7 @@
 <string name="prostheses_update_ready_for_installation">Обновление протеза</string>
 <string name="do_you_want_to_start_updating">Доступна новая версия программного обеспечения протеза. Вы хотите установить обновлённую прошивку сейчас?</string>
 <string name="updating_0">обновление…  </string>
-<string name="gesture_switching_by_sensors">переключение жеста сенсорами</string>
+<string name="gesture_switching_by_sensors">Переключение жестов сенсорами</string>
 <string name="switching_mode">режим переключения</string>
 <string name="time_between_peaks">время между пиками</string>
 <string name="peak_time">время пиков</string>
@@ -416,7 +416,7 @@
 <string name="charge_level_is_less_than_5">Уровень заряда меньше 5%</string>
 <string name="check_the_technical_condition_of_your_prostheses_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist">Регулярно проверяйте техническое состояние своего протеза. В случае обнаружения неполадок, трещин и прочих неисправностей, обратитесь в сервисный центр или к своему протезисту.</string>
 <string name="regular_maintenance_of_the_prostheses_is_required_refer_to_service_and_warranty_for_service_intervals">Необходимо проводить регулярное техническое обслуживание протеза. Периодичность обслуживания указана в разделе «Сервис и гарантийное обслуживание».</string>
-<string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">Рекомендуется регулярно чистить протез руки. Для этого используйте отжатый ватный тампон, смоченный в 3%% растворе перекиси водорода или влажные спиртовые салфетки.</string>
+<string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">Рекомендуется регулярно чистить протез руки. Для этого используйте отжатый ватный тампон, смоченный в 3% растворе перекиси водорода или влажные спиртовые салфетки.</string>
 <string name="do_not_use_aggressive_detergents">Не допускается применять агрессивные моющие средства.</string>
 <string name="if_you_have_a_cosmetic_shell_installed_check_it_regularly_for_through_damage_try_to_avoid_contact_with_sharp_or_pointed_objects_if_the_cosmetic_shell_needs_to_be_replaced_please_contact_your_prosthetic_company">Если у вас установлена косметическая оболочка, регулярно проверяйте ее на предмет сквозных повреждений. Старайтесь избегать контакта с острыми или заостренными предметами. При необходимости замены косметической оболочки, пожалуйста, свяжитесь с вашим протезным предприятием.</string>
 <string name="important_do_not_try_to_repair_your_prosthetic_arm_yourself_it_may_cause_more_serious_damage_and_void_your_warranty">Важно! Не пытайтесь самостоятельно починить протез руки, это может привести к более серьезным поломкам и аннулированию гарантии.</string>
@@ -662,9 +662,35 @@
 <string name="data_collection">Сбор данных</string>
 <string name="active_gesture_is" formatted="true">Активный жест: %1$s</string>
 <string name="pwle_unknow">unknow</string>
-<string name="prosthetic_settings">Hастройки протеза</string>
+<string name="prosthetic_settings">Настройки протеза</string>
 <string name="mobile_settings">Мобильные настройки</string>
 <string name="auto_login">Автоматический вход</string>
+<string name="v3_graphs">Графики</string>
+<string name="v3_seconds_short">сек</string>
+<string name="v3_emg_movement_lock">Блокировка движения с ЕМГ</string>
+<string name="v3_screen_timeout">Время работы экрана</string>
+<string name="v3_maximum_sensor_sensitivity">Максимальная чувствительность датчиков</string>
+<string name="v3_force_setting">Настройка силы</string>
+<string name="v3_speed_setting">Настройка скорости</string>
+<string name="v3_prosthesis_operating_mode">Режим работы протеза</string>
+<string name="v3_normal_mode">Нормальный</string>
+<string name="v3_sport_mode">Спортивный</string>
+<string name="v3_smooth_force_control">Плавное управление силой</string>
+<string name="v3_smooth_speed_control">Плавное управление скоростью</string>
+<string name="v3_smooth_force_and_speed_control">Плавное управление силой и скоростью</string>
+<string name="v3_no_action">Без действия</string>
+<string name="v3_go_to_open_position">Перейти в открытое положение</string>
+<string name="v3_gesture_change_action">Действие при смене жеста</string>
+<string name="v3_emg_operating_mode">Режим работы ЕМГ</string>
+<string name="v3_first_start">Первый старт</string>
+<string name="v3_left">Левая</string>
+<string name="v3_right">Правая</string>
+<string name="v3_hand_side">Сторона руки</string>
+<string name="v3_prosthesis_name">Имя протеза</string>
+<string name="v3_write">Записать</string>
+<string name="v3_serial_number">Серийный номер</string>
+<string name="v3_prosthesis_calibration">Калибровка протеза</string>
+<string name="v3_send">Отправить</string>
 <string name="push_me">Нажми меня</string>
 <string name="training_model">Обучение</string>
 <string name="gesture_settings">Настройка жестов</string>
@@ -696,6 +722,81 @@
 <string name="press_button_to_use_gesture_frame_becomes_green">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Рамка станет зеленым цветом</string>
 <string name="gesture_usage_chart_title">Счетчик жестов</string>
 <string name="gesture_usage_empty">Нет использованных жестов</string>
+<string name="account">Личный кабинет</string>
+<string name="back">Назад</string>
+<string name="search_results">Результаты поиска</string>
+<string name="error">Ошибка</string>
+<string name="no_internet_connection">Нет сети</string>
+<string name="failed_loading_widgets">Ошибка загрузки виджетов</string>
+<string name="search_widgets">Поиск виджетов</string>
+<string name="synchronization_data">Синхронизация данных...</string>
+<string name="prosthetics">Протезы</string>
+<string name="unsupported_device_connection_message">К этому устройству нельзя подключиться приложением.</string>
+<string name="connected_device" formatted="true">Подключено: %1$s</string>
+<string name="device_serial_number">Серийный номер устройства</string>
+<string name="connection_established">Соединение установлено</string>
+<string name="connection_lost">Соединение потеряно</string>
+<string name="no_data">Нет данных</string>
+<string name="enter_text">Введите текст</string>
+<string name="send">Отправить</string>
+<string name="text_limit_reached">Лимит 10 байт исчерпан</string>
+<string name="send_error">Ошибка отправки</string>
+<string name="name_set">Имя установлено</string>
+<string name="command_parameter_not_found">Параметр команды не найден</string>
+<string name="failed_prepare_serial_number">Не удалось подготовить серийный номер</string>
+<string name="failed_prepare_command">Не удалось подготовить команду</string>
+<string name="serial_number_set">Серийный номер записан</string>
+<string name="value_sent">Значение отправлено</string>
+<string name="custom_gesture">Пользовательский жест</string>
+<string name="custom_gestures_section">Пользовательские жесты</string>
+<string name="gesture_not_selected">Не выбран</string>
+<string name="add_gesture">Добавить жест</string>
+<string name="rotation_group_hint">Здесь можно выбрать жесты для повседневного использования в группе ротации.</string>
+<string name="rotation_group_tap_hint">Нажми меня</string>
+<string name="rotation_group_switch_hint">Переключение внутри этой группы можно осуществлять датчиками или кнопками на протезе.</string>
+<string name="rotation_dialog_limit_message">Нельзя добавить больше 8 жестов.</string>
+<string name="select_control_gestures">Выбор жестов контроля</string>
+<string name="failed_to_start_update">Не удалось начать обновление</string>
+<string name="module_not_ready_for_writing">Модуль не готов к записи</string>
+<string name="failed_to_prepare_memory_for_firmware">Не удалось подготовить память для прошивки</string>
+<string name="crc_mismatch_update_failed">CRC mismatch! Обновление не удалось.</string>
+<string name="update_failed">Обновление не удалось</string>
+<string name="setting_description">Описание настройки</string>
+<string name="rotation_group_explanation">Здесь можно выбрать жесты для повседневного использования в группе ротации.\n\nПереключение внутри этой группы можно осуществлять датчиками или кнопками на протезе.</string>
+<string name="prosthetist">Протезист</string>
+<string name="service_engineer">Сервисный инженер</string>
+<string name="pin_access_granted">Доступ разрешён</string>
+<string name="invalid_pin">Неверный пинкод</string>
+<string name="firmware_update_success">Обновление успешно завершено!</string>
+<string name="firmware_update_failed_with_message" formatted="true">Обновление не удалось: %1$s</string>
+<string name="failed_to_start_update_status" formatted="true">Не удалось начать обновление (status=%1$s)</string>
+<string name="module_not_ready_for_writing_status" formatted="true">Модуль не готов к записи (status=%1$s)</string>
+<string name="select_at_least_one_file">Выберите хотя бы один файл</string>
+<string name="file_deleted" formatted="true">Файл %1$s удалён</string>
+<string name="file_delete_error">Ошибка удаления файла</string>
+<string name="failed_extract_datetime_from_file_name">Не удалось извлечь дату/время из имени файла</string>
+<string name="matching_params_file_not_found">Соответствующий params файл не найден</string>
+<string name="upload_already_in_progress">Загрузка уже выполняется</string>
+<string name="file_sent">Файл отправлен!</string>
+<string name="file_not_found">Файл не найден</string>
+<string name="training_interrupted">Обучение прервано</string>
+<string name="optical_sensors_connection_lost_repeat_training">Потеря соединения с оптическими датчиками. Повторите обучение</string>
+<string name="gesture_state_update_error">Ошибка обновления состояния жеста</string>
+<string name="parameter_metadata_missing">Метаданные параметра не найдены</string>
+<string name="widget_outside_screen">Виджет отображается вне своего экрана</string>
+<string name="ble_le_not_supported">Bluetooth LE не поддерживается</string>
+<string name="bluetooth_adapter_unavailable">Bluetooth адаптер недоступен</string>
+<string name="notify_enable_failed" formatted="true">Не включилась notify %1$s</string>
+<string name="parser_error" formatted="true">Ошибка парсинга в %1$s</string>
+<string name="no_device_data_response_retry">Нет ответа requestDeviceData(), повторяем запрос</string>
+<string name="main_channel_notify_attempt" formatted="true">Не включилась notify MAIN_CHANNEL, попытка %1$d/%2$d</string>
+<string name="ble_devices">BLE-устройства</string>
+<string name="show_model_files_test">Показать файлы модели (тест)</string>
+<string name="select_model_emg8_files">Выберите файлы модели .emg8</string>
+<string name="close_sensitivity">Чувствительность закрытия</string>
+<string name="toggle_slider">Переключатель-слайдер</string>
+<string name="collect_active_flows_error" formatted="true">Ошибка collectActiveFlows: %1$s</string>
+<string name="plot_array_flow_collect_error">Ошибка plotArrayFlowCollect</string>
 <string name="no_user_data_on_server">Нет данных пользователя на сервере</string>
 <string name="select_firmware_file">Выберите файл прошивки</string>
 <string name="update_firmware">Обновить</string>

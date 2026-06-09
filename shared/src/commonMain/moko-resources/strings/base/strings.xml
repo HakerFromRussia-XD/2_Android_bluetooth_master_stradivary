@@ -151,8 +151,8 @@
     <string name="sens">"sens: "</string>
     <string name="open_threshold">open threshold</string>
     <string name="close_threshold">close threshold</string>
-    <string name="opening_sensor_sensitivity">opening sensor sensitivity</string>
-    <string name="closing_sensor_sensitivity">closing sensor sensitivity</string>
+    <string name="opening_sensor_sensitivity">Opening sensor sensitivity</string>
+    <string name="closing_sensor_sensitivity">Closing sensor sensitivity</string>
     <string name="settings_blocking">settings blocking</string>
     <string name="settings_blocking_massage">first disable the lockout</string>
     <string name="waiting_for_data_transfer_from_the_prosthesis">waiting for data transfer from the prosthesis</string>
@@ -186,7 +186,7 @@
     <string name="prostheses_update_ready_for_installation">Prostheses update</string>
     <string name="do_you_want_to_start_updating">A new version of the prostheses software is available. Do you want to install the updated firmware now?</string>
     <string name="updating_0">updating… </string>
-    <string name="gesture_switching_by_sensors">gesture switching by sensors</string>
+    <string name="gesture_switching_by_sensors">Gesture switching by sensors</string>
     <string name="switching_mode">switching mode</string>
     <string name="time_between_peaks">time between peaks</string>
     <string name="peak_time">peak time</string>
@@ -415,7 +415,7 @@
     <string name="charge_level_is_less_than_5">Charge level is less than 5%</string>
     <string name="check_the_technical_condition_of_your_prostheses_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist">Check the technical condition of your prostheses at regular intervals. If you find faults, cracks or other malfunctions, contact the service center or your dentist.</string>
     <string name="regular_maintenance_of_the_prostheses_is_required_refer_to_service_and_warranty_for_service_intervals">Regular maintenance of the prostheses is required. Refer to «Service and Warranty» for service intervals.</string>
-    <string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">It is recommended to clean the arm prostheses regularly. Use a squeezed cotton swab soaked in 3%% hydrogen peroxide solution or moist alcohol wipes for this purpose.</string>
+    <string name="it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose">It is recommended to clean the arm prostheses regularly. Use a squeezed cotton swab soaked in 3% hydrogen peroxide solution or moist alcohol wipes for this purpose.</string>
     <string name="do_not_use_aggressive_detergents">Do not use aggressive detergents.</string>
     <string name="if_you_have_a_cosmetic_shell_installed_check_it_regularly_for_through_damage_try_to_avoid_contact_with_sharp_or_pointed_objects_if_the_cosmetic_shell_needs_to_be_replaced_please_contact_your_prosthetic_company">If you have a cosmetic shell installed, check it regularly for through damage. Try to avoid contact with sharp or pointed objects. If the cosmetic shell needs to be replaced, please contact your prosthetic company.</string>
     <string name="important_do_not_try_to_repair_your_prosthetic_arm_yourself_it_may_cause_more_serious_damage_and_void_your_warranty">Important: Do not try to repair your prosthetic arm yourself, it may cause more serious damage and void your warranty.</string>
@@ -663,6 +663,32 @@
     <string name="prosthetic_settings">Prosthetic settings</string>
     <string name="mobile_settings">Mobile Settings</string>
     <string name="auto_login">Auto login</string>
+    <string name="v3_graphs">Graphs</string>
+    <string name="v3_seconds_short">sec</string>
+    <string name="v3_emg_movement_lock">EMG movement lock</string>
+    <string name="v3_screen_timeout">Screen timeout</string>
+    <string name="v3_maximum_sensor_sensitivity">Maximum sensor sensitivity</string>
+    <string name="v3_force_setting">Force setting</string>
+    <string name="v3_speed_setting">Speed setting</string>
+    <string name="v3_prosthesis_operating_mode">Prosthesis operating mode</string>
+    <string name="v3_normal_mode">Normal</string>
+    <string name="v3_sport_mode">Sport</string>
+    <string name="v3_smooth_force_control">Smooth force control</string>
+    <string name="v3_smooth_speed_control">Smooth speed control</string>
+    <string name="v3_smooth_force_and_speed_control">Smooth force and speed control</string>
+    <string name="v3_no_action">No action</string>
+    <string name="v3_go_to_open_position">Go to open position</string>
+    <string name="v3_gesture_change_action">Action on gesture change</string>
+    <string name="v3_emg_operating_mode">EMG operating mode</string>
+    <string name="v3_first_start">First start</string>
+    <string name="v3_left">Left</string>
+    <string name="v3_right">Right</string>
+    <string name="v3_hand_side">Hand side</string>
+    <string name="v3_prosthesis_name">Prosthesis name</string>
+    <string name="v3_write">Write</string>
+    <string name="v3_serial_number">Serial number</string>
+    <string name="v3_prosthesis_calibration">Prosthesis calibration</string>
+    <string name="v3_send">Send</string>
     <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
     <string name="push_me">Push me</string>
     <string name="training_model">Training</string>
@@ -695,6 +721,81 @@
     <string name="press_button_to_use_gesture_frame_becomes_green">To use the gesture, press its button. The frame will turn green.</string>
     <string name="gesture_usage_chart_title">Gesture counter</string>
     <string name="gesture_usage_empty">No used gestures</string>
+    <string name="account">Account</string>
+    <string name="back">Back</string>
+    <string name="search_results">Search results</string>
+    <string name="error">Error</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="failed_loading_widgets">Failed loading widgets</string>
+    <string name="search_widgets">Search widgets</string>
+    <string name="synchronization_data">Data synchronization...</string>
+    <string name="prosthetics">Prosthetics</string>
+    <string name="unsupported_device_connection_message">This app can\'t connect to this device.</string>
+    <string name="connected_device" formatted="true">Connected: %1$s</string>
+    <string name="device_serial_number">Device serial number</string>
+    <string name="connection_established">Connection established</string>
+    <string name="connection_lost">Connection lost</string>
+    <string name="no_data">No data</string>
+    <string name="enter_text">Enter text</string>
+    <string name="send">Send</string>
+    <string name="text_limit_reached">10-byte limit reached</string>
+    <string name="send_error">Send error</string>
+    <string name="name_set">Name set</string>
+    <string name="command_parameter_not_found">Command parameter not found</string>
+    <string name="failed_prepare_serial_number">Failed to prepare serial number</string>
+    <string name="failed_prepare_command">Failed to prepare command</string>
+    <string name="serial_number_set">Serial number set</string>
+    <string name="value_sent">Value sent</string>
+    <string name="custom_gesture">Custom gesture</string>
+    <string name="custom_gestures_section">Custom gestures</string>
+    <string name="gesture_not_selected">Not selected</string>
+    <string name="add_gesture">Add gesture</string>
+    <string name="rotation_group_hint">Here you can select gestures for everyday use inside the rotation group.</string>
+    <string name="rotation_group_tap_hint">Tap me</string>
+    <string name="rotation_group_switch_hint">Switching inside this group can be done using sensors or buttons on the prosthesis.</string>
+    <string name="rotation_dialog_limit_message">You can\'t add more than 8 gestures.</string>
+    <string name="select_control_gestures">Select control gestures</string>
+    <string name="failed_to_start_update">Failed to start update</string>
+    <string name="module_not_ready_for_writing">Module is not ready for writing</string>
+    <string name="failed_to_prepare_memory_for_firmware">Failed to prepare memory for firmware</string>
+    <string name="crc_mismatch_update_failed">CRC mismatch! Update failed.</string>
+    <string name="update_failed">Update failed</string>
+    <string name="setting_description">Setting description</string>
+    <string name="rotation_group_explanation">Here you can select gestures for everyday use inside the rotation group.\n\nSwitching inside this group can be done using sensors or buttons on the prosthesis.</string>
+    <string name="prosthetist">Prosthetist</string>
+    <string name="service_engineer">Service engineer</string>
+    <string name="pin_access_granted">Access granted</string>
+    <string name="invalid_pin">Invalid PIN</string>
+    <string name="firmware_update_success">Update completed successfully!</string>
+    <string name="firmware_update_failed_with_message" formatted="true">Update failed: %1$s</string>
+    <string name="failed_to_start_update_status" formatted="true">Failed to start update (status=%1$s)</string>
+    <string name="module_not_ready_for_writing_status" formatted="true">Module is not ready for writing (status=%1$s)</string>
+    <string name="select_at_least_one_file">Select at least one file</string>
+    <string name="file_deleted" formatted="true">File %1$s deleted</string>
+    <string name="file_delete_error">File deletion error</string>
+    <string name="failed_extract_datetime_from_file_name">Failed to extract date/time from file name</string>
+    <string name="matching_params_file_not_found">Matching params file not found</string>
+    <string name="upload_already_in_progress">Upload already in progress</string>
+    <string name="file_sent">File sent!</string>
+    <string name="file_not_found">File not found</string>
+    <string name="training_interrupted">Training interrupted</string>
+    <string name="optical_sensors_connection_lost_repeat_training">Optical sensor connection lost. Repeat training.</string>
+    <string name="gesture_state_update_error">Gesture state update error</string>
+    <string name="parameter_metadata_missing">Parameter metadata not found</string>
+    <string name="widget_outside_screen">Widget is displayed outside its screen</string>
+    <string name="ble_le_not_supported">Bluetooth LE is not supported</string>
+    <string name="bluetooth_adapter_unavailable">Bluetooth adapter unavailable</string>
+    <string name="notify_enable_failed" formatted="true">Failed to enable notify %1$s</string>
+    <string name="parser_error" formatted="true">Parser error in %1$s</string>
+    <string name="no_device_data_response_retry">No response to requestDeviceData(), retrying request</string>
+    <string name="main_channel_notify_attempt" formatted="true">Failed to enable notify MAIN_CHANNEL, attempt %1$d/%2$d</string>
+    <string name="ble_devices">BLE Devices</string>
+    <string name="show_model_files_test">Show Model Files (test)</string>
+    <string name="select_model_emg8_files">Select model .emg8 files</string>
+    <string name="close_sensitivity">Close sensitivity</string>
+    <string name="toggle_slider">Toggle slider</string>
+    <string name="collect_active_flows_error" formatted="true">collectActiveFlows error: %1$s</string>
+    <string name="plot_array_flow_collect_error">ERROR plotArrayFlowCollect</string>
     <string name="no_user_data_on_server">No user data on server</string>
     <string name="select_firmware_file">Select firmware file</string>
     <string name="update_firmware">Update</string>

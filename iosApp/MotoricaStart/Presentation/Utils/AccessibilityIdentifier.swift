@@ -1,4 +1,5 @@
 import Foundation
+import shared
 
 struct AccessibilityIdentifier {
     static let widgetDetailsView = "AccessibilityIdentifierWidgetDetailsView"
@@ -44,4 +45,16 @@ struct AccessibilityIdentifier {
     static let gesturesCustomRowPrefix = "AccessibilityIdentifierGesturesCustomRow"
     static let gesturesCustomSettingsButtonPrefix = "AccessibilityIdentifierGesturesCustomSettingsButton"
     static let gestureSettingsScreen = "AccessibilityIdentifierGestureSettingsScreen"
+}
+
+enum SharedLocalizedText {
+    static func text(_ resource: StringResource) -> String {
+        resource.desc().localized()
+    }
+
+    static func format(_ resource: StringResource, _ value: String) -> String {
+        text(resource)
+            .replacingOccurrences(of: "%1$s", with: value)
+            .replacingOccurrences(of: "%s", with: value)
+    }
 }

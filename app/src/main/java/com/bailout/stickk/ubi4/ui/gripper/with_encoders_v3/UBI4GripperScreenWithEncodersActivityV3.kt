@@ -47,6 +47,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DEVICE_
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperSettingsWithEncodersRendererV3
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.jakewharton.rxbinding2.view.RxView
@@ -209,7 +210,7 @@ class UBI4GripperScreenWithEncodersActivityV3
                 val parameter = ParameterProvider.getParameterV3(parameterInfo)
                 val gestureSettings = parseGestureInfoSafely(parameter.data)
                 gestureSettings?.let { loadGestureState(it)
-                } ?: main.showToast("Ошибка обносления состояния жеста")
+                } ?: main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
             }
 
         RxView.clicks(findViewById(R.id.editGestureNameBtn))

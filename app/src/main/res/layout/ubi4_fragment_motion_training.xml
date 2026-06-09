@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="68dp"
         android:fontFamily="@font/sf_pro_text_bold"
-        android:text="Flexion"
+        android:text="@string/flexion"
         android:textColor="@color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"

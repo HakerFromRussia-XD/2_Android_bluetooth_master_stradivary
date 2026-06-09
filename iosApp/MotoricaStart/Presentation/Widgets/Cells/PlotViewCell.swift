@@ -208,7 +208,7 @@ final class PlotViewCell: UITableViewCell {
     private func initChart() {
         guard let lineChartView = lineChartView else { return }
         print("initChart 2    прошли первую проверку")
-        lineChartView.noDataText = "Нет данных"
+        lineChartView.noDataText = SharedLocalizedText.text(SharedRes.strings().no_data)
         lineChartView.data = LineChartData()
         var data = lineChartView.data
         let set1 = LineChartDataSet(entries: [], label: "")

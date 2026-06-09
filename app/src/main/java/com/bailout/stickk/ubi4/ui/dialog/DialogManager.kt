@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.firmware.FirmwareUpdateResult
 import com.bailout.stickk.ubi4.firmware.Ubi4FirmwareUpdater
 import com.bailout.stickk.ubi4.firmware.V3FirmwareUpdater
 import com.bailout.stickk.ubi4.models.FirmwareFileItem
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.BootloaderBoardItemUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
@@ -138,13 +139,18 @@ class DialogManager(
                         }
 
                         progressDialog?.dismiss()
-                        main?.showToast("Обновление успешно завершено!")
+                        main?.showToast(context.getString(SharedRes.strings.firmware_update_success.resourceId))
                         currentDialog?.dismiss()
                         onConfirm(fileItem)
                     } catch (e: Exception) {
                         Log.e("FW_FLOW", "Firmware update failed", e)
                         progressDialog?.dismiss()
-                        main?.showToast("Обновление не удалось: ${e.message}")
+                        main?.showToast(
+                            context.getString(
+                                SharedRes.strings.firmware_update_failed_with_message.resourceId,
+                                e.localizedMessage ?: context.getString(SharedRes.strings.error.resourceId)
+                            )
+                        )
                     } finally {
                         timeoutJob.cancel()
                     }
@@ -158,22 +164,22 @@ class DialogManager(
             is FirmwareUpdateResult.StartSystemUpdateRejected -> {
                 progressDialog?.dismiss()
                 currentDialog?.dismiss()
-                main?.showToast("Не удалось начать обновление (status=${result.status})")
+                main?.showToast(context.getString(SharedRes.strings.failed_to_start_update_status.resourceId, result.status))
                 false
             }
             is FirmwareUpdateResult.CheckNewFirmwareRejected -> {
                 progressDialog?.dismiss()
-                main?.showToast("Модуль не готов к записи (status=${result.status})")
+                main?.showToast(context.getString(SharedRes.strings.module_not_ready_for_writing_status.resourceId, result.status))
                 false
             }
             FirmwareUpdateResult.PreloadFailed -> {
                 progressDialog?.dismiss()
-                main?.showToast("Не удалось подготовить память для прошивки")
+                main?.showToast(context.getString(SharedRes.strings.failed_to_prepare_memory_for_firmware.resourceId))
                 false
             }
             FirmwareUpdateResult.CrcMismatch -> {
                 progressDialog?.dismiss()
-                main?.showToast("CRC mismatch! Обновление не удалось.")
+                main?.showToast(context.getString(SharedRes.strings.crc_mismatch_update_failed.resourceId))
                 false
             }
         }

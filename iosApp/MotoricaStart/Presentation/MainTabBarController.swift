@@ -141,9 +141,9 @@ final class MainTabBarController: UITabBarController {
             closeWidgetQueriesSuggestions: {}
         )
         
-        let gesturesTitle = NSLocalizedString("Gestures", comment: "")
-        let sensorsTitle = NSLocalizedString("Sensors", comment: "")
-        let specialTitle = NSLocalizedString("Special settings", comment: "")
+        let gesturesTitle = SharedLocalizedText.text(SharedRes.strings().title_home)
+        let sensorsTitle = SharedLocalizedText.text(SharedRes.strings().title_dashboard)
+        let specialTitle = SharedLocalizedText.text(SharedRes.strings().special_settings)
         let gesturesVC = widgetsDI.makeGesturesTabViewController(actions: actions)
         gesturesVC.tabBarItem = makeTabBarItem(
             title: gesturesTitle,
@@ -175,7 +175,7 @@ final class MainTabBarController: UITabBarController {
 
         let trainingWidgets = DataFactory().prepareData(display: 3)
         if !trainingWidgets.isEmpty {
-            let trainingTitle = NSLocalizedString("Training", comment: "")
+            let trainingTitle = SharedLocalizedText.text(SharedRes.strings().training)
             let trainingVC = widgetsDI.makeTrainingTabViewController(actions: actions)
             trainingVC.tabBarItem = makeTabBarItem(
                 title: trainingTitle,

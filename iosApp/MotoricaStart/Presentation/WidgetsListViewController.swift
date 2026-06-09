@@ -28,7 +28,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нажми меня", for: .normal)
+        button.setTitle(SharedLocalizedText.text(SharedRes.strings().push_me), for: .normal)
         button.accessibilityIdentifier = AccessibilityIdentifier.widgetsResyncButton
         button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +56,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     }
     private var needsReloadAfterSynchronization = false
     private let defaultLoadingState = LoadingView.State(
-        message: NSLocalizedString("Синхронизация данных...", comment: ""),
+        message: SharedLocalizedText.text(SharedRes.strings().synchronization_data),
         progress: 0
     )
     private var widgetsLoadingMax: Float = 0
@@ -288,7 +288,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
     private func makeUiTestGesturesOnlyPage() -> WidgetsPage {
         let widget = Widget(
             id: "ui-test-gestures-widget",
-            title: NSLocalizedString("Gestures", comment: ""),
+            title: SharedLocalizedText.text(SharedRes.strings().title_home),
             title_2: nil,
             widgetType: .gestureWidget,
             deviceAddress: 0,

@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
@@ -512,7 +513,7 @@ class GesturesDelegateAdapterV3(
                 Log.d("gestureFlowCollect", "Job was cancelled: ${e.message}")
             } catch (e: Exception) {
                 main.runOnUiThread {
-                    main.showToast("ERROR plotArrayFlowCollect")
+                    main.showToast(main.getString(SharedRes.strings.plot_array_flow_collect_error.resourceId))
                 }
                 Log.e("gestureFlowCollect", "Exception: ${e.message}")
             }

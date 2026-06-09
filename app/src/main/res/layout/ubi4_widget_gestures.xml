@@ -1166,8 +1166,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="120dp"
             android:gravity="center"
-            android:text="Здесь можно выбрать жесты для\nповседневного использования в\nгруппе ротации.\n
-            Переключение внутри этой группы\nможно осуществлять датчиками или\nкнопками на протезе."
+            android:text="@string/rotation_group_explanation"
             android:textColor="@color/ubi4_deactivate_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -1199,7 +1198,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:gravity="center"
-            android:text="Нажми меня"
+            android:text="@string/rotation_group_tap_hint"
             android:textColor="@color/ubi4_deactivate_text"
             app:layout_constraintEnd_toEndOf="@+id/rotationGroupExplanation2Iv"
             app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanation2Iv" />

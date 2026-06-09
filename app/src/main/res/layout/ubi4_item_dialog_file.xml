@@ -27,7 +27,7 @@
         android:fontFamily="@font/sf_pro_display_light"
         android:gravity="center_vertical"
         android:layout_marginStart="16dp"
-        android:text="ok"
+        android:text="@string/no_data"
         android:textColor="@color/white"
         android:textSize="12sp"
         android:textStyle="bold"

@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.models.widgets.PlatformFile
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ARG_LAST_EMG8
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
@@ -258,7 +259,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         dialogBinding.findViewById<View>(R.id.dialogModelEmg8SendBtn).setOnClickListener {
             val selected = items.filter { it.isChecked }.map { it.file }
             if (selected.isEmpty()) {
-                Toast.makeText(context, "Выберите хотя бы один файл", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(SharedRes.strings.select_at_least_one_file.resourceId), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             dlg.dismiss()
@@ -364,7 +365,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 if (fileItem.file.delete()) {
                     Toast.makeText(
                         requireContext(),
-                        "Файл ${fileItem.name} удалён",
+                        getString(SharedRes.strings.file_deleted.resourceId, fileItem.name),
                         Toast.LENGTH_SHORT
                     ).show()
                     fileItems.remove(fileItem)
@@ -372,13 +373,13 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     if (fileItems.isEmpty()) {
                         Toast.makeText(
                             requireContext(),
-                            "Нет сохранённых файлов",
+                            getString(SharedRes.strings.no_saved_files.resourceId),
                             Toast.LENGTH_SHORT
                         ).show()
                         myDialog.dismiss()
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), getString(SharedRes.strings.file_delete_error.resourceId), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -398,7 +399,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 val dateTimeStr = match?.groupValues?.get(1) ?: run {
                     Toast.makeText(
                         requireContext(),
-                        "Не удалось извлечь дату/время из имени файла",
+                        getString(SharedRes.strings.failed_extract_datetime_from_file_name.resourceId),
                         Toast.LENGTH_SHORT
                     ).show()
                     return
@@ -408,7 +409,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 if (!paramFile.exists()) {
                     Toast.makeText(
                         requireContext(),
-                        "Соответствующий params файл не найден",
+                        getString(SharedRes.strings.matching_params_file_not_found.resourceId),
                         Toast.LENGTH_SHORT
                     ).show()
                     return
@@ -418,7 +419,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     if (bleController.isCurrentlyUploading()) {
                         Toast.makeText(
                             requireContext(),
-                            "Загрузка уже выполняется",
+                            getString(SharedRes.strings.upload_already_in_progress.resourceId),
                             Toast.LENGTH_SHORT
                         ).show()
                         return@showConfirmLoadingDialog
@@ -634,7 +635,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
                 // Закрытие диалога с прогрессом после успешной передачи
                 closeCurrentDialog()
-                Toast.makeText(requireContext(), "Файл отправлен!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(SharedRes.strings.file_sent.resourceId), Toast.LENGTH_SHORT).show()
                 Log.d("ChunkProcessing", "Всего чанков отправлено: $totalChunks")
             } catch (e: Exception) {
                 // Обработка непредвиденных исключений
@@ -772,4 +773,3 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     }
 
 }
-

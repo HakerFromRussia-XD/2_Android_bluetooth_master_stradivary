@@ -1,4 +1,5 @@
 import Foundation
+import shared
 
 struct WidgetV3BindingInfo: Hashable {
     let parameterID: Int
@@ -66,8 +67,8 @@ enum WidgetV3Support {
             .split(separator: "%", omittingEmptySubsequences: false)
             .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
 
-        let placeholder = parts.first?.isEmpty == false ? parts.first! : "Введите текст"
-        let buttonTitle = parts.count > 1 && !parts[1].isEmpty ? parts[1] : "Отправить"
+        let placeholder = parts.first?.isEmpty == false ? parts.first! : SharedLocalizedText.text(SharedRes.strings().enter_text)
+        let buttonTitle = parts.count > 1 && !parts[1].isEmpty ? parts[1] : SharedLocalizedText.text(SharedRes.strings().send)
         return (placeholder, buttonTitle)
     }
 }

@@ -169,7 +169,7 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_text_bold"
-        android:text="Show Model Files(test)"
+        android:text="@string/show_model_files_test"
         android:textColor="@color/ubi4_dark_back"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/showFileModelBtn"

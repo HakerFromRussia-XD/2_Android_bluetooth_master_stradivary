@@ -475,13 +475,13 @@ struct SpinnerRowViewV3_Previews: PreviewProvider {
         Group {
             SpinnerRowViewV3(
                 provider: SpinnerProviderV3(
-                    title: "Режим работы протеза",
+                    title: SharedLocalizedText.text(SharedRes.strings().v3_prosthesis_operating_mode),
                     items: [
-                        "Нормальный",
-                        "Спортивный",
-                        "Плавное управление силой",
-                        "Плавное управление скоростью",
-                        "Плавное управление силой и скоростью"
+                        SharedLocalizedText.text(SharedRes.strings().v3_normal_mode),
+                        SharedLocalizedText.text(SharedRes.strings().v3_sport_mode),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_force_control),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_speed_control),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_force_and_speed_control)
                     ],
                     selectedIndex: 1
                 ),

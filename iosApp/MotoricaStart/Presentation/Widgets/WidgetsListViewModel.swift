@@ -71,10 +71,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
     var isEmpty: Bool { return items.value.isEmpty }
-    let screenTitle = NSLocalizedString("Sensors", comment: "")
-    let emptyDataTitle = NSLocalizedString("Search results", comment: "")
-    let errorTitle = NSLocalizedString("Error", comment: "")
-    let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")
+    let screenTitle = SharedLocalizedText.text(SharedRes.strings().title_dashboard)
+    let emptyDataTitle = SharedLocalizedText.text(SharedRes.strings().search_results)
+    let errorTitle = SharedLocalizedText.text(SharedRes.strings().error)
+    let searchBarPlaceholder = SharedLocalizedText.text(SharedRes.strings().search_widgets)
 
     // MARK: - Init
     init(
@@ -230,8 +230,8 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
     private func handle(error: Error) {
         self.error.value = error.isInternetConnectionError ?
-            NSLocalizedString("No internet connection", comment: "") :
-            NSLocalizedString("Failed loading widgets", comment: "")
+            SharedLocalizedText.text(SharedRes.strings().no_internet_connection) :
+            SharedLocalizedText.text(SharedRes.strings().failed_loading_widgets)
     }
 
     private func update(widgetQuery: WidgetQuery) {

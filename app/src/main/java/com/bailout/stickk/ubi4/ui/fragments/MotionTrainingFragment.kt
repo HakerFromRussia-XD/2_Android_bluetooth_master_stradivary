@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.models.config.GesturesId
 import com.bailout.stickk.ubi4.models.gestures.GestureConfig
 import com.bailout.stickk.ubi4.models.gestures.GesturePhase
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -831,7 +832,7 @@ class MotionTrainingFragment(
     private fun loadConfigJson(): String {
         val extFile = File(requireContext().getExternalFilesDir(null), "config.json")
         if (!extFile.exists()) {
-            (activity as? MainActivityUBI4)?.showToast("Файл не найден")
+            (activity as? MainActivityUBI4)?.showToast(getString(SharedRes.strings.file_not_found.resourceId))
             throw IllegalStateException("config.json is missing")
         }
         return extFile.readText()
@@ -1007,9 +1008,9 @@ class MotionTrainingFragment(
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
         val titleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningTitleTv)
-        titleTextView.text = "Обучение прерванно"
+        titleTextView.text = getString(SharedRes.strings.training_interrupted.resourceId)
         val subTitleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningMessageTv)
-        subTitleTextView.text = "Потеря соединения с оптическими датчиками. Повторите обучение"
+        subTitleTextView.text = getString(SharedRes.strings.optical_sensors_connection_lost_repeat_training.resourceId)
 
         val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
         confirmBtn.setOnClickListener {

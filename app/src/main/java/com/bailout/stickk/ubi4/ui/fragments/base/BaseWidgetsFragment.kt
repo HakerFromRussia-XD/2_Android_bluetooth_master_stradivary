@@ -56,6 +56,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3
@@ -517,17 +518,17 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     @SuppressLint("MissingInflatedId")
     open fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun sendBLERotationGroupV3 () {
         Log.d("RotationDebug", "BaseWidgetsFragment.sendBLERotationGroupV3, fragment=${this::class.java.simpleName}")
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
@@ -582,7 +583,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
     open fun showFilesDialog(addressDevice: Int, parameterID: Int) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
 
     open fun showModelEmg8FilesDialog(preselectName: String? = null,onSendClick: (selectedFiles: List<File>) -> Unit) {
@@ -591,7 +592,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     open fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit), gestureName: String) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
 
 

@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWid
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import io.reactivex.disposables.CompositeDisposable
@@ -53,7 +54,6 @@ class SpinnerDelegateAdapter(
     private val spinnerInfoList = mutableListOf<WidgetSpinnerInfo>()
     private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
 
-    private val roleItems = listOf("Протезист", "Сервисный инженер")
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
 
@@ -95,6 +95,7 @@ class SpinnerDelegateAdapter(
         val addressDevice = addressDeviceList.firstOrNull() ?: 0
         val parameterID = parameterIDList.firstOrNull() ?: 0
 
+        val roleItems = localizedRoleItems(root.context)
         val prefs = spinnerPsv.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedIndex = prefs.getInt(roleSelectedKey(addressDevice, parameterID), selectedIndexFromWidget)
             .coerceIn(roleItems.indices)
@@ -224,6 +225,12 @@ class SpinnerDelegateAdapter(
     private fun roleSelectedKey(addressDevice: Int, parameterID: Int): String =
         "UBI4_ROLE_SELECTED_${addressDevice}_$parameterID"
 
+    private fun localizedRoleItems(context: Context): List<String> =
+        listOf(
+            context.getString(SharedRes.strings.prosthetist.resourceId),
+            context.getString(SharedRes.strings.service_engineer.resourceId)
+        )
+
     private fun collectSpinnerUpdates() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
@@ -281,10 +288,10 @@ class SpinnerDelegateAdapter(
             dialog.dismiss()
 
             if (ok) {
-                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(SharedRes.strings.pin_access_granted.resourceId), Toast.LENGTH_SHORT).show()
                 onSuccess()
             } else {
-                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(SharedRes.strings.invalid_pin.resourceId), Toast.LENGTH_SHORT).show()
                 onCancelOrFail()
             }
         }

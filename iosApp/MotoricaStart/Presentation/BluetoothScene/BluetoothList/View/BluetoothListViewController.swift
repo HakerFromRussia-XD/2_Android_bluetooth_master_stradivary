@@ -39,11 +39,16 @@ final class BluetoothListViewController: UIViewController {
         static let allDevices = 1
     }
 
-    private let filterSegmentTitles = ["Все устройства", "Протезы"]
+    private var filterSegmentTitles: [String] {
+        [
+            SharedLocalizedText.text(SharedRes.strings().all_devices),
+            SharedLocalizedText.text(SharedRes.strings().prosthetics)
+        ]
+    }
     private let filterSegmentProvider = BluetoothFilterSegmentProvider(selectedSegmentIndex: 0)
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нажми меня", for: .normal)
+        button.setTitle(SharedLocalizedText.text(SharedRes.strings().push_me), for: .normal)
         button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -75,7 +80,7 @@ final class BluetoothListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "BLE Devices"
+        title = SharedLocalizedText.text(SharedRes.strings().ble_devices)
         // Скрываем навигационную панель (верхнюю строку)
         navigationController?.navigationBar.isHidden = true
         setupStatusBarBackgroundView()
@@ -151,7 +156,7 @@ final class BluetoothListViewController: UIViewController {
                 self.logTouch("connectionCallback", details: "uuid=\(uuid.uuidString)")
                 self.tableViewDevices.reloadData() // перезагружаем строки, чтобы отобразить цвет подключения
                 let displayName = BluetoothScanDeviceNameFormatter.displayName(device.name)
-                self.showConnectionToast("Подключено: \(displayName)")
+                self.showConnectionToast(SharedLocalizedText.format(SharedRes.strings().connected_device, displayName))
                 print("[BLE-CONNECT] Подключено: \(displayName)")
             }
             .store(in: &cancellables)
@@ -282,8 +287,8 @@ final class BluetoothListViewController: UIViewController {
 
     private func setupLegacyFilterControl() {
         let items = [
-            NSLocalizedString("prosthetics", comment: ""),
-            NSLocalizedString("all_devices", comment: "")
+            SharedLocalizedText.text(SharedRes.strings().prosthetics),
+            SharedLocalizedText.text(SharedRes.strings().all_devices)
         ]
         let control = LegacyScanSegmentedControl(items: items)
         legacySegmentedControl = control
@@ -656,7 +661,7 @@ extension BluetoothListViewController: UITableViewDataSource, UITableViewDelegat
             case .oldLegacy:
                 self.openLegacyBranch(for: selectedDevice)
             case .unknown:
-                self.showToast(NSLocalizedString("unsupported_device_connection_message", comment: "Unsupported BLE device connection toast"))
+                self.showToast(SharedLocalizedText.text(SharedRes.strings().unsupported_device_connection_message))
                 self.resetTransitionState()
             }
         }

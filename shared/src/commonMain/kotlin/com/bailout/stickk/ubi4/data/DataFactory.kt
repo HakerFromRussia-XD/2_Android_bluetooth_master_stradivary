@@ -40,6 +40,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.parameterWidgetLabel
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.logging.systemLang
+import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 
 
 class DataFactory {
@@ -53,23 +54,17 @@ class DataFactory {
         add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
         add(
             SpinnerItemV3(
-                "Режим работы протеза",
+                LocalizedWidgetText.prosthesisOperatingMode,
                 SpinnerParameterWidgetSStruct(
                     baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
                         BaseParameterWidgetStruct(
                             widgetPosition = 8,
                             widgetCode = ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt()
                         ),
-                        "Режим работы протеза"
+                        LocalizedWidgetText.prosthesisOperatingMode
                     ),
                     dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                        spinnerItems = listOf(
-                            "Нормальный",
-                            "Спортивный",
-                            "Плавное управление силой",
-                            "Плавное управление скоростью",
-                            "Плавное управление силой и скоростью"
-                        ),
+                        spinnerItems = LocalizedWidgetText.handControlModes(),
                         selectedIndex = 0
                     )
                 )
@@ -412,7 +407,7 @@ class DataFactory {
             ParameterWidgetCode.PWCE_TEXT_INPUT_V3.number.toInt() -> {
                 val buttonTitle = resultLabel[1]
                     .takeUnless { it.isBlank() || it.equals("no name", ignoreCase = true) }
-                    ?: "Отправить"
+                    ?: LocalizedWidgetText.send
                 TextInputItemV3(
                     title = resultLabel[0],
                     buttonTitle = buttonTitle,

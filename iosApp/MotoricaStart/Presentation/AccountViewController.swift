@@ -201,9 +201,9 @@ final class AccountViewController: UIViewController {
             $0.removeFromSuperview()
         }
 
-        addSectionTitle(NSLocalizedString("General", comment: ""))
+        addSectionTitle(SharedLocalizedText.text(SharedRes.strings().general))
         addCard(makeGeneralSection())
-        addSectionTitle(NSLocalizedString("Software information", comment: ""), topInset: AccountMetrics.sectionSpacing)
+        addSectionTitle(SharedLocalizedText.text(SharedRes.strings().software_information), topInset: AccountMetrics.sectionSpacing)
         if !boards.isEmpty {
             addCard(makeSoftwareSection())
         }
@@ -247,7 +247,7 @@ final class AccountViewController: UIViewController {
         section.addRow(
             AccountMenuRow(
                 iconName: "customer_service",
-                title: NSLocalizedString("Customer Service", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().customer_service),
                 textColor: textColor
             ) { [weak self] in
                 guard let self, let profile = self.profile else { return }
@@ -261,7 +261,7 @@ final class AccountViewController: UIViewController {
         section.addRow(
             AccountMenuRow(
                 iconName: "prosthesis_information",
-                title: NSLocalizedString("Prosthesis Information", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().prosthesis_information),
                 textColor: textColor
             ) { [weak self] in
                 guard let self, let profile = self.profile else { return }
@@ -325,10 +325,10 @@ private final class AccountCustomerServiceViewController: AccountDetailsViewCont
     init(profile: AccountBridgeProfile, topTitle: String) {
         super.init(topTitle: topTitle)
         addRows([
-            .init(title: NSLocalizedString("Date of receipt of prosthesis", comment: ""), value: profile.dateOfReceipt),
-            .init(title: NSLocalizedString("Warranty expiration date", comment: ""), value: profile.warrantyExpirationDate),
-            .init(title: NSLocalizedString("Your manager", comment: ""), value: profile.managerName, phone: profile.managerPhone),
-            .init(title: NSLocalizedString("Prosthesis status", comment: ""), value: profile.prosthesisStatus)
+            .init(title: SharedLocalizedText.text(SharedRes.strings().date_of_receipt_of_prosthesis), value: profile.dateOfReceipt),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().warranty_expiration_date), value: profile.warrantyExpirationDate),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().your_manager), value: profile.managerName, phone: profile.managerPhone),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_status), value: profile.prosthesisStatus)
         ])
     }
 }
@@ -337,12 +337,12 @@ private final class AccountProsthesisInfoViewController: AccountDetailsViewContr
     init(profile: AccountBridgeProfile, topTitle: String) {
         super.init(topTitle: topTitle)
         addRows([
-            .init(title: NSLocalizedString("Prosthesis model", comment: ""), value: profile.prosthesisModel),
-            .init(title: NSLocalizedString("Prosthesis size", comment: ""), value: profile.prosthesisSize),
-            .init(title: NSLocalizedString("Hand side", comment: ""), value: profile.handSide),
-            .init(title: NSLocalizedString("Rotator type", comment: ""), value: profile.rotatorType),
-            .init(title: NSLocalizedString("Touchscreen finger pads", comment: ""), value: profile.touchscreenFingerPads),
-            .init(title: NSLocalizedString("Battery type", comment: ""), value: profile.batteryType)
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_model), value: profile.prosthesisModel),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().prosthesis_size), value: profile.prosthesisSize),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().hand_side_2), value: profile.handSide),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().rotator_type), value: profile.rotatorType),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().touchscreen_finger_pads), value: profile.touchscreenFingerPads),
+            .init(title: SharedLocalizedText.text(SharedRes.strings().battery_type), value: profile.batteryType)
         ])
     }
 }
@@ -566,7 +566,7 @@ private final class AccountAppVersionRow: UIView {
         heightAnchor.constraint(equalToConstant: AccountMetrics.rowHeight).isActive = true
 
         let titleLabel = UILabel()
-        titleLabel.text = NSLocalizedString("Version App", comment: "")
+        titleLabel.text = SharedLocalizedText.text(SharedRes.strings().version_app)
         titleLabel.font = .accountOpenSansRegular(size: 14)
         titleLabel.textColor = textColor
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -718,7 +718,7 @@ private final class AccountBoardRow: UIView {
         addSubview(bootloaderLabel)
 
         let updateButton = UIButton(type: .system)
-        updateButton.setTitle(NSLocalizedString("Update", comment: ""), for: .normal)
+        updateButton.setTitle(SharedLocalizedText.text(SharedRes.strings().update_firmware), for: .normal)
         updateButton.accessibilityIdentifier = "\(AccessibilityIdentifier.accountBoardUpdateButtonPrefix).\(boardKey)"
         updateButton.titleLabel?.font = .accountOpenSansSemibold(size: 12)
         let highlight = FirmwareVersionCatalog.shared.shouldHighlightUpdate(

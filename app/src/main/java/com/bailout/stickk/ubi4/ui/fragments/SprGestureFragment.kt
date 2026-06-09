@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.state.UiState.updateFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.models.dialog.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider
@@ -179,7 +180,7 @@ class SprGestureFragment: BaseWidgetsFragment() {
                 val checkedElements = dialogCollectionGestures.stream().filter{element -> element.check}.collect(
                     Collectors.toList())
                 if (checkedElements.size >= 8) {
-                    main?.showToast("Нельзя добавить больше 8-ми жестов")
+                    main?.showToast(getString(SharedRes.strings.rotation_dialog_limit_message.resourceId))
                 } else {
                     dialogCollectionGestures.removeAt(position)
                     dialogCollectionGestures.add(position, DialogCollectionGestureItem(dialogGesture.gesture, true))

@@ -76,6 +76,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    buildFeatures {
+        compose = true
+    }
     kotlin {
         jvmToolchain(17)
     }
@@ -121,6 +124,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
@@ -201,6 +205,7 @@ kotlin {
 
 dependencies {
 //    add("kspCommonMainMetadata", "androidx.room:room-compiler:2.7.2")
+    debugImplementation(compose.uiTooling)
     add("kspAndroid", "androidx.room:room-compiler:2.7.2")
     add("kspIosX64", "androidx.room:room-compiler:2.7.2")
     add("kspIosArm64", "androidx.room:room-compiler:2.7.2")

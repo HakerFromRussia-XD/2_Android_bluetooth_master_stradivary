@@ -90,6 +90,7 @@ android {
     }
     buildFeatures {
         buildConfig = true
+        compose = true
         viewBinding = true
     }
 
@@ -168,6 +169,13 @@ dependencies {
 
     // debug
     implementation("com.jakewharton.timber:timber:4.7.1")
+    implementation(compose.runtime)
+    implementation(compose.ui)
+    implementation(compose.foundation)
+    implementation(compose.material)
+    implementation(compose.components.uiToolingPreview)
+    debugImplementation(compose.uiTooling)
+    releaseImplementation(compose.uiTooling)
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0-alpha")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")

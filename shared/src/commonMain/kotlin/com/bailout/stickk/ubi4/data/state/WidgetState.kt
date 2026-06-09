@@ -12,7 +12,11 @@ import kotlin.properties.Delegates
 
 data class TelemetryGestureCounters(
     val baseGestureMovementCount: List<Long> = emptyList(),
-    val customGestureMovementCount: List<Long> = emptyList()
+    val customGestureMovementCount: List<Long> = emptyList(),
+    val telemetryVersion: Int? = null,
+    val telemetrySubversion: Int? = null,
+    val deviceUuid: String = "",
+    val receivedAtMillis: Long = 0L
 )
 
 object WidgetState {

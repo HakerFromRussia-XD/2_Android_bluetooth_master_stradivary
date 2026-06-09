@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data.network
 
 import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
+import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -17,6 +18,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okio.Buffer
 import okio.BufferedSource
@@ -246,6 +248,56 @@ class NetworkCoverageTest {
         assertFailsWith<IOException> { repo.fetchTokenBySerial("k", "s", "p") }
         assertFailsWith<IOException> { repo.fetchAndSavePassport("t", "s", root) }
         assertFailsWith<IOException> { repo.downloadAndUnpackCheckpoint("t", "cp", root) }
+        }
+    }
+
+    @Test
+    fun `telemetry repository should build json payload and post it`() {
+        runBlocking {
+            var postedPath = ""
+            var contentTypeHeader = ""
+            var signatureHeader = ""
+            val client = mockClient { req ->
+                postedPath = req.url.encodedPath
+                contentTypeHeader = req.body.contentType?.toString().orEmpty()
+                signatureHeader = req.headers["X-Signature"].orEmpty()
+                respond(
+                    content = "{}",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                )
+            }
+            val repo = Ubi4TelemetryRepository(Ubi4RequestsApi(userClient = client, passportClient = client))
+
+            val request = repo.sendTelemetry(
+                deviceId = "FEST-H-12345",
+                occurred = 1_749_020_000L,
+                counters = TelemetryGestureCounters(
+                    baseGestureMovementCount = listOf(9L, 25L, 0L, 12L),
+                    customGestureMovementCount = listOf(5L),
+                    telemetryVersion = 1,
+                    telemetrySubversion = 0
+                )
+            )
+
+            assertEquals("/http_json_drv/next_data", postedPath)
+            assertEquals(ContentType.Application.Json.toString(), contentTypeHeader)
+            assertEquals("1A2B3C4D", signatureHeader)
+            val message = request.messages.single()
+            assertEquals("FEST-H-12345", message.deviceId)
+            assertEquals(1_749_020_000L, message.occurred)
+            assertEquals("1.0", message.data.version)
+            assertEquals(25L, message.data.gestureMovementCount["GESTURE_FIST"])
+            assertEquals(12L, message.data.gestureMovementCount["GESTURE_PINCH"])
+            assertEquals(0L, message.data.gestureMovementCount["GESTURE_NATURAL_POSITION"])
+            assertEquals(5L, message.data.userGestureMovementCount["GESTURE_CUSTOM_0"])
+            assertEquals(0L, message.data.userGestureMovementCount["GESTURE_CUSTOM_13"])
+            assertEquals(42L, message.data.grips)
+
+            val json = Json.encodeToString(request)
+            assertTrue(json.contains("\"messages\""))
+            assertTrue(json.contains("\"gesture_movement_count\""))
+            assertTrue(json.contains("\"user_gesture_movement_count\""))
         }
     }
 

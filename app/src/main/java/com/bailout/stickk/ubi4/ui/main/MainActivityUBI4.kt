@@ -20,6 +20,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -46,6 +47,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -134,6 +136,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @Volatile private var queueWorkerRunning = false
     private var queueWorker: Thread? = null
     private lateinit var bottomNavigationController: BottomNavigationController
+    private lateinit var telemetryCoordinator: TelemetryCoordinator
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -169,6 +172,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 ensureSyncDialogShown()
             }
         }
+        telemetryCoordinator = TelemetryCoordinator(
+            scope = lifecycleScope,
+            requestTelemetryData = { mBLEController.requestTelemetryDataV3() },
+            fallbackDeviceIds = {
+                listOf(
+                    getCurrentSerial(),
+                    mDeviceName,
+                    connectedDeviceName,
+                    loadText(CONNECTED_DEVICE)
+                )
+            },
+            showToast = ::showToast
+        )
         mBLEController.initBLEStructure()
         mBLEController.connectToSavedDeviceNow()
         bluetoothLeService = BluetoothLeService()
@@ -228,10 +244,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onBackPressedDispatcher.onBackPressed()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-////            main.getBLEController().requestSerialNumberV3()
-//            main.getBLEController().requestTelemetryDataV3()
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            telemetryCoordinator.sendTelemetry()
+        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -645,7 +660,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     fun getCurrentSerial(): String? = currentSerial
-
 
     private fun sendFwInfoRequests() {
         bleParser.sendFwInfoRequestsWithRetry()

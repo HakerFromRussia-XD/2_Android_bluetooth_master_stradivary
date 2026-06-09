@@ -78,6 +78,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_D
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import kotlinx.datetime.Clock
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
@@ -368,7 +369,11 @@ class BLEParserV3(
         )
         telemetryGestureCountersFlow.value = TelemetryGestureCounters(
             baseGestureMovementCount = telemetry.gestureMovementCount.map { it ?: 0L },
-            customGestureMovementCount = telemetry.userGestureMovementCount.map { it ?: 0L }
+            customGestureMovementCount = telemetry.userGestureMovementCount.map { it ?: 0L },
+            telemetryVersion = telemetry.telemetryVersion,
+            telemetrySubversion = telemetry.telemetrySubversion,
+            deviceUuid = telemetry.deviceUuid,
+            receivedAtMillis = Clock.System.now().toEpochMilliseconds()
         )
 
 //        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")

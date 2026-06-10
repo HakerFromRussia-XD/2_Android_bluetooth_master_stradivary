@@ -43,7 +43,8 @@ data class InstructionBlock(
     val items: List<StringResource>,
     val imageHeight: Int,
     val imageWidth: Int,
-    val topMargin: Int
+    val topMargin: Int,
+    val quantities: List<StringResource> = emptyList()
 )
 
 enum class InstructionBlockType {
@@ -285,20 +286,38 @@ object InstructionBridge {
             InstructionCard(
                 blocks = listOf(
                     heading(SharedRes.strings.what_s_included_in_the_package),
-                    numbered(24,
-                        SharedRes.strings.hand_module,
-                        SharedRes.strings.battery_pack,
-                        SharedRes.strings.power_system,
-                        SharedRes.strings.prosthetic_socket,
-                        SharedRes.strings.battery_charger_with_220v_50hz_power_supply,
-                        SharedRes.strings.stationary_part_of_the_rotator,
-                        SharedRes.strings.sensor_tabs,
-                        SharedRes.strings.electromyographic_sensors_with_control_system,
-                        SharedRes.strings.specifications,
-                        SharedRes.strings.user_manual,
-                        SharedRes.strings.button_with_charging_connector,
-                        SharedRes.strings.pouch_for_pulling_the_prostheses_through_clothing_sleeves,
-                        SharedRes.strings.antiseptic
+                    numberedWithQuantities(
+                        topMargin = 24,
+                        items = listOf(
+                            SharedRes.strings.hand_module,
+                            SharedRes.strings.battery_pack,
+                            SharedRes.strings.power_system,
+                            SharedRes.strings.prosthetic_socket,
+                            SharedRes.strings.battery_charger_with_220v_50hz_power_supply,
+                            SharedRes.strings.stationary_part_of_the_rotator,
+                            SharedRes.strings.sensor_tabs,
+                            SharedRes.strings.electromyographic_sensors_with_control_system,
+                            SharedRes.strings.specifications,
+                            SharedRes.strings.user_manual,
+                            SharedRes.strings.button_with_charging_connector,
+                            SharedRes.strings.pouch_for_pulling_the_prostheses_through_clothing_sleeves,
+                            SharedRes.strings.antiseptic
+                        ),
+                        quantities = listOf(
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._2_items,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item,
+                            SharedRes.strings._1_item
+                        )
                     )
                 )
             )
@@ -417,6 +436,13 @@ object InstructionBridge {
 
     private fun numbered(topMargin: Int = 0, vararg items: StringResource): InstructionBlock =
         InstructionBlock(InstructionBlockType.NUMBERED, null, null, items.toList(), 0, 0, topMargin)
+
+    private fun numberedWithQuantities(
+        topMargin: Int = 0,
+        items: List<StringResource>,
+        quantities: List<StringResource>
+    ): InstructionBlock =
+        InstructionBlock(InstructionBlockType.NUMBERED, null, null, items, 0, 0, topMargin, quantities)
 
     private fun iconText(image: ImageResource, text: StringResource, topMargin: Int): InstructionBlock =
         InstructionBlock(InstructionBlockType.ICON_TEXT, text, image, emptyList(), 14, 14, topMargin)

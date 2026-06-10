@@ -628,6 +628,9 @@
     <string name="active_gesture_is" formatted="true">Active gesture: %1$s</string>
     <string name="prosthetic_settings">Prosthetic settings</string>
     <string name="mobile_settings">Mobile Settings</string>
+    <string name="ble_log_title">BLE Log</string>
+    <string name="ble_log_empty">No BLE commands yet</string>
+    <string name="ble_log_disable_graph_stream">Disable graph stream</string>
     <string name="auto_login">Auto login</string>
     <string name="are_you_sure_you_want_to_update_software_version">Are you sure you want to update your software version?</string>
     <string name="push_me">Push me</string>

@@ -25,6 +25,7 @@ interface NavigatorUBI4 {
     fun showSecretScreen()
 
     fun showHelpScreen()
+    fun showBleLogScreen()
 
 
     fun showToast(massage: String)

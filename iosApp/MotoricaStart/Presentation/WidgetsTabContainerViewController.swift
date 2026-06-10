@@ -96,6 +96,9 @@ class WidgetsTabContainerViewController: UIViewController {
                 onAccountTap: { [weak self] in
                     self?.openAccount()
                 },
+                onAccountLongPress: { [weak self] in
+                    self?.toggleSecretSettingsTab()
+                },
                 onHelpTap: { [weak self] in
                     self?.openHelp()
                 },
@@ -130,6 +133,10 @@ class WidgetsTabContainerViewController: UIViewController {
     private func openHelp() {
         if navigationController?.topViewController is HelpViewController { return }
         navigationController?.pushViewController(HelpViewController(), animated: true)
+    }
+
+    private func toggleSecretSettingsTab() {
+        (tabBarController as? MainTabBarController)?.toggleSecretSettingsTabVisibility()
     }
 
     func updateStatusBar(serialNumber: String? = nil, batteryLevel: Double? = nil, isConnected: Bool? = nil) {
@@ -205,6 +212,7 @@ class WidgetsTabContainerViewController: UIViewController {
 final class GesturesTabViewController: WidgetsTabContainerViewController {}
 final class SensorsTabViewController: WidgetsTabContainerViewController {}
 final class TrainingTabViewController: WidgetsTabContainerViewController {}
+final class ServiceSettingsTabViewController: WidgetsTabContainerViewController {}
 
 final class SpecialSettingsTabViewController: WidgetsTabContainerViewController {
     private var selectorHostingController: UIHostingController<SpecialSettingsSourceSelectorView>?

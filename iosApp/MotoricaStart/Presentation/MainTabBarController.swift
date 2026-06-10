@@ -20,6 +20,14 @@ final class MainTabBarController: UITabBarController {
         let titleFont: UIFont?
     }
 
+    private enum TabTag {
+        static let gestures = 0
+        static let sensors = 1
+        static let training = 2
+        static let specialSettings = 3
+        static let serviceSettings = 4
+    }
+
     private let appDIContainer: AppDIContainer
     private var didUpdateTabBarFonts = false
     private var didDisableTabBarContinuousInteractionGestures = false
@@ -31,7 +39,8 @@ final class MainTabBarController: UITabBarController {
     
     private let tabItemTopPadding: CGFloat = 4
     private let tabTransitionDuration: TimeInterval = 0.2
-    private let synchronizationRestrictedTabTags: Set<Int> = [0, 3]
+    private let synchronizationRestrictedTabTags: Set<Int> = [TabTag.gestures, TabTag.specialSettings, TabTag.serviceSettings]
+    private let secretSettingsVisibilityKey = "secret_item_visible"
     private let selectedTabItemColor = UIColor(named: "ubi4_white") ?? .white
     private let unselectedTabItemColor = UIColor(named: "ubi4_deactivate_text") ?? UIColor(white: 0.514, alpha: 1)
     private let tabsBackgroundColor = UIColor(named: "ubi4_back") ?? .black
@@ -43,6 +52,9 @@ final class MainTabBarController: UITabBarController {
     private var keyboardWillHideObserver: NSObjectProtocol?
     private var synchronizationStateObserver: NSObjectProtocol?
     private var pendingTabColorRefreshWorkItems: [DispatchWorkItem] = []
+    private var isSecretSettingsTabVisible: Bool {
+        UserDefaults.standard.bool(forKey: secretSettingsVisibilityKey)
+    }
     
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
@@ -135,11 +147,7 @@ final class MainTabBarController: UITabBarController {
 
     private func setupTabs() {
         let widgetsDI = appDIContainer.makeWidgetsSceneDIContainer()
-        let actions = WidgetsListViewModelActions(
-            showWidgetDetails: { _ in },
-            showWidgetQueriesSuggestions: { _ in },
-            closeWidgetQueriesSuggestions: {}
-        )
+        let actions = makeWidgetsActions()
         
         let gesturesTitle = SharedLocalizedText.text(SharedRes.strings().title_home)
         let sensorsTitle = SharedLocalizedText.text(SharedRes.strings().title_dashboard)
@@ -148,7 +156,7 @@ final class MainTabBarController: UITabBarController {
         gesturesVC.tabBarItem = makeTabBarItem(
             title: gesturesTitle,
             imageName: "ic_gestures",
-            tag: 0
+            tag: TabTag.gestures
         )
         gesturesVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabGesturesItem
 
@@ -156,21 +164,21 @@ final class MainTabBarController: UITabBarController {
         sensorsVC.tabBarItem = makeTabBarItem(
             title: sensorsTitle,
             imageName: "ic_sensors",
-            tag: 1
+            tag: TabTag.sensors
         )
 
         let specialVC = widgetsDI.makeSpecialSettingsTabViewController(actions: actions)
         specialVC.tabBarItem = makeTabBarItem(
             title: specialTitle,
             imageName: "ic_mechanics",
-            tag: 3
+            tag: TabTag.specialSettings
         )
         specialVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabSpecialSettingsItem
 
         var controllers: [UIViewController] = [gesturesVC, sensorsVC]
         var descriptors: [TabBarContentDescriptor] = [
-            TabBarContentDescriptor(title: gesturesTitle, imageName: "ic_gestures", tag: 0),
-            TabBarContentDescriptor(title: sensorsTitle, imageName: "ic_sensors", tag: 1)
+            TabBarContentDescriptor(title: gesturesTitle, imageName: "ic_gestures", tag: TabTag.gestures),
+            TabBarContentDescriptor(title: sensorsTitle, imageName: "ic_sensors", tag: TabTag.sensors)
         ]
 
         let trainingWidgets = DataFactory().prepareData(display: 3)
@@ -180,16 +188,101 @@ final class MainTabBarController: UITabBarController {
             trainingVC.tabBarItem = makeTabBarItem(
                 title: trainingTitle,
                 imageName: "ic_trophy",
-                tag: 2
+                tag: TabTag.training
             )
             controllers.append(trainingVC)
-            descriptors.append(TabBarContentDescriptor(title: trainingTitle, imageName: "ic_trophy", tag: 2))
+            descriptors.append(TabBarContentDescriptor(title: trainingTitle, imageName: "ic_trophy", tag: TabTag.training))
         }
 
         controllers.append(specialVC)
-        descriptors.append(TabBarContentDescriptor(title: specialTitle, imageName: "ic_mechanics", tag: 3))
+        descriptors.append(TabBarContentDescriptor(title: specialTitle, imageName: "ic_mechanics", tag: TabTag.specialSettings))
+        if isSecretSettingsTabVisible {
+            let serviceVC = makeServiceSettingsTabViewController()
+            controllers.append(serviceVC)
+            descriptors.append(makeServiceSettingsDescriptor())
+        }
         tabBarContentDescriptors = descriptors
         viewControllers = controllers
+    }
+
+    private func makeWidgetsActions() -> WidgetsListViewModelActions {
+        WidgetsListViewModelActions(
+            showWidgetDetails: { _ in },
+            showWidgetQueriesSuggestions: { _ in },
+            closeWidgetQueriesSuggestions: {}
+        )
+    }
+
+    private func makeServiceSettingsTabViewController() -> ServiceSettingsTabViewController {
+        let widgetsDI = appDIContainer.makeWidgetsSceneDIContainer()
+        let serviceTitle = SharedLocalizedText.text(SharedRes.strings().service_settings)
+        let serviceVC = widgetsDI.makeServiceSettingsTabViewController(actions: makeWidgetsActions())
+        serviceVC.tabBarItem = makeTabBarItem(
+            title: serviceTitle,
+            imageName: "ic_navigate_next",
+            tag: TabTag.serviceSettings
+        )
+        serviceVC.tabBarItem.accessibilityIdentifier = AccessibilityIdentifier.mainTabServiceSettingsItem
+        return serviceVC
+    }
+
+    private func makeServiceSettingsDescriptor() -> TabBarContentDescriptor {
+        TabBarContentDescriptor(
+            title: SharedLocalizedText.text(SharedRes.strings().service_settings),
+            imageName: "ic_navigate_next",
+            tag: TabTag.serviceSettings
+        )
+    }
+
+    func toggleSecretSettingsTabVisibility() {
+        setSecretSettingsTabVisible(!isSecretSettingsTabVisible, selectWhenShown: true)
+    }
+
+    private func setSecretSettingsTabVisible(_ isVisible: Bool, selectWhenShown: Bool) {
+        UserDefaults.standard.set(isVisible, forKey: secretSettingsVisibilityKey)
+        var controllers = viewControllers ?? []
+        var descriptors = tabBarContentDescriptors
+        let selectedTag = selectedViewController?.tabBarItem.tag
+
+        if isVisible {
+            if !controllers.contains(where: { $0.tabBarItem.tag == TabTag.serviceSettings }) {
+                controllers.append(makeServiceSettingsTabViewController())
+                descriptors.append(makeServiceSettingsDescriptor())
+            }
+        } else {
+            controllers.removeAll { $0.tabBarItem.tag == TabTag.serviceSettings }
+            descriptors.removeAll { $0.tag == TabTag.serviceSettings }
+        }
+
+        tabBarContentDescriptors = descriptors
+        viewControllers = controllers
+
+        let targetTag: Int?
+        if isVisible && selectWhenShown {
+            targetTag = TabTag.serviceSettings
+        } else if selectedTag == TabTag.serviceSettings {
+            targetTag = TabTag.sensors
+        } else {
+            targetTag = selectedTag
+        }
+        selectTab(withTag: targetTag)
+        refreshTabBarAfterContentChange()
+    }
+
+    private func selectTab(withTag tag: Int?) {
+        guard let tag, let controllers = viewControllers else { return }
+        guard let index = controllers.firstIndex(where: { $0.tabBarItem.tag == tag }) else { return }
+        selectedIndex = index
+    }
+
+    private func refreshTabBarAfterContentChange() {
+        didUpdateTabBarFonts = false
+        applyTabBarContentInsets(topPadding: tabItemTopPadding)
+        updateSynchronizationRestrictedTabAvailability()
+        configureTabBarContentOverlayIfNeeded()
+        layoutTabBarContentOverlayIfNeeded()
+        hideNativeTabBarContentIfNeeded()
+        refreshTabBarItemColors()
     }
 
     private func configureTabBarPlatformBehavior() {

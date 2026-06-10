@@ -67,6 +67,7 @@ import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
+import com.bailout.stickk.ubi4.ui.fragments.BleLogFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -381,6 +382,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         launchFragmentWithStack(helpFragment, withSlideAnimation = true)
+    }
+
+    override fun showBleLogScreen() {
+        if (activeFragment is BleLogFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+        launchFragmentWithStack(BleLogFragment(), withSlideAnimation = true)
     }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {

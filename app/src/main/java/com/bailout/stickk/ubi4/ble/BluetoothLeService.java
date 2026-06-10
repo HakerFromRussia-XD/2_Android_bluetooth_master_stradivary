@@ -35,7 +35,9 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bailout.stickk.ubi4.blelog.BleLogStore;
 import com.bailout.stickk.ubi4.data.state.BLEState;
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
@@ -573,6 +575,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                BleLogStore.logIncoming(characteristic.getValue());
                 broadcastUpdate(characteristic, SampleGattAttributes.READ);
             }
         }
@@ -596,6 +599,9 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             byte[] d   = characteristic.getValue();
+            if (!shouldHideFromBleLog(characteristic)) {
+                BleLogStore.logIncoming(d);
+            }
             String hex = String.valueOf(EncodeByteToHex.bytesToHexString(d));
             platformLog("BLE_RAW", "UUID=" + characteristic.getUuid() + "  len=" + d.length + "  " + hex);
             platformLog("onCharacteristicChanged", "Характеристика изменилась: " +
@@ -643,6 +649,19 @@ public class BluetoothLeService extends Service {
             }
         }
     };
+
+    private boolean shouldHideFromBleLog(BluetoothGattCharacteristic characteristic) {
+        if (characteristic == null) return false;
+        String uuid = String.valueOf(characteristic.getUuid());
+        boolean isGraphStream = uuid.equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID)
+                || uuid.equals(SampleGattAttributes.MIO_MEASUREMENT)
+                || uuid.equals(SampleGattAttributes.MIO_MEASUREMENT_NEW)
+                || uuid.equals(SampleGattAttributes.MIO_MEASUREMENT_NEW_VM);
+        if (!isGraphStream) return false;
+
+        return getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+                .getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true);
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -831,6 +850,7 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
+        BleLogStore.logOutgoing(characteristic.getValue());
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
 

@@ -90,6 +90,13 @@ final class WidgetsSceneDIContainer {
         controller.screenTitleOverride = SharedLocalizedText.text(SharedRes.strings().special_settings)
         return SpecialSettingsTabViewController(contentViewController: controller)
     }
+
+    func makeServiceSettingsTabViewController(actions: WidgetsListViewModelActions) -> ServiceSettingsTabViewController {
+        let controller = makeWidgetsListViewController(actions: actions)
+        controller.display = 4
+        controller.screenTitleOverride = SharedLocalizedText.text(SharedRes.strings().service_settings)
+        return ServiceSettingsTabViewController(contentViewController: controller)
+    }
     
     func makeWidgetsListViewModel(actions: WidgetsListViewModelActions) -> WidgetsListViewModel {
         DefaultWidgetsListViewModel(

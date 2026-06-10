@@ -29,6 +29,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
+    func requestTelemetryData()
     func setCustomGestureSettingsOpener(_ handler: @escaping (Int, Bool) -> Void)
 }
 
@@ -256,6 +257,20 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             onChunkSent: {}
         )
     }
+
+    func requestTelemetryData() {
+        let gatt = SampleGattAttributes()
+        let command = BLECommandsV3.shared.requestTelemetryData()
+        command.debugPrint()
+        print("[BLE-COMMUNICATION] request telemetry data")
+
+        bleManager.sendBytesKmm(
+            data: command,
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
     
     func setCustomGestureSettingsOpener(_ handler: @escaping (Int, Bool) -> Void) {
         customGestureSettingsOpener = handler
@@ -280,6 +295,7 @@ extension KotlinByteArray {
 }
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
+    case gestureUsage(GestureUsageListItemViewModel)
     case command(CommandListItemViewModel)
     case commandV3(CommandListItemViewModelV3)
     case plot(PlotListItemViewModel)
@@ -293,6 +309,25 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case toggleSliderV3(ToggleSliderListItemViewModelV3)
     case switcherV3(SwitcherListItemViewModelV3)
     case textInputV3(TextInputListItemViewModelV3)
+}
+
+struct GestureUsageChartItem: Hashable {
+    let gestureId: Int
+    let title: String
+    let count: Int64
+    let colorIndex: Int
+}
+
+struct GestureUsageListItemViewModel: Hashable {
+    let id: String
+    let title: String
+    let emptyTitle: String
+    let totalTitle: String
+    let items: [GestureUsageChartItem]
+
+    var totalCount: Int64 {
+        items.reduce(0) { $0 + $1.count }
+    }
 }
 // MARK: - INPUT. View event methods
 

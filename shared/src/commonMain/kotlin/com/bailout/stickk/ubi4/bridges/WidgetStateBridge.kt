@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
 import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
 import kotlinx.coroutines.CoroutineScope
@@ -83,5 +84,14 @@ object WidgetStateBridge {
     fun observeBindingGroup(callback: (ParameterRef) -> Unit): Job =
         coroutineScope.launch {
             WidgetState.bindingGroupFlow.collect { callback(it) }
+        }
+
+    /**
+     * Подписка на счетчики использования жестов из телеметрии.
+     * @param callback вызывается с каждым обновлением счетчиков.
+     */
+    fun observeTelemetryGestureCounters(callback: (TelemetryGestureCounters) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.telemetryGestureCountersFlow.collect { callback(it) }
         }
 }

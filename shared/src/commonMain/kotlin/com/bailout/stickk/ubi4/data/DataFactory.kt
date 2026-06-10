@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
+import com.bailout.stickk.ubi4.models.blelog.BleLogButtonItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.parameterWidgetLabel
@@ -309,6 +310,7 @@ class DataFactory {
         val isRussian = lang.startsWith("ru", ignoreCase = true)
         return when (key) {
             MobileSettingsKey.AUTO_LOGIN -> if (isRussian) "Автоматический вход" else "Auto login"
+            MobileSettingsKey.BLE_LOG -> if (isRussian) "Журнал BLE" else "BLE Log"
         }
     }
 
@@ -320,6 +322,10 @@ class DataFactory {
 
 
     private fun toWidgetItemS(widgetCode: Int, label: String = "no name%no name%no name", widget: Any): Any? {
+        if (mobileSettingsKey(widget) == MobileSettingsKey.BLE_LOG.key) {
+            return if (widget.extractDisplayOrNull() == BLE_LOG_DISPLAY) BleLogButtonItem else null
+        }
+
         val partsLabel = label.split("%").map { it.trim() }
 
         val resultLabel = if (partsLabel.size < 3) {
@@ -418,6 +424,25 @@ class DataFactory {
         }
     }
 
+    private fun mobileSettingsKey(widget: Any): String = when (widget) {
+        is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.keyMobileSettings
+        is BaseParameterWidgetSStruct -> widget.baseParameterWidgetStruct.keyMobileSettings
+        is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is PlotParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is OpticStartLearningWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SwitchParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SwitchParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is ToggleSliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is ToggleSliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SpinnerParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SpinnerParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        else -> ""
+    }
+
     fun Any.extractDisplayOrNull(): Int? = when (this) {
         is BaseParameterWidgetEStruct -> baseParameterWidgetStruct.display
         is BaseParameterWidgetSStruct -> baseParameterWidgetStruct.display
@@ -442,5 +467,8 @@ class DataFactory {
         else -> null
     }
 
+    private companion object {
+        const val BLE_LOG_DISPLAY = 4
+    }
 
 }

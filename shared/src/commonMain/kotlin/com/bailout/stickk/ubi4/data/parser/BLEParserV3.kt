@@ -709,6 +709,17 @@ class BLEParserV3(
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
         ), LocalizedWidgetText.prosthesisCalibration))
+        baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+                BaseParameterWidgetStruct(
+                    display = 4,
+                    widgetCode = PWCE_BUTTON_V3.number.toInt(),
+                    parameterInfoSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>(),
+                    keyMobileSettings = PreferenceKeysUbi4.MobileSettingsKey.BLE_LOG.key
+                ),
+                "BLE Log"
+            )
+        ))
 
 
         baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)

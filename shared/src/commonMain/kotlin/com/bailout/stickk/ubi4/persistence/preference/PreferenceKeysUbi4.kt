@@ -56,6 +56,7 @@ object PreferenceKeysUbi4 {
     const val FIRST_LOAD_ACCOUNT_INFO = "FIRST_LOAD_ACCOUNT_INFO"
     const val PREF_GESTURE_STATE = "pref_gesture_state"
     const val SET_MODE_SMART_CONNECTION = "SET_MODE_SMART_CONNECTION"
+    const val BLE_LOG_HIDE_GRAPH_STREAM = "BLE_LOG_HIDE_GRAPH_STREAM"
     const val NAME           = "ubi4_prefs"
     const val KEY_TOKEN      = "pref_key_token"
     const val KEY_SERIAL     = "pref_key_serial"
@@ -674,6 +675,7 @@ object PreferenceKeysUbi4 {
     //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),
+        BLE_LOG ("BLE_LOG"),
     }
 
 

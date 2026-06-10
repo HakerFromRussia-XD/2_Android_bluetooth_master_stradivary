@@ -32,6 +32,7 @@ struct StatusBarView: View {
     var leadingButton: LeadingButton = .account
     var isDisconnectActionEnabled = true
     var onAccountTap: (() -> Void)?
+    var onAccountLongPress: (() -> Void)?
     var onHelpTap: (() -> Void)?
     var onBackTap: (() -> Void)?
     var onDisconnectConfirmed: (() -> Void)?
@@ -43,16 +44,7 @@ struct StatusBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {
-                Button {
-                    handleLeadingButtonTap()
-                } label: {
-                    statusBarButtonBackground {
-                        leadingButtonImage
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(leadingButton == .back ? SharedLocalizedText.text(SharedRes.strings().back) : SharedLocalizedText.text(SharedRes.strings().account)))
-                .accessibilityIdentifier(leadingButton == .back ? "AccessibilityIdentifierStatusBarBackButton" : AccessibilityIdentifier.statusBarAccountButton)
+                leadingButtonControl
 
                 if leadingButton == .account, onHelpTap != nil {
                     Button {
@@ -160,12 +152,34 @@ struct StatusBarView: View {
         .frame(width: Constants.leadingButtonSize, height: Constants.leadingButtonSize)
     }
 
-    private func handleLeadingButtonTap() {
+    @ViewBuilder
+    private var leadingButtonControl: some View {
         switch leadingButton {
         case .account:
-            onAccountTap?()
+            statusBarButtonBackground {
+                leadingButtonImage
+            }
+            .contentShape(Circle())
+            .onTapGesture {
+                onAccountTap?()
+            }
+            .onLongPressGesture(minimumDuration: 0.8) {
+                onAccountLongPress?()
+            }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().account)))
+            .accessibilityIdentifier(AccessibilityIdentifier.statusBarAccountButton)
         case .back:
-            onBackTap?()
+            Button {
+                onBackTap?()
+            } label: {
+                statusBarButtonBackground {
+                    leadingButtonImage
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().back)))
+            .accessibilityIdentifier("AccessibilityIdentifierStatusBarBackButton")
         }
     }
 

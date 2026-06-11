@@ -15,4 +15,5 @@ struct WidgetsListViewModelActions {
     let showWidgetDetails: (Widget) -> Void
     let showWidgetQueriesSuggestions: (@escaping (_ didSelect: WidgetQuery) -> Void) -> Void
     let closeWidgetQueriesSuggestions: () -> Void
+    let showBleLog: () -> Void
 }

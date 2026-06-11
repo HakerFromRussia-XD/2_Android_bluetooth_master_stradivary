@@ -60,10 +60,12 @@ class BleLogFragment : Fragment(R.layout.ubi4_fragment_ble_log) {
             PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM,
             true
         )
+        BleLogStore.setHideGraphStream(graphStreamFilterSwitch.isChecked)
         graphStreamFilterSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit()
                 .putBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, isChecked)
                 .apply()
+            BleLogStore.setHideGraphStream(isChecked)
         }
         graphStreamFilterContainer.setOnClickListener {
             graphStreamFilterSwitch.isChecked = !graphStreamFilterSwitch.isChecked

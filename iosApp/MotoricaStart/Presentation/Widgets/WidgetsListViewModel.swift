@@ -112,6 +112,18 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
 
     private func makeListItem(for widget: Widget) -> ListItemType {
+        if widget.isBleLogButton {
+            let showBleLog = actions?.showBleLog
+            return .bleLogButton(
+                BleLogButtonListItemViewModel(
+                    title: widget.title ?? Self.bleLogTitle,
+                    onTap: {
+                        showBleLog?()
+                    }
+                )
+            )
+        }
+
         if ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget"),
            widget.id == "ui-test-gestures-widget" {
             return .gestureOpticV3(
@@ -296,6 +308,7 @@ extension KotlinByteArray {
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
     case gestureUsage(GestureUsageListItemViewModel)
+    case bleLogButton(BleLogButtonListItemViewModel)
     case command(CommandListItemViewModel)
     case commandV3(CommandListItemViewModelV3)
     case plot(PlotListItemViewModel)
@@ -309,6 +322,21 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case toggleSliderV3(ToggleSliderListItemViewModelV3)
     case switcherV3(SwitcherListItemViewModelV3)
     case textInputV3(TextInputListItemViewModelV3)
+}
+
+struct BleLogButtonListItemViewModel: Hashable {
+    let id = "ble-log-button"
+    let title: String
+    let onTap: () -> Void
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(title)
+    }
+
+    static func == (lhs: BleLogButtonListItemViewModel, rhs: BleLogButtonListItemViewModel) -> Bool {
+        lhs.id == rhs.id && lhs.title == rhs.title
+    }
 }
 
 struct GestureUsageChartItem: Hashable {
@@ -327,6 +355,18 @@ struct GestureUsageListItemViewModel: Hashable {
 
     var totalCount: Int64 {
         items.reduce(0) { $0 + $1.count }
+    }
+}
+
+private extension DefaultWidgetsListViewModel {
+    static var bleLogTitle: String {
+        Locale.preferredLanguages.first?.hasPrefix("ru") == true ? "Журнал BLE" : "BLE Log"
+    }
+}
+
+private extension Widget {
+    var isBleLogButton: Bool {
+        (widget?.value as? String) == WidgetDescriptorFactoryV3.bleLogPayload
     }
 }
 // MARK: - INPUT. View event methods

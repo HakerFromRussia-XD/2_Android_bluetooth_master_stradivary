@@ -209,8 +209,16 @@ final class MainTabBarController: UITabBarController {
         WidgetsListViewModelActions(
             showWidgetDetails: { _ in },
             showWidgetQueriesSuggestions: { _ in },
-            closeWidgetQueriesSuggestions: {}
+            closeWidgetQueriesSuggestions: {},
+            showBleLog: { [weak self] in
+                self?.showBleLogScreen()
+            }
         )
+    }
+
+    private func showBleLogScreen() {
+        if navigationController?.topViewController is BleLogViewController { return }
+        navigationController?.pushViewController(BleLogViewController(), animated: true)
     }
 
     private func makeServiceSettingsTabViewController() -> ServiceSettingsTabViewController {

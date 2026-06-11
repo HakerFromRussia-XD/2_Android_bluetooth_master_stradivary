@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppAppearance.setupAppearance()
         FirmwareDocumentsDirectory.prepareSharedFolder()
         SmartConnectionSettingsStore().resetScanAutoConnectionDeactivationForLaunch()
+        BleLogSettings.syncSharedStore()
     
         
         

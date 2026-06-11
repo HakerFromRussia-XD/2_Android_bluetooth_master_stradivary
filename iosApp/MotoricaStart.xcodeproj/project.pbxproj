@@ -149,6 +149,7 @@
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
 		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
+		65C0DE012FA5000100C0DE01 /* BleLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */; };
 		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
 		65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */; };
 		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
@@ -432,6 +433,7 @@
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
 		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
+		65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleLogViewController.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
 		65EAF4772ED865D400B3C49D /* adduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = adduction.lottie; sourceTree = "<group>"; };
 		65EAF4782ED865D400B3C49D /* close.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = close.lottie; sourceTree = "<group>"; };
@@ -886,6 +888,7 @@
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
 				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
+				65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
 				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
 				ABCD02092F9C000100000001 /* AccountFirmwareDialogPresenter.swift */,
@@ -1872,6 +1875,7 @@
 				1F57F8D223C656F600981E09 /* AccessibilityIdentifier.swift in Sources */,
 				1F0CEFCF23436B67004141FA /* ConnectionError.swift in Sources */,
 				65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */,
+				65C0DE012FA5000100C0DE01 /* BleLogViewController.swift in Sources */,
 				652E2BD12F2B97C20084F557 /* StatusBarViewModel.swift in Sources */,
 				659A459D2DB92866002BE2BC /* BLEDevice.swift in Sources */,
 				651DDBA92EFC1F4000199FD8 /* BluetoothStorageKeys.swift in Sources */,

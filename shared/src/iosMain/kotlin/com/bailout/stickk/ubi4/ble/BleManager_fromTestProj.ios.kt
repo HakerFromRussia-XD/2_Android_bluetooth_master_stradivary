@@ -6,6 +6,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.blelog.BleLogStore
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
@@ -47,6 +48,8 @@ import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
+
+private const val EMG_GRAPH_STREAM_PACKET_SIZE = 12
 
 
 /** Информация об обнаруженном устройстве */
@@ -300,6 +303,10 @@ actual class BleManagerKmm actual constructor() {
                     pendingDeviceDataResponseAck?.complete(true)
                 }
                 val bytes = data.toByteArray()
+                val isGraphStream = isEmgGraphStreamNotification(bytes, characteristicUuid)
+                if (BleLogStore.shouldLogIncoming(isGraphStream)) {
+                    BleLogStore.logIncoming(bytes)
+                }
                 handleV3InitResponseProgress(bytes, characteristicUuid)
                 if (UiState.isInterfaceV3Activated) {
                     when (characteristicUuid) {
@@ -455,6 +462,7 @@ actual class BleManagerKmm actual constructor() {
                     }
 
                     WRITE -> {
+                        BleLogStore.logOutgoing(data)
                         selectedDevice?.writeValue(data = data.toNSData(), forCharacteristic = c, type = CBCharacteristicWriteWithResponse)
                         platformLog("sendBytesKmm", "отправляем данные: $receiveDataString")
                     }
@@ -803,5 +811,10 @@ actual class BleManagerKmm actual constructor() {
         manager.scanForPeripheralsWithServices(null, null)
         reconnectScanActive = true
         platformLog("[BLE-RECONNECT]", "scan started for auto reconnect target=$reconnectTargetUuid")
+    }
+
+    private fun isEmgGraphStreamNotification(bytes: ByteArray, characteristicUuid: String): Boolean {
+        if (characteristicUuid != SENSORS_STREAM_UUID.lowercase()) return false
+        return bytes.size == EMG_GRAPH_STREAM_PACKET_SIZE
     }
 }

@@ -104,6 +104,10 @@ import shared
             GestureUsageChartViewCell.self,
             forCellReuseIdentifier: GestureUsageChartViewCell.reuseIdentifier
         )
+        tableView.register(
+            BleLogButtonViewCell.self,
+            forCellReuseIdentifier: BleLogButtonViewCell.reuseIdentifier
+        )
         
         dataSource = UITableViewDiffableDataSource<Section, ListItemType>(
             tableView: tableView
@@ -111,6 +115,13 @@ import shared
             guard self != nil else {return nil}
             print("[DEBUG] Dequeueing cell for \(indexPath): \(item)")
             switch item {
+                case .bleLogButton(let vm):
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: BleLogButtonViewCell.reuseIdentifier,
+                        for: indexPath
+                    ) as! BleLogButtonViewCell
+                    cell.configure(with: vm)
+                    return cell
                 case .gestureUsage(let vm):
                     let cell = tableView.dequeueReusableCell(
                         withIdentifier: GestureUsageChartViewCell.reuseIdentifier,
@@ -238,6 +249,98 @@ import shared
         if indexPath.row == itemsCount - 1 {
             viewModel.didLoadNextPage()
         }
+    }
+}
+
+final class BleLogButtonViewCell: UITableViewCell {
+    static let reuseIdentifier = String(describing: BleLogButtonViewCell.self)
+
+    private let button = UIControl()
+    private let iconView = UIImageView(
+        image: (UIImage(named: "ic_note") ?? UIImage(systemName: "doc.text"))?.withRenderingMode(.alwaysTemplate)
+    )
+    private let titleLabel = UILabel()
+    private let chevronView = UIImageView(
+        image: (UIImage(named: "ic_navigate_next") ?? UIImage(systemName: "chevron.right"))?.withRenderingMode(.alwaysTemplate)
+    )
+    private var onTap: (() -> Void)?
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupViews()
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onTap = nil
+        titleLabel.text = nil
+    }
+
+    func configure(with viewModel: BleLogButtonListItemViewModel) {
+        titleLabel.text = viewModel.title
+        onTap = viewModel.onTap
+    }
+
+    private func setupViews() {
+        selectionStyle = .none
+        backgroundColor = UIColor(named: "ubi4_back")
+        contentView.backgroundColor = UIColor(named: "ubi4_back")
+        contentView.directionalLayoutMargins = .zero
+
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = UIColor(named: "ubi4_gray") ?? UIColor(red: 0.216, green: 0.216, blue: 0.216, alpha: 1)
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 1
+        button.layer.borderColor = (UIColor(named: "ubi4_gray_border") ?? UIColor(red: 0.267, green: 0.267, blue: 0.267, alpha: 1)).cgColor
+        button.addTarget(self, action: #selector(handleTap), for: .touchUpInside)
+        contentView.addSubview(button)
+
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.contentMode = .scaleAspectFit
+        iconView.tintColor = UIColor(named: "ubi4_white") ?? .white
+        button.addSubview(iconView)
+
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = UIFont(name: "OpenSans-Regular", size: 14) ?? .systemFont(ofSize: 14, weight: .regular)
+        titleLabel.textColor = UIColor(named: "ubi4_white") ?? .white
+        titleLabel.numberOfLines = 1
+        button.addSubview(titleLabel)
+
+        chevronView.translatesAutoresizingMaskIntoConstraints = false
+        chevronView.contentMode = .scaleAspectFit
+        chevronView.tintColor = UIColor(named: "ubi4_white") ?? .white
+        button.addSubview(chevronView)
+
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            button.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            button.heightAnchor.constraint(equalToConstant: 48),
+
+            iconView.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 16),
+            iconView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 24),
+            iconView.heightAnchor.constraint(equalToConstant: 24),
+
+            chevronView.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16),
+            chevronView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            chevronView.widthAnchor.constraint(equalToConstant: 24),
+            chevronView.heightAnchor.constraint(equalToConstant: 24),
+
+            titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -12),
+            titleLabel.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+        ])
+    }
+
+    @objc private func handleTap() {
+        onTap?()
     }
 }
 

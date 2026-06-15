@@ -15,6 +15,12 @@ data class TelemetryGestureCounters(
     val customGestureMovementCount: List<Long> = emptyList()
 )
 
+data class GameControlSignal(
+    val openLevel: Int = 0,
+    val closeLevel: Int = 0,
+    val connected: Boolean = false
+)
+
 object WidgetState {
     var plotArrayFlow: MutableStateFlow<PlotParameterRef> by Delegates.notNull()
     var rotationGroupFlow: MutableSharedFlow<ParameterRef> by Delegates.notNull()
@@ -34,6 +40,7 @@ object WidgetState {
     var widgetsMergeEventFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
     val activeGestureState = MutableStateFlow<Int?>(null)
     val selectGestureModeState = MutableStateFlow(false)
+    val gameControlSignalFlow = MutableStateFlow(GameControlSignal())
 
     var thresholdFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var sliderFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()

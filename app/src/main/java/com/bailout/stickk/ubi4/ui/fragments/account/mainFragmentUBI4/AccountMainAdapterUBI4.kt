@@ -23,6 +23,7 @@ class AccountMainAdapterUBI4(
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val customerServiceBtn: View = view.findViewById(R.id.customerServiceClick)
         val prosthesisInformationBtn: View = view.findViewById(R.id.prosthesisInfoClick)
+        val gamesBtn: View = view.findViewById(R.id.gamesClick)
         val fioTv: TextView = view.findViewById(R.id.ubi4_fio_tv) as TextView
 //        val applicationVersionNumTv: TextView = view.findViewById(R.id.ubi4_version_app_num_tv) as TextView
     }
@@ -46,6 +47,9 @@ class AccountMainAdapterUBI4(
         }
         holder.prosthesisInformationBtn.setOnClickListener {
             onAccountClickListener.onProsthesisInformationClicked()
+        }
+        holder.gamesBtn.setOnClickListener {
+            onAccountClickListener.onGamesClicked()
         }
     }
 

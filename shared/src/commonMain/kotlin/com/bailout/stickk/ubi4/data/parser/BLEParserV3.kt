@@ -44,9 +44,11 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gameControlSignalFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow
+import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
@@ -149,6 +151,11 @@ class BLEParserV3(
             showToast("Ошибка 113")
             plotArray = arrayListOf(0, 0, 0, 0, 0, 0)
         }
+        gameControlSignalFlow.value = GameControlSignal(
+            openLevel = plotArray.getOrNull(0) ?: 0,
+            closeLevel = plotArray.getOrNull(1) ?: 0,
+            connected = true
+        )
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {

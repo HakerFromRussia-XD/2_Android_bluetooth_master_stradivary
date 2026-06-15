@@ -76,6 +76,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.games.AccountGamesFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
@@ -355,6 +356,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
         launchFragmentWithStack(
             fragment = AccountFragmentProsthesisInformationUBI4(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showGamesScreen() {
+        if (activeFragment is AccountGamesFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = AccountGamesFragment(),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
         )

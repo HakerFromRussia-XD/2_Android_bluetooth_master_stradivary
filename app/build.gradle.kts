@@ -32,6 +32,12 @@ android {
         versionName = "3.3.1638"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+
+        val motoricaStkApkUrl = providers.gradleProperty("motoricaStkApkUrl").orElse("").get()
+        val motoricaStkSha256 = providers.gradleProperty("motoricaStkSha256").orElse("").get()
+        buildConfigField("String", "MOTORICA_STK_APK_URL", "\"${motoricaStkApkUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        buildConfigField("String", "MOTORICA_STK_SHA256", "\"${motoricaStkSha256.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -89,6 +95,7 @@ android {
         }
     }
     buildFeatures {
+        aidl = true
         buildConfig = true
         viewBinding = true
     }

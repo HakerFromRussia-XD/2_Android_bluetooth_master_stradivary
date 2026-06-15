@@ -148,10 +148,10 @@
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
 		65BDBADB2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */; };
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
+		65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */; };
+		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
 		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
 		65C0DE012FA5000100C0DE01 /* BleLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */; };
-		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
-		65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */; };
 		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
 		65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4772ED865D400B3C49D /* adduction.lottie */; };
 		65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47D2ED865D400B3C49D /* pronation.lottie */; };
@@ -211,7 +211,6 @@
 		A4EDEC3A3B2EE9ACAE394847 /* SensorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF856B454911936C8985160 /* SensorsViewController.swift */; };
 		A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */; };
 		ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */; };
-		ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */; };
 		ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 		ABCD01042F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */; };
 		ABCD01062F9B000100000001 /* StatusBarDisconnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */; };
@@ -222,6 +221,7 @@
 		ABCD03012F9D000100000001 /* FirmwareUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */; };
 		ABCD05022FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
 		ABCD05032FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */; };
+		ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */; };
 		AFBA3DF021E8EC4CC9B99E86 /* InstractionFesthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */; };
 		B1AB5C2D2B0641576839ECAB /* InstractionProsthisesUseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */; };
 		BBBB4A3CD3FC342880C56B2A /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */; };
@@ -425,13 +425,13 @@
 		65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotViewCellV3.swift; sourceTree = "<group>"; };
 		65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModelV3.swift; sourceTree = "<group>"; };
 		65ACCA022F90000100ACCA01 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
-		65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandBridge.swift; sourceTree = "<group>"; };
-		65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandProbe.swift; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetsListViewModelActions.swift; path = ../../WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
 		65BDBADA2EA7E6CA00685580 /* GestureOpticListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureOpticListItemViewModel.swift; sourceTree = "<group>"; };
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
+		65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandProbe.swift; sourceTree = "<group>"; };
+		65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandBridge.swift; sourceTree = "<group>"; };
 		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleLogViewController.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
@@ -518,7 +518,6 @@
 		A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContainerViewController.swift; path = Utility/ContainerViewController.swift; sourceTree = "<group>"; };
 		AAF856B454911936C8985160 /* SensorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SensorsViewController.swift; path = ViewControllers/Main/SensorsViewController.swift; sourceTree = "<group>"; };
 		ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatterTests.swift; sourceTree = "<group>"; };
-		ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolverTests.swift; sourceTree = "<group>"; };
 		ABCD01052F9A000100000001 /* PhoneDialURLFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneDialURLFormatter.swift; sourceTree = "<group>"; };
 		ABCD01072F9B000100000001 /* StatusBarDisconnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarDisconnectCoordinator.swift; sourceTree = "<group>"; };
 		ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareModels.swift; sourceTree = "<group>"; };
@@ -527,6 +526,7 @@
 		ABCD020A2F9C000100000001 /* AccountFirmwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFirmwareUpdateController.swift; sourceTree = "<group>"; };
 		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
 		ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothScanDeviceNameFormatter.swift; sourceTree = "<group>"; };
+		ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolverTests.swift; sourceTree = "<group>"; };
 		B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SaveObject.swift; path = Utility/SaveObject.swift; sourceTree = "<group>"; };
 		B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtentionTextField.swift; path = Utility/ExtentionTextField.swift; sourceTree = "<group>"; };
 		B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
@@ -1025,124 +1025,6 @@
 			path = MotoricaStart;
 			sourceTree = "<group>";
 		};
-		66A0D12C30B2AA000000001A /* Nibs */ = {
-			isa = PBXGroup;
-			children = (
-				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
-			);
-			path = Nibs;
-			sourceTree = "<group>";
-		};
-		66A0D12D30B2AA000000001B /* ViewControllers */ = {
-			isa = PBXGroup;
-			children = (
-				66A0D12E30B2AA000000001C /* Cells */,
-				66A0D12F30B2AA000000001D /* Dialogs */,
-				66A0D13030B2AA000000001E /* Main */,
-				66A0D13130B2AA000000001F /* Help */,
-				14B1AB212B9961B39846E022 /* NewViewController.swift */,
-			);
-			name = ViewControllers;
-			sourceTree = "<group>";
-		};
-		66A0D12E30B2AA000000001C /* Cells */ = {
-			isa = PBXGroup;
-			children = (
-				34E178902751905FCE40A8EA /* DeviceCell.swift */,
-			);
-			name = Cells;
-			sourceTree = "<group>";
-		};
-		66A0D12F30B2AA000000001D /* Dialogs */ = {
-			isa = PBXGroup;
-			children = (
-				9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */,
-				C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */,
-				05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */,
-				0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */,
-				A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */,
-				514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */,
-				C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */,
-				FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */,
-				C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */,
-				D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */,
-				DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */,
-				0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */,
-				1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */,
-				0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */,
-			);
-			name = Dialogs;
-			sourceTree = "<group>";
-		};
-		66A0D13030B2AA000000001E /* Main */ = {
-			isa = PBXGroup;
-			children = (
-				AAF856B454911936C8985160 /* SensorsViewController.swift */,
-				5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */,
-				8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */,
-				470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */,
-				C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */,
-				5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */,
-				24A21C86558B3D2B20C076DB /* ScanViewController.swift */,
-				92ECA664C1220B2658F99A5A /* Solution.swift */,
-			);
-			name = Main;
-			sourceTree = "<group>";
-		};
-		66A0D13130B2AA000000001F /* Help */ = {
-			isa = PBXGroup;
-			children = (
-				0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */,
-				284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */,
-				EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */,
-			);
-			name = Help;
-			sourceTree = "<group>";
-		};
-		66A0D13230B2AA0000000020 /* Utility */ = {
-			isa = PBXGroup;
-			children = (
-				41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */,
-				A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */,
-				F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */,
-				DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */,
-				B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */,
-				DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */,
-				8EB13250E9AD082075E3BD08 /* DataManger.swift */,
-				B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */,
-				223CF016196B6967172646FC /* NameUtil.swift */,
-			);
-			name = Utility;
-			sourceTree = "<group>";
-		};
-		66A0D13330B2AA0000000021 /* Res */ = {
-			isa = PBXGroup;
-			children = (
-				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
-				66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */,
-				66A0D13430B2AA0000000022 /* Fontes */,
-			);
-			path = Res;
-			sourceTree = "<group>";
-		};
-		66A0D13430B2AA0000000022 /* Fontes */ = {
-			isa = PBXGroup;
-			children = (
-				66A0D12A30B2AA0000000018 /* inter.ttf */,
-				66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */,
-			);
-			path = Fontes;
-			sourceTree = "<group>";
-		};
-		66A0D13530B2AA0000000023 /* test transition */ = {
-			isa = PBXGroup;
-			children = (
-				5D0A2EFC768621B75CB1EECF /* ModelController.swift */,
-				6FB559B71FA408288BC5EAD2 /* Quote.swift */,
-			);
-			name = "test transition";
-			sourceTree = "<group>";
-		};
 		651DDBA52EFC1E0200199FD8 /* KeyValueStorage */ = {
 			isa = PBXGroup;
 			children = (
@@ -1462,6 +1344,124 @@
 				66A0D12430B2AA0000000012 /* Meshes */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		66A0D12C30B2AA000000001A /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */,
+			);
+			path = Nibs;
+			sourceTree = "<group>";
+		};
+		66A0D12D30B2AA000000001B /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12E30B2AA000000001C /* Cells */,
+				66A0D12F30B2AA000000001D /* Dialogs */,
+				66A0D13030B2AA000000001E /* Main */,
+				66A0D13130B2AA000000001F /* Help */,
+				14B1AB212B9961B39846E022 /* NewViewController.swift */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		66A0D12E30B2AA000000001C /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				34E178902751905FCE40A8EA /* DeviceCell.swift */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		66A0D12F30B2AA000000001D /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */,
+				C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */,
+				05369566BEE06FF08CF94530 /* DialogRecalibrationViewController.swift */,
+				0B32F0C443865100A4631397 /* DialogCalibrationViewController.swift */,
+				A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */,
+				514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */,
+				C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */,
+				FFFF93F77DF1EAB44FB4A27C /* DialogSelectScaleViewController.swift */,
+				C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */,
+				D950287B0F61078981F7F311 /* DialogResetINDYViewController.swift */,
+				DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */,
+				0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */,
+				1DDB5620EB8B63524DA0116E /* DialogPasswordViewController.swift */,
+				0144FEA263222A63EAFAFDAB /* DialogSetSerialNumberViewController.swift */,
+			);
+			name = Dialogs;
+			sourceTree = "<group>";
+		};
+		66A0D13030B2AA000000001E /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				AAF856B454911936C8985160 /* SensorsViewController.swift */,
+				5B65149D083F27F9B1F09382 /* AdvencedSettingsViewController.swift */,
+				8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */,
+				470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */,
+				C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */,
+				5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */,
+				24A21C86558B3D2B20C076DB /* ScanViewController.swift */,
+				92ECA664C1220B2658F99A5A /* Solution.swift */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		66A0D13130B2AA000000001F /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */,
+				284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */,
+				EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */,
+			);
+			name = Help;
+			sourceTree = "<group>";
+		};
+		66A0D13230B2AA0000000020 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */,
+				A58E26A3F0EFF1F7C19E3089 /* ContainerViewController.swift */,
+				F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */,
+				DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */,
+				B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */,
+				DA1FF2C4DAA38A921AFF00D4 /* SaveObjectString.swift */,
+				8EB13250E9AD082075E3BD08 /* DataManger.swift */,
+				B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */,
+				223CF016196B6967172646FC /* NameUtil.swift */,
+			);
+			name = Utility;
+			sourceTree = "<group>";
+		};
+		66A0D13330B2AA0000000021 /* Res */ = {
+			isa = PBXGroup;
+			children = (
+				9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */,
+				66A0D13830B2AA0000000026 /* LaunchScreen.storyboard */,
+				66A0D13430B2AA0000000022 /* Fontes */,
+			);
+			path = Res;
+			sourceTree = "<group>";
+		};
+		66A0D13430B2AA0000000022 /* Fontes */ = {
+			isa = PBXGroup;
+			children = (
+				66A0D12A30B2AA0000000018 /* inter.ttf */,
+				66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */,
+			);
+			path = Fontes;
+			sourceTree = "<group>";
+		};
+		66A0D13530B2AA0000000023 /* test transition */ = {
+			isa = PBXGroup;
+			children = (
+				5D0A2EFC768621B75CB1EECF /* ModelController.swift */,
+				6FB559B71FA408288BC5EAD2 /* Quote.swift */,
+			);
+			name = "test transition";
 			sourceTree = "<group>";
 		};
 		66A0D13630B2AA0000000024 /* shaders */ = {
@@ -2019,15 +2019,6 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
-		BB7B911C3F0581B638A06D53 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				125B4091EFDB6B194BFDAF0D /* en */,
-				04458DA986D9D296B1D88111 /* ru */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		66A0D13730B2AA0000000025 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -2043,6 +2034,15 @@
 				66A0D12930B2AA0000000017 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		BB7B911C3F0581B638A06D53 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				125B4091EFDB6B194BFDAF0D /* en */,
+				04458DA986D9D296B1D88111 /* ru */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -2237,7 +2237,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = R7K637DW83;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
@@ -2248,13 +2248,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.0;
+				MARKETING_VERSION = 3.0.13;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2271,7 +2271,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = R7K637DW83;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
@@ -2282,13 +2282,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.0;
+				MARKETING_VERSION = 3.0.13;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";

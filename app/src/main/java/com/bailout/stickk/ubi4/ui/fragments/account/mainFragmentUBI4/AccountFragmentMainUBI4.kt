@@ -436,13 +436,20 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+            override fun onSettingsClick(item: BootloaderBoardItemUBI4) {
+                navigator().showDashboardSlotsScreen(item.deviceAddress)
+            }
         }
 
         // ==== 2. Адаптеры секций =====================================
         accountAdapter    = AccountMainAdapterUBI4(accountClickListener)     // профиль и софт
 
         // строки‑платы
-        bootloaderAdapter = BootloaderAdapterUBI4(bootloaderClickListener)
+        bootloaderAdapter = BootloaderAdapterUBI4(
+            listener = bootloaderClickListener,
+            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation
+        )
 
         // карточка‑обёртка, которая содержит вложенный RecyclerView
         val bootloaderCardAdapter = BootloaderCardAdapter(bootloaderAdapter)
@@ -756,6 +763,10 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         cachedBootloaderBoards = snapshot
         _binding?.accountRv?.post { bootloaderAdapter.submitBoards(snapshot) }
     }
+
+    private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =
+        main?.getBottomNavigationController()?.isItemVisible(R.id.page_secret) == true
+
     companion object {
         private var cachedProfileItem: AccountMainUBI4Item? = null
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null

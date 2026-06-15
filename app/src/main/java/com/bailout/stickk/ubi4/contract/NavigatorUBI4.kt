@@ -22,6 +22,7 @@ interface NavigatorUBI4 {
     fun showAccountScreen()
     fun showAccountCustomerServiceScreen()
     fun showAccountProsthesisInformationScreen()
+    fun showDashboardSlotsScreen(deviceAddress: Int)
     fun showSecretScreen()
 
     fun showHelpScreen()

@@ -5,6 +5,8 @@ import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
+import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
@@ -57,6 +59,7 @@ import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
@@ -93,6 +96,7 @@ class BLEParserV3(
     private val bleManager: BleManagerKmm
 ) {
     private companion object {
+        const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val TELEMETRY_EXPECTED_SIZE = 158
         const val TELEMETRY_DEVICE_UUID_OFFSET = 2
         const val TELEMETRY_DEVICE_UUID_SIZE = 32
@@ -214,6 +218,22 @@ class BLEParserV3(
                         )
                         return
                     }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_AVAILABLE_SLOTS.number.toInt()
+                    ) {
+                        platformLog(
+                            DASHBOARD_SLOTS_LOG_TAG,
+                            "RX READ_AVAILABLE_SLOTS packetAddress=0x${receivePacket.address.toHexByte()} " +
+                                "raw=$receiveDataString payload=${payload.copyFrom(0).toHexLog()}"
+                        )
+                        parseAvailableSlots(receivePacket.address, payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
                     val route = WidgetResponseRoutesV3.find(
                         command = receivePacket.command,
                         responseSubcommand = responseSubcommand
@@ -245,6 +265,57 @@ class BLEParserV3(
             "sendBytesKmm",
             "А тут разрешаем протолкнуть следующую команду allowNextV3 "
         )
+    }
+
+    private fun parseAvailableSlots(deviceAddress: Int, payload: ByteArrayView) {
+        val slotSize = 12
+        val slots = mutableListOf<DashboardSlotInfo>()
+        var offset = 1
+        var rawSlotIndex = 0
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "parse payloadLength=${payload.length} slotBytes=${(payload.length - 1).coerceAtLeast(0)} " +
+                "expectedSlotCount=${(payload.length - 1).coerceAtLeast(0) / slotSize}"
+        )
+
+        while (offset + slotSize <= payload.length) {
+            val dataCode = payload.u8(offset)
+            val slotRaw = payload.copyRange(offset, slotSize)
+            if (dataCode != 0x00 && dataCode != 0xFF) {
+                val slot = DashboardSlotInfo(
+                    deviceAddress = deviceAddress,
+                    dataCode = dataCode,
+                    dataType = payload.u8(offset + 1),
+                    dataTypeVersion = payload.u8(offset + 2),
+                    dataTypeSubVersion = payload.u8(offset + 3),
+                    dataSize = payload.leUInt16(offset + 4),
+                    startAddressShift = payload.leUInt16(offset + 6),
+                    crc = payload.u8(offset + 8)
+                )
+                slots += slot
+                platformLog(
+                    DASHBOARD_SLOTS_LOG_TAG,
+                    "slot[$rawSlotIndex] 0x${slot.dataCode.toHexByte()} - ${slot.dataCode.toSlotLogName()} " +
+                        "(v${slot.dataTypeVersion}.${slot.dataTypeSubVersion}) " +
+                        "type=${slot.dataType} size=${slot.dataSize} shift=${slot.startAddressShift} " +
+                        "crc=0x${slot.crc.toHexByte()} raw=${slotRaw.toHexLog()}"
+                )
+            } else {
+                platformLog(
+                    DASHBOARD_SLOTS_LOG_TAG,
+                    "slot[$rawSlotIndex] ignored dataCode=0x${dataCode.toHexByte()} raw=${slotRaw.toHexLog()}"
+                )
+            }
+            offset += slotSize
+            rawSlotIndex++
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "DATA_MANAGER READ_AVAILABLE_SLOTS parsed deviceAddress=$deviceAddress slotCount=${slots.size}"
+        )
+        DashboardSlotsState.updateSlots(deviceAddress, slots)
     }
 
     private fun handleFirmwareCommand(
@@ -964,8 +1035,33 @@ class BLEParserV3(
     private fun ByteArrayView.getOrZero(i: Int): Int =
         if (i in 0 until length) u8(i) else 0
 
+    private fun ByteArrayView.leUInt16(i: Int): Int =
+        getOrZero(i) or (getOrZero(i + 1) shl 8)
+
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
+
+    private fun ByteArrayView.copyRange(i: Int, count: Int): ByteArray {
+        if (i >= length) return ByteArray(0)
+        val from = offset + i
+        val to = (from + count).coerceAtMost(offset + length)
+        return bytes.copyOfRange(from, to)
+    }
+
+    private fun ByteArray.toHexLog(): String =
+        joinToString(" ") { (it.toInt() and 0xFF).toHexByte() }
+
+    private fun Int.toHexByte(): String =
+        toString(16).uppercase().padStart(2, '0')
+
+    private fun Int.toSlotLogName(): String =
+        PreferenceKeysUbi4.DataTableSlotsCode.entries
+            .firstOrNull { (it.number.toInt() and 0xFF) == this }
+            ?.name
+            ?.removePrefix("DTCE_")
+            ?.removePrefix("DCTE_")
+            ?.removeSuffix("_TYPE")
+            ?: "UNKNOWN"
 
 
     private fun ByteArray.u8OrNull(index: Int): Int? =

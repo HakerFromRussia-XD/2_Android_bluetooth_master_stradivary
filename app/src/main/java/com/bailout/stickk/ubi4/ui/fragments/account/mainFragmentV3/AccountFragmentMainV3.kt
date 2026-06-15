@@ -443,9 +443,13 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) { showFirmwareFilesDialog(item) }
+            override fun onSettingsClick(item: BootloaderBoardItemUBI4) { navigator().showDashboardSlotsScreen(item.deviceAddress) }
         }
         accountAdapter = AccountMainAdapterUBI4(accountClickListener)
-        bootloaderAdapter = BootloaderAdapterUBI4(bootloaderClickListener)
+        bootloaderAdapter = BootloaderAdapterUBI4(
+            listener = bootloaderClickListener,
+            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation
+        )
         concatAdapter = ConcatAdapter(accountAdapter, BootloaderCardAdapter(bootloaderAdapter))
         binding.accountRv.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -615,6 +619,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             scrollAccountListToTop()
         }
     }
+
+    private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =
+        main?.getBottomNavigationController()?.isItemVisible(R.id.page_secret) == true
 
     private fun scrollAccountListToTop() {
         val rv = _binding?.accountRv ?: return

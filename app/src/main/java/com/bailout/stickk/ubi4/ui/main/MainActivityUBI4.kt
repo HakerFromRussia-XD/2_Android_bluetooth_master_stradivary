@@ -80,6 +80,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
@@ -369,6 +370,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
         launchFragmentWithStack(
             fragment = AccountFragmentProsthesisInformationUBI4(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showDashboardSlotsScreen(deviceAddress: Int) {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = DashboardSlotsFragment.newInstance(deviceAddress),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
         )

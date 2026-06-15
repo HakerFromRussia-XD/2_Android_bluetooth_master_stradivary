@@ -21,6 +21,8 @@ import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderInfoFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.bootloaderStatusFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.runProgramTypeFlow
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState.startSystemUpdateFlow
+import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
+import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.UiState.initializationInfoFlow
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
@@ -180,7 +182,7 @@ class BLEParser(
                     }
                     BaseCommands.DATA_MANAGER.number -> {
                         platformLog("BLEParser", "TEST parser DATA_MANAGER")
-                        parseDataManger(packageCodeRequest, receiveDataString)
+                        parseDataManger(packageCodeRequest, receiveDataString, deviceAddress)
                     }
                     BaseCommands.WRITE_FW_COMMAND.number -> {
                         platformLog("FW_PARSER",
@@ -682,7 +684,7 @@ class BLEParser(
         }
     }
 
-    private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
+    private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String, deviceAddress: Int) {
         platformLog("parseProductInfoType", "packageCodeRequest = $packageCodeRequest")
         platformLog("parseDataManger", "packageCodeRequest = $packageCodeRequest, receiveDataString = $receiveDataString")
         when (packageCodeRequest) {
@@ -691,6 +693,7 @@ class BLEParser(
             }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {
                 platformLog("BLEParser", "TEST parser 2 READ_AVAILABLE_SLOTS")
+                parseAvailableSlots(deviceAddress, receiveDataString)
             }
             DataManagerCommand.WRITE_SLOT.number -> {
                 platformLog("BLEParser", "TEST parser 2 WRITE_SLOT")
@@ -721,6 +724,45 @@ class BLEParser(
             }
         }
     }
+
+    private fun parseAvailableSlots(deviceAddress: Int, receiveDataString: String) {
+        val payloadHex = receiveDataString.substringSafe(
+            (HEADER_BLE_OFFSET + 1) * 2,
+            receiveDataString.length
+        )
+        val payload = payloadHex.toUnsignedBytes()
+        val slotSize = 12
+        val slots = payload
+            .chunked(slotSize)
+            .mapNotNull { slot ->
+                if (slot.size < slotSize) return@mapNotNull null
+                val dataCode = slot[0]
+                if (dataCode == 0x00 || dataCode == 0xFF) return@mapNotNull null
+
+                DashboardSlotInfo(
+                    deviceAddress = deviceAddress,
+                    dataCode = dataCode,
+                    dataType = slot[1],
+                    dataTypeVersion = slot[2],
+                    dataTypeSubVersion = slot[3],
+                    dataSize = slot.littleEndianUInt16(4),
+                    startAddressShift = slot.littleEndianUInt16(6),
+                    crc = slot[8]
+                )
+            }
+
+        platformLog(
+            "BLEParser",
+            "READ_AVAILABLE_SLOTS parsed deviceAddress=$deviceAddress slotCount=${slots.size}"
+        )
+        DashboardSlotsState.updateSlots(deviceAddress, slots)
+    }
+
+    private fun String.toUnsignedBytes(): List<Int> =
+        chunked(2).mapNotNull { it.toIntOrNull(16) }
+
+    private fun List<Int>.littleEndianUInt16(offset: Int): Int =
+        (getOrNull(offset) ?: 0) or ((getOrNull(offset + 1) ?: 0) shl 8)
 
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct =

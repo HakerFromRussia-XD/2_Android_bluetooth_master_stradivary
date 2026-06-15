@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
@@ -11,6 +12,14 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.CRC_TABLE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 object BLECommandsV3 {
+    fun requestAvailableSlots(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.READ_AVAILABLE_SLOTS.number.toInt(),
+            deviceAddress
+        )
+    }
+
     fun requestRunProgramTypeFw(deviceAddress: Int): ByteArray {
         return sendCommand(
             WRITE_FW_COMMAND.number.toInt(),

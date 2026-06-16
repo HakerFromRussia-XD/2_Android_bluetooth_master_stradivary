@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 
 private object DashboardColors {
     val Back = Color(0xFF2A2A2A)
+    val Card = Color(0xFF3A3A3A)
     val GrayBorder = Color(0xFF444444)
     val DeactivateText = Color(0xFF838383)
     val White = Color(0xFFFCFCFC)
@@ -50,6 +52,7 @@ private object DashboardColors {
 data class SlotParameterStructureItem(
     val nameParameter: String,
     val value: String,
+    val path: String = nameParameter,
     val placeholder: String = "Введите значение",
     val enabled: Boolean = true,
     val keyboardType: KeyboardType = KeyboardType.Text
@@ -78,8 +81,7 @@ fun SlotParameterStructureGroup(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(DashboardColors.Back)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(vertical = 8.dp)
             .clip(groupShape)
             .background(DashboardColors.Back)
             .border(width = 1.dp, color = DashboardColors.GrayBorder, shape = groupShape)
@@ -99,7 +101,7 @@ fun SlotParameterStructureGroup(
 
         structures.forEach { structure ->
             SlotParameterStructure(
-                title = "[${structure.index}] ${structure.title}",
+                title = structure.title,
                 parameters = structure.parameters,
                 onParameterValueChange = { parameterIndex, value ->
                     onParameterValueChange(structure.index, parameterIndex, value)
@@ -121,8 +123,7 @@ fun SlotParameterStructure(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(DashboardColors.Back)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(start = 24.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
             .clip(structureShape)
             .background(DashboardColors.Back)
             .border(width = 1.dp, color = DashboardColors.GrayBorder, shape = structureShape)
@@ -165,6 +166,7 @@ fun SlotParameterInput(
     height: Dp = 48.dp,
     labelWeight: Float = 0.62f,
     valueWeight: Float = 0.38f,
+    horizontalPadding: Dp = 16.dp,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Done,
     keyboardActions: KeyboardActions = KeyboardActions.Default
@@ -172,6 +174,13 @@ fun SlotParameterInput(
     val outerShape = RoundedCornerShape(12.dp)
     val textColor = if (enabled) DashboardColors.White else DashboardColors.DeactivateText
     val underlineColor = if (enabled) DashboardColors.White else DashboardColors.DeactivateText
+    val isByteArrayValue = value.startsWith("[") && value.contains(",")
+    val effectiveSingleLine = singleLine && !isByteArrayValue
+    val effectiveHeight = if (isByteArrayValue && height == 48.dp) 76.dp else height
+    val effectiveLabelWeight = if (isByteArrayValue) 0.44f else labelWeight
+    val effectiveValueWeight = if (isByteArrayValue) 0.56f else valueWeight
+    val effectiveValueAlignment = if (isByteArrayValue) TextAlign.Start else TextAlign.End
+    val effectiveContentAlignment = if (isByteArrayValue) Alignment.CenterStart else Alignment.CenterEnd
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -180,17 +189,17 @@ fun SlotParameterInput(
         color = textColor,
         fontSize = 12.sp,
         fontWeight = FontWeight.Light,
-        textAlign = TextAlign.End
+        textAlign = effectiveValueAlignment
     )
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .background(DashboardColors.Back)
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .height(height)
+            .padding(horizontal = horizontalPadding, vertical = 4.dp)
+            .height(effectiveHeight)
             .clip(outerShape)
-            .background(DashboardColors.Back)
+            .background(DashboardColors.Card)
             .border(width = 1.dp, color = DashboardColors.GrayBorder, shape = outerShape)
             .padding(start = 10.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -198,7 +207,7 @@ fun SlotParameterInput(
         Text(
             text = nameParameter,
             modifier = Modifier
-                .weight(labelWeight)
+                .weight(effectiveLabelWeight)
                 .padding(end = 8.dp),
             color = DashboardColors.White,
             fontSize = 12.sp,
@@ -211,8 +220,9 @@ fun SlotParameterInput(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
-                .weight(valueWeight)
+                .weight(effectiveValueWeight)
                 .fillMaxHeight()
+                .heightIn(min = 48.dp)
                 .focusRequester(focusRequester)
                 .onFocusChanged { isFocused = it.isFocused }
                 .clickable(
@@ -225,7 +235,7 @@ fun SlotParameterInput(
                 }
                 .padding(start = 10.dp, end = 8.dp),
             enabled = enabled,
-            singleLine = singleLine,
+            singleLine = effectiveSingleLine,
             textStyle = fieldTextStyle,
             cursorBrush = SolidColor(DashboardColors.White),
             keyboardOptions = KeyboardOptions(
@@ -236,7 +246,7 @@ fun SlotParameterInput(
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier.fillMaxHeight(),
-                    contentAlignment = Alignment.CenterEnd
+                    contentAlignment = effectiveContentAlignment
                 ) {
                     if (value.isEmpty()) {
                         Text(
@@ -245,7 +255,7 @@ fun SlotParameterInput(
                             color = DashboardColors.DeactivateText,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Light,
-                            textAlign = TextAlign.End,
+                            textAlign = effectiveValueAlignment,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

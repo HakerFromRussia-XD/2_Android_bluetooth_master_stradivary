@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.state.DashboardSlotContentState
 import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
 import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
@@ -234,6 +235,46 @@ class BLEParserV3(
                         )
                         return
                     }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_DATA.number.toInt()
+                    ) {
+                        parseSlotData(payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_DATA_PART.number.toInt()
+                    ) {
+                        parseSlotDataPart(payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand in setOf(
+                            DataManagerCommand.WRITE_DATA.number.toInt(),
+                            DataManagerCommand.WRITE_DATA_PART.number.toInt(),
+                            DataManagerCommand.SAVE_DATA.number.toInt(),
+                            DataManagerCommand.RESET_TO_FACTORY.number.toInt()
+                        )
+                    ) {
+                        DashboardSlotContentState.updateStatus(
+                            "Команда ${responseSubcommand.toDataManagerCommandName()} выполнена"
+                        )
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
                     val route = WidgetResponseRoutesV3.find(
                         command = receivePacket.command,
                         responseSubcommand = responseSubcommand
@@ -316,6 +357,51 @@ class BLEParserV3(
             "DATA_MANAGER READ_AVAILABLE_SLOTS parsed deviceAddress=$deviceAddress slotCount=${slots.size}"
         )
         DashboardSlotsState.updateSlots(deviceAddress, slots)
+    }
+
+    private fun parseSlotData(payload: ByteArrayView) {
+        if (payload.length < 2) {
+            DashboardSlotContentState.updateStatus("Ответ READ_DATA пустой")
+            return
+        }
+
+        val dataCode = payload.u8(1)
+        val data = if (payload.length > 2) {
+            payload.copyRange(2, payload.length - 2)
+                .map { it.toInt() and 0xFF }
+        } else {
+            emptyList()
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "RX READ_DATA dataCode=0x${dataCode.toHexByte()} bytes=${data.size} data=${data.toHexLog()}"
+        )
+        DashboardSlotContentState.updateData(dataCode, data)
+    }
+
+    private fun parseSlotDataPart(payload: ByteArrayView) {
+        if (payload.length < 10) {
+            DashboardSlotContentState.updateStatus("Ответ READ_DATA_PART слишком короткий")
+            return
+        }
+
+        val dataCode = payload.u8(1)
+        val dataOffset = payload.leUInt32(2).toInt()
+        val dataSize = payload.leUInt32(6).toInt()
+        val data = if (payload.length > 10) {
+            payload.copyRange(10, payload.length - 10)
+                .map { it.toInt() and 0xFF }
+        } else {
+            emptyList()
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "RX READ_DATA_PART dataCode=0x${dataCode.toHexByte()} offset=$dataOffset " +
+                "declaredPartSize=$dataSize bytes=${data.size} data=${data.toHexLog()}"
+        )
+        DashboardSlotContentState.updateDataPart(dataCode, dataOffset, data)
     }
 
     private fun handleFirmwareCommand(
@@ -1038,6 +1124,12 @@ class BLEParserV3(
     private fun ByteArrayView.leUInt16(i: Int): Int =
         getOrZero(i) or (getOrZero(i + 1) shl 8)
 
+    private fun ByteArrayView.leUInt32(i: Int): Long =
+        (getOrZero(i).toLong()) or
+            (getOrZero(i + 1).toLong() shl 8) or
+            (getOrZero(i + 2).toLong() shl 16) or
+            (getOrZero(i + 3).toLong() shl 24)
+
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
 
@@ -1051,6 +1143,9 @@ class BLEParserV3(
     private fun ByteArray.toHexLog(): String =
         joinToString(" ") { (it.toInt() and 0xFF).toHexByte() }
 
+    private fun List<Int>.toHexLog(): String =
+        joinToString(" ") { it.toHexByte() }
+
     private fun Int.toHexByte(): String =
         toString(16).uppercase().padStart(2, '0')
 
@@ -1062,6 +1157,12 @@ class BLEParserV3(
             ?.removePrefix("DCTE_")
             ?.removeSuffix("_TYPE")
             ?: "UNKNOWN"
+
+    private fun Int.toDataManagerCommandName(): String =
+        PreferenceKeysUbi4.DataManagerCommand.entries
+            .firstOrNull { (it.number.toInt() and 0xFF) == this }
+            ?.name
+            ?: "0x${toHexByte()}"
 
 
     private fun ByteArray.u8OrNull(index: Int): Int? =

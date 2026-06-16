@@ -20,6 +20,67 @@ object BLECommandsV3 {
         )
     }
 
+    fun requestSlotData(deviceAddress: Int, dataCode: Int): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.READ_DATA.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), dataCode.toByte())
+        )
+    }
+
+    fun requestSlotDataPart(deviceAddress: Int, dataCode: Int, offset: Int, size: Int): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.READ_DATA_PART.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), dataCode.toByte()) +
+                offset.toUInt32Le() +
+                size.toUInt32Le()
+        )
+    }
+
+    fun writeSlotData(deviceAddress: Int, dataCode: Int, data: ByteArray): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.WRITE_DATA.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), dataCode.toByte()) + data
+        )
+    }
+
+    fun writeSlotDataPart(deviceAddress: Int, dataCode: Int, offset: Int, data: ByteArray): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.WRITE_DATA_PART.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), dataCode.toByte()) +
+                offset.toUInt32Le() +
+                data.size.toUInt32Le() +
+                data
+        )
+    }
+
+    fun saveSlots(deviceAddress: Int): ByteArray {
+        return sendCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.SAVE_DATA.number.toInt(),
+            deviceAddress
+        )
+    }
+
+    fun resetSlot(deviceAddress: Int, dataCode: Int): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.RESET_TO_FACTORY.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), dataCode.toByte())
+        )
+    }
+
+    fun resetAllSlots(deviceAddress: Int): ByteArray {
+        return sendLongCommand(
+            DATA_MANAGER.number.toInt(),
+            DataManagerCommand.RESET_TO_FACTORY.number.toInt(),
+            byteArrayOf(deviceAddress.toByte(), 0xFF.toByte())
+        )
+    }
+
     fun requestRunProgramTypeFw(deviceAddress: Int): ByteArray {
         return sendCommand(
             WRITE_FW_COMMAND.number.toInt(),

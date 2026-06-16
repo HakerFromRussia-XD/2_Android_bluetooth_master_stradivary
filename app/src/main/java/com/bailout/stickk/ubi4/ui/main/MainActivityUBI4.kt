@@ -80,6 +80,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
@@ -245,9 +246,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            telemetryCoordinator.sendTelemetry()
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            telemetryCoordinator.sendTelemetry()
+//        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -386,6 +387,32 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             fragment = DashboardSlotsFragment.newInstance(deviceAddress),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showDashboardSlotContentScreen(
+        deviceAddress: Int,
+        dataCode: Int,
+        title: String,
+        version: Int,
+        subVersion: Int,
+        declaredSize: Int
+    ) {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = DashboardSlotContentFragment.newInstance(
+                deviceAddress = deviceAddress,
+                dataCode = dataCode,
+                title = title,
+                version = version,
+                subVersion = subVersion,
+                declaredSize = declaredSize
+            ),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = true
         )
     }
 

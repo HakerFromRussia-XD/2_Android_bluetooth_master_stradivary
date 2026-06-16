@@ -36,6 +36,7 @@ private object DashboardSlotsColors {
 
 @Immutable
 data class DashboardSlotUiItem(
+    val deviceAddress: Int,
     val dataCode: Int,
     val title: String,
     val version: Int,
@@ -53,6 +54,7 @@ data class DashboardSlotUiItem(
 
 fun DashboardSlotInfo.toDashboardSlotUiItem(): DashboardSlotUiItem =
     DashboardSlotUiItem(
+        deviceAddress = deviceAddress,
         dataCode = dataCode,
         title = dataCode.toDashboardSlotTitle(),
         version = dataTypeVersion,

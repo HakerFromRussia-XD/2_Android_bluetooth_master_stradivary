@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
 import com.bailout.stickk.ubi4.ui.dashboard.DashboardSlotsScreen
 import com.bailout.stickk.ubi4.ui.dashboard.toDashboardSlotUiItem
@@ -38,8 +39,15 @@ class DashboardSlotsFragment : Fragment() {
                     slots = state.slots.map { it.toDashboardSlotUiItem() },
                     isLoading = state.isLoading,
                     errorMessage = state.errorMessage,
-                    onSlotClick = {
-                        // Следующий фрагмент будет подключен здесь, когда станет известно его имя.
+                    onSlotClick = { slot ->
+                        navigator().showDashboardSlotContentScreen(
+                            deviceAddress = slot.deviceAddress,
+                            dataCode = slot.dataCode,
+                            title = slot.title,
+                            version = slot.version,
+                            subVersion = slot.subVersion,
+                            declaredSize = slot.dataSize
+                        )
                     }
                 )
             }

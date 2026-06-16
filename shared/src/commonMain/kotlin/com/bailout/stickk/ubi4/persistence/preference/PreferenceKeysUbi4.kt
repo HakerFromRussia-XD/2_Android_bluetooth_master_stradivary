@@ -132,7 +132,11 @@ object PreferenceKeysUbi4 {
         READ_DATA               (0x03),
         WRITE_DATA              (0x04),
         RESET_TO_FACTORY        (0x05),
-        SAVE_DATA               (0x06)
+        SAVE_DATA               (0x06),
+        READ_SLOT               (0x07),
+        WRITE_DATA_PART         (0x08),
+        READ_DATA_PART          (0x09),
+        SET_DEVICE_ADDRESS      (0x13)
     }
 
     //используется для определения типов данных в определённых вью

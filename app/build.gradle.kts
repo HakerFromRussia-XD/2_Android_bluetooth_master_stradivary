@@ -1,5 +1,7 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
+import java.util.Properties
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -7,6 +9,51 @@ plugins {
     kotlin("kapt")
     id("com.android.application")
     id("org.jetbrains.compose")
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun signingProperty(name: String): String? =
+    (findProperty(name) as? String)
+        ?: localProperties.getProperty(name)
+        ?: System.getenv(name)
+
+val motoricaReleaseStoreFile = signingProperty("motoricaReleaseStoreFile")
+    ?: rootProject.file("keystore.jks").takeIf { it.isFile }?.absolutePath
+val motoricaReleaseStorePassword = signingProperty("motoricaReleaseStorePassword")
+val motoricaReleaseKeyAlias = signingProperty("motoricaReleaseKeyAlias")
+val motoricaReleaseKeyPassword = signingProperty("motoricaReleaseKeyPassword")
+val hasMotoricaReleaseSigning = listOf(
+    motoricaReleaseStoreFile,
+    motoricaReleaseStorePassword,
+    motoricaReleaseKeyAlias,
+    motoricaReleaseKeyPassword
+).all { !it.isNullOrBlank() }
+val missingMotoricaReleaseSigning = buildList {
+    if (motoricaReleaseStoreFile.isNullOrBlank()) add("motoricaReleaseStoreFile")
+    if (motoricaReleaseStorePassword.isNullOrBlank()) add("motoricaReleaseStorePassword")
+    if (motoricaReleaseKeyAlias.isNullOrBlank()) add("motoricaReleaseKeyAlias")
+    if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
+}
+
+gradle.taskGraph.whenReady {
+    val needsReleaseApk = allTasks.any { task ->
+        task.path == ":app:assembleRelease" ||
+            task.path == ":app:installRelease" ||
+            task.path == ":app:packageRelease"
+    }
+    if (needsReleaseApk && !hasMotoricaReleaseSigning) {
+        throw GradleException(
+            "Motorica release signing is not configured. Missing: " +
+                missingMotoricaReleaseSigning.joinToString() +
+                ". Add uncommented values to ${rootProject.file("local.properties").absolutePath}."
+        )
+    }
 }
 
 kotlin {
@@ -47,6 +94,17 @@ android {
         jvmToolchain(17)
     }
 
+    signingConfigs {
+        if (hasMotoricaReleaseSigning) {
+            create("motoricaRelease") {
+                storeFile = file(motoricaReleaseStoreFile!!)
+                storePassword = motoricaReleaseStorePassword
+                keyAlias = motoricaReleaseKeyAlias
+                keyPassword = motoricaReleaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         getByName("release") {
             // отключаем профилирование
@@ -61,6 +119,9 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
+            if (hasMotoricaReleaseSigning) {
+                signingConfig = signingConfigs.getByName("motoricaRelease")
+            }
         }
     }
     lint {

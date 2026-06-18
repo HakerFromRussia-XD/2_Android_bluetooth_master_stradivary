@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.RemoteCallbackList
@@ -35,26 +36,42 @@ import kotlinx.coroutines.launch
 class GameControlBridgeService : Service() {
     private val callbacks = RemoteCallbackList<IGameControlCallback>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val snapshotLock = Any()
     private var wakeLock: PowerManager.WakeLock? = null
     private var latestSnapshot = GameControlSnapshot()
     private var sequence = 0L
     private var lastPublishElapsedMs = 0L
+    private var lastBleIntentLogElapsedMs = 0L
     private var systemReceiverRegistered = false
 
     private val binder = object : IGameControlService.Stub() {
-        override fun getLatestSnapshot(): GameControlSnapshot = latestSnapshot
+        override fun getLatestSnapshot(): GameControlSnapshot {
+            val snapshot = synchronized(snapshotLock) {
+                this@GameControlBridgeService.latestSnapshot
+            }
+            Log.d(TAG, "${LOG_PREFIX}binder getLatestSnapshot uid=${Binder.getCallingUid()} seq=${snapshot.seq} open=${snapshot.openLevel} close=${snapshot.closeLevel} connected=${snapshot.connected}")
+            return snapshot
+        }
 
         override fun registerCallback(callback: IGameControlCallback?) {
             if (callback == null) return
-            callbacks.register(callback)
+            val registered = callbacks.register(callback)
+            val snapshot = synchronized(snapshotLock) {
+                this@GameControlBridgeService.latestSnapshot
+            }
+            Log.d(TAG, "${LOG_PREFIX}binder registerCallback uid=${Binder.getCallingUid()} registered=$registered seq=${snapshot.seq} open=${snapshot.openLevel} close=${snapshot.closeLevel} connected=${snapshot.connected}")
             try {
-                callback.onGameControlSnapshot(latestSnapshot)
+                callback.onGameControlSnapshot(snapshot)
             } catch (_: RemoteException) {
+                Log.w(TAG, "${LOG_PREFIX}binder registerCallback initial callback failed")
             }
         }
 
         override fun unregisterCallback(callback: IGameControlCallback?) {
-            if (callback != null) callbacks.unregister(callback)
+            if (callback != null) {
+                callbacks.unregister(callback)
+                Log.d(TAG, "${LOG_PREFIX}binder unregisterCallback uid=${Binder.getCallingUid()}")
+            }
         }
     }
 
@@ -62,12 +79,14 @@ class GameControlBridgeService : Service() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 BluetoothLeService.ACTION_GATT_CONNECTED -> {
-                    val current = latestSnapshot
-                    publishSnapshot(current.openLevel, current.closeLevel, connected = true, force = true)
+                    val current = synchronized(snapshotLock) {
+                        latestSnapshot
+                    }
+                    publishSnapshot(current.openLevel, current.closeLevel, connected = true, force = true, source = "gatt_connected")
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED -> {
                     WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
-                    publishSnapshot(openLevel = 0, closeLevel = 0, connected = false, force = true)
+                    publishSnapshot(openLevel = 0, closeLevel = 0, connected = false, force = true, source = "gatt_disconnected")
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE -> {
                     publishSensorStream(intent)
@@ -88,7 +107,8 @@ class GameControlBridgeService : Service() {
                     openLevel = signal.openLevel,
                     closeLevel = signal.closeLevel,
                     connected = signal.connected,
-                    force = !signal.connected
+                    force = !signal.connected,
+                    source = "state_flow"
                 )
             }
         }
@@ -100,7 +120,9 @@ class GameControlBridgeService : Service() {
 
     override fun onDestroy() {
         unregisterBleReceivers()
-        callbacks.kill()
+        synchronized(snapshotLock) {
+            callbacks.kill()
+        }
         serviceScope.cancel()
         wakeLock?.takeIf { it.isHeld }?.release()
         wakeLock = null
@@ -125,42 +147,53 @@ class GameControlBridgeService : Service() {
         if (data.size < 2) return
         val openLevel = data[0].toInt() and 0xFF
         val closeLevel = data[1].toInt() and 0xFF
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastBleIntentLogElapsedMs >= BLE_INTENT_LOG_INTERVAL_MS) {
+            lastBleIntentLogElapsedMs = now
+            Log.d(TAG, "${LOG_PREFIX}ble intent open=$openLevel close=$closeLevel size=${data.size}")
+        }
         WidgetState.gameControlSignalFlow.value = GameControlSignal(
             openLevel = openLevel,
             closeLevel = closeLevel,
             connected = true
         )
-        publishSnapshot(openLevel, closeLevel, connected = true, force = false)
+        publishSnapshot(openLevel, closeLevel, connected = true, force = false, source = "ble_intent")
     }
 
-    private fun publishSnapshot(openLevel: Int, closeLevel: Int, connected: Boolean, force: Boolean) {
-        val now = SystemClock.elapsedRealtime()
-        if (!force && now - lastPublishElapsedMs < MIN_PUBLISH_INTERVAL_MS) return
-        lastPublishElapsedMs = now
+    private fun publishSnapshot(openLevel: Int, closeLevel: Int, connected: Boolean, force: Boolean, source: String) {
+        synchronized(snapshotLock) {
+            val now = SystemClock.elapsedRealtime()
+            if (!force && now - lastPublishElapsedMs < MIN_PUBLISH_INTERVAL_MS) return
+            lastPublishElapsedMs = now
 
-        val snapshot = GameControlSnapshot(
-            VERSION,
-            ++sequence,
-            now,
-            openLevel.coerceIn(0, 255),
-            closeLevel.coerceIn(0, 255),
-            connected
-        )
-        latestSnapshot = snapshot
-        if (!connected || sequence % 30L == 0L) {
-            Log.d(TAG, "publish seq=$sequence open=${snapshot.openLevel} close=${snapshot.closeLevel} connected=$connected")
-        }
-
-        val count = callbacks.beginBroadcast()
-        try {
-            for (i in 0 until count) {
-                try {
-                    callbacks.getBroadcastItem(i).onGameControlSnapshot(snapshot)
-                } catch (_: RemoteException) {
-                }
+            val snapshot = GameControlSnapshot(
+                VERSION,
+                ++sequence,
+                now,
+                openLevel.coerceIn(0, 255),
+                closeLevel.coerceIn(0, 255),
+                connected
+            )
+            latestSnapshot = snapshot
+            if (!connected || sequence % 30L == 0L) {
+                Log.d(TAG, "${LOG_PREFIX}publish source=$source seq=$sequence open=${snapshot.openLevel} close=${snapshot.closeLevel} connected=$connected")
             }
-        } finally {
-            callbacks.finishBroadcast()
+
+            val count = callbacks.beginBroadcast()
+            try {
+                if (!connected || sequence % 30L == 0L) {
+                    Log.d(TAG, "${LOG_PREFIX}binder callbacks count=$count seq=${snapshot.seq}")
+                }
+                for (i in 0 until count) {
+                    try {
+                        callbacks.getBroadcastItem(i).onGameControlSnapshot(snapshot)
+                    } catch (_: RemoteException) {
+                        Log.w(TAG, "${LOG_PREFIX}binder callback failed index=$i seq=${snapshot.seq}")
+                    }
+                }
+            } finally {
+                callbacks.finishBroadcast()
+            }
         }
     }
 
@@ -235,10 +268,12 @@ class GameControlBridgeService : Service() {
         const val ACTION_BIND = "com.motorica.gamecontrol.BIND"
         const val PERMISSION = "com.motorica.gamecontrol.permission.CONTROL_GAME"
         private const val TAG = "MotoricaGameBridge"
+        private const val LOG_PREFIX = "[BLE stk-game debug] "
         private const val VERSION = 1
         private const val CHANNEL_ID = "motorica_game_control"
         private const val NOTIFICATION_ID = 14001
         private const val MIN_PUBLISH_INTERVAL_MS = 33L
+        private const val BLE_INTENT_LOG_INTERVAL_MS = 1000L
         private const val WAKE_LOCK_TIMEOUT_MS = 6L * 60L * 60L * 1000L
 
         fun start(context: Context) {

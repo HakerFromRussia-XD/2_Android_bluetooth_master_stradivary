@@ -38,6 +38,7 @@
                 android:textColor="@color/ubi4_white"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@id/gameActionBtn"
+                android:layout_marginEnd="12dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,6 +52,7 @@
                 android:textColor="@color/ubi4_deactivate_text"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toStartOf="@id/gameActionBtn"
+                android:layout_marginEnd="12dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/gameTitleTv" />
 
@@ -91,8 +93,35 @@
                 android:fontFamily="@font/font_open_sans_regular"
                 android:text="@string/download"
                 android:textAllCaps="false"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/gameDeleteBtn"
+                android:layout_marginEnd="8dp"
+                app:layout_goneMarginEnd="0dp"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/gameDeleteIv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/delete"
+                android:src="@drawable/ic_trash"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/gameDeleteBtn"
+                app:layout_constraintEnd_toEndOf="@id/gameDeleteBtn"
+                app:layout_constraintStart_toStartOf="@id/gameDeleteBtn"
+                app:layout_constraintTop_toTopOf="@id/gameDeleteBtn"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/gameDeleteBtn"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -74,6 +74,9 @@ class AccountGamesFragment : Fragment() {
         binding.gameActionBtn.setOnClickListener {
             if (isGameInstalled()) launchGame() else downloadGame()
         }
+        binding.gameDeleteBtn.setOnClickListener {
+            uninstallGame()
+        }
         renderIdleState()
     }
 
@@ -102,10 +105,13 @@ class AccountGamesFragment : Fragment() {
     }
 
     private fun renderIdleState() {
+        val gameInstalled = isGameInstalled()
         binding.gameProgress.visibility = View.GONE
         binding.gameStatusTv.visibility = View.GONE
         binding.gameActionBtn.isEnabled = true
-        binding.gameActionBtn.text = getString(if (isGameInstalled()) R.string.play else R.string.download)
+        binding.gameActionBtn.text = getString(if (gameInstalled) R.string.play else R.string.download)
+        binding.gameDeleteBtn.visibility = if (gameInstalled) View.VISIBLE else View.GONE
+        binding.gameDeleteIv.visibility = if (gameInstalled) View.VISIBLE else View.GONE
     }
 
     private fun renderProgress(percent: Int) {
@@ -114,6 +120,8 @@ class AccountGamesFragment : Fragment() {
         binding.gameProgress.progress = percent
         binding.gameStatusTv.text = getString(R.string.downloading_percent, percent)
         binding.gameActionBtn.isEnabled = false
+        binding.gameDeleteBtn.visibility = View.GONE
+        binding.gameDeleteIv.visibility = View.GONE
     }
 
     private fun downloadGame() {
@@ -230,6 +238,8 @@ class AccountGamesFragment : Fragment() {
         binding.gameStatusTv.visibility = View.VISIBLE
         binding.gameStatusTv.text = getString(R.string.installing)
         binding.gameActionBtn.isEnabled = false
+        binding.gameDeleteBtn.visibility = View.GONE
+        binding.gameDeleteIv.visibility = View.GONE
         runCatching {
             GamePackageInstaller.install(requireContext().applicationContext, file)
         }.onFailure { error ->
@@ -239,6 +249,22 @@ class AccountGamesFragment : Fragment() {
                 Toast.LENGTH_LONG
             ).show()
             renderIdleState()
+        }
+    }
+
+    private fun uninstallGame() {
+        if (!isGameInstalled()) {
+            renderIdleState()
+            return
+        }
+        requireContext().applicationContext.stopService(
+            Intent(requireContext(), GameControlBridgeService::class.java)
+        )
+        val intent = Intent(Intent.ACTION_DELETE, Uri.parse("package:${BuildConfig.MOTORICA_STK_PACKAGE}"))
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), R.string.game_uninstall_failed, Toast.LENGTH_LONG).show()
         }
     }
 

@@ -527,6 +527,7 @@
     <string name="game_download_failed">Не удалось скачать игру</string>
     <string name="game_checksum_failed">Контрольная сумма файла игры не совпадает</string>
     <string name="game_install_failed">Не удалось установить игру</string>
+    <string name="game_install_permission_required">Разрешите Motorica Start устанавливать игры, затем вернитесь и нажмите «Скачать» снова</string>
     <string name="game_install_cancelled">Установка игры отменена</string>
     <string name="game_uninstall_failed">Не удалось удалить игру</string>
     <string name="driver_version">Версия драйвера</string>

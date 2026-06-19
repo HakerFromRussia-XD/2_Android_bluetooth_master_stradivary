@@ -130,6 +130,10 @@ class AccountGamesFragment : Fragment() {
             Toast.makeText(requireContext(), R.string.game_download_url_missing, Toast.LENGTH_LONG).show()
             return
         }
+        if (!canInstallDownloadedGames()) {
+            requestInstallDownloadedGamesPermission()
+            return
+        }
         downloadJob = viewLifecycleOwner.lifecycleScope.launch {
             binding.gameActionBtn.isEnabled = false
             val result = runCatching {
@@ -222,14 +226,8 @@ class AccountGamesFragment : Fragment() {
     }
 
     private fun installApk(file: File) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-            !requireContext().packageManager.canRequestPackageInstalls()
-        ) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                Uri.parse("package:${requireContext().packageName}")
-            )
-            startActivity(intent)
+        if (!canInstallDownloadedGames()) {
+            requestInstallDownloadedGamesPermission()
             renderIdleState()
             return
         }
@@ -249,6 +247,28 @@ class AccountGamesFragment : Fragment() {
                 Toast.LENGTH_LONG
             ).show()
             renderIdleState()
+        }
+    }
+
+    private fun canInstallDownloadedGames(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            requireContext().packageManager.canRequestPackageInstalls()
+
+    private fun requestInstallDownloadedGamesPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val intent = Intent(
+            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+            Uri.parse("package:${requireContext().packageName}")
+        )
+        try {
+            startActivity(intent)
+            Toast.makeText(
+                requireContext(),
+                R.string.game_install_permission_required,
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
         }
     }
 

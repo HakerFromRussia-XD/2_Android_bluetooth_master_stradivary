@@ -526,6 +526,7 @@
     <string name="game_download_failed">Game download failed</string>
     <string name="game_checksum_failed">Downloaded game file checksum is invalid</string>
     <string name="game_install_failed">Game install failed</string>
+    <string name="game_install_permission_required">Allow Motorica Start to install games, then return and tap Download again</string>
     <string name="game_install_cancelled">Game install cancelled</string>
     <string name="game_uninstall_failed">Game uninstall failed</string>
     <string name="driver_version">Driver version</string>

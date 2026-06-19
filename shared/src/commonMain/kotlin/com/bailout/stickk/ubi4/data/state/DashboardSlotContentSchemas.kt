@@ -52,9 +52,9 @@ object DashboardSlotContentSchemas {
 
         schema.fields.forEach { field ->
             if (field.array > 0 && field.fields.isNotEmpty()) {
-                groups += parseStructureArray(data, field)
+                groups += parseStructureArray(state, field)
             } else {
-                inputs += parseInput(data, field, field.offset)
+                inputs += parseInput(state, field, field.offset)
             }
         }
 
@@ -91,7 +91,7 @@ object DashboardSlotContentSchemas {
         }
 
     private fun parseStructureArray(
-        data: List<Int>,
+        state: DashboardSlotContentUiState,
         field: SlotField
     ): DashboardSlotContentStructureGroup {
         val structures = (0 until field.array).map { index ->
@@ -100,7 +100,7 @@ object DashboardSlotContentSchemas {
                 index = index,
                 title = "${field.name}[$index]",
                 parameters = field.fields.map { child ->
-                    parseInput(data, child, baseOffset + child.offset)
+                    parseInput(state, child, baseOffset + child.offset)
                 }
             )
         }
@@ -112,24 +112,27 @@ object DashboardSlotContentSchemas {
     }
 
     private fun parseInput(
-        data: List<Int>,
+        state: DashboardSlotContentUiState,
         field: SlotField,
         absoluteOffset: Int
     ): DashboardSlotContentInput {
+        val data = state.data
         val arrayCount = field.array.coerceAtLeast(1)
+        val path = SlotInputPath(
+            offset = absoluteOffset,
+            size = field.size,
+            type = field.type,
+            arrayCount = arrayCount
+        ).encode()
+        val formattedValue = if (arrayCount > 1) {
+            data.formatArray(absoluteOffset, field.size, field.type, field.format, arrayCount)
+        } else {
+            data.formatScalar(absoluteOffset, field.size, field.type, field.format)
+        }
         return DashboardSlotContentInput(
             name = field.name,
-            value = if (arrayCount > 1) {
-                data.formatArray(absoluteOffset, field.size, field.type, field.format, arrayCount)
-            } else {
-                data.formatScalar(absoluteOffset, field.size, field.type, field.format)
-            },
-            path = SlotInputPath(
-                offset = absoluteOffset,
-                size = field.size,
-                type = field.type,
-                arrayCount = arrayCount
-            ).encode()
+            value = state.editedValues[path] ?: formattedValue,
+            path = path
         )
     }
 

@@ -62,6 +62,7 @@ data class DashboardSlotContentUiState(
     val isLoading: Boolean = false,
     val data: List<Int> = emptyList(),
     val loadedSize: Int = 0,
+    val editedValues: Map<String, String> = emptyMap(),
     val statusMessage: String? = null,
     val errorMessage: String? = null
 )
@@ -138,6 +139,7 @@ object DashboardSlotContentState {
         if (current.data.isEmpty()) return
         _stateFlow.value = current.copy(
             data = DashboardSlotContentSchemas.updateValue(current, path, value),
+            editedValues = current.editedValues + (path to value),
             statusMessage = "Есть несохраненные изменения",
             errorMessage = null
         )

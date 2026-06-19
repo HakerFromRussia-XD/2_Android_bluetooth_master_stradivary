@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
@@ -65,6 +66,7 @@ object PreferenceKeysUbi4 {
     const val ARG_LAST_EMG8 = "arg_last_emg8"
 
     const val KEY_SECRET_ITEM_VISIBLE = "secret_item_visible"
+    const val KEY_DEVICE_ROLE_SELECTED = "UBI4_ROLE_SELECTED_V3"
 
 
 
@@ -979,6 +981,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.TEXT,
                 widgetKind = WidgetKindV3.TEXT_INPUT,
                 valuePath = "serialNumber"
+            ),
+            P_KEY_DEVICE_ROLE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_DEVICE_ROLE.number, 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
             ),
             P_KEY_TEST_SWITCHER to ParameterMetaV3(
                 parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),

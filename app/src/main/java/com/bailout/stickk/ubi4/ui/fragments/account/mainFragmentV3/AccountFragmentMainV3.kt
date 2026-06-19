@@ -104,6 +104,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mSettings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        UiState.isServiceEngineerRole.value =
+            mSettings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
+                ROLE_SERVICE_ENGINEER_INDEX
 
         encryptionManager = EncryptionManagerUtilsUbi4.instance
         attemptedRequest = 1
@@ -142,6 +145,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 launch {
                     UiState.updateFlow.collect {
                         if (canRenderBoards) refreshBoards()
+                    }
+                }
+                launch {
+                    UiState.isServiceEngineerRole.collect {
+                        refreshServiceRoleUi()
                     }
                 }
             }
@@ -621,7 +629,13 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     }
 
     private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =
-        main?.getBottomNavigationController()?.isItemVisible(R.id.page_secret) == true
+        UiState.isServiceEngineerRole.value
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshServiceRoleUi() {
+        if (!canRenderBoards) return
+        bootloaderAdapter.notifyDataSetChanged()
+    }
 
     private fun scrollAccountListToTop() {
         val rv = _binding?.accountRv ?: return
@@ -656,6 +670,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     companion object {
         private const val BOARD_LOG_TAG = "AccountBoardsV3"
+        private const val ROLE_SERVICE_ENGINEER_INDEX = 1
+        private const val ROLE_DEFAULT_INDEX = 2
         private var cachedProfileItem: AccountMainUBI4Item? = null
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()

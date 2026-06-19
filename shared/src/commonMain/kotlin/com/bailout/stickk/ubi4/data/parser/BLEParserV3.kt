@@ -80,6 +80,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import kotlinx.datetime.Clock
@@ -850,6 +851,18 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
                 )
             ),"Сторона руки")))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                listOf("Протезист", "Сервисный инженер", "Не выбрано"),
+                2
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_DEVICE_ROLE),
+                )
+            ),"Роль")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),

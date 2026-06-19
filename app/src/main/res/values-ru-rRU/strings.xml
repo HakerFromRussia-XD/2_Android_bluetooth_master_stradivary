@@ -517,8 +517,10 @@
     <string name="customer_service">Служба поддержки</string>
     <string name="prosthesis_information">Информация о протезе</string>
     <string name="motorica_games">Игры</string>
-    <string name="motorica_stk_title">SuperTuxKart</string>
+    <string name="motorica_stk_title">Super Tux Kart</string>
     <string name="motorica_stk_description">Игра с EMG-управлением Motorica</string>
+    <string name="game_status_available">Доступна для скачивания</string>
+    <string name="game_status_installed">Установлена</string>
     <string name="download">Скачать</string>
     <string name="play">Играть</string>
     <string name="installing">Установка</string>

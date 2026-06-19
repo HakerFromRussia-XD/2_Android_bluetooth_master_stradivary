@@ -109,17 +109,22 @@ class AccountGamesFragment : Fragment() {
         binding.gameProgress.visibility = View.GONE
         binding.gameStatusTv.visibility = View.GONE
         binding.gameActionBtn.isEnabled = true
-        binding.gameActionBtn.text = getString(if (gameInstalled) R.string.play else R.string.download)
+        binding.gameActionBackground.isEnabled = true
+        binding.gameDescriptionTv.text = getString(
+            if (gameInstalled) R.string.game_status_installed else R.string.game_status_available
+        )
+        binding.gameActionTv.text = getString(if (gameInstalled) R.string.play else R.string.download)
         binding.gameDeleteBtn.visibility = if (gameInstalled) View.VISIBLE else View.GONE
         binding.gameDeleteIv.visibility = if (gameInstalled) View.VISIBLE else View.GONE
     }
 
     private fun renderProgress(percent: Int) {
         binding.gameProgress.visibility = View.VISIBLE
-        binding.gameStatusTv.visibility = View.VISIBLE
+        binding.gameStatusTv.visibility = View.GONE
         binding.gameProgress.progress = percent
-        binding.gameStatusTv.text = getString(R.string.downloading_percent, percent)
+        binding.gameDescriptionTv.text = getString(R.string.downloading_percent, percent)
         binding.gameActionBtn.isEnabled = false
+        binding.gameActionBackground.isEnabled = false
         binding.gameDeleteBtn.visibility = View.GONE
         binding.gameDeleteIv.visibility = View.GONE
     }
@@ -136,6 +141,7 @@ class AccountGamesFragment : Fragment() {
         }
         downloadJob = viewLifecycleOwner.lifecycleScope.launch {
             binding.gameActionBtn.isEnabled = false
+            binding.gameActionBackground.isEnabled = false
             val result = runCatching {
                 withContext(Dispatchers.IO) {
                     val apk = downloadApk(url) { percent ->
@@ -146,7 +152,7 @@ class AccountGamesFragment : Fragment() {
                 }
             }
             result.onSuccess { apk ->
-                binding.gameActionBtn.text = getString(R.string.installing)
+                binding.gameDescriptionTv.text = getString(R.string.installing)
                 installApk(apk)
             }.onFailure { error ->
                 Toast.makeText(
@@ -233,9 +239,10 @@ class AccountGamesFragment : Fragment() {
         }
 
         binding.gameProgress.visibility = View.GONE
-        binding.gameStatusTv.visibility = View.VISIBLE
-        binding.gameStatusTv.text = getString(R.string.installing)
+        binding.gameStatusTv.visibility = View.GONE
+        binding.gameDescriptionTv.text = getString(R.string.installing)
         binding.gameActionBtn.isEnabled = false
+        binding.gameActionBackground.isEnabled = false
         binding.gameDeleteBtn.visibility = View.GONE
         binding.gameDeleteIv.visibility = View.GONE
         runCatching {
@@ -277,6 +284,10 @@ class AccountGamesFragment : Fragment() {
             renderIdleState()
             return
         }
+        startGameUninstall()
+    }
+
+    private fun startGameUninstall() {
         requireContext().applicationContext.stopService(
             Intent(requireContext(), GameControlBridgeService::class.java)
         )

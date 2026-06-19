@@ -516,8 +516,10 @@
     <string name="customer_service">Customer service</string>
     <string name="prosthesis_information">Prosthesis information</string>
     <string name="motorica_games">Games</string>
-    <string name="motorica_stk_title">SuperTuxKart</string>
+    <string name="motorica_stk_title">Super Tux Kart</string>
     <string name="motorica_stk_description">Motorica EMG steering game</string>
+    <string name="game_status_available">Available to download</string>
+    <string name="game_status_installed">Installed</string>
     <string name="download">Download</string>
     <string name="play">Play</string>
     <string name="installing">Installing</string>

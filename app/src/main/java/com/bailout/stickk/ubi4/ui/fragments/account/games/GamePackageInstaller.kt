@@ -8,7 +8,6 @@ import android.content.pm.PackageInstaller
 import android.os.Build
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.bailout.stickk.BuildConfig
 import java.io.File
 
 object GamePackageInstaller {
@@ -17,12 +16,12 @@ object GamePackageInstaller {
     const val EXTRA_STATUS = "status"
     const val EXTRA_MESSAGE = "message"
 
-    fun install(context: Context, apk: File) {
+    fun install(context: Context, apk: File, packageName: String) {
         val packageInstaller = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(
             PackageInstaller.SessionParams.MODE_FULL_INSTALL
         ).apply {
-            setAppPackageName(BuildConfig.MOTORICA_STK_PACKAGE)
+            setAppPackageName(packageName)
         }
         val sessionId = packageInstaller.createSession(params)
         var session: PackageInstaller.Session? = null

@@ -520,11 +520,15 @@
     <string name="motorica_stk_description">Motorica EMG steering game</string>
     <string name="game_status_available">Available to download</string>
     <string name="game_status_installed">Installed</string>
+    <string name="game_status_update_available">Update available</string>
     <string name="download">Download</string>
     <string name="play">Play</string>
+    <string name="update_game">Update</string>
     <string name="installing">Installing</string>
     <string name="downloading_percent">Downloading %1$d%%</string>
     <string name="game_download_url_missing">Game download link is not configured</string>
+    <string name="game_manifest_url_missing">Games catalog link is not configured</string>
+    <string name="game_manifest_load_failed">Games catalog is unavailable</string>
     <string name="game_download_failed">Game download failed</string>
     <string name="game_checksum_failed">Downloaded game file checksum is invalid</string>
     <string name="game_install_failed">Game install failed</string>

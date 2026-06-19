@@ -80,10 +80,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 
-        val motoricaStkApkUrl = providers.gradleProperty("motoricaStkApkUrl").orElse("").get()
-        val motoricaStkSha256 = providers.gradleProperty("motoricaStkSha256").orElse("").get()
-        buildConfigField("String", "MOTORICA_STK_APK_URL", "\"${motoricaStkApkUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
-        buildConfigField("String", "MOTORICA_STK_SHA256", "\"${motoricaStkSha256.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        val motoricaGamesManifestUrl = providers.gradleProperty("motoricaGamesManifestUrl").orElse("").get()
+        buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
     }
     compileOptions {

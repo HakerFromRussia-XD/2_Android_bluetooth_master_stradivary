@@ -46,11 +46,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LegacyBleCommandProbe.startIfNeeded { [weak self] in
             self?.window
         }
+        GameControlBroadcaster.shared.start()
         return true
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         CoreDataStorage.shared.saveContext()
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        GameControlBroadcaster.shared.stop()
     }
 
     func updateStatusBarOverlay(backgroundColor: UIColor) {

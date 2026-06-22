@@ -8,7 +8,9 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.blelog.BleLogStore
 import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
@@ -124,6 +126,7 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","подключение не удалось!!!")
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishError()
             startAutoReconnect(didFailToConnectPeripheral)
         }
@@ -135,6 +138,7 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","устройство отключено!!!")
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishDisconnect()
             startAutoReconnect(didDisconnectPeripheral)
         }
@@ -377,6 +381,7 @@ actual class BleManagerKmm actual constructor() {
         if (peripheral != null) {
             manager.cancelPeripheralConnection(peripheral)
         } else {
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishDisconnect()
         }
     }

@@ -94,6 +94,8 @@ class BLEParserV3(
     private val bleCommandExecutor: BleCommandExecutor,
     private val bleManager: BleManagerKmm
 ) {
+    private var gameControlPacketSeq = 0L
+
     private companion object {
         const val TELEMETRY_EXPECTED_SIZE = 158
         const val TELEMETRY_DEVICE_UUID_OFFSET = 2
@@ -154,7 +156,8 @@ class BLEParserV3(
         gameControlSignalFlow.value = GameControlSignal(
             openLevel = plotArray.getOrNull(0) ?: 0,
             closeLevel = plotArray.getOrNull(1) ?: 0,
-            connected = true
+            connected = true,
+            packetSeq = ++gameControlPacketSeq
         )
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }

@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
 import com.bailout.stickk.ubi4.data.state.WidgetState
+import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.models.ble.ParameterRef
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
@@ -38,6 +39,14 @@ object WidgetStateBridge {
     fun observePlotArray(callback: (PlotParameterRef) -> Unit): Job =
         coroutineScope.launch {
             WidgetState.plotArrayFlow.collect { callback(it) }
+        }
+
+    /**
+     * Подписка на EMG-сигнал для управления играми.
+     */
+    fun observeGameControlSignal(callback: (GameControlSignal) -> Unit): Job =
+        coroutineScope.launch {
+            WidgetState.gameControlSignalFlow.collect { callback(it) }
         }
 
     /**

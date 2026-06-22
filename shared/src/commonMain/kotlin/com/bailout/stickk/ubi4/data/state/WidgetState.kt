@@ -18,7 +18,8 @@ data class TelemetryGestureCounters(
 data class GameControlSignal(
     val openLevel: Int = 0,
     val closeLevel: Int = 0,
-    val connected: Boolean = false
+    val connected: Boolean = false,
+    val packetSeq: Long = 0L
 )
 
 object WidgetState {

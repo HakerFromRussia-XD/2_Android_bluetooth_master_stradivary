@@ -41,6 +41,7 @@
 		1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA2048F242F528E000C4B56 /* LoadingView.swift */; };
 		1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA5338C201E1FDE00747E55 /* AppDelegate.swift */; };
 		65AA10012FB0000100AA1001 /* GameControlBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */; };
+		65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */; };
 		1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
 		1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */; };
 		1FA533B2201EE2A500747E55 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533B1201EE2A500747E55 /* Widget.swift */; };
@@ -330,6 +331,7 @@
 		1FA5338C201E1FDE00747E55 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControlBroadcaster.swift; sourceTree = "<group>"; };
 		65AA10032FB0000100AA1003 /* MotoricaStart.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MotoricaStart.entitlements; sourceTree = "<group>"; };
+		65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGamesViewController.swift; sourceTree = "<group>"; };
 		1FA53393201E1FDE00747E55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1FA53398201E1FDE00747E55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -892,6 +894,7 @@
 				652E6AB62E8BDDD6007E84EE /* WidgetsTabContainerViewController.swift */,
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
+				65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */,
 				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
 				65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
@@ -1937,6 +1940,7 @@
 				1F1FC48C22E3693100BCBA8D /* NetworkConfig.swift in Sources */,
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
+				65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */,
 				65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */,
 				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,

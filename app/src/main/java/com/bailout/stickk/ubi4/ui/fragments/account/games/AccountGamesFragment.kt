@@ -214,15 +214,16 @@ class AccountGamesFragment : Fragment() {
             for (index in 0 until games.length()) {
                 val gameJson = games.getJSONObject(index)
                 if (gameJson.getString("id") == RemoteGame.STK_ID) {
+                    val androidJson = gameJson.optJSONObject("android") ?: gameJson
                     return RemoteGame(
                         id = gameJson.getString("id"),
                         title = gameJson.optString("title", getString(R.string.motorica_stk_title)),
-                        packageName = gameJson.getString("packageName"),
-                        launcherActivity = gameJson.getString("launcherActivity"),
-                        versionName = gameJson.optString("versionName", ""),
-                        versionCode = gameJson.getLong("versionCode"),
-                        apkUrl = gameJson.getString("apkUrl"),
-                        sha256 = gameJson.getString("sha256")
+                        packageName = androidJson.getString("packageName"),
+                        launcherActivity = androidJson.getString("launcherActivity"),
+                        versionName = androidJson.optString("versionName", ""),
+                        versionCode = androidJson.getLong("versionCode"),
+                        apkUrl = androidJson.getString("apkUrl"),
+                        sha256 = androidJson.getString("sha256")
                     )
                 }
             }

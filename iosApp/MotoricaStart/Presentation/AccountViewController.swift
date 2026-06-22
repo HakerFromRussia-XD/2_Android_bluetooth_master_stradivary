@@ -271,6 +271,16 @@ final class AccountViewController: UIViewController {
                 )
             }
         )
+        section.addDivider(color: borderColor)
+        section.addRow(
+            AccountMenuRow(
+                iconName: "ic_trophy",
+                title: NSLocalizedString("motorica_games", comment: ""),
+                textColor: textColor
+            ) { [weak self] in
+                self?.navigationController?.pushViewController(AccountGamesViewController(), animated: true)
+            }
+        )
         return section
     }
 

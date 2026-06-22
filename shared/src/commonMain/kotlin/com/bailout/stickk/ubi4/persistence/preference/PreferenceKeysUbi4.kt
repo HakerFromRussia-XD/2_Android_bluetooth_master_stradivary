@@ -29,6 +29,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_S
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import kotlin.native.ObjCName
@@ -1011,6 +1012,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.SLIDER,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "sliderValue"
+            ),
+            P_KEY_SETTINGS_PROFILE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), ParameterDataCodeEnum.PDCE_SELECT_PROFILE.number, 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
             ),
         )
 

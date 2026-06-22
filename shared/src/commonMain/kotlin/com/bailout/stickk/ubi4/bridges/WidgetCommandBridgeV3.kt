@@ -41,6 +41,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
 /**
@@ -59,6 +60,11 @@ object WidgetCommandBridgeV3 {
 
     // Android parity: map SET subcommands from widgets to corresponding GET requests.
     fun buildReadRequest(parameterID: Int, dataCode: Int): ByteArray? {
+        val settingsProfileInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE)
+        if (settingsProfileInfo.parameterID == parameterID && settingsProfileInfo.dataCode == dataCode) {
+            return null
+        }
+
         return when (parameterID) {
             PROSTHESIS_MODULE_CONTROL.number.toInt() -> {
                 when (dataCode) {

@@ -49,6 +49,7 @@ interface ConstantManagerUBI4 {
         const val P_KEY_EMG_MAX_GAIN_VALUE = "P_KEY_EMG_MAX_GAIN_VALUE"
         const val P_KEY_SPEED_SETTINGS = "P_KEY_SPEED_SETTINGS"
         const val P_KEY_FORCE_SETTINGS = "P_KEY_FORCE_SETTINGS"
+        const val P_KEY_SETTINGS_PROFILE = "P_KEY_SETTINGS_PROFILE"
 
 
 

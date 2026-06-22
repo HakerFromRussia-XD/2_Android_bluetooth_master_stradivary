@@ -36,6 +36,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
@@ -89,16 +90,29 @@ class SpinnerDelegateAdapterV3 (
         }
         val currentParameterInfo = parameterInfoSet.firstOrNull() ?: return
         val isRoleSelector = isRoleParameter(currentParameterInfo)
+        val isSettingsProfileSelector = isSettingsProfileParameter(currentParameterInfo)
         if (isRoleSelector) {
             spinnerItems = roleItems.toMutableList()
             selectedIndexFromWidget = roleDefaultIndex
+        }
+        val prefs = spinnerPsv.context.getSharedPreferences(
+            PreferenceKeysUbi4.APP_PREFERENCES,
+            Context.MODE_PRIVATE
+        )
+        if (isSettingsProfileSelector) {
+            val profileCount = prefs.getInt(KEY_SETTINGS_PROFILE_COUNT, 1)
+                .coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
+            spinnerItems = buildSettingsProfileItems(profileCount).toMutableList()
+            selectedIndexFromWidget = prefs.getInt(KEY_SETTINGS_PROFILE_SELECTED, 0)
+                .coerceIn(0, profileCount - 1)
         }
         val info = WidgetSpinnerInfo(
             parameterInfo = currentParameterInfo,
             spinner = spinnerPsv,
             items = spinnerItems,
             widgetPosition = widgetPosition,
-            isRoleSelector = isRoleSelector
+            isRoleSelector = isRoleSelector,
+            isSettingsProfileSelector = isSettingsProfileSelector
         )
         spinnerInfoList.removeAll {
             it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
@@ -108,10 +122,6 @@ class SpinnerDelegateAdapterV3 (
         }
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
-        val prefs = spinnerPsv.context.getSharedPreferences(
-            PreferenceKeysUbi4.APP_PREFERENCES,
-            Context.MODE_PRIVATE
-        )
         val initialIndex = if (isRoleSelector) {
             prefs.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, roleDefaultIndex)
                 .coerceIn(roleItems.indices)
@@ -165,6 +175,10 @@ class SpinnerDelegateAdapterV3 (
             info.pendingProgrammaticIndex = null
             if (info.isRoleSelector) {
                 handleRoleSelection(info, prefs, newIndex)
+                return@setOnSpinnerItemSelectedListener
+            }
+            if (info.isSettingsProfileSelector) {
+                handleSettingsProfileSelection(info, prefs, newIndex)
                 return@setOnSpinnerItemSelectedListener
             }
             sendValue(info, newIndex)
@@ -278,6 +292,9 @@ class SpinnerDelegateAdapterV3 (
                 ?.spinnerValue
                 ?: return@forEach
 
+            if (infoWidget.isSettingsProfileSelector) {
+                ensureSettingsProfileItemsContain(infoWidget, spinnerValue)
+            }
             applyProgrammaticSelection(infoWidget, spinnerValue)
             platformLog("SpinnerDelegateAdapterV3", "принимаем spinnerValue=$spinnerValue")
         }
@@ -345,8 +362,103 @@ class SpinnerDelegateAdapterV3 (
     private fun isRoleParameter(parameterInfo: ParameterInfo<Int, Int, Int, Int>): Boolean =
         ParameterInfoRegistry.require(P_KEY_DEVICE_ROLE) == parameterInfo
 
+    private fun isSettingsProfileParameter(parameterInfo: ParameterInfo<Int, Int, Int, Int>): Boolean =
+        ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE) == parameterInfo
+
     private fun setServiceEngineerUiEnabled(enabled: Boolean) {
         UiState.isServiceEngineerRole.value = enabled
+    }
+
+    private fun handleSettingsProfileSelection(
+        info: WidgetSpinnerInfo,
+        prefs: SharedPreferences,
+        newIndex: Int
+    ) {
+        val selectedItem = info.items.getOrNull(newIndex)
+        if (selectedItem == SETTINGS_PROFILE_ADD_ITEM) {
+            val currentCount = settingsProfileCount(info)
+            if (currentCount >= MAX_SETTINGS_PROFILE_COUNT) {
+                applyProgrammaticSelection(info, info.selectedIndex.coerceIn(0, info.items.lastIndex))
+                return
+            }
+
+            val newCount = currentCount + 1
+            val createdProfileIndex = newCount - 1
+            applySettingsProfileItems(info, newCount)
+            persistSettingsProfileState(prefs, newCount, createdProfileIndex)
+            applyProgrammaticSelection(info, createdProfileIndex)
+            setLocalValue(info, createdProfileIndex)
+            return
+        }
+
+        if (newIndex in 0 until settingsProfileCount(info)) {
+            persistSettingsProfileState(prefs, settingsProfileCount(info), newIndex)
+            info.selectedIndex = newIndex
+            setLocalValue(info, newIndex)
+        } else {
+            applyProgrammaticSelection(info, info.selectedIndex.coerceIn(0, info.items.lastIndex))
+        }
+    }
+
+    private fun ensureSettingsProfileItemsContain(info: WidgetSpinnerInfo, selectedIndex: Int) {
+        val requiredCount = (selectedIndex + 1).coerceIn(
+            MIN_SETTINGS_PROFILE_COUNT,
+            MAX_SETTINGS_PROFILE_COUNT
+        )
+        if (settingsProfileCount(info) < requiredCount) {
+            applySettingsProfileItems(info, requiredCount)
+            info.spinner.context
+                .getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_SETTINGS_PROFILE_COUNT, requiredCount)
+                .apply()
+        }
+    }
+
+    private fun persistSettingsProfileState(
+        prefs: SharedPreferences,
+        profileCount: Int,
+        selectedIndex: Int
+    ) {
+        prefs.edit()
+            .putInt(
+                KEY_SETTINGS_PROFILE_COUNT,
+                profileCount.coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
+            )
+            .putInt(KEY_SETTINGS_PROFILE_SELECTED, selectedIndex.coerceIn(0, profileCount - 1))
+            .apply()
+    }
+
+    private fun applySettingsProfileItems(info: WidgetSpinnerInfo, profileCount: Int) {
+        val items = buildSettingsProfileItems(profileCount)
+        info.items = items
+        info.spinner.setItems(items)
+    }
+
+    private fun buildSettingsProfileItems(profileCount: Int): List<String> {
+        val safeCount = profileCount.coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
+        val profiles = (1..safeCount).map { index -> "Профиль №$index" }
+        return if (safeCount < MAX_SETTINGS_PROFILE_COUNT) {
+            profiles + SETTINGS_PROFILE_ADD_ITEM
+        } else {
+            profiles
+        }
+    }
+
+    private fun settingsProfileCount(info: WidgetSpinnerInfo): Int =
+        info.items.count { it.startsWith("Профиль №") }
+            .coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
+
+    private fun setLocalValue(info: WidgetSpinnerInfo, value: Int) {
+        val typedValue = ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = value))
+        ParameterStoreV3.put(info.parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(info.parameterInfo)
+        if (parameterMeta != null) {
+            ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+                ParameterProvider.getParameterV3(info.parameterInfo).data = encoded
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -478,6 +590,12 @@ class SpinnerDelegateAdapterV3 (
     }
 
     companion object {
+        private const val KEY_SETTINGS_PROFILE_COUNT = "UBI4_SETTINGS_PROFILE_COUNT_V3"
+        private const val KEY_SETTINGS_PROFILE_SELECTED = "UBI4_SETTINGS_PROFILE_SELECTED_V3"
+        private const val SETTINGS_PROFILE_ADD_ITEM = "+"
+        private const val MIN_SETTINGS_PROFILE_COUNT = 1
+        private const val MAX_SETTINGS_PROFILE_COUNT = 3
+
         private val spinners =
             Collections.synchronizedSet(mutableSetOf<WeakReference<PowerSpinnerView>>())
 
@@ -516,5 +634,6 @@ data class WidgetSpinnerInfo(
     var widgetPosition: Int = 0,
     var pendingProgrammaticIndex: Int? = null,
     var selectedIndex: Int = 0,
-    val isRoleSelector: Boolean = false
+    val isRoleSelector: Boolean = false,
+    val isSettingsProfileSelector: Boolean = false
 )

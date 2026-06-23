@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
@@ -193,6 +194,7 @@ class SwitcherDelegateAdapterV3(
         val subcommand = parameterInfo.dataCode
         val typedValue = ParameterTypedValueV3.Switcher(SwitcherV3(checked = checked))
         ParameterStoreV3.put(parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
         val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo)
         if (parameterMeta != null) {
             ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
@@ -226,6 +228,7 @@ class SwitcherDelegateAdapterV3(
                         PreferenceKeysUbi4.SET_MODE_SMART_CONNECTION,
                         switch.isChecked
                     )
+                    SettingsProfileManager.saveMobileBoolean(keyMobileSettings, switch.isChecked)
                 }
             }
         }

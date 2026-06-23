@@ -57,6 +57,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
@@ -158,6 +159,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         initAllVariables()
         showStartupLoaderIfNeeded()
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+        SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -674,6 +676,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
+            currentSerial = connectedDeviceName
+            SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
@@ -686,6 +690,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         currentSerial = mDeviceName
+        SettingsProfileManager.setCurrentSerial(currentSerial)
         val displayName = NameUtil.getDisplayName(serial)
         runOnUiThread { binding.nameTv.text = displayName }
     }
@@ -696,6 +701,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
+        SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }

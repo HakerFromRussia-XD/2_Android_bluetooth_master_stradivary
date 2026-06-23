@@ -9,6 +9,43 @@ import UIKit
 import CoreBluetooth
 import Foundation
 
+struct LegacyIndyPackedStatus {
+    let driverNum: Int
+    let bmsNum: Int
+    let sensNum: Int
+    let openThreshold: Int
+    let closeThreshold: Int
+    let openSensOption: Int
+    let closeSensOption: Int
+    let shutdownCurrent: Int
+    let scaleFlags: Int
+
+    var reverseSensors: Int {
+        return scaleFlags >> 0 & 0b00000001
+    }
+
+    var oneChannel: Int {
+        return scaleFlags >> 1 & 0b00000001
+    }
+
+    var sensorValues: [String: String] {
+        return [
+            "numderBytes": "12",
+            "driver_num_string": String(driverNum),
+            "bms_num": String(bmsNum),
+            "sens_num": String(sensNum),
+            "open_ch_num": String(openThreshold),
+            "close_ch_num": String(closeThreshold),
+            "corellator_noise_threshold_1_num": String(openSensOption),
+            "corellator_noise_threshold_2_num": String(closeSensOption),
+            "shutdown_current_num": String(shutdownCurrent),
+            "scale_flags_and_revers_and_one_channel": String(scaleFlags),
+            "set_reverse": String(reverseSensors),
+            "set_one_channel": String(oneChannel)
+        ]
+    }
+}
+
 @objc class ScanViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     
@@ -310,17 +347,21 @@ import Foundation
                         if (bytes[3] == 0 && bytes[4] == 0 && bytes[5] == 0 && bytes[6] == 0 && bytes[7] == 0 && bytes[8] == 0 && bytes[9] == 0) {
                             self.dataForSensorsViewController["numderBytes"] = String(Int(3))
                         } else {
-                            self.dataForSensorsViewController["numderBytes"] = String(Int(12))
-                            self.dataForSensorsViewController["driver_num_string"] = String(Int(bytes[3]))
-                            self.dataForSensorsViewController["bms_num"] = String(Int(bytes[4]))
-                            self.dataForSensorsViewController["sens_num"] = String(Int(bytes[5]))
-                            self.dataForSensorsViewController["open_ch_num"] = String(Int(bytes[6]))
-                            self.dataForSensorsViewController["close_ch_num"] = String(Int(bytes[7]))
-                            self.dataForSensorsViewController["corellator_noise_threshold_1_num"] = String(Int(bytes[8]))
-                            self.dataForSensorsViewController["corellator_noise_threshold_2_num"] = String(Int(bytes[9]))
-                            self.dataForSensorsViewController["shutdown_current_num"] = String(Int(bytes[10]))
-                            self.dataForSensorsViewController["scale_flags_and_revers_and_one_channel"] = String(Int(bytes[11]))
-                            print("Получили данные из характеристики DRIVER_VERSION_NEW_VM \(String(Int(bytes[3]))) \(String(Int(bytes[4]))) \(String(Int(bytes[5])))")
+                            let packedStatus = LegacyIndyPackedStatus(
+                                driverNum: Int(bytes[3]),
+                                bmsNum: Int(bytes[4]),
+                                sensNum: Int(bytes[5]),
+                                openThreshold: Int(bytes[6]),
+                                closeThreshold: Int(bytes[7]),
+                                openSensOption: Int(bytes[8]),
+                                closeSensOption: Int(bytes[9]),
+                                shutdownCurrent: Int(bytes[10]),
+                                scaleFlags: Int(bytes[11])
+                            )
+                            for (key, value) in packedStatus.sensorValues {
+                                self.dataForSensorsViewController[key] = value
+                            }
+                            print("Получили данные из характеристики DRIVER_VERSION_NEW_VM \(String(packedStatus.driverNum)) \(String(packedStatus.bmsNum)) \(String(packedStatus.sensNum))")
                         }
                         self.dataForSensorsViewController["synchronized"] = String(100)
                     }

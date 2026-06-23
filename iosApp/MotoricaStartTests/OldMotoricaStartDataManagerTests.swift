@@ -122,3 +122,41 @@ final class OldMotoricaStartDataManagerTests: XCTestCase {
         Dictionary(uniqueKeysWithValues: objects.map { ($0.key, $0.value) })
     }
 }
+
+final class OldMotoricaStartLegacyIndyPackedStatusTests: XCTestCase {
+    func testPackedStatusMirrorsReverseSensorsFlagForOldIndy() {
+        let status = LegacyIndyPackedStatus(
+            driverNum: 3,
+            bmsNum: 4,
+            sensNum: 5,
+            openThreshold: 6,
+            closeThreshold: 7,
+            openSensOption: 8,
+            closeSensOption: 9,
+            shutdownCurrent: 10,
+            scaleFlags: 0b00000001
+        )
+
+        XCTAssertEqual(status.sensorValues["scale_flags_and_revers_and_one_channel"], "1")
+        XCTAssertEqual(status.sensorValues["set_reverse"], "1")
+        XCTAssertEqual(status.sensorValues["set_one_channel"], "0")
+    }
+
+    func testPackedStatusClearsReverseSensorsWhenOldIndyFlagIsOff() {
+        let status = LegacyIndyPackedStatus(
+            driverNum: 3,
+            bmsNum: 4,
+            sensNum: 5,
+            openThreshold: 6,
+            closeThreshold: 7,
+            openSensOption: 8,
+            closeSensOption: 9,
+            shutdownCurrent: 10,
+            scaleFlags: 0b00000010
+        )
+
+        XCTAssertEqual(status.sensorValues["scale_flags_and_revers_and_one_channel"], "2")
+        XCTAssertEqual(status.sensorValues["set_reverse"], "0")
+        XCTAssertEqual(status.sensorValues["set_one_channel"], "1")
+    }
+}

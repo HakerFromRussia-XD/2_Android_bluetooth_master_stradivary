@@ -6,7 +6,7 @@ final class GameControlBroadcaster {
     static let shared = GameControlBroadcaster()
 
     private enum Keys {
-        static let appGroup = "group.com.motorica.gamecontrol"
+        static let appGroup = "group.com.motorica.start.gamecontrol"
         static let snapshot = "snapshot"
         static let version = "version"
         static let seq = "seq"

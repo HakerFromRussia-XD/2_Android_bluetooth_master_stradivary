@@ -10,7 +10,7 @@ private enum AccountGamesMetrics {
 
 final class AccountGamesViewController: UIViewController {
     private enum Constants {
-        static let appGroup = "group.com.motorica.gamecontrol"
+        static let appGroup = "group.com.motorica.start.gamecontrol"
         static let installedGameKey = "installedGame.stk"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
         static let gameId = "stk"

@@ -103,6 +103,7 @@ android {
         }
     }
 
+
     buildTypes {
         getByName("release") {
             // отключаем профилирование

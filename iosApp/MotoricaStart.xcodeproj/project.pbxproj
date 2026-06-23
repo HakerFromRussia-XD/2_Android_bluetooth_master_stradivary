@@ -185,6 +185,8 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
+		65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */; };
+		65DF01032FBC000100000003 /* OldMotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; };
 		66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */; };
 		66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */; };
 		66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11730B2AA0000000007 /* AAPLMeshData.mm */; };
@@ -263,6 +265,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 1FA53388201E1FDE00747E55;
 			remoteInfo = MotoricaStart;
+		};
+		65DF01042FBC000100000004 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FA53381201E1FDE00747E55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 449528174655504589859D99;
+			remoteInfo = OldMotoricaStart;
 		};
 		E10FA8F3527B6826CFC1233D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -383,6 +392,7 @@
 		5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Grib3DSettingsViewController.swift; path = ViewControllers/Main/Grib3DSettingsViewController.swift; sourceTree = "<group>"; };
 		5D0A2EFC768621B75CB1EECF /* ModelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModelController.swift; path = "test transition/ModelController.swift"; sourceTree = "<group>"; };
 		5DD218898AA2AD49F5627DF7 /* OldMotoricaStart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OldMotoricaStart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartDataManagerTests.swift; sourceTree = "<group>"; };
 		651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorage.swift; sourceTree = "<group>"; };
 		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
 		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
@@ -586,6 +596,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65DF01032FBC000100000003 /* OldMotoricaStart.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,6 +795,7 @@
 				E6E882E600C188FAACCC417D /* ObservableTests.swift */,
 				534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */,
 				1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */,
+				65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */,
 				B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */,
 				ABCD01022F9A000100000001 /* PhoneDialURLFormatterTests.swift */,
 				ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */,
@@ -1577,6 +1589,7 @@
 			);
 			dependencies = (
 				1FA5339F201E1FDE00747E55 /* PBXTargetDependency */,
+				65DF01052FBC000100000005 /* PBXTargetDependency */,
 			);
 			name = MotoricaStartTests;
 			productName = CodeChallengeTests;
@@ -1973,6 +1986,7 @@
 				A466D54236BAA2CB862BF98C /* ObservableTests.swift in Sources */,
 				DE81C4394ABB13562CDF9F0F /* UserDefaultsKeyValueStorageTests.swift in Sources */,
 				F128678549887F87B227542E /* BluetoothStorageKeysTests.swift in Sources */,
+				65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */,
 				A7E4B3182D4D4A5C8E92F0A1 /* GestureSettingsV3DistributionTests.swift in Sources */,
 				ABCD01012F9A000100000001 /* PhoneDialURLFormatterTests.swift in Sources */,
 				ABCD06012FA3000100000001 /* SpinnerDropdownTapResolverTests.swift in Sources */,
@@ -1999,6 +2013,12 @@
 			isa = PBXTargetDependency;
 			target = 1FA53388201E1FDE00747E55 /* MotoricaStart */;
 			targetProxy = 1FA5339E201E1FDE00747E55 /* PBXContainerItemProxy */;
+		};
+		65DF01052FBC000100000005 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = OldMotoricaStart;
+			target = 449528174655504589859D99 /* OldMotoricaStart */;
+			targetProxy = 65DF01042FBC000100000004 /* PBXContainerItemProxy */;
 		};
 		DF3859463BEE7E870508BAB4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

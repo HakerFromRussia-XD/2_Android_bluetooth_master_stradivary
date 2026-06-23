@@ -11,8 +11,8 @@ import DGCharts
 
 
 @objc class SensorsViewController: UIViewController {
-    
-    
+
+
     @IBOutlet weak var synchronizedText: UILabel!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var statusImage: UIImageView!
@@ -55,10 +55,10 @@ import DGCharts
     @IBOutlet weak var gestureSettingsBtn: UIButton!
     @IBOutlet weak var advancedSettingsBtn: UIButton!
     @IBOutlet weak var unlockAdvancedSettings: UIButton!
-    
+
     let connectStatus = UIImage(named:"connect_status")!
     let disconnectStatus = UIImage(named:"disconnect_status")!
-    
+
     let values = (0..<1).map { (i) -> ChartDataEntry in
         let val = Double(arc4random_uniform(UInt32(1))+3)
         return ChartDataEntry(x: Double(i), y: val)
@@ -78,16 +78,17 @@ import DGCharts
     private var target_sensor_2: Double = 0
     private var rampTick: Int = 0
     private var chartTimer: Timer?
-    
+
     var open_sens_slide: UInt8 = 0
     var close_sens_slide: UInt8 = 0
-    
+
 
     var count: Int = 0
     var countTest: Int = 0
     static let sampleGattAttributes = SampleGattAttributes()
     static var dataForCommunicate = ["byteArray": "01020304", "characteristic":"1", "type":"READ", "case":"0"]
     private var savingParametrsMassString:[SaveObjectString]!
+    private var pendingFullUIRefresh = false
     private var blockChangeSettings: Bool = false
     private var lockAdvancedSettings: Bool = false
     private var startMoovSlide: Bool = true
@@ -99,7 +100,7 @@ import DGCharts
     static let queueInterval: UInt32 = 110000// большее количество команд, чем она отдаёт
     static let inactiveQueue = DispatchQueue(label: "My queue", attributes: [.concurrent, .initiallyInactive])
     static let semafore = DispatchSemaphore(value: 1)
-    
+
     private var delayForReadData2: UInt32 = 1000000 //в микросекундах. Должно быть меньше, чем queueInterval. Чтобы не давать очереди
     static let queueInterval2: UInt32 = 1100000// большее количество команд, чем она отдаёт
     static let inactiveQueue2 = DispatchQueue(label: "My queue 2", attributes: [.concurrent, .initiallyInactive])
@@ -116,20 +117,20 @@ import DGCharts
     private static var countAttempts = 0
     private static var versionDriverNum: Float = 0
     private var percentSyncronise = 0
-    
+
     private var savingDeviceName: String = "...."
     private var typeMultigrib: Bool = false
     private var typeMultigribNew: Bool = false
     private var typeMultigribNewVM: Bool = false
     private var reseivedFirstNotifyDataBool: Bool = true
     public static var versionDriverGreaterThan237: Bool = false
-    
+
     deinit {
         stopChartTimer()
         NotificationCenter.default.removeObserver(self)
         print("SensorsViewController_ is being deinitialized")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         UIApplication.shared.statusBarStyle = .lightContent
@@ -139,20 +140,20 @@ import DGCharts
         initChart()
         loadDataString(key: "all", numberLoad: 9)
         initUI()
-        
+
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPerehod(gesture:)))
         unlockAdvancedSettings.addGestureRecognizer(longPress)
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(updatingUINotification), name: .notificationReseiveBLEData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(checkStateConnection), name: .notificationCheckStateConnection, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: .notificationDataDialogToSensorsView, object: nil)
-        
+
         print("Выполнился viewDidLoad")
         if (typeMultigrib) {
             SensorsViewController.myInteractiveQueueComand(dataForWrite: Data([]), characteristic: SensorsViewController.sampleGattAttributes.FESTO_A_CHARACTERISTIC, type: SensorsViewController.sampleGattAttributes.READ, myCase: "")
         }
-        
-        
+
+
         //быстрый переход
 //        performSegue(withIdentifier: "goToInstructionFest", sender: nil)
 //        performSegue(withIdentifier: "goToGesturesSettings", sender: nil)
@@ -170,8 +171,8 @@ import DGCharts
         super.viewDidDisappear(animated)
         stopChartTimer()
     }
-    
-    
+
+
     @objc func updateUI(notification: Notification) {
         guard let dataState = notification.userInfo,
               let resultDialog = dataState["resultDialog"] as? String
@@ -217,10 +218,10 @@ import DGCharts
             let close_ch_num = dataForWrite["close_ch_num"] as? String,
             let corellator_noise_threshold_1_num = dataForWrite["corellator_noise_threshold_1_num"] as? String,
             let corellator_noise_threshold_2_num = dataForWrite["corellator_noise_threshold_2_num"] as? String,
-              
+
             let shutdown_current_num = dataForWrite["shutdown_current_num"] as? String,
             let scale_flags_and_revers_and_one_channel = dataForWrite["scale_flags_and_revers_and_one_channel"] as? String,
-                
+
             let set_reverse = dataForWrite["set_reverse"] as? String,
             let set_one_channel = dataForWrite["set_one_channel"] as? String,
             let gesture_use_num = dataForWrite["gesture_use_num"] as? String,
@@ -256,7 +257,7 @@ import DGCharts
                         print("обновили реверс датчиков >12 numderBytes \((Int(scale_flags_and_revers_and_one_channel) ?? 254) >> 0 & 0b00000001)")
                         saveDataString(key: item.key, value: String((Int(scale_flags_and_revers_and_one_channel) ?? 254) >> 0 & 0b00000001))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.SET_ONE_CHANNEL) {
@@ -299,7 +300,7 @@ import DGCharts
                         print("обновили версию драйвера строка" + driver_num_string)
                         saveDataString(key: item.key, value: String(driver_num_string))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.BMS_NUM) {
@@ -307,7 +308,7 @@ import DGCharts
                         print("обновили версию бмс")
                         saveDataString(key: item.key, value: String(Int(bms_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.SENS_NUM) {
@@ -315,7 +316,7 @@ import DGCharts
                         print("обновили версию сенсоров")
                         saveDataString(key: item.key, value: String(Int(sens_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.OPEN_THRESHOLD_HDLE) {
@@ -323,7 +324,7 @@ import DGCharts
                         print("обновили порог открытия")
                         saveDataString(key: item.key, value: String(Int(open_ch_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.CLOSE_THRESHOLD_HDLE) {
@@ -331,7 +332,7 @@ import DGCharts
                         print("обновили порог закрытия")
                         saveDataString(key: item.key, value: String(Int(close_ch_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.SENS_OPTIONS+"1") {
@@ -339,7 +340,7 @@ import DGCharts
                         print("обновили чувствительность открытия")
                         saveDataString(key: item.key, value: String(Int(corellator_noise_threshold_1_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.SENS_OPTIONS+"2") {
@@ -347,7 +348,7 @@ import DGCharts
                         print("обновили чувствительность закрытия")
                         saveDataString(key: item.key, value: String(Int(corellator_noise_threshold_2_num)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
                 if (item.key == SensorsViewController.sampleGattAttributes.SET_REVERSE) {
@@ -355,13 +356,13 @@ import DGCharts
                         print("обновили реверс датчиков >10 numderBytes")
                         saveDataString(key: item.key, value: String(Int(set_reverse)!))
                         loadDataString(key: item.key, numberLoad: 7)
-                        initUI()
+                        scheduleFullUIRefresh()
                     }
                 }
             }
         }
-        
-        
+
+
         for item in savingParametrsMassString
         {
             if (item.key == SensorsViewController.sampleGattAttributes.SET_ONE_CHANNEL_NEW) {
@@ -376,7 +377,7 @@ import DGCharts
                     print("обновили жест стартовый в группе ротации "+start_gesture)
                     saveDataString(key: item.key, value: String(Int(start_gesture)!))
                     loadDataString(key: item.key, numberLoad: 7)
-                    initUI()
+                    scheduleFullUIRefresh()
                 }
             }
             if (item.key == SensorsViewController.sampleGattAttributes.SELECTED_END_GESTURE) {
@@ -384,7 +385,7 @@ import DGCharts
                     print("обновили жест конечный в группе ротации "+end_gesture)
                     saveDataString(key: item.key, value: String(Int(end_gesture)!))
                     loadDataString(key: item.key, numberLoad: 7)
-                    initUI()
+                    scheduleFullUIRefresh()
                 }
             }
             if (item.key == SensorsViewController.sampleGattAttributes.GESTURE_USE_NUM) {
@@ -450,7 +451,7 @@ import DGCharts
         self.reseve_sensor_1_data = Int(sens_1) ?? 0
         self.reseve_sensor_2_data = Int(sens_2) ?? 0
         self.activeGestureNum.text = String((Int(gesture_use_num) ?? 0))
-        
+
         if (self.previosReceivedIdCommand != expected_id_command) {
             self.previosReceivedIdCommand = expected_id_command
             if (SensorsViewController.expectedIdCommand == expected_id_command) {
@@ -458,7 +459,7 @@ import DGCharts
                 self.previosReceivedIdCommand = "FFFF"
             }
         }
-        
+
         //MARK: - reseivedFirstNotifyData = "true" только если протез FEST-H или FEST-X
         if (reseivedFirstNotifyData == "true") {
             if (reseivedFirstNotifyDataBool){
@@ -486,15 +487,15 @@ import DGCharts
     @objc func longPerehod(gesture: UILongPressGestureRecognizer) {
         if gesture.state == UIGestureRecognizerState.began {
             print("Long Press")
-        
-            
+
+
             var titleDialog = ""
             if (lockAdvancedSettings) {
                 titleDialog = NSLocalizedString("Do you want to unlock the advanced settings?", comment: "")
             } else { titleDialog = NSLocalizedString("Do you want to block advanced settings?", comment: "")}
             //1. Create the alert controller.
             let alert = UIAlertController(title: titleDialog, message: "", preferredStyle: .alert)
-            
+
 
             // 2. Grab the value from the text field, and print it when the user clicks OK.
             alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .default, handler: { (_) in
@@ -513,7 +514,7 @@ import DGCharts
             self.present(alert, animated: true, completion: nil)
         }
     }
-    
+
     // MARK: - обработка взаимодействия с UI
     @IBAction func openThresholdSlide(_ sender: Any) {
         UIView.animate(withDuration: 0.06, animations: {
@@ -528,7 +529,7 @@ import DGCharts
             let data = Data([UInt8(openThreshold.value)])
             if (typeMultigribNewVM) {
                 SensorsViewController.myInteractiveQueueComandWithConfirmation(dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.OPEN_THRESHOLD_NEW_VM, countRestart: 50)
-                
+
             } else {
                 if (typeMultigribNew){
                     SensorsViewController.myInteractiveQueueComand (dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.OPEN_THRESHOLD_NEW, type: SensorsViewController.sampleGattAttributes.WRITE, myCase: "")
@@ -687,7 +688,7 @@ import DGCharts
                     if (typeMultigrib) {
                         SensorsViewController.sendDataToHC10 (dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.FESTO_A_CHARACTERISTIC, myCase: String(6))
                     }
-                    else { 
+                    else {
                         print("startOpen sendDataToINDY!!!")
                         sendDataToINDY(dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.CLOSE_MOTOR_HDLE) }
                 }
@@ -703,13 +704,13 @@ import DGCharts
                     if (typeMultigrib) {
                         SensorsViewController.sendDataToHC10 (dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.FESTO_A_CHARACTERISTIC, myCase: String(6))
                     }
-                    else { 
+                    else {
                         print("startOpen sendDataToINDY!!!")
                         sendDataToINDY(dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.OPEN_MOTOR_HDLE) }
                 }
             }
         }
-        
+
     }
     @IBAction func stopOpen(_ sender: Any) {
         let data = Data([0x00, 0x00])
@@ -737,9 +738,9 @@ import DGCharts
                 } else {
                     if (typeMultigrib) {
                         SensorsViewController.sendDataToHC10 (dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.FESTO_A_CHARACTERISTIC, myCase: String(6))
-                        
+
                     }
-                    else { 
+                    else {
                         print("startOpen (stop) sendDataToINDY!!!")
                         sendDataToINDY(dataForWrite: data, characteristic: SensorsViewController.sampleGattAttributes.OPEN_MOTOR_HDLE) }
                 }
@@ -833,8 +834,8 @@ import DGCharts
         saveDataString(key: SensorsViewController.sampleGattAttributes.READ_THREAD_START, value: String(0))
         loadDataString(key: SensorsViewController.sampleGattAttributes.READ_THREAD_START, numberLoad: 3)
     }
-    
-    
+
+
     static func sendDataToHC10 (dataForWrite: Data, characteristic: String, myCase: String) {
         SensorsViewController.dataForCommunicate["byteArray"] = dataForWrite.hexEncodedString()
         SensorsViewController.dataForCommunicate["characteristic"] = characteristic
@@ -864,18 +865,18 @@ import DGCharts
         SensorsViewController.dataForCommunicate["type"] = SensorsViewController.sampleGattAttributes.READ
         NotificationCenter.default.post(name: .notificationFromSensorsViewController, object: nil, userInfo: SensorsViewController.dataForCommunicate)
     }
-    
-    
+
+
     // MARK: - работа с фоном
     override func viewDidLayoutSubviews() {
         let topColor: UIColor = #colorLiteral(red: 0, green: 0.4745098039, blue: 0.568627451, alpha: 1)
         let bottomColor: UIColor = #colorLiteral(red: 0.2823529412, green: 0.6941176471, blue: 0.7490196078, alpha: 1)
-        
+
         let startPointX: CGFloat = 0.5
         let startPointY: CGFloat = 0
         let endPointX: CGFloat = 0.5
         let endPointY: CGFloat = 1
-        
+
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [topColor.cgColor, bottomColor.cgColor]
         gradientLayer.startPoint = CGPoint(x: startPointX, y: startPointY)
@@ -896,7 +897,7 @@ import DGCharts
 
         var set1 : LineChartDataSet
         var set2 : LineChartDataSet
-        
+
         if (firstInit) {
             set1 = createSet1(values: values)
             set2 = createSet2(values: values)
@@ -915,10 +916,10 @@ import DGCharts
             zaglushka(bool1: (set1.removeFirst()))
             zaglushka(bool1: (set2.removeFirst()))
         }
-        
+
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens1)), toDataSet: 1)
         data.appendEntry(ChartDataEntry(x: Double(self.count), y: Double(sens2)), toDataSet: 2)
-        
+
         data.notifyDataChanged()
         lineChartView.notifyDataSetChanged()
         lineChartView.setVisibleXRangeMaximum(600)
@@ -937,7 +938,7 @@ import DGCharts
         data2 = LineChartData(dataSet: set2)
         lineChartView.data = data
         lineChartView.data = data2
-        
+
         lineChartView.highlightPerTapEnabled = false
         lineChartView.doubleTapToZoomEnabled = false
         lineChartView.isUserInteractionEnabled = false
@@ -951,13 +952,13 @@ import DGCharts
         self.lineChartView.backgroundColor = UIColor(named: "transparent")
         lineChartView.legend.enabled = false
         lineChartView.animate(yAxisDuration: 0.7)
-        
+
         let x: XAxis = self.lineChartView.xAxis
         x.labelTextColor = UIColor(named: "transparent")!
         x.drawGridLinesEnabled = false
         x.axisMaximum = 4000000
         x.avoidFirstLastClippingEnabled = true
-        
+
         let y: YAxis = self.lineChartView.leftAxis
         y.axisMaximum = 255
         y.axisMinimum = 0
@@ -976,7 +977,7 @@ import DGCharts
         set1.mode = LineChartDataSet.Mode.cubicBezier
         set1.drawCirclesEnabled = false
         set1.drawValuesEnabled = false
-        
+
         return set1
     }
     func createSet2(values: [ChartDataEntry]) -> LineChartDataSet {
@@ -987,7 +988,7 @@ import DGCharts
         set2.mode = LineChartDataSet.Mode.cubicBezier
         set2.drawCirclesEnabled = false
         set2.drawValuesEnabled = false
-        
+
         return set2
     }
     private func zaglushka(bool1: Bool) {    }
@@ -1091,7 +1092,7 @@ import DGCharts
         var numActiveGesturesOn: Bool = false
         var setModeProsthesisOn: Bool = false
         var maxStandCyclesOn: Bool = false
-        
+
         // проверка, есть ли значения переменных в памяти
         for item in savingParametrsMassString
         {
@@ -1159,7 +1160,7 @@ import DGCharts
                 maxStandCyclesOn = true
             }
         }
-        
+
         // если переменная false, то её значения небыло в памяти телефона раньше и она
         // инициализируется дефолтным, заготовленным значением
         if (!driverStringOn) {
@@ -1245,8 +1246,8 @@ import DGCharts
             saveDataString(key: SensorsViewController.sampleGattAttributes.MAX_STAND_CYCLES, value: String(0))
             loadDataString(key: SensorsViewController.sampleGattAttributes.MAX_STAND_CYCLES, numberLoad: 1)
         }
-        
-        
+
+
         // чтение переменных из памяти
         for item in savingParametrsMassString
         {
@@ -1265,7 +1266,7 @@ import DGCharts
                 if (item.value.count == 3 ) {
                     //значит версия драйвера передаётся одним байтом
                     print("Получили данные из характеристики DRIVER_VERSION_NEW_VM чтение переменных из памяти: " + String((Float(item.value) ?? 1)/100))
-                    
+
                     driverText.text = NSLocalizedString("driver", comment: "") + String((Float(item.value) ?? 1)/100)
                     SensorsViewController.versionDriverNum =  (Float(item.value) ?? 1)/100
                 } else {
@@ -1368,7 +1369,7 @@ import DGCharts
                 }
             }
             if (item.key == SensorsViewController.sampleGattAttributes.SCALE_FIRST_SET) {
-                
+
             }
             if (item.key == SensorsViewController.sampleGattAttributes.SELECTED_START_GESTURE) {
                 startGestureNum.text = String((Int(item.value) ?? 0) + 1)
@@ -1391,13 +1392,14 @@ import DGCharts
                 }
             }
         }
-        
+
         openThresholdView.transform = CGAffineTransform.init(translationX: 0, y: -(CGFloat(openThreshold.value)/1.05))
         closeThresholdView.transform = CGAffineTransform.init(translationX: 0, y: -(CGFloat(closeThreshold.value)/1.05))
     }
     private func loadDataString(key: String, numberLoad: Int) {
-        savingParametrsMassString = [SaveObjectString]()
-        savingParametrsMassString = DataManager.loadAll(SaveObjectString.self)
+        if (savingParametrsMassString == nil || savingParametrsMassString.isEmpty || key == "all") {
+            savingParametrsMassString = DataManager.loadAll(SaveObjectString.self)
+        }
         print("load number: \(numberLoad)   key: \(key)")
         for item in savingParametrsMassString {
             if (item.key == key) {
@@ -1409,9 +1411,36 @@ import DGCharts
         let saveObjectString = SaveObjectString(key: key, value: value)
         print("save   key: \(key) value: \(value)")
         DataManager.save(saveObjectString, with: key)
+        updateCachedSaveObjectString(key: key, value: value)
     }
-    
-    
+
+    private func updateCachedSaveObjectString(key: String, value: String) {
+        if (savingParametrsMassString == nil) {
+            savingParametrsMassString = [SaveObjectString]()
+        }
+        let saveObjectString = SaveObjectString(key: key, value: value)
+        if let index = savingParametrsMassString.index(where: { $0.key == key }) {
+            savingParametrsMassString[index] = saveObjectString
+        } else {
+            savingParametrsMassString.append(saveObjectString)
+        }
+    }
+
+    private func scheduleFullUIRefresh() {
+        guard !pendingFullUIRefresh else {
+            return
+        }
+        pendingFullUIRefresh = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.pendingFullUIRefresh = false
+            self.initUI()
+        }
+    }
+
+
     // MARK: - очередь команд
     @objc static func myInteractiveQueueComand(dataForWrite: Data, characteristic: String, type: String, myCase: String) {
         inactiveQueue.async {
@@ -1461,8 +1490,8 @@ import DGCharts
         }
         operationQueue.addOperations([operation1], waitUntilFinished: true)
     }
-    
-    
+
+
     // MARK: - отправка команд с проверкой
     @objc static func myInteractiveQueueComandWithConfirmation(dataForWrite: Data, characteristic: String, countRestart: Int) {
         inactiveQueue2.async {
@@ -1483,16 +1512,16 @@ import DGCharts
             var countRestartLocal = countRestart
             var countAttempt = 0
             self.expectedIdCommand = String(formedId)
-            
+
             while(self.expectedReceiveConfirmation != 2) {
                 if (countRestartLocal > 0) {
-                    
+
                     sendDataToFESTH(dataForWrite: dataForWrite, characteristic: characteristic)
                     usleep(100000)
                     countRestartLocal -= 1
                     countAttempt += 1
                     countAttempts = countAttempt
-                    
+
                     if (countAttempt == 1) { oneAttempt += 1 }
                     if (countAttempt == 2) {
                         oneAttempt -= 1
@@ -1510,7 +1539,7 @@ import DGCharts
                         fourAttempts -= 1
                         fiveAttempts += 1
                     }
-                    
+
                     //если протокол старый, то после отправки команды не ждём подтверждения
                     if (versionDriverNum < 2.34) {
                         countRestartLocal = 0
@@ -1561,13 +1590,13 @@ extension Data {
         let hexDigits = Array("0123456789abcdef".utf16)
         var hexChars = [UTF16.CodeUnit]()
         hexChars.reserveCapacity(count * 2)
-        
+
         for byte in self {
             let (index1, index2) = Int(byte).quotientAndRemainder(dividingBy: 16)
             hexChars.append(hexDigits[index1])
             hexChars.append(hexDigits[index2])
         }
-        
+
         return String(utf16CodeUnits: hexChars, count: hexChars.count)
     }
 }

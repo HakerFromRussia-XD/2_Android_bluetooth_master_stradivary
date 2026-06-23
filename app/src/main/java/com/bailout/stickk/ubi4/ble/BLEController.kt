@@ -343,8 +343,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
             )
             needReRequestTransferFlow = false
         }
-
         UiState.widgetsLoadingFlow.tryEmit(Unit)
+
 
     }
 
@@ -409,6 +409,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             updateFlow.emit(0)
             UiState.startupInProgress.value = false
             UiState.widgetsLoadingFlow.tryEmit(Unit)
+            bleParser.sendFwInfoRequestsWithRetry()
 
             // Запускаем живой поток
             main.bleCommandWithQueue(

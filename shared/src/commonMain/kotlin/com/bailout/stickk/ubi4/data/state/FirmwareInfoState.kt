@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 object FirmwareInfoState {
     private val _firmwareInfoFlow = MutableSharedFlow<FirmwareInfoStruct>(replay = 1)
+    private val firmwareInfoByAddress = mutableMapOf<Int, FirmwareInfoStruct>()
     val firmwareInfoFlow: SharedFlow<FirmwareInfoStruct> = _firmwareInfoFlow.asSharedFlow()
     val runProgramTypeFlow = MutableSharedFlow<Pair<Int, PreferenceKeysUbi4.RunProgramType>>(replay = 0, extraBufferCapacity = 1)
     val bootloaderStatusFlow = MutableSharedFlow<PreferenceKeysUbi4.BootloaderStatus>(extraBufferCapacity = 4)
@@ -25,6 +26,10 @@ object FirmwareInfoState {
     val boardListUpdatedFlow = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1)
 
     fun emitFirmwareInfo(fw: FirmwareInfoStruct) {
+        firmwareInfoByAddress[fw.deviceAddress] = fw
         _firmwareInfoFlow.tryEmit(fw)
     }
+
+    fun firmwareInfoSnapshot(): Map<Int, FirmwareInfoStruct> =
+        firmwareInfoByAddress.toMap()
 }

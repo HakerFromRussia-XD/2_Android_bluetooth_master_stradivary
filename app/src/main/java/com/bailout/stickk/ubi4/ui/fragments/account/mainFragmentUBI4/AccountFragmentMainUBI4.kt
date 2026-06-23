@@ -22,6 +22,8 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountMainBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FirmwareFilesAdapter
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.local.FirmwareInfoStruct
 import com.bailout.stickk.ubi4.data.network.NetworkResult
 import com.bailout.stickk.ubi4.data.network.Ubi4RequestsApi
 import com.bailout.stickk.ubi4.data.state.ConnectionState.fullInicializeConnectionStruct
@@ -93,6 +95,7 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private val resumeDisposables = CompositeDisposable()
 
     private val fwVersions = mutableMapOf<Int, String>()
+    private val fwDeviceCodes = mutableMapOf<Int, Int>()
     private var canRenderBoards = false
     private var systemBackCallback: OnBackPressedCallback? = null
 
@@ -130,11 +133,12 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         encryptionManager = EncryptionManagerUtilsUbi4.instance
         attemptedRequest = 1
         if (main?.locate?.contains("ru") == true) { locate = "ru" }
+        FirmwareInfoState.firmwareInfoSnapshot().values.forEach(::rememberFirmwareInfo)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 FirmwareInfoState.firmwareInfoFlow.collect { fw ->
                     // апдейтим конкретную плату
-                    fwVersions[fw.deviceAddress] = fw.fwVersion
+                    rememberFirmwareInfo(fw)
                     if (canRenderBoards) refreshBoards()
                 }
             }
@@ -626,22 +630,48 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
 
 
+    private fun rememberFirmwareInfo(fw: FirmwareInfoStruct) {
+        fwVersions[fw.deviceAddress] = fw.fwVersion
+        if (fw.deviceCode != 0) {
+            fwDeviceCodes[fw.deviceAddress] = fw.deviceCode
+        }
+    }
+
+    private fun currentCpuInfo(): FullInicializeConnectionStruct? =
+        runCatching { fullInicializeConnectionStruct }.getOrNull()
+
+    private fun boardTitle(deviceCode: Int, fallback: String? = null): String {
+        val title = PreferenceKeysUbi4.DeviceCode
+            .from(deviceCode)
+            .title
+            .removeSuffix(" version")
+
+        return if (title.equals("Unknown", ignoreCase = true) && fallback != null) {
+            fallback
+        } else {
+            title
+        }
+    }
+
+    private fun subDeviceVersion(deviceVersion: Int, deviceSubVersion: Int): String? =
+        if (deviceVersion == 0 && deviceSubVersion == 0) null else "$deviceVersion.$deviceSubVersion"
+
     private fun rebuildBoardNameCache() {
         boardNameByAddr.clear()
         // CPU (addr = 0)
-        fullInicializeConnectionStruct?.let {
-            boardNameByAddr[0] =
-                PreferenceKeysUbi4.DeviceCode
-                    .from(it.deviceCode)
-                    .title.removeSuffix(" version")      // ← важно!
+        currentCpuInfo()?.let {
+            val deviceCode = fwDeviceCodes[0] ?: it.deviceCode
+            boardNameByAddr[0] = boardTitle(deviceCode, fallback = "Cpu module")
+        }
+        if (fwVersions.containsKey(0) || fwDeviceCodes.containsKey(0)) {
+            val deviceCode = fwDeviceCodes[0] ?: 1
+            boardNameByAddr[0] = boardTitle(deviceCode, fallback = "Cpu module")
         }
 
         // Sub-devices
         baseSubDevicesInfoStructSet.forEach { sub ->
-            boardNameByAddr[sub.deviceAddress] =
-                PreferenceKeysUbi4.DeviceCode
-                    .from(sub.deviceCode)
-                    .title.removeSuffix(" version")      // ← то же
+            val deviceCode = fwDeviceCodes[sub.deviceAddress] ?: sub.deviceCode
+            boardNameByAddr[sub.deviceAddress] = boardTitle(deviceCode)
         }
     }
 
@@ -649,16 +679,20 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
     private fun refreshBoards() {
         // 1) Перекешируем имена
         rebuildBoardNameCache()
+        val cpuInfo = currentCpuInfo()
 
         // 2) Строим список
         val allBoards = buildList {
-            fullInicializeConnectionStruct?.let { cpu ->
-                val versionCpu = fwVersions[0] ?: "${cpu.deviceVersion}.${cpu.deviceSubVersion}"
+            if (cpuInfo != null || fwVersions.containsKey(0) || fwDeviceCodes.containsKey(0)) {
+                val versionCpu = fwVersions[0]
+                    ?: cpuInfo?.let { subDeviceVersion(it.deviceVersion, it.deviceSubVersion) }
+                    ?: "—"
+                val deviceCode = fwDeviceCodes[0] ?: cpuInfo?.deviceCode ?: 1
                 val nameCpu = boardNameByAddr[0] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameCpu,
-                        deviceCode    = cpu.deviceCode,
+                        deviceCode    = deviceCode,
                         deviceAddress = 0,
                         canUpdate     = true,
                         version       = versionCpu,
@@ -669,12 +703,15 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
 
             baseSubDevicesInfoStructSet.forEach { sub ->
                 val addr = sub.deviceAddress
-                val versionSub = fwVersions.getOrDefault(addr, "—")
+                val versionSub = fwVersions[addr]
+                    ?: sub.fwVersion.takeIf { it.isNotBlank() }
+                    ?: subDeviceVersion(sub.deviceVersion, sub.deviceSubVersion)
+                    ?: "—"
                 val nameSub = boardNameByAddr[addr] ?: getString(SharedRes.strings.unknown_board.resourceId)
                 add(
                     BootloaderBoardItemUBI4(
                         boardName     = nameSub,
-                        deviceCode    = sub.deviceCode,
+                        deviceCode    = fwDeviceCodes[addr] ?: sub.deviceCode,
                         deviceAddress = addr,
                         canUpdate     = true,
                         version       = versionSub,
@@ -685,7 +722,8 @@ class AccountFragmentMainUBI4: BaseWidgetsFragment() {
         }
             .distinctBy { it.deviceAddress }
         val builtBoards = allBoards.filter {
-            it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
+            it.deviceAddress == 0 ||
+                it.boardName != getString(SharedRes.strings.unknown_board.resourceId) &&
                 !it.boardName.equals("Unknown", ignoreCase = true)
         }
 

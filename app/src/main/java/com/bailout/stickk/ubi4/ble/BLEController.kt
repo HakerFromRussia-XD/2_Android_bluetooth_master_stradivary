@@ -909,6 +909,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
             ),
             V3InitRequest(
+                packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_SPEED_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_FORCE_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
                 packet = requestWithCommand(
                     DEVICE_INFORMATION.number.toInt(),
                     GET_SERIAL_NUMBER.number

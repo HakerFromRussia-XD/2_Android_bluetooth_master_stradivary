@@ -28,12 +28,16 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Prosthe
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_CURRENT_GESTURE_NUM
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_EMG_MOVEMENT_LOCK
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_HAND_CONTROL_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_THRESHOLD_VALUE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
@@ -82,6 +86,10 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt())
                     PWCE_SET_GESTURE_CHANGE_MODE.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt())
+                    PWCE_SET_SPEED_SETTINGS.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_SPEED_SETTINGS.number.toInt())
+                    PWCE_SET_FORCE_SETTINGS.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_FORCE_SETTINGS.number.toInt())
                     else ->
                         BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
                 }
@@ -238,6 +246,8 @@ object WidgetCommandBridgeV3 {
                 PWCE_GET_CURRENT_GESTURE_NUM.number.toInt() -> PWCE_SET_CURRENT_GESTURE_NUM.number.toInt()
                 PWCE_GET_GESTURE_GROUPE.number.toInt() -> PWCE_SET_GESTURE_GROUPE.number.toInt()
                 PWCE_GET_GESTURE_CHANGE_MODE.number.toInt() -> PWCE_SET_GESTURE_CHANGE_MODE.number.toInt()
+                PWCE_GET_SPEED_SETTINGS.number.toInt() -> PWCE_SET_SPEED_SETTINGS.number.toInt()
+                PWCE_GET_FORCE_SETTINGS.number.toInt() -> PWCE_SET_FORCE_SETTINGS.number.toInt()
                 else -> parameterInfo.dataCode
             }
             EMG_MASTER_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {

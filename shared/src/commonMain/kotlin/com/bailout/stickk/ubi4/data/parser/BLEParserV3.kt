@@ -795,11 +795,15 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
                 )
             ),"Время работы экрана")))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
-        ),"Максимальная чувствительность датчиков"))
+        baseParameterWidgetSStruct.add(SliderParameterWidgetSStruct(
+            minProgress = 0,
+            maxProgress = 250,
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
+            ),"Максимальная чувствительность датчиков")
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
@@ -833,18 +837,18 @@ class BLEParserV3(
                 )
             ),"Действие при смене жеста")))
 
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                listOf("Профиль №1", "+"),
-                0
-            ),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-                )
-            ),"Профили настроек")))
+//        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+//            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+//                listOf("Профиль №1", "+"),
+//                0
+//            ),
+//            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+//                display = 2,
+//                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+//                parameterInfoSet = mutableSetOf(
+//                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+//                )
+//            ),"Профили настроек")))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт","ЕМГ 4.1"),0),
@@ -994,6 +998,14 @@ class BLEParserV3(
                     releasedCommand = widget.releasedCommand,
                     baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
                 addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
+            is SliderParameterWidgetSStruct -> {
+                val sliderParameterWidgetSStruct = SliderParameterWidgetSStruct(
+                    minProgress = widget.minProgress,
+                    maxProgress = widget.maxProgress,
+                    increment = widget.increment,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct)
             }
             is ToggleSliderParameterWidgetSStruct -> {
                 val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(

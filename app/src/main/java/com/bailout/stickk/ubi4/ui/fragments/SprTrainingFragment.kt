@@ -66,7 +66,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var warningDialog: Dialog? = null
     private var progressDialog: Dialog? = null
 
-    private var canSendNextChunkFlag = true
+    private var canSendNextChunkFlag = false
     private var sendFileSuccessFlag = true
     private var autoDialogShown = false
     private var loaderDialog: Dialog? = null
@@ -426,9 +426,10 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
 
                     viewLifecycleOwner.lifecycleScope.launch {
+                        val checkpointAddressDevice = if (addressDevice == 0) 10 else addressDevice
                         //TODO РАЗОБРАТЬСЯ с parameterID, нам передается параметерID = 5!!!!
-                        sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, addressDevice, 6)
-                        sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, addressDevice, 6)
+                        sendFileInChunks(fileItem.file.readBytes(), ConstantManagerUBI4.CHECKPOINT_NAME, checkpointAddressDevice, 6)
+                        sendFileInChunks(paramFile.readBytes(), ConstantManagerUBI4.PARAMS_BIN_NAME, checkpointAddressDevice, 6)
                         showWarningLoadingDialog { closeWarningDialog() }
                     }
                 }
@@ -534,6 +535,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 val maxChunkSize = 100 // max 249
                 val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
                 chunksSend = AtomicInteger(0)
+                canSendNextChunkFlag = false
                 bleController.setUploadingState(true) // Устанавливаем флаг загрузки
                 var indexPackage = 0
 
@@ -772,4 +774,3 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     }
 
 }
-

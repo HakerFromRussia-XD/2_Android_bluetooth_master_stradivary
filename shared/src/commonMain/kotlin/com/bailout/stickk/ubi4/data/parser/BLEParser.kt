@@ -379,6 +379,10 @@ class BLEParser(
         var bmsHandled = false
 
         platformLog("updateAllUITest", "deviceAddress =$deviceAddress, parameterID = $parameterID, dataCode = $dataCode")
+        if (dataCode == ParameterDataCodeEnum.PDCE_GENERIC_2.number) {
+            handleFileTransferAckStatus(deviceAddress, parameterID)
+            return
+        }
         ParameterProvider.getParameter(deviceAddress, parameterID).additionalInfoRefSet.forEach {
             //ROOM DB
             persistParamUpdate(scope = coroutineScope, deviceAddr = deviceAddress, parameterId = parameterID, dataCode = dataCode, listWidgets = listWidgets.toList())
@@ -389,38 +393,7 @@ class BLEParser(
                     when(dataCode) {
                         //TODO проверить!
                         ParameterDataCodeEnum.PDCE_GENERIC_2.number -> {
-                            platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
-                            val newStatusExist = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(0, 2).toInt(16).toByte()
-                            )
-                            val errorStatus = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(8, 10).toInt(16).toByte()
-                            )
-                            val packIndex = castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(6, 8).toInt(16).toByte()
-                            ) * 256 + castUnsignedCharToInt(
-                                ParameterProvider.getParameter(deviceAddress, parameterID).data.substringSafe(4, 6).toInt(16).toByte()
-                            )
-                            if (errorStatus != 0 && errorStatus != 255) {
-                                countErrors++
-                            }
-                            platformLog(
-                                "AckDebug",
-                                "raw=${ParameterProvider.getParameter(deviceAddress, parameterID).data}, " +
-                                        "deviceAddress=$deviceAddress, parameterID=$parameterID, dataCode=$dataCode, " +
-                                        "newStatusExist=$newStatusExist, errorStatus=$errorStatus, packIndex=$packIndex"
-                            )
-                            if (newStatusExist == 1 && errorStatus == 0) {
-                                platformLog("AckDebug", "EMIT packIndex=$packIndex")
-                                coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
-                                platformLog("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
-                            }
-                            else {
-                                platformLog(
-                                    "AckDebug",
-                                    "SKIP emit: newStatusExist=$newStatusExist, errorStatus=$errorStatus"
-                                )
-                            }
+                            handleFileTransferAckStatus(deviceAddress, parameterID)
 
                         }
 
@@ -603,6 +576,33 @@ class BLEParser(
             coroutineScope.launch { batteryPercentFlow.emit(percent) }
         }
 
+    }
+
+    private fun handleFileTransferAckStatus(deviceAddress: Int, parameterID: Int) {
+        val raw = ParameterProvider.getParameter(deviceAddress, parameterID).data
+        if (raw.length < 10) return
+
+        platformLog("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID")
+        val newStatusExist = castUnsignedCharToInt(raw.substringSafe(0, 2).toInt(16).toByte())
+        val errorStatus = castUnsignedCharToInt(raw.substringSafe(8, 10).toInt(16).toByte())
+        val packIndex = castUnsignedCharToInt(raw.substringSafe(6, 8).toInt(16).toByte()) * 256 +
+                castUnsignedCharToInt(raw.substringSafe(4, 6).toInt(16).toByte())
+
+        if (errorStatus != 0 && errorStatus != 255) {
+            countErrors++
+        }
+        platformLog(
+            "AckDebug",
+            "raw=$raw, deviceAddress=$deviceAddress, parameterID=$parameterID, " +
+                    "newStatusExist=$newStatusExist, errorStatus=$errorStatus, packIndex=$packIndex"
+        )
+        if (newStatusExist == 1 && errorStatus == 0) {
+            platformLog("AckDebug", "EMIT packIndex=$packIndex")
+            coroutineScope.launch { canSendNextChunkFlagFlow.emit(packIndex) }
+            platformLog("StatusWriteFlash", "data = $raw countErrors = $countErrors")
+        } else {
+            platformLog("AckDebug", "SKIP emit: newStatusExist=$newStatusExist, errorStatus=$errorStatus")
+        }
     }
 
 

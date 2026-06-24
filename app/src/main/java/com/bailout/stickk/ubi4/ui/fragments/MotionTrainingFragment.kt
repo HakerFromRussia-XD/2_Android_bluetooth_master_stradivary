@@ -225,7 +225,6 @@ class MotionTrainingFragment(
         savedInstanceState: Bundle?
     ): View? {
         Log.d("LagSpr", "Motion onCreateView")
-        onDataPacketReceived()
         _binding = Ubi4FragmentMotionTrainingBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -265,6 +264,7 @@ class MotionTrainingFragment(
 
         // Запуск первой фазы тренировки
         startPhase(currentPhaseIndex)
+        onDataPacketReceived()
 
         // Обработка нажатия на кнопку остановки тренировки
         binding.stopTrainingBtn.setOnClickListener {
@@ -486,14 +486,18 @@ class MotionTrainingFragment(
     }
 
     private fun stopTimers() {
-        timer?.cancel()
-        timer = null
-        preparationTimer?.cancel()
-        preparationTimer = null
+        stopPhaseTimers()
         indicationTimer?.cancel()
         indicationTimer = null
         dialogWarningTimer?.cancel()
         dialogWarningTimer = null
+    }
+
+    private fun stopPhaseTimers() {
+        timer?.cancel()
+        timer = null
+        preparationTimer?.cancel()
+        preparationTimer = null
         currentTimerType = TimerType.NONE
     }
 
@@ -566,7 +570,7 @@ class MotionTrainingFragment(
 
 
     private fun startCountdown(phase: GesturePhase, phaseIndex: Int) {
-        stopTimers()
+        stopPhaseTimers()
         currentTimerType = TimerType.COUNTDOWN
 
         timerDuration = (phase.timeGesture * 1000).toLong()
@@ -623,7 +627,7 @@ class MotionTrainingFragment(
     }
 
     private fun startPreparationCountDown(phase: GesturePhase, phaseIndex: Int) {
-        stopTimers()
+        stopPhaseTimers()
         currentTimerType = TimerType.PREPARATION
 
         preparationDuration = (phase.timeGesture * 1000).toLong()

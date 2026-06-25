@@ -38,6 +38,7 @@ final class AccountGamesViewController: UIViewController {
     private var manifestLoadFailed = false
     private var manifestFailedBecauseOffline = false
     private var currentAction: GameAction = .unavailable
+    private let gameDebugLogPrefix = "[BLE stk-game debug]"
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -376,21 +377,33 @@ final class AccountGamesViewController: UIViewController {
     }
 
     private func isGameInstalled() -> Bool {
-        guard let url = URL(string: "\(remoteGame?.urlScheme ?? Constants.fallbackScheme)://launch") else {
+        let scheme = remoteGame?.urlScheme ?? Constants.fallbackScheme
+        guard let url = URL(string: "\(scheme)://launch") else {
+            NSLog("\(gameDebugLogPrefix) ios games invalid launch url scheme=\(scheme)")
             return false
         }
-        return UIApplication.shared.canOpenURL(url)
+
+        let canOpen = UIApplication.shared.canOpenURL(url)
+        let hasMarker = installedGameInfo() != nil
+        NSLog("\(gameDebugLogPrefix) ios games installed check scheme=\(scheme) canOpenURL=\(canOpen ? 1 : 0) appGroupMarker=\(hasMarker ? 1 : 0)")
+        return canOpen || hasMarker
     }
 
     private func installedGameInfo() -> InstalledGameInfo? {
-        guard isGameInstalled(),
-              let defaults = UserDefaults(suiteName: Constants.appGroup),
-              let dictionary = defaults.dictionary(forKey: Constants.installedGameKey) else {
+        guard let defaults = UserDefaults(suiteName: Constants.appGroup) else {
+            NSLog("\(gameDebugLogPrefix) ios games app group unavailable: \(Constants.appGroup)")
+            return nil
+        }
+
+        guard let dictionary = defaults.dictionary(forKey: Constants.installedGameKey) else {
+            NSLog("\(gameDebugLogPrefix) ios games app group marker missing key=\(Constants.installedGameKey)")
             return nil
         }
 
         let bundleId = dictionary["bundleId"] as? String
-        if let bundleId, bundleId != (remoteGame?.bundleId ?? Constants.fallbackBundleId) {
+        let expectedBundleId = remoteGame?.bundleId ?? Constants.fallbackBundleId
+        if let bundleId, bundleId != expectedBundleId {
+            NSLog("\(gameDebugLogPrefix) ios games app group marker bundle mismatch actual=\(bundleId) expected=\(expectedBundleId)")
             return nil
         }
 
@@ -403,6 +416,7 @@ final class AccountGamesViewController: UIViewController {
         } else {
             versionCode = 0
         }
+        NSLog("\(gameDebugLogPrefix) ios games app group marker found versionName=\(versionName) versionCode=\(versionCode)")
         return InstalledGameInfo(versionName: versionName, versionCode: versionCode)
     }
 

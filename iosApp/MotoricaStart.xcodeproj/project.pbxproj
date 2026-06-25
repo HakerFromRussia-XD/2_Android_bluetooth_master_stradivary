@@ -40,8 +40,6 @@
 		1F903535230759AC00DEA4BD /* WidgetQueryEntity+Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F903534230759AC00DEA4BD /* WidgetQueryEntity+Mapping.swift */; };
 		1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA2048F242F528E000C4B56 /* LoadingView.swift */; };
 		1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA5338C201E1FDE00747E55 /* AppDelegate.swift */; };
-		65AA10012FB0000100AA1001 /* GameControlBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */; };
-		65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */; };
 		1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
 		1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */; };
 		1FA533B2201EE2A500747E55 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533B1201EE2A500747E55 /* Widget.swift */; };
@@ -144,7 +142,9 @@
 		65A2A0D12E6F1E2F00D57E7C /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 65A2A0D02E6F1E2F00D57E7C /* DGCharts */; settings = {ATTRIBUTES = (Required, ); }; };
 		65AA00012F8F000100AAA001 /* PlotViewCellV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */; };
 		65AA00022F8F000100AAA001 /* PlotListItemViewModelV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */; };
+		65AA10012FB0000100AA1001 /* GameControlBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */; };
 		65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCA022F90000100ACCA01 /* AccountViewController.swift */; };
+		65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */; };
 		65B2E0EE2E3918B400D67731 /* WidgetsListViewModelActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */; };
 		65B52B0F2DF7062A00FE1430 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B52B0E2DF7062700FE1430 /* CustomSlider.swift */; };
 		65BDBAD92EA7DAF500685580 /* GestureViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */; };
@@ -154,6 +154,8 @@
 		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
 		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
 		65C0DE012FA5000100C0DE01 /* BleLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */; };
+		65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */; };
+		65DF01032FBC000100000003 /* OldMotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; };
 		65EAF4822ED865D400B3C49D /* indication.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4792ED865D400B3C49D /* indication.lottie */; };
 		65EAF4832ED865D400B3C49D /* adduction.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4772ED865D400B3C49D /* adduction.lottie */; };
 		65EAF4842ED865D400B3C49D /* pronation.lottie in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF47D2ED865D400B3C49D /* pronation.lottie */; };
@@ -185,8 +187,6 @@
 		65F27ED22E6709E600AD5DFD /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27ED12E6709D200AD5DFD /* CustomButton.swift */; };
 		65F27F012E67294800AD5DFD /* CustomSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F002E67294700AD5DFD /* CustomSwitcher.swift */; };
 		65F27F062E673DAB00AD5DFD /* WidgetsListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F27F052E673DAA00AD5DFD /* WidgetsListTableView.swift */; };
-		65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */; };
-		65DF01032FBC000100000003 /* OldMotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; };
 		66A0D10130B2AA0000000001 /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11130B2AA0000000001 /* AAPLOpenGLViewController.m */; };
 		66A0D10230B2AA0000000002 /* AAPLOpenGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11330B2AA0000000003 /* AAPLOpenGLRenderer.m */; };
 		66A0D10330B2AA0000000003 /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 66A0D11730B2AA0000000007 /* AAPLMeshData.mm */; };
@@ -338,9 +338,6 @@
 		1FA2048F242F528E000C4B56 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		1FA53389201E1FDE00747E55 /* MotoricaStart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FA5338C201E1FDE00747E55 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControlBroadcaster.swift; sourceTree = "<group>"; };
-		65AA10032FB0000100AA1003 /* MotoricaStart.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MotoricaStart.entitlements; sourceTree = "<group>"; };
-		65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGamesViewController.swift; sourceTree = "<group>"; };
 		1FA53393201E1FDE00747E55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1FA53398201E1FDE00747E55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -392,7 +389,6 @@
 		5CAA728710A48AE17B5F24A9 /* Grib3DSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Grib3DSettingsViewController.swift; path = ViewControllers/Main/Grib3DSettingsViewController.swift; sourceTree = "<group>"; };
 		5D0A2EFC768621B75CB1EECF /* ModelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModelController.swift; path = "test transition/ModelController.swift"; sourceTree = "<group>"; };
 		5DD218898AA2AD49F5627DF7 /* OldMotoricaStart.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OldMotoricaStart.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartDataManagerTests.swift; sourceTree = "<group>"; };
 		651DDBA62EFC1EF000199FD8 /* UserDefaultsKeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorage.swift; sourceTree = "<group>"; };
 		651DDBA82EFC1F3E00199FD8 /* BluetoothStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeys.swift; sourceTree = "<group>"; };
 		651DDBAC2EFC1F9300199FD8 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
@@ -439,7 +435,10 @@
 		65A069312E6EFD9500990F76 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
 		65AA00032F8F000100AAA001 /* PlotViewCellV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotViewCellV3.swift; sourceTree = "<group>"; };
 		65AA00042F8F000100AAA001 /* PlotListItemViewModelV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotListItemViewModelV3.swift; sourceTree = "<group>"; };
+		65AA10022FB0000100AA1002 /* GameControlBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControlBroadcaster.swift; sourceTree = "<group>"; };
+		65AA10032FB0000100AA1003 /* MotoricaStart.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MotoricaStart.entitlements; sourceTree = "<group>"; };
 		65ACCA022F90000100ACCA01 /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
+		65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountGamesViewController.swift; sourceTree = "<group>"; };
 		65B2E0ED2E38F88300D67731 /* WidgetsListViewModelActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetsListViewModelActions.swift; path = ../../WidgetsListViewModelActions.swift; sourceTree = "<group>"; };
 		65B52B0E2DF7062700FE1430 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		65BDBAD82EA7DAF500685580 /* GestureViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureViewCell.swift; sourceTree = "<group>"; };
@@ -449,6 +448,7 @@
 		65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandBridge.swift; sourceTree = "<group>"; };
 		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleLogViewController.swift; sourceTree = "<group>"; };
+		65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartDataManagerTests.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
 		65EAF4772ED865D400B3C49D /* adduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = adduction.lottie; sourceTree = "<group>"; };
 		65EAF4782ED865D400B3C49D /* close.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = close.lottie; sourceTree = "<group>"; };
@@ -2268,7 +2268,7 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = R7K637DW83;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
@@ -2279,7 +2279,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.13;
+				MARKETING_VERSION = 3.1.14;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
@@ -2303,7 +2303,7 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = R7K637DW83;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
@@ -2314,7 +2314,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.13;
+				MARKETING_VERSION = 3.1.14;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
@@ -2397,13 +2397,13 @@
 					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
 				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				MARKETING_VERSION = 3.0.13;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 3.0.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.old;
 				PRODUCT_MODULE_NAME = OldMotoricaStart;
 				PRODUCT_NAME = OldMotoricaStart;
@@ -2437,13 +2437,13 @@
 					"$(OBJECT_FILE_DIR_normal)/$(CURRENT_ARCH)",
 				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				MARKETING_VERSION = 3.0.13;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 3.0.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.start.old;
 				PRODUCT_MODULE_NAME = OldMotoricaStart;
 				PRODUCT_NAME = OldMotoricaStart;

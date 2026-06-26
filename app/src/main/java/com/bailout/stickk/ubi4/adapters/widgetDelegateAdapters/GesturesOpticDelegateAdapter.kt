@@ -467,24 +467,6 @@ class GesturesOpticDelegateAdapter(
         val normalizedFilter = activeFilter.coerceIn(1, 3)
         if (!force && lastRenderedFilter == normalizedFilter) return
 
-        val density = main.resources.displayMetrics.density
-        val marginPx = 18f * density
-        val extraOffsetPx = 3f * density
-        val containerWidth = (_ubi4GesturesSelectorV.width.takeIf { it > 0 }
-            ?: _ubi4GesturesSelectorV.measuredWidth).toFloat()
-        val buttonWidth = containerWidth / 3f
-        val indicatorX = (normalizedFilter - 1) * buttonWidth + marginPx + when (normalizedFilter) {
-            2 -> extraOffsetPx - density
-            3 -> extraOffsetPx * 2
-            else -> 0f
-        }
-
-        if (normalizedFilter != 1 && containerWidth == 0f && !force) {
-            _ubi4GesturesSelectorV.post {
-                renderFilterUI(normalizedFilter, animate = false, force = true)
-            }
-        }
-
         val collectionTargetColor = if (normalizedFilter == 1) {
             main.getColor(R.color.white)
         } else {
@@ -501,8 +483,33 @@ class GesturesOpticDelegateAdapter(
             main.getColor(R.color.ubi4_deactivate_text)
         }
 
+        val density = main.resources.displayMetrics.density
+        val extraOffsetPx = 3f * density
+        val containerWidth = (_ubi4GesturesSelectorV.width.takeIf { it > 0 }
+            ?: _ubi4GesturesSelectorV.measuredWidth).toFloat()
+        if (normalizedFilter != 1 && containerWidth == 0f) {
+            _collectionOfGesturesTv.setTextColor(collectionTargetColor)
+            _rotationGroupTv.setTextColor(rotationTargetColor)
+            _bindingGroupTv.setTextColor(bindingTargetColor)
+            showFilterContainers(normalizedFilter)
+            if (_activeGestureNameCl.visibility != View.VISIBLE) {
+                _activeGestureNameCl.visibility = View.VISIBLE
+            }
+            _ubi4GesturesSelectorV.post {
+                renderFilterUI(normalizedFilter, animate = false, force = true)
+            }
+            return
+        }
+
+        val buttonWidth = containerWidth / 3f
+        val indicatorTranslationX = (normalizedFilter - 1) * buttonWidth + when (normalizedFilter) {
+            2 -> extraOffsetPx - density
+            3 -> extraOffsetPx * 2
+            else -> 0f
+        }
+
         if (animate && lastRenderedFilter != null) {
-            ObjectAnimator.ofFloat(_gesturesSelectV, "x", indicatorX)
+            ObjectAnimator.ofFloat(_gesturesSelectV, "translationX", indicatorTranslationX)
                 .setDuration(ANIMATION_DURATION.toLong())
                 .start()
 
@@ -539,7 +546,7 @@ class GesturesOpticDelegateAdapter(
                 start()
             }
         } else {
-            _gesturesSelectV.x = indicatorX
+            _gesturesSelectV.translationX = indicatorTranslationX
             _collectionOfGesturesTv.setTextColor(collectionTargetColor)
             _rotationGroupTv.setTextColor(rotationTargetColor)
             _bindingGroupTv.setTextColor(bindingTargetColor)

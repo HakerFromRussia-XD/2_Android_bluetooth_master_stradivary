@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecActionV3
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
@@ -411,6 +412,7 @@ class SliderDelegateAdapterV3(
                 )
                 val newTyped = ParameterTypedValueV3.EmgGains(emgGainResult)
                 ParameterStoreV3.put(parameterInfo, newTyped)
+                SettingsProfileManager.saveBleValue(parameterInfo, newTyped)
                 ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
                     ParameterProvider.getParameterV3(parameterInfo).data = encoded
                 }
@@ -423,6 +425,7 @@ class SliderDelegateAdapterV3(
                 val sliderValue = encodedAction.value
                 val newTyped = ParameterTypedValueV3.Slider(SliderV3(sliderValue = sliderValue))
                 ParameterStoreV3.put(parameterInfo, newTyped)
+                SettingsProfileManager.saveBleValue(parameterInfo, newTyped)
                 ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, newTyped)?.let { encoded ->
                     ParameterProvider.getParameterV3(parameterInfo).data = encoded
                 }

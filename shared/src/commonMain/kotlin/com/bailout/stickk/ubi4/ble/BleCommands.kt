@@ -8,6 +8,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DATA_TRANSFER_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommands.WRITE_FW_COMMAND
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_AVAILABLE_SLOTS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_DEVICE_INFO_TYPE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataTableSlotsCode.DTCE_FW_INFO_TYPE
@@ -382,8 +383,8 @@ object BLECommands {
             deviceAddress.toByte()
         )
         val data = byteArrayOf(
-            READ_DATA.number,
-            DTCE_ML_MODEL_DATA.number
+            READ_AVAILABLE_SLOTS.number,
+            deviceAddress.toByte()
         )
         header[3] = data.size.toByte()
         header[4] = (data.size / 256).toByte()

@@ -19,6 +19,7 @@ object UiState {
     val fullInitInProgress = MutableStateFlow(false)
     val startupInProgress = MutableStateFlow(false)
     val v3WidgetsInteractionEnabled = MutableStateFlow(false)
+    val isServiceEngineerRole = MutableStateFlow(false)
     val widgetsLoadingProgressFlow = MutableStateFlow(
         WidgetsLoadingProgress(current = 0, total = 0)
     )

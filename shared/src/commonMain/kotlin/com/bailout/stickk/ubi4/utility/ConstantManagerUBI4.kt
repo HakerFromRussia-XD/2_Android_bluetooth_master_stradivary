@@ -45,9 +45,11 @@ interface ConstantManagerUBI4 {
         const val P_KEY_LEFT_RIGHT_HAND = "P_KEY_LEFT_RIGHT_HAND"
         const val P_KEY_SET_DEVICE_NAME = "P_KEY_SET_DEVICE_NAME"
         const val P_KEY_SET_SERIAL_NUMBER = "P_KEY_SET_SERIAL_NUMBER"
+        const val P_KEY_DEVICE_ROLE = "P_KEY_DEVICE_ROLE"
         const val P_KEY_EMG_MAX_GAIN_VALUE = "P_KEY_EMG_MAX_GAIN_VALUE"
         const val P_KEY_SPEED_SETTINGS = "P_KEY_SPEED_SETTINGS"
         const val P_KEY_FORCE_SETTINGS = "P_KEY_FORCE_SETTINGS"
+        const val P_KEY_SETTINGS_PROFILE = "P_KEY_SETTINGS_PROFILE"
 
 
 

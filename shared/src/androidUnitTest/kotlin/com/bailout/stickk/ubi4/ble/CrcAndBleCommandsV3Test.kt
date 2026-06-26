@@ -3,10 +3,12 @@ package com.bailout.stickk.ubi4.ble
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.DEVICE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.EMG_MASTER_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.PROSTHESIS_MODULE_CONTROL
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.SUB_DEVICE_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand.READ_AVAILABLE_SLOTS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.EMCE_SET_EMG_GAIN_VALUE
@@ -30,6 +32,18 @@ class CrcAndBleCommandsV3Test {
         assertEquals(5, packet.size)
         assertEquals(SUB_DEVICE_MANAGER.number.toInt(), packet[1].toInt() and 0xFF)
         assertEquals(GET_ALL_SUB_DEVICE.number.toInt(), packet[2].toInt() and 0xFF)
+        assertEquals(crcExcludeLast(packet), packet[4].toInt() and 0xFF)
+    }
+
+    @Test
+    fun `requestAvailableSlots should use short data manager packet`() {
+        val packet = BLECommandsV3.requestAvailableSlots(deviceAddress = 8)
+
+        assertEquals(5, packet.size)
+        assertEquals(0x00, packet[0].toInt() and 0xFF)
+        assertEquals(DATA_MANAGER.number.toInt(), packet[1].toInt() and 0xFF)
+        assertEquals(READ_AVAILABLE_SLOTS.number.toInt(), packet[2].toInt() and 0xFF)
+        assertEquals(8, packet[3].toInt() and 0xFF)
         assertEquals(crcExcludeLast(packet), packet[4].toInt() and 0xFF)
     }
 

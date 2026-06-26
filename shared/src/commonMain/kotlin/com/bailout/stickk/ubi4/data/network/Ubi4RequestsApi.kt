@@ -9,6 +9,7 @@ import com.bailout.stickk.ubi4.models.network.LoginResponse
 import com.bailout.stickk.ubi4.models.network.PassportResponse
 import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
+import com.bailout.stickk.ubi4.models.network.TelemetryMessagesRequest
 import com.bailout.stickk.ubi4.models.user.User
 import com.bailout.stickk.ubi4.models.user.UserV2
 import io.ktor.client.HttpClient
@@ -185,6 +186,19 @@ class Ubi4RequestsApi(
             },
             decode = { it.body() }
         )
+
+    suspend fun postTelemetryMessages(
+        request: TelemetryMessagesRequest
+    ): NetworkResult<Unit> = safePost(
+        client = userClient,
+        builder = {
+            url(BaseUrlUtilsUBI4.TELEMETRY_MESSAGES_URL)
+            header("X-Signature", BaseUrlUtilsUBI4.TELEMETRY_SIGNATURE)
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        },
+        decode = { Unit }
+    )
 
     // ==== HELPERS ====
 

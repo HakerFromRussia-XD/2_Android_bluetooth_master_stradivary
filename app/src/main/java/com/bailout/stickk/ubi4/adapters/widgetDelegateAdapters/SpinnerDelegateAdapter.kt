@@ -54,8 +54,10 @@ class SpinnerDelegateAdapter(
     private val spinnerInfoList = mutableListOf<WidgetSpinnerInfo>()
     private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
 
+    private val roleItems = listOf("Протезист", "Сервисный инженер","Не выбрано")
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
+    private val roleDefaultIndex = 2
 
     // TODO: возьми реальный PIN
     private val SECRET_PIN = "1234"
@@ -71,6 +73,7 @@ class SpinnerDelegateAdapter(
         val addressDeviceList = mutableListOf<Int>()
         val parameterIDList = mutableListOf<Int>()
         var selectedIndexFromWidget = 0
+        var spinnerItemsFromWidget: List<String> = emptyList()
 
         when (val widget = item.widget) {
             is SpinnerParameterWidgetEStruct -> {
@@ -79,6 +82,7 @@ class SpinnerDelegateAdapter(
                     parameterIDList.add(it.parameterID)
                 }
                 selectedIndexFromWidget = widget.dataSpinnerParameterWidgetStruct.selectedIndex
+                spinnerItemsFromWidget = widget.dataSpinnerParameterWidgetStruct.spinnerItems
             }
 
             is SpinnerParameterWidgetSStruct -> {
@@ -87,6 +91,7 @@ class SpinnerDelegateAdapter(
                     parameterIDList.add(it.parameterID)
                 }
                 selectedIndexFromWidget = widget.dataSpinnerParameterWidgetStruct.selectedIndex
+                spinnerItemsFromWidget = widget.dataSpinnerParameterWidgetStruct.spinnerItems
             }
 
             else -> Log.w("SpinnerDelegateAdapter", "Unknown widget type: ${item.widget}")
@@ -94,15 +99,20 @@ class SpinnerDelegateAdapter(
 
         val addressDevice = addressDeviceList.firstOrNull() ?: 0
         val parameterID = parameterIDList.firstOrNull() ?: 0
+        val isRoleSelector = item.title == "Роль" || item.title == "Уровень доступа"
+        val spinnerItems = if (isRoleSelector) roleItems else spinnerItemsFromWidget
 
-        val roleItems = localizedRoleItems(root.context)
         val prefs = spinnerPsv.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val savedIndex = prefs.getInt(roleSelectedKey(addressDevice, parameterID), selectedIndexFromWidget)
-            .coerceIn(roleItems.indices)
+        val savedIndex = if (isRoleSelector) {
+            prefs.getInt(roleSelectedKey(addressDevice, parameterID), roleDefaultIndex)
+                .coerceIn(roleItems.indices)
+        } else {
+            if (spinnerItems.isNotEmpty()) selectedIndexFromWidget.coerceIn(spinnerItems.indices) else 0
+        }
 
         spinnerTv.text = item.title
 
-        spinnerPsv.setItems(roleItems)
+        spinnerPsv.setItems(spinnerItems)
         spinnerPsv.apply {
             setTextColor(ContextCompat.getColor(context, R.color.white))
             textSize = 12f
@@ -111,13 +121,15 @@ class SpinnerDelegateAdapter(
         }
 
         // стартовое состояние — из prefs (если есть), иначе из структуры
-        spinnerPsv.selectItemByIndex(savedIndex)
+        if (spinnerItems.isNotEmpty()) {
+            spinnerPsv.selectItemByIndex(savedIndex)
+        }
 
         val info = WidgetSpinnerInfo(
             addressDevice = addressDevice,
             parameterID = parameterID,
             spinner = spinnerPsv,
-            items = roleItems
+            items = spinnerItems
         )
 
         spinnerInfoList.add(info)
@@ -138,8 +150,7 @@ class SpinnerDelegateAdapter(
             // закрываем попап сразу
             spinnerPsv.dismiss()
 
-            if (newIndex == serviceEngineerIndex) {
-                // Всегда требуем PIN для "Сервисный инженер"
+            if (isRoleSelector && (newIndex == prosthetistIndex || newIndex == serviceEngineerIndex)) {
                 showPinCodeDialog(
                     context = spinnerPsv.context,
                     onSuccess = {
@@ -147,17 +158,15 @@ class SpinnerDelegateAdapter(
                         onSpinnerItemSelected(addressDevice, parameterID, newIndex)
                     },
                     onCancelOrFail = {
-                        // откат на "Протезист"
-                        spinnerPsv.selectItemByIndex(prosthetistIndex)
-                        persistSelectedIndex(prefs, addressDevice, parameterID, prosthetistIndex)
-                        onSpinnerItemSelected(addressDevice, parameterID, prosthetistIndex)
+                        spinnerPsv.selectItemByIndex(savedIndex)
                     }
                 )
                 return@setOnSpinnerItemSelectedListener
             }
 
-            // "Протезист"
-            persistSelectedIndex(prefs, addressDevice, parameterID, newIndex)
+            if (isRoleSelector) {
+                persistSelectedIndex(prefs, addressDevice, parameterID, newIndex)
+            }
             onSpinnerItemSelected(addressDevice, parameterID, newIndex)
         }
 
@@ -225,12 +234,6 @@ class SpinnerDelegateAdapter(
     private fun roleSelectedKey(addressDevice: Int, parameterID: Int): String =
         "UBI4_ROLE_SELECTED_${addressDevice}_$parameterID"
 
-    private fun localizedRoleItems(context: Context): List<String> =
-        listOf(
-            context.getString(SharedRes.strings.prosthetist.resourceId),
-            context.getString(SharedRes.strings.service_engineer.resourceId)
-        )
-
     private fun collectSpinnerUpdates() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
@@ -288,10 +291,10 @@ class SpinnerDelegateAdapter(
             dialog.dismiss()
 
             if (ok) {
-                Toast.makeText(context, context.getString(SharedRes.strings.pin_access_granted.resourceId), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
                 onSuccess()
             } else {
-                Toast.makeText(context, context.getString(SharedRes.strings.invalid_pin.resourceId), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
                 onCancelOrFail()
             }
         }

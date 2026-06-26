@@ -20,6 +20,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -46,6 +47,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -55,6 +57,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.batteryPercentFlow
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
@@ -80,6 +83,8 @@ import com.bailout.stickk.ubi4.ui.fragments.account.games.AccountGamesFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
+import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4
@@ -136,6 +141,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @Volatile private var queueWorkerRunning = false
     private var queueWorker: Thread? = null
     private lateinit var bottomNavigationController: BottomNavigationController
+    private lateinit var telemetryCoordinator: TelemetryCoordinator
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -155,6 +161,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         initAllVariables()
         showStartupLoaderIfNeeded()
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+        SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -171,6 +178,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 ensureSyncDialogShown()
             }
         }
+        telemetryCoordinator = TelemetryCoordinator(
+            scope = lifecycleScope,
+            requestTelemetryData = { mBLEController.requestTelemetryDataV3() },
+            fallbackDeviceIds = {
+                listOf(
+                    getCurrentSerial(),
+                    mDeviceName,
+                    connectedDeviceName,
+                    loadText(CONNECTED_DEVICE)
+                )
+            },
+            showToast = ::showToast
+        )
         mBLEController.initBLEStructure()
         mBLEController.connectToSavedDeviceNow()
         bluetoothLeService = BluetoothLeService()
@@ -231,8 +251,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 //        binding.runCommandBtn.setOnClickListener {
-////            main.getBLEController().requestSerialNumberV3()
-//            main.getBLEController().requestTelemetryDataV3()
+//            telemetryCoordinator.sendTelemetry()
 //        }
 
         val accountPb = binding.accountPb.apply {
@@ -361,6 +380,46 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         )
     }
 
+    override fun showDashboardSlotsScreen(deviceAddress: Int) {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = DashboardSlotsFragment.newInstance(deviceAddress),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showDashboardSlotContentScreen(
+        deviceAddress: Int,
+        dataCode: Int,
+        title: String,
+        version: Int,
+        subVersion: Int,
+        declaredSize: Int
+    ) {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = DashboardSlotContentFragment.newInstance(
+                deviceAddress = deviceAddress,
+                dataCode = dataCode,
+                title = title,
+                version = version,
+                subVersion = subVersion,
+                declaredSize = declaredSize
+            ),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = true
+        )
+    }
+
     override fun showGamesScreen() {
         if (activeFragment is AccountGamesFragment) return
         showTopStatusBar()
@@ -398,14 +457,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         launchFragmentWithStack(helpFragment, withSlideAnimation = true)
-    }
-
-    override fun showBleLogScreen() {
-        if (activeFragment is BleLogFragment) return
-        showTopStatusBar()
-        setStatusBarBackMode(enabled = true)
-        hideBottomNavigationAnimated()
-        launchFragmentWithStack(BleLogFragment(), withSlideAnimation = true)
     }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
@@ -642,6 +693,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
+            currentSerial = connectedDeviceName
+            SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
@@ -654,6 +707,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val serial = "${info.deviceUUIDPrefix}${'-'}${'0'}${info.formattedDeviceUUID}"
         mDeviceName = serial
         currentSerial = mDeviceName
+        SettingsProfileManager.setCurrentSerial(currentSerial)
         val displayName = NameUtil.getDisplayName(serial)
         runOnUiThread { binding.nameTv.text = displayName }
     }
@@ -664,13 +718,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
+        SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }
     }
 
     fun getCurrentSerial(): String? = currentSerial
-
 
     private fun sendFwInfoRequests() {
         bleParser.sendFwInfoRequestsWithRetry()

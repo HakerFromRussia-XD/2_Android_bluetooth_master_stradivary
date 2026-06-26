@@ -5,6 +5,9 @@ import com.bailout.stickk.ubi4.ble.BleCommandExecutor
 import com.bailout.stickk.ubi4.ble.BleManagerKmm
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.state.DashboardSlotContentState
+import com.bailout.stickk.ubi4.data.state.DashboardSlotInfo
+import com.bailout.stickk.ubi4.data.state.DashboardSlotsState
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.FirmwareInfoState
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
@@ -59,6 +62,7 @@ import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
@@ -78,9 +82,12 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_PLOT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
+import kotlinx.datetime.Clock
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.local.toMaxChunkSizeInfo
@@ -97,6 +104,7 @@ class BLEParserV3(
     private var gameControlPacketSeq = 0L
 
     private companion object {
+        const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val TELEMETRY_EXPECTED_SIZE = 158
         const val TELEMETRY_DEVICE_UUID_OFFSET = 2
         const val TELEMETRY_DEVICE_UUID_SIZE = 32
@@ -224,6 +232,62 @@ class BLEParserV3(
                         )
                         return
                     }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_AVAILABLE_SLOTS.number.toInt()
+                    ) {
+                        platformLog(
+                            DASHBOARD_SLOTS_LOG_TAG,
+                            "RX READ_AVAILABLE_SLOTS packetAddress=0x${receivePacket.address.toHexByte()} " +
+                                "raw=$receiveDataString payload=${payload.copyFrom(0).toHexLog()}"
+                        )
+                        parseAvailableSlots(receivePacket.address, payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_DATA.number.toInt()
+                    ) {
+                        parseSlotData(payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand == DataManagerCommand.READ_DATA_PART.number.toInt()
+                    ) {
+                        parseSlotDataPart(payload)
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
+                    if (receivePacket.command == DATA_MANAGER.number.toInt() &&
+                        responseSubcommand in setOf(
+                            DataManagerCommand.WRITE_DATA.number.toInt(),
+                            DataManagerCommand.WRITE_DATA_PART.number.toInt(),
+                            DataManagerCommand.SAVE_DATA.number.toInt(),
+                            DataManagerCommand.RESET_TO_FACTORY.number.toInt()
+                        )
+                    ) {
+                        DashboardSlotContentState.updateStatus(
+                            "Команда ${responseSubcommand.toDataManagerCommandName()} выполнена"
+                        )
+                        bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
+                        platformLog(
+                            "sendBytesKmm",
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
+                        )
+                        return
+                    }
                     val route = WidgetResponseRoutesV3.find(
                         command = receivePacket.command,
                         responseSubcommand = responseSubcommand
@@ -255,6 +319,102 @@ class BLEParserV3(
             "sendBytesKmm",
             "А тут разрешаем протолкнуть следующую команду allowNextV3 "
         )
+    }
+
+    private fun parseAvailableSlots(deviceAddress: Int, payload: ByteArrayView) {
+        val slotSize = 12
+        val slots = mutableListOf<DashboardSlotInfo>()
+        var offset = 1
+        var rawSlotIndex = 0
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "parse payloadLength=${payload.length} slotBytes=${(payload.length - 1).coerceAtLeast(0)} " +
+                "expectedSlotCount=${(payload.length - 1).coerceAtLeast(0) / slotSize}"
+        )
+
+        while (offset + slotSize <= payload.length) {
+            val dataCode = payload.u8(offset)
+            val slotRaw = payload.copyRange(offset, slotSize)
+            if (dataCode != 0x00 && dataCode != 0xFF) {
+                val slot = DashboardSlotInfo(
+                    deviceAddress = deviceAddress,
+                    dataCode = dataCode,
+                    dataType = payload.u8(offset + 1),
+                    dataTypeVersion = payload.u8(offset + 2),
+                    dataTypeSubVersion = payload.u8(offset + 3),
+                    dataSize = payload.leUInt16(offset + 4),
+                    startAddressShift = payload.leUInt16(offset + 6),
+                    crc = payload.u8(offset + 8)
+                )
+                slots += slot
+                platformLog(
+                    DASHBOARD_SLOTS_LOG_TAG,
+                    "slot[$rawSlotIndex] 0x${slot.dataCode.toHexByte()} - ${slot.dataCode.toSlotLogName()} " +
+                        "(v${slot.dataTypeVersion}.${slot.dataTypeSubVersion}) " +
+                        "type=${slot.dataType} size=${slot.dataSize} shift=${slot.startAddressShift} " +
+                        "crc=0x${slot.crc.toHexByte()} raw=${slotRaw.toHexLog()}"
+                )
+            } else {
+                platformLog(
+                    DASHBOARD_SLOTS_LOG_TAG,
+                    "slot[$rawSlotIndex] ignored dataCode=0x${dataCode.toHexByte()} raw=${slotRaw.toHexLog()}"
+                )
+            }
+            offset += slotSize
+            rawSlotIndex++
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "DATA_MANAGER READ_AVAILABLE_SLOTS parsed deviceAddress=$deviceAddress slotCount=${slots.size}"
+        )
+        DashboardSlotsState.updateSlots(deviceAddress, slots)
+    }
+
+    private fun parseSlotData(payload: ByteArrayView) {
+        if (payload.length < 2) {
+            DashboardSlotContentState.updateStatus("Ответ READ_DATA пустой")
+            return
+        }
+
+        val dataCode = payload.u8(1)
+        val data = if (payload.length > 2) {
+            payload.copyRange(2, payload.length - 2)
+                .map { it.toInt() and 0xFF }
+        } else {
+            emptyList()
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "RX READ_DATA dataCode=0x${dataCode.toHexByte()} bytes=${data.size} data=${data.toHexLog()}"
+        )
+        DashboardSlotContentState.updateData(dataCode, data)
+    }
+
+    private fun parseSlotDataPart(payload: ByteArrayView) {
+        if (payload.length < 10) {
+            DashboardSlotContentState.updateStatus("Ответ READ_DATA_PART слишком короткий")
+            return
+        }
+
+        val dataCode = payload.u8(1)
+        val dataOffset = payload.leUInt32(2).toInt()
+        val dataSize = payload.leUInt32(6).toInt()
+        val data = if (payload.length > 10) {
+            payload.copyRange(10, payload.length - 10)
+                .map { it.toInt() and 0xFF }
+        } else {
+            emptyList()
+        }
+
+        platformLog(
+            DASHBOARD_SLOTS_LOG_TAG,
+            "RX READ_DATA_PART dataCode=0x${dataCode.toHexByte()} offset=$dataOffset " +
+                "declaredPartSize=$dataSize bytes=${data.size} data=${data.toHexLog()}"
+        )
+        DashboardSlotContentState.updateDataPart(dataCode, dataOffset, data)
     }
 
     private fun handleFirmwareCommand(
@@ -379,7 +539,11 @@ class BLEParserV3(
         )
         telemetryGestureCountersFlow.value = TelemetryGestureCounters(
             baseGestureMovementCount = telemetry.gestureMovementCount.map { it ?: 0L },
-            customGestureMovementCount = telemetry.userGestureMovementCount.map { it ?: 0L }
+            customGestureMovementCount = telemetry.userGestureMovementCount.map { it ?: 0L },
+            telemetryVersion = telemetry.telemetryVersion,
+            telemetrySubversion = telemetry.telemetrySubversion,
+            deviceUuid = telemetry.deviceUuid,
+            receivedAtMillis = Clock.System.now().toEpochMilliseconds()
         )
 
 //        platformLog("TelemetryV3", "RX telemetry json=${telemetry.toTelemetryJson()}")
@@ -575,17 +739,17 @@ class BLEParserV3(
             parameterInfoSet = mutableSetOf(
                 ParameterInfoRegistry.require(P_KEY_PLOT),
                 ParameterInfoRegistry.require(P_KEY_OPEN_CLOSE_THRESHOLD))
-        ), LocalizedWidgetText.graphs))
+        ),"Графики"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_OPEN_VALUE))
-        ), LocalizedWidgetText.openingSensorSensitivity))
+        ),"Чувствительность датчика открытия"))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_GAIN_CLOSE_VALUE))
-        ), LocalizedWidgetText.closingSensorSensitivity))
+        ),"Чувствительность датчика закрытия"))
         baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
             clickCommand = 0,
             pressedCommand = 0,
@@ -596,7 +760,7 @@ class BLEParserV3(
                 parameterInfoSet = mutableSetOf(
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_OPEN_COMMAND.number.toInt(), 5, 0),
                     ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PMCE_CLOSE_COMMAND.number.toInt(), 6, 1))
-            ), "${LocalizedWidgetText.open}%${LocalizedWidgetText.close}")))
+            ),"Открыть%Закрыть")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 0,
             widgetCode = PWCE_GESTURES_WINDOW_V3.number.toInt(),
@@ -642,11 +806,15 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_SCREEN_TIMEOUT),
                 )
             ), LocalizedWidgetText.screenTimeout)))
-        baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-            display = 2,
-            widgetCode = PWCE_SLIDER_V3.number.toInt(),
-            parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
-        ), LocalizedWidgetText.maximumSensorSensitivity))
+        baseParameterWidgetSStruct.add(SliderParameterWidgetSStruct(
+            minProgress = 0,
+            maxProgress = 250,
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SLIDER_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_EMG_MAX_GAIN_VALUE))
+            ),LocalizedWidgetText.maximumSensorSensitivity)
+        ))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 2,
             widgetCode = PWCE_SLIDER_V3.number.toInt(),
@@ -680,9 +848,21 @@ class BLEParserV3(
                 )
             ), LocalizedWidgetText.gestureChangeAction)))
 
+//        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+//            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+//                listOf("Профиль №1", "+"),
+//                0
+//            ),
+//            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+//                display = 2,
+//                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+//                parameterInfoSet = mutableSetOf(
+//                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+//                )
+//            ),"Профили настроек")))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(LocalizedWidgetText.emgControlModes(), 0),
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт","ЕМГ 4.1"),0),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
                 display = 4,
                 widgetCode = PWCE_SPINBOX_V3.number.toInt(),
@@ -699,6 +879,18 @@ class BLEParserV3(
                     ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND),
                 )
             ), LocalizedWidgetText.handSide)))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                listOf("Протезист", "Сервисный инженер", "Не выбрано"),
+                2
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 4,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_DEVICE_ROLE),
+                )
+            ),"Роль")))
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 4,
             widgetCode = PWCE_TEXT_INPUT_V3.number.toInt(),
@@ -730,7 +922,6 @@ class BLEParserV3(
                 "BLE Log"
             )
         ))
-
 
         baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
 
@@ -829,6 +1020,14 @@ class BLEParserV3(
                     releasedCommand = widget.releasedCommand,
                     baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
                 addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct)
+            }
+            is SliderParameterWidgetSStruct -> {
+                val sliderParameterWidgetSStruct = SliderParameterWidgetSStruct(
+                    minProgress = widget.minProgress,
+                    maxProgress = widget.maxProgress,
+                    increment = widget.increment,
+                    baseParameterWidgetSStruct = widget.baseParameterWidgetSStruct)
+                addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct)
             }
             is ToggleSliderParameterWidgetSStruct -> {
                 val toggleSliderParameterWidgetSStruct = ToggleSliderParameterWidgetSStruct(
@@ -981,8 +1180,48 @@ class BLEParserV3(
     private fun ByteArrayView.getOrZero(i: Int): Int =
         if (i in 0 until length) u8(i) else 0
 
+    private fun ByteArrayView.leUInt16(i: Int): Int =
+        getOrZero(i) or (getOrZero(i + 1) shl 8)
+
+    private fun ByteArrayView.leUInt32(i: Int): Long =
+        (getOrZero(i).toLong()) or
+            (getOrZero(i + 1).toLong() shl 8) or
+            (getOrZero(i + 2).toLong() shl 16) or
+            (getOrZero(i + 3).toLong() shl 24)
+
     private fun ByteArrayView.copyFrom(i: Int): ByteArray =
         if (i >= length) ByteArray(0) else bytes.copyOfRange(offset + i, offset + length)
+
+    private fun ByteArrayView.copyRange(i: Int, count: Int): ByteArray {
+        if (i >= length) return ByteArray(0)
+        val from = offset + i
+        val to = (from + count).coerceAtMost(offset + length)
+        return bytes.copyOfRange(from, to)
+    }
+
+    private fun ByteArray.toHexLog(): String =
+        joinToString(" ") { (it.toInt() and 0xFF).toHexByte() }
+
+    private fun List<Int>.toHexLog(): String =
+        joinToString(" ") { it.toHexByte() }
+
+    private fun Int.toHexByte(): String =
+        toString(16).uppercase().padStart(2, '0')
+
+    private fun Int.toSlotLogName(): String =
+        PreferenceKeysUbi4.DataTableSlotsCode.entries
+            .firstOrNull { (it.number.toInt() and 0xFF) == this }
+            ?.name
+            ?.removePrefix("DTCE_")
+            ?.removePrefix("DCTE_")
+            ?.removeSuffix("_TYPE")
+            ?: "UNKNOWN"
+
+    private fun Int.toDataManagerCommandName(): String =
+        PreferenceKeysUbi4.DataManagerCommand.entries
+            .firstOrNull { (it.number.toInt() and 0xFF) == this }
+            ?.name
+            ?: "0x${toHexByte()}"
 
 
     private fun ByteArray.u8OrNull(index: Int): Int? =

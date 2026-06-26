@@ -348,8 +348,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
             )
             needReRequestTransferFlow = false
         }
-
         UiState.widgetsLoadingFlow.tryEmit(Unit)
+
 
     }
 
@@ -414,6 +414,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
             updateFlow.emit(0)
             UiState.startupInProgress.value = false
             UiState.widgetsLoadingFlow.tryEmit(Unit)
+            bleParser.sendFwInfoRequestsWithRetry()
 
             // Запускаем живой поток
             main.bleCommandWithQueue(
@@ -911,6 +912,16 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 packet = request(PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_GESTURE_CHANGE_MODE.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_SPEED_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_SPEED_SETTINGS.number.toInt()
+            ),
+            V3InitRequest(
+                packet = request(PWCE_GET_FORCE_SETTINGS.number.toInt()),
+                expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+                expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
             ),
             V3InitRequest(
                 packet = requestWithCommand(

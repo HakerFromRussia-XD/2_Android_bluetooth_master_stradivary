@@ -177,6 +177,10 @@ class BleCommandsCoverageTest {
         val slotSub = BLECommands.requestDataSlots(2)
         assertEquals(0x20, slotRoot[0].toInt() and 0xFF)
         assertEquals(0xA0, slotSub[0].toInt() and 0xFF)
+        assertEquals(PreferenceKeysUbi4.BaseCommands.DATA_MANAGER.number, slotSub[1])
+        assertEquals(2, slotSub[3].toInt() and 0xFF)
+        assertEquals(PreferenceKeysUbi4.DataManagerCommand.READ_AVAILABLE_SLOTS.number, slotSub[7])
+        assertEquals(2, slotSub[8].toInt() and 0xFF)
     }
 
     @Test

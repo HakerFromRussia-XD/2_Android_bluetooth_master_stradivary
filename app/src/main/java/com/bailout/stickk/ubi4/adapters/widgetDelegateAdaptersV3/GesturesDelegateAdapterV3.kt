@@ -17,6 +17,7 @@ import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -25,6 +26,8 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.rotationGroupGestures
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
+import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.GesturesItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
@@ -262,7 +265,7 @@ class GesturesDelegateAdapterV3(
                     listRotationGroupAdapter?.setActiveGestureId(gestureId)
                     setActiveGesture(getGestureViewById(gestureId))
                     updateActiveGestureHeader(gestureId)
-                    onSendBLEActiveGesture(gestureId)
+                    sendActiveGesture(gestureId)
                 }
             } else {
                 gestureCollectionTitle?.text = getCollectionGestures()[i + 1].gestureName
@@ -278,7 +281,7 @@ class GesturesDelegateAdapterV3(
                     listRotationGroupAdapter?.setActiveGestureId(gestureId)
                     setActiveGesture(getGestureViewById(gestureId))
                     updateActiveGestureHeader(gestureId)
-                    onSendBLEActiveGesture(gestureId)
+                    sendActiveGesture(gestureId)
                 }
             }
         }
@@ -304,7 +307,7 @@ class GesturesDelegateAdapterV3(
                 listRotationGroupAdapter?.setActiveGestureId(gestureId)
                 setActiveGesture(getGestureViewById(gestureId))
                 updateActiveGestureHeader(gestureId)
-                onSendBLEActiveGesture(gestureId)
+                sendActiveGesture(gestureId)
             }
 
             gestureSettingsBtn?.setOnClickListener {
@@ -337,7 +340,7 @@ class GesturesDelegateAdapterV3(
                 showIntroduction()
                 setupListRecyclerView()
                 synchronizeRotationGroup()
-                onSendBLERotationGroup()
+                sendRotationGroup()
                 calculatingShowAddButton()
             }
             onAddGesturesToRotationGroup(resultCb)
@@ -352,7 +355,7 @@ class GesturesDelegateAdapterV3(
                 if (!isInteractionEnabled) return
                 if (fromPosition != toPosition) {
                     synchronizeRotationGroup()
-                    onSendBLERotationGroup()
+                    sendRotationGroup()
                 }
             }
         })
@@ -533,6 +536,42 @@ class GesturesDelegateAdapterV3(
         rotationGroupGestures.clear()
         itemsGesturesRotationArray?.forEach {
             rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
+        }
+    }
+
+    private fun sendActiveGesture(gestureId: Int) {
+        persistActiveGesture(gestureId)
+        onSendBLEActiveGesture(gestureId)
+    }
+
+    private fun sendRotationGroup() {
+        persistRotationGroup()
+        onSendBLERotationGroup()
+    }
+
+    private fun persistActiveGesture(gestureId: Int) {
+        val parameterInfo = ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE)
+        val typedValue = ParameterTypedValueV3.CurrentGesture(
+            CurrentGestureV3(currentGesture = gestureId)
+        )
+        ParameterStoreV3.put(parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
+        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+            ParameterProvider.getParameterV3(parameterInfo).data = encoded
+        }
+    }
+
+    private fun persistRotationGroup() {
+        val parameterInfo = ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE)
+        val typedValue = ParameterTypedValueV3.RotationGroup(rotationGroupGestures.toRotationGroupV3())
+        ParameterStoreV3.put(parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
+        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+            ParameterProvider.getParameterV3(parameterInfo).data = encoded
         }
     }
     private fun requestRotationGroupWithRetry() {
@@ -773,7 +812,7 @@ class GesturesDelegateAdapterV3(
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
         listRotationGroupAdapter?.notifyDataSetChanged()
         synchronizeRotationGroup()
-        onSendBLERotationGroup()
+        sendRotationGroup()
         calculatingShowAddButton()
     }
 
@@ -785,7 +824,7 @@ class GesturesDelegateAdapterV3(
             showIntroduction()
             setupListRecyclerView()
             synchronizeRotationGroup()
-            onSendBLERotationGroup()
+            sendRotationGroup()
             calculatingShowAddButton()
         }
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)
@@ -809,6 +848,30 @@ class GesturesDelegateAdapterV3(
         setActiveGesture(getGestureViewById(gestureId))
         updateActiveGestureHeader(gestureId)
 
-        onSendBLEActiveGesture(gestureId)
+        sendActiveGesture(gestureId)
     }
+}
+
+private fun List<Gesture>.toRotationGroupV3(): RotationGroupV3 {
+    val pairs = take(8).map { it.gestureId to it.gestureId }
+    fun id(index: Int) = pairs.getOrNull(index)?.first ?: 0
+    fun image(index: Int) = pairs.getOrNull(index)?.second ?: 0
+    return RotationGroupV3(
+        gesture1Id = id(0),
+        gesture1ImageId = image(0),
+        gesture2Id = id(1),
+        gesture2ImageId = image(1),
+        gesture3Id = id(2),
+        gesture3ImageId = image(2),
+        gesture4Id = id(3),
+        gesture4ImageId = image(3),
+        gesture5Id = id(4),
+        gesture5ImageId = image(4),
+        gesture6Id = id(5),
+        gesture6ImageId = image(5),
+        gesture7Id = id(6),
+        gesture7ImageId = image(6),
+        gesture8Id = id(7),
+        gesture8ImageId = image(7)
+    )
 }

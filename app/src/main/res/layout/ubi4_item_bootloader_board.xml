@@ -42,24 +42,44 @@
         android:textColor="@color/ubi4_white"
         android:textSize="12sp"
         android:text="▷"
-        app:layout_constraintEnd_toStartOf="@+id/update_btn"
+        app:layout_constraintEnd_toStartOf="@+id/bootloader_actions"
         app:layout_constraintBaseline_toBaselineOf="@id/board_name_tv"/>
 
-    <TextView
-        android:id="@+id/update_btn"
+    <LinearLayout
+        android:id="@+id/bootloader_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
-        android:fontFamily="@font/font_open_sans_semi_bold"
-        android:text="@string/update_firmware"
-        android:textColor="@color/ubi4_white"
-        android:textSize="12sp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/update_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/font_open_sans_semi_bold"
+            android:text="@string/update_firmware"
+            android:textColor="@color/ubi4_white"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/bootloader_settings_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/service_settings"
+            android:padding="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_baseline_settings_24"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <!-- 3. Divider (тот же цвет/отступы) -->
     <View

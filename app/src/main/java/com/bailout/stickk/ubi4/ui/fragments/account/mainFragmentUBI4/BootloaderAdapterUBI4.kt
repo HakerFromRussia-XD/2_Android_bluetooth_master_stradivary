@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,7 +13,8 @@ import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.utility.firmware.FirmwareUpdateUtils
 
 class BootloaderAdapterUBI4(
-    private val listener: OnBootloaderClickListener
+    private val listener: OnBootloaderClickListener,
+    private val showSettingsButtonProvider: () -> Boolean = { false }
 ) : ListAdapter<BootloaderBoardItemUBI4, BootloaderAdapterUBI4.BoardViewHolder>(Diff) {
 
 
@@ -22,6 +24,7 @@ class BootloaderAdapterUBI4(
 
     interface OnBootloaderClickListener {
         fun onUpdateClick(item: BootloaderBoardItemUBI4)
+        fun onSettingsClick(item: BootloaderBoardItemUBI4) {}
     }
     object Diff : DiffUtil.ItemCallback<BootloaderBoardItemUBI4>() {
         override fun areItemsTheSame(o: BootloaderBoardItemUBI4, n: BootloaderBoardItemUBI4) =
@@ -34,6 +37,7 @@ class BootloaderAdapterUBI4(
         val versionTv : TextView = view.findViewById(R.id.boardVerTv)
         val bootStatus : TextView = view.findViewById(R.id.bootloderStatusTv)
         val updateBtn : TextView = view.findViewById(R.id.update_btn)   // ← было Button
+        val settingsBtn: ImageButton = view.findViewById(R.id.bootloader_settings_btn)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoardViewHolder {
@@ -66,7 +70,9 @@ class BootloaderAdapterUBI4(
 
         holder.updateBtn.isEnabled = item.canUpdate
         holder.bootStatus.visibility = if (item.isInBootLoader) View.VISIBLE else View.INVISIBLE
+        holder.settingsBtn.visibility = if (showSettingsButtonProvider()) View.VISIBLE else View.GONE
         holder.updateBtn.setOnClickListener { listener.onUpdateClick(item) }
+        holder.settingsBtn.setOnClickListener { listener.onSettingsClick(item) }
     }
     fun submitBoards(list: List<BootloaderBoardItemUBI4>) = submitList(list)
 

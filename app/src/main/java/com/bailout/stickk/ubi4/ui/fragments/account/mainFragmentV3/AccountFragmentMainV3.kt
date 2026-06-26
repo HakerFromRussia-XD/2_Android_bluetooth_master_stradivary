@@ -104,6 +104,9 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mSettings = mContext?.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        UiState.isServiceEngineerRole.value =
+            mSettings?.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, ROLE_DEFAULT_INDEX) ==
+                ROLE_SERVICE_ENGINEER_INDEX
 
         encryptionManager = EncryptionManagerUtilsUbi4.instance
         attemptedRequest = 1
@@ -142,6 +145,11 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
                 launch {
                     UiState.updateFlow.collect {
                         if (canRenderBoards) refreshBoards()
+                    }
+                }
+                launch {
+                    UiState.isServiceEngineerRole.collect {
+                        refreshServiceRoleUi()
                     }
                 }
             }
@@ -444,9 +452,13 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) { showFirmwareFilesDialog(item) }
+            override fun onSettingsClick(item: BootloaderBoardItemUBI4) { navigator().showDashboardSlotsScreen(item.deviceAddress) }
         }
         accountAdapter = AccountMainAdapterUBI4(accountClickListener)
-        bootloaderAdapter = BootloaderAdapterUBI4(bootloaderClickListener)
+        bootloaderAdapter = BootloaderAdapterUBI4(
+            listener = bootloaderClickListener,
+            showSettingsButtonProvider = ::isServiceFragmentVisibleInBottomNavigation
+        )
         concatAdapter = ConcatAdapter(accountAdapter, BootloaderCardAdapter(bootloaderAdapter))
         binding.accountRv.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -617,6 +629,15 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
     }
 
+    private fun isServiceFragmentVisibleInBottomNavigation(): Boolean =
+        UiState.isServiceEngineerRole.value
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshServiceRoleUi() {
+        if (!canRenderBoards) return
+        bootloaderAdapter.notifyDataSetChanged()
+    }
+
     private fun scrollAccountListToTop() {
         val rv = _binding?.accountRv ?: return
         if ((rv.adapter?.itemCount ?: 0) > 0) {
@@ -650,6 +671,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
 
     companion object {
         private const val BOARD_LOG_TAG = "AccountBoardsV3"
+        private const val ROLE_SERVICE_ENGINEER_INDEX = 1
+        private const val ROLE_DEFAULT_INDEX = 2
         private var cachedProfileItem: AccountMainUBI4Item? = null
         private var cachedBootloaderBoards: List<BootloaderBoardItemUBI4>? = null
         var accountMainList by Delegates.notNull<ArrayList<AccountMainUBI4Item>>()

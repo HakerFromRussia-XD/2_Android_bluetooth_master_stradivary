@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
@@ -383,6 +384,7 @@ class PlotDelegateAdapterV3 (
             ThresholdsV3(openThreshold = open, closeThreshold = close)
         )
         ParameterStoreV3.put(parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
 
         val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
         ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->

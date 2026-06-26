@@ -26,8 +26,10 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_OPEN_
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SCREEN_TIMEOUT
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_TEST_SWITCHER
 import kotlin.native.ObjCName
@@ -66,6 +68,7 @@ object PreferenceKeysUbi4 {
     const val ARG_LAST_EMG8 = "arg_last_emg8"
 
     const val KEY_SECRET_ITEM_VISIBLE = "secret_item_visible"
+    const val KEY_DEVICE_ROLE_SELECTED = "UBI4_ROLE_SELECTED_V3"
 
 
 
@@ -133,7 +136,11 @@ object PreferenceKeysUbi4 {
         READ_DATA               (0x03),
         WRITE_DATA              (0x04),
         RESET_TO_FACTORY        (0x05),
-        SAVE_DATA               (0x06)
+        SAVE_DATA               (0x06),
+        READ_SLOT               (0x07),
+        WRITE_DATA_PART         (0x08),
+        READ_DATA_PART          (0x09),
+        SET_DEVICE_ADDRESS      (0x13)
     }
 
     //используется для определения типов данных в определённых вью
@@ -462,7 +469,11 @@ object PreferenceKeysUbi4 {
         DCTE_GESTURE_GROUP                  (22  ) ,
         DCTE_DMS_BINDING_DATA               (23  ) ,
         DTCE_OPTIC_SETTINGS                 (24  ) ,
+        DTCE_GUI_SETTINGS                   (25  ) ,
+        DTCE_PRESSURE_SETTINGS              (26  ) ,
         DTCE_ML_MODEL_DATA                  (27  ) ,
+        DTCE_DEVICES_CACHE                  (28  ) ,
+        DTCE_EMG_MASTER_SETTINGS            (29  ) ,
         DTCE_FREE_SLOT                      ((0xFF).toByte())
     }
 
@@ -974,6 +985,12 @@ object PreferenceKeysUbi4 {
                 widgetKind = WidgetKindV3.TEXT_INPUT,
                 valuePath = "serialNumber"
             ),
+            P_KEY_DEVICE_ROLE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(DEVICE_INFORMATION.number.toInt(), SET_DEVICE_ROLE.number, 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
+            ),
             P_KEY_TEST_SWITCHER to ParameterMetaV3(
                 parameterInfo = ParameterInfo(GUI_CONTROL.number.toInt(), PWCE_TEST_SWITCHER.number.toInt(), 1, 0),
                 codecId = ParameterCodecIdV3.SWITCHER,
@@ -997,6 +1014,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.SLIDER,
                 widgetKind = WidgetKindV3.SLIDER,
                 valuePath = "sliderValue"
+            ),
+            P_KEY_SETTINGS_PROFILE to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), ParameterDataCodeEnum.PDCE_SELECT_PROFILE.number, 1, 0),
+                codecId = ParameterCodecIdV3.SPINNER,
+                widgetKind = WidgetKindV3.SPINNER,
+                valuePath = "spinnerValue"
             ),
         )
 

@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.WidgetState
@@ -412,6 +413,7 @@ class ToggleSliderDelegateAdapterV3(
         toggleV3.toggleValue = pack(info.progress, info.enabled)
         val typedValue = ParameterTypedValueV3.Toggle(toggleV3)
         ParameterStoreV3.put(info.parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(info.parameterInfo, typedValue)
 
         val parameterMeta = ParameterInfoRegistry.getMeta(info.parameterInfo) ?: return
         ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->

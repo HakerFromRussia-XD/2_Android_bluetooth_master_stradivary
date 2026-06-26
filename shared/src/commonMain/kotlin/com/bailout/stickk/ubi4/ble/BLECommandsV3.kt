@@ -5,6 +5,7 @@ import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.FirmwareManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.GMCE_SET_DATE_TIME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.SubDeviceManager
@@ -155,6 +156,31 @@ object BLECommandsV3 {
         )
         header[4] = calculationCRC(header).toByte()
         return header
+    }
+    fun sendDateTime(
+        year: Int,
+        month: Int,
+        day: Int,
+        weekDay: Int,
+        hour: Int,
+        minute: Int,
+        second: Int
+    ): ByteArray {
+        val data = byteArrayOf(
+            (year and 0xFF).toByte(),
+            ((year shr 8) and 0xFF).toByte(),
+            month.toByte(),
+            day.toByte(),
+            weekDay.toByte(),
+            hour.toByte(),
+            minute.toByte(),
+            second.toByte()
+        )
+        return sendLongCommand(
+            GUI_CONTROL.number.toInt(),
+            GMCE_SET_DATE_TIME.number.toInt(),
+            data
+        )
     }
     fun request(subcommand: Int): ByteArray {
         val header = byteArrayOf(

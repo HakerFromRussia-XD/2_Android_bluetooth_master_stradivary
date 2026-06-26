@@ -68,6 +68,29 @@ class BleRuntimeCoverageTest {
     }
 
     @Test
+    fun `v3 date time command should pack phone time payload`() {
+        val packet = BLECommandsV3.sendDateTime(
+            year = 2026,
+            month = 6,
+            day = 26,
+            weekDay = 4,
+            hour = 15,
+            minute = 30,
+            second = 45
+        )
+
+        assertEquals(0x80, packet[0].toInt() and 0xFF)
+        assertEquals(0x10, packet[1].toInt() and 0xFF)
+        assertEquals(9, packet[2].toInt() and 0xFF)
+        assertEquals(0, packet[3].toInt() and 0xFF)
+        assertEquals(0x0b, packet[5].toInt() and 0xFF)
+        assertEquals(
+            listOf(0xEA, 0x07, 6, 26, 4, 15, 30, 45),
+            packet.slice(6..13).map { it.toInt() and 0xFF }
+        )
+    }
+
+    @Test
     fun `ble manager should fallback to environment executor`() {
         val manager = BleManagerKmm()
         val executor = RecordingBleCommandExecutor()

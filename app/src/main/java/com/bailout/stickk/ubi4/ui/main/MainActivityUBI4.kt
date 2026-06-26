@@ -248,9 +248,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onBackPressedDispatcher.onBackPressed()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            telemetryCoordinator.sendTelemetry()
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            telemetryCoordinator.sendTelemetry()
+        }
 
         val accountPb = binding.accountPb.apply {
             max = 100

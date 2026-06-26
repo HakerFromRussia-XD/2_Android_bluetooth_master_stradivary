@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
+import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 
 class BLEController(private val bleManager: BleManagerKmm) {
@@ -753,6 +754,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
+            sendPhoneDateTimeV3()
+
             val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
                 main.showToast("Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
                 Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
@@ -816,6 +819,38 @@ class BLEController(private val bleManager: BleManagerKmm) {
             SERIALPORTCHAR_UUID,
             WRITE
         ) {}
+    }
+
+    private suspend fun sendPhoneDateTimeV3(timeoutMs: Long = 500L) {
+        val calendar = Calendar.getInstance()
+        val weekDay = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+        val packet = BLECommandsV3.sendDateTime(
+            year = calendar.get(Calendar.YEAR),
+            month = calendar.get(Calendar.MONTH) + 1,
+            day = calendar.get(Calendar.DAY_OF_MONTH),
+            weekDay = weekDay,
+            hour = calendar.get(Calendar.HOUR_OF_DAY),
+            minute = calendar.get(Calendar.MINUTE),
+            second = calendar.get(Calendar.SECOND)
+        )
+        val sent = CompletableDeferred<Unit>()
+
+        Log.d(
+            "DateTimeV3",
+            "TX GMCE_SET_DATE_TIME packet=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+        bleManager.sendBytesKmm(
+            packet,
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {
+            sent.complete(Unit)
+        }
+
+        val completed = withTimeoutOrNull(timeoutMs) { sent.await() } != null
+        if (!completed) {
+            Log.w("DateTimeV3", "GMCE_SET_DATE_TIME write callback timeout")
+        }
     }
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {

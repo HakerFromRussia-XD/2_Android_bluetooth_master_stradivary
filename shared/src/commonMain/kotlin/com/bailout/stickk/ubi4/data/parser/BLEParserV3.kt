@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gameControlSignalFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow
@@ -73,6 +74,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
@@ -513,6 +515,7 @@ class BLEParserV3(
                 WidgetEmitTargetV3.THRESHOLD_FLOW -> thresholdFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.CURRENT_GESTURE_FLOW -> currentGestureFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_GROUP_FLOW -> gestureGroupFlowV3.emit(parameterInfo)
+                WidgetEmitTargetV3.BINDING_GROUP_FLOW -> bindingGroupFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT ->
                     RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
                 WidgetEmitTargetV3.NO_UI -> Unit
@@ -768,6 +771,7 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
+                ParameterInfoRegistry.require(P_KEY_BINDING_DATA),
             )
         ), LocalizedWidgetText.gestures))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(

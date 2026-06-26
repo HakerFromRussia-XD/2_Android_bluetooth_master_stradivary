@@ -24,6 +24,37 @@ data class BindingGestureGroup(
     var gestureSpr11Id: Int = 0, var gesture11Id: Int = 0,
     var gestureSpr12Id: Int = 0, var gesture12Id: Int = 0,
 ) {
+    companion object {
+        const val PAIR_COUNT = 12
+        const val PAYLOAD_SIZE = PAIR_COUNT * 2
+
+        fun fromPayloadBytes(bytes: ByteArray, offset: Int = 0): BindingGestureGroup {
+            val group = BindingGestureGroup()
+            repeat(PAIR_COUNT) { index ->
+                val pairOffset = offset + index * 2
+                val sprId = bytes.getOrNull(pairOffset)?.toInt()?.and(0xFF) ?: 0
+                val gestureId = bytes.getOrNull(pairOffset + 1)?.toInt()?.and(0xFF) ?: 0
+                group.setGestureAt(index, sprId to gestureId)
+            }
+            return group
+        }
+
+        fun fromHexString(hex: String): BindingGestureGroup {
+            val normalized = hex.filter { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }
+            val bytes = ByteArray(PAYLOAD_SIZE)
+            repeat(PAYLOAD_SIZE) { index ->
+                val start = index * 2
+                val token = if (start < normalized.length) {
+                    normalized.substring(start, (start + 2).coerceAtMost(normalized.length))
+                } else {
+                    ""
+                }
+                bytes[index] = token.padEnd(2, '0').toIntOrNull(16)?.toByte() ?: 0
+            }
+            return fromPayloadBytes(bytes)
+        }
+    }
+
     fun toGestureList(): MutableList<Pair<Int, Int>> {
         return listOf(
             Pair(gestureSpr1Id, gesture1Id),
@@ -57,6 +88,19 @@ data class BindingGestureGroup(
             else -> throw IndexOutOfBoundsException("Индекс должен быть от 0 до 11")
         }
     }
+
+    fun toPayloadBytes(): ByteArray =
+        ByteArray(PAYLOAD_SIZE).also { payload ->
+            toGestureList().take(PAIR_COUNT).forEachIndexed { index, pair ->
+                payload[index * 2] = pair.first.coerceIn(0, 255).toByte()
+                payload[index * 2 + 1] = pair.second.coerceIn(0, 255).toByte()
+            }
+        }
+
+    fun toHexString(): String =
+        toPayloadBytes().joinToString("") { byte ->
+            (byte.toInt() and 0xFF).toString(16).padStart(2, '0')
+        }
 }
 
 object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
@@ -92,7 +136,7 @@ object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
         var gesture11Id = 0
         var gesture12Id = 0
 
-        if (string.length >= 52) {
+        if (string.length >= BindingGestureGroup.PAYLOAD_SIZE * 2) {
             gestureSpr1Id = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
             gesture1Id = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
             gestureSpr2Id = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
@@ -149,7 +193,6 @@ object BindingGroupSerializer : KSerializer<BindingGestureGroup> {
     }
 
     override fun serialize(encoder: Encoder, value: BindingGestureGroup) {
-        val code = ""
-        encoder.encodeString(code)
+        encoder.encodeString(value.toHexString())
     }
 }

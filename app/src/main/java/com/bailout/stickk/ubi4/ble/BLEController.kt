@@ -688,19 +688,28 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     Log.d("bleCommand", "НАШЛИ!!! UUID = $uuid")
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
-                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                        val properties = mCharacteristic?.properties ?: 0
+                        val supportsWrite = properties and BluetoothGattCharacteristic.PROPERTY_WRITE > 0
+                        val supportsWriteNoResponse =
+                            properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0
+                        if (supportsWrite || supportsWriteNoResponse) {
+                            mCharacteristic?.writeType =
+                                if (supportsWrite) {
+                                    BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                                } else {
+                                    BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                                }
                             Log.d("bleCommand", "Отправка команды: ${byteArray?.let {
                                 EncodeByteToHex.bytesToHexString(
                                     it
                                 )
-                            }} на UUID: $uuid")
+                            }} на UUID: $uuid properties=$properties writeType=${mCharacteristic?.writeType}")
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                             commandDispatched = true
-                            if (!commandDispatched) {
-                                Log.w("bleCommand", "writeCharacteristic вернул false для UUID=$uuid")
-                            }
+                        } else {
+                            Log.w("bleCommand", "WRITE unsupported for UUID=$uuid properties=$properties")
                         }
                     }
                     if (typeCommand == READ){

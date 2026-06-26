@@ -11,11 +11,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
+import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
+import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
@@ -36,6 +39,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_CURRENT_GESTURE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.RetryUtils
@@ -60,17 +64,24 @@ class GesturesDelegateAdapterV3(
     val gestureNameList: ArrayList<String>,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
+    val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, List<Pair<Int, Int>>) -> Unit,
+    val onSetCustomGesture: (
+        onSaveDotsClick: (Pair<Int, Int>) -> Unit,
+        bindingItem: Pair<Int, Int>
+    ) -> Unit,
     val onSendBLERotationGroup: () -> Unit,
     val onSendBLEActiveGesture: (activeGesture: Int) -> Unit,
+    val onSendBLEBindingGroup: (bindingGestureGroup: BindingGestureGroup) -> Unit,
     //  onShowGestureSettings колбек при нажатии на шестерёнку кастомного жеста
     val onShowGestureSettings: (subcommand: Int, gestureID: Int) -> Unit,
     val onRequestActiveGesture: () -> Unit,
     val onRequestRotationGroup: () -> Unit,
+    val onRequestBindingGroup: () -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapterV3.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapterV3.OnDeleteClickRotationGroupListener,
     RotationGroupItemAdapterV3.OnSelectClickRotationGroupListener,
-    ViewBindingDelegateAdapter<GesturesItemV3, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
+    ViewBindingDelegateAdapter<GesturesItemV3, Ubi4WidgetGesturesOptic1Binding>(Ubi4WidgetGesturesOptic1Binding::inflate) {
 
     private val ANIMATION_DURATION = 200
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
@@ -86,14 +97,20 @@ class GesturesDelegateAdapterV3(
 
 
     private lateinit var _rotationGroupTv: TextView
+    private lateinit var _bindingGroupTv: TextView
     private lateinit var _collectionOfGesturesTv: TextView
     private lateinit var _gesturesSelectV: View
     private lateinit var _collectionGesturesCl: ConstraintLayout
     private lateinit var _rotationGroupCl: ConstraintLayout
+    private lateinit var _sprGestureGroupCl: ConstraintLayout
+    private lateinit var _annotationTv: TextView
+    private lateinit var _annotationIv: ImageView
 
 
     private lateinit var mAddGestureToRotationGroupBtn: View
     private lateinit var mPlusIv: ImageView
+    private var listBindingGesture: MutableList<Pair<Int, Int>> = mutableListOf()
+    private var currentBindingGroup: BindingGestureGroup = BindingGestureGroup()
     private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var gestureCollectionBtns: ArrayList<Pair<View, Int>> = ArrayList()
@@ -107,19 +124,48 @@ class GesturesDelegateAdapterV3(
     private var interactionJob: Job? = null
     private var currentActiveGestureId: Int? = null
     private var isRotationGroupResponseReceived = false
+    private var isBindingGroupResponseReceived = false
     private var lastRenderedFilter: Int? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
     private var hideCollectionBtnView: View? = null
     private var addGestureToRotationGroupBtnView: View? = null
+    private var chooseLearningGesturesBtnView: View? = null
     private val gestureSettingsBtns: ArrayList<View> = ArrayList()
 
     private companion object {
         private const val UNKNOWN_GESTURE_LABEL = "Unknow"
     }
 
+    private val bindingAdapter = SelectedGesturesAdapter(
+        selectedGesturesList = mutableListOf(),
+        onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
+            override fun onGestureSprClicked(position: Int, title: String, gestureId: Int) {
+                if (!isInteractionEnabled || gestureId == 0) return
+                currentActiveGestureId = gestureId
+                listRotationGroupAdapter?.setActiveGestureId(gestureId)
+                setActiveGesture(getGestureViewById(gestureId))
+                updateActiveGestureHeader(gestureId)
+                sendActiveGesture(gestureId)
+            }
+        },
+        onDotsClickListener = dots@{ selectedPosition ->
+            if (!isInteractionEnabled) return@dots
+            val bindingItem = listBindingGesture.getOrNull(selectedPosition)
+                ?: return@dots
+            onSetCustomGesture({ updatedBindingItem ->
+                val position = listBindingGesture.indexOfFirst { it.first == updatedBindingItem.first }
+                if (position != -1) {
+                    listBindingGesture[position] = updatedBindingItem
+                    val bindingGroup = fillCollectionGesturesInBindingGroup()
+                    sendBindingGroup(bindingGroup)
+                }
+            }, bindingItem)
+        }
+    )
+
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItemV3) {
+    override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItemV3) {
         platformLog("PWCE_GESTURES_WINDOW_V3", "запустился GesturesDelegateAdapterV3")
         mRotationGroupDragLv = rotationGroupDragLv
         onDestroyParent { onDestroy() }
@@ -129,17 +175,22 @@ class GesturesDelegateAdapterV3(
         scope = coroutineScope ?: main.lifecycleScope
 
         _rotationGroupTv = rotationGroupTv
+        _bindingGroupTv = bindingGroupTv
         _collectionOfGesturesTv = collectionOfGesturesTv
         _gesturesSelectV = gesturesSelectV
         _ubi4GesturesSelectorV = ubi4GesturesSelectorV
         _collectionGesturesCl = collectionGesturesCl
         _rotationGroupCl = rotationGroupCl
+        _sprGestureGroupCl = sprGestureGroupCl
+        _annotationTv = annotationTv
+        _annotationIv = annotationIv
         _activeGestureNameCl = activeGestureNameCl
         _activeGestureNameTv = activeGestureNameTv
         _gesturesSelectV = gesturesSelectV
         _collectionOfGesturesTv = collectionOfGesturesTv
         hideCollectionBtnView = hideCollectionBtn
         addGestureToRotationGroupBtnView = addGestureToRotationGroupBtn
+        chooseLearningGesturesBtnView = chooseLearningGesturesBtn1
 
 
         when (val widget = item.widget) {
@@ -172,12 +223,15 @@ class GesturesDelegateAdapterV3(
         }
 
         // восстановить фильтр (1/2)
-        val savedFilter = main.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        val savedFilter = main.getInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 1).coerceIn(1, 3)
         lastRenderedFilter = null
         renderFilterUI(savedFilter, animate = false)
         UiState.activeGestureFragmentFilterFlow.value = savedFilter // если у тебя этот flow доступен тут
         if (savedFilter == 2 && isInteractionEnabled) {
             requestRotationGroupWithRetry()
+        }
+        if (savedFilter == 3 && isInteractionEnabled) {
+            requestBindingGroupWithRetry()
         }
         // запрос активного жеста — чтобы подсветка/текст пришли
         if (isInteractionEnabled) {
@@ -196,6 +250,13 @@ class GesturesDelegateAdapterV3(
             UiState.activeGestureFragmentFilterFlow.value = 2
             if (isInteractionEnabled) {
                 onRequestRotationGroup()
+            }
+        }
+        sprGesturesSelectBtn.setOnClickListener {
+            main.saveInt(PreferenceKeysUbi4.LAST_ACTIVE_GESTURE_FILTER, 3)
+            UiState.activeGestureFragmentFilterFlow.value = 3
+            if (isInteractionEnabled) {
+                onRequestBindingGroup()
             }
         }
         hideCollectionBtn.setOnClickListener {
@@ -360,6 +421,20 @@ class GesturesDelegateAdapterV3(
             }
         })
 
+        chooseLearningGesturesBtn1.setOnClickListener {
+            if (!isInteractionEnabled) return@setOnClickListener
+            onAddGesturesToSprScreen({ selectedBindingGestures ->
+                listBindingGesture = selectedBindingGestures
+                val bindingGroup = fillCollectionGesturesInBindingGroup()
+                sendBindingGroup(bindingGroup)
+            }, listBindingGesture)
+        }
+
+        selectedSprGesturesRv.layoutManager = GridLayoutManager(root.context, 2).apply {
+            orientation = LinearLayoutManager.VERTICAL
+        }
+        selectedSprGesturesRv.adapter = bindingAdapter
+
         mRotationGroupExplanationTv = rotationGroupExplanationTv
         mRotationGroupExplanation2Tv = rotationGroupExplanation2Tv
         mRotationGroupExplanationIv = rotationGroupExplanationIv
@@ -407,6 +482,9 @@ class GesturesDelegateAdapterV3(
                     if (UiState.activeGestureFragmentFilterFlow.value == 2) {
                         requestRotationGroupWithRetry()
                     }
+                    if (UiState.activeGestureFragmentFilterFlow.value == 3) {
+                        requestBindingGroupWithRetry()
+                    }
                 }
             }
         }
@@ -417,6 +495,8 @@ class GesturesDelegateAdapterV3(
         hideCollectionBtnView?.isClickable = enabled
         addGestureToRotationGroupBtnView?.isEnabled = enabled
         addGestureToRotationGroupBtnView?.isClickable = enabled
+        chooseLearningGesturesBtnView?.isEnabled = enabled
+        chooseLearningGesturesBtnView?.isClickable = enabled
 
         gestureCollectionBtns.forEach { (view, _) ->
             view.isEnabled = enabled
@@ -462,6 +542,10 @@ class GesturesDelegateAdapterV3(
                 val rotationGroupMeta = ParameterInfoRegistry.getMeta(rotationGroupInfo)
                 val rotationGroupKey = ParameterStoreV3.toKey(rotationGroupInfo)
 
+                val bindingGroupInfo = ParameterInfoRegistry.require(P_KEY_BINDING_DATA)
+                val bindingGroupMeta = ParameterInfoRegistry.getMeta(bindingGroupInfo)
+                val bindingGroupKey = ParameterStoreV3.toKey(bindingGroupInfo)
+
                 merge(
                     UiState.activeGestureFragmentFilterFlow.map{ filter ->
                         renderFilterUI(filter, animate = true)
@@ -479,6 +563,7 @@ class GesturesDelegateAdapterV3(
                         currentActiveGestureId = currentGesture.currentGesture
                         setActiveGesture(getGestureViewById(currentGesture.currentGesture))
                         updateActiveGestureHeader(currentGesture.currentGesture)
+                        bindingAdapter.setActiveGesture(currentGesture.currentGesture)
                         listRotationGroupAdapter?.setActiveGestureId(currentGesture.currentGesture)},
                     ParameterStoreV3.updates.map { key ->
                         if (key != rotationGroupKey) return@map
@@ -508,8 +593,31 @@ class GesturesDelegateAdapterV3(
                         currentActiveGestureId?.let { id ->
                             setActiveGesture(getGestureViewById(id))
                             updateActiveGestureHeader(id)
+                            bindingAdapter.setActiveGesture(id)
                         }
                         platformLog("requestRotationGroupV3", "приняли requestRotationGroupV3 $currentGesture")
+                    },
+                    ParameterStoreV3.updates.map { key ->
+                        if (key != bindingGroupKey) return@map
+                        val typedValue = ParameterStoreV3.get(bindingGroupInfo)
+                            ?: run {
+                                val serialized = ParameterProvider.getParameterV3(bindingGroupInfo).data
+                                val codecId = bindingGroupMeta?.codecId ?: return@run null
+                                ParameterCodecRegistryV3.decodeFromSerialized(codecId, serialized)
+                            }
+                        val bindingGroup = (typedValue as? ParameterTypedValueV3.BindingGroup)?.value
+                            ?: return@map
+                        currentBindingGroup = bindingGroup
+                        listBindingGesture.clear()
+                        bindingGroup.toGestureList().forEach { pair ->
+                            if (pair.first != 0) {
+                                listBindingGesture.add(pair)
+                            }
+                        }
+                        isBindingGroupResponseReceived = true
+                        fillCollectionGesturesInBindingGroup()
+                        bindingAdapter.setActiveGesture(currentActiveGestureId)
+                        platformLog("requestBindingGroupV3", "приняли requestBindingGroupV3 $bindingGroup")
                     },
                 ).collect()
             } catch (e: CancellationException) {
@@ -541,12 +649,18 @@ class GesturesDelegateAdapterV3(
 
     private fun sendActiveGesture(gestureId: Int) {
         persistActiveGesture(gestureId)
+        bindingAdapter.setActiveGesture(gestureId)
         onSendBLEActiveGesture(gestureId)
     }
 
     private fun sendRotationGroup() {
         persistRotationGroup()
         onSendBLERotationGroup()
+    }
+
+    private fun sendBindingGroup(bindingGroup: BindingGestureGroup) {
+        persistBindingGroup(bindingGroup)
+        onSendBLEBindingGroup(bindingGroup)
     }
 
     private fun persistActiveGesture(gestureId: Int) {
@@ -574,6 +688,37 @@ class GesturesDelegateAdapterV3(
             ParameterProvider.getParameterV3(parameterInfo).data = encoded
         }
     }
+
+    private fun persistBindingGroup(bindingGroup: BindingGestureGroup) {
+        val parameterInfo = ParameterInfoRegistry.require(P_KEY_BINDING_DATA)
+        val typedValue = ParameterTypedValueV3.BindingGroup(bindingGroup)
+        ParameterStoreV3.put(parameterInfo, typedValue)
+        SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
+
+        val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo) ?: return
+        ParameterCodecRegistryV3.encodeToSerialized(parameterMeta.codecId, typedValue)?.let { encoded ->
+            ParameterProvider.getParameterV3(parameterInfo).data = encoded
+        }
+    }
+
+    private fun fillCollectionGesturesInBindingGroup(): BindingGestureGroup {
+        currentBindingGroup = BindingGestureGroup()
+        listBindingGesture.take(BindingGestureGroup.PAIR_COUNT).forEachIndexed { index, pair ->
+            currentBindingGroup.setGestureAt(index, pair)
+        }
+
+        bindingAdapter.updateGestures(listBindingGesture)
+        if (bindingAdapter.itemCount > 0) {
+            _annotationTv.visibility = View.GONE
+            _annotationIv.visibility = View.GONE
+        } else {
+            _annotationTv.visibility = View.VISIBLE
+            _annotationIv.visibility = View.VISIBLE
+        }
+
+        return currentBindingGroup
+    }
+
     private fun requestRotationGroupWithRetry() {
         if (!isInteractionEnabled) return
         isRotationGroupResponseReceived = false
@@ -583,6 +728,21 @@ class GesturesDelegateAdapterV3(
                 Log.d("GesturesDelegateAdapter", "Отправил onRequestRotationGroup")
             },
             isResponseReceived = { isRotationGroupResponseReceived },
+            maxRetries = 5,
+            delayMillis = 400,
+            scope = scope
+        )
+    }
+
+    private fun requestBindingGroupWithRetry() {
+        if (!isInteractionEnabled) return
+        isBindingGroupResponseReceived = false
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                onRequestBindingGroup()
+                Log.d("GesturesDelegateAdapter", "Отправил onRequestBindingGroup")
+            },
+            isResponseReceived = { isBindingGroupResponseReceived },
             maxRetries = 5,
             delayMillis = 400,
             scope = scope
@@ -648,46 +808,53 @@ class GesturesDelegateAdapterV3(
     }
 
     private fun renderFilterUI(activeFilter: Int, animate: Boolean = true, force: Boolean = false) {
-        if (!force && lastRenderedFilter == activeFilter) return
+        val normalizedFilter = activeFilter.coerceIn(1, 3)
+        if (!force && lastRenderedFilter == normalizedFilter) return
 
-        val showCollection = activeFilter == 1
-        val collectionTargetColor = if (showCollection) {
+        val collectionTargetColor = if (normalizedFilter == 1) {
             main.getColor(R.color.white)
         } else {
             main.getColor(R.color.ubi4_deactivate_text)
         }
-        val rotationTargetColor = if (showCollection) {
-            main.getColor(R.color.ubi4_deactivate_text)
-        } else {
+        val rotationTargetColor = if (normalizedFilter == 2) {
             main.getColor(R.color.white)
+        } else {
+            main.getColor(R.color.ubi4_deactivate_text)
+        }
+        val bindingTargetColor = if (normalizedFilter == 3) {
+            main.getColor(R.color.white)
+        } else {
+            main.getColor(R.color.ubi4_deactivate_text)
         }
 
         if (!_ubi4GesturesSelectorV.isLaidOut && !force) {
             _collectionOfGesturesTv.setTextColor(collectionTargetColor)
             _rotationGroupTv.setTextColor(rotationTargetColor)
-            showCollectionGestures(showCollection, _rotationGroupCl, _collectionGesturesCl)
+            _bindingGroupTv.setTextColor(bindingTargetColor)
+            showFilterContainers(normalizedFilter)
             if (_activeGestureNameCl.visibility != View.VISIBLE) {
                 _activeGestureNameCl.visibility = View.VISIBLE
             }
-            lastRenderedFilter = activeFilter
+            lastRenderedFilter = normalizedFilter
             _ubi4GesturesSelectorV.post {
-                renderFilterUI(activeFilter, animate = false, force = true)
+                renderFilterUI(normalizedFilter, animate = false, force = true)
             }
             return
         }
 
-        val displayMetrics = main.resources.displayMetrics
+        val density = main.resources.displayMetrics.density
         val selectorContainerWidth = _ubi4GesturesSelectorV.width.takeIf { it > 0 }
             ?: _ubi4GesturesSelectorV.measuredWidth
-        val selectorStart = 18f * displayMetrics.density
-        val targetSelectorX = if (activeFilter == 1) {
-            selectorStart
-        } else {
-            (selectorContainerWidth / 2f) + selectorStart
+        val buttonWidth = selectorContainerWidth / 3f
+        val extraOffsetPx = 3f * density
+        val targetSelectorX = (normalizedFilter - 1) * buttonWidth + when (normalizedFilter) {
+            2 -> extraOffsetPx - density
+            3 -> extraOffsetPx * 2
+            else -> 0f
         }
 
         if (animate && lastRenderedFilter != null) {
-            ObjectAnimator.ofFloat(_gesturesSelectV, "x", targetSelectorX)
+            ObjectAnimator.ofFloat(_gesturesSelectV, "translationX", targetSelectorX)
                 .setDuration(ANIMATION_DURATION.toLong())
                 .start()
 
@@ -712,37 +879,47 @@ class GesturesDelegateAdapterV3(
                 duration = ANIMATION_DURATION.toLong()
                 start()
             }
+
+            ObjectAnimator.ofInt(
+                _bindingGroupTv,
+                "textColor",
+                _bindingGroupTv.currentTextColor,
+                bindingTargetColor
+            ).apply {
+                setEvaluator(ArgbEvaluator())
+                duration = ANIMATION_DURATION.toLong()
+                start()
+            }
         } else {
-            _gesturesSelectV.x = targetSelectorX
+            _gesturesSelectV.translationX = targetSelectorX
             _collectionOfGesturesTv.setTextColor(collectionTargetColor)
             _rotationGroupTv.setTextColor(rotationTargetColor)
+            _bindingGroupTv.setTextColor(bindingTargetColor)
         }
 
-        showCollectionGestures(showCollection, _rotationGroupCl, _collectionGesturesCl)
+        showFilterContainers(normalizedFilter)
         if (_activeGestureNameCl.visibility != View.VISIBLE) {
             _activeGestureNameCl.visibility = View.VISIBLE
         }
-        lastRenderedFilter = activeFilter
+        lastRenderedFilter = normalizedFilter
     }
 
-    private fun showCollectionGestures(
-        show: Boolean,
-        rotationGroupCl: ConstraintLayout,
-        collectionGesturesCl: ConstraintLayout
-    ) {
-        if (show) {
-            if (collectionGesturesCl.visibility != View.VISIBLE) {
-                collectionGesturesCl.visibility = View.VISIBLE
+    private fun showFilterContainers(activeFilter: Int) {
+        when (activeFilter) {
+            1 -> {
+                if (_collectionGesturesCl.visibility != View.VISIBLE) _collectionGesturesCl.visibility = View.VISIBLE
+                if (_rotationGroupCl.visibility != View.GONE) _rotationGroupCl.visibility = View.GONE
+                if (_sprGestureGroupCl.visibility != View.GONE) _sprGestureGroupCl.visibility = View.GONE
             }
-            if (rotationGroupCl.visibility != View.GONE) {
-                rotationGroupCl.visibility = View.GONE
+            2 -> {
+                if (_rotationGroupCl.visibility != View.VISIBLE) _rotationGroupCl.visibility = View.VISIBLE
+                if (_collectionGesturesCl.visibility != View.GONE) _collectionGesturesCl.visibility = View.GONE
+                if (_sprGestureGroupCl.visibility != View.GONE) _sprGestureGroupCl.visibility = View.GONE
             }
-        } else {
-            if (rotationGroupCl.visibility != View.VISIBLE) {
-                rotationGroupCl.visibility = View.VISIBLE
-            }
-            if (collectionGesturesCl.visibility != View.GONE) {
-                collectionGesturesCl.visibility = View.GONE
+            3 -> {
+                if (_sprGestureGroupCl.visibility != View.VISIBLE) _sprGestureGroupCl.visibility = View.VISIBLE
+                if (_collectionGesturesCl.visibility != View.GONE) _collectionGesturesCl.visibility = View.GONE
+                if (_rotationGroupCl.visibility != View.GONE) _rotationGroupCl.visibility = View.GONE
             }
         }
     }

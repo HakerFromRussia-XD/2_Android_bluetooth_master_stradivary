@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.gestures.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
@@ -170,6 +171,9 @@ object BLECommandsV3 {
     fun requestTelemetryData(): ByteArray {
         return request(PWCE_GET_TELEMETRY_DATA.number.toInt())
     }
+    fun requestBindingGroup(): ByteArray {
+        return request(PWCE_GET_BINDING_DATA.number.toInt())
+    }
     fun requestWithCommand(command: Int, subcommand: Int): ByteArray {
         val header = byteArrayOf(
             0x00,
@@ -228,6 +232,14 @@ object BLECommandsV3 {
         header[header.size-1] = calculationCRC(header).toByte()
         dataRepack[dataRepack.size-1] = calculationCRC(dataRepack).toByte()
         return header + dataRepack
+    }
+
+    fun sendBindingGroup(bindingGestureGroup: BindingGestureGroup): ByteArray {
+        return sendLongCommand(
+            PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            PWCE_SET_BINDING_DATA.number.toInt(),
+            bindingGestureGroup.toPayloadBytes()
+        )
     }
 
     fun sendSwitcher(subcommand: Int, checked: Boolean): ByteArray {

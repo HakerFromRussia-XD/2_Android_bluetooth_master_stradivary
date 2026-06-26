@@ -53,6 +53,7 @@ object WidgetState {
     var switcherFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var currentGestureFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     var gestureGroupFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
+    var bindingGroupFlowV3 by Delegates.notNull<MutableSharedFlow<ParameterInfo<Int, Int, Int, Int>>>()
     val telemetryGestureCountersFlow = MutableStateFlow(TelemetryGestureCounters())
 
     @Volatile
@@ -91,5 +92,6 @@ object WidgetState {
         switcherFlowV3 = MutableSharedFlow(replay = 1)
         currentGestureFlowV3 = MutableSharedFlow(replay = 1)
         gestureGroupFlowV3 = MutableSharedFlow(replay = 1)
+        bindingGroupFlowV3 = MutableSharedFlow(replay = 1)
     }
 }

@@ -23,6 +23,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_S
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 
 data class WidgetResponseRouteV3(
     val command: Int,
@@ -37,6 +38,7 @@ enum class WidgetEmitTargetV3 {
     THRESHOLD_FLOW,
     CURRENT_GESTURE_FLOW,
     GESTURE_GROUP_FLOW,
+    BINDING_GROUP_FLOW,
     GESTURE_SETTINGS_EVENT,
     NO_UI
 }
@@ -73,6 +75,12 @@ object WidgetResponseRoutesV3 {
             responseSubcommand = PWCE_GET_GESTURE_GROUPE.number.toInt(),
             parameterKey = P_KEY_GESTURE_GROUPE,
             emitTarget = WidgetEmitTargetV3.GESTURE_GROUP_FLOW
+        ),
+        WidgetResponseRouteV3(
+            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+            responseSubcommand = PWCE_GET_BINDING_DATA.number.toInt(),
+            parameterKey = P_KEY_BINDING_DATA,
+            emitTarget = WidgetEmitTargetV3.BINDING_GROUP_FLOW
         ),
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),

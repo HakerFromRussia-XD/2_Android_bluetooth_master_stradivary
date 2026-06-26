@@ -168,11 +168,19 @@ abstract class BaseWidgetsFragment : Fragment() {
                 gestureNameList = gestureNameList,
                 onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
                 onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
+                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
+                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
+                },
+                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
+                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
+                },
                 onSendBLERotationGroup = { sendBLERotationGroupV3() },
                 onSendBLEActiveGesture = { activeGesture -> sendBLEActiveGestureV3(activeGesture) },
+                onSendBLEBindingGroup = { bindingGestureGroup -> sendBLEBindingGroupV3(bindingGestureGroup) },
                 onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
                 onRequestActiveGesture = { requestActiveGestureV3() },
                 onRequestRotationGroup = { requestRotationGroupV3() },
+                onRequestBindingGroup = { requestBindingGroupV3() },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             TrainingFragmentDelegateAdapter(
@@ -516,6 +524,10 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+    open fun sendBLEBindingGroupV3(bindingGestureGroup: BindingGestureGroup) {
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendBindingGroup(bindingGestureGroup), SERIALPORTCHAR_UUID, WRITE){}
+    }
     open fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
@@ -544,6 +556,11 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
 
+    }
+    private fun requestBindingGroupV3() {
+        platformLog("requestBindingGroupV3", "спросили группу биндингов")
+        if (!isAdded) return
+        transmitter().bleCommandWithQueue(BLECommandsV3.requestBindingGroup(), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun refreshWidgetsList() {
         if (UiState.isInterfaceV3Activated) {

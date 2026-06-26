@@ -11,6 +11,7 @@ enum class ParameterCodecIdV3 {
     THRESHOLDS,
     CURRENT_GESTURE,
     ROTATION_GROUP,
+    BINDING_GROUP,
     GESTURE_SETTINGS,
     SWITCHER,
     TEXT,

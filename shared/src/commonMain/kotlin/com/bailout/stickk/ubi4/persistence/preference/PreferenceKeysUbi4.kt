@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
@@ -926,6 +927,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.ROTATION_GROUP,
                 widgetKind = WidgetKindV3.GESTURES,
                 valuePath = "rotationGroup[]"
+            ),
+            P_KEY_BINDING_DATA to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_BINDING_DATA.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.BINDING_GROUP,
+                widgetKind = WidgetKindV3.GESTURES,
+                valuePath = "bindingGroup[]"
             ),
             P_KEY_EMG_CHANGE_GESTURE to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),

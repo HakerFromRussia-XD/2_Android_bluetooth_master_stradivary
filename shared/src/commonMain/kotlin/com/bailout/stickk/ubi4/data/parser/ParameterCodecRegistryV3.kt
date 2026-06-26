@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.parser
 
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
@@ -25,6 +26,8 @@ sealed interface ParameterCodecActionV3 {
     data class SetBoolean(val checked: Boolean) : ParameterCodecActionV3
 
     data class SetText(val text: String) : ParameterCodecActionV3
+
+    data class SetBindingGroup(val bindingGroup: BindingGestureGroup) : ParameterCodecActionV3
 }
 
 sealed interface ParameterEncodedActionV3 {
@@ -103,6 +106,15 @@ object ParameterCodecRegistryV3 {
                     )
                 )
             }
+            ParameterCodecIdV3.BINDING_GROUP -> {
+                if (payload == null || payload.length < 2) return null
+                ParameterTypedValueV3.BindingGroup(
+                    BindingGestureGroup.fromPayloadBytes(
+                        payload.toByteArray(),
+                        offset = 1
+                    )
+                )
+            }
             ParameterCodecIdV3.GESTURE_SETTINGS -> {
                 if (payload == null || payload.length < 26) return null
                 ParameterTypedValueV3.GestureSettings(
@@ -175,6 +187,8 @@ object ParameterCodecRegistryV3 {
                     ParameterTypedValueV3.CurrentGesture(json.decodeFromString<CurrentGestureV3>(data))
                 ParameterCodecIdV3.ROTATION_GROUP ->
                     ParameterTypedValueV3.RotationGroup(json.decodeFromString<RotationGroupV3>(data))
+                ParameterCodecIdV3.BINDING_GROUP ->
+                    ParameterTypedValueV3.BindingGroup(decodeBindingGroupSerialized(data))
                 ParameterCodecIdV3.GESTURE_SETTINGS ->
                     ParameterTypedValueV3.GestureSettings(json.decodeFromString<GestureV3>(data))
                 ParameterCodecIdV3.SWITCHER ->
@@ -205,6 +219,7 @@ object ParameterCodecRegistryV3 {
                 ParameterCodecIdV3.THRESHOLDS -> json.encodeToString((typedValue as ParameterTypedValueV3.Thresholds).value)
                 ParameterCodecIdV3.CURRENT_GESTURE -> json.encodeToString((typedValue as ParameterTypedValueV3.CurrentGesture).value)
                 ParameterCodecIdV3.ROTATION_GROUP -> json.encodeToString((typedValue as ParameterTypedValueV3.RotationGroup).value)
+                ParameterCodecIdV3.BINDING_GROUP -> (typedValue as ParameterTypedValueV3.BindingGroup).value.toHexString()
                 ParameterCodecIdV3.GESTURE_SETTINGS -> json.encodeToString((typedValue as ParameterTypedValueV3.GestureSettings).value)
                 ParameterCodecIdV3.SWITCHER -> json.encodeToString((typedValue as ParameterTypedValueV3.Switcher).value)
                 ParameterCodecIdV3.TEXT -> (typedValue as ParameterTypedValueV3.Text).value
@@ -254,9 +269,22 @@ object ParameterCodecRegistryV3 {
                 val value = parseUInt32(text) ?: return null
                 ParameterEncodedActionV3.ByteArrayValue(value.toUInt32LeBytes())
             }
+            ParameterCodecIdV3.BINDING_GROUP -> {
+                val bindingGroup = (action as? ParameterCodecActionV3.SetBindingGroup)?.bindingGroup
+                    ?: return null
+                ParameterEncodedActionV3.ByteArrayValue(bindingGroup.toPayloadBytes())
+            }
             else -> null
         }
     }
+}
+
+private fun decodeBindingGroupSerialized(data: String): BindingGestureGroup {
+    val jsonDecoded = runCatching {
+        Json.decodeFromString<BindingGestureGroup>(data)
+    }.getOrNull()
+    if (jsonDecoded != null) return jsonDecoded
+    return BindingGestureGroup.fromHexString(data)
 }
 
 private val uint32TokenRegex = Regex("""0[xX][0-9a-fA-F]+|\d+""")

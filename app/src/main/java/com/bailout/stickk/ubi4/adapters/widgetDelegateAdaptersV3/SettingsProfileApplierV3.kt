@@ -74,6 +74,9 @@ object SettingsProfileApplierV3 {
             is ParameterTypedValueV3.RotationGroup -> BLECommandsV3.sendRotationGroup(
                 typedValue.value.toLegacyRotationGroup()
             )
+            is ParameterTypedValueV3.BindingGroup -> BLECommandsV3.sendBindingGroup(
+                typedValue.value
+            )
             is ParameterTypedValueV3.GestureSettings -> BLECommandsV3.sendGestureInfo(
                 GestureWithAddress(
                     addressDevice = parameterInfo.deviceAddress,

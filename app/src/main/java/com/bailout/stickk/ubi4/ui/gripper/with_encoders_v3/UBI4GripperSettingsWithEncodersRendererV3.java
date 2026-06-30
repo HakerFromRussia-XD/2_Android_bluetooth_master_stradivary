@@ -128,6 +128,12 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String SPECULAR_FACTOR_UNIFORM = "u_specularFactor";
 	private static final String LIGHT_POWER_UNIFORM = "u_lightPower";
 	private static final String AMBIENT_FACTOR_UNIFORM = "u_ambientFactor";
+	private static final String MATERIAL_MODE_UNIFORM = "u_MaterialMode";
+	private static final String CHROME_STRENGTH_UNIFORM = "u_ChromeStrength";
+	private static final String METAL_FILL_LIGHT_DIRECTION_UNIFORM = "u_MetalFillLightDirection";
+	private static final String METAL_RIM_LIGHT_DIRECTION_UNIFORM = "u_MetalRimLightDirection";
+	private static final String METAL_FILL_LIGHT_STRENGTH_UNIFORM = "u_MetalFillLightStrength";
+	private static final String METAL_RIM_LIGHT_STRENGTH_UNIFORM = "u_MetalRimLightStrength";
 	private static final String CODE_SELECT_UNIFORM = "u_Code";
 
 	private static final String POSITION_ATTRIBUTE = "a_Position";
@@ -153,6 +159,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final int STRIDE = (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 			+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS
 			+ BITANGENT_DATA_SIZE_IN_ELEMENTS ) * BYTES_PER_FLOAT;//+ BITANGENT_DATA_SIZE_IN_ELEMENTS)
+
+	private static final int MATERIAL_MODE_DEFAULT = 0;
+	private static final int MATERIAL_MODE_CHROME = 1;
+	private static final float CHROME_STRENGTH = 0.72f;
+	private static final float METAL_FILL_LIGHT_STRENGTH = 0.82f;
+	private static final float METAL_RIM_LIGHT_STRENGTH = 1.08f;
+	private static final float[] METAL_FILL_LIGHT_DIRECTION = new float[] { -0.74f, 0.46f, 0.49f };
+	private static final float[] METAL_RIM_LIGHT_DIRECTION = new float[] { 0.78f, 0.44f, -0.45f };
 
 
 
@@ -582,6 +596,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		setChromeMaterial(program, true);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 40.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
@@ -589,6 +604,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform1i(textureUniform, 12);
 		glUniform1i(normalMapUniform, 13);
 		heightMap.render(new int[]{6});
+		setChromeMaterial(program, false);
 
 		glUniform1i(isUsingNormalMap, 1);
 		GLES20.glUniform1f(specularFactorUniform, 2.0f);
@@ -598,12 +614,56 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform1i(normalMapUniform, 9);
 		heightMap.render(new int[]{4});
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1i(textureUniform, 3);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		heightMap.render(new int[]{5});
+		renderGrayMetalPart(program, new int[]{5});
+	}
+
+	private void setChromeMaterial(int shaderProgram, boolean enabled) {
+		int materialModeUniform = glGetUniformLocation(shaderProgram, MATERIAL_MODE_UNIFORM);
+		if (materialModeUniform >= 0) {
+			glUniform1i(materialModeUniform, enabled ? MATERIAL_MODE_CHROME : MATERIAL_MODE_DEFAULT);
+		}
+		int chromeStrengthUniform = glGetUniformLocation(shaderProgram, CHROME_STRENGTH_UNIFORM);
+		if (chromeStrengthUniform >= 0) {
+			glUniform1f(chromeStrengthUniform, enabled ? CHROME_STRENGTH : 0.0f);
+		}
+		int fillLightDirectionUniform = glGetUniformLocation(shaderProgram, METAL_FILL_LIGHT_DIRECTION_UNIFORM);
+		if (fillLightDirectionUniform >= 0) {
+			glUniform3f(fillLightDirectionUniform,
+					METAL_FILL_LIGHT_DIRECTION[0], METAL_FILL_LIGHT_DIRECTION[1], METAL_FILL_LIGHT_DIRECTION[2]);
+		}
+		int rimLightDirectionUniform = glGetUniformLocation(shaderProgram, METAL_RIM_LIGHT_DIRECTION_UNIFORM);
+		if (rimLightDirectionUniform >= 0) {
+			glUniform3f(rimLightDirectionUniform,
+					METAL_RIM_LIGHT_DIRECTION[0], METAL_RIM_LIGHT_DIRECTION[1], METAL_RIM_LIGHT_DIRECTION[2]);
+		}
+		int fillLightStrengthUniform = glGetUniformLocation(shaderProgram, METAL_FILL_LIGHT_STRENGTH_UNIFORM);
+		if (fillLightStrengthUniform >= 0) {
+			glUniform1f(fillLightStrengthUniform, enabled ? METAL_FILL_LIGHT_STRENGTH : 0.0f);
+		}
+		int rimLightStrengthUniform = glGetUniformLocation(shaderProgram, METAL_RIM_LIGHT_STRENGTH_UNIFORM);
+		if (rimLightStrengthUniform >= 0) {
+			glUniform1f(rimLightStrengthUniform, enabled ? METAL_RIM_LIGHT_STRENGTH : 0.0f);
+		}
+	}
+
+	private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+		if (shaderProgram == program) {
+			setChromeMaterial(shaderProgram, true);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 30.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(indexesOfBuffer);
+			setChromeMaterial(shaderProgram, false);
+		} else {
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 900.0f);
+			glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(indexesOfBuffer);
+		}
 	}
 
 	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
@@ -702,12 +762,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 1.0f);
-		glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{8});
+		renderGrayMetalPart(shaderMassiv[0], new int[]{8});
 
 		/** металл */
 		glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -718,12 +773,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		setChromeMaterial(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		glUniform1f(specularFactorUniform, 60.0f);
 		glUniform1f(lightPowerUniform, 3600.0f);
 		glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{9});
+		setChromeMaterial(shaderMassiv[0], false);
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -898,12 +955,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 1.0f);
-		glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{11});
+		renderGrayMetalPart(shaderMassiv[0], new int[]{11});
 
 		/** шейдер без цвета */
 
@@ -915,12 +967,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		setChromeMaterial(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		glUniform1f(specularFactorUniform, 30.0f);
 		glUniform1f(lightPowerUniform, 3600.0f);
 		glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{12});
+		setChromeMaterial(shaderMassiv[0], false);
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1105,12 +1159,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{14});
+		renderGrayMetalPart(shaderMassiv[0], new int[]{14});
 
 		/** шейдер без цвета */
 
@@ -1122,12 +1171,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		setChromeMaterial(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 30.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{15});
+		setChromeMaterial(shaderMassiv[0], false);
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1342,12 +1393,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		setChromeMaterial(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 30.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{18});
+		setChromeMaterial(shaderMassiv[0], false);
 
 		/** шейдер без цвета */
 
@@ -1359,12 +1412,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{17});
+		renderGrayMetalPart(shaderMassiv[0], new int[]{17});
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1641,12 +1689,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{1});
+		renderGrayMetalPart(shaderMassiv[0], new int[]{1});
 
 
 		/** манипуляции с венцом */
@@ -1681,12 +1724,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		/** должнабыть текстура металла*/
+		setChromeMaterial(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 30.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{2, 3});
+		setChromeMaterial(shaderMassiv[0], false);
 	}
 
 	private void firstInit () {

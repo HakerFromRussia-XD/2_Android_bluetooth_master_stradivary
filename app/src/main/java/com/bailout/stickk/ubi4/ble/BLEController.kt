@@ -96,6 +96,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private var mConnected = false
     private var endFlag = false
     private var mScanning = false
+    private var onConnectedListener: (() -> Unit)? = null
     private var onNeedFullInitListener: (() -> Unit)? = null
 
     @Volatile private var isTransferFlowActive = false
@@ -727,6 +728,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         progressDialog?.dismiss()
         progressDialog = null
         onNeedFullInitListener = null
+        onConnectedListener = null
         onDisconnectedListener = null
         runCatching { mBluetoothLeService?.disconnect() }
         runCatching { mBluetoothLeService?.close() }
@@ -771,6 +773,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
             if (initRequests.isEmpty()) {
                 UiState.widgetsLoadingFlow.tryEmit(Unit)
+                onConnectedListener?.invoke()
                 return
             }
 
@@ -855,6 +858,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
+    }
+
+    fun setOnConnectedListener(listener: () -> Unit) {
+        onConnectedListener = listener
     }
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
@@ -1022,6 +1029,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
         if (shouldEmitCompletion) {
             UiState.widgetsLoadingFlow.tryEmit(Unit)
+            onConnectedListener?.invoke()
         }
     }
 

@@ -178,6 +178,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         telemetryCoordinator = TelemetryCoordinator(
             scope = lifecycleScope,
+            preferences = mSettings!!,
             requestTelemetryData = { mBLEController.requestTelemetryDataV3() },
             fallbackDeviceIds = {
                 listOf(
@@ -189,6 +190,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             },
             showToast = ::showToast
         )
+        mBLEController.setOnConnectedListener {
+            if (UiState.isInterfaceV3Activated) {
+                telemetryCoordinator.sendTelemetry(showResultToast = false)
+            }
+        }
         mBLEController.initBLEStructure()
         mBLEController.connectToSavedDeviceNow()
         bluetoothLeService = BluetoothLeService()
@@ -221,7 +227,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showSensorsScreen()
         }
 
-
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
             activeFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
@@ -239,18 +244,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showHelpScreen()
         }
 
-
         binding.accountBtn.setOnClickListener {
             showAccountScreen()
-
         }
+
         binding.statusBackBtn.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            telemetryCoordinator.sendTelemetry()
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            telemetryCoordinator.sendTelemetry()
+//        }
 
         val accountPb = binding.accountPb.apply {
             max = 100

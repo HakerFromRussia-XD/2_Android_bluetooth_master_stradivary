@@ -114,10 +114,11 @@ class SpinnerDelegateAdapterV3 (
             isSettingsProfileSelector = isSettingsProfileSelector
         )
         spinnerInfoList.removeAll {
-            it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
+            it.spinner === spinnerPsv ||
+                (it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
                 it.parameterInfo.parameterID == info.parameterInfo.parameterID &&
                 it.parameterInfo.dataCode == info.parameterInfo.dataCode &&
-                it.widgetPosition == info.widgetPosition
+                it.widgetPosition == info.widgetPosition)
         }
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
@@ -133,6 +134,7 @@ class SpinnerDelegateAdapterV3 (
         if (isRoleSelector) {
             setServiceEngineerUiEnabled(initialIndex == serviceEngineerIndex)
         }
+        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, _, _ -> }
         // стартовое состояние из структуры или локальных настроек для роли
         safeIndexOrNull(
             items = info.items,
@@ -304,6 +306,8 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun applyProgrammaticSelection(infoWidget: WidgetSpinnerInfo, index: Int) {
+        if (!isCurrentSpinnerInfo(infoWidget)) return
+
         val safeIndex = safeIndexOrNull(
             items = infoWidget.items,
             requestedIndex = index,
@@ -323,6 +327,8 @@ class SpinnerDelegateAdapterV3 (
         prefs: SharedPreferences,
         newIndex: Int
     ) {
+        if (!isCurrentSpinnerInfo(info)) return
+
         val previousIndex = info.selectedIndex
             .takeIf { it in roleItems.indices }
             ?: roleDefaultIndex
@@ -370,6 +376,9 @@ class SpinnerDelegateAdapterV3 (
     private fun setServiceEngineerUiEnabled(enabled: Boolean) {
         UiState.isServiceEngineerRole.value = enabled
     }
+
+    private fun isCurrentSpinnerInfo(info: WidgetSpinnerInfo): Boolean =
+        spinnerInfoList.any { it === info }
 
     private fun handleSettingsProfileSelection(
         info: WidgetSpinnerInfo,

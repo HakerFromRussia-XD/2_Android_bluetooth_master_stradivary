@@ -10,11 +10,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,8 +27,14 @@ import java.util.Set;
 public final class Load3DModelFesth3 {
     private static final String TAG = "Load3DModelFesth3";
     private static final String MANIFEST_PATH = "STR2_V3/v3_model_parts_manifest.json";
+    private static final String BINARY_MODEL_DIR = "STR2_V3_BIN";
     private static final int FLOATS_PER_VERTEX = 18;
-    private static final float UV_EPSILON = 0.000001f;
+    private static final int BINARY_MODEL_VERSION = 1;
+    private static final int BINARY_HEADER_BYTES = 44;
+    private static final byte BINARY_MAGIC_0 = 'V';
+    private static final byte BINARY_MAGIC_1 = '3';
+    private static final byte BINARY_MAGIC_2 = 'M';
+    private static final byte BINARY_MAGIC_3 = 'B';
     private static final Object LOCK = new Object();
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static final List<Runnable> pendingLoadCallbacks = new ArrayList<>();
@@ -225,12 +231,13 @@ public final class Load3DModelFesth3 {
         ModelPartBuffers[] parts = new ModelPartBuffers[partsJson.length()];
         Map<String, Integer> partIndexesById = new LinkedHashMap<>();
         Map<String, LinkedHashSet<Integer>> mutableGroups = new LinkedHashMap<>();
-        long objParseMs = 0L;
+        long binaryLoadMs = 0L;
         int totalVertexCount = 0;
         int totalIndexCount = 0;
         int totalLines = 0;
         int totalFaces = 0;
         int totalTriangles = 0;
+        int totalBinaryBytes = 0;
 
         for (int i = 0; i < partsJson.length(); i++) {
             JSONObject partJson = partsJson.getJSONObject(i);
@@ -239,13 +246,15 @@ public final class Load3DModelFesth3 {
             if (asset.isEmpty()) {
                 throw new JSONException("Missing asset for V3 part " + partId);
             }
-            parts[i] = parseObj(context, asset);
-            objParseMs += parts[i].parseMs;
+            String binaryAsset = partJson.optString("binaryAsset", binaryAssetPathFor(asset));
+            parts[i] = loadBinaryPart(context, binaryAsset, partId);
+            binaryLoadMs += parts[i].loadMs;
             totalVertexCount += parts[i].vertexCount;
             totalIndexCount += parts[i].indices.length;
             totalLines += parts[i].lineCount;
             totalFaces += parts[i].faceCount;
             totalTriangles += parts[i].triangleCount;
+            totalBinaryBytes += parts[i].binaryBytes;
             partIndexesById.put(partId, i);
             addGroupIndex(mutableGroups, "all", i);
             addGroupIndex(mutableGroups, partId, i);
@@ -295,16 +304,19 @@ public final class Load3DModelFesth3 {
         LoadedModel model = new LoadedModel(parts, groups, totalVertexCount, totalIndexCount);
         V3ModelLoadMetrics.log("modelParsed totalMs=" + elapsedSince(loadStartedAtMs)
                 + " manifestMs=" + manifestMs
-                + " objParseMs=" + objParseMs
+                + " binaryLoadMs=" + binaryLoadMs
+                + " objParseMs=0"
                 + " parts=" + parts.length
                 + " vertices=" + totalVertexCount
                 + " indices=" + totalIndexCount
                 + " vertexBytes=" + model.vertexBytes
                 + " indexBytes=" + model.indexBytes
+                + " binaryBytes=" + totalBinaryBytes
                 + " lines=" + totalLines
                 + " faces=" + totalFaces
                 + " triangles=" + totalTriangles
-                + " groups=" + groups.size());
+                + " groups=" + groups.size()
+                + " source=binary");
         return model;
     }
 
@@ -338,6 +350,10 @@ public final class Load3DModelFesth3 {
     }
 
     private static String readAssetText(Context context, String assetPath) throws IOException {
+        return new String(readAssetBytes(context, assetPath), StandardCharsets.UTF_8);
+    }
+
+    private static byte[] readAssetBytes(Context context, String assetPath) throws IOException {
         try (InputStream input = context.getAssets().open(assetPath);
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[8192];
@@ -345,238 +361,101 @@ public final class Load3DModelFesth3 {
             while ((count = input.read(buffer)) != -1) {
                 output.write(buffer, 0, count);
             }
-            return output.toString(StandardCharsets.UTF_8.name());
+            return output.toByteArray();
         }
     }
 
-    private static ModelPartBuffers parseObj(Context context, String assetPath) throws IOException {
-        long parseStartedAtMs = SystemClock.elapsedRealtime();
-        ArrayList<float[]> coordinates = new ArrayList<>();
-        ArrayList<float[]> textures = new ArrayList<>();
-        ArrayList<float[]> normals = new ArrayList<>();
-        FloatArrayBuilder vertices = new FloatArrayBuilder();
-        IntArrayBuilder indices = new IntArrayBuilder();
-        int lineCount = 0;
-        int faceCount = 0;
-        int triangleCount = 0;
-
-        try (InputStream input = context.getAssets().open(assetPath);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lineCount++;
-                String trimmed = line.trim();
-                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
-                    continue;
-                }
-                String[] tokens = trimmed.split("\\s+");
-                if ("v".equals(tokens[0]) && tokens.length >= 4) {
-                    coordinates.add(new float[]{
-                            Float.parseFloat(tokens[1]),
-                            Float.parseFloat(tokens[2]),
-                            Float.parseFloat(tokens[3])
-                    });
-                } else if ("vt".equals(tokens[0]) && tokens.length >= 3) {
-                    textures.add(new float[]{
-                            Float.parseFloat(tokens[1]),
-                            Float.parseFloat(tokens[2])
-                    });
-                } else if ("vn".equals(tokens[0]) && tokens.length >= 4) {
-                    normals.add(new float[]{
-                            Float.parseFloat(tokens[1]),
-                            Float.parseFloat(tokens[2]),
-                            Float.parseFloat(tokens[3])
-                    });
-                } else if ("f".equals(tokens[0]) && tokens.length >= 4) {
-                    faceCount++;
-                    ObjVertexRef first = parseVertexRef(tokens[1], coordinates.size(), textures.size(), normals.size());
-                    ObjVertexRef previous = parseVertexRef(tokens[2], coordinates.size(), textures.size(), normals.size());
-                    for (int i = 3; i < tokens.length; i++) {
-                        ObjVertexRef current = parseVertexRef(tokens[i], coordinates.size(), textures.size(), normals.size());
-                        triangleCount++;
-                        appendTriangle(
-                                vertices,
-                                indices,
-                                coordinates,
-                                textures,
-                                normals,
-                                first,
-                                previous,
-                                current
-                        );
-                        previous = current;
-                    }
-                }
-            }
+    private static ModelPartBuffers loadBinaryPart(Context context, String assetPath, String partId) throws IOException {
+        long loadStartedAtMs = SystemClock.elapsedRealtime();
+        byte[] bytes = readAssetBytes(context, assetPath);
+        if (bytes.length < BINARY_HEADER_BYTES) {
+            throw new IOException("V3 binary model part `" + assetPath + "` is shorter than header");
         }
 
-        float[] vertexArray = vertices.toArray();
-        int[] indexArray = indices.toArray();
-        long parseMs = elapsedSince(parseStartedAtMs);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        requireBinaryMagic(buffer, assetPath);
+        int version = buffer.getInt();
+        int floatsPerVertex = buffer.getInt();
+        int vertexCount = buffer.getInt();
+        int indexCount = buffer.getInt();
+        int lineCount = buffer.getInt();
+        int faceCount = buffer.getInt();
+        int triangleCount = buffer.getInt();
+        int coordinateCount = buffer.getInt();
+        int textureCount = buffer.getInt();
+        int normalCount = buffer.getInt();
+
+        if (version != BINARY_MODEL_VERSION) {
+            throw new IOException("Unsupported V3 binary model version " + version + " in `" + assetPath + "`");
+        }
+        if (floatsPerVertex != FLOATS_PER_VERTEX) {
+            throw new IOException("Unexpected vertex layout " + floatsPerVertex + " in `" + assetPath + "`");
+        }
+        if (vertexCount < 0 || indexCount < 0) {
+            throw new IOException("Negative V3 binary counts in `" + assetPath + "`");
+        }
+
+        int vertexFloatCount = vertexCount * FLOATS_PER_VERTEX;
+        int vertexBytes = vertexFloatCount * Float.BYTES;
+        int indexBytes = indexCount * Integer.BYTES;
+        int expectedBytes = BINARY_HEADER_BYTES + vertexBytes + indexBytes;
+        if (bytes.length != expectedBytes) {
+            throw new IOException("Unexpected V3 binary size for `" + assetPath
+                    + "`: expected " + expectedBytes + " bytes, got " + bytes.length);
+        }
+
+        float[] vertices = new float[vertexFloatCount];
+        buffer.asFloatBuffer().get(vertices);
+        buffer.position(buffer.position() + vertexBytes);
+
+        int[] indices = new int[indexCount];
+        buffer.asIntBuffer().get(indices);
+
+        long loadMs = elapsedSince(loadStartedAtMs);
         ModelPartBuffers buffers = new ModelPartBuffers(
-                vertexArray,
-                indexArray,
+                vertices,
+                indices,
                 lineCount,
                 faceCount,
                 triangleCount,
-                coordinates.size(),
-                textures.size(),
-                normals.size(),
-                parseMs
+                coordinateCount,
+                textureCount,
+                normalCount,
+                loadMs,
+                bytes.length
         );
-        V3ModelLoadMetrics.log("objParsed asset=" + assetPath
-                + " parseMs=" + parseMs
+        V3ModelLoadMetrics.log("partBinaryLoaded partId=" + partId
+                + " asset=" + assetPath
+                + " loadMs=" + loadMs
                 + " lines=" + lineCount
-                + " coordinates=" + coordinates.size()
-                + " textures=" + textures.size()
-                + " normals=" + normals.size()
+                + " coordinates=" + coordinateCount
+                + " textures=" + textureCount
+                + " normals=" + normalCount
                 + " faces=" + faceCount
                 + " triangles=" + triangleCount
                 + " vertices=" + buffers.vertexCount
-                + " indices=" + indexArray.length
+                + " indices=" + indexCount
                 + " vertexBytes=" + buffers.vertexBytes
-                + " indexBytes=" + buffers.indexBytes);
+                + " indexBytes=" + buffers.indexBytes
+                + " binaryBytes=" + buffers.binaryBytes);
         return buffers;
     }
 
-    private static ObjVertexRef parseVertexRef(
-            String token,
-            int coordinateCount,
-            int textureCount,
-            int normalCount
-    ) {
-        String[] values = token.split("/");
-        int coordinateIndex = parseObjIndex(values[0], coordinateCount);
-        int textureIndex = values.length > 1 && !values[1].isEmpty()
-                ? parseObjIndex(values[1], textureCount)
-                : -1;
-        int normalIndex = values.length > 2 && !values[2].isEmpty()
-                ? parseObjIndex(values[2], normalCount)
-                : -1;
-        return new ObjVertexRef(coordinateIndex, textureIndex, normalIndex);
-    }
-
-    private static int parseObjIndex(String rawIndex, int itemCount) {
-        int index = Integer.parseInt(rawIndex);
-        if (index > 0) {
-            return index - 1;
+    private static void requireBinaryMagic(ByteBuffer buffer, String assetPath) throws IOException {
+        if (buffer.get() != BINARY_MAGIC_0
+                || buffer.get() != BINARY_MAGIC_1
+                || buffer.get() != BINARY_MAGIC_2
+                || buffer.get() != BINARY_MAGIC_3) {
+            throw new IOException("Invalid V3 binary model magic in `" + assetPath + "`");
         }
-        return itemCount + index;
     }
 
-    private static void appendTriangle(
-            FloatArrayBuilder vertices,
-            IntArrayBuilder indices,
-            ArrayList<float[]> coordinates,
-            ArrayList<float[]> textures,
-            ArrayList<float[]> normals,
-            ObjVertexRef ref1,
-            ObjVertexRef ref2,
-            ObjVertexRef ref3
-    ) {
-        float[] v1 = coordinates.get(ref1.coordinateIndex);
-        float[] v2 = coordinates.get(ref2.coordinateIndex);
-        float[] v3 = coordinates.get(ref3.coordinateIndex);
-        float[] uv1 = getTexture(textures, ref1.textureIndex);
-        float[] uv2 = getTexture(textures, ref2.textureIndex);
-        float[] uv3 = getTexture(textures, ref3.textureIndex);
-        float[][] tangentSpace = calculateTangentSpace(v1, v2, v3, uv1, uv2, uv3);
-        appendVertex(vertices, indices, v1, getNormal(normals, ref1.normalIndex), uv1, tangentSpace);
-        appendVertex(vertices, indices, v2, getNormal(normals, ref2.normalIndex), uv2, tangentSpace);
-        appendVertex(vertices, indices, v3, getNormal(normals, ref3.normalIndex), uv3, tangentSpace);
-    }
-
-    private static void appendVertex(
-            FloatArrayBuilder vertices,
-            IntArrayBuilder indices,
-            float[] coordinate,
-            float[] normal,
-            float[] texture,
-            float[][] tangentSpace
-    ) {
-        int vertexIndex = vertices.size() / FLOATS_PER_VERTEX;
-        vertices.add(coordinate[0]);
-        vertices.add(coordinate[1]);
-        vertices.add(coordinate[2]);
-        vertices.add(normal[0]);
-        vertices.add(normal[1]);
-        vertices.add(normal[2]);
-        vertices.add(1.0f);
-        vertices.add(1.0f);
-        vertices.add(0.0f);
-        vertices.add(0.0f);
-        vertices.add(texture[0]);
-        vertices.add(texture[1]);
-        vertices.add(tangentSpace[0][0]);
-        vertices.add(tangentSpace[0][1]);
-        vertices.add(tangentSpace[0][2]);
-        vertices.add(tangentSpace[1][0]);
-        vertices.add(tangentSpace[1][1]);
-        vertices.add(tangentSpace[1][2]);
-        indices.add(vertexIndex);
-    }
-
-    private static float[] getTexture(ArrayList<float[]> textures, int index) {
-        if (index < 0 || index >= textures.size()) {
-            return new float[]{0.0f, 0.0f};
-        }
-        return textures.get(index);
-    }
-
-    private static float[] getNormal(ArrayList<float[]> normals, int index) {
-        if (index < 0 || index >= normals.size()) {
-            return new float[]{0.0f, 0.0f, 1.0f};
-        }
-        return normals.get(index);
-    }
-
-    private static float[][] calculateTangentSpace(
-            float[] v1,
-            float[] v2,
-            float[] v3,
-            float[] uv1,
-            float[] uv2,
-            float[] uv3
-    ) {
-        float[] deltaPos1 = new float[]{
-                v2[0] - v1[0],
-                v2[1] - v1[1],
-                v2[2] - v1[2]
-        };
-        float[] deltaPos2 = new float[]{
-                v3[0] - v1[0],
-                v3[1] - v1[1],
-                v3[2] - v1[2]
-        };
-        float[] deltaUv1 = new float[]{
-                uv2[0] - uv1[0],
-                uv2[1] - uv1[1]
-        };
-        float[] deltaUv2 = new float[]{
-                uv3[0] - uv1[0],
-                uv3[1] - uv1[1]
-        };
-
-        float denominator = deltaUv1[0] * deltaUv2[1] - deltaUv1[1] * deltaUv2[0];
-        if (Math.abs(denominator) < UV_EPSILON) {
-            return new float[][]{
-                    new float[]{1.0f, 0.0f, 0.0f},
-                    new float[]{0.0f, 1.0f, 0.0f}
-            };
-        }
-
-        float r = 1.0f / denominator;
-        float[] tangent = new float[]{
-                (deltaPos1[0] * deltaUv2[1] - deltaPos2[0] * deltaUv1[1]) * r,
-                (deltaPos1[1] * deltaUv2[1] - deltaPos2[1] * deltaUv1[1]) * r,
-                (deltaPos1[2] * deltaUv2[1] - deltaPos2[2] * deltaUv1[1]) * r
-        };
-        float[] bitangent = new float[]{
-                (deltaPos2[0] * deltaUv1[0] - deltaPos1[0] * deltaUv2[0]) * r,
-                (deltaPos2[1] * deltaUv1[0] - deltaPos1[1] * deltaUv2[0]) * r,
-                (deltaPos2[2] * deltaUv1[0] - deltaPos1[2] * deltaUv2[0]) * r
-        };
-        return new float[][]{tangent, bitangent};
+    private static String binaryAssetPathFor(String sourceAsset) {
+        int slashIndex = sourceAsset.lastIndexOf('/');
+        String fileName = slashIndex >= 0 ? sourceAsset.substring(slashIndex + 1) : sourceAsset;
+        int extensionIndex = fileName.lastIndexOf('.');
+        String baseName = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+        return BINARY_MODEL_DIR + "/" + baseName + ".v3bin";
     }
 
     private static final class LoadedModel {
@@ -606,10 +485,11 @@ public final class Load3DModelFesth3 {
         private final int coordinateCount;
         private final int textureCount;
         private final int normalCount;
-        private final long parseMs;
+        private final long loadMs;
         private final int vertexCount;
         private final int vertexBytes;
         private final int indexBytes;
+        private final int binaryBytes;
 
         private ModelPartBuffers(
                 float[] vertices,
@@ -620,7 +500,8 @@ public final class Load3DModelFesth3 {
                 int coordinateCount,
                 int textureCount,
                 int normalCount,
-                long parseMs
+                long loadMs,
+                int binaryBytes
         ) {
             this.vertices = vertices;
             this.indices = indices;
@@ -630,84 +511,11 @@ public final class Load3DModelFesth3 {
             this.coordinateCount = coordinateCount;
             this.textureCount = textureCount;
             this.normalCount = normalCount;
-            this.parseMs = parseMs;
+            this.loadMs = loadMs;
             this.vertexCount = vertices.length / FLOATS_PER_VERTEX;
             this.vertexBytes = vertices.length * Float.BYTES;
             this.indexBytes = indices.length * Integer.BYTES;
-        }
-    }
-
-    private static final class ObjVertexRef {
-        private final int coordinateIndex;
-        private final int textureIndex;
-        private final int normalIndex;
-
-        private ObjVertexRef(int coordinateIndex, int textureIndex, int normalIndex) {
-            this.coordinateIndex = coordinateIndex;
-            this.textureIndex = textureIndex;
-            this.normalIndex = normalIndex;
-        }
-    }
-
-    private static final class FloatArrayBuilder {
-        private float[] values = new float[4096];
-        private int size;
-
-        private void add(float value) {
-            ensureCapacity(size + 1);
-            values[size++] = value;
-        }
-
-        private int size() {
-            return size;
-        }
-
-        private float[] toArray() {
-            float[] result = new float[size];
-            System.arraycopy(values, 0, result, 0, size);
-            return result;
-        }
-
-        private void ensureCapacity(int required) {
-            if (required <= values.length) {
-                return;
-            }
-            int newCapacity = values.length;
-            while (newCapacity < required) {
-                newCapacity *= 2;
-            }
-            float[] newValues = new float[newCapacity];
-            System.arraycopy(values, 0, newValues, 0, size);
-            values = newValues;
-        }
-    }
-
-    private static final class IntArrayBuilder {
-        private int[] values = new int[1024];
-        private int size;
-
-        private void add(int value) {
-            ensureCapacity(size + 1);
-            values[size++] = value;
-        }
-
-        private int[] toArray() {
-            int[] result = new int[size];
-            System.arraycopy(values, 0, result, 0, size);
-            return result;
-        }
-
-        private void ensureCapacity(int required) {
-            if (required <= values.length) {
-                return;
-            }
-            int newCapacity = values.length;
-            while (newCapacity < required) {
-                newCapacity *= 2;
-            }
-            int[] newValues = new int[newCapacity];
-            System.arraycopy(values, 0, newValues, 0, size);
-            values = newValues;
+            this.binaryBytes = binaryBytes;
         }
     }
 

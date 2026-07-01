@@ -150,6 +150,9 @@ android {
             merges.add("META-INF/LICENSE-notice.md")
         }
     }
+    androidResources {
+        noCompress += "v3bin"
+    }
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs(listOf("libs"))

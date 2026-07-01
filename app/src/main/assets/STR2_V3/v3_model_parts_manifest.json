@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "partId": "thumb_main_rubber",
+      "asset": "STR2_V3/v3_part_00_thumb_main_rubber.obj",
+      "groups": ["thumb", "thumb_rubber", "legacy_0"]
+    },
+    {
+      "partId": "thumb_gray_metal",
+      "asset": "STR2_V3/v3_part_01_thumb_gray_metal.obj",
+      "groups": ["thumb", "gray_metal", "thumb_gray_metal", "legacy_1"]
+    },
+    {
+      "partId": "thumb_crown_metal_left",
+      "asset": "STR2_V3/v3_part_02_thumb_crown_metal_left.obj",
+      "groups": ["thumb", "thumb_crown_metal", "legacy_2"]
+    },
+    {
+      "partId": "thumb_crown_metal_right",
+      "asset": "STR2_V3/v3_part_03_thumb_crown_metal_right.obj",
+      "groups": ["thumb", "thumb_crown_metal", "legacy_3"]
+    },
+    {
+      "partId": "palm_base_texture",
+      "asset": "STR2_V3/v3_part_04_palm_base_texture.obj",
+      "groups": ["palm", "base", "palm_base_texture", "selection_surface", "legacy_4"]
+    },
+    {
+      "partId": "palm_base_gray_metal",
+      "asset": "STR2_V3/v3_part_05_palm_base_gray_metal.obj",
+      "groups": ["palm", "base", "gray_metal", "palm_base_gray_metal", "legacy_5"]
+    },
+    {
+      "partId": "palm_base_chrome",
+      "asset": "STR2_V3/v3_part_06_palm_base_chrome.obj",
+      "groups": ["palm", "base", "chrome", "palm_base_chrome", "legacy_6"]
+    },
+    {
+      "partId": "index_lower_rubber",
+      "asset": "STR2_V3/v3_part_07_index_lower_rubber.obj",
+      "groups": ["index", "index_rubber", "index_lower_rubber", "legacy_7"]
+    },
+    {
+      "partId": "index_gray_metal",
+      "asset": "STR2_V3/v3_part_08_index_gray_metal.obj",
+      "groups": ["index", "gray_metal", "index_gray_metal", "legacy_8"]
+    },
+    {
+      "partId": "index_upper_metal",
+      "asset": "STR2_V3/v3_part_09_index_upper_metal.obj",
+      "groups": ["index", "chrome", "index_upper_metal", "legacy_9"]
+    },
+    {
+      "partId": "middle_lower_rubber",
+      "asset": "STR2_V3/v3_part_10_middle_lower_rubber.obj",
+      "groups": ["middle", "middle_rubber", "middle_lower_rubber", "legacy_10"]
+    },
+    {
+      "partId": "middle_gray_metal",
+      "asset": "STR2_V3/v3_part_11_middle_gray_metal.obj",
+      "groups": ["middle", "gray_metal", "middle_gray_metal", "legacy_11"]
+    },
+    {
+      "partId": "middle_upper_metal",
+      "asset": "STR2_V3/v3_part_12_middle_upper_metal.obj",
+      "groups": ["middle", "chrome", "middle_upper_metal", "legacy_12"]
+    },
+    {
+      "partId": "ring_lower_rubber",
+      "asset": "STR2_V3/v3_part_13_ring_lower_rubber.obj",
+      "groups": ["ring", "ring_rubber", "ring_lower_rubber", "legacy_13"]
+    },
+    {
+      "partId": "ring_gray_metal",
+      "asset": "STR2_V3/v3_part_14_ring_gray_metal.obj",
+      "groups": ["ring", "gray_metal", "ring_gray_metal", "legacy_14"]
+    },
+    {
+      "partId": "ring_upper_metal",
+      "asset": "STR2_V3/v3_part_15_ring_upper_metal.obj",
+      "groups": ["ring", "chrome", "ring_upper_metal", "legacy_15"]
+    },
+    {
+      "partId": "little_lower_rubber",
+      "asset": "STR2_V3/v3_part_16_little_lower_rubber.obj",
+      "groups": ["little", "little_rubber", "little_lower_rubber", "legacy_16"]
+    },
+    {
+      "partId": "little_gray_metal",
+      "asset": "STR2_V3/v3_part_17_little_gray_metal.obj",
+      "groups": ["little", "gray_metal", "little_gray_metal", "legacy_17"]
+    },
+    {
+      "partId": "little_upper_metal",
+      "asset": "STR2_V3/v3_part_18_little_upper_metal.obj",
+      "groups": ["little", "chrome", "little_upper_metal", "legacy_18"]
+    }
+  ],
+  "groups": {
+    "base_chrome": ["palm_base_chrome"],
+    "base_texture": ["palm_base_texture"],
+    "base_gray_metal": ["palm_base_gray_metal"],
+    "selection_surface": ["palm_base_texture"],
+    "thumb_rubber": ["thumb_main_rubber"],
+    "thumb_gray_metal": ["thumb_gray_metal"],
+    "thumb_crown_metal": ["thumb_crown_metal_left", "thumb_crown_metal_right"],
+    "index_lower_rubber": ["index_lower_rubber"],
+    "index_gray_metal": ["index_gray_metal"],
+    "index_upper_metal": ["index_upper_metal"],
+    "middle_lower_rubber": ["middle_lower_rubber"],
+    "middle_gray_metal": ["middle_gray_metal"],
+    "middle_upper_metal": ["middle_upper_metal"],
+    "ring_lower_rubber": ["ring_lower_rubber"],
+    "ring_gray_metal": ["ring_gray_metal"],
+    "ring_upper_metal": ["ring_upper_metal"],
+    "little_lower_rubber": ["little_lower_rubber"],
+    "little_gray_metal": ["little_gray_metal"],
+    "little_upper_metal": ["little_upper_metal"]
+  }
+}

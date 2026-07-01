@@ -19,6 +19,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.scan.view.ScanActivity
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelTestLauncher
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -53,6 +54,8 @@ class SplashScreen : AppCompatActivity() {
         } else {
             window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
         }
+
+        if (V3ModelTestLauncher.openInsteadOfScan(this)) return
 
         askPermissions()
     }

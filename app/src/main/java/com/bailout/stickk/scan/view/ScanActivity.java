@@ -62,6 +62,7 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelTestLauncher;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -164,6 +165,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (V3ModelTestLauncher.openInsteadOfScan(this)) {
+            return;
+        }
 //        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
         DaggerScanComponent.builder()
                 .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())

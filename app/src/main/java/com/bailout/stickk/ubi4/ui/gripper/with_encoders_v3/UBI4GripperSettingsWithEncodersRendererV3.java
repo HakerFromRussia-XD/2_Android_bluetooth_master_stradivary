@@ -21,11 +21,11 @@ import android.opengl.Matrix;
 
 import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
-import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.RawResourceReader;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.ShaderHelper;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.TextureHelper;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
+import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3;
 
 import java.nio.ByteBuffer;
@@ -213,8 +213,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	/** The current heightmap object. */
 	private HeightMap heightMap;
 
-	/** массивы вершин и индексов в которые упаковываются данные из строковых переменных*/
-	private static final int MAX_NUMBER_DETAILS = 19;
 	private float angleForeFingerFloat = 0;
 	private int angleForeFingerInt = 0;
 	private int lastAngleForeFingerInt = 0;
@@ -241,6 +239,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
 	private float angle95 = 95;
+	private final boolean emitFingerAngleUpdates;
 
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
@@ -249,8 +248,21 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	 * Initialize the model data.
 	 */
 	public UBI4GripperSettingsWithEncodersRendererV3(final Context fragmentGripperSettings, UBI4ErrorHandlerV3 errorHandlerV3) {
+		this(fragmentGripperSettings, errorHandlerV3, true);
+	}
+
+	public UBI4GripperSettingsWithEncodersRendererV3(
+			final Context fragmentGripperSettings,
+			UBI4ErrorHandlerV3 errorHandlerV3,
+			boolean emitFingerAngleUpdates
+	) {
 		this.fragmentGripperSettings = fragmentGripperSettings;
 		this.errorHandler = errorHandlerV3;
+		this.emitFingerAngleUpdates = emitFingerAngleUpdates;
+	}
+
+	private int[] modelParts(String groupName, int... fallbackIndexes) {
+		return Load3DModelFesth3.getGroup(groupName, fallbackIndexes);
 	}
 
 	@SuppressLint("InlinedApi")
@@ -601,20 +613,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		GLES20.glUniform1f(specularFactorUniform, 40.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		glUniform1i(normalMapUniform, 13);
-		heightMap.render(new int[]{6});
-		setChromeMaterial(program, false);
+			glUniform1i(textureUniform, 12);
+			glUniform1i(normalMapUniform, 13);
+			heightMap.render(modelParts("base_chrome", 6));
+			setChromeMaterial(program, false);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 2.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.95f);
-		glUniform1i(textureUniform, 8);
-		glUniform1i(normalMapUniform, 9);
-		heightMap.render(new int[]{4});
+		setV3PlasticMaterial(program);
+			glUniform1i(textureUniform, 8);
+			glUniform1i(normalMapUniform, 9);
+			heightMap.render(modelParts("base_texture", 4));
 
-		renderGrayMetalPart(program, new int[]{5});
+			renderGrayMetalPart(program, modelParts("base_gray_metal", 5));
 	}
 
 	private void setChromeMaterial(int shaderProgram, boolean enabled) {
@@ -646,24 +655,36 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 	}
 
-	private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+	private void setChromeMaterialForMainProgram(int shaderProgram, boolean enabled) {
 		if (shaderProgram == program) {
-			setChromeMaterial(shaderProgram, true);
-			glUniform1i(isUsingNormalMap, 0);
-			GLES20.glUniform1f(specularFactorUniform, 30.0f);
-			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-			glUniform1f(ambientFactorUniform, 1.5f);
-			glUniform1i(textureUniform, 3);
-			heightMap.render(indexesOfBuffer);
-			setChromeMaterial(shaderProgram, false);
-		} else {
-			glUniform1i(isUsingNormalMap, 0);
-			GLES20.glUniform1f(specularFactorUniform, 1.0f);
-			GLES20.glUniform1f(lightPowerUniform, 900.0f);
-			glUniform1f(ambientFactorUniform, 0.8f);
-			glUniform1i(textureUniform, 3);
-			heightMap.render(indexesOfBuffer);
+			setChromeMaterial(shaderProgram, enabled);
 		}
+	}
+
+	private void setV3PlasticMaterial(int shaderProgram) {
+		setChromeMaterialForMainProgram(shaderProgram, false);
+		glUniform1i(isUsingNormalMap, 1);
+		GLES20.glUniform1f(specularFactorUniform, 2.0f);
+		GLES20.glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.95f);
+	}
+
+	private void setV3RubberMaterial(int shaderProgram) {
+		setChromeMaterialForMainProgram(shaderProgram, false);
+		glUniform1i(isUsingNormalMap, 1);
+		GLES20.glUniform1f(specularFactorUniform, 1.0f);
+		GLES20.glUniform1f(lightPowerUniform, 700.0f);
+		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+	}
+
+	private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+		setChromeMaterialForMainProgram(shaderProgram, false);
+		glUniform1i(isUsingNormalMap, 0);
+		GLES20.glUniform1f(specularFactorUniform, 1.0f);
+		GLES20.glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 3);
+		heightMap.render(indexesOfBuffer);
 	}
 
 	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
@@ -762,7 +783,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		renderGrayMetalPart(shaderMassiv[0], new int[]{8});
+			renderGrayMetalPart(shaderMassiv[0], modelParts("index_gray_metal", 8));
 
 		/** металл */
 		glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -773,14 +794,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setChromeMaterial(shaderMassiv[0], true);
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 60.0f);
-		glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{9});
-		setChromeMaterial(shaderMassiv[0], false);
+			renderGrayMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -860,13 +874,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+		setV3RubberMaterial(shaderMassiv[0]);
 		glUniform1i(textureUniform, 2);
 		glUniform1i(normalMapUniform, 10);
-		heightMap.render(new int[]{7});
+			heightMap.render(modelParts("index_lower_rubber", 7));
 	}
 	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -955,7 +966,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		renderGrayMetalPart(shaderMassiv[0], new int[]{11});
+			renderGrayMetalPart(shaderMassiv[0], modelParts("middle_gray_metal", 11));
 
 		/** шейдер без цвета */
 
@@ -967,14 +978,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setChromeMaterial(shaderMassiv[0], true);
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 30.0f);
-		glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{12});
-		setChromeMaterial(shaderMassiv[0], false);
+			renderGrayMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1046,13 +1050,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+		setV3RubberMaterial(shaderMassiv[0]);
 		glUniform1i(textureUniform, 1);
 		glUniform1i(normalMapUniform, 11);
-		heightMap.render(new int[]{10});
+			heightMap.render(modelParts("middle_lower_rubber", 10));
 	}
 	private void ringFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1159,7 +1160,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		renderGrayMetalPart(shaderMassiv[0], new int[]{14});
+			renderGrayMetalPart(shaderMassiv[0], modelParts("ring_gray_metal", 14));
 
 		/** шейдер без цвета */
 
@@ -1171,14 +1172,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setChromeMaterial(shaderMassiv[0], true);
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{15});
-		setChromeMaterial(shaderMassiv[0], false);
+			renderGrayMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1270,13 +1264,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+		setV3RubberMaterial(shaderMassiv[0]);
 		glUniform1i(textureUniform, 5);
 		glUniform1i(normalMapUniform, 14);
-		heightMap.render(new int[]{13});
+			heightMap.render(modelParts("ring_lower_rubber", 13));
 	}
 	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1393,14 +1384,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setChromeMaterial(shaderMassiv[0], true);
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{18});
-		setChromeMaterial(shaderMassiv[0], false);
+			renderGrayMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
 
 		/** шейдер без цвета */
 
@@ -1412,7 +1396,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		renderGrayMetalPart(shaderMassiv[0], new int[]{17});
+			renderGrayMetalPart(shaderMassiv[0], modelParts("little_gray_metal", 17));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1501,13 +1485,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+		setV3RubberMaterial(shaderMassiv[0]);
 		glUniform1i(textureUniform, 6);
 		glUniform1i(normalMapUniform, 15);
-		heightMap.render(new int[]{16});
+			heightMap.render(modelParts("little_lower_rubber", 16));
 	}
 	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
 		/** шейдер основной */
@@ -1671,13 +1652,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+		setV3RubberMaterial(shaderMassiv[0]);
 		glUniform1i(textureUniform, 7);
 		glUniform1i(normalMapUniform, 16);
-		heightMap.render(new int[]{0});
+			heightMap.render(modelParts("thumb_rubber", 0));
 
 
 		/** составления матриц вида и проекции */
@@ -1689,7 +1667,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		renderGrayMetalPart(shaderMassiv[0], new int[]{1});
+			renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
 
 
 		/** манипуляции с венцом */
@@ -1724,14 +1702,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		/** должнабыть текстура металла*/
-		setChromeMaterial(shaderMassiv[0], true);
+		setChromeMaterialForMainProgram(shaderMassiv[0], true);
 		glUniform1i(isUsingNormalMap, 0);
 		GLES20.glUniform1f(specularFactorUniform, 30.0f);
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{2, 3});
-		setChromeMaterial(shaderMassiv[0], false);
+			heightMap.render(modelParts("thumb_crown_metal", 2, 3));
+		setChromeMaterialForMainProgram(shaderMassiv[0], false);
 	}
 
 	private void firstInit () {
@@ -1791,7 +1769,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		heightMap.render(new int[]{4});
+			heightMap.render(modelParts("selection_surface", 4));
 
 		int[] viewport = new int[4];
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, IntBuffer.wrap(viewport));
@@ -1808,6 +1786,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 
 	private void transferCommand() {
+		if (!emitFingerAngleUpdates) {
+			transferFlag = false;
+			return;
+		}
+
 		FingerAngle fingerAngleModel;
 		FingerAngle fingerAngleModel2;
 
@@ -1844,33 +1827,42 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	class HeightMap {
-		final int[] vbo = new int[MAX_NUMBER_DETAILS];
-		final int[] ibo = new int[MAX_NUMBER_DETAILS];
+		int[] vbo;
+		int[] ibo;
+		int[] indexCounts;
 
-		int indexCount;
+		int partCount;
 
 		private int i = 0;
 
 		void loader() {
 			try {
-				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, vbo, 0);
-				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, ibo, 0);
+				Load3DModelFesth3.ensureLoaded(fragmentGripperSettings);
+				partCount = Load3DModelFesth3.getPartCount();
+				vbo = new int[partCount];
+				ibo = new int[partCount];
+				indexCounts = new int[partCount];
 
-				for (i = 0; i<MAX_NUMBER_DETAILS; i++){
-					indexCount = Load3DModelNew.getVertexArray(i).length;
-					System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCount);
+				GLES20.glGenBuffers(partCount, vbo, 0);
+				GLES20.glGenBuffers(partCount, ibo, 0);
+
+				for (i = 0; i<partCount; i++){
+					float[] vertices = Load3DModelFesth3.getVertexArray(i);
+					int[] indices = Load3DModelFesth3.getIndicesArray(i);
+					indexCounts[i] = indices.length;
+					System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCounts[i]);
 
 					final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
-							.allocateDirect(Load3DModelNew.getVertexArray(i).length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
+							.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
 							.asFloatBuffer();
-					heightMapVertexDataBuffer.put(Load3DModelNew.getVertexArray(i)).position(0);
+					heightMapVertexDataBuffer.put(vertices).position(0);
 
 					final IntBuffer heightMapIndexDataBuffer = ByteBuffer
-							.allocateDirect(Load3DModelNew.getVertexArray(i).length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
+							.allocateDirect(indices.length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
 							.asIntBuffer();
-					heightMapIndexDataBuffer.put(Load3DModelNew.getIndicesArray(i)).position(0);
+					heightMapIndexDataBuffer.put(indices).position(0);
 
-					if (vbo[0] > 0 && ibo[0] > 0) {
+					if (vbo[i] > 0 && ibo[i] > 0) {
 						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
 						GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
 								heightMapVertexDataBuffer, GLES20.GL_STATIC_DRAW);
@@ -1880,22 +1872,27 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, heightMapIndexDataBuffer.capacity()
 								* BYTES_PER_INT, heightMapIndexDataBuffer, GLES20.GL_STATIC_DRAW);
 
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, i);
-						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, i);
+							GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 					} else {
 						errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, "glGenBuffers");
 					}
-				}
+			}
 			} catch (Throwable t) {
 				Timber.tag(TAG).w(t);
 				errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, t.getLocalizedMessage());
 			}
-		}
+			}
 
 		void render(int[] indexesOfBuffer) {
 			for (i = 0; i<indexesOfBuffer.length; i++) {
-				if (vbo[0] > 0 && ibo[0] > 0) {
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[indexesOfBuffer[i]]);
+				int partIndex = indexesOfBuffer[i];
+				if (partIndex < 0 || partIndex >= partCount) {
+					Timber.tag(TAG).w("Skip V3 model part index %s outside 0..%s", partIndex, partCount - 1);
+					continue;
+				}
+				if (vbo[partIndex] > 0 && ibo[partIndex] > 0) {
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
 
 					// Bind Attributes
 					GLES20.glVertexAttribPointer(positionAttribute, POSITION_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
@@ -1927,11 +1924,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					GLES20.glEnableVertexAttribArray(bitangentAttribute);
 
 					// Draw
-					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[indexesOfBuffer[i]]);
-					GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexCount, GLES20.GL_UNSIGNED_INT, 0);
+					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[partIndex]);
+					GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexCounts[partIndex], GLES20.GL_UNSIGNED_INT, 0);
 
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, indexesOfBuffer[i]);
-					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexesOfBuffer[i]);
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 				}
 			}
 		}

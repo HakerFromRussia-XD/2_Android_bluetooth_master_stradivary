@@ -18,6 +18,8 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
+import android.util.Log;
 
 import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
@@ -26,6 +28,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.TextureHelper;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics;
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3;
 
 import java.nio.ByteBuffer;
@@ -44,8 +47,8 @@ import timber.log.Timber;
  * used instead.
  */
 public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.Renderer{
-	/** Used for debug logs. */
-	private static final String TAG = "LessonEightRenderer";
+		/** Used for debug logs. */
+		private static final String TAG = "LessonEightRenderer";
 
 	/** References to other main objects. */
 	private final Context fragmentGripperSettings;
@@ -238,8 +241,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
-	private float angle95 = 95;
-	private final boolean emitFingerAngleUpdates;
+		private float angle95 = 95;
+		private final boolean emitFingerAngleUpdates;
+		private final long rendererCreatedAtMs;
+		private long surfaceCreatedStartedAtMs;
+		private boolean firstFrameMetricsLogged;
 
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
@@ -256,22 +262,30 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			UBI4ErrorHandlerV3 errorHandlerV3,
 			boolean emitFingerAngleUpdates
 	) {
-		this.fragmentGripperSettings = fragmentGripperSettings;
-		this.errorHandler = errorHandlerV3;
-		this.emitFingerAngleUpdates = emitFingerAngleUpdates;
-	}
+			this.fragmentGripperSettings = fragmentGripperSettings;
+			this.errorHandler = errorHandlerV3;
+			this.emitFingerAngleUpdates = emitFingerAngleUpdates;
+			this.rendererCreatedAtMs = SystemClock.elapsedRealtime();
+			V3ModelLoadMetrics.init(fragmentGripperSettings);
+			V3ModelLoadMetrics.log("renderer created emitFingerAngleUpdates=" + emitFingerAngleUpdates);
+		}
 
 	private int[] modelParts(String groupName, int... fallbackIndexes) {
 		return Load3DModelFesth3.getGroup(groupName, fallbackIndexes);
 	}
 
 	@SuppressLint("InlinedApi")
-	@Override
-	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
-		heightMap = new HeightMap();
-		heightMap.loader();
+		@Override
+		public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+			surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
+			V3ModelLoadMetrics.init(fragmentGripperSettings);
+			V3ModelLoadMetrics.log("surfaceCreated begin rendererAgeMs=" + elapsedSince(rendererCreatedAtMs));
+			heightMap = new HeightMap();
+			long buffersStartedAtMs = SystemClock.elapsedRealtime();
+			heightMap.loader();
+			long buffersMs = elapsedSince(buffersStartedAtMs);
 
-//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
+	//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
 
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
@@ -299,8 +313,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		// matrices separately if we choose.
 		Matrix.setLookAtM(viewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 
-		final String vertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_vertex_shader_tex_and_light_new);
-		final String fragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_general_new);
+			long shaderStartedAtMs = SystemClock.elapsedRealtime();
+			final String vertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_vertex_shader_tex_and_light_new);
+			final String fragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_general_new);
 		final String fragmentShaderWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_tex_color_light_new);
 		final String fragmentShaderRubber = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber);
 		final String fragmentShaderRubberWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber_with_color);
@@ -331,12 +346,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE});
 		programSelect = ShaderHelper.createAndLinkProgram(selectVertexShaderHandle, selectFragmentShaderHandle,
 				new String[] {POSITION_ATTRIBUTE});
-		int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
-				new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
-						TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+			int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
+					new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
+							TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+			long shaderMs = elapsedSince(shaderStartedAtMs);
 
-		//Load the texture
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+			//Load the texture
+			long textureStartedAtMs = SystemClock.elapsedRealtime();
+			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		int textureSTR2Part9 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part9);
@@ -428,10 +445,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture17
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE16);
-		int textureSTR2Part18normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new_material_normal);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18normals);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			int textureSTR2Part18normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new_material_normal);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18normals);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			long textureMs = elapsedSince(textureStartedAtMs);
 
 
 
@@ -446,9 +464,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.setIdentityM(accumulatedRotationRingFinger2, 0);
 		Matrix.setIdentityM(accumulatedRotationLittleFinger, 0);
 		Matrix.setIdentityM(accumulatedRotationLittleFinger2, 0);
-		Matrix.setIdentityM(accumulatedRotationGeneral, 0);
-		selectStation = SelectStation.UNSELECTED_OBJECT;
-	}
+			Matrix.setIdentityM(accumulatedRotationGeneral, 0);
+			selectStation = SelectStation.UNSELECTED_OBJECT;
+			V3ModelLoadMetrics.log("surfaceCreated end totalMs=" + elapsedSince(surfaceCreatedStartedAtMs)
+					+ " modelBufferMs=" + buffersMs
+					+ " shaderProgramMs=" + shaderMs
+					+ " textureUploadMs=" + textureMs);
+		}
 
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
@@ -614,17 +636,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
 			glUniform1i(textureUniform, 12);
-			glUniform1i(normalMapUniform, 13);
-			heightMap.render(modelParts("base_chrome", 6));
-			setChromeMaterial(program, false);
+				glUniform1i(normalMapUniform, 13);
+				heightMap.render(modelParts("base_chrome", 6));
+				setChromeMaterial(program, false);
 
-		setV3PlasticMaterial(program);
+			setV3PlasticMaterial(program);
 			glUniform1i(textureUniform, 8);
 			glUniform1i(normalMapUniform, 9);
 			heightMap.render(modelParts("base_texture", 4));
 
-			renderGrayMetalPart(program, modelParts("base_gray_metal", 5));
-	}
+				renderGrayMetalPart(program, modelParts("base_gray_metal", 5));
+			if (!firstFrameMetricsLogged) {
+				firstFrameMetricsLogged = true;
+				V3ModelLoadMetrics.log("firstFrame rendered rendererAgeMs=" + elapsedSince(rendererCreatedAtMs)
+						+ " sinceSurfaceCreatedStartMs=" + elapsedSince(surfaceCreatedStartedAtMs));
+			}
+		}
 
 	private void setChromeMaterial(int shaderProgram, boolean enabled) {
 		int materialModeUniform = glGetUniformLocation(shaderProgram, MATERIAL_MODE_UNIFORM);
@@ -677,17 +704,21 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
 	}
 
-	private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
-		setChromeMaterialForMainProgram(shaderProgram, false);
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
+		private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+			setChromeMaterialForMainProgram(shaderProgram, false);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 900.0f);
 		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(indexesOfBuffer);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(indexesOfBuffer);
+		}
+
+	private static long elapsedSince(long startedAtMs) {
+		return SystemClock.elapsedRealtime() - startedAtMs;
 	}
 
-	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
+		private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** резина */
 		glUseProgram(shaderMassiv[0]);
 
@@ -1835,54 +1866,92 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		private int i = 0;
 
-		void loader() {
-			try {
-				Load3DModelFesth3.ensureLoaded(fragmentGripperSettings);
-				partCount = Load3DModelFesth3.getPartCount();
-				vbo = new int[partCount];
-				ibo = new int[partCount];
-				indexCounts = new int[partCount];
+			void loader() {
+				long loaderStartedAtMs = SystemClock.elapsedRealtime();
+				long ensureStartedAtMs = SystemClock.elapsedRealtime();
+				long ensureLoadedMs = 0L;
+				long glGenMs = 0L;
+				int totalVertices = 0;
+				int totalIndices = 0;
+				int totalVertexBytes = 0;
+				int totalIndexBytes = 0;
+				try {
+					Load3DModelFesth3.ensureLoaded(fragmentGripperSettings);
+					ensureLoadedMs = elapsedSince(ensureStartedAtMs);
+					partCount = Load3DModelFesth3.getPartCount();
+					vbo = new int[partCount];
+					ibo = new int[partCount];
+					indexCounts = new int[partCount];
 
-				GLES20.glGenBuffers(partCount, vbo, 0);
-				GLES20.glGenBuffers(partCount, ibo, 0);
+					long glGenStartedAtMs = SystemClock.elapsedRealtime();
+					GLES20.glGenBuffers(partCount, vbo, 0);
+					GLES20.glGenBuffers(partCount, ibo, 0);
+					glGenMs = elapsedSince(glGenStartedAtMs);
 
-				for (i = 0; i<partCount; i++){
-					float[] vertices = Load3DModelFesth3.getVertexArray(i);
-					int[] indices = Load3DModelFesth3.getIndicesArray(i);
-					indexCounts[i] = indices.length;
-					System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCounts[i]);
+					for (i = 0; i<partCount; i++){
+						long partStartedAtMs = SystemClock.elapsedRealtime();
+						float[] vertices = Load3DModelFesth3.getVertexArray(i);
+						int[] indices = Load3DModelFesth3.getIndicesArray(i);
+						indexCounts[i] = indices.length;
+						System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCounts[i]);
+						int vertexCount = vertices.length / (STRIDE / BYTES_PER_FLOAT);
+						int vertexBytes = vertices.length * BYTES_PER_FLOAT;
+						int indexBytes = indices.length * BYTES_PER_INT;
+						totalVertices += vertexCount;
+						totalIndices += indices.length;
+						totalVertexBytes += vertexBytes;
+						totalIndexBytes += indexBytes;
 
-					final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
-							.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
-							.asFloatBuffer();
-					heightMapVertexDataBuffer.put(vertices).position(0);
+						long cpuBufferStartedAtMs = SystemClock.elapsedRealtime();
+						final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
+								.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
+								.asFloatBuffer();
+						heightMapVertexDataBuffer.put(vertices).position(0);
 
-					final IntBuffer heightMapIndexDataBuffer = ByteBuffer
-							.allocateDirect(indices.length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
-							.asIntBuffer();
-					heightMapIndexDataBuffer.put(indices).position(0);
+						final IntBuffer heightMapIndexDataBuffer = ByteBuffer
+								.allocateDirect(indices.length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
+								.asIntBuffer();
+						heightMapIndexDataBuffer.put(indices).position(0);
+						long cpuBufferMs = elapsedSince(cpuBufferStartedAtMs);
 
-					if (vbo[i] > 0 && ibo[i] > 0) {
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
-						GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
-								heightMapVertexDataBuffer, GLES20.GL_STATIC_DRAW);
+						if (vbo[i] > 0 && ibo[i] > 0) {
+							long glUploadStartedAtMs = SystemClock.elapsedRealtime();
+							GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
+							GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
+									heightMapVertexDataBuffer, GLES20.GL_STATIC_DRAW);
 
 
 						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[i]);
 						GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, heightMapIndexDataBuffer.capacity()
 								* BYTES_PER_INT, heightMapIndexDataBuffer, GLES20.GL_STATIC_DRAW);
 
-							GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-					} else {
-						errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, "glGenBuffers");
-					}
-			}
-			} catch (Throwable t) {
-				Timber.tag(TAG).w(t);
-				errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, t.getLocalizedMessage());
-			}
-			}
+								GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+								GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+								V3ModelLoadMetrics.log("glPart part=" + i
+										+ " totalMs=" + elapsedSince(partStartedAtMs)
+										+ " cpuBufferMs=" + cpuBufferMs
+										+ " glUploadMs=" + elapsedSince(glUploadStartedAtMs)
+										+ " vertices=" + vertexCount
+										+ " indices=" + indices.length
+										+ " vertexBytes=" + vertexBytes
+										+ " indexBytes=" + indexBytes);
+						} else {
+							errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, "glGenBuffers");
+						}
+				}
+				} catch (Throwable t) {
+					Timber.tag(TAG).w(t);
+					errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, t.getLocalizedMessage());
+				}
+				V3ModelLoadMetrics.log("glBuffers totalMs=" + elapsedSince(loaderStartedAtMs)
+						+ " ensureLoadedMs=" + ensureLoadedMs
+						+ " glGenMs=" + glGenMs
+						+ " parts=" + partCount
+						+ " vertices=" + totalVertices
+						+ " indices=" + totalIndices
+						+ " vertexBytes=" + totalVertexBytes
+						+ " indexBytes=" + totalIndexBytes);
+				}
 
 		void render(int[] indexesOfBuffer) {
 			for (i = 0; i<indexesOfBuffer.length; i++) {
@@ -1931,6 +2000,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 				}
 			}
+		}
+
+		private long elapsedSince(long startedAtMs) {
+			return SystemClock.elapsedRealtime() - startedAtMs;
 		}
 	}
 }

@@ -71,6 +71,7 @@ android {
     namespace = "com.bailout.stickk"
     compileSdk = 35
     sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
+    sourceSets.maybeCreate("metrics").java.srcDir("src/debug/java")
     defaultConfig {
         applicationId = "com.bailout.stickk"
         minSdk = 28
@@ -79,6 +80,7 @@ android {
         versionName = "3.3.1727"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+        manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"
 
         val motoricaGamesManifestUrl = providers.gradleProperty("motoricaGamesManifestUrl").orElse("").get()
         buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
@@ -105,6 +107,13 @@ android {
 
 
     buildTypes {
+        create("metrics") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".metrics"
+            versionNameSuffix = "-metrics"
+            matchingFallbacks += listOf("debug")
+            manifestPlaceholders["gameControlPermission"] = "com.bailout.stickk.metrics.permission.CONTROL_GAME"
+        }
         getByName("release") {
             // отключаем профилирование
             isProfileable = false

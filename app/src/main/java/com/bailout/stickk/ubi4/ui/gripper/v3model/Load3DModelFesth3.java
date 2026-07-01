@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.ui.gripper.v3model;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -52,33 +53,43 @@ public final class Load3DModelFesth3 {
     }
 
     public static void preloadAsync(Context context, Runnable onReady) {
+        long requestStartedAtMs = SystemClock.elapsedRealtime();
         Context appContext = context.getApplicationContext() != null
                 ? context.getApplicationContext()
                 : context;
+        V3ModelLoadMetrics.init(appContext);
         boolean shouldStart = false;
+        int pendingCallbackCount = 0;
         synchronized (LOCK) {
             if (loadedModel != null) {
-                postReady(onReady);
+                V3ModelLoadMetrics.log("preload cacheHit requestToReadyMs=0 parts=" + loadedModel.parts.length);
+                postReady(wrapReadyCallback(onReady, requestStartedAtMs, "preloadCacheHit"));
                 return;
             }
             if (onReady != null) {
-                pendingLoadCallbacks.add(onReady);
+                pendingLoadCallbacks.add(wrapReadyCallback(onReady, requestStartedAtMs, "preload"));
             }
             if (!loading) {
                 loading = true;
                 shouldStart = true;
             }
+            pendingCallbackCount = pendingLoadCallbacks.size();
         }
         if (shouldStart) {
+            V3ModelLoadMetrics.log("preload start thread=" + TAG);
             Thread loaderThread = new Thread(() -> loadAndPublish(appContext), TAG);
             loaderThread.start();
+        } else {
+            V3ModelLoadMetrics.log("preload join existingLoad pendingCallbacks=" + pendingCallbackCount);
         }
     }
 
     public static void ensureLoaded(Context context) {
+        long ensureStartedAtMs = SystemClock.elapsedRealtime();
         Context appContext = context.getApplicationContext() != null
                 ? context.getApplicationContext()
                 : context;
+        V3ModelLoadMetrics.init(appContext);
         synchronized (LOCK) {
             while (loading && loadedModel == null) {
                 try {
@@ -89,11 +100,15 @@ public final class Load3DModelFesth3 {
                 }
             }
             if (loadedModel != null) {
+                V3ModelLoadMetrics.log("ensureLoaded ready waitMs=" + elapsedSince(ensureStartedAtMs)
+                        + " parts=" + loadedModel.parts.length);
                 return;
             }
             loading = true;
         }
         loadAndPublish(appContext);
+        V3ModelLoadMetrics.log("ensureLoaded syncLoadMs=" + elapsedSince(ensureStartedAtMs)
+                + " ready=" + (loadedModel != null));
         if (loadedModel == null) {
             throw new IllegalStateException("V3 model was not loaded", lastLoadError);
         }
@@ -138,14 +153,24 @@ public final class Load3DModelFesth3 {
     }
 
     private static void loadAndPublish(Context context) {
+        long loadStartedAtMs = SystemClock.elapsedRealtime();
+        V3ModelLoadMetrics.init(context);
+        V3ModelLoadMetrics.log("loadThread begin name=" + Thread.currentThread().getName());
         LoadedModel model = null;
         Throwable error = null;
         try {
             model = load(context);
             Log.i(TAG, "Loaded " + model.parts.length + " V3 model parts from " + MANIFEST_PATH);
+            V3ModelLoadMetrics.log("loadThread success totalMs=" + elapsedSince(loadStartedAtMs)
+                    + " parts=" + model.parts.length
+                    + " vertices=" + model.vertexCount
+                    + " indices=" + model.indexCount
+                    + " vertexBytes=" + model.vertexBytes
+                    + " indexBytes=" + model.indexBytes);
         } catch (Throwable t) {
             error = t;
             Log.e(TAG, "Failed to load V3 model", t);
+            V3ModelLoadMetrics.logError("loadThread failed totalMs=" + elapsedSince(loadStartedAtMs), t);
         }
 
         List<Runnable> callbacks;
@@ -159,10 +184,25 @@ public final class Load3DModelFesth3 {
             callbacks = new ArrayList<>(pendingLoadCallbacks);
             pendingLoadCallbacks.clear();
         }
+        V3ModelLoadMetrics.log("publish callbacks=" + callbacks.size()
+                + " totalMs=" + elapsedSince(loadStartedAtMs));
 
         for (Runnable callback : callbacks) {
             postReady(callback);
         }
+    }
+
+    private static Runnable wrapReadyCallback(Runnable onReady, long requestStartedAtMs, String source) {
+        if (onReady == null) {
+            return null;
+        }
+        return () -> {
+            LoadedModel model = loadedModel;
+            V3ModelLoadMetrics.log(source + " callbackReadyMs=" + elapsedSince(requestStartedAtMs)
+                    + " ready=" + (model != null)
+                    + " parts=" + (model != null ? model.parts.length : 0));
+            onReady.run();
+        };
     }
 
     private static void postReady(Runnable onReady) {
@@ -177,11 +217,20 @@ public final class Load3DModelFesth3 {
     }
 
     private static LoadedModel load(Context context) throws IOException, JSONException {
+        long loadStartedAtMs = SystemClock.elapsedRealtime();
+        long manifestStartedAtMs = SystemClock.elapsedRealtime();
         JSONObject manifest = new JSONObject(readAssetText(context, MANIFEST_PATH));
+        long manifestMs = elapsedSince(manifestStartedAtMs);
         JSONArray partsJson = manifest.getJSONArray("parts");
         ModelPartBuffers[] parts = new ModelPartBuffers[partsJson.length()];
         Map<String, Integer> partIndexesById = new LinkedHashMap<>();
         Map<String, LinkedHashSet<Integer>> mutableGroups = new LinkedHashMap<>();
+        long objParseMs = 0L;
+        int totalVertexCount = 0;
+        int totalIndexCount = 0;
+        int totalLines = 0;
+        int totalFaces = 0;
+        int totalTriangles = 0;
 
         for (int i = 0; i < partsJson.length(); i++) {
             JSONObject partJson = partsJson.getJSONObject(i);
@@ -191,6 +240,12 @@ public final class Load3DModelFesth3 {
                 throw new JSONException("Missing asset for V3 part " + partId);
             }
             parts[i] = parseObj(context, asset);
+            objParseMs += parts[i].parseMs;
+            totalVertexCount += parts[i].vertexCount;
+            totalIndexCount += parts[i].indices.length;
+            totalLines += parts[i].lineCount;
+            totalFaces += parts[i].faceCount;
+            totalTriangles += parts[i].triangleCount;
             partIndexesById.put(partId, i);
             addGroupIndex(mutableGroups, "all", i);
             addGroupIndex(mutableGroups, partId, i);
@@ -237,7 +292,20 @@ public final class Load3DModelFesth3 {
         for (Map.Entry<String, LinkedHashSet<Integer>> entry : mutableGroups.entrySet()) {
             groups.put(entry.getKey(), toIntArray(entry.getValue()));
         }
-        return new LoadedModel(parts, groups);
+        LoadedModel model = new LoadedModel(parts, groups, totalVertexCount, totalIndexCount);
+        V3ModelLoadMetrics.log("modelParsed totalMs=" + elapsedSince(loadStartedAtMs)
+                + " manifestMs=" + manifestMs
+                + " objParseMs=" + objParseMs
+                + " parts=" + parts.length
+                + " vertices=" + totalVertexCount
+                + " indices=" + totalIndexCount
+                + " vertexBytes=" + model.vertexBytes
+                + " indexBytes=" + model.indexBytes
+                + " lines=" + totalLines
+                + " faces=" + totalFaces
+                + " triangles=" + totalTriangles
+                + " groups=" + groups.size());
+        return model;
     }
 
     private static void addGroupIndex(
@@ -282,16 +350,21 @@ public final class Load3DModelFesth3 {
     }
 
     private static ModelPartBuffers parseObj(Context context, String assetPath) throws IOException {
+        long parseStartedAtMs = SystemClock.elapsedRealtime();
         ArrayList<float[]> coordinates = new ArrayList<>();
         ArrayList<float[]> textures = new ArrayList<>();
         ArrayList<float[]> normals = new ArrayList<>();
         FloatArrayBuilder vertices = new FloatArrayBuilder();
         IntArrayBuilder indices = new IntArrayBuilder();
+        int lineCount = 0;
+        int faceCount = 0;
+        int triangleCount = 0;
 
         try (InputStream input = context.getAssets().open(assetPath);
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                lineCount++;
                 String trimmed = line.trim();
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
@@ -315,10 +388,12 @@ public final class Load3DModelFesth3 {
                             Float.parseFloat(tokens[3])
                     });
                 } else if ("f".equals(tokens[0]) && tokens.length >= 4) {
+                    faceCount++;
                     ObjVertexRef first = parseVertexRef(tokens[1], coordinates.size(), textures.size(), normals.size());
                     ObjVertexRef previous = parseVertexRef(tokens[2], coordinates.size(), textures.size(), normals.size());
                     for (int i = 3; i < tokens.length; i++) {
                         ObjVertexRef current = parseVertexRef(tokens[i], coordinates.size(), textures.size(), normals.size());
+                        triangleCount++;
                         appendTriangle(
                                 vertices,
                                 indices,
@@ -335,7 +410,33 @@ public final class Load3DModelFesth3 {
             }
         }
 
-        return new ModelPartBuffers(vertices.toArray(), indices.toArray());
+        float[] vertexArray = vertices.toArray();
+        int[] indexArray = indices.toArray();
+        long parseMs = elapsedSince(parseStartedAtMs);
+        ModelPartBuffers buffers = new ModelPartBuffers(
+                vertexArray,
+                indexArray,
+                lineCount,
+                faceCount,
+                triangleCount,
+                coordinates.size(),
+                textures.size(),
+                normals.size(),
+                parseMs
+        );
+        V3ModelLoadMetrics.log("objParsed asset=" + assetPath
+                + " parseMs=" + parseMs
+                + " lines=" + lineCount
+                + " coordinates=" + coordinates.size()
+                + " textures=" + textures.size()
+                + " normals=" + normals.size()
+                + " faces=" + faceCount
+                + " triangles=" + triangleCount
+                + " vertices=" + buffers.vertexCount
+                + " indices=" + indexArray.length
+                + " vertexBytes=" + buffers.vertexBytes
+                + " indexBytes=" + buffers.indexBytes);
+        return buffers;
     }
 
     private static ObjVertexRef parseVertexRef(
@@ -481,20 +582,58 @@ public final class Load3DModelFesth3 {
     private static final class LoadedModel {
         private final ModelPartBuffers[] parts;
         private final Map<String, int[]> groups;
+        private final int vertexCount;
+        private final int indexCount;
+        private final int vertexBytes;
+        private final int indexBytes;
 
-        private LoadedModel(ModelPartBuffers[] parts, Map<String, int[]> groups) {
+        private LoadedModel(ModelPartBuffers[] parts, Map<String, int[]> groups, int vertexCount, int indexCount) {
             this.parts = parts;
             this.groups = groups;
+            this.vertexCount = vertexCount;
+            this.indexCount = indexCount;
+            this.vertexBytes = vertexCount * FLOATS_PER_VERTEX * Float.BYTES;
+            this.indexBytes = indexCount * Integer.BYTES;
         }
     }
 
     private static final class ModelPartBuffers {
         private final float[] vertices;
         private final int[] indices;
+        private final int lineCount;
+        private final int faceCount;
+        private final int triangleCount;
+        private final int coordinateCount;
+        private final int textureCount;
+        private final int normalCount;
+        private final long parseMs;
+        private final int vertexCount;
+        private final int vertexBytes;
+        private final int indexBytes;
 
-        private ModelPartBuffers(float[] vertices, int[] indices) {
+        private ModelPartBuffers(
+                float[] vertices,
+                int[] indices,
+                int lineCount,
+                int faceCount,
+                int triangleCount,
+                int coordinateCount,
+                int textureCount,
+                int normalCount,
+                long parseMs
+        ) {
             this.vertices = vertices;
             this.indices = indices;
+            this.lineCount = lineCount;
+            this.faceCount = faceCount;
+            this.triangleCount = triangleCount;
+            this.coordinateCount = coordinateCount;
+            this.textureCount = textureCount;
+            this.normalCount = normalCount;
+            this.parseMs = parseMs;
+            this.vertexCount = vertices.length / FLOATS_PER_VERTEX;
+            this.vertexBytes = vertices.length * Float.BYTES;
+            this.indexBytes = indices.length * Integer.BYTES;
         }
     }
 
@@ -570,5 +709,9 @@ public final class Load3DModelFesth3 {
             System.arraycopy(values, 0, newValues, 0, size);
             values = newValues;
         }
+    }
+
+    private static long elapsedSince(long startedAtMs) {
+        return SystemClock.elapsedRealtime() - startedAtMs;
     }
 }

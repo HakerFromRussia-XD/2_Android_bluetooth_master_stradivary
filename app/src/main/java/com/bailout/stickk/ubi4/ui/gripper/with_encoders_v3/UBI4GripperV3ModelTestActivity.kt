@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -13,15 +14,19 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics
 
 class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
     private var glSurfaceView: UBI4GripperSettingsWithEncodersGLSurfaceViewV3? = null
     private var renderer: UBI4GripperSettingsWithEncodersRendererV3? = null
     private lateinit var settings: SharedPreferences
     private lateinit var root: FrameLayout
+    private val activityCreatedAtMs = SystemClock.elapsedRealtime()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        V3ModelLoadMetrics.init(applicationContext)
+        V3ModelLoadMetrics.log("modelActivity onCreate ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}")
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = resources.getColor(R.color.ubi4_back, theme)
 
@@ -37,9 +42,12 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         initializeRendererStaticState()
 
         if (Load3DModelFesth3.isReady()) {
+            V3ModelLoadMetrics.log("modelActivity modelAlreadyReady ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}")
             initializeRenderer()
         } else {
+            V3ModelLoadMetrics.log("modelActivity preloadRequest ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}")
             Load3DModelFesth3.preloadAsync(applicationContext) {
+                V3ModelLoadMetrics.log("modelActivity preloadCallback ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs} ready=${Load3DModelFesth3.isReady()}")
                 if (!Load3DModelFesth3.isReady()) {
                     Toast.makeText(this, "Не удалось загрузить V3 3D модель", Toast.LENGTH_LONG).show()
                     finish()
@@ -83,6 +91,8 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
     private fun initializeRenderer() {
         if (glSurfaceView != null) return
 
+        val startedAtMs = SystemClock.elapsedRealtime()
+        V3ModelLoadMetrics.log("modelActivity initializeRenderer begin ageMs=${startedAtMs - activityCreatedAtMs}")
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         if (activityManager.deviceConfigurationInfo.reqGlEsVersion < 0x00020000) {
             Toast.makeText(this, R.string.lesson_eight_error_unknown, Toast.LENGTH_LONG).show()
@@ -108,5 +118,8 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         view.setRenderer(renderer, displayMetrics.density)
         root.addView(view)
         glSurfaceView = view
+        V3ModelLoadMetrics.log(
+            "modelActivity initializeRenderer end initMs=${SystemClock.elapsedRealtime() - startedAtMs} ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}"
+        )
     }
 }

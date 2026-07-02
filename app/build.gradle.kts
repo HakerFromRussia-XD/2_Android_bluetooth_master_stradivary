@@ -152,6 +152,7 @@ android {
     }
     androidResources {
         noCompress += "v3bin"
+        noCompress += "astc"
     }
     sourceSets {
         getByName("main") {

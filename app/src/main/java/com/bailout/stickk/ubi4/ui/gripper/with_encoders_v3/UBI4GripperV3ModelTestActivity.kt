@@ -94,11 +94,14 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         val startedAtMs = SystemClock.elapsedRealtime()
         V3ModelLoadMetrics.log("modelActivity initializeRenderer begin ageMs=${startedAtMs - activityCreatedAtMs}")
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        if (activityManager.deviceConfigurationInfo.reqGlEsVersion < 0x00020000) {
+        val reqGlEsVersion = activityManager.deviceConfigurationInfo.reqGlEsVersion
+        if (reqGlEsVersion < 0x00020000) {
             Toast.makeText(this, R.string.lesson_eight_error_unknown, Toast.LENGTH_LONG).show()
             finish()
             return
         }
+        val eglClientVersion = if (reqGlEsVersion >= 0x00030000) 3 else 2
+        V3ModelLoadMetrics.log("modelActivity eglClientVersion=$eglClientVersion reqGlEsVersion=$reqGlEsVersion")
 
         val view = UBI4GripperSettingsWithEncodersGLSurfaceViewV3(this, null).apply {
             layoutParams = FrameLayout.LayoutParams(
@@ -109,7 +112,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
             holder.setFormat(PixelFormat.TRANSLUCENT)
             setBackgroundResource(R.color.ubi4_back)
             setZOrderOnTop(true)
-            setEGLContextClientVersion(2)
+            setEGLContextClientVersion(eglClientVersion)
         }
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)

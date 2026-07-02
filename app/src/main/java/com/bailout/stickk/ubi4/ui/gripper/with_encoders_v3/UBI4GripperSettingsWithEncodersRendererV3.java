@@ -3,7 +3,6 @@ package com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3;
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
-import static android.opengl.GLES20.glGenerateMipmap;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glTexParameteri;
@@ -31,6 +30,9 @@ import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
 import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics;
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -49,6 +51,13 @@ import timber.log.Timber;
 public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.Renderer{
 		/** Used for debug logs. */
 		private static final String TAG = "LessonEightRenderer";
+	private static final String ASTC_TEXTURE_DIR = "STR2_TEXTURE_ASTC";
+	private static final String ASTC_LDR_EXTENSION = "GL_KHR_texture_compression_astc_ldr";
+	private static final int ASTC_HEADER_BYTES = 16;
+	private static final int ASTC_BLOCK_X = 6;
+	private static final int ASTC_BLOCK_Y = 6;
+	private static final int ASTC_BLOCK_Z = 1;
+	private static final int GL_COMPRESSED_RGBA_ASTC_6X6_KHR = 0x93B4;
 
 	/** References to other main objects. */
 	private final Context fragmentGripperSettings;
@@ -242,10 +251,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
 		private float angle95 = 95;
-		private final boolean emitFingerAngleUpdates;
-		private final long rendererCreatedAtMs;
-		private long surfaceCreatedStartedAtMs;
-		private boolean firstFrameMetricsLogged;
+	private final boolean emitFingerAngleUpdates;
+	private final long rendererCreatedAtMs;
+	private Boolean astcSupported;
+	private long surfaceCreatedStartedAtMs;
+	private boolean firstFrameMetricsLogged;
 
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
@@ -280,6 +290,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
 			V3ModelLoadMetrics.init(fragmentGripperSettings);
 			V3ModelLoadMetrics.log("surfaceCreated begin rendererAgeMs=" + elapsedSince(rendererCreatedAtMs));
+			boolean useAstcTextures = isAstcSupported();
 			heightMap = new HeightMap();
 			long buffersStartedAtMs = SystemClock.elapsedRealtime();
 			heightMap.loader();
@@ -351,105 +362,28 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
 			long shaderMs = elapsedSince(shaderStartedAtMs);
 
-			//Load the texture
 			long textureStartedAtMs = SystemClock.elapsedRealtime();
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		int textureSTR2Part9 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part9);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture2
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-		int textureSTR2Part8 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_srednii_part8_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part8);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture3
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-		int textureSTR2Part15 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_ukazatelnii_part15_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part15);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture4
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-		/** Thise are handle to our texture data.*/
-		int gray = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.gray);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, gray);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture5
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
-		int green = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.green);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, green);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture6
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
-		int textureSTR2Part10 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_bezimiannii_part10_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part10);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture7
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE6);
-		int textureSTR2Part12 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_mizinec_part12_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part12);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture8
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE7);
-		int textureSTR2Part18 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture9
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE8);
-		int metalTextureTest = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new);
-		GLES20.glBindTexture(GL_TEXTURE_2D, metalTextureTest);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture10
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE9);
-		int metalBumpTextureTest = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, metalBumpTextureTest);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture11
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE10);
-		int textureSTR2Part15normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_ukazatelnii_part15_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part15normals);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture12
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE11);
-		int textureSTR2Part8normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_srednii_part8_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part8normals);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture13
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE12);
-		int lool = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.metal_color2);
-		GLES20.glBindTexture(GL_TEXTURE_2D, lool);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture14
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE13);
-		int lol2 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.metal_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, lol2);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture15
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE14);
-		int textureSTR2Part10normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_bezimiannii_part10_new_material_normal);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part10normals);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture16
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE15);
-		int textureSTR2Part12normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_mizinec_part12_new_material_normal);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part12normals);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//Load the texture17
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE16);
-			int textureSTR2Part18normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new_material_normal);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18normals);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			int textureCount = 0;
+			textureCount += loadTextureUnit(1, R.drawable.str2_srednii_part8_new, "str2_srednii_part8_new");
+			textureCount += loadTextureUnit(2, R.drawable.str2_ukazatelnii_part15_new, "str2_ukazatelnii_part15_new");
+			textureCount += loadTextureUnit(3, R.drawable.gray, "gray");
+			textureCount += loadTextureUnit(5, R.drawable.str2_bezimiannii_part10_new, "str2_bezimiannii_part10_new");
+			textureCount += loadTextureUnit(6, R.drawable.str2_mizinec_part12_new, "str2_mizinec_part12_new");
+			textureCount += loadTextureUnit(7, R.drawable.str2_big_finger_part18_new, "str2_big_finger_part18_new");
+			textureCount += loadTextureUnit(8, R.drawable.str2_part9_new, "str2_part9_new");
+			textureCount += loadTextureUnit(9, R.drawable.str2_part9_new_material_normal, "str2_part9_new_material_normal");
+			textureCount += loadTextureUnit(10, R.drawable.str2_ukazatelnii_part15_new_material_normal, "str2_ukazatelnii_part15_new_material_normal");
+			textureCount += loadTextureUnit(11, R.drawable.str2_srednii_part8_new_material_normal, "str2_srednii_part8_new_material_normal");
+			textureCount += loadTextureUnit(12, R.drawable.metal_color2, "metal_color2");
+			textureCount += loadTextureUnit(14, R.drawable.str2_bezimiannii_part10_new_material_normal, "str2_bezimiannii_part10_new_material_normal");
+			textureCount += loadTextureUnit(15, R.drawable.str2_mizinec_part12_new_material_normal, "str2_mizinec_part12_new_material_normal");
+			textureCount += loadTextureUnit(16, R.drawable.str2_big_finger_part18_new_material_normal, "str2_big_finger_part18_new_material_normal");
 			long textureMs = elapsedSince(textureStartedAtMs);
+			V3ModelLoadMetrics.log("texturesLoaded totalMs=" + textureMs
+					+ " count=" + textureCount
+					+ " astcSupported=" + useAstcTextures
+					+ " skippedUnits=0,4,13"
+					+ " mipmaps=false");
 
 
 
@@ -471,6 +405,168 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					+ " shaderProgramMs=" + shaderMs
 					+ " textureUploadMs=" + textureMs);
 		}
+
+	private int loadTextureUnit(int textureUnit, int resourceId, String name) {
+		if (isAstcSupported()) {
+			try {
+				return loadAstcTextureUnit(textureUnit, resourceId, name);
+			} catch (Throwable t) {
+				V3ModelLoadMetrics.logError("textureAstcFallback unit=" + textureUnit
+						+ " name=" + name, t);
+			}
+		}
+		return loadPngTextureUnit(textureUnit, resourceId, name);
+	}
+
+	private int loadPngTextureUnit(int textureUnit, int resourceId, String name) {
+		long startedAtMs = SystemClock.elapsedRealtime();
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + textureUnit);
+		int texture = TextureHelper.loadTexture(fragmentGripperSettings, resourceId);
+		GLES20.glBindTexture(GL_TEXTURE_2D, texture);
+		glTexParameteri(GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		V3ModelLoadMetrics.log("textureLoaded unit=" + textureUnit
+				+ " name=" + name
+				+ " source=png"
+				+ " handle=" + texture
+				+ " totalMs=" + elapsedSince(startedAtMs));
+		return 1;
+	}
+
+	private int loadAstcTextureUnit(int textureUnit, int resourceId, String name) throws IOException {
+		long startedAtMs = SystemClock.elapsedRealtime();
+		String assetPath = ASTC_TEXTURE_DIR + "/" + name + ".astc";
+		AstcTexture astcTexture = readAstcTexture(assetPath);
+		drainGlErrors();
+		int[] textureHandle = new int[1];
+		GLES20.glGenTextures(1, textureHandle, 0);
+		if (textureHandle[0] == 0) {
+			throw new IOException("Error generating ASTC texture name for " + assetPath);
+		}
+
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + textureUnit);
+		GLES20.glBindTexture(GL_TEXTURE_2D, textureHandle[0]);
+		glTexParameteri(GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		int setupGlError = drainGlErrors();
+		if (setupGlError != GLES20.GL_NO_ERROR) {
+			throw new IOException("ASTC texture setup failed for " + assetPath + " error=0x"
+					+ Integer.toHexString(setupGlError));
+		}
+		GLES20.glCompressedTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				astcTexture.glFormat,
+				astcTexture.width,
+				astcTexture.height,
+				0,
+				astcTexture.payloadSize,
+				astcTexture.payload
+		);
+		int glError = GLES20.glGetError();
+		if (glError != GLES20.GL_NO_ERROR) {
+			throw new IOException("glCompressedTexImage2D failed for " + assetPath + " error=0x"
+					+ Integer.toHexString(glError));
+		}
+
+		V3ModelLoadMetrics.log("textureLoaded unit=" + textureUnit
+				+ " name=" + name
+				+ " source=astc"
+				+ " handle=" + textureHandle[0]
+				+ " width=" + astcTexture.width
+				+ " height=" + astcTexture.height
+				+ " payloadBytes=" + astcTexture.payloadSize
+				+ " totalMs=" + elapsedSince(startedAtMs));
+		return 1;
+	}
+
+	private boolean isAstcSupported() {
+		if (astcSupported != null) {
+			return astcSupported;
+		}
+		String version = GLES20.glGetString(GLES20.GL_VERSION);
+		String renderer = GLES20.glGetString(GLES20.GL_RENDERER);
+		String extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+		astcSupported = extensions != null && extensions.contains(ASTC_LDR_EXTENSION);
+		V3ModelLoadMetrics.log("glInfo version=" + version
+				+ " renderer=" + renderer
+				+ " astcLdr=" + astcSupported);
+		return astcSupported;
+	}
+
+	private int drainGlErrors() {
+		int lastError = GLES20.GL_NO_ERROR;
+		int error;
+		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+			lastError = error;
+		}
+		return lastError;
+	}
+
+	private AstcTexture readAstcTexture(String assetPath) throws IOException {
+		byte[] bytes = readAssetBytes(assetPath);
+		if (bytes.length < ASTC_HEADER_BYTES) {
+			throw new IOException("ASTC texture " + assetPath + " is shorter than header");
+		}
+		if ((bytes[0] & 0xFF) != 0x13
+				|| (bytes[1] & 0xFF) != 0xAB
+				|| (bytes[2] & 0xFF) != 0xA1
+				|| (bytes[3] & 0xFF) != 0x5C) {
+			throw new IOException("Invalid ASTC magic in " + assetPath);
+		}
+
+		int blockX = bytes[4] & 0xFF;
+		int blockY = bytes[5] & 0xFF;
+		int blockZ = bytes[6] & 0xFF;
+		int width = readUInt24(bytes, 7);
+		int height = readUInt24(bytes, 10);
+		int depth = readUInt24(bytes, 13);
+		if (blockX != ASTC_BLOCK_X || blockY != ASTC_BLOCK_Y || blockZ != ASTC_BLOCK_Z || depth != 1) {
+			throw new IOException("Unsupported ASTC layout in " + assetPath
+					+ " block=" + blockX + "x" + blockY + "x" + blockZ
+					+ " depth=" + depth);
+		}
+
+		int payloadSize = bytes.length - ASTC_HEADER_BYTES;
+		ByteBuffer payload = ByteBuffer.allocateDirect(payloadSize).order(ByteOrder.nativeOrder());
+		payload.put(bytes, ASTC_HEADER_BYTES, payloadSize);
+		payload.position(0);
+		return new AstcTexture(width, height, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, payload, payloadSize);
+	}
+
+	private int readUInt24(byte[] bytes, int offset) {
+		return (bytes[offset] & 0xFF)
+				| ((bytes[offset + 1] & 0xFF) << 8)
+				| ((bytes[offset + 2] & 0xFF) << 16);
+	}
+
+	private byte[] readAssetBytes(String assetPath) throws IOException {
+		try (InputStream input = fragmentGripperSettings.getAssets().open(assetPath);
+			 ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[8192];
+			int count;
+			while ((count = input.read(buffer)) != -1) {
+				output.write(buffer, 0, count);
+			}
+			return output.toByteArray();
+		}
+	}
+
+	private static final class AstcTexture {
+		private final int width;
+		private final int height;
+		private final int glFormat;
+		private final ByteBuffer payload;
+		private final int payloadSize;
+
+		private AstcTexture(int width, int height, int glFormat, ByteBuffer payload, int payloadSize) {
+			this.width = width;
+			this.height = height;
+			this.glFormat = glFormat;
+			this.payload = payload;
+			this.payloadSize = payloadSize;
+		}
+	}
 
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {

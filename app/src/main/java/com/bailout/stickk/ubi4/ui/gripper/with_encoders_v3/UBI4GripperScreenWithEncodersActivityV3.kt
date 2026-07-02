@@ -332,13 +332,14 @@ class UBI4GripperScreenWithEncodersActivityV3
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000
 
         if (supportsEs2) {
+            val eglClientVersion = if (configurationInfo.reqGlEsVersion >= 0x00030000) 3 else 2
             binding.glSurfaceViewLeWithEncodersV3.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
             binding.glSurfaceViewLeWithEncodersV3.holder.setFormat(PixelFormat.TRANSLUCENT)
             binding.glSurfaceViewLeWithEncodersV3.setBackgroundResource(R.color.ubi4_back)
             binding.glSurfaceViewLeWithEncodersV3.setZOrderOnTop(true)
 
 
-            binding.glSurfaceViewLeWithEncodersV3.setEGLContextClientVersion(2)
+            binding.glSurfaceViewLeWithEncodersV3.setEGLContextClientVersion(eglClientVersion)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)

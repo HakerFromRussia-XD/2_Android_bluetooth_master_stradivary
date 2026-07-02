@@ -193,7 +193,7 @@ class SettingsProfileRepository(
     private suspend fun snapshotCurrentBleValues(serial: String, profileId: Int) {
         ParameterStoreV3.values.value.forEach { (key, typedValue) ->
             val parameterInfo = key.toParameterInfo()
-            val meta = PreferenceKeysUbi4.ParameterInfoRegistry.getMeta(parameterInfo) ?: return@forEach
+            val meta = metaFor(parameterInfo) ?: return@forEach
             if (!isBleProfileSetting(meta)) return@forEach
             upsertBleValue(serial, profileId, parameterInfo, meta, typedValue)
         }

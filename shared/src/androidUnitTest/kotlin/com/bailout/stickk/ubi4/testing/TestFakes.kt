@@ -7,11 +7,14 @@ import com.bailout.stickk.ubi4.data.local.db.dao.BaseSubDeviceInfoDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DataParameterDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
+import com.bailout.stickk.ubi4.data.local.db.dao.SettingsProfileDao
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.DataParameterEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.DeviceCrcEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.ListWidgetsEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.SettingsProfileEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.SettingsProfileValueEntity
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import kotlinx.coroutines.flow.Flow
@@ -151,6 +154,72 @@ class InMemoryDeviceCrcDao : DeviceCrcDao {
     }
 
     override suspend fun load(mac: String, addr: Long): DeviceCrcEntity? = rows[mac to addr]
+}
+
+class InMemorySettingsProfileDao : SettingsProfileDao {
+    private val profiles = mutableListOf<SettingsProfileEntity>()
+    private val values = mutableListOf<SettingsProfileValueEntity>()
+
+    override suspend fun getProfiles(serial: String): List<SettingsProfileEntity> =
+        profiles.filter { it.serial_number == serial }.sortedBy { it.profile_id }
+
+    override suspend fun getProfile(serial: String, profileId: Int): SettingsProfileEntity? =
+        profiles.firstOrNull { it.serial_number == serial && it.profile_id == profileId }
+
+    override suspend fun getActiveProfile(serial: String): SettingsProfileEntity? =
+        profiles
+            .filter { it.serial_number == serial && it.is_active }
+            .minByOrNull { it.profile_id }
+
+    override suspend fun upsertProfile(entity: SettingsProfileEntity) {
+        profiles.removeAll {
+            it.serial_number == entity.serial_number &&
+                it.profile_id == entity.profile_id
+        }
+        profiles += entity
+    }
+
+    override suspend fun clearActive(serial: String, tsMs: Long) {
+        profiles.replaceAll { entity ->
+            if (entity.serial_number == serial) {
+                entity.copy(is_active = false, updated_ts_ms = tsMs)
+            } else {
+                entity
+            }
+        }
+    }
+
+    override suspend fun getValues(serial: String, profileId: Int): List<SettingsProfileValueEntity> =
+        values
+            .filter { it.serial_number == serial && it.profile_id == profileId }
+            .sortedWith(compareBy<SettingsProfileValueEntity> { it.target }.thenBy { it.setting_key })
+
+    override suspend fun upsertValue(entity: SettingsProfileValueEntity) {
+        values.removeAll {
+            it.serial_number == entity.serial_number &&
+                it.profile_id == entity.profile_id &&
+                it.setting_key == entity.setting_key
+        }
+        values += entity
+    }
+
+    override suspend fun copyValues(
+        serial: String,
+        sourceProfileId: Int,
+        targetProfileId: Int,
+        tsMs: Long
+    ) {
+        values
+            .filter { it.serial_number == serial && it.profile_id == sourceProfileId }
+            .forEach { source ->
+                upsertValue(
+                    source.copy(
+                        profile_id = targetProfileId,
+                        updated_ts_ms = tsMs
+                    )
+                )
+            }
+    }
 }
 
 fun ensureWidgetRepoInitializedForTests(mac: String = "TEST-MAC") {

@@ -18,6 +18,12 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_D
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -63,6 +69,28 @@ class SettingsProfileRepositoryTest {
     }
 
     @Test
+    fun `migrateSerial moves profile values from temporary ble name to device serial`() = runBlocking {
+        val speedInfo = ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS)
+
+        repository.saveBleValue(
+            serial = "FTHS3-00000",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 42))
+        )
+
+        val state = repository.migrateSerial(
+            oldSerial = "FTHS3-00000",
+            newSerial = "FEST-H-12345"
+        )
+        val migratedValues = repository.switchToProfile("FEST-H-12345", 1).second
+        val oldValues = repository.switchToProfile("FTHS3-00000", 1).second
+
+        assertEquals(SettingsProfileState(profileCount = 1, activeProfileId = 1), state)
+        assertEquals(42, migratedValues.sliderValue())
+        assertTrue(oldValues.isEmpty())
+    }
+
+    @Test
     fun `new profile copies active profile and switching returns selected profile values`() = runBlocking {
         val speedInfo = ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS)
 
@@ -102,6 +130,71 @@ class SettingsProfileRepositoryTest {
 
         val overLimit = repository.createProfileFromActive("SERIAL-A")
         assertEquals(SettingsProfileState(profileCount = 3, activeProfileId = 3), overLimit.first)
+    }
+
+    @Test
+    fun `server settings payload wraps all profiles as json strings`() = runBlocking {
+        val speedInfo = ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS)
+
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 10))
+        )
+        repository.saveMobileBoolean(
+            serial = "SERIAL-A",
+            mobileKey = MobileSettingsKey.AUTO_LOGIN.key,
+            value = true
+        )
+
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 20))
+        )
+        repository.saveMobileBoolean(
+            serial = "SERIAL-A",
+            mobileKey = MobileSettingsKey.AUTO_LOGIN.key,
+            value = false
+        )
+
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 30))
+        )
+
+        val payload = repository.buildServerSettingsPayload("SERIAL-A")
+        val profiles = Json.parseToJsonElement(payload).jsonObject
+        val profile1 = Json.parseToJsonElement(profiles.getValue("PROFILE1").jsonPrimitive.content).jsonObject
+        val profile2 = Json.parseToJsonElement(profiles.getValue("PROFILE2").jsonPrimitive.content).jsonObject
+        val profile3 = Json.parseToJsonElement(profiles.getValue("PROFILE3").jsonPrimitive.content).jsonObject
+        val profile1Settings = profile1.getValue("settings").jsonArray
+        val profile2Settings = profile2.getValue("settings").jsonArray
+        val profile3Settings = profile3.getValue("settings").jsonArray
+        val profile1Ble = profile1Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "BLE" }.jsonObject
+        val profile1Mobile = profile1Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "MOBILE" }.jsonObject
+        val profile2Ble = profile2Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "BLE" }.jsonObject
+        val profile2Mobile = profile2Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "MOBILE" }.jsonObject
+        val profile3Ble = profile3Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "BLE" }.jsonObject
+        val profile3Mobile = profile3Settings.first { it.jsonObject.getValue("target").jsonPrimitive.content == "MOBILE" }.jsonObject
+
+        assertEquals(1, profile1.getValue("profile_id").jsonPrimitive.int)
+        assertEquals(2, profile2.getValue("profile_id").jsonPrimitive.int)
+        assertEquals(3, profile3.getValue("profile_id").jsonPrimitive.int)
+        assertEquals("Профиль №1", profile1.getValue("name").jsonPrimitive.content)
+        assertEquals("Профиль №2", profile2.getValue("name").jsonPrimitive.content)
+        assertEquals("Профиль №3", profile3.getValue("name").jsonPrimitive.content)
+        assertEquals("SLIDER", profile1Ble.getValue("codec_id").jsonPrimitive.content)
+        assertEquals(10, profile1Ble.getValue("value").jsonObject.getValue("sliderValue").jsonPrimitive.int)
+        assertEquals(20, profile2Ble.getValue("value").jsonObject.getValue("sliderValue").jsonPrimitive.int)
+        assertEquals(30, profile3Ble.getValue("value").jsonObject.getValue("sliderValue").jsonPrimitive.int)
+        assertEquals("mobile:${MobileSettingsKey.AUTO_LOGIN.key}", profile1Mobile.getValue("setting_key").jsonPrimitive.content)
+        assertEquals(true, profile1Mobile.getValue("value").jsonPrimitive.boolean)
+        assertEquals(false, profile2Mobile.getValue("value").jsonPrimitive.boolean)
+        assertEquals(false, profile3Mobile.getValue("value").jsonPrimitive.boolean)
     }
 
     @Test

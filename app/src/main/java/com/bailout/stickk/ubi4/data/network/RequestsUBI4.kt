@@ -1,15 +1,12 @@
 package com.bailout.stickk.ubi4.data.network
 
 import AllOptionsV3
-import SettingsModelV3
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.ArrayMap
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
 import com.bailout.stickk.ubi4.models.user.User
 import com.bailout.stickk.ubi4.models.user.UserV2
-import com.bailout.stickk.ubi4.utility.InitAllOptionsUBI4
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +17,8 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class RequestsUBI4 {
+    private val settingsProfileSender = Ubi4SettingsProfileSender()
+
     @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun getRequestToken(
@@ -171,34 +170,25 @@ class RequestsUBI4 {
         mDeviceAddress: String
     ) {
         GlobalScope.launch(Dispatchers.IO) {
-            val jsonParams: MutableMap<String, Any> = ArrayMap()
-            jsonParams["settings"] = "some_code"
-
-            val response = try {
-                InitAllOptionsUBI4(context = context, mDeviceAddress = mDeviceAddress)
-                val classForReceive = InitAllOptionsUBI4.myAllOptionsV3
-                System.err.println("mSettings GAME_LAUNCH_RATE ${InitAllOptionsUBI4.myAllOptionsV3.gameLaunchRate}")
-                System.err.println("mSettings MAXIMUM_POINTS ${InitAllOptionsUBI4.myAllOptionsV3.maximumPoints}")
-                System.err.println("mSettings NUMBER_OF_CUPS ${InitAllOptionsUBI4.myAllOptionsV3.numberOfCups}")
-
-                UserRetrofitInstance.api.createPost(
-                    deviceId,
-                    "Bearer $token",
-                    SettingsModelV3(gson.toJson(classForReceive))
+            try {
+                val result = settingsProfileSender.sendProfile1Settings(
+                    deviceId = deviceId,
+                    token = token
                 )
+                System.err.println("Settings profile upload payload: ${result.settingsPayload}")
+                System.err.println("Settings profile upload server response: ${result.serverResponse}")
             } catch (e: HttpException) {
                 error("http error ${e.message}")
                 return@launch
             } catch (e: IOException) {
                 error("app error ${e.message}")
                 return@launch
+            } catch (e: Exception) {
+                error("app error ${e.message}")
+                return@launch
             }
 
-            if (response.isSuccessful && response.body() != null) {
-                System.err.println(
-                    "Test post response: ${response.body()!!.gameLaunchRate} ${response.body()!!.maximumPoints}"
-                )
-            }
+            System.err.println("Settings profile upload success")
         }
     }
 

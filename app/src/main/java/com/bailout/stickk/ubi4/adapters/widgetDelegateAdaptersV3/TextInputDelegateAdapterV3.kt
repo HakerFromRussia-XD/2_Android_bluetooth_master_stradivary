@@ -240,7 +240,7 @@ class TextInputDelegateAdapterV3(
             input.removeTextChangedListener(existingWatcher)
             input.setTag(R.id.tag_text_input_limit_watcher, null)
         }
-    }
+    }/**/
 
     private fun setupCurrentDeviceNamePrefill(input: EditText) {
         fun fillCurrentName() {

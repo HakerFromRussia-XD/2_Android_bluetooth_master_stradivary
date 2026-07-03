@@ -50,9 +50,11 @@ import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.mainOrNull
@@ -809,10 +811,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     fun requestSerialNumberV3() {
-        val packet = requestWithCommand(
+        val packet = WidgetCommandBridgeV3.buildReadRequest(
             DEVICE_INFORMATION.number.toInt(),
-            GET_SERIAL_NUMBER.number
-        )
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
         Log.d(
             "DeviceSerialV3",
             "TX GET_SERIAL_NUMBER packet=${EncodeByteToHex.bytesToHexString(packet)}"
@@ -876,6 +878,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     private fun buildV3InitRequests(): List<V3InitRequest> {
+        val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
+            DEVICE_INFORMATION.number.toInt(),
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
+
         return listOf(
             V3InitRequest(
                 packet = request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
@@ -961,10 +968,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
             ),
             V3InitRequest(
-                packet = requestWithCommand(
-                    DEVICE_INFORMATION.number.toInt(),
-                    GET_SERIAL_NUMBER.number
-                ),
+                packet = getSerialNumberPacket,
                 expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
                 expectedResponseSubcommand = GET_SERIAL_NUMBER.number
             )

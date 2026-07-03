@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
+import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileSender
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceName
@@ -140,6 +141,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var queueWorker: Thread? = null
     private lateinit var bottomNavigationController: BottomNavigationController
     private lateinit var telemetryCoordinator: TelemetryCoordinator
+    private val settingsProfileSender = Ubi4SettingsProfileSender()
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -159,7 +161,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         initAllVariables()
         showStartupLoaderIfNeeded()
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
-        SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -252,9 +253,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onBackPressedDispatcher.onBackPressed()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            telemetryCoordinator.sendTelemetry()
-//        }
+        binding.runCommandBtn.setOnClickListener {
+            sendSettingsProfileFromRunCommand()
+        }
 
         val accountPb = binding.accountPb.apply {
             max = 100
@@ -459,6 +460,46 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
+
+    private fun sendSettingsProfileFromRunCommand() {
+        val normalizedSerial = SettingsProfileManager.serial().trim()
+        if (normalizedSerial.isBlank()) {
+            platformLog(SETTINGS_PROFILE_UPLOAD_LOG_TAG, "skip: device serial is not loaded from GET_SERIAL_NUMBER")
+            showToast("Серийный номер не загружен")
+            return
+        }
+
+        val lang = locate.takeIf { it.isNotBlank() } ?: "en"
+        platformLog(
+            SETTINGS_PROFILE_UPLOAD_LOG_TAG,
+            "start: serial=$normalizedSerial lang=$lang"
+        )
+        lifecycleScope.launch {
+            runCatching {
+                settingsProfileSender.sendProfile1SettingsForSerial(
+                    serial = normalizedSerial,
+                    lang = lang
+                )
+            }.onSuccess { result ->
+                platformLog(
+                    SETTINGS_PROFILE_UPLOAD_LOG_TAG,
+                    "payload=${result.settingsPayload}"
+                )
+                platformLog(
+                    SETTINGS_PROFILE_UPLOAD_LOG_TAG,
+                    "server response deviceId=${result.deviceId}: ${result.serverResponse}"
+                )
+                showToast("Профиль настроек отправлен")
+            }.onFailure { error ->
+                platformLog(
+                    SETTINGS_PROFILE_UPLOAD_LOG_TAG,
+                    "failed: ${error.message ?: error::class.simpleName}"
+                )
+                showToast("Ошибка отправки профиля настроек")
+            }
+        }
+    }
+
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBackUbi4() { onBackPressed()}
     override fun goToMenu() {
@@ -681,7 +722,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
-            SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
@@ -705,7 +745,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
-        SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }
@@ -909,6 +948,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     companion object {
+        private const val SETTINGS_PROFILE_UPLOAD_LOG_TAG = "SettingsProfileUpload"
         private var mainRef: WeakReference<MainActivityUBI4>? = null
 
         val mainOrNull: MainActivityUBI4?

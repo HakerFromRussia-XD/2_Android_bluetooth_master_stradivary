@@ -179,6 +179,10 @@ class InMemorySettingsProfileDao : SettingsProfileDao {
         profiles += entity
     }
 
+    override suspend fun deleteProfiles(serial: String) {
+        profiles.removeAll { it.serial_number == serial }
+    }
+
     override suspend fun clearActive(serial: String, tsMs: Long) {
         profiles.replaceAll { entity ->
             if (entity.serial_number == serial) {
@@ -201,6 +205,10 @@ class InMemorySettingsProfileDao : SettingsProfileDao {
                 it.setting_key == entity.setting_key
         }
         values += entity
+    }
+
+    override suspend fun deleteValues(serial: String) {
+        values.removeAll { it.serial_number == serial }
     }
 
     override suspend fun copyValues(

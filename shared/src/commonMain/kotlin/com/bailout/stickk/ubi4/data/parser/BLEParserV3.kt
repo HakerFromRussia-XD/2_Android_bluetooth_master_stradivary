@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.data.state.WidgetState.sliderFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArray
 import com.bailout.stickk.ubi4.data.state.WidgetState.plotArrayFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState.thresholdFlowV3
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -473,8 +474,10 @@ class BLEParserV3(
 
         if (route.parameterKey == P_KEY_SET_SERIAL_NUMBER) {
             when (typedValue) {
-                is ParameterTypedValueV3.Text ->
+                is ParameterTypedValueV3.Text -> {
                     platformLog("DeviceSerialV3", "RX serial_number=\"${typedValue.value}\"")
+                    SettingsProfileManager.setCurrentSerial(typedValue.value)
+                }
                 is ParameterTypedValueV3.UInt32 -> {
                     val serialHex = typedValue.value
                         .toString(16)
@@ -837,18 +840,18 @@ class BLEParserV3(
                 )
             ),"Действие при смене жеста")))
 
-//        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-//            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-//                listOf("Профиль №1", "+"),
-//                0
-//            ),
-//            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-//                display = 2,
-//                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-//                parameterInfoSet = mutableSetOf(
-//                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-//                )
-//            ),"Профили настроек")))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                listOf("Профиль №1", "+"),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+                )
+            ),"Профили настроек")))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт","ЕМГ 4.1"),0),

@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.network
 
+import SettingsModelV3
 import com.bailout.stickk.ubi4.models.network.SerialTokenRequest
 import com.bailout.stickk.ubi4.models.network.TakeDataRequest
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
@@ -14,6 +15,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.http.content.OutgoingContent
+import io.ktor.http.content.TextContent
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.errors.IOException
@@ -302,6 +305,42 @@ class NetworkCoverageTest {
     }
 
     @Test
+    fun `settings profile api should post settings string body`() {
+        runBlocking {
+            var postedPath = ""
+            var authHeader = ""
+            var contentTypeHeader = ""
+            var postedBody = ""
+            val client = mockClient { req ->
+                postedPath = req.url.encodedPath
+                authHeader = req.headers[HttpHeaders.Authorization].orEmpty()
+                contentTypeHeader = req.body.contentType?.toString().orEmpty()
+                postedBody = requestBodyText(req.body)
+                respond(
+                    content = "{}",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                )
+            }
+            val api = Ubi4RequestsApi(userClient = client, passportClient = client)
+
+            val result = api.postProthesisSettings(
+                deviceId = "device-42",
+                token = "token-1",
+                request = SettingsModelV3("{\"PROFILE1\":\"{}\",\"PROFILE2\":\"{}\",\"PROFILE3\":\"{}\"}")
+            )
+
+            val success = assertIs<NetworkResult.Success<String>>(result)
+            assertEquals("{}", success.value)
+            assertEquals("/v1/device-mobile-app/device-42", postedPath)
+            assertEquals("Bearer token-1", authHeader)
+            assertEquals(ContentType.Application.Json.toString(), contentTypeHeader)
+            assertTrue(postedBody.contains("\"settings\""))
+            assertTrue(postedBody.contains("\\\"PROFILE1\\\""))
+        }
+    }
+
+    @Test
     fun `shared file operations should work for text bytes and channel`() {
         runBlocking {
         val dir = createTempDir(prefix = "ubi4-sf")
@@ -501,6 +540,13 @@ class NetworkCoverageTest {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true; isLenient = true })
             }
+        }
+
+    private fun requestBodyText(body: OutgoingContent): String =
+        when (body) {
+            is TextContent -> body.text
+            is OutgoingContent.ByteArrayContent -> body.bytes().decodeToString()
+            else -> body.toString()
         }
 
     private val uploadPlatformClass: Class<*> by lazy {

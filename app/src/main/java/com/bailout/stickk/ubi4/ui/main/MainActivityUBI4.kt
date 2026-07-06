@@ -47,6 +47,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
 import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileSender
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
@@ -120,6 +121,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var resumePlotPointsRunnable: Runnable? = null
     private var isImeVisible = false
     private var bottomNavHiddenByIme = false
+    private var openingScanAfterDisconnect = false
+    private var appCloseUploadRequested = false
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
@@ -291,6 +294,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+        appCloseUploadRequested = false
+        SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
         if (!mBLEController.getBluetoothAdapter()?.isEnabled!!) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
@@ -310,7 +315,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    override fun onStop() {
+        enqueueAppCloseUploadIfNeeded()
+        super.onStop()
+    }
+
     override fun onDestroy() {
+        enqueueAppCloseUploadIfNeeded()
         queueWorkerRunning = false
         queueWorker?.interrupt()
         queueWorker = null
@@ -324,6 +335,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.cleanup()
         clearMainIfSame(this)
         super.onDestroy()
+    }
+
+    private fun enqueueAppCloseUploadIfNeeded() {
+        if (openingScanAfterDisconnect || appCloseUploadRequested) return
+        if (!this::mBLEController.isInitialized || !mBLEController.getStatusConnected()) {
+            platformLog("SettingsProfileUploadWork", "skip app close enqueue: device is not connected")
+            return
+        }
+
+        appCloseUploadRequested = true
+        SettingsProfileUploadWorkScheduler.enqueueAppCloseUpload(
+            context = this,
+            lang = locate.takeIf { it.isNotBlank() } ?: "en"
+        )
     }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
@@ -567,6 +592,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     fun openScanActivity() {
         System.err.println("Check openScanActivity()")
+        openingScanAfterDisconnect = true
         resetLastMAC()
         val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
         startActivity(intent)

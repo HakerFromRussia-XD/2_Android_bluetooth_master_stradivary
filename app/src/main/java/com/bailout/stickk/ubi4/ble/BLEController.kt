@@ -38,6 +38,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
@@ -193,6 +194,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
+                    SettingsProfileUploadWorkScheduler.onConnected(mContext)
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     isTransferFlowActive = false
@@ -204,6 +206,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     mConnected = false
                     isUploading = false
                     endFlag = true
+                    SettingsProfileUploadWorkScheduler.enqueueDisconnectUpload(
+                        context = mContext,
+                        reason = "ble_disconnect"
+                    )
                     progressDialog?.dismiss()
                     progressDialog = null
                     needReRequestTransferFlow = true
@@ -573,6 +579,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
         reconnectJob?.cancel()
         if (mScanning) scanLeDevice(false)
         ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
+        SettingsProfileUploadWorkScheduler.enqueueDisconnectUpload(
+            context = mContext,
+            reason = "manual_disconnect"
+        )
         mDisconnected = true
         println("--> дисконнектим всё к хуям и анбайндим")
         bleScope.launch(Dispatchers.IO) {

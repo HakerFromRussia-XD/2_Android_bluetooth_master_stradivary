@@ -27,8 +27,13 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlin.concurrent.Volatile
 
@@ -171,6 +176,42 @@ class SettingsProfileRepository(
                 }
             }
         )
+    }
+
+    suspend fun importServerSettingsPayload(
+        serial: String,
+        payload: String
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withContext(Dispatchers.IO) {
+        val normalizedSerial = normalizeSerial(serial)
+            ?: return@withContext SettingsProfileState(1, 1) to emptyList()
+        val profiles = parseServerProfiles(payload)
+        if (profiles.isEmpty()) {
+            return@withContext ensureState(normalizedSerial) to emptyList()
+        }
+
+        dao.deleteValues(normalizedSerial)
+        dao.deleteProfiles(normalizedSerial)
+
+        val activeProfileId = profiles.firstOrNull { it.isActive }?.profileId
+            ?: profiles.first().profileId
+        profiles.forEach { profile ->
+            dao.upsertProfile(
+                SettingsProfileEntity(
+                    serial_number = normalizedSerial,
+                    profile_id = profile.profileId,
+                    name = profile.name.ifBlank { profileName(profile.profileId) },
+                    is_active = profile.profileId == activeProfileId,
+                    created_ts_ms = profile.updatedTsMs,
+                    updated_ts_ms = profile.updatedTsMs
+                )
+            )
+            profile.values.forEach { value ->
+                dao.upsertValue(value.copy(serial_number = normalizedSerial))
+            }
+        }
+
+        val state = ensureState(normalizedSerial)
+        state to loadApplyValues(normalizedSerial, state.activeProfileId)
     }
 
     suspend fun saveBleValue(
@@ -400,7 +441,111 @@ class SettingsProfileRepository(
             "PROFILE2" to EMPTY_PROFILE_JSON,
             "PROFILE3" to EMPTY_PROFILE_JSON
         )
+
+    private fun parseServerProfiles(payload: String): List<ServerSettingsProfile> {
+        val root = runCatching { settingsProfileServerJson.parseToJsonElement(payload) }.getOrNull()
+            ?: return emptyList()
+        val profilesRoot = root.extractProfilesRoot() ?: return emptyList()
+
+        return (1..MAX_SETTINGS_PROFILE_COUNT).mapNotNull { profileId ->
+            val profilePayload = profilesRoot["PROFILE$profileId"] ?: return@mapNotNull null
+            val profileJson = profilePayload.toJsonObjectOrNull() ?: return@mapNotNull null
+            if (profileJson.isEmpty()) return@mapNotNull null
+
+            val safeProfileId = profileJson["profile_id"]?.jsonPrimitive?.contentOrNull?.toIntOrNull()
+                ?.coerceIn(1, MAX_SETTINGS_PROFILE_COUNT)
+                ?: profileId
+            val updatedTsMs = profileJson["updated_ts_ms"]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+                ?: getTimeMillis()
+            val values = profileJson["settings"]?.runCatchingJsonArray()
+                ?.mapNotNull { it.toProfileValueEntityOrNull(safeProfileId) }
+                .orEmpty()
+
+            ServerSettingsProfile(
+                profileId = safeProfileId,
+                name = profileJson["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                isActive = profileJson["is_active"]?.jsonPrimitive?.booleanOrNull == true,
+                updatedTsMs = updatedTsMs,
+                values = values
+            )
+        }
+    }
+
+    private fun JsonElement.extractProfilesRoot(): JsonObject? {
+        val rootObject = runCatching { jsonObject }.getOrNull() ?: return null
+        val settings = rootObject["settings"]
+        return when {
+            settings != null -> settings.toJsonObjectOrNull()
+            rootObject.keys.any { it.startsWith("PROFILE") } -> rootObject
+            else -> null
+        }
+    }
+
+    private fun JsonElement.toJsonObjectOrNull(): JsonObject? {
+        return when (this) {
+            is JsonObject -> this
+            is JsonPrimitive -> contentOrNull
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { settingsProfileServerJson.parseToJsonElement(it).jsonObject }.getOrNull() }
+            else -> null
+        }
+    }
+
+    private fun JsonElement.runCatchingJsonArray() =
+        runCatching { jsonArray }.getOrNull()
+
+    private fun JsonElement.toProfileValueEntityOrNull(profileId: Int): SettingsProfileValueEntity? {
+        val item = runCatching { jsonObject }.getOrNull() ?: return null
+        val target = item["target"]?.jsonPrimitive?.contentOrNull ?: return null
+        val settingKey = item["setting_key"]?.jsonPrimitive?.contentOrNull ?: return null
+        val updatedTsMs = item["updated_ts_ms"]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+            ?: getTimeMillis()
+
+        return when (target) {
+            TARGET_BLE -> SettingsProfileValueEntity(
+                serial_number = "",
+                profile_id = profileId,
+                setting_key = settingKey,
+                target = TARGET_BLE,
+                parameter_id = item["parameter_id"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: return null,
+                data_code = item["data_code"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: return null,
+                data_offset = item["data_offset"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0,
+                device_address = item["device_address"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0,
+                codec_id = item["codec_id"]?.jsonPrimitive?.contentOrNull ?: return null,
+                value_text = item["value"]?.let { settingsProfileServerJson.encodeToString(JsonElement.serializer(), it) },
+                value_i1 = null,
+                value_i2 = null,
+                value_i3 = null,
+                updated_ts_ms = updatedTsMs
+            )
+            TARGET_MOBILE -> SettingsProfileValueEntity(
+                serial_number = "",
+                profile_id = profileId,
+                setting_key = settingKey,
+                target = TARGET_MOBILE,
+                parameter_id = 0,
+                data_code = 0,
+                data_offset = 0,
+                device_address = 0,
+                codec_id = "",
+                value_text = null,
+                value_i1 = if (item["value"]?.jsonPrimitive?.booleanOrNull == true) 1L else 0L,
+                value_i2 = null,
+                value_i3 = null,
+                updated_ts_ms = updatedTsMs
+            )
+            else -> null
+        }
+    }
 }
+
+private data class ServerSettingsProfile(
+    val profileId: Int,
+    val name: String,
+    val isActive: Boolean,
+    val updatedTsMs: Long,
+    val values: List<SettingsProfileValueEntity>
+)
 
 object SettingsProfileRepositoryProvider {
     @Volatile

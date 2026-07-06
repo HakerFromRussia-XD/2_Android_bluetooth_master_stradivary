@@ -106,6 +106,16 @@ class Ubi4RequestsApi(
             decode = { it.body() }
         )
 
+    suspend fun getProthesisSettingsRaw(deviceId: String, token: String): NetworkResult<String> =
+        safeGet(
+            client = userClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/device-mobile-app/$deviceId")
+                header(HttpHeaders.Authorization, "Bearer $token")
+            },
+            decode = { it.bodyAsText() }
+        )
+
     suspend fun postProthesisSettings(
         deviceId: String,
         token: String,

@@ -198,6 +198,39 @@ class SettingsProfileRepositoryTest {
     }
 
     @Test
+    fun `server settings payload imports profiles back to local database`() = runBlocking {
+        val speedInfo = ParameterInfoRegistry.require(P_KEY_SPEED_SETTINGS)
+
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 10))
+        )
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 20))
+        )
+        repository.createProfileFromActive("SERIAL-A")
+        repository.saveBleValue(
+            serial = "SERIAL-A",
+            parameterInfo = speedInfo,
+            typedValue = ParameterTypedValueV3.Slider(SliderV3(sliderValue = 30))
+        )
+
+        val payload = repository.buildServerSettingsPayload("SERIAL-A")
+        val importedRepository = SettingsProfileRepository(InMemorySettingsProfileDao())
+        val imported = importedRepository.importServerSettingsPayload("SERIAL-B", payload)
+
+        assertEquals(SettingsProfileState(profileCount = 3, activeProfileId = 3), imported.first)
+        assertEquals(30, imported.second.sliderValue())
+        assertEquals(10, importedRepository.switchToProfile("SERIAL-B", 1).second.sliderValue())
+        assertEquals(20, importedRepository.switchToProfile("SERIAL-B", 2).second.sliderValue())
+        assertEquals(30, importedRepository.switchToProfile("SERIAL-B", 3).second.sliderValue())
+    }
+
+    @Test
     fun `system profile spinner and text inputs are not saved as profile BLE settings`() = runBlocking {
         repository.saveBleValue(
             serial = "SERIAL-A",

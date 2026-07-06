@@ -37,8 +37,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
+import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
@@ -101,9 +103,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private var mScanning = false
     private var onConnectedListener: (() -> Unit)? = null
     private var onNeedFullInitListener: (() -> Unit)? = null
+    private val settingsProfileReceiver = Ubi4SettingsProfileReceiver()
 
     @Volatile private var isTransferFlowActive = false
     @Volatile private var productInfoRequested = false
+    @Volatile private var settingsProfileDownloadedForConnection = false
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -194,6 +198,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
+                    settingsProfileDownloadedForConnection = false
                     SettingsProfileUploadWorkScheduler.onConnected(mContext)
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
@@ -466,8 +471,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private fun parseReceivedDataV3(data: ByteArray?) {
         if (data == null) { return }
         runCatching {
-            handleV3InitResponseProgress(data)
             mBLEParserV3?.parseReceivedData(data)
+            handleV3InitResponseProgress(data)
         }.onFailure { t ->
             main.showToast("ошибка парсинга в mBLEParserV3")
         }
@@ -1044,6 +1049,39 @@ class BLEController(private val bleManager: BleManagerKmm) {
         if (shouldEmitCompletion) {
             UiState.widgetsLoadingFlow.tryEmit(Unit)
             onConnectedListener?.invoke()
+            downloadSettingsProfilesAfterV3Init()
+        }
+    }
+
+    private fun downloadSettingsProfilesAfterV3Init() {
+        if (settingsProfileDownloadedForConnection) return
+        val serial = SettingsProfileManager.serial().trim()
+        if (serial.isBlank()) {
+            platformLog(SETTINGS_PROFILE_DOWNLOAD_LOG_TAG, "skip: device serial is not loaded from GET_SERIAL_NUMBER")
+            return
+        }
+
+        settingsProfileDownloadedForConnection = true
+        val lang = main.locate.takeIf { it.isNotBlank() } ?: "en"
+        platformLog(SETTINGS_PROFILE_DOWNLOAD_LOG_TAG, "start: serial=$serial lang=$lang")
+
+        main.lifecycleScope.launch {
+            runCatching {
+                settingsProfileReceiver.downloadAndApplyForSerial(
+                    serial = serial,
+                    lang = lang
+                )
+            }.onSuccess { result ->
+                platformLog(
+                    SETTINGS_PROFILE_DOWNLOAD_LOG_TAG,
+                    "success: deviceId=${result.deviceId} profileCount=${result.state.profileCount} activeProfile=${result.state.activeProfileId} applied=${result.applyValues.size}"
+                )
+            }.onFailure { error ->
+                platformLog(
+                    SETTINGS_PROFILE_DOWNLOAD_LOG_TAG,
+                    "failed: ${error.message ?: error::class.simpleName}"
+                )
+            }
         }
     }
 
@@ -1061,5 +1099,9 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private fun v3InitResponseKey(command: Int, subcommand: Int): String {
         return "$command:$subcommand"
+    }
+
+    private companion object {
+        private const val SETTINGS_PROFILE_DOWNLOAD_LOG_TAG = "SettingsProfileDownload"
     }
 }

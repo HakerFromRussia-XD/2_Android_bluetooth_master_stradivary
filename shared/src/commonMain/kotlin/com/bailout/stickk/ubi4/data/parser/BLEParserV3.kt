@@ -829,6 +829,18 @@ class BLEParserV3(
         ),"Режим работы протеза")))
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                listOf("Профиль №1", "+"),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+                )
+            ),"Профили настроек")))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
                 listOf("Без действия", "Перейти в открытое положение"),
                 0
             ),
@@ -840,18 +852,7 @@ class BLEParserV3(
                 )
             ),"Действие при смене жеста")))
 
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                listOf("Профиль №1", "+"),
-                0
-            ),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-                )
-            ),"Профили настроек")))
+
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(listOf("ЕМГ 4.0","ЕМГ 3.0","Первый старт","ЕМГ 4.1"),0),

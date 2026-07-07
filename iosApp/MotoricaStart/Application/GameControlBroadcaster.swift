@@ -18,6 +18,7 @@ final class GameControlBroadcaster {
 
     private let logPrefix = "[BLE stk-game debug]"
     private let minPublishInterval: TimeInterval = 1.0 / 30.0
+    private let publishQueue = DispatchQueue(label: "com.motorica.start.gamecontrol.publish")
     private var observeJob: Kotlinx_coroutines_coreJob?
     private var sequence: Int64 = 0
     private var lastPublishTime: CFTimeInterval = 0
@@ -28,7 +29,9 @@ final class GameControlBroadcaster {
     func start() {
         guard observeJob == nil else { return }
         observeJob = WidgetStateBridge.shared.observeGameControlSignal { [weak self] signal in
-            self?.publish(signal: signal, force: !signal.connected)
+            self?.publishQueue.async {
+                self?.publish(signal: signal, force: !signal.connected)
+            }
         }
         NSLog("\(logPrefix) ios broadcaster started")
     }
@@ -81,7 +84,6 @@ final class GameControlBroadcaster {
             Keys.connected: connected
         ]
         defaults.set(snapshot, forKey: Keys.snapshot)
-        defaults.synchronize()
 
         if !connected || sequence <= 3 || sequence % 30 == 0 {
             NSLog("\(logPrefix) ios publish seq=\(sequence) packetSeq=\(packetSeq) open=\(snapshot[Keys.openLevel] ?? 0) close=\(snapshot[Keys.closeLevel] ?? 0) connected=\(connected ? 1 : 0)")

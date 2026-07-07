@@ -14,17 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        
-        SharedBootstrapper.shared.initialize()
-        AppAppearance.setupAppearance()
-        FirmwareDocumentsDirectory.prepareSharedFolder()
-        SmartConnectionSettingsStore().resetScanAutoConnectionDeactivationForLaunch()
-        BleLogSettings.syncSharedStore()
-    
-        
-        
-        
-        
+        NSLog("[startup] didFinishLaunching begin")
         let navigationController = StatusBarNavigationController()
         let ubi4BackgroundColor = UIColor(named: "ubi4_back") ?? UIColor.black
         navigationController.view.backgroundColor = ubi4BackgroundColor
@@ -37,16 +27,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             guard let self, let backgroundColor = self.window?.backgroundColor else { return }
             self.updateStatusBarOverlay(backgroundColor: backgroundColor)
         }
+        AppAppearance.setupAppearance()
         appFlowCoordinator = AppFlowCoordinator(
             navigationController: navigationController,
             appDIContainer: appDIContainer
         )
         appFlowCoordinator?.start()
-        LegacyBleCommandBridge.startIfNeeded()
-        LegacyBleCommandProbe.startIfNeeded { [weak self] in
-            self?.window
+        NSLog("[startup] appFlowCoordinator started")
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            NSLog("[startup] shared bootstrap begin")
+            SharedBootstrapper.shared.initialize()
+            FirmwareDocumentsDirectory.prepareSharedFolder()
+            SmartConnectionSettingsStore().resetScanAutoConnectionDeactivationForLaunch()
+            BleLogSettings.syncSharedStore()
+            NSLog("[startup] shared bootstrap finished")
+
+            DispatchQueue.main.async {
+                guard let self else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    NSLog("[startup] legacy bridges start")
+                    LegacyBleCommandBridge.startIfNeeded()
+                    LegacyBleCommandProbe.startIfNeeded {
+                        self?.window
+                    }
+                }
+            }
         }
-        GameControlBroadcaster.shared.start()
         return true
     }
 

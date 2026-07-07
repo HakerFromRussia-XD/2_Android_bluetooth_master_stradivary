@@ -105,6 +105,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private final float[] currentRotation = new float[16];
 	private final float[] lightModelMatrix = new float[16];
 	private final float[] temporaryMatrix = new float[16];
+	private final float[][] deformationAnchorMatrices = new float[5][16];
+	private final float[][] deformationInverseBindMatrices = new float[5][16];
+	private final float[][] deformationSkinMatrices = new float[5][16];
+	private boolean deformationBindMatricesCaptured = false;
 
 	/** OpenGL handles to our program uniforms. */
 	private int mvpMatrixUniform;
@@ -179,6 +183,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float METAL_RIM_LIGHT_STRENGTH = 1.08f;
 	private static final float[] METAL_FILL_LIGHT_DIRECTION = new float[] { -0.74f, 0.46f, 0.49f };
 	private static final float[] METAL_RIM_LIGHT_DIRECTION = new float[] { 0.78f, 0.44f, -0.45f };
+	private static final int DEFORMATION_INFLUENCE_COUNT = 5;
+	private static final int DEFORMATION_MATRIX_PALM = 0;
+	private static final int DEFORMATION_MATRIX_INDEX = 1;
+	private static final int DEFORMATION_MATRIX_MIDDLE = 2;
+	private static final int DEFORMATION_MATRIX_RING = 3;
+	private static final int DEFORMATION_MATRIX_LITTLE = 4;
+	private static final String TRANSFORM_PALM_BASE = "palm_base";
+	private static final String TRANSFORM_INDEX_UPPER = "index_upper";
+	private static final String TRANSFORM_MIDDLE_UPPER = "middle_upper";
+	private static final String TRANSFORM_RING_UPPER = "ring_upper";
+	private static final String TRANSFORM_LITTLE_UPPER = "little_upper";
 
 
 
@@ -276,6 +291,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			this.errorHandler = errorHandlerV3;
 			this.emitFingerAngleUpdates = emitFingerAngleUpdates;
 			this.rendererCreatedAtMs = SystemClock.elapsedRealtime();
+			resetDeformationAnchorMatrices();
 			V3ModelLoadMetrics.init(fragmentGripperSettings);
 			V3ModelLoadMetrics.log("renderer created emitFingerAngleUpdates=" + emitFingerAngleUpdates);
 		}
@@ -284,10 +300,68 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		return Load3DModelFesth3.getGroup(groupName, fallbackIndexes);
 	}
 
+	private void resetDeformationAnchorMatrices() {
+		for (int i = 0; i < deformationAnchorMatrices.length; i++) {
+			Matrix.setIdentityM(deformationAnchorMatrices[i], 0);
+			Matrix.setIdentityM(deformationSkinMatrices[i], 0);
+		}
+	}
+
+	private void storeDeformationAnchorMatrix(String transformId) {
+		int index = deformationMatrixIndex(transformId);
+		if (index >= 0) {
+			System.arraycopy(modelMatrix, 0, deformationAnchorMatrices[index], 0, 16);
+		}
+	}
+
+	private float[] deformationMatrixFor(String transformId) {
+		int index = deformationMatrixIndex(transformId);
+		if (index >= 0) {
+			return deformationSkinMatrices[index];
+		}
+		return deformationSkinMatrices[DEFORMATION_MATRIX_PALM];
+	}
+
+	private int deformationMatrixIndex(String transformId) {
+		if (TRANSFORM_PALM_BASE.equals(transformId)) {
+			return DEFORMATION_MATRIX_PALM;
+		}
+		if (TRANSFORM_INDEX_UPPER.equals(transformId)) {
+			return DEFORMATION_MATRIX_INDEX;
+		}
+		if (TRANSFORM_MIDDLE_UPPER.equals(transformId)) {
+			return DEFORMATION_MATRIX_MIDDLE;
+		}
+		if (TRANSFORM_RING_UPPER.equals(transformId)) {
+			return DEFORMATION_MATRIX_RING;
+		}
+		if (TRANSFORM_LITTLE_UPPER.equals(transformId)) {
+			return DEFORMATION_MATRIX_LITTLE;
+		}
+		return -1;
+	}
+
+	private void prepareDeformationSkinMatrices() {
+		if (!deformationBindMatricesCaptured) {
+			for (int i = 0; i < deformationAnchorMatrices.length; i++) {
+				if (!Matrix.invertM(deformationInverseBindMatrices[i], 0, deformationAnchorMatrices[i], 0)) {
+					Matrix.setIdentityM(deformationInverseBindMatrices[i], 0);
+				}
+			}
+			deformationBindMatricesCaptured = true;
+		}
+		for (int i = 0; i < deformationAnchorMatrices.length; i++) {
+			Matrix.multiplyMM(deformationSkinMatrices[i], 0,
+					deformationAnchorMatrices[i], 0,
+					deformationInverseBindMatrices[i], 0);
+		}
+	}
+
 	@SuppressLint("InlinedApi")
 		@Override
 		public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
 			surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
+			deformationBindMatricesCaptured = false;
 			V3ModelLoadMetrics.init(fragmentGripperSettings);
 			V3ModelLoadMetrics.log("surfaceCreated begin rendererAgeMs=" + elapsedSince(rendererCreatedAtMs));
 			boolean useAstcTextures = isAstcSupported();
@@ -615,6 +689,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.translateM(lightModelMatrix, 0, 0.0f, 0.0f, 180.0f);
 		Matrix.multiplyMV(lightPosInWorldSpace, 0, lightModelMatrix, 0, lightPosInModelSpace, 0);
 		Matrix.multiplyMV(lightPosInEyeSpace, 0, viewMatrix, 0, lightPosInWorldSpace, 0);
+		resetDeformationAnchorMatrices();
 
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){
 			foreFinger (new int[]{program}, 0);//programRubber
@@ -739,9 +814,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			setV3PlasticMaterial(program);
 			glUniform1i(textureUniform, 8);
 			glUniform1i(normalMapUniform, 9);
+			storeDeformationAnchorMatrix(TRANSFORM_PALM_BASE);
 			heightMap.render(modelParts("base_texture", 4));
 
 				renderGrayMetalPart(program, modelParts("base_gray_metal", 5));
+			renderDeformableRubberParts();
 			if (!firstFrameMetricsLogged) {
 				firstFrameMetricsLogged = true;
 				V3ModelLoadMetrics.log("firstFrame rendered rendererAgeMs=" + elapsedSince(rendererCreatedAtMs)
@@ -809,6 +886,44 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniform1i(textureUniform, 3);
 			heightMap.render(indexesOfBuffer);
 		}
+
+	private void renderDeformableRubberParts() {
+		int[] deformableParts = modelParts("deformable_rubber");
+		if (deformableParts.length == 0) {
+			return;
+		}
+
+		glUseProgram(program);
+		mvpMatrixUniform = glGetUniformLocation(program, MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(program, MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(program, POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(program, NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(program, COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(program, TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(program, TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(program, BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(program, LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(program, TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(program, NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(program, IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(program, SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
+
+		Matrix.setIdentityM(modelMatrix, 0);
+		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+
+		setV3RubberMaterial(program);
+		glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		prepareDeformationSkinMatrices();
+		heightMap.updateAndRenderDeformable(deformableParts);
+	}
 
 	private static long elapsedSince(long startedAtMs) {
 		return SystemClock.elapsedRealtime() - startedAtMs;
@@ -918,10 +1033,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
+			storeDeformationAnchorMatrix(TRANSFORM_INDEX_UPPER);
+				renderGrayMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1102,10 +1218,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
+			storeDeformationAnchorMatrix(TRANSFORM_MIDDLE_UPPER);
+				renderGrayMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1296,10 +1413,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
+			storeDeformationAnchorMatrix(TRANSFORM_RING_UPPER);
+				renderGrayMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1508,10 +1626,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
+			storeDeformationAnchorMatrix(TRANSFORM_LITTLE_UPPER);
+				renderGrayMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
 
 		/** шейдер без цвета */
 
@@ -1957,6 +2076,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		int[] vbo;
 		int[] ibo;
 		int[] indexCounts;
+		boolean[] deformableParts;
+		float[][] bindVertices;
+		float[][] dynamicVertices;
+		FloatBuffer[] dynamicVertexBuffers;
+		Load3DModelFesth3.DeformationData[] deformationData;
 
 		int partCount;
 
@@ -1978,6 +2102,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					vbo = new int[partCount];
 					ibo = new int[partCount];
 					indexCounts = new int[partCount];
+					deformableParts = new boolean[partCount];
+					bindVertices = new float[partCount][];
+					dynamicVertices = new float[partCount][];
+					dynamicVertexBuffers = new FloatBuffer[partCount];
+					deformationData = new Load3DModelFesth3.DeformationData[partCount];
 
 					long glGenStartedAtMs = SystemClock.elapsedRealtime();
 					GLES20.glGenBuffers(partCount, vbo, 0);
@@ -1988,6 +2117,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						long partStartedAtMs = SystemClock.elapsedRealtime();
 						float[] vertices = Load3DModelFesth3.getVertexArray(i);
 						int[] indices = Load3DModelFesth3.getIndicesArray(i);
+						Load3DModelFesth3.DeformationData partDeformationData = Load3DModelFesth3.getDeformationData(i);
+						if (partDeformationData != null) {
+							deformableParts[i] = true;
+							bindVertices[i] = vertices.clone();
+							dynamicVertices[i] = vertices.clone();
+							deformationData[i] = partDeformationData;
+						}
 						indexCounts[i] = indices.length;
 						System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCounts[i]);
 						int vertexCount = vertices.length / (STRIDE / BYTES_PER_FLOAT);
@@ -2003,6 +2139,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 								.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
 								.asFloatBuffer();
 						heightMapVertexDataBuffer.put(vertices).position(0);
+						if (deformableParts[i]) {
+							dynamicVertexBuffers[i] = heightMapVertexDataBuffer;
+						}
 
 						final IntBuffer heightMapIndexDataBuffer = ByteBuffer
 								.allocateDirect(indices.length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
@@ -2014,7 +2153,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							long glUploadStartedAtMs = SystemClock.elapsedRealtime();
 							GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
 							GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
-									heightMapVertexDataBuffer, GLES20.GL_STATIC_DRAW);
+									heightMapVertexDataBuffer, deformableParts[i] ? GLES20.GL_DYNAMIC_DRAW : GLES20.GL_STATIC_DRAW);
 
 
 						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[i]);
@@ -2039,15 +2178,151 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					Timber.tag(TAG).w(t);
 					errorHandler.handleError(UBI4ErrorHandlerV3.ErrorType.BUFFER_CREATION_ERROR, t.getLocalizedMessage());
 				}
-				V3ModelLoadMetrics.log("glBuffers totalMs=" + elapsedSince(loaderStartedAtMs)
-						+ " ensureLoadedMs=" + ensureLoadedMs
-						+ " glGenMs=" + glGenMs
-						+ " parts=" + partCount
-						+ " vertices=" + totalVertices
+					V3ModelLoadMetrics.log("glBuffers totalMs=" + elapsedSince(loaderStartedAtMs)
+							+ " ensureLoadedMs=" + ensureLoadedMs
+							+ " glGenMs=" + glGenMs
+							+ " parts=" + partCount
+							+ " vertices=" + totalVertices
 						+ " indices=" + totalIndices
 						+ " vertexBytes=" + totalVertexBytes
-						+ " indexBytes=" + totalIndexBytes);
+							+ " indexBytes=" + totalIndexBytes);
+					}
+
+		void updateAndRenderDeformable(int[] indexesOfBuffer) {
+			for (int partOffset = 0; partOffset < indexesOfBuffer.length; partOffset++) {
+				int partIndex = indexesOfBuffer[partOffset];
+				if (partIndex < 0 || partIndex >= partCount) {
+					Timber.tag(TAG).w("Skip deformable V3 model part index %s outside 0..%s", partIndex, partCount - 1);
+					continue;
 				}
+				if (!deformableParts[partIndex]) {
+					continue;
+				}
+				updateDeformablePart(partIndex);
+				render(new int[]{partIndex});
+			}
+		}
+
+		private void updateDeformablePart(int partIndex) {
+			Load3DModelFesth3.DeformationData data = deformationData[partIndex];
+			float[] bind = bindVertices[partIndex];
+			float[] target = dynamicVertices[partIndex];
+			FloatBuffer targetBuffer = dynamicVertexBuffers[partIndex];
+			if (data == null || bind == null || target == null || targetBuffer == null) {
+				return;
+			}
+			int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+			float[] input = new float[4];
+			float[] output = new float[4];
+			for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
+				int vertexOffset = vertexIndex * floatsPerVertex;
+				int weightOffset = vertexIndex * data.influenceCount;
+				transformWeightedPosition(bind, vertexOffset, data, weightOffset, target, vertexOffset, input, output);
+				transformWeightedDirection(bind, vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS,
+						data, weightOffset, target, vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS, input, output);
+				System.arraycopy(bind,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
+						target,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
+						COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS);
+				transformWeightedDirection(bind,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
+								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS,
+						data,
+						weightOffset,
+						target,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
+								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS,
+						input,
+						output);
+				transformWeightedDirection(bind,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
+								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS,
+						data,
+						weightOffset,
+						target,
+						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
+								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS,
+						input,
+						output);
+			}
+			targetBuffer.position(0);
+			targetBuffer.put(target).position(0);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
+			GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, target.length * BYTES_PER_FLOAT, targetBuffer);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+		}
+
+		private void transformWeightedPosition(
+				float[] source,
+				int sourceOffset,
+				Load3DModelFesth3.DeformationData data,
+				int weightOffset,
+				float[] target,
+				int targetOffset,
+				float[] input,
+				float[] output
+		) {
+			float x = 0.0f;
+			float y = 0.0f;
+			float z = 0.0f;
+			input[0] = source[sourceOffset];
+			input[1] = source[sourceOffset + 1];
+			input[2] = source[sourceOffset + 2];
+			input[3] = 1.0f;
+			for (int influence = 0; influence < data.influenceCount; influence++) {
+				float weight = data.weights[weightOffset + influence];
+				if (weight == 0.0f) {
+					continue;
+				}
+				Matrix.multiplyMV(output, 0, deformationMatrixFor(data.transformIdsByInfluence[influence]), 0, input, 0);
+				x += output[0] * weight;
+				y += output[1] * weight;
+				z += output[2] * weight;
+			}
+			target[targetOffset] = x;
+			target[targetOffset + 1] = y;
+			target[targetOffset + 2] = z;
+		}
+
+		private void transformWeightedDirection(
+				float[] source,
+				int sourceOffset,
+				Load3DModelFesth3.DeformationData data,
+				int weightOffset,
+				float[] target,
+				int targetOffset,
+				float[] input,
+				float[] output
+		) {
+			float x = 0.0f;
+			float y = 0.0f;
+			float z = 0.0f;
+			input[0] = source[sourceOffset];
+			input[1] = source[sourceOffset + 1];
+			input[2] = source[sourceOffset + 2];
+			input[3] = 0.0f;
+			for (int influence = 0; influence < data.influenceCount; influence++) {
+				float weight = data.weights[weightOffset + influence];
+				if (weight == 0.0f) {
+					continue;
+				}
+				Matrix.multiplyMV(output, 0, deformationMatrixFor(data.transformIdsByInfluence[influence]), 0, input, 0);
+				x += output[0] * weight;
+				y += output[1] * weight;
+				z += output[2] * weight;
+			}
+			float length = (float) Math.sqrt(x * x + y * y + z * z);
+			if (length <= 0.000001f) {
+				target[targetOffset] = source[sourceOffset];
+				target[targetOffset + 1] = source[sourceOffset + 1];
+				target[targetOffset + 2] = source[sourceOffset + 2];
+				return;
+			}
+			target[targetOffset] = x / length;
+			target[targetOffset + 1] = y / length;
+			target[targetOffset + 2] = z / length;
+		}
 
 		void render(int[] indexesOfBuffer) {
 			for (i = 0; i<indexesOfBuffer.length; i++) {

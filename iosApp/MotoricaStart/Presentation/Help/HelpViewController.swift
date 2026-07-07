@@ -402,7 +402,16 @@ final class HelpViewController: UIViewController {
         stack.alignment = .center
         stack.spacing = 12
 
-        if let image = block.image?.toUIImage() {
+        let text = block.text?.desc().localized() ?? ""
+        if isClosingSensorColorBlock(text) {
+            stack.addArrangedSubview(
+                makeColorIndicator(
+                    color: inactiveTextColor,
+                    width: CGFloat(block.imageWidth),
+                    height: CGFloat(block.imageHeight)
+                )
+            )
+        } else if let image = block.image?.toUIImage() {
             let imageView = UIImageView(image: image)
             imageView.contentMode = .scaleAspectFit
             imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -413,8 +422,24 @@ final class HelpViewController: UIViewController {
             stack.addArrangedSubview(imageView)
         }
 
-        stack.addArrangedSubview(makeLabel(block.text?.desc().localized() ?? "", font: HelpFont.openSansRegular(14), color: textColor))
+        stack.addArrangedSubview(makeLabel(text, font: HelpFont.openSansRegular(14), color: textColor))
         return stack
+    }
+
+    private func isClosingSensorColorBlock(_ text: String) -> Bool {
+        text == SharedRes.strings().closing_sensor.desc().localized()
+    }
+
+    private func makeColorIndicator(color: UIColor, width: CGFloat, height: CGFloat) -> UIView {
+        let view = UIView()
+        view.backgroundColor = color
+        view.layer.cornerRadius = min(width, height) / 2
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.widthAnchor.constraint(equalToConstant: width),
+            view.heightAnchor.constraint(equalToConstant: height)
+        ])
+        return view
     }
 
     private func handleMenuItem(_ item: InstructionMenuItem) {

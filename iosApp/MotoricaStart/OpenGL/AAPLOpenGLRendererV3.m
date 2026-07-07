@@ -7,7 +7,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
 #import "AAPLOpenGLRendererV3.h"
 #import "AAPLMathUtilities.h"
-#import "AAPLMeshData.h"
+#import "MotoricaMeshData.h"
 #import "AAPLCommonDefinitions.h"
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
@@ -243,7 +243,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
     // Load mesh data from a file into memory.
     // This only loads data from the bundle and does not create any OpenGL objects.
 
-    AAPLMeshData *meshData = [[AAPLMeshData alloc] initWithURL:modelFileURL error:&error];
+    MotoricaMeshData *meshData = [[MotoricaMeshData alloc] initWithURL:modelFileURL error:&error];
 
     NSAssert(meshData, @"Could not load mesh from model file (%@), error: %@.", modelFileURL.absoluteString, error);
 
@@ -322,7 +322,7 @@ Implementation of the renderer class that performs OpenGL state setup and per-fr
 
         for(NSUInteger index = 0; index < _numTempleSubmeshes; index++)
         {
-            AAPLSubmeshData *submeshData = meshData.submeshes.allValues[index];
+            MotoricaSubmeshData *submeshData = meshData.submeshes.allValues[index];
 //            NSLog(@"В цикле вынимаем переменные сабмеша: %@", meshData.submeshes.allValues[index]);
 
             _templeIndexBufferCounts[index] = (GLuint)submeshData.indexCount;

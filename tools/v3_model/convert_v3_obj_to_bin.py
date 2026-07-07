@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import array
+from dataclasses import dataclass
 import json
 import math
 import struct
@@ -16,6 +17,49 @@ MAGIC = b"V3MB"
 VERSION = 1
 FLOATS_PER_VERTEX = 18
 UV_EPSILON = 0.000001
+DEFORMATION_MAGIC = b"V3DF"
+DEFORMATION_VERSION = 1
+DEFORMATION_INFLUENCE_COUNT = 5
+INFLUENCE_ORDER = ("palm", "index", "middle", "ring", "little")
+SUPPORTED_TRANSFORM_IDS = {
+    "palm_base",
+    "index_upper",
+    "middle_upper",
+    "ring_upper",
+    "little_upper",
+}
+
+
+@dataclass(frozen=True)
+class Face:
+    refs: tuple[tuple[int, int, int], ...]
+    labels: frozenset[str]
+    line_number: int
+
+
+@dataclass(frozen=True)
+class TopAnchorSpec:
+    finger: str
+    top_group: str
+    soft_group: str
+    transform_id: str
+    influence_index: int
+
+
+@dataclass(frozen=True)
+class DeformationSpec:
+    bottom_group: str
+    bottom_transform_id: str
+    tops: tuple[TopAnchorSpec, ...]
+    falloff: str
+
+    @property
+    def required_groups(self) -> tuple[str, ...]:
+        groups = [self.bottom_group]
+        for top in self.tops:
+            groups.append(top.top_group)
+            groups.append(top.soft_group)
+        return tuple(groups)
 
 
 def parse_args() -> argparse.Namespace:
@@ -44,15 +88,33 @@ def obj_to_bin_name(asset_path: str) -> str:
     return source.with_suffix(".v3bin").name
 
 
-def parse_obj(path: Path) -> tuple[list[float], list[int], dict[str, int]]:
+def obj_to_def_name(asset_path: str) -> str:
+    source = Path(asset_path)
+    return source.with_suffix(".v3def").name
+
+
+def display_path(path: Path, base: Path) -> str:
+    try:
+        return str(path.relative_to(base))
+    except ValueError:
+        return str(path)
+
+
+def parse_obj(
+    path: Path,
+    deformation: dict | None = None,
+) -> tuple[list[float], list[int], dict[str, int], list[float] | None]:
     coordinates: list[tuple[float, float, float]] = []
     textures: list[tuple[float, float]] = []
     normals: list[tuple[float, float, float]] = []
+    faces: list[Face] = []
     vertices: list[float] = []
     indices: list[int] = []
+    deformation_weights: list[float] | None = [] if deformation else None
     line_count = 0
-    face_count = 0
-    triangle_count = 0
+    current_groups: set[str] = set()
+    current_object: str | None = None
+    current_material: str | None = None
 
     with path.open("r", encoding="utf-8") as source:
         for raw_line in source:
@@ -67,19 +129,53 @@ def parse_obj(path: Path) -> tuple[list[float], list[int], dict[str, int]]:
                 textures.append((float(tokens[1]), float(tokens[2])))
             elif tokens[0] == "vn" and len(tokens) >= 4:
                 normals.append((float(tokens[1]), float(tokens[2]), float(tokens[3])))
+            elif tokens[0] == "g":
+                current_groups = set(tokens[1:])
+            elif tokens[0] == "o":
+                current_object = tokens[1] if len(tokens) > 1 else None
+            elif tokens[0] == "usemtl":
+                current_material = tokens[1] if len(tokens) > 1 else None
             elif tokens[0] == "f" and len(tokens) >= 4:
-                face_count += 1
-                first = parse_vertex_ref(tokens[1], len(coordinates), len(textures), len(normals))
-                previous = parse_vertex_ref(tokens[2], len(coordinates), len(textures), len(normals))
-                for token in tokens[3:]:
-                    current = parse_vertex_ref(token, len(coordinates), len(textures), len(normals))
-                    triangle_count += 1
-                    append_triangle(vertices, indices, coordinates, textures, normals, first, previous, current)
-                    previous = current
+                labels = set(current_groups)
+                if current_object:
+                    labels.add(current_object)
+                if current_material:
+                    labels.add(current_material)
+                refs = tuple(
+                    parse_vertex_ref(token, len(coordinates), len(textures), len(normals))
+                    for token in tokens[1:]
+                )
+                faces.append(Face(refs=refs, labels=frozenset(labels), line_number=line_count))
+
+    deformation_spec = parse_deformation_spec(deformation) if deformation else None
+    weight_resolver = None
+    if deformation_spec:
+        weight_resolver = create_weight_resolver(path, coordinates, faces, deformation_spec)
+
+    triangle_count = 0
+    for face in faces:
+        first = face.refs[0]
+        previous = face.refs[1]
+        for current in face.refs[2:]:
+            triangle_count += 1
+            append_triangle(
+                vertices,
+                indices,
+                coordinates,
+                textures,
+                normals,
+                first,
+                previous,
+                current,
+                face,
+                weight_resolver,
+                deformation_weights,
+            )
+            previous = current
 
     stats = {
         "line_count": line_count,
-        "face_count": face_count,
+        "face_count": len(faces),
         "triangle_count": triangle_count,
         "coordinate_count": len(coordinates),
         "texture_count": len(textures),
@@ -87,7 +183,7 @@ def parse_obj(path: Path) -> tuple[list[float], list[int], dict[str, int]]:
         "vertex_count": len(vertices) // FLOATS_PER_VERTEX,
         "index_count": len(indices),
     }
-    return vertices, indices, stats
+    return vertices, indices, stats, deformation_weights
 
 
 def parse_vertex_ref(token: str, coordinate_count: int, texture_count: int, normal_count: int) -> tuple[int, int, int]:
@@ -114,6 +210,9 @@ def append_triangle(
     ref1: tuple[int, int, int],
     ref2: tuple[int, int, int],
     ref3: tuple[int, int, int],
+    face: Face,
+    weight_resolver,
+    deformation_weights: list[float] | None,
 ) -> None:
     v1 = coordinates[ref1[0]]
     v2 = coordinates[ref2[0]]
@@ -122,19 +221,51 @@ def append_triangle(
     uv2 = get_texture(textures, ref2[1])
     uv3 = get_texture(textures, ref3[1])
     tangent, bitangent = calculate_tangent_space(v1, v2, v3, uv1, uv2, uv3)
-    append_vertex(vertices, indices, v1, get_normal(normals, ref1[2]), uv1, tangent, bitangent)
-    append_vertex(vertices, indices, v2, get_normal(normals, ref2[2]), uv2, tangent, bitangent)
-    append_vertex(vertices, indices, v3, get_normal(normals, ref3[2]), uv3, tangent, bitangent)
+    append_vertex(
+        vertices,
+        indices,
+        deformation_weights,
+        v1,
+        get_normal(normals, ref1[2]),
+        uv1,
+        tangent,
+        bitangent,
+        weight_resolver(face, ref1[0]) if weight_resolver else None,
+    )
+    append_vertex(
+        vertices,
+        indices,
+        deformation_weights,
+        v2,
+        get_normal(normals, ref2[2]),
+        uv2,
+        tangent,
+        bitangent,
+        weight_resolver(face, ref2[0]) if weight_resolver else None,
+    )
+    append_vertex(
+        vertices,
+        indices,
+        deformation_weights,
+        v3,
+        get_normal(normals, ref3[2]),
+        uv3,
+        tangent,
+        bitangent,
+        weight_resolver(face, ref3[0]) if weight_resolver else None,
+    )
 
 
 def append_vertex(
     vertices: list[float],
     indices: list[int],
+    deformation_weights: list[float] | None,
     coordinate: tuple[float, float, float],
     normal: tuple[float, float, float],
     texture: tuple[float, float],
     tangent: tuple[float, float, float],
     bitangent: tuple[float, float, float],
+    weights: tuple[float, float, float, float, float] | None,
 ) -> None:
     vertex_index = len(vertices) // FLOATS_PER_VERTEX
     vertices.extend(
@@ -160,6 +291,174 @@ def append_vertex(
         )
     )
     indices.append(vertex_index)
+    if deformation_weights is not None:
+        if weights is None:
+            raise ValueError("Missing deformation weights for runtime vertex")
+        deformation_weights.extend(weights)
+
+
+def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
+    if not deformation:
+        raise ValueError("Missing deformation block")
+    deformation_type = deformation.get("type")
+    if deformation_type != "multi_top_one_bottom":
+        raise ValueError(f"Unsupported deformation type `{deformation_type}`")
+    falloff = deformation.get("falloff", "smoothstep")
+    if falloff not in {"smoothstep", "linear"}:
+        raise ValueError(f"Unsupported deformation falloff `{falloff}`")
+
+    bottom = deformation.get("bottom") or {}
+    bottom_group = required_string(bottom, "faceGroup", "deformation.bottom")
+    bottom_transform_id = required_string(bottom, "transformId", "deformation.bottom")
+    validate_transform_id(bottom_transform_id)
+
+    tops = deformation.get("tops")
+    if not isinstance(tops, list):
+        raise ValueError("deformation.tops must be an array")
+    expected_fingers = ("index", "middle", "ring", "little")
+    tops_by_finger = {}
+    for top in tops:
+        if not isinstance(top, dict):
+            raise ValueError("Each deformation.tops item must be an object")
+        finger = required_string(top, "finger", "deformation.tops")
+        if finger not in expected_fingers:
+            raise ValueError(f"Unsupported deformation finger `{finger}`")
+        if finger in tops_by_finger:
+            raise ValueError(f"Duplicate deformation finger `{finger}`")
+        transform_id = required_string(top, "transformId", f"deformation.tops.{finger}")
+        validate_transform_id(transform_id)
+        tops_by_finger[finger] = TopAnchorSpec(
+            finger=finger,
+            top_group=required_string(top, "topFaceGroup", f"deformation.tops.{finger}"),
+            soft_group=required_string(top, "softFaceGroup", f"deformation.tops.{finger}"),
+            transform_id=transform_id,
+            influence_index=INFLUENCE_ORDER.index(finger),
+        )
+    missing = [finger for finger in expected_fingers if finger not in tops_by_finger]
+    if missing:
+        raise ValueError(f"Missing deformation top anchors for: {', '.join(missing)}")
+
+    return DeformationSpec(
+        bottom_group=bottom_group,
+        bottom_transform_id=bottom_transform_id,
+        tops=tuple(tops_by_finger[finger] for finger in expected_fingers),
+        falloff=falloff,
+    )
+
+
+def required_string(source: dict, key: str, owner: str) -> str:
+    value = source.get(key)
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"Missing {owner}.{key}")
+    return value
+
+
+def validate_transform_id(transform_id: str) -> None:
+    if transform_id not in SUPPORTED_TRANSFORM_IDS:
+        raise ValueError(f"Unsupported deformation transformId `{transform_id}`")
+
+
+def create_weight_resolver(
+    path: Path,
+    coordinates: list[tuple[float, float, float]],
+    faces: list[Face],
+    spec: DeformationSpec,
+):
+    required_groups = set(spec.required_groups)
+    group_coordinates: dict[str, set[int]] = {group: set() for group in required_groups}
+    resolved_groups: dict[Face, str] = {}
+
+    for face in faces:
+        group = resolve_deformation_group(path, face, required_groups)
+        resolved_groups[face] = group
+        for ref in face.refs:
+            group_coordinates[group].add(ref[0])
+
+    missing_groups = [group for group, indexes in group_coordinates.items() if not indexes]
+    if missing_groups:
+        raise ValueError(
+            f"{path}: deformable OBJ is missing faces for groups: {', '.join(sorted(missing_groups))}"
+        )
+
+    bottom_center = center_for_group(coordinates, group_coordinates[spec.bottom_group])
+    soft_axes = {}
+    for top in spec.tops:
+        top_center = center_for_group(coordinates, group_coordinates[top.top_group])
+        axis = (
+            top_center[0] - bottom_center[0],
+            top_center[1] - bottom_center[1],
+            top_center[2] - bottom_center[2],
+        )
+        axis_length_sq = dot(axis, axis)
+        if axis_length_sq < UV_EPSILON:
+            raise ValueError(f"{path}: deformation axis for `{top.finger}` is too short")
+        soft_axes[top.soft_group] = (top, axis, axis_length_sq)
+
+    top_by_group = {top.top_group: top for top in spec.tops}
+
+    def weights_for(face: Face, coordinate_index: int) -> tuple[float, float, float, float, float]:
+        group = resolved_groups[face]
+        if group == spec.bottom_group:
+            return 1.0, 0.0, 0.0, 0.0, 0.0
+        top = top_by_group.get(group)
+        if top:
+            weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
+            weights[top.influence_index] = 1.0
+            return tuple(weights)  # type: ignore[return-value]
+        top, axis, axis_length_sq = soft_axes[group]
+        coordinate = coordinates[coordinate_index]
+        raw_t = dot(
+            (
+                coordinate[0] - bottom_center[0],
+                coordinate[1] - bottom_center[1],
+                coordinate[2] - bottom_center[2],
+            ),
+            axis,
+        ) / axis_length_sq
+        t = clamp(raw_t, 0.0, 1.0)
+        if spec.falloff == "smoothstep":
+            t = t * t * (3.0 - 2.0 * t)
+        weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
+        weights[0] = 1.0 - t
+        weights[top.influence_index] = t
+        return tuple(weights)  # type: ignore[return-value]
+
+    return weights_for
+
+
+def resolve_deformation_group(path: Path, face: Face, required_groups: set[str]) -> str:
+    matches = sorted(required_groups.intersection(face.labels))
+    if not matches:
+        raise ValueError(
+            f"{path}: face at line {face.line_number} is not assigned to a deformation group"
+        )
+    if len(matches) > 1:
+        raise ValueError(
+            f"{path}: face at line {face.line_number} matches multiple deformation groups: {', '.join(matches)}"
+        )
+    return matches[0]
+
+
+def center_for_group(
+    coordinates: list[tuple[float, float, float]],
+    coordinate_indexes: set[int],
+) -> tuple[float, float, float]:
+    total_x = total_y = total_z = 0.0
+    for index in coordinate_indexes:
+        coordinate = coordinates[index]
+        total_x += coordinate[0]
+        total_y += coordinate[1]
+        total_z += coordinate[2]
+    count = float(len(coordinate_indexes))
+    return total_x / count, total_y / count, total_z / count
+
+
+def dot(left: tuple[float, float, float], right: tuple[float, float, float]) -> float:
+    return left[0] * right[0] + left[1] * right[1] + left[2] * right[2]
+
+
+def clamp(value: float, minimum: float, maximum: float) -> float:
+    return max(minimum, min(maximum, value))
 
 
 def get_texture(textures: list[tuple[float, float]], index: int) -> tuple[float, float]:
@@ -232,6 +531,29 @@ def write_binary(path: Path, vertices: list[float], indices: list[int], stats: d
         index_array.tofile(target)
 
 
+def write_deformation(path: Path, deformation_weights: list[float], vertex_count: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    expected_weight_count = vertex_count * DEFORMATION_INFLUENCE_COUNT
+    if len(deformation_weights) != expected_weight_count:
+        raise ValueError(
+            f"Unexpected deformation weight count: expected {expected_weight_count}, "
+            f"got {len(deformation_weights)}"
+        )
+    header = struct.pack(
+        "<4s3i",
+        DEFORMATION_MAGIC,
+        DEFORMATION_VERSION,
+        vertex_count,
+        DEFORMATION_INFLUENCE_COUNT,
+    )
+    weights_array = array.array("f", deformation_weights)
+    if sys.byteorder != "little":
+        weights_array.byteswap()
+    with path.open("wb") as target:
+        target.write(header)
+        weights_array.tofile(target)
+
+
 def main() -> None:
     args = parse_args()
     assets_dir = args.assets_dir
@@ -248,15 +570,24 @@ def main() -> None:
             raise ValueError(f"Missing asset for part {part}")
         source_path = assets_dir / source_asset
         output_path = output_dir / obj_to_bin_name(source_asset)
-        vertices, indices, stats = parse_obj(source_path)
+        deformation = part.get("deformation")
+        vertices, indices, stats, deformation_weights = parse_obj(source_path, deformation)
         write_binary(output_path, vertices, indices, stats)
         file_size = output_path.stat().st_size
+        deformation_info = ""
+        if deformation is not None:
+            deformation_output_path = output_dir / obj_to_def_name(source_asset)
+            if deformation_weights is None:
+                raise ValueError(f"Missing deformation weights for {source_asset}")
+            write_deformation(deformation_output_path, deformation_weights, stats["vertex_count"])
+            deformation_info = f" deformation={display_path(deformation_output_path, assets_dir)}"
         total_vertices += stats["vertex_count"]
         total_indices += stats["index_count"]
         total_bytes += file_size
         print(
-            f"{source_asset} -> {output_path.relative_to(assets_dir)} "
+            f"{source_asset} -> {display_path(output_path, assets_dir)} "
             f"vertices={stats['vertex_count']} indices={stats['index_count']} bytes={file_size}"
+            f"{deformation_info}"
         )
 
     print(

@@ -177,7 +177,7 @@
 		65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4962EE8232500B3C49D /* temple.vsh */; };
 		65EAF4A42EE8232500B3C49D /* AAPLOpenGLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4912EE8232500B3C49D /* AAPLOpenGLViewController.m */; };
 		65EAF4AD2EE82B3500B3C49D /* Meshes in Resources */ = {isa = PBXBuildFile; fileRef = 65EAF4AB2EE82B3500B3C49D /* Meshes */; };
-		65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */; };
+		65EAF4AE2EE82B3500B3C49D /* MotoricaMeshData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4A82EE82B3500B3C49D /* MotoricaMeshData.mm */; };
 		65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */; };
 		65ED773C2E4B5D0700D64A61 /* ConvertToKotlinByteArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */; };
 		65ED773E2E4B68F000D64A61 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65ED773D2E4B68ED00D64A61 /* Constants.swift */; };
@@ -475,8 +475,8 @@
 		65EAF49A2EE8232500B3C49D /* select_vertex_shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = select_vertex_shader.vsh; sourceTree = "<group>"; };
 		65EAF49B2EE8232500B3C49D /* reflect.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = reflect.vsh; sourceTree = "<group>"; };
 		65EAF4A62EE82B3500B3C49D /* AAPLCommonDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLCommonDefinitions.h; sourceTree = "<group>"; };
-		65EAF4A72EE82B3500B3C49D /* AAPLMeshData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLMeshData.h; sourceTree = "<group>"; };
-		65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLMeshData.mm; sourceTree = "<group>"; };
+		65EAF4A72EE82B3500B3C49D /* MotoricaMeshData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MotoricaMeshData.h; sourceTree = "<group>"; };
+		65EAF4A82EE82B3500B3C49D /* MotoricaMeshData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MotoricaMeshData.mm; sourceTree = "<group>"; };
 		65EAF4A92EE82B3500B3C49D /* AAPLMathUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLMathUtilities.h; sourceTree = "<group>"; };
 		65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AAPLMathUtilities.m; sourceTree = "<group>"; };
 		65EAF4AB2EE82B3500B3C49D /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
@@ -1298,8 +1298,8 @@
 			isa = PBXGroup;
 			children = (
 				65EAF4A62EE82B3500B3C49D /* AAPLCommonDefinitions.h */,
-				65EAF4A72EE82B3500B3C49D /* AAPLMeshData.h */,
-				65EAF4A82EE82B3500B3C49D /* AAPLMeshData.mm */,
+				65EAF4A72EE82B3500B3C49D /* MotoricaMeshData.h */,
+				65EAF4A82EE82B3500B3C49D /* MotoricaMeshData.mm */,
 				65EAF4A92EE82B3500B3C49D /* AAPLMathUtilities.h */,
 				65EAF4AA2EE82B3500B3C49D /* AAPLMathUtilities.m */,
 				65EAF4AB2EE82B3500B3C49D /* Meshes */,
@@ -1934,7 +1934,7 @@
 				652E2BC92F2791400084F557 /* FingersDelayDialog.swift in Sources */,
 				655830322DBBAE8F00744D5C /* ScanItem.swift in Sources */,
 				651DDBAD2EFC1F9400199FD8 /* KeyValueStorage.swift in Sources */,
-				65EAF4AE2EE82B3500B3C49D /* AAPLMeshData.mm in Sources */,
+				65EAF4AE2EE82B3500B3C49D /* MotoricaMeshData.mm in Sources */,
 				65EAF4AF2EE82B3500B3C49D /* AAPLMathUtilities.m in Sources */,
 				1F1CD656222368CA00B0143C /* AppConfigurations.swift in Sources */,
 				1F474F2222356B1E0092DB4B /* Cancellable.swift in Sources */,

@@ -31,10 +31,17 @@ public final class Load3DModelFesth3 {
     private static final int FLOATS_PER_VERTEX = 18;
     private static final int BINARY_MODEL_VERSION = 1;
     private static final int BINARY_HEADER_BYTES = 44;
+    private static final int DEFORMATION_HEADER_BYTES = 16;
+    private static final int DEFORMATION_MODEL_VERSION = 1;
+    private static final int DEFORMATION_INFLUENCE_COUNT = 5;
     private static final byte BINARY_MAGIC_0 = 'V';
     private static final byte BINARY_MAGIC_1 = '3';
     private static final byte BINARY_MAGIC_2 = 'M';
     private static final byte BINARY_MAGIC_3 = 'B';
+    private static final byte DEFORMATION_MAGIC_0 = 'V';
+    private static final byte DEFORMATION_MAGIC_1 = '3';
+    private static final byte DEFORMATION_MAGIC_2 = 'D';
+    private static final byte DEFORMATION_MAGIC_3 = 'F';
     private static final Object LOCK = new Object();
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static final List<Runnable> pendingLoadCallbacks = new ArrayList<>();
@@ -131,6 +138,14 @@ public final class Load3DModelFesth3 {
 
     public static int[] getIndicesArray(int partIndex) {
         return requirePart(partIndex).indices;
+    }
+
+    public static DeformationData getDeformationData(int partIndex) {
+        return requirePart(partIndex).deformationData;
+    }
+
+    public static boolean isPartDeformable(int partIndex) {
+        return requirePart(partIndex).deformationData != null;
     }
 
     public static int[] getGroup(String groupName, int... fallback) {
@@ -238,6 +253,7 @@ public final class Load3DModelFesth3 {
         int totalFaces = 0;
         int totalTriangles = 0;
         int totalBinaryBytes = 0;
+        int deformablePartCount = 0;
 
         for (int i = 0; i < partsJson.length(); i++) {
             JSONObject partJson = partsJson.getJSONObject(i);
@@ -247,14 +263,27 @@ public final class Load3DModelFesth3 {
                 throw new JSONException("Missing asset for V3 part " + partId);
             }
             String binaryAsset = partJson.optString("binaryAsset", binaryAssetPathFor(asset));
-            parts[i] = loadBinaryPart(context, binaryAsset, partId);
-            binaryLoadMs += parts[i].loadMs;
-            totalVertexCount += parts[i].vertexCount;
-            totalIndexCount += parts[i].indices.length;
-            totalLines += parts[i].lineCount;
-            totalFaces += parts[i].faceCount;
-            totalTriangles += parts[i].triangleCount;
-            totalBinaryBytes += parts[i].binaryBytes;
+            ModelPartBuffers partBuffers = loadBinaryPart(context, binaryAsset, partId);
+            JSONObject deformationJson = partJson.optJSONObject("deformation");
+            if (deformationJson != null) {
+                DeformationSpec deformationSpec = parseDeformationSpec(deformationJson, partId);
+                String deformationAsset = deformationJson.optString(
+                        "asset",
+                        partJson.optString("deformationAsset", deformationAssetPathFor(asset))
+                );
+                partBuffers = partBuffers.withDeformationData(
+                        loadDeformationData(context, deformationAsset, partId, partBuffers.vertexCount, deformationSpec)
+                );
+                deformablePartCount++;
+            }
+            parts[i] = partBuffers;
+            binaryLoadMs += partBuffers.loadMs;
+            totalVertexCount += partBuffers.vertexCount;
+            totalIndexCount += partBuffers.indices.length;
+            totalLines += partBuffers.lineCount;
+            totalFaces += partBuffers.faceCount;
+            totalTriangles += partBuffers.triangleCount;
+            totalBinaryBytes += partBuffers.binaryBytes;
             partIndexesById.put(partId, i);
             addGroupIndex(mutableGroups, "all", i);
             addGroupIndex(mutableGroups, partId, i);
@@ -316,6 +345,7 @@ public final class Load3DModelFesth3 {
                 + " faces=" + totalFaces
                 + " triangles=" + totalTriangles
                 + " groups=" + groups.size()
+                + " deformableParts=" + deformablePartCount
                 + " source=binary");
         return model;
     }
@@ -422,7 +452,8 @@ public final class Load3DModelFesth3 {
                 textureCount,
                 normalCount,
                 loadMs,
-                bytes.length
+                bytes.length,
+                null
         );
         V3ModelLoadMetrics.log("partBinaryLoaded partId=" + partId
                 + " asset=" + assetPath
@@ -441,6 +472,61 @@ public final class Load3DModelFesth3 {
         return buffers;
     }
 
+    private static DeformationData loadDeformationData(
+            Context context,
+            String assetPath,
+            String partId,
+            int expectedVertexCount,
+            DeformationSpec deformationSpec
+    ) throws IOException {
+        long loadStartedAtMs = SystemClock.elapsedRealtime();
+        byte[] bytes = readAssetBytes(context, assetPath);
+        if (bytes.length < DEFORMATION_HEADER_BYTES) {
+            throw new IOException("V3 deformation data `" + assetPath + "` is shorter than header");
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        requireDeformationMagic(buffer, assetPath);
+        int version = buffer.getInt();
+        int vertexCount = buffer.getInt();
+        int influenceCount = buffer.getInt();
+        if (version != DEFORMATION_MODEL_VERSION) {
+            throw new IOException("Unsupported V3 deformation version " + version + " in `" + assetPath + "`");
+        }
+        if (vertexCount != expectedVertexCount) {
+            throw new IOException("Unexpected V3 deformation vertex count for `" + assetPath
+                    + "`: expected " + expectedVertexCount + ", got " + vertexCount);
+        }
+        if (influenceCount != DEFORMATION_INFLUENCE_COUNT) {
+            throw new IOException("Unexpected V3 deformation influence count " + influenceCount
+                    + " in `" + assetPath + "`");
+        }
+
+        int weightCount = vertexCount * influenceCount;
+        int weightBytes = weightCount * Float.BYTES;
+        int expectedBytes = DEFORMATION_HEADER_BYTES + weightBytes;
+        if (bytes.length != expectedBytes) {
+            throw new IOException("Unexpected V3 deformation size for `" + assetPath
+                    + "`: expected " + expectedBytes + " bytes, got " + bytes.length);
+        }
+
+        float[] weights = new float[weightCount];
+        buffer.asFloatBuffer().get(weights);
+        V3ModelLoadMetrics.log("partDeformationLoaded partId=" + partId
+                + " asset=" + assetPath
+                + " loadMs=" + elapsedSince(loadStartedAtMs)
+                + " vertices=" + vertexCount
+                + " influences=" + influenceCount
+                + " bytes=" + bytes.length);
+        return new DeformationData(
+                deformationSpec.type,
+                deformationSpec.transformIdsByInfluence,
+                weights,
+                vertexCount,
+                influenceCount
+        );
+    }
+
     private static void requireBinaryMagic(ByteBuffer buffer, String assetPath) throws IOException {
         if (buffer.get() != BINARY_MAGIC_0
                 || buffer.get() != BINARY_MAGIC_1
@@ -450,12 +536,118 @@ public final class Load3DModelFesth3 {
         }
     }
 
+    private static void requireDeformationMagic(ByteBuffer buffer, String assetPath) throws IOException {
+        if (buffer.get() != DEFORMATION_MAGIC_0
+                || buffer.get() != DEFORMATION_MAGIC_1
+                || buffer.get() != DEFORMATION_MAGIC_2
+                || buffer.get() != DEFORMATION_MAGIC_3) {
+            throw new IOException("Invalid V3 deformation magic in `" + assetPath + "`");
+        }
+    }
+
     private static String binaryAssetPathFor(String sourceAsset) {
         int slashIndex = sourceAsset.lastIndexOf('/');
         String fileName = slashIndex >= 0 ? sourceAsset.substring(slashIndex + 1) : sourceAsset;
         int extensionIndex = fileName.lastIndexOf('.');
         String baseName = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
         return BINARY_MODEL_DIR + "/" + baseName + ".v3bin";
+    }
+
+    private static String deformationAssetPathFor(String sourceAsset) {
+        int slashIndex = sourceAsset.lastIndexOf('/');
+        String fileName = slashIndex >= 0 ? sourceAsset.substring(slashIndex + 1) : sourceAsset;
+        int extensionIndex = fileName.lastIndexOf('.');
+        String baseName = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+        return BINARY_MODEL_DIR + "/" + baseName + ".v3def";
+    }
+
+    private static DeformationSpec parseDeformationSpec(JSONObject deformationJson, String partId) throws JSONException {
+        String type = deformationJson.optString("type", "");
+        if (!"multi_top_one_bottom".equals(type)) {
+            throw new JSONException("Unsupported V3 deformation type `" + type + "` for part `" + partId + "`");
+        }
+
+        String[] transformIdsByInfluence = new String[DEFORMATION_INFLUENCE_COUNT];
+        JSONObject bottom = deformationJson.optJSONObject("bottom");
+        if (bottom == null) {
+            throw new JSONException("Missing V3 deformation.bottom for part `" + partId + "`");
+        }
+        String bottomTransformId = requiredString(bottom, "transformId", partId + ".deformation.bottom");
+        validateTransformId(bottomTransformId, partId);
+        transformIdsByInfluence[0] = bottomTransformId;
+
+        JSONArray tops = deformationJson.optJSONArray("tops");
+        if (tops == null) {
+            throw new JSONException("Missing V3 deformation.tops for part `" + partId + "`");
+        }
+        boolean hasIndex = false;
+        boolean hasMiddle = false;
+        boolean hasRing = false;
+        boolean hasLittle = false;
+        for (int i = 0; i < tops.length(); i++) {
+            JSONObject top = tops.getJSONObject(i);
+            String finger = requiredString(top, "finger", partId + ".deformation.tops");
+            String transformId = requiredString(top, "transformId", partId + ".deformation.tops." + finger);
+            validateTransformId(transformId, partId);
+            switch (finger) {
+                case "index":
+                    if (hasIndex) {
+                        throw new JSONException("Duplicate index top deformation for part `" + partId + "`");
+                    }
+                    hasIndex = true;
+                    transformIdsByInfluence[1] = transformId;
+                    break;
+                case "middle":
+                    if (hasMiddle) {
+                        throw new JSONException("Duplicate middle top deformation for part `" + partId + "`");
+                    }
+                    hasMiddle = true;
+                    transformIdsByInfluence[2] = transformId;
+                    break;
+                case "ring":
+                    if (hasRing) {
+                        throw new JSONException("Duplicate ring top deformation for part `" + partId + "`");
+                    }
+                    hasRing = true;
+                    transformIdsByInfluence[3] = transformId;
+                    break;
+                case "little":
+                    if (hasLittle) {
+                        throw new JSONException("Duplicate little top deformation for part `" + partId + "`");
+                    }
+                    hasLittle = true;
+                    transformIdsByInfluence[4] = transformId;
+                    break;
+                default:
+                    throw new JSONException("Unsupported deformation finger `" + finger + "` for part `" + partId + "`");
+            }
+        }
+        if (!hasIndex || !hasMiddle || !hasRing || !hasLittle) {
+            throw new JSONException("V3 deformation part `" + partId + "` must define index, middle, ring and little tops");
+        }
+        return new DeformationSpec(type, transformIdsByInfluence);
+    }
+
+    private static String requiredString(JSONObject json, String key, String owner) throws JSONException {
+        String value = json.optString(key, "");
+        if (value.isEmpty()) {
+            throw new JSONException("Missing `" + key + "` in `" + owner + "`");
+        }
+        return value;
+    }
+
+    private static void validateTransformId(String transformId, String partId) throws JSONException {
+        switch (transformId) {
+            case "palm_base":
+            case "index_upper":
+            case "middle_upper":
+            case "ring_upper":
+            case "little_upper":
+                return;
+            default:
+                throw new JSONException("Unsupported V3 deformation transformId `" + transformId
+                        + "` for part `" + partId + "`");
+        }
     }
 
     private static final class LoadedModel {
@@ -479,6 +671,7 @@ public final class Load3DModelFesth3 {
     private static final class ModelPartBuffers {
         private final float[] vertices;
         private final int[] indices;
+        private final DeformationData deformationData;
         private final int lineCount;
         private final int faceCount;
         private final int triangleCount;
@@ -501,10 +694,12 @@ public final class Load3DModelFesth3 {
                 int textureCount,
                 int normalCount,
                 long loadMs,
-                int binaryBytes
+                int binaryBytes,
+                DeformationData deformationData
         ) {
             this.vertices = vertices;
             this.indices = indices;
+            this.deformationData = deformationData;
             this.lineCount = lineCount;
             this.faceCount = faceCount;
             this.triangleCount = triangleCount;
@@ -516,6 +711,54 @@ public final class Load3DModelFesth3 {
             this.vertexBytes = vertices.length * Float.BYTES;
             this.indexBytes = indices.length * Integer.BYTES;
             this.binaryBytes = binaryBytes;
+        }
+
+        private ModelPartBuffers withDeformationData(DeformationData deformationData) {
+            return new ModelPartBuffers(
+                    vertices,
+                    indices,
+                    lineCount,
+                    faceCount,
+                    triangleCount,
+                    coordinateCount,
+                    textureCount,
+                    normalCount,
+                    loadMs,
+                    binaryBytes,
+                    deformationData
+            );
+        }
+    }
+
+    public static final class DeformationData {
+        public final String type;
+        public final String[] transformIdsByInfluence;
+        public final float[] weights;
+        public final int vertexCount;
+        public final int influenceCount;
+
+        private DeformationData(
+                String type,
+                String[] transformIdsByInfluence,
+                float[] weights,
+                int vertexCount,
+                int influenceCount
+        ) {
+            this.type = type;
+            this.transformIdsByInfluence = transformIdsByInfluence.clone();
+            this.weights = weights;
+            this.vertexCount = vertexCount;
+            this.influenceCount = influenceCount;
+        }
+    }
+
+    private static final class DeformationSpec {
+        private final String type;
+        private final String[] transformIdsByInfluence;
+
+        private DeformationSpec(String type, String[] transformIdsByInfluence) {
+            this.type = type;
+            this.transformIdsByInfluence = transformIdsByInfluence.clone();
         }
     }
 

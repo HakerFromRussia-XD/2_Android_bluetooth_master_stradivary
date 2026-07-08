@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:text="Синхронизация данных..."
+            android:text="@string/sync_data_progress"
             android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintTop_toBottomOf="@id/sync_dialog_lottie_av"

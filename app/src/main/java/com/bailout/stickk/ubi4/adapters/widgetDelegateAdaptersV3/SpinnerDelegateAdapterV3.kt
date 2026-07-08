@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
@@ -63,7 +64,6 @@ class SpinnerDelegateAdapterV3 (
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
     private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
 
-    private val roleItems = listOf("Протезист", "Сервисный инженер", "Не выбрано")
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
     private val roleDefaultIndex = 2
@@ -94,7 +94,7 @@ class SpinnerDelegateAdapterV3 (
         val isRoleSelector = isRoleParameter(currentParameterInfo)
         val isSettingsProfileSelector = isSettingsProfileParameter(currentParameterInfo)
         if (isRoleSelector) {
-            spinnerItems = roleItems.toMutableList()
+            spinnerItems = buildRoleItems(spinnerPsv.context).toMutableList()
             selectedIndexFromWidget = roleDefaultIndex
         }
         val prefs = spinnerPsv.context.getSharedPreferences(
@@ -102,7 +102,7 @@ class SpinnerDelegateAdapterV3 (
             Context.MODE_PRIVATE
         )
         if (isSettingsProfileSelector) {
-            spinnerItems = buildSettingsProfileItems(MIN_SETTINGS_PROFILE_COUNT).toMutableList()
+            spinnerItems = buildSettingsProfileItems(spinnerPsv.context, MIN_SETTINGS_PROFILE_COUNT).toMutableList()
             selectedIndexFromWidget = 0
         }
         val info = WidgetSpinnerInfo(
@@ -124,7 +124,7 @@ class SpinnerDelegateAdapterV3 (
         registerSpinner(spinnerPsv)
         val initialIndex = if (isRoleSelector) {
             prefs.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, roleDefaultIndex)
-                .coerceIn(roleItems.indices)
+                .coerceIn(roleIndexRange())
         } else {
             selectedIndexFromWidget
         }
@@ -300,7 +300,7 @@ class SpinnerDelegateAdapterV3 (
                 ensureSettingsProfileItemsContain(infoWidget, spinnerValue)
             }
             applyProgrammaticSelection(infoWidget, spinnerValue)
-            platformLog("SpinnerDelegateAdapterV3", "принимаем spinnerValue=$spinnerValue")
+            platformLog("SpinnerDelegateAdapterV3", "received spinnerValue=$spinnerValue")
         }
 
     }
@@ -330,7 +330,7 @@ class SpinnerDelegateAdapterV3 (
         if (!isCurrentSpinnerInfo(info)) return
 
         val previousIndex = info.selectedIndex
-            .takeIf { it in roleItems.indices }
+            .takeIf { it in roleIndexRange() }
             ?: roleDefaultIndex
 
         if (newIndex == previousIndex) return
@@ -361,7 +361,7 @@ class SpinnerDelegateAdapterV3 (
         info: WidgetSpinnerInfo,
         index: Int
     ) {
-        val safeIndex = index.coerceIn(roleItems.indices)
+        val safeIndex = index.coerceIn(roleIndexRange())
         info.selectedIndex = safeIndex
         prefs.edit().putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, safeIndex).apply()
         setServiceEngineerUiEnabled(safeIndex == serviceEngineerIndex)
@@ -470,14 +470,25 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun applySettingsProfileItems(info: WidgetSpinnerInfo, profileCount: Int) {
-        val items = buildSettingsProfileItems(profileCount)
+        val items = buildSettingsProfileItems(info.spinner.context, profileCount)
         info.items = items
         info.spinner.setItems(items)
     }
 
-    private fun buildSettingsProfileItems(profileCount: Int): List<String> {
+    private fun buildRoleItems(context: Context): List<String> =
+        listOf(
+            context.getString(SharedRes.strings.ubi4_v3_role_prosthetist.resourceId),
+            context.getString(SharedRes.strings.ubi4_v3_role_service_engineer.resourceId),
+            context.getString(SharedRes.strings.ubi4_v3_role_not_selected.resourceId)
+        )
+
+    private fun roleIndexRange(): IntRange = prosthetistIndex..roleDefaultIndex
+
+    private fun buildSettingsProfileItems(context: Context, profileCount: Int): List<String> {
         val safeCount = profileCount.coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
-        val profiles = (1..safeCount).map { index -> "Профиль №$index" }
+        val profiles = (1..safeCount).map { index ->
+            context.getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, index)
+        }
         return if (safeCount < MAX_SETTINGS_PROFILE_COUNT) {
             profiles + SETTINGS_PROFILE_ADD_ITEM
         } else {
@@ -486,7 +497,7 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun settingsProfileCount(info: WidgetSpinnerInfo): Int =
-        info.items.count { it.startsWith("Профиль №") }
+        info.items.count { it != SETTINGS_PROFILE_ADD_ITEM }
             .coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
 
     private fun setLocalValue(info: WidgetSpinnerInfo, value: Int) {
@@ -528,10 +539,18 @@ class SpinnerDelegateAdapterV3 (
             dialog.dismiss()
 
             if (ok) {
-                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(SharedRes.strings.ubi4_v3_pin_access_granted.resourceId),
+                    Toast.LENGTH_SHORT
+                ).show()
                 onSuccess()
             } else {
-                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(SharedRes.strings.ubi4_v3_pin_invalid.resourceId),
+                    Toast.LENGTH_SHORT
+                ).show()
                 onCancelOrFail()
             }
         }

@@ -701,6 +701,56 @@
     <string name="update_firmware">Update</string>
     <string name="update_board" formatted="true">Update %1$s</string>
     <string name="unknown_board">Unknown</string>
+    <string name="ubi4_v3_error_113">Error 113</string>
+    <string name="ubi4_v3_dashboard_command_completed" formatted="true">Command %1$s completed</string>
+    <string name="ubi4_v3_read_data_empty">READ_DATA response is empty</string>
+    <string name="ubi4_v3_read_data_part_too_short">READ_DATA_PART response is too short</string>
+    <string name="ubi4_v3_packet_too_short">Packet is too short</string>
+    <string name="ubi4_v3_long_packet_payload_too_short" formatted="true">LONG packet: payloadSize &lt; 3: %1$s</string>
+    <string name="ubi4_v3_long_packet_incomplete" formatted="true">Incomplete LONG packet: size=%1$s, minimum required=%2$s (payloadSize=%3$s)</string>
+    <string name="ubi4_v3_invalid_indexes" formatted="true">Invalid indexes: expected [%1$s, %2$s), but string length = %3$s</string>
+    <string name="ubi4_v3_widget_plots">Plots</string>
+    <string name="ubi4_v3_widget_opening_sensor_sensitivity">Opening sensor sensitivity</string>
+    <string name="ubi4_v3_widget_closing_sensor_sensitivity">Closing sensor sensitivity</string>
+    <string name="ubi4_v3_widget_open_close" formatted="false">Open%Close</string>
+    <string name="ubi4_v3_widget_gestures">Gestures</string>
+    <string name="ubi4_v3_unit_seconds">sec</string>
+    <string name="ubi4_v3_widget_gesture_switching_by_sensors">Gesture switching by sensors</string>
+    <string name="ubi4_v3_widget_emg_movement_lock">Movement lock with EMG</string>
+    <string name="ubi4_v3_widget_screen_timeout">Screen timeout</string>
+    <string name="ubi4_v3_widget_max_sensor_sensitivity">Maximum sensor sensitivity</string>
+    <string name="ubi4_v3_widget_force_setting">Force setting</string>
+    <string name="ubi4_v3_widget_speed_setting">Speed setting</string>
+    <string name="ubi4_v3_hand_control_normal">Normal</string>
+    <string name="ubi4_v3_hand_control_sport">Sport</string>
+    <string name="ubi4_v3_hand_control_smooth_force">Smooth force control</string>
+    <string name="ubi4_v3_hand_control_smooth_speed">Smooth speed control</string>
+    <string name="ubi4_v3_hand_control_smooth_force_and_speed">Smooth force and speed control</string>
+    <string name="ubi4_v3_widget_prosthesis_work_mode">Prosthesis operation mode</string>
+    <string name="ubi4_v3_settings_profile_1">Profile #1</string>
+    <string name="ubi4_v3_settings_profile_number" formatted="true">Profile #%1$d</string>
+    <string name="ubi4_v3_settings_profile_add">+</string>
+    <string name="ubi4_v3_widget_settings_profiles">Settings profiles</string>
+    <string name="ubi4_v3_gesture_change_no_action">No action</string>
+    <string name="ubi4_v3_gesture_change_move_to_open">Move to open position</string>
+    <string name="ubi4_v3_widget_gesture_change_action">Action on gesture change</string>
+    <string name="ubi4_v3_emg_mode_4_0">EMG 4.0</string>
+    <string name="ubi4_v3_emg_mode_3_0">EMG 3.0</string>
+    <string name="ubi4_v3_emg_mode_first_start">First start</string>
+    <string name="ubi4_v3_emg_mode_4_1">EMG 4.1</string>
+    <string name="ubi4_v3_widget_emg_work_mode">EMG operation mode</string>
+    <string name="ubi4_v3_left_hand">Left</string>
+    <string name="ubi4_v3_right_hand">Right</string>
+    <string name="ubi4_v3_widget_hand_side">Hand side</string>
+    <string name="ubi4_v3_role_prosthetist">Prosthetist</string>
+    <string name="ubi4_v3_role_service_engineer">Service engineer</string>
+    <string name="ubi4_v3_role_not_selected">Not selected</string>
+    <string name="ubi4_v3_widget_role">Role</string>
+    <string name="ubi4_v3_widget_device_name_write" formatted="false">Prosthesis name%Write</string>
+    <string name="ubi4_v3_widget_serial_number_write" formatted="false">Serial number%Write</string>
+    <string name="ubi4_v3_widget_prosthesis_calibration">Prosthesis calibration</string>
+    <string name="ubi4_v3_pin_access_granted">Access granted</string>
+    <string name="ubi4_v3_pin_invalid">Invalid PIN code</string>
 
 
 

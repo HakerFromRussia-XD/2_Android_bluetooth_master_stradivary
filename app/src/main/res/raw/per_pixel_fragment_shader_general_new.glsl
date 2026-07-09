@@ -44,7 +44,7 @@ void main()
 
     if (u_MaterialMode == 1 || u_specularFactor > 20.0) {
         vec3 viewToEye = normalize(eyePosition - v_Position);
-        vec3 chromeNormal = normalize(usingNormal);
+        vec3 chromeNormal = -normalize(usingNormal);
         vec3 reflectedView = normalize(reflect(-viewToEye, chromeNormal));
         float metalDistance = length(v_Position - eyePosition);
         float metalDiffuse = max(0.0, dot(chromeNormal, -lightVector));

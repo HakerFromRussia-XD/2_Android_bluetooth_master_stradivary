@@ -817,7 +817,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			storeDeformationAnchorMatrix(TRANSFORM_PALM_BASE);
 			heightMap.render(modelParts("base_texture", 4));
 
-				renderGrayMetalPart(program, modelParts("base_gray_metal", 5));
+					renderRubberPart(program, 3, -1, modelParts("base_rubber", 5));
 			renderDeformableRubberParts();
 			if (!firstFrameMetricsLogged) {
 				firstFrameMetricsLogged = true;
@@ -884,6 +884,40 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			GLES20.glUniform1f(lightPowerUniform, 900.0f);
 		glUniform1f(ambientFactorUniform, 0.8f);
 			glUniform1i(textureUniform, 3);
+			heightMap.render(indexesOfBuffer);
+		}
+
+		private void renderChromeMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+			setChromeMaterialForMainProgram(shaderProgram, true);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 40.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			glUniform1i(normalMapUniform, 13);
+			heightMap.render(indexesOfBuffer);
+			setChromeMaterialForMainProgram(shaderProgram, false);
+		}
+
+		private void renderPlasticPart(int shaderProgram, int textureUnit, int normalMapUnit, int[] indexesOfBuffer) {
+			setV3PlasticMaterial(shaderProgram);
+			glUniform1i(textureUniform, textureUnit);
+			if (normalMapUnit >= 0) {
+				glUniform1i(normalMapUniform, normalMapUnit);
+			}
+			heightMap.render(indexesOfBuffer);
+		}
+
+		private void renderRubberPart(int shaderProgram, int textureUnit, int normalMapUnit, int[] indexesOfBuffer) {
+			setChromeMaterialForMainProgram(shaderProgram, false);
+			glUniform1i(isUsingNormalMap, normalMapUnit >= 0 ? 1 : 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, textureUnit);
+			if (normalMapUnit >= 0) {
+				glUniform1i(normalMapUniform, normalMapUnit);
+			}
 			heightMap.render(indexesOfBuffer);
 		}
 
@@ -1025,7 +1059,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("index_gray_metal", 8));
+				renderRubberPart(shaderMassiv[0], 3, -1, modelParts("index_rubber", 8));
 
 		/** металл */
 		glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -1037,7 +1071,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 			storeDeformationAnchorMatrix(TRANSFORM_INDEX_UPPER);
-				renderGrayMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
+					renderChromeMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1117,10 +1151,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(shaderMassiv[0]);
-		glUniform1i(textureUniform, 2);
-		glUniform1i(normalMapUniform, 10);
-			heightMap.render(modelParts("index_lower_rubber", 7));
+		renderPlasticPart(shaderMassiv[0], 2, 10, modelParts("index_lower_plastic", 7));
 	}
 	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1209,7 +1240,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("middle_gray_metal", 11));
+			renderRubberPart(shaderMassiv[0], 3, -1, modelParts("middle_rubber", 11));
 
 		/** шейдер без цвета */
 
@@ -1222,7 +1253,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 			storeDeformationAnchorMatrix(TRANSFORM_MIDDLE_UPPER);
-				renderGrayMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
+					renderChromeMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1294,10 +1325,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(shaderMassiv[0]);
-		glUniform1i(textureUniform, 1);
-		glUniform1i(normalMapUniform, 11);
-			heightMap.render(modelParts("middle_lower_rubber", 10));
+		renderPlasticPart(shaderMassiv[0], 1, 11, modelParts("middle_lower_plastic", 10));
 	}
 	private void ringFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1404,7 +1432,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("ring_gray_metal", 14));
+				renderRubberPart(shaderMassiv[0], 3, -1, modelParts("ring_rubber", 14));
 
 		/** шейдер без цвета */
 
@@ -1417,7 +1445,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 			storeDeformationAnchorMatrix(TRANSFORM_RING_UPPER);
-				renderGrayMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
+					renderChromeMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1509,10 +1537,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(shaderMassiv[0]);
-		glUniform1i(textureUniform, 5);
-		glUniform1i(normalMapUniform, 14);
-			heightMap.render(modelParts("ring_lower_rubber", 13));
+		renderPlasticPart(shaderMassiv[0], 5, 14, modelParts("ring_lower_plastic", 13));
 	}
 	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1630,7 +1655,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 			storeDeformationAnchorMatrix(TRANSFORM_LITTLE_UPPER);
-				renderGrayMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
+					renderChromeMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
 
 		/** шейдер без цвета */
 
@@ -1642,7 +1667,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("little_gray_metal", 17));
+				renderRubberPart(shaderMassiv[0], 3, -1, modelParts("little_rubber", 17));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1731,10 +1756,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(shaderMassiv[0]);
-		glUniform1i(textureUniform, 6);
-		glUniform1i(normalMapUniform, 15);
-			heightMap.render(modelParts("little_lower_rubber", 16));
+		renderPlasticPart(shaderMassiv[0], 6, 15, modelParts("little_lower_plastic", 16));
 	}
 	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
 		/** шейдер основной */
@@ -1898,34 +1920,24 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(shaderMassiv[0]);
-		glUniform1i(textureUniform, 7);
-		glUniform1i(normalMapUniform, 16);
-			heightMap.render(modelParts("thumb_rubber", 0));
+		renderPlasticPart(shaderMassiv[0], 7, 16, modelParts("thumb_plastic", 0));
 
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
-		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+			Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
+			System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
+			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 			renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
+			renderChromeMetalPart(shaderMassiv[0], modelParts("thumb_crown_metal", 2, 3));
+			renderRubberPart(shaderMassiv[0], 3, -1, modelParts("thumb_rubber", 0));
 
 
-			/** должна быть текстура металла */
-			setChromeMaterialForMainProgram(shaderMassiv[0], true);
-			glUniform1i(isUsingNormalMap, 0);
-			GLES20.glUniform1f(specularFactorUniform, 30.0f);
-			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-			heightMap.render(modelParts("thumb_crown_metal", 2, 3));
-		setChromeMaterialForMainProgram(shaderMassiv[0], false);
-	}
+		}
 
 	private void firstInit () {
 		selectStation = SelectStation.SELECT_FINGER_1;

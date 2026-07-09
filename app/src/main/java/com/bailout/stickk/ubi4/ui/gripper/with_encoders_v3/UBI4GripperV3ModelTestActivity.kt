@@ -22,6 +22,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
     private lateinit var settings: SharedPreferences
     private lateinit var root: FrameLayout
     private val activityCreatedAtMs = SystemClock.elapsedRealtime()
+    private var resumed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,10 +61,12 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        resumed = true
         glSurfaceView?.onResume()
     }
 
     override fun onPause() {
+        resumed = false
         glSurfaceView?.onPause()
         super.onPause()
     }
@@ -121,6 +124,10 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         view.setRenderer(renderer, displayMetrics.density)
         root.addView(view)
         glSurfaceView = view
+        if (resumed) {
+            view.onResume()
+            V3ModelLoadMetrics.log("modelActivity glSurfaceViewResumeAfterCreate ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}")
+        }
         V3ModelLoadMetrics.log(
             "modelActivity initializeRenderer end initMs=${SystemClock.elapsedRealtime() - startedAtMs} ageMs=${SystemClock.elapsedRealtime() - activityCreatedAtMs}"
         )

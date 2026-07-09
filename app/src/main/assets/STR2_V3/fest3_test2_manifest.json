@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "allowLegacyFallbacks": false,
+  "parts": [
+    {
+      "partId": "fest3_test2",
+      "asset": "STR2_V3/fest3_test2.obj",
+      "groups": ["fest3_test2", "base_chrome"]
+    }
+  ],
+  "groups": {
+    "base_chrome": ["fest3_test2"]
+  }
+}

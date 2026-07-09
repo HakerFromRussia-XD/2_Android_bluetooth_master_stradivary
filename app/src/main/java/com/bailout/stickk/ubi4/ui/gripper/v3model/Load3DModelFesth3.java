@@ -26,11 +26,15 @@ import java.util.Set;
 
 public final class Load3DModelFesth3 {
     private static final String TAG = "Load3DModelFesth3";
-    private static final String MANIFEST_PATH = "STR2_V3/v3_model_parts_manifest.json";
+    private static final String MANIFEST_PATH = "STR2_V3/festh3_test3_manifest.json";
     private static final String BINARY_MODEL_DIR = "STR2_V3_BIN";
     private static final int FLOATS_PER_VERTEX = 18;
-    private static final int BINARY_MODEL_VERSION = 1;
+    private static final int BINARY_MODEL_VERSION_LEGACY = 1;
+    private static final int BINARY_MODEL_VERSION_INDEXED = 2;
+    private static final int BINARY_PARTS_BUNDLE_VERSION = 1;
     private static final int BINARY_HEADER_BYTES = 44;
+    private static final int BINARY_PARTS_HEADER_BYTES = 48;
+    private static final int BINARY_PART_HEADER_BYTES = 24;
     private static final int DEFORMATION_HEADER_BYTES = 16;
     private static final int DEFORMATION_MODEL_VERSION = 1;
     private static final int DEFORMATION_INFLUENCE_COUNT = 5;
@@ -38,6 +42,8 @@ public final class Load3DModelFesth3 {
     private static final byte BINARY_MAGIC_1 = '3';
     private static final byte BINARY_MAGIC_2 = 'M';
     private static final byte BINARY_MAGIC_3 = 'B';
+    private static final byte BINARY_PARTS_MAGIC_2 = 'P';
+    private static final byte BINARY_PARTS_MAGIC_3 = 'B';
     private static final byte DEFORMATION_MAGIC_0 = 'V';
     private static final byte DEFORMATION_MAGIC_1 = '3';
     private static final byte DEFORMATION_MAGIC_2 = 'D';
@@ -45,6 +51,7 @@ public final class Load3DModelFesth3 {
     private static final Object LOCK = new Object();
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static final List<Runnable> pendingLoadCallbacks = new ArrayList<>();
+    private static final int[] EMPTY_PART_INDEXES = new int[0];
 
     private static volatile LoadedModel loadedModel;
     private static volatile boolean loading;
@@ -155,7 +162,7 @@ public final class Load3DModelFesth3 {
         }
         int[] group = model.groups.get(groupName);
         if (group == null || group.length == 0) {
-            return fallback;
+            return model.allowLegacyFallbacks ? fallback : EMPTY_PART_INDEXES;
         }
         return group.clone();
     }
@@ -242,6 +249,11 @@ public final class Load3DModelFesth3 {
         long manifestStartedAtMs = SystemClock.elapsedRealtime();
         JSONObject manifest = new JSONObject(readAssetText(context, MANIFEST_PATH));
         long manifestMs = elapsedSince(manifestStartedAtMs);
+        boolean allowLegacyFallbacks = manifest.optBoolean("allowLegacyFallbacks", true);
+        JSONObject bundleJson = manifest.optJSONObject("bundle");
+        if (bundleJson != null) {
+            return loadBundle(context, manifest, bundleJson, manifestMs, loadStartedAtMs, allowLegacyFallbacks);
+        }
         JSONArray partsJson = manifest.getJSONArray("parts");
         ModelPartBuffers[] parts = new ModelPartBuffers[partsJson.length()];
         Map<String, Integer> partIndexesById = new LinkedHashMap<>();
@@ -296,41 +308,13 @@ public final class Load3DModelFesth3 {
             }
         }
 
-        JSONObject explicitGroups = manifest.optJSONObject("groups");
-        if (explicitGroups != null) {
-            Iterator<String> keys = explicitGroups.keys();
-            while (keys.hasNext()) {
-                String groupName = keys.next();
-                JSONArray groupValues = explicitGroups.getJSONArray(groupName);
-                LinkedHashSet<Integer> indices = new LinkedHashSet<>();
-                for (int i = 0; i < groupValues.length(); i++) {
-                    Object value = groupValues.get(i);
-                    if (value instanceof Number) {
-                        addPartIndex(indices, ((Number) value).intValue(), parts.length, groupName);
-                    } else {
-                        String reference = String.valueOf(value);
-                        Integer partIndex = partIndexesById.get(reference);
-                        if (partIndex != null) {
-                            indices.add(partIndex);
-                            continue;
-                        }
-                        Set<Integer> groupIndexes = mutableGroups.get(reference);
-                        if (groupIndexes != null) {
-                            indices.addAll(groupIndexes);
-                            continue;
-                        }
-                        throw new JSONException("Unknown V3 group reference `" + reference + "` in `" + groupName + "`");
-                    }
-                }
-                mutableGroups.put(groupName, indices);
-            }
-        }
+        applyExplicitGroups(manifest, partIndexesById, mutableGroups, parts.length);
 
         Map<String, int[]> groups = new LinkedHashMap<>();
         for (Map.Entry<String, LinkedHashSet<Integer>> entry : mutableGroups.entrySet()) {
             groups.put(entry.getKey(), toIntArray(entry.getValue()));
         }
-        LoadedModel model = new LoadedModel(parts, groups, totalVertexCount, totalIndexCount);
+        LoadedModel model = new LoadedModel(parts, groups, totalVertexCount, totalIndexCount, allowLegacyFallbacks);
         V3ModelLoadMetrics.log("modelParsed totalMs=" + elapsedSince(loadStartedAtMs)
                 + " manifestMs=" + manifestMs
                 + " binaryLoadMs=" + binaryLoadMs
@@ -346,8 +330,100 @@ public final class Load3DModelFesth3 {
                 + " triangles=" + totalTriangles
                 + " groups=" + groups.size()
                 + " deformableParts=" + deformablePartCount
+                + " allowLegacyFallbacks=" + allowLegacyFallbacks
                 + " source=binary");
         return model;
+    }
+
+    private static LoadedModel loadBundle(
+            Context context,
+            JSONObject manifest,
+            JSONObject bundleJson,
+            long manifestMs,
+            long loadStartedAtMs,
+            boolean allowLegacyFallbacks
+    ) throws IOException, JSONException {
+        String bundleAsset = requiredString(bundleJson, "asset", "bundle");
+        PartsBundle bundle = loadBinaryPartsBundle(context, bundleAsset);
+        Map<String, Integer> partIndexesById = new LinkedHashMap<>();
+        Map<String, LinkedHashSet<Integer>> mutableGroups = new LinkedHashMap<>();
+
+        for (int i = 0; i < bundle.parts.length; i++) {
+            String partId = bundle.partIds[i];
+            partIndexesById.put(partId, i);
+            addGroupIndex(mutableGroups, "all", i);
+            addGroupIndex(mutableGroups, partId, i);
+        }
+        applyExplicitGroups(manifest, partIndexesById, mutableGroups, bundle.parts.length);
+
+        Map<String, int[]> groups = new LinkedHashMap<>();
+        for (Map.Entry<String, LinkedHashSet<Integer>> entry : mutableGroups.entrySet()) {
+            groups.put(entry.getKey(), toIntArray(entry.getValue()));
+        }
+        LoadedModel model = new LoadedModel(
+                bundle.parts,
+                groups,
+                bundle.vertexCount,
+                bundle.indexCount,
+                allowLegacyFallbacks
+        );
+        V3ModelLoadMetrics.log("modelParsed totalMs=" + elapsedSince(loadStartedAtMs)
+                + " manifestMs=" + manifestMs
+                + " binaryLoadMs=" + bundle.loadMs
+                + " objParseMs=0"
+                + " parts=" + bundle.parts.length
+                + " vertices=" + bundle.vertexCount
+                + " indices=" + bundle.indexCount
+                + " vertexBytes=" + model.vertexBytes
+                + " indexBytes=" + model.indexBytes
+                + " binaryBytes=" + bundle.binaryBytes
+                + " lines=" + bundle.lineCount
+                + " faces=" + bundle.faceCount
+                + " triangles=" + bundle.triangleCount
+                + " groups=" + groups.size()
+                + " deformableParts=0"
+                + " allowLegacyFallbacks=" + allowLegacyFallbacks
+                + " source=binaryBundle"
+                + " format=V3PB");
+        return model;
+    }
+
+    private static void applyExplicitGroups(
+            JSONObject manifest,
+            Map<String, Integer> partIndexesById,
+            Map<String, LinkedHashSet<Integer>> mutableGroups,
+            int partCount
+    ) throws JSONException {
+        JSONObject explicitGroups = manifest.optJSONObject("groups");
+        if (explicitGroups == null) {
+            return;
+        }
+        Iterator<String> keys = explicitGroups.keys();
+        while (keys.hasNext()) {
+            String groupName = keys.next();
+            JSONArray groupValues = explicitGroups.getJSONArray(groupName);
+            LinkedHashSet<Integer> indices = new LinkedHashSet<>();
+            for (int i = 0; i < groupValues.length(); i++) {
+                Object value = groupValues.get(i);
+                if (value instanceof Number) {
+                    addPartIndex(indices, ((Number) value).intValue(), partCount, groupName);
+                } else {
+                    String reference = String.valueOf(value);
+                    Integer partIndex = partIndexesById.get(reference);
+                    if (partIndex != null) {
+                        indices.add(partIndex);
+                        continue;
+                    }
+                    Set<Integer> groupIndexes = mutableGroups.get(reference);
+                    if (groupIndexes != null) {
+                        indices.addAll(groupIndexes);
+                        continue;
+                    }
+                    throw new JSONException("Unknown V3 group reference `" + reference + "` in `" + groupName + "`");
+                }
+            }
+            mutableGroups.put(groupName, indices);
+        }
     }
 
     private static void addGroupIndex(
@@ -415,7 +491,7 @@ public final class Load3DModelFesth3 {
         int textureCount = buffer.getInt();
         int normalCount = buffer.getInt();
 
-        if (version != BINARY_MODEL_VERSION) {
+        if (version != BINARY_MODEL_VERSION_LEGACY && version != BINARY_MODEL_VERSION_INDEXED) {
             throw new IOException("Unsupported V3 binary model version " + version + " in `" + assetPath + "`");
         }
         if (floatsPerVertex != FLOATS_PER_VERTEX) {
@@ -457,6 +533,7 @@ public final class Load3DModelFesth3 {
         );
         V3ModelLoadMetrics.log("partBinaryLoaded partId=" + partId
                 + " asset=" + assetPath
+                + " version=" + version
                 + " loadMs=" + loadMs
                 + " lines=" + lineCount
                 + " coordinates=" + coordinateCount
@@ -470,6 +547,140 @@ public final class Load3DModelFesth3 {
                 + " indexBytes=" + buffers.indexBytes
                 + " binaryBytes=" + buffers.binaryBytes);
         return buffers;
+    }
+
+    private static PartsBundle loadBinaryPartsBundle(Context context, String assetPath) throws IOException {
+        long loadStartedAtMs = SystemClock.elapsedRealtime();
+        byte[] bytes = readAssetBytes(context, assetPath);
+        if (bytes.length < BINARY_PARTS_HEADER_BYTES) {
+            throw new IOException("V3 parts bundle `" + assetPath + "` is shorter than header");
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        requirePartsBundleMagic(buffer, assetPath);
+        int version = buffer.getInt();
+        int floatsPerVertex = buffer.getInt();
+        int partCount = buffer.getInt();
+        int vertexCount = buffer.getInt();
+        int indexCount = buffer.getInt();
+        int lineCount = buffer.getInt();
+        int faceCount = buffer.getInt();
+        int triangleCount = buffer.getInt();
+        int coordinateCount = buffer.getInt();
+        int textureCount = buffer.getInt();
+        int normalCount = buffer.getInt();
+
+        if (version != BINARY_PARTS_BUNDLE_VERSION) {
+            throw new IOException("Unsupported V3 parts bundle version " + version + " in `" + assetPath + "`");
+        }
+        if (floatsPerVertex != FLOATS_PER_VERTEX) {
+            throw new IOException("Unexpected parts bundle vertex layout " + floatsPerVertex + " in `" + assetPath + "`");
+        }
+        if (partCount < 0 || vertexCount < 0 || indexCount < 0) {
+            throw new IOException("Negative V3 parts bundle counts in `" + assetPath + "`");
+        }
+
+        ModelPartBuffers[] parts = new ModelPartBuffers[partCount];
+        String[] partIds = new String[partCount];
+        int parsedVertexCount = 0;
+        int parsedIndexCount = 0;
+        for (int i = 0; i < partCount; i++) {
+            if (buffer.remaining() < BINARY_PART_HEADER_BYTES) {
+                throw new IOException("Unexpected end of V3 parts bundle before part " + i + " in `" + assetPath + "`");
+            }
+            int nameByteCount = buffer.getInt();
+            int partVertexCount = buffer.getInt();
+            int partIndexCount = buffer.getInt();
+            int partFaceCount = buffer.getInt();
+            int partTriangleCount = buffer.getInt();
+            int expandedVertexCount = buffer.getInt();
+            if (nameByteCount <= 0 || partVertexCount < 0 || partIndexCount < 0) {
+                throw new IOException("Invalid V3 parts bundle counts for part " + i + " in `" + assetPath + "`");
+            }
+            if (buffer.remaining() < nameByteCount) {
+                throw new IOException("Unexpected end of V3 parts bundle name for part " + i + " in `" + assetPath + "`");
+            }
+            byte[] nameBytes = new byte[nameByteCount];
+            buffer.get(nameBytes);
+            String partId = new String(nameBytes, StandardCharsets.UTF_8);
+
+            int vertexFloatCount = partVertexCount * FLOATS_PER_VERTEX;
+            int vertexBytes = vertexFloatCount * Float.BYTES;
+            int indexBytes = partIndexCount * Integer.BYTES;
+            if (buffer.remaining() < vertexBytes + indexBytes) {
+                throw new IOException("Unexpected end of V3 parts bundle buffers for part `" + partId + "` in `" + assetPath + "`");
+            }
+
+            float[] vertices = new float[vertexFloatCount];
+            buffer.asFloatBuffer().get(vertices);
+            buffer.position(buffer.position() + vertexBytes);
+
+            int[] indices = new int[partIndexCount];
+            buffer.asIntBuffer().get(indices);
+            buffer.position(buffer.position() + indexBytes);
+
+            int partBinaryBytes = BINARY_PART_HEADER_BYTES + nameByteCount + vertexBytes + indexBytes;
+            parts[i] = new ModelPartBuffers(
+                    vertices,
+                    indices,
+                    lineCount,
+                    partFaceCount,
+                    partTriangleCount,
+                    coordinateCount,
+                    textureCount,
+                    normalCount,
+                    0L,
+                    partBinaryBytes,
+                    null
+            );
+            partIds[i] = partId;
+            parsedVertexCount += partVertexCount;
+            parsedIndexCount += partIndexCount;
+            V3ModelLoadMetrics.log("partBundleItem partId=" + partId
+                    + " vertices=" + partVertexCount
+                    + " indices=" + partIndexCount
+                    + " faces=" + partFaceCount
+                    + " triangles=" + partTriangleCount
+                    + " expandedVertices=" + expandedVertexCount
+                    + " binaryBytes=" + partBinaryBytes);
+        }
+        if (buffer.position() != bytes.length) {
+            throw new IOException("Unexpected trailing bytes in V3 parts bundle `" + assetPath
+                    + "`: read " + buffer.position() + " of " + bytes.length);
+        }
+        if (parsedVertexCount != vertexCount || parsedIndexCount != indexCount) {
+            throw new IOException("V3 parts bundle totals mismatch in `" + assetPath
+                    + "`: header vertices/indices=" + vertexCount + "/" + indexCount
+                    + ", parsed=" + parsedVertexCount + "/" + parsedIndexCount);
+        }
+
+        long loadMs = elapsedSince(loadStartedAtMs);
+        V3ModelLoadMetrics.log("partsBundleLoaded asset=" + assetPath
+                + " version=" + version
+                + " loadMs=" + loadMs
+                + " parts=" + partCount
+                + " vertices=" + vertexCount
+                + " indices=" + indexCount
+                + " vertexBytes=" + (vertexCount * FLOATS_PER_VERTEX * Float.BYTES)
+                + " indexBytes=" + (indexCount * Integer.BYTES)
+                + " binaryBytes=" + bytes.length
+                + " lines=" + lineCount
+                + " coordinates=" + coordinateCount
+                + " textures=" + textureCount
+                + " normals=" + normalCount
+                + " faces=" + faceCount
+                + " triangles=" + triangleCount);
+        return new PartsBundle(
+                parts,
+                partIds,
+                vertexCount,
+                indexCount,
+                lineCount,
+                faceCount,
+                triangleCount,
+                bytes.length,
+                loadMs
+        );
     }
 
     private static DeformationData loadDeformationData(
@@ -533,6 +744,15 @@ public final class Load3DModelFesth3 {
                 || buffer.get() != BINARY_MAGIC_2
                 || buffer.get() != BINARY_MAGIC_3) {
             throw new IOException("Invalid V3 binary model magic in `" + assetPath + "`");
+        }
+    }
+
+    private static void requirePartsBundleMagic(ByteBuffer buffer, String assetPath) throws IOException {
+        if (buffer.get() != BINARY_MAGIC_0
+                || buffer.get() != BINARY_MAGIC_1
+                || buffer.get() != BINARY_PARTS_MAGIC_2
+                || buffer.get() != BINARY_PARTS_MAGIC_3) {
+            throw new IOException("Invalid V3 parts bundle magic in `" + assetPath + "`");
         }
     }
 
@@ -657,14 +877,56 @@ public final class Load3DModelFesth3 {
         private final int indexCount;
         private final int vertexBytes;
         private final int indexBytes;
+        private final boolean allowLegacyFallbacks;
 
-        private LoadedModel(ModelPartBuffers[] parts, Map<String, int[]> groups, int vertexCount, int indexCount) {
+        private LoadedModel(
+                ModelPartBuffers[] parts,
+                Map<String, int[]> groups,
+                int vertexCount,
+                int indexCount,
+                boolean allowLegacyFallbacks
+        ) {
             this.parts = parts;
             this.groups = groups;
             this.vertexCount = vertexCount;
             this.indexCount = indexCount;
             this.vertexBytes = vertexCount * FLOATS_PER_VERTEX * Float.BYTES;
             this.indexBytes = indexCount * Integer.BYTES;
+            this.allowLegacyFallbacks = allowLegacyFallbacks;
+        }
+    }
+
+    private static final class PartsBundle {
+        private final ModelPartBuffers[] parts;
+        private final String[] partIds;
+        private final int vertexCount;
+        private final int indexCount;
+        private final int lineCount;
+        private final int faceCount;
+        private final int triangleCount;
+        private final int binaryBytes;
+        private final long loadMs;
+
+        private PartsBundle(
+                ModelPartBuffers[] parts,
+                String[] partIds,
+                int vertexCount,
+                int indexCount,
+                int lineCount,
+                int faceCount,
+                int triangleCount,
+                int binaryBytes,
+                long loadMs
+        ) {
+            this.parts = parts;
+            this.partIds = partIds;
+            this.vertexCount = vertexCount;
+            this.indexCount = indexCount;
+            this.lineCount = lineCount;
+            this.faceCount = faceCount;
+            this.triangleCount = triangleCount;
+            this.binaryBytes = binaryBytes;
+            this.loadMs = loadMs;
         }
     }
 

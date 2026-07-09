@@ -1916,42 +1916,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
 
 
-		/** манипуляции с венцом */
-		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
-		}
-		Matrix.translateM(modelMatrix, 0, 58.2f, 12.5f, 28.2f);
-
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation2, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, -58.2f, 12.5f, -28.2f);//-12.5f
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, -58.2f, -12.5f, -28.2f);
-		}
-
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
-		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
-		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
-
-		/** должнабыть текстура металла*/
-		setChromeMaterialForMainProgram(shaderMassiv[0], true);
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			/** должна быть текстура металла */
+			setChromeMaterialForMainProgram(shaderMassiv[0], true);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 30.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
 		glUniform1f(ambientFactorUniform, 1.5f);
 		glUniform1i(textureUniform, 12);
 			heightMap.render(modelParts("thumb_crown_metal", 2, 3));

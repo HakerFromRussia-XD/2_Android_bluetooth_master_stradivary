@@ -14,7 +14,9 @@ from pathlib import Path
 
 
 MAGIC = b"V3MB"
-VERSION = 1
+VERSION = 2
+PARTS_MAGIC = b"V3PB"
+PARTS_VERSION = 1
 FLOATS_PER_VERTEX = 18
 UV_EPSILON = 0.000001
 DEFORMATION_MAGIC = b"V3DF"
@@ -35,6 +37,33 @@ class Face:
     refs: tuple[tuple[int, int, int], ...]
     labels: frozenset[str]
     line_number: int
+    object_name: str
+
+
+@dataclass
+class IndexedVertex:
+    coordinate: tuple[float, float, float]
+    normal: tuple[float, float, float]
+    texture: tuple[float, float]
+    tangent_sum: list[float]
+    bitangent_sum: list[float]
+
+
+@dataclass(frozen=True)
+class ObjGeometry:
+    coordinates: list[tuple[float, float, float]]
+    textures: list[tuple[float, float]]
+    normals: list[tuple[float, float, float]]
+    faces: list[Face]
+    line_count: int
+
+
+@dataclass(frozen=True)
+class BinaryPart:
+    part_id: str
+    vertices: list[float]
+    indices: list[int]
+    stats: dict[str, int]
 
 
 @dataclass(frozen=True)
@@ -80,6 +109,11 @@ def parse_args() -> argparse.Namespace:
         default="STR2_V3_BIN",
         help="Output directory relative to assets-dir.",
     )
+    parser.add_argument(
+        "--split-objects-bundle",
+        action="store_true",
+        help="Write each OBJ as one multi-part bundle split by OBJ object declarations.",
+    )
     return parser.parse_args()
 
 
@@ -104,16 +138,57 @@ def parse_obj(
     path: Path,
     deformation: dict | None = None,
 ) -> tuple[list[float], list[int], dict[str, int], list[float] | None]:
+    vertices: list[float] = []
+    indices: list[int] = []
+    deformation_weights: list[float] | None = [] if deformation else None
+    geometry = read_obj_geometry(path)
+    coordinates = geometry.coordinates
+    textures = geometry.textures
+    normals = geometry.normals
+    faces = geometry.faces
+    line_count = geometry.line_count
+
+    deformation_spec = parse_deformation_spec(deformation) if deformation else None
+    weight_resolver = None
+    if deformation_spec:
+        weight_resolver = create_weight_resolver(path, coordinates, faces, deformation_spec)
+
+    if deformation_spec:
+        triangle_count = 0
+        for face in faces:
+            first = face.refs[0]
+            previous = face.refs[1]
+            for current in face.refs[2:]:
+                triangle_count += 1
+                append_triangle(
+                    vertices,
+                    indices,
+                    coordinates,
+                    textures,
+                    normals,
+                    first,
+                    previous,
+                    current,
+                    face,
+                    weight_resolver,
+                    deformation_weights,
+                )
+                previous = current
+    else:
+        vertices, indices, triangle_count = build_indexed_buffers(coordinates, textures, normals, faces)
+
+    stats = build_stats(line_count, faces, triangle_count, coordinates, textures, normals, vertices, indices)
+    return vertices, indices, stats, deformation_weights
+
+
+def read_obj_geometry(path: Path) -> ObjGeometry:
     coordinates: list[tuple[float, float, float]] = []
     textures: list[tuple[float, float]] = []
     normals: list[tuple[float, float, float]] = []
     faces: list[Face] = []
-    vertices: list[float] = []
-    indices: list[int] = []
-    deformation_weights: list[float] | None = [] if deformation else None
     line_count = 0
     current_groups: set[str] = set()
-    current_object: str | None = None
+    current_object = path.stem
     current_material: str | None = None
 
     with path.open("r", encoding="utf-8") as source:
@@ -132,7 +207,7 @@ def parse_obj(
             elif tokens[0] == "g":
                 current_groups = set(tokens[1:])
             elif tokens[0] == "o":
-                current_object = tokens[1] if len(tokens) > 1 else None
+                current_object = "_".join(tokens[1:]) if len(tokens) > 1 else path.stem
             elif tokens[0] == "usemtl":
                 current_material = tokens[1] if len(tokens) > 1 else None
             elif tokens[0] == "f" and len(tokens) >= 4:
@@ -145,45 +220,186 @@ def parse_obj(
                     parse_vertex_ref(token, len(coordinates), len(textures), len(normals))
                     for token in tokens[1:]
                 )
-                faces.append(Face(refs=refs, labels=frozenset(labels), line_number=line_count))
+                faces.append(
+                    Face(
+                        refs=refs,
+                        labels=frozenset(labels),
+                        line_number=line_count,
+                        object_name=current_object,
+                    )
+                )
 
-    deformation_spec = parse_deformation_spec(deformation) if deformation else None
-    weight_resolver = None
-    if deformation_spec:
-        weight_resolver = create_weight_resolver(path, coordinates, faces, deformation_spec)
+    return ObjGeometry(
+        coordinates=coordinates,
+        textures=textures,
+        normals=normals,
+        faces=faces,
+        line_count=line_count,
+    )
 
-    triangle_count = 0
-    for face in faces:
-        first = face.refs[0]
-        previous = face.refs[1]
-        for current in face.refs[2:]:
-            triangle_count += 1
-            append_triangle(
-                vertices,
-                indices,
-                coordinates,
-                textures,
-                normals,
-                first,
-                previous,
-                current,
-                face,
-                weight_resolver,
-                deformation_weights,
-            )
-            previous = current
 
-    stats = {
+def build_stats(
+    line_count: int,
+    faces: list[Face],
+    triangle_count: int,
+    coordinates: list[tuple[float, float, float]],
+    textures: list[tuple[float, float]],
+    normals: list[tuple[float, float, float]],
+    vertices: list[float],
+    indices: list[int],
+) -> dict[str, int]:
+    return {
         "line_count": line_count,
         "face_count": len(faces),
         "triangle_count": triangle_count,
+        "expanded_vertex_count": triangle_count * 3,
         "coordinate_count": len(coordinates),
         "texture_count": len(textures),
         "normal_count": len(normals),
         "vertex_count": len(vertices) // FLOATS_PER_VERTEX,
         "index_count": len(indices),
     }
-    return vertices, indices, stats, deformation_weights
+
+
+def parse_obj_parts_by_object(path: Path) -> tuple[list[BinaryPart], dict[str, int]]:
+    geometry = read_obj_geometry(path)
+    faces_by_object: dict[str, list[Face]] = {}
+    object_order: list[str] = []
+    for face in geometry.faces:
+        if face.object_name not in faces_by_object:
+            faces_by_object[face.object_name] = []
+            object_order.append(face.object_name)
+        faces_by_object[face.object_name].append(face)
+
+    parts: list[BinaryPart] = []
+    total_vertices = 0
+    total_indices = 0
+    total_triangles = 0
+    total_expanded_vertices = 0
+    for object_name in object_order:
+        object_faces = faces_by_object[object_name]
+        vertices, indices, triangle_count = build_indexed_buffers(
+            geometry.coordinates,
+            geometry.textures,
+            geometry.normals,
+            object_faces,
+        )
+        stats = build_stats(
+            geometry.line_count,
+            object_faces,
+            triangle_count,
+            geometry.coordinates,
+            geometry.textures,
+            geometry.normals,
+            vertices,
+            indices,
+        )
+        parts.append(BinaryPart(object_name, vertices, indices, stats))
+        total_vertices += stats["vertex_count"]
+        total_indices += stats["index_count"]
+        total_triangles += stats["triangle_count"]
+        total_expanded_vertices += stats["expanded_vertex_count"]
+
+    global_stats = {
+        "line_count": geometry.line_count,
+        "face_count": len(geometry.faces),
+        "triangle_count": total_triangles,
+        "expanded_vertex_count": total_expanded_vertices,
+        "coordinate_count": len(geometry.coordinates),
+        "texture_count": len(geometry.textures),
+        "normal_count": len(geometry.normals),
+        "vertex_count": total_vertices,
+        "index_count": total_indices,
+    }
+    return parts, global_stats
+
+
+def build_indexed_buffers(
+    coordinates: list[tuple[float, float, float]],
+    textures: list[tuple[float, float]],
+    normals: list[tuple[float, float, float]],
+    faces: list[Face],
+) -> tuple[list[float], list[int], int]:
+    records: list[IndexedVertex] = []
+    indexes_by_ref: dict[tuple[int, int, int], int] = {}
+    indices: list[int] = []
+    triangle_count = 0
+
+    for face in faces:
+        first = face.refs[0]
+        previous = face.refs[1]
+        for current in face.refs[2:]:
+            triangle_count += 1
+            triangle_refs = (first, previous, current)
+            v1 = coordinates[first[0]]
+            v2 = coordinates[previous[0]]
+            v3 = coordinates[current[0]]
+            uv1 = get_texture(textures, first[1])
+            uv2 = get_texture(textures, previous[1])
+            uv3 = get_texture(textures, current[1])
+            tangent, bitangent = calculate_tangent_space(v1, v2, v3, uv1, uv2, uv3)
+            for ref in triangle_refs:
+                vertex_index = indexes_by_ref.get(ref)
+                if vertex_index is None:
+                    vertex_index = len(records)
+                    indexes_by_ref[ref] = vertex_index
+                    records.append(
+                        IndexedVertex(
+                            coordinate=coordinates[ref[0]],
+                            normal=get_normal(normals, ref[2]),
+                            texture=get_texture(textures, ref[1]),
+                            tangent_sum=[0.0, 0.0, 0.0],
+                            bitangent_sum=[0.0, 0.0, 0.0],
+                        )
+                    )
+                add_vector(records[vertex_index].tangent_sum, tangent)
+                add_vector(records[vertex_index].bitangent_sum, bitangent)
+                indices.append(vertex_index)
+            previous = current
+
+    vertices: list[float] = []
+    for record in records:
+        tangent = normalize_vector(record.tangent_sum, (1.0, 0.0, 0.0))
+        bitangent = normalize_vector(record.bitangent_sum, (0.0, 1.0, 0.0))
+        vertices.extend(
+            (
+                record.coordinate[0],
+                record.coordinate[1],
+                record.coordinate[2],
+                record.normal[0],
+                record.normal[1],
+                record.normal[2],
+                1.0,
+                1.0,
+                0.0,
+                0.0,
+                record.texture[0],
+                record.texture[1],
+                tangent[0],
+                tangent[1],
+                tangent[2],
+                bitangent[0],
+                bitangent[1],
+                bitangent[2],
+            )
+        )
+    return vertices, indices, triangle_count
+
+
+def add_vector(target: list[float], source: tuple[float, float, float]) -> None:
+    target[0] += source[0]
+    target[1] += source[1]
+    target[2] += source[2]
+
+
+def normalize_vector(
+    source: list[float] | tuple[float, float, float],
+    fallback: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    length = math.sqrt(source[0] * source[0] + source[1] * source[1] + source[2] * source[2])
+    if length <= UV_EPSILON:
+        return fallback
+    return source[0] / length, source[1] / length, source[2] / length
 
 
 def parse_vertex_ref(token: str, coordinate_count: int, texture_count: int, normal_count: int) -> tuple[int, int, int]:
@@ -531,6 +747,48 @@ def write_binary(path: Path, vertices: list[float], indices: list[int], stats: d
         index_array.tofile(target)
 
 
+def write_parts_bundle(path: Path, parts: list[BinaryPart], stats: dict[str, int]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = struct.pack(
+        "<4s11i",
+        PARTS_MAGIC,
+        PARTS_VERSION,
+        FLOATS_PER_VERTEX,
+        len(parts),
+        stats["vertex_count"],
+        stats["index_count"],
+        stats["line_count"],
+        stats["face_count"],
+        stats["triangle_count"],
+        stats["coordinate_count"],
+        stats["texture_count"],
+        stats["normal_count"],
+    )
+    with path.open("wb") as target:
+        target.write(header)
+        for part in parts:
+            name_bytes = part.part_id.encode("utf-8")
+            target.write(
+                struct.pack(
+                    "<6i",
+                    len(name_bytes),
+                    part.stats["vertex_count"],
+                    part.stats["index_count"],
+                    part.stats["face_count"],
+                    part.stats["triangle_count"],
+                    part.stats["expanded_vertex_count"],
+                )
+            )
+            target.write(name_bytes)
+            vertex_array = array.array("f", part.vertices)
+            index_array = array.array("i", part.indices)
+            if sys.byteorder != "little":
+                vertex_array.byteswap()
+                index_array.byteswap()
+            vertex_array.tofile(target)
+            index_array.tofile(target)
+
+
 def write_deformation(path: Path, deformation_weights: list[float], vertex_count: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     expected_weight_count = vertex_count * DEFORMATION_INFLUENCE_COUNT
@@ -563,14 +821,47 @@ def main() -> None:
 
     total_vertices = 0
     total_indices = 0
+    total_expanded_vertices = 0
     total_bytes = 0
-    for part in manifest["parts"]:
+    manifest_parts = manifest.get("parts")
+    if manifest_parts is None and args.split_objects_bundle and "bundle" in manifest:
+        bundle = manifest["bundle"]
+        manifest_parts = [{"asset": bundle["source"]}]
+    if manifest_parts is None:
+        raise ValueError("Manifest must contain `parts` or `bundle.source` with --split-objects-bundle")
+
+    for part in manifest_parts:
         source_asset = part.get("asset") or part.get("file")
         if not source_asset:
             raise ValueError(f"Missing asset for part {part}")
         source_path = assets_dir / source_asset
         output_path = output_dir / obj_to_bin_name(source_asset)
         deformation = part.get("deformation")
+        if args.split_objects_bundle:
+            if deformation is not None:
+                raise ValueError("--split-objects-bundle does not support deformable parts")
+            bundle_parts, stats = parse_obj_parts_by_object(source_path)
+            write_parts_bundle(output_path, bundle_parts, stats)
+            file_size = output_path.stat().st_size
+            total_vertices += stats["vertex_count"]
+            total_indices += stats["index_count"]
+            total_expanded_vertices += stats["expanded_vertex_count"]
+            total_bytes += file_size
+            print(
+                f"{source_asset} -> {display_path(output_path, assets_dir)} "
+                f"bundleParts={len(bundle_parts)} vertices={stats['vertex_count']} "
+                f"indices={stats['index_count']} expandedVertices={stats['expanded_vertex_count']} "
+                f"dedupSavedVertices={stats['expanded_vertex_count'] - stats['vertex_count']} "
+                f"bytes={file_size}"
+            )
+            for bundle_part in bundle_parts:
+                print(
+                    f"  part={bundle_part.part_id} faces={bundle_part.stats['face_count']} "
+                    f"triangles={bundle_part.stats['triangle_count']} "
+                    f"vertices={bundle_part.stats['vertex_count']} "
+                    f"indices={bundle_part.stats['index_count']}"
+                )
+            continue
         vertices, indices, stats, deformation_weights = parse_obj(source_path, deformation)
         write_binary(output_path, vertices, indices, stats)
         file_size = output_path.stat().st_size
@@ -583,16 +874,20 @@ def main() -> None:
             deformation_info = f" deformation={display_path(deformation_output_path, assets_dir)}"
         total_vertices += stats["vertex_count"]
         total_indices += stats["index_count"]
+        total_expanded_vertices += stats["expanded_vertex_count"]
         total_bytes += file_size
         print(
             f"{source_asset} -> {display_path(output_path, assets_dir)} "
-            f"vertices={stats['vertex_count']} indices={stats['index_count']} bytes={file_size}"
+            f"vertices={stats['vertex_count']} indices={stats['index_count']} "
+            f"expandedVertices={stats['expanded_vertex_count']} "
+            f"dedupSavedVertices={stats['expanded_vertex_count'] - stats['vertex_count']} "
+            f"bytes={file_size}"
             f"{deformation_info}"
         )
 
     print(
-        f"converted parts={len(manifest['parts'])} vertices={total_vertices} "
-        f"indices={total_indices} bytes={total_bytes}"
+        f"converted parts={len(manifest_parts)} vertices={total_vertices} "
+        f"indices={total_indices} expandedVertices={total_expanded_vertices} bytes={total_bytes}"
     )
 
 

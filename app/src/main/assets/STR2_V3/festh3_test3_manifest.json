@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "format": "V3PB",
+  "allowLegacyFallbacks": false,
+  "bundle": {
+    "asset": "STR2_V3_BIN/festh3_test3.v3bin",
+    "source": "STR2_V3/festh3_test3.obj",
+    "splitBy": "object"
+  },
+  "groups": {
+    "index_upper_metal": ["part_10"],
+    "index_gray_metal": ["part_4"],
+    "index_lower_rubber": ["falangi_2_part_19", "falangi_2_part_20"],
+
+    "middle_upper_metal": ["part_9"],
+    "middle_gray_metal": ["part_3"],
+    "middle_lower_rubber": ["falangi_2_part_17", "falangi_2_part_18"],
+
+    "ring_upper_metal": ["part_8"],
+    "ring_gray_metal": ["part_2"],
+    "ring_lower_rubber": ["falangi_2_part_15", "falangi_2_part_16"],
+
+    "little_upper_metal": ["part_7"],
+    "little_gray_metal": ["part_1"],
+    "little_lower_rubber": ["falangi_2_part_13", "falangi_2_part_14"],
+
+    "thumb_rubber": ["falangi_2_part_21"],
+    "thumb_gray_metal": ["falangi_2_part_22"],
+    "thumb_crown_metal": ["part_11", "part_5"],
+    "thumb_crown_metal_left": [],
+
+    "base_texture": ["palm_1_part_24", "palm_1_part_25", "gofra_1_patr_6", "gofra_2_part_12"],
+    "base_gray_metal": ["rubber_1_part_23"],
+    "base_chrome": [],
+
+    "gofra_static": ["gofra_1_patr_6", "gofra_2_part_12"],
+    "deformable_rubber": [],
+    "selection_surface": ["palm_1_part_24"]
+  }
+}

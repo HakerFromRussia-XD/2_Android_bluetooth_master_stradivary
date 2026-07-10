@@ -154,7 +154,7 @@ android {
         noCompress += "v3bin"
         noCompress += "v3def"
         noCompress += "astc"
-        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:fest3_test1.obj:fest3_test2.obj:festh3_test3.obj"
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:fest3_test1.obj:fest3_test2.obj:festh3_test3.obj:festh3_test4.obj"
     }
     sourceSets {
         getByName("main") {

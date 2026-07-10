@@ -3,26 +3,30 @@
   "format": "V3PB",
   "allowLegacyFallbacks": false,
   "bundle": {
-    "asset": "STR2_V3_BIN/festh3_test3.v3bin",
-    "source": "STR2_V3/festh3_test3.obj",
+    "asset": "STR2_V3_BIN/festh3_test4.v3bin",
+    "source": "STR2_V3/festh3_test4.obj",
     "splitBy": "object"
   },
   "groups": {
-    "index_upper_metal": ["part_10"],
+    "index_upper_metal": ["part_10", "part_27"],
     "index_rubber": ["part_4"],
     "index_lower_plastic": ["falangi_2_part_19", "falangi_2_part_20"],
+    "index_lower_metal": ["part_26"],
 
-    "middle_upper_metal": ["part_9"],
+    "middle_upper_metal": ["part_9", "part_29"],
     "middle_rubber": ["part_3"],
     "middle_lower_plastic": ["falangi_2_part_17", "falangi_2_part_18"],
+    "middle_lower_metal": ["part_28"],
 
-    "ring_upper_metal": ["part_8"],
+    "ring_upper_metal": ["part_8", "part_31"],
     "ring_rubber": ["part_2"],
     "ring_lower_plastic": ["falangi_2_part_15", "falangi_2_part_16"],
+    "ring_lower_metal": ["part_30"],
 
-    "little_upper_metal": ["part_7"],
+    "little_upper_metal": ["part_7", "part_33"],
     "little_rubber": ["part_1"],
     "little_lower_plastic": ["falangi_2_part_13", "falangi_2_part_14"],
+    "little_lower_metal": ["part_32"],
 
     "thumb_plastic": ["falangi_2_part_21"],
     "thumb_gray_metal": ["falangi_2_part_22"],

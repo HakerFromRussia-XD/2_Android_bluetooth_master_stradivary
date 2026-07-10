@@ -1153,6 +1153,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		renderPlasticPart(shaderMassiv[0], 2, 10, modelParts("index_lower_plastic", 7));
+		renderChromeMetalPart(shaderMassiv[0], modelParts("index_lower_metal"));
 	}
 	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1327,6 +1328,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		renderPlasticPart(shaderMassiv[0], 1, 11, modelParts("middle_lower_plastic", 10));
+		renderChromeMetalPart(shaderMassiv[0], modelParts("middle_lower_metal"));
 	}
 	private void ringFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1539,6 +1541,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		renderPlasticPart(shaderMassiv[0], 5, 14, modelParts("ring_lower_plastic", 13));
+		renderChromeMetalPart(shaderMassiv[0], modelParts("ring_lower_metal"));
 	}
 	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
@@ -1758,6 +1761,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		renderPlasticPart(shaderMassiv[0], 6, 15, modelParts("little_lower_plastic", 16));
+		renderChromeMetalPart(shaderMassiv[0], modelParts("little_lower_metal"));
 	}
 	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
 		/** шейдер основной */

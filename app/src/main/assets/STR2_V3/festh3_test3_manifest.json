@@ -30,7 +30,7 @@
     "thumb_rubber": ["part_5"],
     "thumb_crown_metal_left": [],
 
-    "base_texture": ["palm_1_part_24", "palm_1_part_25", "gofra_1_patr_6", "gofra_2_part_12"],
+    "base_texture": ["palm_1_part_24", "palm_1_part_25"],
     "base_rubber": ["rubber_1_part_23"],
     "base_chrome": [],
 

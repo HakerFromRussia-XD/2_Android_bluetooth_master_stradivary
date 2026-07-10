@@ -818,6 +818,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			heightMap.render(modelParts("base_texture", 4));
 
 					renderRubberPart(program, 3, -1, modelParts("base_rubber", 5));
+					renderRubberPart(program, 3, -1, modelParts("gofra_static"));
 			renderDeformableRubberParts();
 			if (!firstFrameMetricsLogged) {
 				firstFrameMetricsLogged = true;

@@ -20,7 +20,7 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 	private static final int EGL_OPENGL_ES3_BIT_KHR = 0x40;
 	private static final int EGL_SAMPLE_BUFFERS = 0x3032;
 	private static final int EGL_SAMPLES = 0x3031;
-	private static final int EGL_MSAA_SAMPLES = 4;
+	private static final int[] EGL_MSAA_SAMPLE_COUNTS = {4, 2};
 
 	private UBI4GripperSettingsWithEncodersRendererV3 renderer;
 //	private TextView panelInfo;
@@ -138,23 +138,26 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 
 		@Override
 		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-			EGLConfig config = chooseConfig(egl, display, preferredRenderableType, true);
-			if (config != null) {
-				return config;
-			}
-			if (preferredRenderableType != fallbackRenderableType) {
-				config = chooseConfig(egl, display, fallbackRenderableType, true);
+			EGLConfig config;
+			for (int samples : EGL_MSAA_SAMPLE_COUNTS) {
+				config = chooseConfig(egl, display, preferredRenderableType, samples);
 				if (config != null) {
 					return config;
 				}
+				if (preferredRenderableType != fallbackRenderableType) {
+					config = chooseConfig(egl, display, fallbackRenderableType, samples);
+					if (config != null) {
+						return config;
+					}
+				}
 			}
-			Log.w(TAG, EGL_MSAA_SAMPLES + "x MSAA EGL config unavailable; using non-MSAA fallback");
-			config = chooseConfig(egl, display, preferredRenderableType, false);
+			Log.w(TAG, "MSAA EGL config unavailable; using non-MSAA fallback");
+			config = chooseConfig(egl, display, preferredRenderableType, 0);
 			if (config != null) {
 				return config;
 			}
 			if (preferredRenderableType != fallbackRenderableType) {
-				config = chooseConfig(egl, display, fallbackRenderableType, false);
+				config = chooseConfig(egl, display, fallbackRenderableType, 0);
 				if (config != null) {
 					return config;
 				}
@@ -166,9 +169,9 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 				EGL10 egl,
 				EGLDisplay display,
 				int renderableType,
-				boolean multisample
+				int samples
 		) {
-			int[] configSpec = buildConfigSpec(renderableType, multisample);
+			int[] configSpec = buildConfigSpec(renderableType, samples);
 			int[] numConfigs = new int[1];
 			if (!egl.eglChooseConfig(display, configSpec, null, 0, numConfigs) || numConfigs[0] <= 0) {
 				return null;
@@ -179,11 +182,11 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 				return null;
 			}
 
-			return chooseBestConfig(egl, display, configs, numConfigs[0], multisample);
+			return chooseBestConfig(egl, display, configs, numConfigs[0], samples);
 		}
 
-		private int[] buildConfigSpec(int renderableType, boolean multisample) {
-			if (multisample) {
+		private int[] buildConfigSpec(int renderableType, int samples) {
+			if (samples > 0) {
 				return new int[] {
 						EGL10.EGL_RED_SIZE, 8,
 						EGL10.EGL_GREEN_SIZE, 8,
@@ -193,7 +196,7 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 						EGL10.EGL_STENCIL_SIZE, 0,
 						EGL10.EGL_RENDERABLE_TYPE, renderableType,
 						EGL_SAMPLE_BUFFERS, 1,
-						EGL_SAMPLES, EGL_MSAA_SAMPLES,
+						EGL_SAMPLES, samples,
 						EGL10.EGL_NONE
 				};
 			}
@@ -214,7 +217,7 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 				EGLDisplay display,
 				EGLConfig[] configs,
 				int configCount,
-				boolean multisample
+				int requestedSamples
 		) {
 			EGLConfig bestConfig = null;
 			int bestSamples = -1;
@@ -230,7 +233,7 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 					continue;
 				}
 
-				int samples = multisample ? getConfigAttrib(egl, display, config, EGL_SAMPLES) : 0;
+				int samples = requestedSamples > 0 ? getConfigAttrib(egl, display, config, EGL_SAMPLES) : 0;
 				if (bestConfig == null || samples > bestSamples) {
 					bestConfig = config;
 					bestSamples = samples;

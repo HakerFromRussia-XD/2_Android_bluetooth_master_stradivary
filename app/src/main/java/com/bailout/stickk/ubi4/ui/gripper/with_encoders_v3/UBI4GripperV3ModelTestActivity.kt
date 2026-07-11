@@ -111,7 +111,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
-            setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            setV3EGLConfigChooser(eglClientVersion)
             holder.setFormat(PixelFormat.TRANSLUCENT)
             setBackgroundResource(R.color.ubi4_back)
             setZOrderOnTop(true)

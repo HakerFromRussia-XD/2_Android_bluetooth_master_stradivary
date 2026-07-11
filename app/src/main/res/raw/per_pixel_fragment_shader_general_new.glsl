@@ -13,6 +13,7 @@ uniform vec3 u_MetalFillLightDirection;
 uniform vec3 u_MetalRimLightDirection;
 uniform float u_MetalFillLightStrength;
 uniform float u_MetalRimLightStrength;
+uniform int u_FrontFaceMirrored;
 
 
 varying vec3 v_Position;		// Interpolated position for this fragment.
@@ -28,6 +29,11 @@ float ambientFactor = 0.8;
 
 void main()
 {
+    bool backFacing = u_FrontFaceMirrored == 1 ? gl_FrontFacing : !gl_FrontFacing;
+    if (backFacing) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
     vec4 diffMatColor = texture2D(u_Texture, v_TexCoordinate); //+
     vec3 usingNormal = v_Normal;
     if (u_isUsingNormalMap == 1) usingNormal =  normalize(normalize(texture2D(u_normalMap, v_TexCoordinate).rgb * 2.0  - 1.0 ) + (v_Normal * 2.0 ) );//* 2.0

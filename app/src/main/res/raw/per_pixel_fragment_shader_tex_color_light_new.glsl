@@ -6,6 +6,7 @@ uniform sampler2D u_normalMap;    // The input texture.
 uniform int u_isUsingNormalMap;
 uniform float u_specularFactor; // 30.0-metal      2.0   - plastic  1.0 - rubber
 uniform float u_lightPower; //   3600.0-metal      900.0 - plastic/rubber
+uniform int u_FrontFaceMirrored;
 
 varying vec3 v_Position;		// Interpolated position for this fragment.
 varying vec3 v_Normal;         	// Interpolated normal for this fragment.
@@ -19,6 +20,11 @@ float ambientFactor = 0.7;
 // The entry point for our fragment shader.
 void main()
 {
+    bool backFacing = u_FrontFaceMirrored == 1 ? gl_FrontFacing : !gl_FrontFacing;
+    if (backFacing) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
     float selectionMask = 1.0 - step(0.5, v_Color.b);
     vec4 resultColor = vec4(0.2 * selectionMask, 0.2 * selectionMask, 0.0, 1.0);
     vec4 diffMatColor = texture2D(u_Texture, v_TexCoordinate); //+

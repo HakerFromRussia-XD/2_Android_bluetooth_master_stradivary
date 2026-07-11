@@ -154,6 +154,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String METAL_FILL_LIGHT_STRENGTH_UNIFORM = "u_MetalFillLightStrength";
 	private static final String METAL_RIM_LIGHT_STRENGTH_UNIFORM = "u_MetalRimLightStrength";
 	private static final String CODE_SELECT_UNIFORM = "u_Code";
+	private static final String FRONT_FACE_MIRRORED_UNIFORM = "u_FrontFaceMirrored";
 
 	private static final String POSITION_ATTRIBUTE = "a_Position";
 	private static final String NORMAL_ATTRIBUTE = "a_Normal";
@@ -416,6 +417,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
 
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		GLES20.glDisable(GLES20.GL_CULL_FACE);
 		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
 
 		// Position the eye in front of the origin.
@@ -871,6 +873,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 	private void setChromeMaterial(int shaderProgram, boolean enabled) {
+		setFrontFaceMirroredUniform(shaderProgram);
 		int materialModeUniform = glGetUniformLocation(shaderProgram, MATERIAL_MODE_UNIFORM);
 		if (materialModeUniform >= 0) {
 			glUniform1i(materialModeUniform, enabled ? MATERIAL_MODE_CHROME : MATERIAL_MODE_DEFAULT);
@@ -899,6 +902,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 	}
 
+	private void setFrontFaceMirroredUniform(int shaderProgram) {
+		int frontFaceMirroredUniform = glGetUniformLocation(shaderProgram, FRONT_FACE_MIRRORED_UNIFORM);
+		if (frontFaceMirroredUniform >= 0) {
+			glUniform1i(frontFaceMirroredUniform,
+					UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0 ? 1 : 0);
+		}
+	}
+
 	private void setChromeMaterialForMainProgram(int shaderProgram, boolean enabled) {
 		if (shaderProgram == program) {
 			setChromeMaterial(shaderProgram, enabled);
@@ -906,6 +917,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void setV3PlasticMaterial(int shaderProgram) {
+		setFrontFaceMirroredUniform(shaderProgram);
 		setChromeMaterialForMainProgram(shaderProgram, false);
 		glUniform1i(isUsingNormalMap, 1);
 		GLES20.glUniform1f(specularFactorUniform, 2.0f);
@@ -914,6 +926,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void setV3RubberMaterial(int shaderProgram) {
+		setFrontFaceMirroredUniform(shaderProgram);
 		setChromeMaterialForMainProgram(shaderProgram, false);
 		glUniform1i(isUsingNormalMap, 1);
 		GLES20.glUniform1f(specularFactorUniform, 1.0f);
@@ -922,6 +935,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 		private void renderGrayMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+			setFrontFaceMirroredUniform(shaderProgram);
 			setChromeMaterialForMainProgram(shaderProgram, false);
 			glUniform1i(isUsingNormalMap, 0);
 			GLES20.glUniform1f(specularFactorUniform, 1.0f);
@@ -932,6 +946,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		private void renderChromeMetalPart(int shaderProgram, int[] indexesOfBuffer) {
+			setFrontFaceMirroredUniform(shaderProgram);
 			setChromeMaterialForMainProgram(shaderProgram, true);
 			glUniform1i(isUsingNormalMap, 0);
 			GLES20.glUniform1f(specularFactorUniform, 40.0f);

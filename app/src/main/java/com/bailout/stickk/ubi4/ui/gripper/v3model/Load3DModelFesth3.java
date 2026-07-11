@@ -347,6 +347,18 @@ public final class Load3DModelFesth3 {
         PartsBundle bundle = loadBinaryPartsBundle(context, bundleAsset);
         Map<String, Integer> partIndexesById = new LinkedHashMap<>();
         Map<String, LinkedHashSet<Integer>> mutableGroups = new LinkedHashMap<>();
+        JSONArray partsJson = manifest.optJSONArray("parts");
+        int extraPartCount = partsJson != null ? partsJson.length() : 0;
+        ModelPartBuffers[] parts = new ModelPartBuffers[bundle.parts.length + extraPartCount];
+        System.arraycopy(bundle.parts, 0, parts, 0, bundle.parts.length);
+        long binaryLoadMs = bundle.loadMs;
+        int totalVertexCount = bundle.vertexCount;
+        int totalIndexCount = bundle.indexCount;
+        int totalLines = bundle.lineCount;
+        int totalFaces = bundle.faceCount;
+        int totalTriangles = bundle.triangleCount;
+        int totalBinaryBytes = bundle.binaryBytes;
+        int deformablePartCount = 0;
 
         for (int i = 0; i < bundle.parts.length; i++) {
             String partId = bundle.partIds[i];
@@ -354,34 +366,79 @@ public final class Load3DModelFesth3 {
             addGroupIndex(mutableGroups, "all", i);
             addGroupIndex(mutableGroups, partId, i);
         }
-        applyExplicitGroups(manifest, partIndexesById, mutableGroups, bundle.parts.length);
+        for (int i = 0; i < extraPartCount; i++) {
+            JSONObject partJson = partsJson.getJSONObject(i);
+            String partId = partJson.optString("partId", partJson.optString("id", "extra_part_" + i));
+            if (partIndexesById.containsKey(partId)) {
+                throw new JSONException("Duplicate V3 part id `" + partId + "` in bundle manifest extras");
+            }
+            String asset = partJson.optString("asset", partJson.optString("file", ""));
+            if (asset.isEmpty()) {
+                throw new JSONException("Missing asset for V3 part " + partId);
+            }
+            String binaryAsset = partJson.optString("binaryAsset", binaryAssetPathFor(asset));
+            ModelPartBuffers partBuffers = loadBinaryPart(context, binaryAsset, partId);
+            JSONObject deformationJson = partJson.optJSONObject("deformation");
+            if (deformationJson != null) {
+                DeformationSpec deformationSpec = parseDeformationSpec(deformationJson, partId);
+                String deformationAsset = deformationJson.optString(
+                        "asset",
+                        partJson.optString("deformationAsset", deformationAssetPathFor(asset))
+                );
+                partBuffers = partBuffers.withDeformationData(
+                        loadDeformationData(context, deformationAsset, partId, partBuffers.vertexCount, deformationSpec)
+                );
+                deformablePartCount++;
+            }
+
+            int partIndex = bundle.parts.length + i;
+            parts[partIndex] = partBuffers;
+            binaryLoadMs += partBuffers.loadMs;
+            totalVertexCount += partBuffers.vertexCount;
+            totalIndexCount += partBuffers.indices.length;
+            totalLines += partBuffers.lineCount;
+            totalFaces += partBuffers.faceCount;
+            totalTriangles += partBuffers.triangleCount;
+            totalBinaryBytes += partBuffers.binaryBytes;
+            partIndexesById.put(partId, partIndex);
+            addGroupIndex(mutableGroups, "all", partIndex);
+            addGroupIndex(mutableGroups, partId, partIndex);
+
+            JSONArray groupsJson = partJson.optJSONArray("groups");
+            if (groupsJson != null) {
+                for (int groupIndex = 0; groupIndex < groupsJson.length(); groupIndex++) {
+                    addGroupIndex(mutableGroups, groupsJson.getString(groupIndex), partIndex);
+                }
+            }
+        }
+        applyExplicitGroups(manifest, partIndexesById, mutableGroups, parts.length);
 
         Map<String, int[]> groups = new LinkedHashMap<>();
         for (Map.Entry<String, LinkedHashSet<Integer>> entry : mutableGroups.entrySet()) {
             groups.put(entry.getKey(), toIntArray(entry.getValue()));
         }
         LoadedModel model = new LoadedModel(
-                bundle.parts,
+                parts,
                 groups,
-                bundle.vertexCount,
-                bundle.indexCount,
+                totalVertexCount,
+                totalIndexCount,
                 allowLegacyFallbacks
         );
         V3ModelLoadMetrics.log("modelParsed totalMs=" + elapsedSince(loadStartedAtMs)
                 + " manifestMs=" + manifestMs
-                + " binaryLoadMs=" + bundle.loadMs
+                + " binaryLoadMs=" + binaryLoadMs
                 + " objParseMs=0"
-                + " parts=" + bundle.parts.length
-                + " vertices=" + bundle.vertexCount
-                + " indices=" + bundle.indexCount
+                + " parts=" + parts.length
+                + " vertices=" + totalVertexCount
+                + " indices=" + totalIndexCount
                 + " vertexBytes=" + model.vertexBytes
                 + " indexBytes=" + model.indexBytes
-                + " binaryBytes=" + bundle.binaryBytes
-                + " lines=" + bundle.lineCount
-                + " faces=" + bundle.faceCount
-                + " triangles=" + bundle.triangleCount
+                + " binaryBytes=" + totalBinaryBytes
+                + " lines=" + totalLines
+                + " faces=" + totalFaces
+                + " triangles=" + totalTriangles
                 + " groups=" + groups.size()
-                + " deformableParts=0"
+                + " deformableParts=" + deformablePartCount
                 + " allowLegacyFallbacks=" + allowLegacyFallbacks
                 + " source=binaryBundle"
                 + " format=V3PB");

@@ -108,6 +108,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private final float[][] deformationAnchorMatrices = new float[5][16];
 	private final float[][] deformationInverseBindMatrices = new float[5][16];
 	private final float[][] deformationSkinMatrices = new float[5][16];
+	private final float[] deformationBaseMatrix = new float[16];
+	private final float[] deformationInverseBaseMatrix = new float[16];
+	private final float[] deformationScratchMatrix = new float[16];
 	private boolean deformationBindMatricesCaptured = false;
 
 	/** OpenGL handles to our program uniforms. */
@@ -305,13 +308,33 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			Matrix.setIdentityM(deformationAnchorMatrices[i], 0);
 			Matrix.setIdentityM(deformationSkinMatrices[i], 0);
 		}
+		Matrix.setIdentityM(deformationBaseMatrix, 0);
+		Matrix.setIdentityM(deformationInverseBaseMatrix, 0);
 	}
 
 	private void storeDeformationAnchorMatrix(String transformId) {
 		int index = deformationMatrixIndex(transformId);
 		if (index >= 0) {
-			System.arraycopy(modelMatrix, 0, deformationAnchorMatrices[index], 0, 16);
+			buildCurrentHandBaseMatrix(deformationBaseMatrix);
+			if (!Matrix.invertM(deformationInverseBaseMatrix, 0, deformationBaseMatrix, 0)) {
+				Matrix.setIdentityM(deformationInverseBaseMatrix, 0);
+			}
+			Matrix.multiplyMM(deformationScratchMatrix, 0,
+					deformationInverseBaseMatrix, 0,
+					modelMatrix, 0);
+			System.arraycopy(deformationScratchMatrix, 0, deformationAnchorMatrices[index], 0, 16);
 		}
+	}
+
+	private void buildCurrentHandBaseMatrix(float[] target) {
+		Matrix.setIdentityM(target, 0);
+		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			Matrix.scaleM(target, 0, 1, -1, 1);
+		}
+		Matrix.multiplyMM(deformationScratchMatrix, 0,
+				accumulatedRotationGeneral, 0,
+				target, 0);
+		System.arraycopy(deformationScratchMatrix, 0, target, 0, 16);
 	}
 
 	private float[] deformationMatrixFor(String transformId) {
@@ -945,7 +968,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		lightPowerUniform = glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
 		ambientFactorUniform = glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
 
-		Matrix.setIdentityM(modelMatrix, 0);
+		buildCurrentHandBaseMatrix(modelMatrix);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
@@ -1071,7 +1094,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			storeDeformationAnchorMatrix(TRANSFORM_INDEX_UPPER);
 					renderChromeMetalPart(shaderMassiv[0], modelParts("index_upper_metal", 9));
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
@@ -1152,6 +1174,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		storeDeformationAnchorMatrix(TRANSFORM_INDEX_UPPER);
 		renderPlasticPart(shaderMassiv[0], 2, 10, modelParts("index_lower_plastic", 7));
 		renderChromeMetalPart(shaderMassiv[0], modelParts("index_lower_metal"));
 	}
@@ -1258,7 +1281,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			storeDeformationAnchorMatrix(TRANSFORM_MIDDLE_UPPER);
 					renderChromeMetalPart(shaderMassiv[0], modelParts("middle_upper_metal", 12));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
@@ -1335,6 +1357,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		storeDeformationAnchorMatrix(TRANSFORM_MIDDLE_UPPER);
 		renderPlasticPart(shaderMassiv[0], 1, 11, modelParts("middle_lower_plastic", 10));
 		renderChromeMetalPart(shaderMassiv[0], modelParts("middle_lower_metal"));
 	}
@@ -1455,7 +1478,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			storeDeformationAnchorMatrix(TRANSFORM_RING_UPPER);
 					renderChromeMetalPart(shaderMassiv[0], modelParts("ring_upper_metal", 15));
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
@@ -1548,6 +1570,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		storeDeformationAnchorMatrix(TRANSFORM_RING_UPPER);
 		renderPlasticPart(shaderMassiv[0], 5, 14, modelParts("ring_lower_plastic", 13));
 		renderChromeMetalPart(shaderMassiv[0], modelParts("ring_lower_metal"));
 	}
@@ -1658,7 +1681,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			storeDeformationAnchorMatrix(TRANSFORM_LITTLE_UPPER);
 					renderChromeMetalPart(shaderMassiv[0], modelParts("little_upper_metal", 18));
 
 		/** шейдер без цвета */
@@ -1760,6 +1782,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		storeDeformationAnchorMatrix(TRANSFORM_LITTLE_UPPER);
 		renderPlasticPart(shaderMassiv[0], 6, 15, modelParts("little_lower_plastic", 16));
 		renderChromeMetalPart(shaderMassiv[0], modelParts("little_lower_metal"));
 	}

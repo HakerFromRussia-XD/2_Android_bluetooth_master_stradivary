@@ -181,7 +181,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             )
             self.assertEqual(b"V3DF", magic)
             self.assertEqual(1, version)
-            self.assertEqual(60, vertex_count)
+            self.assertEqual(44, vertex_count)
             self.assertEqual(5, influence_count)
 
     def test_deformable_fixture_requires_all_face_groups(self) -> None:

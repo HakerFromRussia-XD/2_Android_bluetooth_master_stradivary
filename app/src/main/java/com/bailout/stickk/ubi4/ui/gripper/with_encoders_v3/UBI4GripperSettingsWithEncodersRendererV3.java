@@ -964,7 +964,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		return SystemClock.elapsedRealtime() - startedAtMs;
 	}
 
-		private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** резина */
 		glUseProgram(shaderMassiv[0]);
 
@@ -1182,29 +1182,33 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, -36.5f, 1.0f, 0.0f);
+		Matrix.translateM(modelMatrix, 0, -46.5f, 0.0f, -11.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress3()) {
 			Matrix.setIdentityM(currentRotation, 0);
+			Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 				Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			} else  {
 				Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			}
+			Matrix.rotateM(currentRotation, 0, 1, 0.0f, 1.0f, 0.0f);
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationMiddleFinger2, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotationMiddleFinger2, 0, 16);
 		} else {
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-				if((angleMiddleFingerTransfer >= 0 && angleMiddleFingerTransfer <= 100)) {
-					Matrix.setIdentityM(currentRotation, 0);
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
-					} else  {
-						Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
-					}
-					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationMiddleFinger2, 0);
+					if((angleMiddleFingerTransfer >= 0 && angleMiddleFingerTransfer <= 100)) {
+						Matrix.setIdentityM(currentRotation, 0);
+						Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
+						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+							Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
+						} else  {
+							Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
+						}
+						Matrix.rotateM(currentRotation, 0, 1, 0.0f, 1.0f, 0.0f);
+						Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationMiddleFinger2, 0);
 					System.arraycopy(temporaryMatrix, 0, accumulatedRotationMiddleFinger2, 0, 16);
 				}
 			}
@@ -1215,7 +1219,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение ко второй оси вращения */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 36.5f, 0.0f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 34.5f, 0.0f, 0.0f);
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
@@ -1225,7 +1229,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 12.0f, 0.0f, 11.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
@@ -1262,18 +1266,20 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 0.0f, 1.0f, 0.0f);
+		Matrix.translateM(modelMatrix, 0, -12.0f, 0.0f, -11.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress3()) {
 			angleMiddleFingerTransfer = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger3();
 
 			Matrix.setIdentityM(currentRotation, 0);
+			Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 				Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			} else  {
 				Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 			}
+			Matrix.rotateM(currentRotation, 0, 1, 0.0f, 1.0f, 0.0f);
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationMiddleFinger, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotationMiddleFinger, 0, 16);
@@ -1290,11 +1296,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				}
 				if((angleMiddleFingerTransfer >= 0 && angleMiddleFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
+					Matrix.rotateM(currentRotation, 0, -1, 0.0f, 1.0f, 0.0f);
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 						Matrix.rotateM(currentRotation, 0, -angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 					} else  {
 						Matrix.rotateM(currentRotation, 0, angleMiddleFingerInt, 0.0f, 0.0f, 1.0f);
 					}
+					Matrix.rotateM(currentRotation, 0, 1, 0.0f, 1.0f, 0.0f);
 
 					angleMiddleFingerTransfer = (int) angleMiddleFingerFloat;
 					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationMiddleFinger, 0);
@@ -1310,7 +1318,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 12.0f, 0.0f, 11.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
@@ -1356,23 +1364,23 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, -36.7f, 1.5f, 0.0f);
+		Matrix.translateM(modelMatrix, 0, -43f, -0.0f, 8f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2()) {
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, 0, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, 0, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
 			}
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationRingFinger2, 0);
@@ -1382,17 +1390,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if((angleRingFingerTransfer >= 0 && angleRingFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, 0, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, 0, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
 					} else  {
-						Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 6f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -6f, 1.0f, 0.0f, 0.0f);
 					}
 
 
@@ -1408,7 +1416,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение ко второй оси вращения */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 36.7f, -0.5f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 34f, 0.0f, 0.0f);
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
@@ -1418,7 +1426,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 9.0f, 0.0f, -8f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
@@ -1455,7 +1463,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 0.0f, 1.0f, 0.0f);
+		Matrix.translateM(modelMatrix, 0, -9.0f, -0.0f, 8f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2()) {
@@ -1463,17 +1471,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, -2, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, 2, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
 			}
 
 
@@ -1493,17 +1501,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if((angleRingFingerTransfer >= 0 && angleRingFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, -2, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -3, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 9f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -2f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 3, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, 2, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 2f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -9f, 1.0f, 0.0f, 0.0f);
 					} else  {
-						Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -2, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 7f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -6f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 2, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 6f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -7f, 1.0f, 0.0f, 0.0f);
 					}
 
 
@@ -1523,7 +1531,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 0.0f);
+		Matrix.translateM(temporaryMatrix, 0, 9.0f, 0.0f, -8f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
@@ -1570,24 +1578,24 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, -35.9f, 1.5f, -22.9f);
+		Matrix.translateM(modelMatrix, 0, -39.0f, -10.0f, 25.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress1()) {
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -6, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 6, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -4, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 4, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
 			}
 
 
@@ -1595,22 +1603,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotationLittleFinger2, 0, 16);
 		} else {
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-				if((angleLittleFingerTransfer >= 0 && angleLittleFingerTransfer <= 100)) {
-					Matrix.setIdentityM(currentRotation, 0);
+					if((angleLittleFingerTransfer >= 0 && angleLittleFingerTransfer <= 100)) {
+						Matrix.setIdentityM(currentRotation, 0);
 
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, -3, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -6, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 6, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, 3, 1.0f, 0.0f, 0.0f);
-					} else  {
-						Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -4, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 4, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
-					}
+						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+							Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
+							Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
+						} else  {
+							Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
+							Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+							Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
+						}
 
 
 					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationLittleFinger2, 0);
@@ -1623,11 +1631,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение ко второй оси вращения */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, 35.9f, 0f, 3.3f);
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, 35.9f, -0.5f, 3.3f);
-		}
+		Matrix.translateM(temporaryMatrix, 0, 33.0f, 0.0f, 0.0f);
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
@@ -1637,11 +1641,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.5f, 19.6f);
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 19.6f);
-		}
+		Matrix.translateM(temporaryMatrix, 0, 6.0f, 10.0f, -25.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
@@ -1678,7 +1678,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 0.0f, 1.0f, -19.6f);
+		Matrix.translateM(modelMatrix, 0, -6.0f,  -10.0f, 25.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress1()) {
@@ -1686,17 +1686,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -3, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 3, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -4, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 4, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
 			}
 
 
@@ -1713,21 +1713,21 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					angleLittleFingerFloat -= deltaY;
 					angleLittleFingerTransfer = (int) angleLittleFingerFloat;
 				}
-				if((angleLittleFingerTransfer >= 0 && angleLittleFingerTransfer <= 100)) {
-					Matrix.setIdentityM(currentRotation, 0);
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -3, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 3, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
-					} else  {
-						Matrix.rotateM(currentRotation, 0, 4, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -4, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 4, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -4, 1.0f, 0.0f, 0.0f);
-					}
+					if((angleLittleFingerTransfer >= 0 && angleLittleFingerTransfer <= 100)) {
+						Matrix.setIdentityM(currentRotation, 0);
+						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+										Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, -angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
+										Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
+									} else  {
+										Matrix.rotateM(currentRotation, 0, 16, 1.0f, 0.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, -8, 0.0f, 1.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, angleLittleFingerInt, 0.0f, 0.0f, 1.0f);
+										Matrix.rotateM(currentRotation, 0, 8, 0.0f, 1.0f, 0.0f);
+										Matrix.rotateM(currentRotation, 0, -16, 1.0f, 0.0f, 0.0f);
+									}
 
 					angleLittleFingerTransfer = (int) angleLittleFingerFloat;
 					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationLittleFinger, 0);
@@ -1743,7 +1743,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** перемещение в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 0.0f, -1.0f, 19.6f);
+		Matrix.translateM(temporaryMatrix, 0, 6.0f, 10.0f, -25.0f);
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);

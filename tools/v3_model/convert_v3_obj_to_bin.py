@@ -706,23 +706,16 @@ def create_weight_resolver(
         )
 
     top_by_group = {top.top_group: top for top in spec.tops}
+    soft_groups_by_coordinate: dict[int, list[str]] = {}
+    anchored_soft_indexes: set[int] = set()
+    for soft_group, (_, _, _, _, bottom_locked_indexes, top_locked_indexes) in soft_axes.items():
+        anchored_soft_indexes.update(bottom_locked_indexes)
+        anchored_soft_indexes.update(top_locked_indexes)
+        for coordinate_index in group_coordinates[soft_group]:
+            soft_groups_by_coordinate.setdefault(coordinate_index, []).append(soft_group)
 
-    def weights_for(face: Face, coordinate_index: int) -> tuple[float, float, float, float, float]:
-        group = resolved_groups[face]
-        if group == spec.bottom_group:
-            return 1.0, 0.0, 0.0, 0.0, 0.0
-        top = top_by_group.get(group)
-        if top:
-            weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
-            weights[top.influence_index] = 1.0
-            return tuple(weights)  # type: ignore[return-value]
-        top, bottom_center, axis, axis_length_sq, bottom_locked_indexes, top_locked_indexes = soft_axes[group]
-        if coordinate_index in bottom_locked_indexes:
-            return 1.0, 0.0, 0.0, 0.0, 0.0
-        if coordinate_index in top_locked_indexes:
-            weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
-            weights[top.influence_index] = 1.0
-            return tuple(weights)  # type: ignore[return-value]
+    def soft_weights_for(group: str, coordinate_index: int) -> tuple[float, float, float, float, float]:
+        top, bottom_center, axis, axis_length_sq, _, _ = soft_axes[group]
         coordinate = coordinates[coordinate_index]
         projection = dot(
             (
@@ -742,6 +735,37 @@ def create_weight_resolver(
         weights[0] = 1.0 - t
         weights[top.influence_index] = t
         return tuple(weights)  # type: ignore[return-value]
+
+    shared_soft_weights: dict[int, tuple[float, float, float, float, float]] = {}
+    for coordinate_index, soft_groups in soft_groups_by_coordinate.items():
+        if len(soft_groups) < 2 or coordinate_index in anchored_soft_indexes:
+            continue
+        weights_by_group = [soft_weights_for(soft_group, coordinate_index) for soft_group in soft_groups]
+        shared_soft_weights[coordinate_index] = tuple(
+            sum(weights[influence] for weights in weights_by_group) / len(weights_by_group)
+            for influence in range(DEFORMATION_INFLUENCE_COUNT)
+        )  # type: ignore[assignment]
+
+    def weights_for(face: Face, coordinate_index: int) -> tuple[float, float, float, float, float]:
+        group = resolved_groups[face]
+        if group == spec.bottom_group:
+            return 1.0, 0.0, 0.0, 0.0, 0.0
+        top = top_by_group.get(group)
+        if top:
+            weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
+            weights[top.influence_index] = 1.0
+            return tuple(weights)  # type: ignore[return-value]
+        top, bottom_center, axis, axis_length_sq, bottom_locked_indexes, top_locked_indexes = soft_axes[group]
+        if coordinate_index in bottom_locked_indexes:
+            return 1.0, 0.0, 0.0, 0.0, 0.0
+        if coordinate_index in top_locked_indexes:
+            weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
+            weights[top.influence_index] = 1.0
+            return tuple(weights)  # type: ignore[return-value]
+        shared_weights = shared_soft_weights.get(coordinate_index)
+        if shared_weights is not None:
+            return shared_weights
+        return soft_weights_for(group, coordinate_index)
 
     return weights_for
 

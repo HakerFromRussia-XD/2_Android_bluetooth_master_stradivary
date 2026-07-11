@@ -184,6 +184,159 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             self.assertEqual(44, vertex_count)
             self.assertEqual(5, influence_count)
 
+    def test_deformable_shared_soft_boundary_uses_one_blended_weight(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            assets_dir = tmp_dir / "assets"
+            mesh_dir = assets_dir / "mesh"
+            output_dir = tmp_dir / "out"
+            mesh_dir.mkdir(parents=True)
+            (mesh_dir / "shared_soft.obj").write_text(
+                "\n".join(
+                    [
+                        "v 0 0 0",
+                        "v 1 0 0",
+                        "v 2 0 0",
+                        "v 0 1 0",
+                        "v 1 1 0",
+                        "v 2 1 0",
+                        "v 0 2 0",
+                        "v 1 2 0",
+                        "v 2 2 0",
+                        "v 3 0 0",
+                        "v 4 0 0",
+                        "v 3 1 0",
+                        "v 4 1 0",
+                        "v 3 2 0",
+                        "v 4 2 0",
+                        "v 5 0 0",
+                        "v 6 0 0",
+                        "v 5 1 0",
+                        "v 6 1 0",
+                        "v 5 2 0",
+                        "v 6 2 0",
+                        "vt 0 0",
+                        "vt 1 0",
+                        "vt 1 1",
+                        "vt 0 1",
+                        "vn 0 0 1",
+                        "g bottom_fixed_palm",
+                        "f 1/1/1 2/2/1 3/3/1",
+                        "f 10/1/1 11/2/1 17/3/1",
+                        "f 16/1/1 17/2/1 11/3/1",
+                        "g soft_index",
+                        "f 1/1/1 2/2/1 5/3/1",
+                        "f 1/1/1 5/3/1 4/4/1",
+                        "f 4/1/1 5/2/1 8/3/1",
+                        "f 4/1/1 8/3/1 7/4/1",
+                        "g soft_middle",
+                        "f 2/1/1 3/2/1 6/3/1",
+                        "f 2/1/1 6/3/1 5/4/1",
+                        "f 5/1/1 6/2/1 9/3/1",
+                        "f 5/1/1 9/3/1 8/4/1",
+                        "g soft_ring",
+                        "f 10/1/1 11/2/1 13/3/1",
+                        "f 10/1/1 13/3/1 12/4/1",
+                        "f 12/1/1 13/2/1 15/3/1",
+                        "f 12/1/1 15/3/1 14/4/1",
+                        "g soft_little",
+                        "f 16/1/1 17/2/1 19/3/1",
+                        "f 16/1/1 19/3/1 18/4/1",
+                        "f 18/1/1 19/2/1 21/3/1",
+                        "f 18/1/1 21/3/1 20/4/1",
+                        "g top_fixed_index",
+                        "f 7/1/1 8/2/1 9/3/1",
+                        "g top_fixed_middle",
+                        "f 7/1/1 8/2/1 9/3/1",
+                        "g top_fixed_ring",
+                        "f 14/1/1 15/2/1 21/3/1",
+                        "g top_fixed_little",
+                        "f 20/1/1 21/2/1 15/3/1",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (assets_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "parts": [
+                            {
+                                "partId": "shared_soft",
+                                "asset": "mesh/shared_soft.obj",
+                                "deformation": {
+                                    "type": "multi_top_one_bottom",
+                                    "falloff": "linear",
+                                    "bottom": {
+                                        "faceGroup": "bottom_fixed_palm",
+                                        "transformId": "palm_base",
+                                    },
+                                    "tops": [
+                                        {
+                                            "finger": "index",
+                                            "topFaceGroup": "top_fixed_index",
+                                            "softFaceGroup": "soft_index",
+                                            "transformId": "index_upper",
+                                        },
+                                        {
+                                            "finger": "middle",
+                                            "topFaceGroup": "top_fixed_middle",
+                                            "softFaceGroup": "soft_middle",
+                                            "transformId": "middle_upper",
+                                        },
+                                        {
+                                            "finger": "ring",
+                                            "topFaceGroup": "top_fixed_ring",
+                                            "softFaceGroup": "soft_ring",
+                                            "transformId": "ring_upper",
+                                        },
+                                        {
+                                            "finger": "little",
+                                            "topFaceGroup": "top_fixed_little",
+                                            "softFaceGroup": "soft_little",
+                                            "transformId": "little_upper",
+                                        },
+                                    ],
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = self.run_converter(assets_dir, "manifest.json", output_dir)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            binary_data = (output_dir / "shared_soft.v3bin").read_bytes()
+            _, _, floats_per_vertex, vertex_count, _ = struct.unpack("<4s10i", binary_data[:44])[:5]
+            vertex_values = struct.unpack(
+                f"<{vertex_count * floats_per_vertex}f",
+                binary_data[44:44 + vertex_count * floats_per_vertex * 4],
+            )
+            shared_vertex_indexes = []
+            for vertex_index in range(vertex_count):
+                offset = vertex_index * floats_per_vertex
+                position = vertex_values[offset:offset + 3]
+                if all(abs(position[axis] - expected) < 0.000001 for axis, expected in enumerate((1.0, 1.0, 0.0))):
+                    shared_vertex_indexes.append(vertex_index)
+            self.assertGreater(len(shared_vertex_indexes), 1)
+
+            deformation_data = (output_dir / "shared_soft.v3def").read_bytes()
+            _, _, def_vertex_count, influence_count = struct.unpack("<4s3i", deformation_data[:16])
+            self.assertEqual(vertex_count, def_vertex_count)
+            self.assertEqual(5, influence_count)
+            weights = struct.unpack(
+                f"<{def_vertex_count * influence_count}f",
+                deformation_data[16:16 + def_vertex_count * influence_count * 4],
+            )
+            for vertex_index in shared_vertex_indexes:
+                offset = vertex_index * influence_count
+                self.assertAlmostEqual(0.5, weights[offset], places=6)
+                self.assertAlmostEqual(0.25, weights[offset + 1], places=6)
+                self.assertAlmostEqual(0.25, weights[offset + 2], places=6)
+                self.assertAlmostEqual(0.0, weights[offset + 3], places=6)
+                self.assertAlmostEqual(0.0, weights[offset + 4], places=6)
+
     def test_deformable_fixture_requires_all_face_groups(self) -> None:
         manifest = json.loads(FIXTURE_MANIFEST.read_text(encoding="utf-8"))
         manifest["parts"][0]["deformation"]["tops"][3]["softFaceGroup"] = "soft_little_missing"

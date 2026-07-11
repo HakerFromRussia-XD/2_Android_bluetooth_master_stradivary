@@ -197,6 +197,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String TRANSFORM_MIDDLE_UPPER = "middle_upper";
 	private static final String TRANSFORM_RING_UPPER = "ring_upper";
 	private static final String TRANSFORM_LITTLE_UPPER = "little_upper";
+	private static final int DEFORMATION_INFLUENCE_NONE = -1;
+	private static final float DEFORMATION_FINGER_WEIGHT_EPSILON = 0.0001f;
+	private static final float SELECT_PICK_CODE_SCALE = 1.0f / 255.0f;
+	private static final float[] DEFORMABLE_COLOR_WHITE = {1.0f, 1.0f, 1.0f, 1.0f};
+	private static final float[] DEFORMABLE_COLOR_YELLOW = {1.0f, 1.0f, 0.0f, 1.0f};
 
 
 
@@ -364,6 +369,21 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		return -1;
 	}
 
+	private int selectedDeformableFingerInfluence() {
+		switch (selectStation) {
+			case SELECT_FINGER_1:
+				return DEFORMATION_MATRIX_LITTLE;
+			case SELECT_FINGER_2:
+				return DEFORMATION_MATRIX_RING;
+			case SELECT_FINGER_3:
+				return DEFORMATION_MATRIX_MIDDLE;
+			case SELECT_FINGER_4:
+				return DEFORMATION_MATRIX_INDEX;
+			default:
+				return DEFORMATION_INFLUENCE_NONE;
+		}
+	}
+
 	private void prepareDeformationSkinMatrices() {
 		if (!deformationBindMatricesCaptured) {
 			for (int i = 0; i < deformationAnchorMatrices.length; i++) {
@@ -453,7 +473,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		int programRubberWithColor = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderRubberWithColorHandle, new String[]{
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE});
 		programSelect = ShaderHelper.createAndLinkProgram(selectVertexShaderHandle, selectFragmentShaderHandle,
-				new String[] {POSITION_ATTRIBUTE});
+				new String[] {POSITION_ATTRIBUTE, COLOR_ATTRIBUTE});
 			int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
 					new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
 							TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
@@ -842,7 +862,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 					renderRubberPart(program, 3, -1, modelParts("base_rubber", 5));
 					renderRubberPart(program, 3, -1, modelParts("gofra_static"));
-			renderDeformableRubberParts();
+			renderDeformableRubberParts(false);
 			if (!firstFrameMetricsLogged) {
 				firstFrameMetricsLogged = true;
 				V3ModelLoadMetrics.log("firstFrame rendered rendererAgeMs=" + elapsedSince(rendererCreatedAtMs)
@@ -945,28 +965,37 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			heightMap.render(indexesOfBuffer);
 		}
 
-	private void renderDeformableRubberParts() {
+	private void renderDeformableRubberParts(boolean pickingPass) {
 		int[] deformableParts = modelParts("deformable_rubber");
 		if (deformableParts.length == 0) {
 			return;
 		}
 
-		glUseProgram(program);
-		mvpMatrixUniform = glGetUniformLocation(program, MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = glGetUniformLocation(program, MV_MATRIX_UNIFORM);
-		positionAttribute = glGetAttribLocation(program, POSITION_ATTRIBUTE);
-		normalAttribute = glGetAttribLocation(program, NORMAL_ATTRIBUTE);
-		colorAttribute = glGetAttribLocation(program, COLOR_ATTRIBUTE);
-		texturesAttribute = glGetAttribLocation(program, TEXTURES_ATTRIBUTE);
-		tangentAttribute = glGetAttribLocation(program, TANGENT_ATTRIBUTE);
-		bitangentAttribute = glGetAttribLocation(program, BITANGENT_ATTRIBUTE);
-		lightPosUniform = glGetUniformLocation(program, LIGHT_POSITION_UNIFORM);
-		textureUniform = glGetUniformLocation(program, TEXTURE_UNIFORM);
-		normalMapUniform = glGetUniformLocation(program, NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = glGetUniformLocation(program, IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = glGetUniformLocation(program, SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
-		ambientFactorUniform = glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
+		int shaderProgram = program;
+		int selectedInfluence = selectedDeformableFingerInfluence();
+		if (pickingPass) {
+			shaderProgram = programSelect;
+		} else if (selectedInfluence != DEFORMATION_INFLUENCE_NONE) {
+			shaderProgram = programWithColor;
+		}
+
+		glUseProgram(shaderProgram);
+		mvpMatrixUniform = glGetUniformLocation(shaderProgram, MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderProgram, MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderProgram, POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderProgram, NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderProgram, COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderProgram, TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderProgram, TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderProgram, BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderProgram, LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderProgram, TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderProgram, NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderProgram, IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderProgram, SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderProgram, LIGHT_POWER_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderProgram, AMBIENT_FACTOR_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderProgram, CODE_SELECT_UNIFORM);
 
 		buildCurrentHandBaseMatrix(modelMatrix);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -976,11 +1005,15 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		setV3RubberMaterial(program);
+		if (pickingPass) {
+			glUniform1f(codeSelectUniform, 0.0f);
+		} else {
+			setV3RubberMaterial(shaderProgram);
+		}
 		glUniform1i(textureUniform, 3);
 		glUniform1i(isUsingNormalMap, 0);
 		prepareDeformationSkinMatrices();
-		heightMap.updateAndRenderDeformable(deformableParts);
+		heightMap.updateAndRenderDeformable(deformableParts, selectedInfluence, pickingPass);
 	}
 
 	private static long elapsedSince(long startedAtMs) {
@@ -1393,17 +1426,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress2()) {
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 6f, 1.0f, 0.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
 				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -6f, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 6f, 1.0f, 0.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
 				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -6f, 1.0f, 0.0f, 0.0f);
 			}
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationRingFinger2, 0);
@@ -1413,11 +1446,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if((angleRingFingerTransfer >= 0 && angleRingFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 6f, 1.0f, 0.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
 						Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -6f, 1.0f, 0.0f, 0.0f);
 					} else  {
 						Matrix.rotateM(currentRotation, 0, 6f, 1.0f, 0.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
@@ -1493,17 +1526,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 7f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -6f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 6f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -7f, 1.0f, 0.0f, 0.0f);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, 5f, 1.0f, 0.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -3f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 7f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -6f, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(currentRotation, 0, 3f, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, -5f, 1.0f, 0.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, 6f, 0.0f, 1.0f, 0.0f);
+				Matrix.rotateM(currentRotation, 0, -7f, 1.0f, 0.0f, 0.0f);
 			}
 
 
@@ -1523,11 +1556,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if((angleRingFingerTransfer >= 0 && angleRingFingerTransfer <= 100)) {
 					Matrix.setIdentityM(currentRotation, 0);
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, 9f, 1.0f, 0.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -2f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 7f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -7f, 0.0f, 1.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -angleRingFingerInt, 0.0f, 0.0f, 1.0f);
-						Matrix.rotateM(currentRotation, 0, 2f, 0.0f, 1.0f, 0.0f);
-						Matrix.rotateM(currentRotation, 0, -9f, 1.0f, 0.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, 7f, 0.0f, 1.0f, 0.0f);
+						Matrix.rotateM(currentRotation, 0, -7f, 1.0f, 0.0f, 0.0f);
 					} else  {
 						Matrix.rotateM(currentRotation, 0, 7f, 1.0f, 0.0f, 0.0f);
 						Matrix.rotateM(currentRotation, 0, -6f, 0.0f, 1.0f, 0.0f);
@@ -1988,6 +2021,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	private int selectObject () {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		resetDeformationAnchorMatrices();
 		bigFinger(new int[]{programSelect},5);
 		foreFinger(new int[]{programSelect},4);
 		middleFinger(new int[]{programSelect},3);
@@ -2024,7 +2058,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+			storeDeformationAnchorMatrix(TRANSFORM_PALM_BASE);
 			heightMap.render(modelParts("selection_surface", 4));
+			renderDeformableRubberParts(true);
 
 		int[] viewport = new int[4];
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, IntBuffer.wrap(viewport));
@@ -2197,7 +2233,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							+ " indexBytes=" + totalIndexBytes);
 					}
 
-		void updateAndRenderDeformable(int[] indexesOfBuffer) {
+		void updateAndRenderDeformable(
+				int[] indexesOfBuffer,
+				int selectedInfluence,
+				boolean pickingPass
+		) {
 			for (int partOffset = 0; partOffset < indexesOfBuffer.length; partOffset++) {
 				int partIndex = indexesOfBuffer[partOffset];
 				if (partIndex < 0 || partIndex >= partCount) {
@@ -2207,12 +2247,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				if (!deformableParts[partIndex]) {
 					continue;
 				}
-				updateDeformablePart(partIndex);
+				updateDeformablePart(partIndex, selectedInfluence, pickingPass);
 				render(new int[]{partIndex});
 			}
 		}
 
-		private void updateDeformablePart(int partIndex) {
+		private void updateDeformablePart(
+				int partIndex,
+				int selectedInfluence,
+				boolean pickingPass
+		) {
 			Load3DModelFesth3.DeformationData data = deformationData[partIndex];
 			float[] bind = bindVertices[partIndex];
 			float[] target = dynamicVertices[partIndex];
@@ -2234,6 +2278,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						target,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
 						COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS);
+				writeDeformableVertexColor(target, vertexOffset, data, weightOffset, selectedInfluence, pickingPass);
 				transformWeightedDirection(bind,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS,
@@ -2260,6 +2305,68 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
 			GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, target.length * BYTES_PER_FLOAT, targetBuffer);
 			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+		}
+
+		private void writeDeformableVertexColor(
+				float[] target,
+				int vertexOffset,
+				Load3DModelFesth3.DeformationData data,
+				int weightOffset,
+				int selectedInfluence,
+				boolean pickingPass
+		) {
+			int colorOffset = vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS;
+			if (pickingPass) {
+				int dominantInfluence = dominantFingerInfluence(data, weightOffset);
+				float redCode = selectCodeForDeformableInfluence(dominantInfluence) * SELECT_PICK_CODE_SCALE;
+				target[colorOffset] = redCode;
+				target[colorOffset + 1] = 0.0f;
+				target[colorOffset + 2] = 0.0f;
+				target[colorOffset + 3] = 1.0f;
+				return;
+			}
+			float[] color = shouldHighlightDeformableVertex(data, weightOffset, selectedInfluence)
+					? DEFORMABLE_COLOR_YELLOW
+					: DEFORMABLE_COLOR_WHITE;
+			System.arraycopy(color, 0, target, colorOffset, COLOR_DATA_SIZE_IN_ELEMENTS);
+		}
+
+		private boolean shouldHighlightDeformableVertex(
+				Load3DModelFesth3.DeformationData data,
+				int weightOffset,
+				int selectedInfluence
+		) {
+			return selectedInfluence > DEFORMATION_MATRIX_PALM
+					&& selectedInfluence < data.influenceCount
+					&& dominantFingerInfluence(data, weightOffset) == selectedInfluence;
+		}
+
+		private int dominantFingerInfluence(Load3DModelFesth3.DeformationData data, int weightOffset) {
+			int dominantInfluence = DEFORMATION_INFLUENCE_NONE;
+			float dominantWeight = DEFORMATION_FINGER_WEIGHT_EPSILON;
+			for (int influence = DEFORMATION_MATRIX_INDEX; influence < data.influenceCount; influence++) {
+				float weight = data.weights[weightOffset + influence];
+				if (weight > dominantWeight) {
+					dominantWeight = weight;
+					dominantInfluence = influence;
+				}
+			}
+			return dominantInfluence;
+		}
+
+		private int selectCodeForDeformableInfluence(int influence) {
+			switch (influence) {
+				case DEFORMATION_MATRIX_INDEX:
+					return 4;
+				case DEFORMATION_MATRIX_MIDDLE:
+					return 3;
+				case DEFORMATION_MATRIX_RING:
+					return 2;
+				case DEFORMATION_MATRIX_LITTLE:
+					return 1;
+				default:
+					return 0;
+			}
 		}
 
 		private void transformWeightedPosition(
@@ -2344,33 +2451,45 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
 
 					// Bind Attributes
-					GLES20.glVertexAttribPointer(positionAttribute, POSITION_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE, 0);
-					GLES20.glEnableVertexAttribArray(positionAttribute);
+					if (positionAttribute >= 0) {
+						GLES20.glVertexAttribPointer(positionAttribute, POSITION_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE, 0);
+						GLES20.glEnableVertexAttribArray(positionAttribute);
+					}
 
-					GLES20.glVertexAttribPointer(normalAttribute, NORMAL_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE, POSITION_DATA_SIZE_IN_ELEMENTS * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(normalAttribute);
+					if (normalAttribute >= 0) {
+						GLES20.glVertexAttribPointer(normalAttribute, NORMAL_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE, POSITION_DATA_SIZE_IN_ELEMENTS * BYTES_PER_FLOAT);
+						GLES20.glEnableVertexAttribArray(normalAttribute);
+					}
 
-					GLES20.glVertexAttribPointer(colorAttribute, COLOR_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE, (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(colorAttribute);
+					if (colorAttribute >= 0) {
+						GLES20.glVertexAttribPointer(colorAttribute, COLOR_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE, (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
+						GLES20.glEnableVertexAttribArray(colorAttribute);
+					}
 
-					GLES20.glVertexAttribPointer(texturesAttribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE,
-							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(texturesAttribute);
+					if (texturesAttribute >= 0) {
+						GLES20.glVertexAttribPointer(texturesAttribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE,
+								(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
+						GLES20.glEnableVertexAttribArray(texturesAttribute);
+					}
 
-					GLES20.glVertexAttribPointer(tangentAttribute, TANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE,
-							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(tangentAttribute);
+					if (tangentAttribute >= 0) {
+						GLES20.glVertexAttribPointer(tangentAttribute, TANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE,
+								(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
+						GLES20.glEnableVertexAttribArray(tangentAttribute);
+					}
 
-					GLES20.glVertexAttribPointer(bitangentAttribute, BITANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
-							STRIDE,
-							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS
-									+ TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(bitangentAttribute);
+					if (bitangentAttribute >= 0) {
+						GLES20.glVertexAttribPointer(bitangentAttribute, BITANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+								STRIDE,
+								(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS
+										+ TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
+						GLES20.glEnableVertexAttribArray(bitangentAttribute);
+					}
 
 					// Draw
 					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[partIndex]);

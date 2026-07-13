@@ -142,11 +142,13 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 			for (int samples : EGL_MSAA_SAMPLE_COUNTS) {
 				config = chooseConfig(egl, display, preferredRenderableType, samples);
 				if (config != null) {
+					Log.i(TAG, "Using " + samples + "x MSAA EGL config");
 					return config;
 				}
 				if (preferredRenderableType != fallbackRenderableType) {
 					config = chooseConfig(egl, display, fallbackRenderableType, samples);
 					if (config != null) {
+						Log.i(TAG, "Using " + samples + "x MSAA EGL config");
 						return config;
 					}
 				}

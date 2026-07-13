@@ -279,7 +279,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final int BIG_FINGER_FIRST_AXIS_MAX = 49;
 	private static final int BIG_FINGER_SECOND_AXIS_MIN = 0;
 	private static final int BIG_FINGER_SECOND_AXIS_MAX = 90;
-	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = -34.0f;
+	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = 34.0f;
 	private final boolean emitFingerAngleUpdates;
 	private final long rendererCreatedAtMs;
 	private Boolean astcSupported;
@@ -1865,12 +1865,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 56.0f, 19.0f, 26.0f);
-
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.rotateM(temporaryMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+		Matrix.translateM(modelMatrix, 0, 56.0f, 18.0f, 28.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
@@ -1914,6 +1909,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+
+		/** перемещение моделек ко второму месту вращения */
+		Matrix.setIdentityM(temporaryMatrix, 0);
+		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			Matrix.translateM(temporaryMatrix, 0, 0, 20.0f, 0.0f);
+		} else {
+			Matrix.translateM(temporaryMatrix, 0, 0, -20.0f, 0.0f);
+		}
+
+		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
 		/** поворот вокруг второй оси */
@@ -1972,9 +1978,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение модели в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, -56.0f, 19.0f, -26.0f);
+			Matrix.translateM(temporaryMatrix, 0, -56.0f, -2.0f, -28.0f);
 		} else {
-			Matrix.translateM(temporaryMatrix, 0, -56.0f, -19.0f, -26.0f);
+			Matrix.translateM(temporaryMatrix, 0, -56.0f, 2.0f, -28.0f);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -2134,11 +2140,15 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void rotateBigFingerFirstAxis(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
+		Matrix.rotateM(targetMatrix, 0, -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 	}
 
 	private void rotateBigFingerSecondAxis(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 1.0f, 0.0f, 0.0f);
+		Matrix.rotateM(targetMatrix, 0, -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 	}
 
 	class HeightMap {

@@ -274,7 +274,12 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
-		private float angle95 = 95;
+	private float angle95 = 95;
+	private static final int BIG_FINGER_FIRST_AXIS_MIN = -35;
+	private static final int BIG_FINGER_FIRST_AXIS_MAX = 49;
+	private static final int BIG_FINGER_SECOND_AXIS_MIN = 0;
+	private static final int BIG_FINGER_SECOND_AXIS_MAX = 90;
+	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = -34.0f;
 	private final boolean emitFingerAngleUpdates;
 	private final long rendererCreatedAtMs;
 	private Boolean astcSupported;
@@ -1860,7 +1865,12 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 58.2f, 32.5f, 28.2f);
+		Matrix.translateM(modelMatrix, 0, 56.0f, 19.0f, 26.0f);
+
+		Matrix.setIdentityM(temporaryMatrix, 0);
+		Matrix.rotateM(temporaryMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
+		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
@@ -1868,9 +1878,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, angleBigFingerInt1, 0.0f, 0.0f, -1.0f);
+				rotateBigFingerFirstAxis(currentRotation, angleBigFingerInt1);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, -angleBigFingerInt1, 0.0f, 0.0f, -1.0f);
+				rotateBigFingerFirstAxis(currentRotation, -angleBigFingerInt1);
 			}
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotation, 0, 16);
@@ -1882,21 +1892,21 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			Matrix.setIdentityM(currentRotation, 0);
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
 				angleBigFingerFloat1 += deltaY;
-				if((angleBigFingerFloat1 < -59 || angleBigFingerFloat1 > 29)) {
+				if((angleBigFingerFloat1 < BIG_FINGER_FIRST_AXIS_MIN || angleBigFingerFloat1 > BIG_FINGER_FIRST_AXIS_MAX)) {
 					angleBigFingerFloat1 -= deltaY;
 					angleBigFingerTransfer1 = (int) angleBigFingerFloat1;
 				}
-				if((angleBigFingerTransfer1 >= -60 && angleBigFingerTransfer1 <= 30)) {
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, angleBigFingerInt1, 0.0f, 0.0f, -1.0f);
-					} else  {
-						Matrix.rotateM(currentRotation, 0, -angleBigFingerInt1, 0.0f, 0.0f, -1.0f);
-					}
+					if((angleBigFingerTransfer1 >= BIG_FINGER_FIRST_AXIS_MIN && angleBigFingerTransfer1 <= BIG_FINGER_FIRST_AXIS_MAX)) {
+						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+							rotateBigFingerFirstAxis(currentRotation, angleBigFingerInt1);
+						} else  {
+							rotateBigFingerFirstAxis(currentRotation, -angleBigFingerInt1);
+						}
 
-					angleBigFingerTransfer1 = (int) angleBigFingerFloat1;
-					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation, 0);
-					System.arraycopy(temporaryMatrix, 0, accumulatedRotation, 0, 16);
-				}
+						angleBigFingerTransfer1 = (int) angleBigFingerFloat1;
+						Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation, 0);
+						System.arraycopy(temporaryMatrix, 0, accumulatedRotation, 0, 16);
+					}
 				angleBigFingerInt1 = lastAngleBigFingerInt1 - angleBigFingerTransfer1;
 				lastAngleBigFingerInt1 = angleBigFingerTransfer1;
 				deltaY = 0;
@@ -1906,28 +1916,15 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		/** перемещение моделек ко второму месту вращения */
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, 0, 20.0f, 0.0f);//-20.0f
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, 0, -20.0f, 0.0f);
-		}
-
-
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-
 		/** поворот вокруг второй оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6()) {
 			angleBigFingerTransfer2 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6();
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-				Matrix.rotateM(currentRotation, 0, angleBigFingerInt2, 1.0f, 0.0f, 0.0f);
+				rotateBigFingerSecondAxis(currentRotation, angleBigFingerInt2);
 			} else  {
-				Matrix.rotateM(currentRotation, 0, -angleBigFingerInt2, 1.0f, 0.0f, 0.0f);
+				rotateBigFingerSecondAxis(currentRotation, -angleBigFingerInt2);
 			}
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation2, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotation2, 0, 16);
@@ -1943,7 +1940,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				} else {
 					angleBigFingerFloat2 += deltaX;
 				}
-				if((angleBigFingerFloat2 < 1 || angleBigFingerFloat2 > 89)) {
+				if((angleBigFingerFloat2 < BIG_FINGER_SECOND_AXIS_MIN || angleBigFingerFloat2 > BIG_FINGER_SECOND_AXIS_MAX)) {
 					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 						angleBigFingerFloat2 += deltaX;
 					} else {
@@ -1951,17 +1948,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					}
 					angleBigFingerTransfer2 = (int) angleBigFingerFloat2;
 				}
-				if((angleBigFingerTransfer2 >= 0 && angleBigFingerTransfer2 <= 90)) {
-					if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-						Matrix.rotateM(currentRotation, 0, angleBigFingerInt2, 1.0f, 0.0f, 0.0f);
-					} else  {
-						Matrix.rotateM(currentRotation, 0, -angleBigFingerInt2, 1.0f, 0.0f, 0.0f);
-					}
+					if((angleBigFingerTransfer2 >= BIG_FINGER_SECOND_AXIS_MIN && angleBigFingerTransfer2 <= BIG_FINGER_SECOND_AXIS_MAX)) {
+						if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+							rotateBigFingerSecondAxis(currentRotation, angleBigFingerInt2);
+						} else  {
+							rotateBigFingerSecondAxis(currentRotation, -angleBigFingerInt2);
+						}
 
-					angleBigFingerTransfer2 = (int) angleBigFingerFloat2;
-					Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation2, 0);
-					System.arraycopy(temporaryMatrix, 0, accumulatedRotation2, 0, 16);
-				}
+						angleBigFingerTransfer2 = (int) angleBigFingerFloat2;
+						Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation2, 0);
+						System.arraycopy(temporaryMatrix, 0, accumulatedRotation2, 0, 16);
+					}
 				angleBigFingerInt2 = lastAngleBigFingerInt2 - angleBigFingerTransfer2;
 				lastAngleBigFingerInt2 = angleBigFingerTransfer2;
 				deltaX = 0;
@@ -1975,9 +1972,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		/** перемещение модели в сборку */
 		Matrix.setIdentityM(temporaryMatrix, 0);
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, -58.2f, 12.5f, -28.2f);//-12.5f
+			Matrix.translateM(temporaryMatrix, 0, -56.0f, 19.0f, -26.0f);
 		} else {
-			Matrix.translateM(temporaryMatrix, 0, -58.2f, -12.5f, -28.2f);
+			Matrix.translateM(temporaryMatrix, 0, -56.0f, -19.0f, -26.0f);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -2121,15 +2118,27 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")) {
-			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: " + (100 - ((int) ((float) (angleBigFingerTransfer1 + 60) / 90 * 100))));
-			fingerAngleModel = new FingerAngle(5, (100 - ((int) ((float) (angleBigFingerTransfer1 + 60) / 90 * 100))));
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: " + percentFromAngle(angleBigFingerTransfer1, BIG_FINGER_FIRST_AXIS_MIN, BIG_FINGER_FIRST_AXIS_MAX));
+			fingerAngleModel = new FingerAngle(5, percentFromAngle(angleBigFingerTransfer1, BIG_FINGER_FIRST_AXIS_MIN, BIG_FINGER_FIRST_AXIS_MAX));
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel);
 			//      далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
-			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: " + (100 - ((int) ((float) angleBigFingerTransfer2 / 90 * 100))));
-			fingerAngleModel2 = new FingerAngle(6, (100 - ((int) ((float) angleBigFingerTransfer2 / 90 * 100))));
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: " + percentFromAngle(angleBigFingerTransfer2, BIG_FINGER_SECOND_AXIS_MIN, BIG_FINGER_SECOND_AXIS_MAX));
+			fingerAngleModel2 = new FingerAngle(6, percentFromAngle(angleBigFingerTransfer2, BIG_FINGER_SECOND_AXIS_MIN, BIG_FINGER_SECOND_AXIS_MAX));
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel2);
 		}
 		transferFlag = false;
+	}
+
+	private int percentFromAngle(int angle, int minAngle, int maxAngle) {
+		return 100 - ((int) ((float) (angle - minAngle) / (maxAngle - minAngle) * 100));
+	}
+
+	private void rotateBigFingerFirstAxis(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
+	}
+
+	private void rotateBigFingerSecondAxis(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, angle, 1.0f, 0.0f, 0.0f);
 	}
 
 	class HeightMap {
@@ -2293,7 +2302,15 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						target,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
 						COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS);
-				writeDeformableVertexColor(target, vertexOffset, data, weightOffset, selectedInfluence, pickingPass);
+				writeDeformableVertexColor(
+						target,
+						vertexOffset,
+						data,
+						vertexIndex,
+						weightOffset,
+						selectedInfluence,
+						pickingPass
+				);
 				transformWeightedDirection(bind,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS,
@@ -2326,34 +2343,46 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				float[] target,
 				int vertexOffset,
 				Load3DModelFesth3.DeformationData data,
+				int vertexIndex,
 				int weightOffset,
 				int selectedInfluence,
 				boolean pickingPass
 		) {
 			int colorOffset = vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS;
+			int selectionInfluence = selectionInfluenceForVertex(data, vertexIndex, weightOffset);
 			if (pickingPass) {
-				int dominantInfluence = dominantFingerInfluence(data, weightOffset);
-				float redCode = selectCodeForDeformableInfluence(dominantInfluence) * SELECT_PICK_CODE_SCALE;
+				float redCode = selectCodeForDeformableInfluence(selectionInfluence) * SELECT_PICK_CODE_SCALE;
 				target[colorOffset] = redCode;
 				target[colorOffset + 1] = 0.0f;
 				target[colorOffset + 2] = 0.0f;
 				target[colorOffset + 3] = 1.0f;
 				return;
 			}
-			float[] color = shouldHighlightDeformableVertex(data, weightOffset, selectedInfluence)
+			float[] color = shouldHighlightDeformableVertex(selectionInfluence, selectedInfluence)
 					? DEFORMABLE_COLOR_YELLOW
 					: DEFORMABLE_COLOR_WHITE;
 			System.arraycopy(color, 0, target, colorOffset, COLOR_DATA_SIZE_IN_ELEMENTS);
 		}
 
 		private boolean shouldHighlightDeformableVertex(
-				Load3DModelFesth3.DeformationData data,
-				int weightOffset,
+				int selectionInfluence,
 				int selectedInfluence
 		) {
 			return selectedInfluence > DEFORMATION_MATRIX_PALM
-					&& selectedInfluence < data.influenceCount
-					&& dominantFingerInfluence(data, weightOffset) == selectedInfluence;
+					&& selectionInfluence == selectedInfluence;
+		}
+
+		private int selectionInfluenceForVertex(
+				Load3DModelFesth3.DeformationData data,
+				int vertexIndex,
+				int weightOffset
+		) {
+			if (data.selectionInfluences != null
+					&& vertexIndex >= 0
+					&& vertexIndex < data.selectionInfluences.length) {
+				return data.selectionInfluences[vertexIndex];
+			}
+			return dominantFingerInfluence(data, weightOffset);
 		}
 
 		private int dominantFingerInfluence(Load3DModelFesth3.DeformationData data, int weightOffset) {

@@ -36,7 +36,8 @@ public final class Load3DModelFesth3 {
     private static final int BINARY_PARTS_HEADER_BYTES = 48;
     private static final int BINARY_PART_HEADER_BYTES = 24;
     private static final int DEFORMATION_HEADER_BYTES = 16;
-    private static final int DEFORMATION_MODEL_VERSION = 1;
+    private static final int DEFORMATION_MODEL_VERSION_LEGACY = 1;
+    private static final int DEFORMATION_MODEL_VERSION_SELECTION = 2;
     private static final int DEFORMATION_INFLUENCE_COUNT = 5;
     private static final byte BINARY_MAGIC_0 = 'V';
     private static final byte BINARY_MAGIC_1 = '3';
@@ -758,7 +759,7 @@ public final class Load3DModelFesth3 {
         int version = buffer.getInt();
         int vertexCount = buffer.getInt();
         int influenceCount = buffer.getInt();
-        if (version != DEFORMATION_MODEL_VERSION) {
+        if (version != DEFORMATION_MODEL_VERSION_LEGACY && version != DEFORMATION_MODEL_VERSION_SELECTION) {
             throw new IOException("Unsupported V3 deformation version " + version + " in `" + assetPath + "`");
         }
         if (vertexCount != expectedVertexCount) {
@@ -772,7 +773,8 @@ public final class Load3DModelFesth3 {
 
         int weightCount = vertexCount * influenceCount;
         int weightBytes = weightCount * Float.BYTES;
-        int expectedBytes = DEFORMATION_HEADER_BYTES + weightBytes;
+        int selectionBytes = version >= DEFORMATION_MODEL_VERSION_SELECTION ? vertexCount * Integer.BYTES : 0;
+        int expectedBytes = DEFORMATION_HEADER_BYTES + weightBytes + selectionBytes;
         if (bytes.length != expectedBytes) {
             throw new IOException("Unexpected V3 deformation size for `" + assetPath
                     + "`: expected " + expectedBytes + " bytes, got " + bytes.length);
@@ -780,9 +782,16 @@ public final class Load3DModelFesth3 {
 
         float[] weights = new float[weightCount];
         buffer.asFloatBuffer().get(weights);
+        int[] selectionInfluences = null;
+        if (selectionBytes > 0) {
+            buffer.position(DEFORMATION_HEADER_BYTES + weightBytes);
+            selectionInfluences = new int[vertexCount];
+            buffer.asIntBuffer().get(selectionInfluences);
+        }
         V3ModelLoadMetrics.log("partDeformationLoaded partId=" + partId
                 + " asset=" + assetPath
                 + " loadMs=" + elapsedSince(loadStartedAtMs)
+                + " version=" + version
                 + " vertices=" + vertexCount
                 + " influences=" + influenceCount
                 + " bytes=" + bytes.length);
@@ -790,6 +799,7 @@ public final class Load3DModelFesth3 {
                 deformationSpec.type,
                 deformationSpec.transformIdsByInfluence,
                 weights,
+                selectionInfluences,
                 vertexCount,
                 influenceCount
         );
@@ -1053,6 +1063,7 @@ public final class Load3DModelFesth3 {
         public final String type;
         public final String[] transformIdsByInfluence;
         public final float[] weights;
+        public final int[] selectionInfluences;
         public final int vertexCount;
         public final int influenceCount;
 
@@ -1060,12 +1071,14 @@ public final class Load3DModelFesth3 {
                 String type,
                 String[] transformIdsByInfluence,
                 float[] weights,
+                int[] selectionInfluences,
                 int vertexCount,
                 int influenceCount
         ) {
             this.type = type;
             this.transformIdsByInfluence = transformIdsByInfluence.clone();
             this.weights = weights;
+            this.selectionInfluences = selectionInfluences == null ? null : selectionInfluences.clone();
             this.vertexCount = vertexCount;
             this.influenceCount = influenceCount;
         }

@@ -180,7 +180,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
                 deformation_path.read_bytes()[:16],
             )
             self.assertEqual(b"V3DF", magic)
-            self.assertEqual(1, version)
+            self.assertEqual(2, version)
             self.assertEqual(44, vertex_count)
             self.assertEqual(5, influence_count)
 
@@ -322,12 +322,18 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             self.assertGreater(len(shared_vertex_indexes), 1)
 
             deformation_data = (output_dir / "shared_soft.v3def").read_bytes()
-            _, _, def_vertex_count, influence_count = struct.unpack("<4s3i", deformation_data[:16])
+            _, version, def_vertex_count, influence_count = struct.unpack("<4s3i", deformation_data[:16])
+            self.assertEqual(2, version)
             self.assertEqual(vertex_count, def_vertex_count)
             self.assertEqual(5, influence_count)
+            weight_end = 16 + def_vertex_count * influence_count * 4
             weights = struct.unpack(
                 f"<{def_vertex_count * influence_count}f",
-                deformation_data[16:16 + def_vertex_count * influence_count * 4],
+                deformation_data[16:weight_end],
+            )
+            selection_influences = struct.unpack(
+                f"<{def_vertex_count}i",
+                deformation_data[weight_end:weight_end + def_vertex_count * 4],
             )
             for vertex_index in shared_vertex_indexes:
                 offset = vertex_index * influence_count
@@ -336,6 +342,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
                 self.assertAlmostEqual(0.25, weights[offset + 2], places=6)
                 self.assertAlmostEqual(0.0, weights[offset + 3], places=6)
                 self.assertAlmostEqual(0.0, weights[offset + 4], places=6)
+            self.assertEqual({1, 2}, {selection_influences[index] for index in shared_vertex_indexes})
 
     def test_deformable_fixture_requires_all_face_groups(self) -> None:
         manifest = json.loads(FIXTURE_MANIFEST.read_text(encoding="utf-8"))

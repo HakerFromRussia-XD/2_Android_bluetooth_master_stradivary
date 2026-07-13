@@ -3,22 +3,22 @@
   "format": "V3PB",
   "allowLegacyFallbacks": false,
   "bundle": {
-    "asset": "STR2_V3_BIN/festh3_test5.v3bin",
-    "source": "STR2_V3/festh3_test5.obj",
+    "asset": "STR2_V3_BIN/festh3_test6.v3bin",
+    "source": "STR2_V3/festh3_test6.obj",
     "splitBy": "object",
     "excludeObjects": ["gofra_1_part_12"]
   },
   "parts": [
     {
       "partId": "gofra_1_deformable",
-      "asset": "STR2_V3/festh3_test5.obj",
-      "binaryAsset": "STR2_V3_BIN/festh3_test5_gofra_1.v3bin",
+      "asset": "STR2_V3/festh3_test6.obj",
+      "binaryAsset": "STR2_V3_BIN/festh3_test6_gofra_1.v3bin",
       "object": "gofra_1_part_12",
       "groups": ["deformable_rubber"],
       "deformation": {
         "type": "multi_top_one_bottom",
         "falloff": "ease_in",
-        "asset": "STR2_V3_BIN/festh3_test5_gofra_1.v3def",
+        "asset": "STR2_V3_BIN/festh3_test6_gofra_1.v3def",
         "bottom": {
           "faceGroup": "gofra_1_base",
           "transformId": "palm_base"

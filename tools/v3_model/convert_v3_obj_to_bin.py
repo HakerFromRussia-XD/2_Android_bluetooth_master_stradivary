@@ -19,8 +19,9 @@ PARTS_MAGIC = b"V3PB"
 PARTS_VERSION = 1
 FLOATS_PER_VERTEX = 18
 UV_EPSILON = 0.000001
+COORDINATE_KEY_DECIMALS = 6
 DEFORMATION_MAGIC = b"V3DF"
-DEFORMATION_VERSION = 1
+DEFORMATION_VERSION = 2
 DEFORMATION_INFLUENCE_COUNT = 5
 INFLUENCE_ORDER = ("palm", "index", "middle", "ring", "little")
 SUPPORTED_TRANSFORM_IDS = {
@@ -138,10 +139,11 @@ def parse_obj(
     path: Path,
     deformation: dict | None = None,
     object_filter: str | None = None,
-) -> tuple[list[float], list[int], dict[str, int], list[float] | None]:
+) -> tuple[list[float], list[int], dict[str, int], list[float] | None, list[int] | None]:
     vertices: list[float] = []
     indices: list[int] = []
     deformation_weights: list[float] | None = [] if deformation else None
+    deformation_selection_influences: list[int] | None = [] if deformation else None
     geometry = read_obj_geometry(path)
     coordinates = geometry.coordinates
     textures = geometry.textures
@@ -155,24 +157,31 @@ def parse_obj(
 
     deformation_spec = parse_deformation_spec(deformation) if deformation else None
     weight_resolver = None
+    selection_resolver = None
     if deformation_spec:
-        weight_resolver = create_weight_resolver(path, coordinates, faces, deformation_spec)
+        weight_resolver, selection_resolver = create_deformation_resolvers(
+            path,
+            coordinates,
+            faces,
+            deformation_spec,
+        )
 
     if deformation_spec:
-        if weight_resolver is None:
-            raise ValueError("Missing deformation weight resolver")
-        vertices, indices, triangle_count, deformation_weights = build_indexed_deformable_buffers(
+        if weight_resolver is None or selection_resolver is None:
+            raise ValueError("Missing deformation resolvers")
+        vertices, indices, triangle_count, deformation_weights, deformation_selection_influences = build_indexed_deformable_buffers(
             coordinates,
             textures,
             normals,
             faces,
             weight_resolver,
+            selection_resolver,
         )
     else:
         vertices, indices, triangle_count = build_indexed_buffers(coordinates, textures, normals, faces)
 
     stats = build_stats(line_count, faces, triangle_count, coordinates, textures, normals, vertices, indices)
-    return vertices, indices, stats, deformation_weights
+    return vertices, indices, stats, deformation_weights, deformation_selection_influences
 
 
 def read_obj_geometry(path: Path) -> ObjGeometry:
@@ -392,11 +401,13 @@ def build_indexed_deformable_buffers(
     normals: list[tuple[float, float, float]],
     faces: list[Face],
     weight_resolver,
-) -> tuple[list[float], list[int], int, list[float]]:
+    selection_resolver,
+) -> tuple[list[float], list[int], int, list[float], list[int]]:
     records: list[IndexedVertex] = []
     deformation_weights_by_vertex: list[tuple[float, float, float, float, float]] = []
+    selection_influence_by_vertex: list[int] = []
     indexes_by_ref_and_weights: dict[
-        tuple[tuple[int, int, int], tuple[float, float, float, float, float]],
+        tuple[tuple[int, int, int], tuple[float, float, float, float, float], int],
         int,
     ] = {}
     indices: list[int] = []
@@ -417,7 +428,8 @@ def build_indexed_deformable_buffers(
             tangent, bitangent = calculate_tangent_space(v1, v2, v3, uv1, uv2, uv3)
             for ref in triangle_refs:
                 weights = weight_resolver(face, ref[0])
-                key = (ref, weights)
+                selection_influence = selection_resolver(face)
+                key = (ref, weights, selection_influence)
                 vertex_index = indexes_by_ref_and_weights.get(key)
                 if vertex_index is None:
                     vertex_index = len(records)
@@ -432,6 +444,7 @@ def build_indexed_deformable_buffers(
                         )
                     )
                     deformation_weights_by_vertex.append(weights)
+                    selection_influence_by_vertex.append(selection_influence)
                 add_vector(records[vertex_index].tangent_sum, tangent)
                 add_vector(records[vertex_index].bitangent_sum, bitangent)
                 indices.append(vertex_index)
@@ -439,6 +452,7 @@ def build_indexed_deformable_buffers(
 
     vertices: list[float] = []
     deformation_weights: list[float] = []
+    deformation_selection_influences: list[int] = []
     for vertex_index, record in enumerate(records):
         tangent = normalize_vector(record.tangent_sum, (1.0, 0.0, 0.0))
         bitangent = normalize_vector(record.bitangent_sum, (0.0, 1.0, 0.0))
@@ -465,7 +479,8 @@ def build_indexed_deformable_buffers(
             )
         )
         deformation_weights.extend(deformation_weights_by_vertex[vertex_index])
-    return vertices, indices, triangle_count, deformation_weights
+        deformation_selection_influences.append(selection_influence_by_vertex[vertex_index])
+    return vertices, indices, triangle_count, deformation_weights, deformation_selection_influences
 
 
 def add_vector(target: list[float], source: tuple[float, float, float]) -> None:
@@ -656,7 +671,7 @@ def validate_transform_id(transform_id: str) -> None:
         raise ValueError(f"Unsupported deformation transformId `{transform_id}`")
 
 
-def create_weight_resolver(
+def create_deformation_resolvers(
     path: Path,
     coordinates: list[tuple[float, float, float]],
     faces: list[Face],
@@ -664,6 +679,7 @@ def create_weight_resolver(
 ):
     required_groups = set(spec.required_groups)
     group_coordinates: dict[str, set[int]] = {group: set() for group in required_groups}
+    coordinate_by_key = {coordinate_key(coordinate): coordinate for coordinate in coordinates}
     resolved_groups: dict[Face, str] = {}
 
     for face in faces:
@@ -678,16 +694,24 @@ def create_weight_resolver(
             f"{path}: deformable OBJ is missing faces for groups: {', '.join(sorted(missing_groups))}"
         )
 
+    group_coordinate_keys = {
+        group: {coordinate_key(coordinates[index]) for index in indexes}
+        for group, indexes in group_coordinates.items()
+    }
     soft_axes = {}
     for top in spec.tops:
-        bottom_locked_indexes = group_coordinates[top.soft_group].intersection(group_coordinates[spec.bottom_group])
-        top_locked_indexes = group_coordinates[top.soft_group].intersection(group_coordinates[top.top_group])
-        if not bottom_locked_indexes:
+        bottom_locked_keys = group_coordinate_keys[top.soft_group].intersection(
+            group_coordinate_keys[spec.bottom_group]
+        )
+        top_locked_keys = group_coordinate_keys[top.soft_group].intersection(
+            group_coordinate_keys[top.top_group]
+        )
+        if not bottom_locked_keys:
             raise ValueError(f"{path}: deformation soft group `{top.soft_group}` has no shared bottom edge")
-        if not top_locked_indexes:
+        if not top_locked_keys:
             raise ValueError(f"{path}: deformation soft group `{top.soft_group}` has no shared top edge")
-        bottom_center = center_for_group(coordinates, bottom_locked_indexes)
-        top_center = center_for_group(coordinates, top_locked_indexes)
+        bottom_center = center_for_coordinate_keys(coordinate_by_key, bottom_locked_keys)
+        top_center = center_for_coordinate_keys(coordinate_by_key, top_locked_keys)
         axis = (
             top_center[0] - bottom_center[0],
             top_center[1] - bottom_center[1],
@@ -701,22 +725,22 @@ def create_weight_resolver(
             bottom_center,
             axis,
             axis_length_sq,
-            bottom_locked_indexes,
-            top_locked_indexes,
+            bottom_locked_keys,
+            top_locked_keys,
         )
 
     top_by_group = {top.top_group: top for top in spec.tops}
-    soft_groups_by_coordinate: dict[int, list[str]] = {}
-    anchored_soft_indexes: set[int] = set()
-    for soft_group, (_, _, _, _, bottom_locked_indexes, top_locked_indexes) in soft_axes.items():
-        anchored_soft_indexes.update(bottom_locked_indexes)
-        anchored_soft_indexes.update(top_locked_indexes)
+    soft_groups_by_coordinate_key: dict[tuple[float, float, float], list[str]] = {}
+    anchored_soft_keys: set[tuple[float, float, float]] = set()
+    for soft_group, (_, _, _, _, bottom_locked_keys, top_locked_keys) in soft_axes.items():
+        anchored_soft_keys.update(bottom_locked_keys)
+        anchored_soft_keys.update(top_locked_keys)
         for coordinate_index in group_coordinates[soft_group]:
-            soft_groups_by_coordinate.setdefault(coordinate_index, []).append(soft_group)
+            soft_groups_by_coordinate_key.setdefault(coordinate_key(coordinates[coordinate_index]), []).append(soft_group)
 
-    def soft_weights_for(group: str, coordinate_index: int) -> tuple[float, float, float, float, float]:
+    def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, float, float, float, float]:
         top, bottom_center, axis, axis_length_sq, _, _ = soft_axes[group]
-        coordinate = coordinates[coordinate_index]
+        coordinate = coordinate_by_key[key]
         projection = dot(
             (
                 coordinate[0] - bottom_center[0],
@@ -736,12 +760,12 @@ def create_weight_resolver(
         weights[top.influence_index] = t
         return tuple(weights)  # type: ignore[return-value]
 
-    shared_soft_weights: dict[int, tuple[float, float, float, float, float]] = {}
-    for coordinate_index, soft_groups in soft_groups_by_coordinate.items():
-        if len(soft_groups) < 2 or coordinate_index in anchored_soft_indexes:
+    shared_soft_weights: dict[tuple[float, float, float], tuple[float, float, float, float, float]] = {}
+    for key, soft_groups in soft_groups_by_coordinate_key.items():
+        if len(soft_groups) < 2 or key in anchored_soft_keys:
             continue
-        weights_by_group = [soft_weights_for(soft_group, coordinate_index) for soft_group in soft_groups]
-        shared_soft_weights[coordinate_index] = tuple(
+        weights_by_group = [soft_weights_for_key(soft_group, key) for soft_group in soft_groups]
+        shared_soft_weights[key] = tuple(
             sum(weights[influence] for weights in weights_by_group) / len(weights_by_group)
             for influence in range(DEFORMATION_INFLUENCE_COUNT)
         )  # type: ignore[assignment]
@@ -755,19 +779,28 @@ def create_weight_resolver(
             weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
             weights[top.influence_index] = 1.0
             return tuple(weights)  # type: ignore[return-value]
-        top, bottom_center, axis, axis_length_sq, bottom_locked_indexes, top_locked_indexes = soft_axes[group]
-        if coordinate_index in bottom_locked_indexes:
+        top, bottom_center, axis, axis_length_sq, bottom_locked_keys, top_locked_keys = soft_axes[group]
+        key = coordinate_key(coordinates[coordinate_index])
+        if key in bottom_locked_keys:
             return 1.0, 0.0, 0.0, 0.0, 0.0
-        if coordinate_index in top_locked_indexes:
+        if key in top_locked_keys:
             weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
             weights[top.influence_index] = 1.0
             return tuple(weights)  # type: ignore[return-value]
-        shared_weights = shared_soft_weights.get(coordinate_index)
+        shared_weights = shared_soft_weights.get(key)
         if shared_weights is not None:
             return shared_weights
-        return soft_weights_for(group, coordinate_index)
+        return soft_weights_for_key(group, key)
 
-    return weights_for
+    selection_influence_by_group: dict[str, int] = {spec.bottom_group: 0}
+    for top in spec.tops:
+        selection_influence_by_group[top.top_group] = top.influence_index
+        selection_influence_by_group[top.soft_group] = top.influence_index
+
+    def selection_for(face: Face) -> int:
+        return selection_influence_by_group[resolved_groups[face]]
+
+    return weights_for, selection_for
 
 
 def resolve_deformation_group(path: Path, face: Face, required_groups: set[str]) -> str:
@@ -795,6 +828,28 @@ def center_for_group(
         total_z += coordinate[2]
     count = float(len(coordinate_indexes))
     return total_x / count, total_y / count, total_z / count
+
+
+def center_for_coordinate_keys(
+    coordinates_by_key: dict[tuple[float, float, float], tuple[float, float, float]],
+    coordinate_keys: set[tuple[float, float, float]],
+) -> tuple[float, float, float]:
+    total_x = total_y = total_z = 0.0
+    for key in coordinate_keys:
+        coordinate = coordinates_by_key[key]
+        total_x += coordinate[0]
+        total_y += coordinate[1]
+        total_z += coordinate[2]
+    count = float(len(coordinate_keys))
+    return total_x / count, total_y / count, total_z / count
+
+
+def coordinate_key(coordinate: tuple[float, float, float]) -> tuple[float, float, float]:
+    return (
+        round(coordinate[0], COORDINATE_KEY_DECIMALS),
+        round(coordinate[1], COORDINATE_KEY_DECIMALS),
+        round(coordinate[2], COORDINATE_KEY_DECIMALS),
+    )
 
 
 def dot(left: tuple[float, float, float], right: tuple[float, float, float]) -> float:
@@ -917,13 +972,25 @@ def write_parts_bundle(path: Path, parts: list[BinaryPart], stats: dict[str, int
             index_array.tofile(target)
 
 
-def write_deformation(path: Path, deformation_weights: list[float], vertex_count: int) -> None:
+def write_deformation(
+    path: Path,
+    deformation_weights: list[float],
+    selection_influences: list[int] | None,
+    vertex_count: int,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     expected_weight_count = vertex_count * DEFORMATION_INFLUENCE_COUNT
     if len(deformation_weights) != expected_weight_count:
         raise ValueError(
             f"Unexpected deformation weight count: expected {expected_weight_count}, "
             f"got {len(deformation_weights)}"
+        )
+    if selection_influences is None:
+        selection_influences = [0] * vertex_count
+    if len(selection_influences) != vertex_count:
+        raise ValueError(
+            f"Unexpected deformation selection influence count: expected {vertex_count}, "
+            f"got {len(selection_influences)}"
         )
     header = struct.pack(
         "<4s3i",
@@ -935,9 +1002,13 @@ def write_deformation(path: Path, deformation_weights: list[float], vertex_count
     weights_array = array.array("f", deformation_weights)
     if sys.byteorder != "little":
         weights_array.byteswap()
+    selection_array = array.array("i", selection_influences)
+    if sys.byteorder != "little":
+        selection_array.byteswap()
     with path.open("wb") as target:
         target.write(header)
         weights_array.tofile(target)
+        selection_array.tofile(target)
 
 
 def binary_output_path_for(part: dict, source_asset: str, assets_dir: Path, output_dir: Path) -> Path:
@@ -1011,7 +1082,11 @@ def convert_part(
     output_path = binary_output_path_for(part, source_asset, assets_dir, output_dir)
     deformation = part.get("deformation")
     object_filter = part.get("object") or part.get("objectName")
-    vertices, indices, stats, deformation_weights = parse_obj(source_path, deformation, object_filter)
+    vertices, indices, stats, deformation_weights, selection_influences = parse_obj(
+        source_path,
+        deformation,
+        object_filter,
+    )
     write_binary(output_path, vertices, indices, stats)
     file_size = output_path.stat().st_size
     deformation_info = ""
@@ -1019,7 +1094,12 @@ def convert_part(
         deformation_output_path = deformation_output_path_for(part, source_asset, assets_dir, output_dir)
         if deformation_weights is None:
             raise ValueError(f"Missing deformation weights for {source_asset}")
-        write_deformation(deformation_output_path, deformation_weights, stats["vertex_count"])
+        write_deformation(
+            deformation_output_path,
+            deformation_weights,
+            selection_influences,
+            stats["vertex_count"],
+        )
         deformation_info = f" deformation={display_path(deformation_output_path, assets_dir)}"
     object_info = f" object={object_filter}" if object_filter else ""
     print(

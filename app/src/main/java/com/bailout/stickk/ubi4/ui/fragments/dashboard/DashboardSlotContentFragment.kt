@@ -1,5 +1,8 @@
 package com.bailout.stickk.ubi4.ui.fragments.dashboard
 
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +13,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -77,11 +81,29 @@ class DashboardSlotContentFragment : Fragment() {
                 commandName = "RESET_TO_FACTORY",
                 packet = BLECommandsV3.resetSlot(deviceAddress, dataCode)
             )
-            DashboardSlotContentAction.ResetAll -> sendCommand(
-                commandName = "RESET_TO_FACTORY_ALL",
-                packet = BLECommandsV3.resetAllSlots(deviceAddress)
-            )
+            DashboardSlotContentAction.ResetAll -> showResetAllConfirmationDialog()
         }
+    }
+
+    private fun showResetAllConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.ubi4_dialog_reset_all_slots, null)
+        val dialog = Dialog(requireContext()).apply {
+            setContentView(dialogView)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }
+
+        dialogView.findViewById<View>(R.id.ubi4DialogConfirmResetAllSlotsBtn)
+            .setOnClickListener {
+                sendCommand(
+                    commandName = "RESET_TO_FACTORY_ALL",
+                    packet = BLECommandsV3.resetAllSlots(deviceAddress)
+                )
+                dialog.dismiss()
+            }
+        dialogView.findViewById<View>(R.id.ubi4DialogCancelResetAllSlotsBtn)
+            .setOnClickListener { dialog.dismiss() }
     }
 
     private fun requestSlotContent() {

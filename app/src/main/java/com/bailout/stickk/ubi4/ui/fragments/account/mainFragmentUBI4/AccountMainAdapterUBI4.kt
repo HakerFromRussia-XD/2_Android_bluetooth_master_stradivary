@@ -12,7 +12,8 @@ import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 
 class AccountMainAdapterUBI4(
-    private val onAccountClickListener: OnAccountMainUBI4ClickListener
+    private val onAccountClickListener: OnAccountMainUBI4ClickListener,
+    private val showStatisticsItem: Boolean = false
 ) : ListAdapter<AccountMainUBI4Item, AccountMainAdapterUBI4.AccountViewHolder>(Diff)  {
 
     object Diff : DiffUtil.ItemCallback<AccountMainUBI4Item>() {
@@ -23,6 +24,7 @@ class AccountMainAdapterUBI4(
     inner class AccountViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val customerServiceBtn: View = view.findViewById(R.id.customerServiceClick)
         val prosthesisInformationBtn: View = view.findViewById(R.id.prosthesisInfoClick)
+        val statisticsItem: View = view.findViewById(R.id.statisticsItem)
         val fioTv: TextView = view.findViewById(R.id.ubi4_fio_tv) as TextView
 //        val applicationVersionNumTv: TextView = view.findViewById(R.id.ubi4_version_app_num_tv) as TextView
     }
@@ -39,6 +41,7 @@ class AccountMainAdapterUBI4(
         val item = getItem(position)
 
         holder.fioTv.text               = "${item.getName()} ${item.getSurname()}"
+        holder.statisticsItem.visibility = if (showStatisticsItem) View.VISIBLE else View.GONE
 //        holder.applicationVersionNumTv.text = BuildConfig.VERSION_NAME
 
         holder.customerServiceBtn.setOnClickListener {
@@ -46,6 +49,9 @@ class AccountMainAdapterUBI4(
         }
         holder.prosthesisInformationBtn.setOnClickListener {
             onAccountClickListener.onProsthesisInformationClicked()
+        }
+        holder.statisticsItem.setOnClickListener {
+            if (showStatisticsItem) onAccountClickListener.onStatisticsClicked()
         }
     }
 

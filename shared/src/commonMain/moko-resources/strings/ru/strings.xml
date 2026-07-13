@@ -529,6 +529,8 @@
 <string name="do_you_really_want_to_soft_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть настройки протеза к заводским? (состояния жестов и имя протеза не будут затронуты)</string>
 <string name="do_you_really_want_to_hard_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть все настройки протеза к заводским?</string>
 <string name="do_you_really_want_to_gesture_reset_your_prosthesis_to_factory_settings">Вы действительно хотите восстановить все жесты протеза к заводским?</string>
+<string name="reset_all_slots">Сброс всех слотов</string>
+<string name="are_you_sure_you_want_to_reset_all_slots">Вы уверены, что хотите сбросить все слоты до заводских настроек?</string>
 <string name="calibration_of_the_prosthesis">Калибровка протеза</string>
 <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Калибровка займёт примерно 15 секунд. Вы действительно хотите продолжить?</string>
 <string name="setting_the_serial_number_of_the_prosthesis">Установка серийного номера протеза</string>
@@ -549,6 +551,7 @@
 <string name="general">Главные</string>
 <string name="customer_service">Служба поддержки</string>
 <string name="prosthesis_information">Информация о протезе</string>
+<string name="statistics">Стаитистика</string>
 <string name="driver_version">Версия драйвера</string>
 <string name="software_information">Информация о версиях</string>
 <string name="bms_version">Версия БМС</string>

@@ -269,6 +269,8 @@
     <string name="smart_connection">smart connection</string>
     <string name="disconnection_from_the_device">Disconnection from the device</string>
     <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Are you sure you want to disconnect from your device and go to the scan screen?</string>
+    <string name="reset_all_slots">Reset all slots</string>
+    <string name="are_you_sure_you_want_to_reset_all_slots">Are you sure you want to reset all slots to factory settings?</string>
     <string name="got_it">Got it</string>
     <string name="availible_devices">AVAILIBLE DEVICES</string>
     <string name="paired_device">PAIRED DEVICE</string>
@@ -515,6 +517,7 @@
     <string name="general">General</string>
     <string name="customer_service">Customer service</string>
     <string name="prosthesis_information">Prosthesis information</string>
+    <string name="statistics">Statistics</string>
     <string name="driver_version">Driver version</string>
     <string name="software_information">Software information</string>
     <string name="bms_version">Bms version</string>

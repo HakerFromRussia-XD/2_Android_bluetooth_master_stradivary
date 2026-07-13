@@ -63,6 +63,9 @@ class SpinnerDelegateAdapterV3 (
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
     private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var pinDialog: Dialog? = null
+    private var showPinKeyboardRunnable: Runnable? = null
 
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
@@ -518,6 +521,7 @@ class SpinnerDelegateAdapterV3 (
         onSuccess: () -> Unit,
         onCancelOrFail: () -> Unit
     ) {
+        dismissPinCodeDialog()
         val dialogView = View.inflate(context, R.layout.ubi4_dialog_enter_pin, null)
         val dialog = Dialog(context).apply {
             setContentView(dialogView)
@@ -525,18 +529,26 @@ class SpinnerDelegateAdapterV3 (
             show()
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
+        pinDialog = dialog
+        dialog.setOnDismissListener {
+            clearPinDialogState(dialog)
+        }
 
         val pinView = dialog.findViewById<PasscodeView>(R.id.ubi4_pin_dialog_passcode_view)
         pinView.requestFocus()
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            pinView.showKeyboard()
-        }, 200)
+        val keyboardRunnable = Runnable {
+            if (pinDialog === dialog && dialog.isShowing) {
+                pinView.showKeyboard()
+            }
+        }
+        showPinKeyboardRunnable = keyboardRunnable
+        mainHandler.postDelayed(keyboardRunnable, 200)
 
         pinView.setPasscodeEntryListener { passcode ->
             val ok = passcode == SECRET_PIN
             hideKeyboard(context, pinView)
-            dialog.dismiss()
+            dismissPinCodeDialog()
 
             if (ok) {
                 Toast.makeText(
@@ -558,8 +570,24 @@ class SpinnerDelegateAdapterV3 (
         val cancelBtn = dialogView.findViewById<View>(R.id.ubi4_pin_dialog_cancel_click_area)
         cancelBtn.setOnClickListener {
             hideKeyboard(context, pinView)
-            dialog.dismiss()
+            dismissPinCodeDialog()
             onCancelOrFail()
+        }
+    }
+
+    private fun dismissPinCodeDialog() {
+        showPinKeyboardRunnable?.let(mainHandler::removeCallbacks)
+        showPinKeyboardRunnable = null
+        pinDialog?.setOnDismissListener(null)
+        pinDialog?.dismiss()
+        pinDialog = null
+    }
+
+    private fun clearPinDialogState(dialog: Dialog) {
+        showPinKeyboardRunnable?.let(mainHandler::removeCallbacks)
+        showPinKeyboardRunnable = null
+        if (pinDialog === dialog) {
+            pinDialog = null
         }
     }
 
@@ -635,6 +663,7 @@ class SpinnerDelegateAdapterV3 (
         else -> "spinner-$title"
     }
     fun onDestroy() {
+        dismissPinCodeDialog()
         spinnerInfoList.forEach { it.spinner.dismiss() }
         spinnerInfoList.clear()
         recyclerTouchListeners.forEach { (recycler, listener) ->

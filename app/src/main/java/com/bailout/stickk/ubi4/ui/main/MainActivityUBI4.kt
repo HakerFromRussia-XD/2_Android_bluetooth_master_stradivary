@@ -82,6 +82,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3.AccountFragmentStatisticsV3
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
@@ -403,6 +404,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             fragment = AccountFragmentProsthesisInformationUBI4(),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showAccountStatisticsScreen() {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = AccountFragmentStatisticsV3(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
         )
     }
 

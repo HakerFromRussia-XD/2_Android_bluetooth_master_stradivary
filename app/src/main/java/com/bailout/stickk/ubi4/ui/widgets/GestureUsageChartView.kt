@@ -129,10 +129,15 @@ class GestureUsageChartView @JvmOverloads constructor(
             entry: Entry?,
             dataSetIndex: Int,
             viewPortHandler: ViewPortHandler?
-        ): String = "${value.roundToInt()}%"
+        ): String {
+            if (value < MIN_VISIBLE_PERCENT) return ""
+            return "${value.roundToInt()}%"
+        }
     }
 
     companion object {
+        private const val MIN_VISIBLE_PERCENT = 3f
+
         private val DEFAULT_COLORS = intArrayOf(
             Color.rgb(198, 241, 88),
             Color.rgb(10, 132, 255),

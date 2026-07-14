@@ -38,7 +38,7 @@ public final class Load3DModelFesth3 {
     private static final int DEFORMATION_HEADER_BYTES = 16;
     private static final int DEFORMATION_MODEL_VERSION_LEGACY = 1;
     private static final int DEFORMATION_MODEL_VERSION_SELECTION = 2;
-    private static final int DEFORMATION_INFLUENCE_COUNT = 5;
+    private static final int DEFORMATION_INFLUENCE_COUNT = 6;
     private static final byte BINARY_MAGIC_0 = 'V';
     private static final byte BINARY_MAGIC_1 = '3';
     private static final byte BINARY_MAGIC_2 = 'M';
@@ -867,15 +867,18 @@ public final class Load3DModelFesth3 {
         if (tops == null) {
             throw new JSONException("Missing V3 deformation.tops for part `" + partId + "`");
         }
+        boolean hasAnyTop = false;
         boolean hasIndex = false;
         boolean hasMiddle = false;
         boolean hasRing = false;
         boolean hasLittle = false;
+        boolean hasThumb = false;
         for (int i = 0; i < tops.length(); i++) {
             JSONObject top = tops.getJSONObject(i);
             String finger = requiredString(top, "finger", partId + ".deformation.tops");
             String transformId = requiredString(top, "transformId", partId + ".deformation.tops." + finger);
             validateTransformId(transformId, partId);
+            hasAnyTop = true;
             switch (finger) {
                 case "index":
                     if (hasIndex) {
@@ -905,12 +908,19 @@ public final class Load3DModelFesth3 {
                     hasLittle = true;
                     transformIdsByInfluence[4] = transformId;
                     break;
+                case "thumb":
+                    if (hasThumb) {
+                        throw new JSONException("Duplicate thumb top deformation for part `" + partId + "`");
+                    }
+                    hasThumb = true;
+                    transformIdsByInfluence[5] = transformId;
+                    break;
                 default:
                     throw new JSONException("Unsupported deformation finger `" + finger + "` for part `" + partId + "`");
             }
         }
-        if (!hasIndex || !hasMiddle || !hasRing || !hasLittle) {
-            throw new JSONException("V3 deformation part `" + partId + "` must define index, middle, ring and little tops");
+        if (!hasAnyTop) {
+            throw new JSONException("V3 deformation part `" + partId + "` must define at least one top anchor");
         }
         return new DeformationSpec(type, transformIdsByInfluence);
     }
@@ -930,6 +940,7 @@ public final class Load3DModelFesth3 {
             case "middle_upper":
             case "ring_upper":
             case "little_upper":
+            case "thumb_upper":
                 return;
             default:
                 throw new JSONException("Unsupported V3 deformation transformId `" + transformId

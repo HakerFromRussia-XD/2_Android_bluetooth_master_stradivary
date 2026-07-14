@@ -22,14 +22,15 @@ UV_EPSILON = 0.000001
 COORDINATE_KEY_DECIMALS = 6
 DEFORMATION_MAGIC = b"V3DF"
 DEFORMATION_VERSION = 2
-DEFORMATION_INFLUENCE_COUNT = 5
-INFLUENCE_ORDER = ("palm", "index", "middle", "ring", "little")
+DEFORMATION_INFLUENCE_COUNT = 6
+INFLUENCE_ORDER = ("palm", "index", "middle", "ring", "little", "thumb")
 SUPPORTED_TRANSFORM_IDS = {
     "palm_base",
     "index_upper",
     "middle_upper",
     "ring_upper",
     "little_upper",
+    "thumb_upper",
 }
 
 
@@ -404,10 +405,10 @@ def build_indexed_deformable_buffers(
     selection_resolver,
 ) -> tuple[list[float], list[int], int, list[float], list[int]]:
     records: list[IndexedVertex] = []
-    deformation_weights_by_vertex: list[tuple[float, float, float, float, float]] = []
+    deformation_weights_by_vertex: list[tuple[float, ...]] = []
     selection_influence_by_vertex: list[int] = []
     indexes_by_ref_and_weights: dict[
-        tuple[tuple[int, int, int], tuple[float, float, float, float, float], int],
+        tuple[tuple[int, int, int], tuple[float, ...], int],
         int,
     ] = {}
     indices: list[int] = []
@@ -578,7 +579,7 @@ def append_vertex(
     texture: tuple[float, float],
     tangent: tuple[float, float, float],
     bitangent: tuple[float, float, float],
-    weights: tuple[float, float, float, float, float] | None,
+    weights: tuple[float, ...] | None,
 ) -> None:
     vertex_index = len(vertices) // FLOATS_PER_VERTEX
     vertices.extend(
@@ -628,13 +629,12 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
     tops = deformation.get("tops")
     if not isinstance(tops, list):
         raise ValueError("deformation.tops must be an array")
-    expected_fingers = ("index", "middle", "ring", "little")
     tops_by_finger = {}
     for top in tops:
         if not isinstance(top, dict):
             raise ValueError("Each deformation.tops item must be an object")
         finger = required_string(top, "finger", "deformation.tops")
-        if finger not in expected_fingers:
+        if finger not in INFLUENCE_ORDER or finger == "palm":
             raise ValueError(f"Unsupported deformation finger `{finger}`")
         if finger in tops_by_finger:
             raise ValueError(f"Duplicate deformation finger `{finger}`")
@@ -647,14 +647,13 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
             transform_id=transform_id,
             influence_index=INFLUENCE_ORDER.index(finger),
         )
-    missing = [finger for finger in expected_fingers if finger not in tops_by_finger]
-    if missing:
-        raise ValueError(f"Missing deformation top anchors for: {', '.join(missing)}")
+    if not tops_by_finger:
+        raise ValueError("deformation.tops must define at least one top anchor")
 
     return DeformationSpec(
         bottom_group=bottom_group,
         bottom_transform_id=bottom_transform_id,
-        tops=tuple(tops_by_finger[finger] for finger in expected_fingers),
+        tops=tuple(tops_by_finger[finger] for finger in INFLUENCE_ORDER if finger in tops_by_finger),
         falloff=falloff,
     )
 
@@ -738,7 +737,7 @@ def create_deformation_resolvers(
         for coordinate_index in group_coordinates[soft_group]:
             soft_groups_by_coordinate_key.setdefault(coordinate_key(coordinates[coordinate_index]), []).append(soft_group)
 
-    def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, float, float, float, float]:
+    def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, ...]:
         top, bottom_center, axis, axis_length_sq, _, _ = soft_axes[group]
         coordinate = coordinate_by_key[key]
         projection = dot(
@@ -760,7 +759,7 @@ def create_deformation_resolvers(
         weights[top.influence_index] = t
         return tuple(weights)  # type: ignore[return-value]
 
-    shared_soft_weights: dict[tuple[float, float, float], tuple[float, float, float, float, float]] = {}
+    shared_soft_weights: dict[tuple[float, float, float], tuple[float, ...]] = {}
     for key, soft_groups in soft_groups_by_coordinate_key.items():
         if len(soft_groups) < 2 or key in anchored_soft_keys:
             continue
@@ -770,10 +769,12 @@ def create_deformation_resolvers(
             for influence in range(DEFORMATION_INFLUENCE_COUNT)
         )  # type: ignore[assignment]
 
-    def weights_for(face: Face, coordinate_index: int) -> tuple[float, float, float, float, float]:
+    palm_weights = tuple(1.0 if influence == 0 else 0.0 for influence in range(DEFORMATION_INFLUENCE_COUNT))
+
+    def weights_for(face: Face, coordinate_index: int) -> tuple[float, ...]:
         group = resolved_groups[face]
         if group == spec.bottom_group:
-            return 1.0, 0.0, 0.0, 0.0, 0.0
+            return palm_weights
         top = top_by_group.get(group)
         if top:
             weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
@@ -782,7 +783,7 @@ def create_deformation_resolvers(
         top, bottom_center, axis, axis_length_sq, bottom_locked_keys, top_locked_keys = soft_axes[group]
         key = coordinate_key(coordinates[coordinate_index])
         if key in bottom_locked_keys:
-            return 1.0, 0.0, 0.0, 0.0, 0.0
+            return palm_weights
         if key in top_locked_keys:
             weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
             weights[top.influence_index] = 1.0

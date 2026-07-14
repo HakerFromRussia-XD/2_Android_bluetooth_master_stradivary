@@ -101,16 +101,18 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private final float[] accumulatedRotationRingFinger2 = new float[16];
 	private final float[] accumulatedRotationLittleFinger = new float[16];
 	private final float[] accumulatedRotationLittleFinger2 = new float[16];
+	private final float[] accumulatedRotationBigFingerSecondPhalanx = new float[16];
 	private final float[] accumulatedRotationGeneral = new float[16];
 	private final float[] currentRotation = new float[16];
 	private final float[] lightModelMatrix = new float[16];
 	private final float[] temporaryMatrix = new float[16];
-	private final float[][] deformationAnchorMatrices = new float[5][16];
-	private final float[][] deformationInverseBindMatrices = new float[5][16];
-	private final float[][] deformationSkinMatrices = new float[5][16];
+	private final float[][] deformationAnchorMatrices = new float[6][16];
+	private final float[][] deformationInverseBindMatrices = new float[6][16];
+	private final float[][] deformationSkinMatrices = new float[6][16];
 	private final float[] deformationBaseMatrix = new float[16];
 	private final float[] deformationInverseBaseMatrix = new float[16];
 	private final float[] deformationScratchMatrix = new float[16];
+	private final float[] thumbFirstPhalanxMatrix = new float[16];
 	private boolean deformationBindMatricesCaptured = false;
 
 	/** OpenGL handles to our program uniforms. */
@@ -187,17 +189,19 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float METAL_RIM_LIGHT_STRENGTH = 1.08f;
 	private static final float[] METAL_FILL_LIGHT_DIRECTION = new float[] { -0.74f, 0.46f, 0.49f };
 	private static final float[] METAL_RIM_LIGHT_DIRECTION = new float[] { 0.78f, 0.44f, -0.45f };
-	private static final int DEFORMATION_INFLUENCE_COUNT = 5;
+	private static final int DEFORMATION_INFLUENCE_COUNT = 6;
 	private static final int DEFORMATION_MATRIX_PALM = 0;
 	private static final int DEFORMATION_MATRIX_INDEX = 1;
 	private static final int DEFORMATION_MATRIX_MIDDLE = 2;
 	private static final int DEFORMATION_MATRIX_RING = 3;
 	private static final int DEFORMATION_MATRIX_LITTLE = 4;
+	private static final int DEFORMATION_MATRIX_THUMB = 5;
 	private static final String TRANSFORM_PALM_BASE = "palm_base";
 	private static final String TRANSFORM_INDEX_UPPER = "index_upper";
 	private static final String TRANSFORM_MIDDLE_UPPER = "middle_upper";
 	private static final String TRANSFORM_RING_UPPER = "ring_upper";
 	private static final String TRANSFORM_LITTLE_UPPER = "little_upper";
+	private static final String TRANSFORM_THUMB_UPPER = "thumb_upper";
 	private static final int DEFORMATION_INFLUENCE_NONE = -1;
 	private static final float DEFORMATION_FINGER_WEIGHT_EPSILON = 0.0001f;
 	private static final float SELECT_PICK_CODE_SCALE = 1.0f / 255.0f;
@@ -269,16 +273,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int angleBigFingerInt1 = 0;
 	private int lastAngleBigFingerInt1 = 0;
 	private int angleBigFingerTransfer1 = 0;
-	private float angleBigFingerFloat2 = 0;//90
+	private float angleBigFingerFloat2 = -34;//90
 	private int angleBigFingerInt2 = 0;
-	private int lastAngleBigFingerInt2 = 0;
-	private int angleBigFingerTransfer2 = 0;
+	private int lastAngleBigFingerInt2 = -34;
+	private int angleBigFingerTransfer2 = -34;
+	private float angleBigFingerSecondPhalanxFloat = 0;
+	private int angleBigFingerSecondPhalanxInt = 0;
+	private int lastAngleBigFingerSecondPhalanxInt = 0;
+	private int angleBigFingerSecondPhalanxTransfer = 0;
 	private float angle90 = 90;
 	private float angle95 = 95;
 	private static final int BIG_FINGER_FIRST_AXIS_MIN = -35;
 	private static final int BIG_FINGER_FIRST_AXIS_MAX = 49;
-	private static final int BIG_FINGER_SECOND_AXIS_MIN = 0;
-	private static final int BIG_FINGER_SECOND_AXIS_MAX = 90;
+	private static final int BIG_FINGER_SECOND_AXIS_MIN = -68;//-34
+	private static final int BIG_FINGER_SECOND_AXIS_MAX = 22;//56
+	private static final int BIG_FINGER_SECOND_PHALANX_MIN = -25;
+	private static final int BIG_FINGER_SECOND_PHALANX_MAX = 20;
 	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = 34.0f;
 	private final boolean emitFingerAngleUpdates;
 	private final long rendererCreatedAtMs;
@@ -372,6 +382,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (TRANSFORM_LITTLE_UPPER.equals(transformId)) {
 			return DEFORMATION_MATRIX_LITTLE;
 		}
+		if (TRANSFORM_THUMB_UPPER.equals(transformId)) {
+			return DEFORMATION_MATRIX_THUMB;
+		}
 		return -1;
 	}
 
@@ -385,6 +398,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				return DEFORMATION_MATRIX_MIDDLE;
 			case SELECT_FINGER_4:
 				return DEFORMATION_MATRIX_INDEX;
+			case SELECT_FINGER_5:
+				return DEFORMATION_MATRIX_THUMB;
 			default:
 				return DEFORMATION_INFLUENCE_NONE;
 		}
@@ -408,7 +423,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	@SuppressLint("InlinedApi")
 		@Override
-		public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
 			surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
 			deformationBindMatricesCaptured = false;
 			V3ModelLoadMetrics.init(fragmentGripperSettings);
@@ -522,6 +537,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.setIdentityM(accumulatedRotationRingFinger2, 0);
 		Matrix.setIdentityM(accumulatedRotationLittleFinger, 0);
 		Matrix.setIdentityM(accumulatedRotationLittleFinger2, 0);
+		Matrix.setIdentityM(accumulatedRotationBigFingerSecondPhalanx, 0);
 			Matrix.setIdentityM(accumulatedRotationGeneral, 0);
 			selectStation = SelectStation.UNSELECTED_OBJECT;
 			V3ModelLoadMetrics.log("surfaceCreated end totalMs=" + elapsedSince(surfaceCreatedStartedAtMs)
@@ -1865,11 +1881,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
 		}
-		Matrix.translateM(modelMatrix, 0, 56.0f, 18.0f, 28.0f);
+		Matrix.translateM(modelMatrix, 0, 40.0f, 18.0f, 28.0f);
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
 			angleBigFingerTransfer1 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5();
+			angleBigFingerSecondPhalanxTransfer = angleFromPercent(
+					angleBigFingerTransfer1,
+					BIG_FINGER_SECOND_PHALANX_MIN,
+					BIG_FINGER_SECOND_PHALANX_MAX
+			);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
@@ -1883,9 +1904,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			angleBigFingerInt1 = lastAngleBigFingerInt1 - angleBigFingerTransfer1;
 			lastAngleBigFingerInt1 = angleBigFingerTransfer1;
 			angleBigFingerFloat1 = angleBigFingerTransfer1;
+			angleBigFingerSecondPhalanxInt = lastAngleBigFingerSecondPhalanxInt - angleBigFingerSecondPhalanxTransfer;
+			lastAngleBigFingerSecondPhalanxInt = angleBigFingerSecondPhalanxTransfer;
+			angleBigFingerSecondPhalanxFloat = angleBigFingerSecondPhalanxTransfer;
+			accumulateBigFingerSecondPhalanxRotation();
 		} else {
 			Matrix.setIdentityM(currentRotation, 0);
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
+				float bigFingerDeltaY = deltaY;
 				angleBigFingerFloat1 += deltaY;
 				if((angleBigFingerFloat1 < BIG_FINGER_FIRST_AXIS_MIN || angleBigFingerFloat1 > BIG_FINGER_FIRST_AXIS_MAX)) {
 					angleBigFingerFloat1 -= deltaY;
@@ -1904,6 +1930,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					}
 				angleBigFingerInt1 = lastAngleBigFingerInt1 - angleBigFingerTransfer1;
 				lastAngleBigFingerInt1 = angleBigFingerTransfer1;
+				updateBigFingerSecondPhalanxFromDelta(bigFingerDeltaY);
+				accumulateBigFingerSecondPhalanxRotation();
 				deltaY = 0;
 			}
 		}
@@ -1916,7 +1944,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.translateM(temporaryMatrix, 0, 0, 20.0f, 0.0f);
 		} else {
-			Matrix.translateM(temporaryMatrix, 0, 0, -20.0f, 0.0f);
+			Matrix.translateM(temporaryMatrix, 0, 0, -15.0f, 0.0f);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1924,7 +1952,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** поворот вокруг второй оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6()) {
-			angleBigFingerTransfer2 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6();
+			angleBigFingerTransfer2 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6() + BIG_FINGER_SECOND_AXIS_MIN;
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
@@ -1980,7 +2008,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
 			Matrix.translateM(temporaryMatrix, 0, -56.0f, -2.0f, -28.0f);
 		} else {
-			Matrix.translateM(temporaryMatrix, 0, -56.0f, 2.0f, -28.0f);
+			Matrix.translateM(temporaryMatrix, 0, -40.0f, -3.0f, -28.0f);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
@@ -1999,8 +2027,23 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+		storeDeformationAnchorMatrix(TRANSFORM_THUMB_UPPER);
+		System.arraycopy(modelMatrix, 0, thumbFirstPhalanxMatrix, 0, 16);
 		renderPlasticPart(shaderMassiv[0], 7, 16, modelParts("thumb_plastic", 0));
+		renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
+		renderChromeMetalPart(shaderMassiv[0], modelParts("thumb_first_metal"));
 
+		System.arraycopy(thumbFirstPhalanxMatrix, 0, modelMatrix, 0, 16);
+		Matrix.setIdentityM(temporaryMatrix, 0);
+		Matrix.translateM(temporaryMatrix, 0, 30.0f, 0.0f, 0.0f);
+		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationBigFingerSecondPhalanx, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+		Matrix.setIdentityM(temporaryMatrix, 0);
+		Matrix.translateM(temporaryMatrix, 0, -30.0f, 0.0f, 0.0f);
+		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -2011,7 +2054,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 			glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-			renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
+			renderChromeMetalPart(shaderMassiv[0], modelParts("thumb_second_metal"));
 			renderChromeMetalPart(shaderMassiv[0], modelParts("thumb_crown_metal", 2, 3));
 			renderRubberPart(shaderMassiv[0], 3, -1, modelParts("thumb_rubber", 0));
 
@@ -2139,6 +2182,32 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		return 100 - ((int) ((float) (angle - minAngle) / (maxAngle - minAngle) * 100));
 	}
 
+	private int angleFromPercent(int percent, int minAngle, int maxAngle) {
+		return ((100 - percent) * (maxAngle - minAngle) / 100) + minAngle;
+	}
+
+	private void updateBigFingerSecondPhalanxFromDelta(float delta) {
+		angleBigFingerSecondPhalanxFloat += delta;
+		if (angleBigFingerSecondPhalanxFloat < BIG_FINGER_SECOND_PHALANX_MIN
+				|| angleBigFingerSecondPhalanxFloat > BIG_FINGER_SECOND_PHALANX_MAX) {
+			angleBigFingerSecondPhalanxFloat -= delta;
+		}
+		angleBigFingerSecondPhalanxTransfer = (int) angleBigFingerSecondPhalanxFloat;
+		angleBigFingerSecondPhalanxInt = lastAngleBigFingerSecondPhalanxInt - angleBigFingerSecondPhalanxTransfer;
+		lastAngleBigFingerSecondPhalanxInt = angleBigFingerSecondPhalanxTransfer;
+	}
+
+	private void accumulateBigFingerSecondPhalanxRotation() {
+		Matrix.setIdentityM(currentRotation, 0);
+		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
+			rotateBigFingerSecondPhalanx(currentRotation, angleBigFingerSecondPhalanxInt);
+		} else {
+			rotateBigFingerSecondPhalanx(currentRotation, -angleBigFingerSecondPhalanxInt);
+		}
+		Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationBigFingerSecondPhalanx, 0);
+		System.arraycopy(temporaryMatrix, 0, accumulatedRotationBigFingerSecondPhalanx, 0, 16);
+	}
+
 	private void rotateBigFingerFirstAxis(float[] targetMatrix, float angle) {
 		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
@@ -2149,6 +2218,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
+	}
+
+	private void rotateBigFingerSecondPhalanx(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
 	}
 
 	class HeightMap {
@@ -2418,6 +2491,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					return 2;
 				case DEFORMATION_MATRIX_LITTLE:
 					return 1;
+				case DEFORMATION_MATRIX_THUMB:
+					return 5;
 				default:
 					return 0;
 			}

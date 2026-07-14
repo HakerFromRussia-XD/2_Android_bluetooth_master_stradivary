@@ -3,22 +3,22 @@
   "format": "V3PB",
   "allowLegacyFallbacks": false,
   "bundle": {
-    "asset": "STR2_V3_BIN/festh3_test6.v3bin",
-    "source": "STR2_V3/festh3_test6.obj",
+    "asset": "STR2_V3_BIN/festh3_test7.v3bin",
+    "source": "STR2_V3/festh3_test7.obj",
     "splitBy": "object",
-    "excludeObjects": ["gofra_1_part_12"]
+    "excludeObjects": ["gofra_1_part_12", "gofra_2_patr_6"]
   },
   "parts": [
     {
       "partId": "gofra_1_deformable",
-      "asset": "STR2_V3/festh3_test6.obj",
-      "binaryAsset": "STR2_V3_BIN/festh3_test6_gofra_1.v3bin",
+      "asset": "STR2_V3/festh3_test7.obj",
+      "binaryAsset": "STR2_V3_BIN/festh3_test7_gofra_1.v3bin",
       "object": "gofra_1_part_12",
       "groups": ["deformable_rubber"],
       "deformation": {
         "type": "multi_top_one_bottom",
         "falloff": "ease_in",
-        "asset": "STR2_V3_BIN/festh3_test6_gofra_1.v3def",
+        "asset": "STR2_V3_BIN/festh3_test7_gofra_1.v3def",
         "bottom": {
           "faceGroup": "gofra_1_base",
           "transformId": "palm_base"
@@ -50,6 +50,30 @@
           }
         ]
       }
+    },
+    {
+      "partId": "gofra_2_deformable",
+      "asset": "STR2_V3/festh3_test7.obj",
+      "binaryAsset": "STR2_V3_BIN/festh3_test7_gofra_2.v3bin",
+      "object": "gofra_2_patr_6",
+      "groups": ["deformable_rubber"],
+      "deformation": {
+        "type": "multi_top_one_bottom",
+        "falloff": "ease_in",
+        "asset": "STR2_V3_BIN/festh3_test7_gofra_2.v3def",
+        "bottom": {
+          "faceGroup": "gofra_2_base",
+          "transformId": "palm_base"
+        },
+        "tops": [
+          {
+            "finger": "thumb",
+            "topFaceGroup": "gofra_2_thumb_top",
+            "softFaceGroup": "gofra_2_thumb_soft",
+            "transformId": "thumb_upper"
+          }
+        ]
+      }
     }
   ],
   "groups": {
@@ -76,6 +100,8 @@
     "thumb_plastic": ["falangi_2_part_21"],
     "thumb_gray_metal": ["falangi_2_part_22"],
     "thumb_crown_metal": ["part_11"],
+    "thumb_first_metal": ["part_34"],
+    "thumb_second_metal": ["part_35"],
     "thumb_rubber": ["part_5"],
     "thumb_crown_metal_left": [],
 
@@ -83,8 +109,8 @@
     "base_rubber": ["rubber_1_part_23"],
     "base_chrome": [],
 
-    "gofra_static": ["gofra_2_patr_6"],
-    "deformable_rubber": ["gofra_1_deformable"],
+    "gofra_static": [],
+    "deformable_rubber": ["gofra_1_deformable", "gofra_2_deformable"],
     "selection_surface": ["palm_1_part_24"]
   }
 }

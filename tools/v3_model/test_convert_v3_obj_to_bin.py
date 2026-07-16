@@ -10,7 +10,11 @@ from pathlib import Path
 
 from tools.v3_model.convert_v3_obj_to_bin import adapt_volume_rod_centerline
 from tools.v3_model.convert_v3_obj_to_bin import build_harmonic_surface_progress
+from tools.v3_model.convert_v3_obj_to_bin import Face
+from tools.v3_model.convert_v3_obj_to_bin import limit_volume_rod_triangle_progress_jumps
 from tools.v3_model.convert_v3_obj_to_bin import match_volume_rod_reference_progress
+from tools.v3_model.convert_v3_obj_to_bin import regularize_volume_rod_reference_progress
+from tools.v3_model.convert_v3_obj_to_bin import resample_volume_rod_centerline
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -368,6 +372,94 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
         self.assertAlmostEqual(0.42, matched[current_key])
         self.assertNotIn(unmatched_key, matched)
 
+    def test_reference_regularization_reduces_neighbor_weight_jump(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        first = (1.0, 0.0, 0.0)
+        second = (2.0, 0.0, 0.0)
+        top = (3.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {first: 1.0},
+            first: {bottom: 1.0, second: 1.0},
+            second: {first: 1.0, top: 1.0},
+            top: {second: 1.0},
+        }
+        initial = {bottom: 0.0, first: 0.8, second: 0.9, top: 1.0}
+
+        progress = regularize_volume_rod_reference_progress(
+            adjacency,
+            {bottom},
+            {top},
+            initial,
+            {first: 0.8, second: 0.9},
+            0.02,
+        )
+
+        initial_maximum_jump = max(
+            abs(initial[key] - initial[neighbor])
+            for key, neighbors in adjacency.items()
+            for neighbor in neighbors
+        )
+        regularized_maximum_jump = max(
+            abs(progress[key] - progress[neighbor])
+            for key, neighbors in adjacency.items()
+            for neighbor in neighbors
+        )
+        self.assertLess(regularized_maximum_jump, initial_maximum_jump)
+        self.assertEqual(0.0, progress[bottom])
+        self.assertEqual(1.0, progress[top])
+
+    def test_triangle_progress_limiter_preserves_anchors_and_caps_jump(self) -> None:
+        coordinates = [
+            (0.0, 0.0, 0.0),
+            (1.0, 0.0, 0.0),
+            (2.0, 0.0, 0.0),
+            (3.0, 0.0, 0.0),
+            (0.5, 1.0, 0.0),
+            (1.5, 1.0, 0.0),
+            (2.5, 1.0, 0.0),
+        ]
+        triangle_indexes = (
+            (0, 1, 4),
+            (1, 5, 4),
+            (1, 2, 5),
+            (2, 6, 5),
+            (2, 3, 6),
+        )
+        faces = [
+            Face(
+                refs=tuple((index, -1, -1) for index in triangle),
+                labels=frozenset({"soft"}),
+                line_number=line_number,
+                object_name="soft",
+            )
+            for line_number, triangle in enumerate(triangle_indexes, 1)
+        ]
+        keys = [tuple(coordinate) for coordinate in coordinates]
+        initial = {
+            keys[0]: 0.0,
+            keys[1]: 0.8,
+            keys[2]: 0.9,
+            keys[3]: 1.0,
+            keys[4]: 0.4,
+            keys[5]: 0.85,
+            keys[6]: 0.95,
+        }
+
+        progress = limit_volume_rod_triangle_progress_jumps(
+            coordinates,
+            faces,
+            {keys[0]},
+            {keys[3]},
+            initial,
+            0.4,
+        )
+
+        self.assertEqual(0.0, progress[keys[0]])
+        self.assertEqual(1.0, progress[keys[3]])
+        for triangle in triangle_indexes:
+            triangle_progress = [progress[keys[index]] for index in triangle]
+            self.assertLessEqual(max(triangle_progress) - min(triangle_progress), 0.4000001)
+
     def test_reference_centerline_is_adapted_to_new_anchors(self) -> None:
         centerline = adapt_volume_rod_centerline(
             (
@@ -383,6 +475,26 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
         self.assertEqual((0.0, 1.0, 0.0), centerline[0])
         self.assertEqual((2.0, 2.0, 0.0), centerline[1])
         self.assertEqual((4.0, 3.0, 0.0), centerline[2])
+
+    def test_centerline_is_resampled_to_uniform_segment_lengths(self) -> None:
+        centerline = resample_volume_rod_centerline(
+            [
+                (0.0, 0.0, 0.0),
+                (4.0, 0.0, 0.0),
+                (4.0, 2.0, 0.0),
+            ],
+            3,
+        )
+
+        self.assertEqual(
+            [
+                (0.0, 0.0, 0.0),
+                (2.0, 0.0, 0.0),
+                (4.0, 0.0, 0.0),
+                (4.0, 2.0, 0.0),
+            ],
+            centerline,
+        )
 
     def test_current_v3_manifest_converts_without_deformation_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

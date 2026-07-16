@@ -222,6 +222,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float VOLUME_ROD_PALM_STRAIN_BLEND = 0.35f;
 	private static final float VOLUME_ROD_FINGER_STRAIN_BLEND = VOLUME_ROD_ANCHOR_BLEND;
 	private static final float VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE = 1.85f;
+	private static final int VOLUME_ROD_STRETCH_SMOOTHING_PASSES = 3;
+	private static final int VOLUME_ROD_COMPRESSION_SMOOTHING_PASSES = 7;
+	private static final float VOLUME_ROD_COMPRESSION_RADIAL_GAIN = 0.05f;
+	private static final float VOLUME_ROD_MAX_COMPRESSION_RADIAL_SCALE = 1.04f;
+	private static final float VOLUME_ROD_MAX_COMPRESSION_COMBINED_RADIAL_SCALE = 1.15f;
 	private static final float SELECT_PICK_CODE_SCALE = 1.0f / 255.0f;
 	private static final float[] DEFORMABLE_COLOR_WHITE = {1.0f, 1.0f, 1.0f, 1.0f};
 	private static final float RUBBER_SPECULAR_FACTOR = 1.5f;
@@ -2346,6 +2351,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			final float[] restSegmentLengths;
 			final float[] segmentAxialScales;
 			final float[] segmentRadialScales;
+			final float[] segmentScaleScratch;
 			final float totalRestLength;
 			final float restChordLength;
 			final float[] bottomReal = new float[4];
@@ -2391,6 +2397,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				restSegmentLengths = new float[nodeCount - 1];
 				segmentAxialScales = new float[nodeCount - 1];
 				segmentRadialScales = new float[nodeCount - 1];
+				segmentScaleScratch = new float[nodeCount - 1];
 				computePolylineTangents(data.volumeRodCenterline, restTangents, restSegmentLengths);
 				float resolvedRestLength = 0.0f;
 				for (float segmentLength : restSegmentLengths) {
@@ -2856,10 +2863,54 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							VOLUME_ROD_MAX_AXIAL_SCALE
 					);
 					runtime.segmentAxialScales[segment] = axialScale;
+				}
+				int smoothingPasses = currentChordLength < runtime.restChordLength
+						? VOLUME_ROD_COMPRESSION_SMOOTHING_PASSES
+						: VOLUME_ROD_STRETCH_SMOOTHING_PASSES;
+				smoothVolumeRodSegmentScales(runtime, smoothingPasses);
+				for (int segment = 0; segment < runtime.nodeCount - 1; segment++) {
+					float axialScale = runtime.segmentAxialScales[segment];
 					float volumeScale = (float) Math.sqrt(1.0f / axialScale);
+					if (axialScale < 1.0f) {
+						volumeScale = lerpVolumeRod(
+								1.0f,
+								volumeScale,
+								VOLUME_ROD_COMPRESSION_RADIAL_GAIN
+						);
+						volumeScale = Math.min(
+								volumeScale,
+								VOLUME_ROD_MAX_COMPRESSION_RADIAL_SCALE
+						);
+					}
 					runtime.segmentRadialScales[segment] = Math.max(
 							VOLUME_ROD_MIN_RADIAL_SCALE,
 							volumeScale
+					);
+				}
+			}
+
+			private void smoothVolumeRodSegmentScales(
+					VolumeRodRuntime runtime,
+					int smoothingPasses
+			) {
+				for (int pass = 0; pass < smoothingPasses; pass++) {
+					for (int segment = 0; segment < runtime.segmentAxialScales.length; segment++) {
+						float current = runtime.segmentAxialScales[segment];
+						float previous = segment > 0
+								? runtime.segmentAxialScales[segment - 1]
+								: current;
+						float next = segment + 1 < runtime.segmentAxialScales.length
+								? runtime.segmentAxialScales[segment + 1]
+								: current;
+						runtime.segmentScaleScratch[segment] = previous * 0.25f
+								+ current * 0.5f + next * 0.25f;
+					}
+					System.arraycopy(
+							runtime.segmentScaleScratch,
+							0,
+							runtime.segmentAxialScales,
+							0,
+							runtime.segmentAxialScales.length
 					);
 				}
 			}
@@ -2955,9 +3006,12 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				);
 				float requestedStrainScale = 1.0f + VOLUME_ROD_BENDING_STRAIN_GAIN
 						* bendAmount * strainBlend;
+				float maximumCombinedRadialScale = axialScale < 1.0f
+						? VOLUME_ROD_MAX_COMPRESSION_COMBINED_RADIAL_SCALE
+						: VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE;
 				float maximumStrainScale = Math.max(
 						1.0f,
-						VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE / runtime.frameScalars[1]
+						maximumCombinedRadialScale / runtime.frameScalars[1]
 				);
 				runtime.frameScalars[3] = Math.min(requestedStrainScale, maximumStrainScale);
 			}

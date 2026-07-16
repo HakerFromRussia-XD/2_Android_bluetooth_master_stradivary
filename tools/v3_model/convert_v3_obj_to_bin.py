@@ -29,6 +29,7 @@ HARMONIC_PATH_RELAXATION = 1.75
 HARMONIC_PATH_TOLERANCE = 0.0000001
 HARMONIC_PATH_MAX_ITERATIONS = 10000
 VOLUME_ROD_REFERENCE_POSITION_TOLERANCE = 0.0001
+VOLUME_ROD_REFERENCE_RELAXATION = 1.2
 DEFORMATION_MAGIC = b"V3DF"
 DEFORMATION_VERSION = 2
 DEFORMATION_VOLUME_ROD_VERSION = 3
@@ -120,6 +121,7 @@ class VolumeRodReferenceSpec:
     binary_asset: str
     deformation_asset: str
     reuse_centerline: bool
+    reference_tether: float
 
 
 @dataclass(frozen=True)
@@ -131,6 +133,8 @@ class DeformationSpec:
     falloff: str
     rod_sections: int
     rod_progress_mode: str
+    rod_uniform_centerline_spacing: bool
+    rod_maximum_triangle_section_span: float | None
     rod_reference: VolumeRodReferenceSpec | None
 
     @property
@@ -151,6 +155,7 @@ class VolumeRodData:
 class VolumeRodReferenceData:
     progress_by_key: dict[tuple[float, float, float], float]
     centerline: tuple[tuple[float, float, float], ...] | None
+    reference_tether: float
 
 
 def parse_args() -> argparse.Namespace:
@@ -1166,6 +1171,20 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         VOLUME_ROD_PROGRESS_HARMONIC_PATHS,
     }:
         raise ValueError(f"Unsupported volume rod progressMode `{rod_progress_mode}`")
+    rod_uniform_centerline_spacing = bool(
+        deformation.get("uniformCenterlineSpacing", False)
+    )
+    raw_maximum_triangle_section_span = deformation.get("maximumTriangleSectionSpan")
+    rod_maximum_triangle_section_span = (
+        float(raw_maximum_triangle_section_span)
+        if raw_maximum_triangle_section_span is not None
+        else None
+    )
+    if (
+        rod_maximum_triangle_section_span is not None
+        and rod_maximum_triangle_section_span <= 0.0
+    ):
+        raise ValueError("deformation.maximumTriangleSectionSpan must be positive")
 
     rod_reference = None
     raw_rod_reference = deformation.get("progressReference")
@@ -1188,7 +1207,10 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
                 "deformation.progressReference",
             ),
             reuse_centerline=bool(raw_rod_reference.get("reuseCenterline", False)),
+            reference_tether=float(raw_rod_reference.get("referenceTether", 1.0)),
         )
+        if rod_reference.reference_tether <= 0.0:
+            raise ValueError("deformation.progressReference.referenceTether must be positive")
 
     return DeformationSpec(
         type=deformation_type,
@@ -1198,6 +1220,8 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         falloff=falloff,
         rod_sections=rod_sections,
         rod_progress_mode=rod_progress_mode,
+        rod_uniform_centerline_spacing=rod_uniform_centerline_spacing,
+        rod_maximum_triangle_section_span=rod_maximum_triangle_section_span,
         rod_reference=rod_reference,
     )
 
@@ -1303,6 +1327,8 @@ def create_deformation_resolvers(
             top_locked_keys,
             spec.rod_sections,
             spec.rod_progress_mode,
+            spec.rod_uniform_centerline_spacing,
+            spec.rod_maximum_triangle_section_span,
             reference_data,
         )
 
@@ -1484,6 +1510,7 @@ def load_volume_rod_reference(
     return VolumeRodReferenceData(
         progress_by_key=progress_by_key,
         centerline=centerline,
+        reference_tether=spec.reference_tether,
     )
 
 
@@ -1501,6 +1528,8 @@ def build_volume_rod_data(
     top_locked_keys: set[tuple[float, float, float]],
     section_count: int,
     progress_mode: str,
+    uniform_centerline_spacing: bool = False,
+    maximum_triangle_section_span: float | None = None,
     reference_data: VolumeRodReferenceData | None = None,
 ) -> tuple[dict[tuple[float, float, float], float], VolumeRodData]:
     adjacency: dict[
@@ -1568,12 +1597,30 @@ def build_volume_rod_data(
             progress_by_key,
             reference_progress,
         )
+        progress_by_key = regularize_volume_rod_reference_progress(
+            adjacency,
+            bottom_sources,
+            top_sources,
+            progress_by_key,
+            reference_progress,
+            reference_data.reference_tether,
+        )
     elif progress_mode == VOLUME_ROD_PROGRESS_HARMONIC_PATHS:
         progress_by_key = build_harmonic_surface_progress(
             adjacency,
             bottom_sources,
             top_sources,
             progress_by_key,
+        )
+
+    if maximum_triangle_section_span is not None:
+        progress_by_key = limit_volume_rod_triangle_progress_jumps(
+            coordinates,
+            soft_faces,
+            bottom_sources,
+            top_sources,
+            progress_by_key,
+            maximum_triangle_section_span / section_count,
         )
 
     bottom_center = center_for_coordinate_keys(coordinate_by_key, bottom_locked_keys)
@@ -1593,6 +1640,8 @@ def build_volume_rod_data(
             top_center,
             section_count,
         )
+    if uniform_centerline_spacing:
+        centerline = resample_volume_rod_centerline(centerline, section_count)
     return progress_by_key, VolumeRodData(centerline=tuple(centerline))
 
 
@@ -1639,6 +1688,91 @@ def match_volume_rod_reference_progress(
         if closest_reference is not None:
             matched_progress[current_key] = reference_progress_by_key[closest_reference]
     return matched_progress
+
+
+def limit_volume_rod_triangle_progress_jumps(
+    coordinates: list[tuple[float, float, float]],
+    soft_faces: list[Face],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+    maximum_jump: float,
+) -> dict[tuple[float, float, float], float]:
+    triangle_edges: set[
+        tuple[tuple[float, float, float], tuple[float, float, float]]
+    ] = set()
+    for face in soft_faces:
+        keys = [coordinate_key(coordinates[ref[0]]) for ref in face.refs]
+        for index in range(1, len(keys) - 1):
+            triangle = (keys[0], keys[index], keys[index + 1])
+            for first_index, second_index in ((0, 1), (1, 2), (2, 0)):
+                triangle_edges.add(tuple(sorted((triangle[first_index], triangle[second_index]))))
+
+    constraint_adjacency: dict[
+        tuple[float, float, float],
+        set[tuple[float, float, float]],
+    ] = {}
+    for first, second in triangle_edges:
+        constraint_adjacency.setdefault(first, set()).add(second)
+        constraint_adjacency.setdefault(second, set()).add(first)
+
+    edge_distance = {key: 0 for key in bottom_sources}
+    pending = list(bottom_sources)
+    pending_index = 0
+    shortest_boundary_path = None
+    while pending_index < len(pending):
+        key = pending[pending_index]
+        pending_index += 1
+        distance = edge_distance[key]
+        if key in top_sources:
+            shortest_boundary_path = distance
+            break
+        for neighbor in constraint_adjacency.get(key, ()):
+            if neighbor in edge_distance:
+                continue
+            edge_distance[neighbor] = distance + 1
+            pending.append(neighbor)
+    if shortest_boundary_path is None:
+        raise ValueError("Volume rod triangle constraints do not connect both anchors")
+    if maximum_jump * shortest_boundary_path < 1.0 - HARMONIC_PATH_TOLERANCE:
+        raise ValueError(
+            "Volume rod maximumTriangleSectionSpan is too small for the shortest anchor path"
+        )
+
+    progress = dict(initial_progress)
+    fixed_sources = bottom_sources.union(top_sources)
+    sorted_edges = sorted(triangle_edges)
+    for _ in range(HARMONIC_PATH_MAX_ITERATIONS):
+        maximum_excess = 0.0
+        for first, second in sorted_edges:
+            difference = progress[first] - progress[second]
+            excess = abs(difference) - maximum_jump
+            if excess <= 0.0:
+                continue
+            maximum_excess = max(maximum_excess, excess)
+            direction = 1.0 if difference > 0.0 else -1.0
+            first_fixed = first in fixed_sources
+            second_fixed = second in fixed_sources
+            if first_fixed and second_fixed:
+                raise ValueError("Volume rod fixed triangle edge exceeds maximum progress jump")
+            if first_fixed:
+                progress[second] += direction * excess
+            elif second_fixed:
+                progress[first] -= direction * excess
+            else:
+                correction = direction * excess * 0.5
+                progress[first] -= correction
+                progress[second] += correction
+        if maximum_excess < HARMONIC_PATH_TOLERANCE:
+            break
+    else:
+        raise ValueError("Volume rod triangle progress limiter did not converge")
+
+    for key in bottom_sources:
+        progress[key] = 0.0
+    for key in top_sources:
+        progress[key] = 1.0
+    return progress
 
 
 def shortest_surface_distances(
@@ -1730,6 +1864,57 @@ def build_harmonic_surface_progress(
     return progress
 
 
+def regularize_volume_rod_reference_progress(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+    reference_progress: dict[tuple[float, float, float], float],
+    reference_tether: float,
+) -> dict[tuple[float, float, float], float]:
+    progress = dict(initial_progress)
+    interior = [
+        key
+        for key in adjacency
+        if key not in bottom_sources and key not in top_sources
+    ]
+
+    for _ in range(HARMONIC_PATH_MAX_ITERATIONS):
+        maximum_change = 0.0
+        for key in interior:
+            neighbor_count = len(adjacency[key])
+            if neighbor_count == 0:
+                raise ValueError("Volume rod reference regularization found an isolated vertex")
+            reference_conductance = (
+                reference_tether * neighbor_count
+                if key in reference_progress
+                else 0.0
+            )
+            weighted_progress = sum(progress[neighbor] for neighbor in adjacency[key])
+            if reference_conductance > 0.0:
+                weighted_progress += reference_progress[key] * reference_conductance
+            target = weighted_progress / (neighbor_count + reference_conductance)
+            previous = progress[key]
+            updated = previous + VOLUME_ROD_REFERENCE_RELAXATION * (target - previous)
+            progress[key] = updated
+            maximum_change = max(maximum_change, abs(updated - previous))
+        if maximum_change < HARMONIC_PATH_TOLERANCE:
+            break
+    else:
+        raise ValueError("Volume rod reference regularization did not converge")
+
+    for key in bottom_sources:
+        progress[key] = 0.0
+    for key in top_sources:
+        progress[key] = 1.0
+    for key in interior:
+        progress[key] = clamp(progress[key], 0.0, 1.0)
+    return progress
+
+
 def adapt_volume_rod_centerline(
     reference_centerline: tuple[tuple[float, float, float], ...],
     bottom_center: tuple[float, float, float],
@@ -1765,6 +1950,46 @@ def adapt_volume_rod_centerline(
     centerline[0] = bottom_center
     centerline[-1] = top_center
     return centerline
+
+
+def resample_volume_rod_centerline(
+    centerline: list[tuple[float, float, float]],
+    section_count: int,
+) -> list[tuple[float, float, float]]:
+    segment_lengths = [
+        vector_distance(centerline[index], centerline[index + 1])
+        for index in range(len(centerline) - 1)
+    ]
+    total_length = sum(segment_lengths)
+    if total_length <= UV_EPSILON:
+        raise ValueError("Volume rod centerline is too short to resample")
+
+    resampled = [centerline[0]]
+    segment_index = 0
+    distance_before_segment = 0.0
+    for node_index in range(1, section_count):
+        target_distance = total_length * node_index / section_count
+        while (
+            segment_index < len(segment_lengths) - 1
+            and distance_before_segment + segment_lengths[segment_index] < target_distance
+        ):
+            distance_before_segment += segment_lengths[segment_index]
+            segment_index += 1
+        segment_length = segment_lengths[segment_index]
+        amount = (
+            (target_distance - distance_before_segment) / segment_length
+            if segment_length > UV_EPSILON
+            else 0.0
+        )
+        resampled.append(
+            lerp_vector(
+                centerline[segment_index],
+                centerline[segment_index + 1],
+                clamp(amount, 0.0, 1.0),
+            )
+        )
+    resampled.append(centerline[-1])
+    return resampled
 
 
 def build_volume_rod_centerline(

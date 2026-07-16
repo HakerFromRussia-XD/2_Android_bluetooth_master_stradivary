@@ -8,7 +8,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.v3_model.convert_v3_obj_to_bin import adapt_volume_rod_centerline
 from tools.v3_model.convert_v3_obj_to_bin import build_harmonic_surface_progress
+from tools.v3_model.convert_v3_obj_to_bin import match_volume_rod_reference_progress
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -152,6 +154,76 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             self.assertEqual("first", data[offset:offset + name_len].decode("utf-8"))
             self.assertEqual((3, 3, 1, 1), (part_vertex_count, part_index_count, part_face_count, part_triangle_count))
 
+    def test_object_split_bundle_applies_per_object_mesh_processing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            assets_dir = tmp_dir / "assets"
+            mesh_dir = assets_dir / "mesh"
+            output_dir = tmp_dir / "out"
+            mesh_dir.mkdir(parents=True)
+            (mesh_dir / "processed_bundle.obj").write_text(
+                "\n".join(
+                    [
+                        "o processed",
+                        "v 0 0 0",
+                        "v 1 0 0",
+                        "v 0 1 0",
+                        "v 0 0 1",
+                        "vn 0 0 1",
+                        "vn 0 1 0",
+                        "f 1//1 2//1 3//1",
+                        "f 1//2 2//2 4//2",
+                        "f 1//1 2//1 2//1",
+                        "o untouched",
+                        "v 0 0 2",
+                        "v 1 0 2",
+                        "v 0 1 2",
+                        "vn 0 0 1",
+                        "f 5//3 6//3 7//3",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (assets_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "bundle": {
+                            "source": "mesh/processed_bundle.obj",
+                            "meshProcessingByObject": {
+                                "processed": {
+                                    "recalculateNormals": True,
+                                    "creaseAngleDegrees": 45.0,
+                                    "skipDegenerateTriangles": True,
+                                    "minimumTriangleQuality": 0.0001,
+                                    "alignWindingToNormals": True,
+                                }
+                            },
+                        },
+                        "parts": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = self.run_converter(
+                assets_dir,
+                "manifest.json",
+                output_dir,
+                "--split-objects-bundle",
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("part=processed", result.stdout)
+            self.assertIn("skippedTriangles=1", result.stdout)
+            self.assertIn("reorientedTriangles=1", result.stdout)
+            self.assertIn("creaseEdges=1", result.stdout)
+            data = (output_dir / "processed_bundle.v3bin").read_bytes()
+            header = struct.unpack("<4s11i", data[:48])
+            self.assertEqual((b"V3PB", 2, 9, 9), (header[0], header[3], header[4], header[5]))
+            name_len, vertices, indices, faces, triangles, _ = struct.unpack("<6i", data[48:72])
+            self.assertEqual("processed", data[72:72 + name_len].decode("utf-8"))
+            self.assertEqual((6, 6, 3, 2), (vertices, indices, faces, triangles))
+
     def test_mesh_processing_splits_crease_and_removes_degenerate_triangle(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_dir = Path(tmp)
@@ -251,6 +323,66 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
         self.assertAlmostEqual(0.25, progress[long_middle], places=6)
         self.assertEqual(0.0, progress[short_bottom])
         self.assertEqual(1.0, progress[long_top])
+
+    def test_harmonic_surface_progress_keeps_reference_values_fixed(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        reference = (1.0, 0.0, 0.0)
+        unknown = (2.0, 0.0, 0.0)
+        top = (3.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {reference: 1.0},
+            reference: {bottom: 1.0, unknown: 1.0},
+            unknown: {reference: 1.0, top: 1.0},
+            top: {unknown: 1.0},
+        }
+        initial = {bottom: 0.0, reference: 0.3, unknown: 0.6, top: 1.0}
+
+        progress = build_harmonic_surface_progress(
+            adjacency,
+            {bottom},
+            {top},
+            initial,
+            {reference: 0.25},
+        )
+
+        self.assertEqual(0.25, progress[reference])
+        self.assertAlmostEqual(0.625, progress[unknown], places=6)
+
+    def test_reference_progress_matches_float32_positions_by_tolerance(self) -> None:
+        current_key = (1.234567, 2.345678, 3.456789)
+        unmatched_key = (5.0, 5.0, 5.0)
+        coordinate_by_key = {
+            current_key: current_key,
+            unmatched_key: unmatched_key,
+        }
+        reference_progress = {
+            (1.234568, 2.345677, 3.456788): 0.42,
+        }
+
+        matched = match_volume_rod_reference_progress(
+            coordinate_by_key,
+            set(coordinate_by_key),
+            reference_progress,
+        )
+
+        self.assertAlmostEqual(0.42, matched[current_key])
+        self.assertNotIn(unmatched_key, matched)
+
+    def test_reference_centerline_is_adapted_to_new_anchors(self) -> None:
+        centerline = adapt_volume_rod_centerline(
+            (
+                (0.0, 0.0, 0.0),
+                (1.0, 0.0, 0.0),
+                (2.0, 0.0, 0.0),
+            ),
+            (0.0, 1.0, 0.0),
+            (4.0, 3.0, 0.0),
+            2,
+        )
+
+        self.assertEqual((0.0, 1.0, 0.0), centerline[0])
+        self.assertEqual((2.0, 2.0, 0.0), centerline[1])
+        self.assertEqual((4.0, 3.0, 0.0), centerline[2])
 
     def test_current_v3_manifest_converts_without_deformation_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

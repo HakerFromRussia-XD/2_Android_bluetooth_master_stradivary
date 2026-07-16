@@ -28,6 +28,7 @@ VOLUME_ROD_PROGRESS_HARMONIC_PATHS = "harmonic_paths"
 HARMONIC_PATH_RELAXATION = 1.75
 HARMONIC_PATH_TOLERANCE = 0.0000001
 HARMONIC_PATH_MAX_ITERATIONS = 10000
+VOLUME_ROD_REFERENCE_POSITION_TOLERANCE = 0.0001
 DEFORMATION_MAGIC = b"V3DF"
 DEFORMATION_VERSION = 2
 DEFORMATION_VOLUME_ROD_VERSION = 3
@@ -115,6 +116,13 @@ class TopAnchorSpec:
 
 
 @dataclass(frozen=True)
+class VolumeRodReferenceSpec:
+    binary_asset: str
+    deformation_asset: str
+    reuse_centerline: bool
+
+
+@dataclass(frozen=True)
 class DeformationSpec:
     type: str
     bottom_group: str
@@ -123,6 +131,7 @@ class DeformationSpec:
     falloff: str
     rod_sections: int
     rod_progress_mode: str
+    rod_reference: VolumeRodReferenceSpec | None
 
     @property
     def required_groups(self) -> tuple[str, ...]:
@@ -136,6 +145,12 @@ class DeformationSpec:
 @dataclass(frozen=True)
 class VolumeRodData:
     centerline: tuple[tuple[float, float, float], ...]
+
+
+@dataclass(frozen=True)
+class VolumeRodReferenceData:
+    progress_by_key: dict[tuple[float, float, float], float]
+    centerline: tuple[tuple[float, float, float], ...] | None
 
 
 def parse_args() -> argparse.Namespace:
@@ -186,6 +201,7 @@ def parse_obj(
     deformation: dict | None = None,
     object_filter: str | None = None,
     mesh_processing: dict | None = None,
+    assets_dir: Path | None = None,
 ) -> tuple[
     list[float],
     list[int],
@@ -220,6 +236,7 @@ def parse_obj(
             coordinates,
             faces,
             deformation_spec,
+            assets_dir,
         )
 
     processing_stats: dict[str, int] = {}
@@ -593,9 +610,18 @@ def vector_length_squared(vector: tuple[float, float, float]) -> float:
 def parse_obj_parts_by_object(
     path: Path,
     exclude_objects: set[str] | None = None,
+    mesh_processing_by_object: dict | None = None,
 ) -> tuple[list[BinaryPart], dict[str, int]]:
     geometry = read_obj_geometry(path)
     exclude_objects = exclude_objects or set()
+    if mesh_processing_by_object is None:
+        mesh_processing_by_object = {}
+    if not isinstance(mesh_processing_by_object, dict):
+        raise ValueError("`meshProcessingByObject` must be an object")
+    processing_specs = {
+        str(object_name): parse_mesh_processing_spec(spec)
+        for object_name, spec in mesh_processing_by_object.items()
+    }
     faces_by_object: dict[str, list[Face]] = {}
     object_order: list[str] = []
     for face in geometry.faces:
@@ -606,6 +632,11 @@ def parse_obj_parts_by_object(
             object_order.append(face.object_name)
         faces_by_object[face.object_name].append(face)
 
+    missing_processing_objects = set(processing_specs).difference(faces_by_object)
+    if missing_processing_objects:
+        missing = ", ".join(sorted(missing_processing_objects))
+        raise ValueError(f"{path}: meshProcessingByObject references missing objects: {missing}")
+
     parts: list[BinaryPart] = []
     total_vertices = 0
     total_indices = 0
@@ -613,12 +644,27 @@ def parse_obj_parts_by_object(
     total_expanded_vertices = 0
     for object_name in object_order:
         object_faces = faces_by_object[object_name]
-        vertices, indices, triangle_count = build_indexed_buffers(
-            geometry.coordinates,
-            geometry.textures,
-            geometry.normals,
-            object_faces,
-        )
+        processing_stats: dict[str, int] = {}
+        processing_spec = processing_specs.get(object_name)
+        if processing_spec is not None:
+            processed_triangles, processing_stats = process_mesh_triangles(
+                geometry.coordinates,
+                geometry.normals,
+                object_faces,
+                processing_spec,
+            )
+            vertices, indices, triangle_count = build_processed_buffers(
+                geometry.coordinates,
+                geometry.textures,
+                processed_triangles,
+            )
+        else:
+            vertices, indices, triangle_count = build_indexed_buffers(
+                geometry.coordinates,
+                geometry.textures,
+                geometry.normals,
+                object_faces,
+            )
         stats = build_stats(
             geometry.line_count,
             object_faces,
@@ -629,6 +675,7 @@ def parse_obj_parts_by_object(
             vertices,
             indices,
         )
+        stats.update(processing_stats)
         parts.append(BinaryPart(object_name, vertices, indices, stats))
         total_vertices += stats["vertex_count"]
         total_indices += stats["index_count"]
@@ -1120,6 +1167,29 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
     }:
         raise ValueError(f"Unsupported volume rod progressMode `{rod_progress_mode}`")
 
+    rod_reference = None
+    raw_rod_reference = deformation.get("progressReference")
+    if raw_rod_reference is not None:
+        if deformation_type != "volume_invariant_rod":
+            raise ValueError("deformation.progressReference requires volume_invariant_rod")
+        if rod_progress_mode != VOLUME_ROD_PROGRESS_HARMONIC_PATHS:
+            raise ValueError("deformation.progressReference requires harmonic_paths")
+        if not isinstance(raw_rod_reference, dict):
+            raise ValueError("deformation.progressReference must be an object")
+        rod_reference = VolumeRodReferenceSpec(
+            binary_asset=required_string(
+                raw_rod_reference,
+                "binaryAsset",
+                "deformation.progressReference",
+            ),
+            deformation_asset=required_string(
+                raw_rod_reference,
+                "deformationAsset",
+                "deformation.progressReference",
+            ),
+            reuse_centerline=bool(raw_rod_reference.get("reuseCenterline", False)),
+        )
+
     return DeformationSpec(
         type=deformation_type,
         bottom_group=bottom_group,
@@ -1128,6 +1198,7 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         falloff=falloff,
         rod_sections=rod_sections,
         rod_progress_mode=rod_progress_mode,
+        rod_reference=rod_reference,
     )
 
 
@@ -1148,6 +1219,7 @@ def create_deformation_resolvers(
     coordinates: list[tuple[float, float, float]],
     faces: list[Face],
     spec: DeformationSpec,
+    assets_dir: Path | None,
 ):
     required_groups = set(spec.required_groups)
     group_coordinates: dict[str, set[int]] = {group: set() for group in required_groups}
@@ -1216,6 +1288,12 @@ def create_deformation_resolvers(
         rod_top = spec.tops[0]
         _, _, _, _, bottom_locked_keys, top_locked_keys = soft_axes[rod_top.soft_group]
         rod_faces = [face for face in faces if resolved_groups[face] == rod_top.soft_group]
+        reference_data = load_volume_rod_reference(
+            path,
+            assets_dir,
+            spec.rod_reference,
+            rod_top.influence_index,
+        )
         volume_rod_progress_by_key, volume_rod_data = build_volume_rod_data(
             path,
             coordinates,
@@ -1225,6 +1303,7 @@ def create_deformation_resolvers(
             top_locked_keys,
             spec.rod_sections,
             spec.rod_progress_mode,
+            reference_data,
         )
 
     def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, ...]:
@@ -1301,6 +1380,118 @@ def create_deformation_resolvers(
     return weights_for, selection_for, volume_rod_data
 
 
+def load_volume_rod_reference(
+    source_path: Path,
+    assets_dir: Path | None,
+    spec: VolumeRodReferenceSpec | None,
+    influence_index: int,
+) -> VolumeRodReferenceData | None:
+    if spec is None:
+        return None
+    if assets_dir is None:
+        raise ValueError(f"{source_path}: progressReference requires an assets directory")
+
+    binary_path = resolve_asset_path(assets_dir, spec.binary_asset)
+    deformation_path = resolve_asset_path(assets_dir, spec.deformation_asset)
+    binary_data = binary_path.read_bytes()
+    deformation_data = deformation_path.read_bytes()
+
+    binary_header_size = struct.calcsize("<4s10i")
+    if len(binary_data) < binary_header_size:
+        raise ValueError(f"{binary_path}: truncated V3 model header")
+    binary_header = struct.unpack_from("<4s10i", binary_data)
+    magic, _, floats_per_vertex, vertex_count = binary_header[:4]
+    if magic != MAGIC:
+        raise ValueError(f"{binary_path}: expected {MAGIC!r}, got {magic!r}")
+    if floats_per_vertex != FLOATS_PER_VERTEX:
+        raise ValueError(
+            f"{binary_path}: expected {FLOATS_PER_VERTEX} floats per vertex, "
+            f"got {floats_per_vertex}"
+        )
+    vertex_data_end = binary_header_size + vertex_count * floats_per_vertex * 4
+    if len(binary_data) < vertex_data_end:
+        raise ValueError(f"{binary_path}: truncated V3 vertex data")
+
+    deformation_header_size = struct.calcsize("<4s3i")
+    if len(deformation_data) < deformation_header_size:
+        raise ValueError(f"{deformation_path}: truncated deformation header")
+    deformation_magic, deformation_version, deformation_vertex_count, influence_count = (
+        struct.unpack_from("<4s3i", deformation_data)
+    )
+    if deformation_magic != DEFORMATION_MAGIC:
+        raise ValueError(
+            f"{deformation_path}: expected {DEFORMATION_MAGIC!r}, got {deformation_magic!r}"
+        )
+    if deformation_vertex_count != vertex_count:
+        raise ValueError(
+            f"{deformation_path}: vertex count {deformation_vertex_count} does not match "
+            f"{binary_path} vertex count {vertex_count}"
+        )
+    if not 0 <= influence_index < influence_count:
+        raise ValueError(
+            f"{deformation_path}: influence index {influence_index} is outside "
+            f"the {influence_count} stored influences"
+        )
+
+    weight_data_end = deformation_header_size + vertex_count * influence_count * 4
+    selection_data_end = weight_data_end + vertex_count * 4
+    if len(deformation_data) < selection_data_end:
+        raise ValueError(f"{deformation_path}: truncated deformation weights")
+
+    progress_samples_by_key: dict[tuple[float, float, float], list[float]] = {}
+    for vertex_index in range(vertex_count):
+        vertex_offset = binary_header_size + vertex_index * floats_per_vertex * 4
+        key = coordinate_key(struct.unpack_from("<3f", binary_data, vertex_offset))
+        weight_offset = deformation_header_size + (
+            vertex_index * influence_count + influence_index
+        ) * 4
+        progress = struct.unpack_from("<f", deformation_data, weight_offset)[0]
+        progress_samples_by_key.setdefault(key, []).append(progress)
+
+    progress_by_key = {}
+    for key, samples in progress_samples_by_key.items():
+        if max(samples) - min(samples) > HARMONIC_PATH_TOLERANCE:
+            raise ValueError(
+                f"{deformation_path}: position {key} has inconsistent reference progress"
+            )
+        progress_by_key[key] = clamp(sum(samples) / len(samples), 0.0, 1.0)
+
+    centerline = None
+    if spec.reuse_centerline:
+        if deformation_version < DEFORMATION_VOLUME_ROD_VERSION:
+            raise ValueError(f"{deformation_path}: reference has no volume rod centerline")
+        if len(deformation_data) < selection_data_end + 4:
+            raise ValueError(f"{deformation_path}: missing volume rod centerline")
+        centerline_count = struct.unpack_from("<i", deformation_data, selection_data_end)[0]
+        centerline_offset = selection_data_end + 4
+        centerline_end = centerline_offset + centerline_count * 3 * 4
+        if centerline_count < 2 or len(deformation_data) < centerline_end:
+            raise ValueError(f"{deformation_path}: truncated volume rod centerline")
+        centerline_values = struct.unpack_from(
+            f"<{centerline_count * 3}f",
+            deformation_data,
+            centerline_offset,
+        )
+        centerline = tuple(
+            (
+                centerline_values[index * 3],
+                centerline_values[index * 3 + 1],
+                centerline_values[index * 3 + 2],
+            )
+            for index in range(centerline_count)
+        )
+
+    return VolumeRodReferenceData(
+        progress_by_key=progress_by_key,
+        centerline=centerline,
+    )
+
+
+def resolve_asset_path(assets_dir: Path, asset: str) -> Path:
+    path = Path(asset)
+    return path if path.is_absolute() else assets_dir / path
+
+
 def build_volume_rod_data(
     path: Path,
     coordinates: list[tuple[float, float, float]],
@@ -1310,6 +1501,7 @@ def build_volume_rod_data(
     top_locked_keys: set[tuple[float, float, float]],
     section_count: int,
     progress_mode: str,
+    reference_data: VolumeRodReferenceData | None = None,
 ) -> tuple[dict[tuple[float, float, float], float], VolumeRodData]:
     adjacency: dict[
         tuple[float, float, float],
@@ -1357,7 +1549,26 @@ def build_volume_rod_data(
             raise ValueError(f"{path}: volume rod has an invalid zero-length surface path")
         progress_by_key[key] = clamp(bottom_distance / total_distance, 0.0, 1.0)
 
-    if progress_mode == VOLUME_ROD_PROGRESS_HARMONIC_PATHS:
+    if reference_data is not None:
+        reference_progress = match_volume_rod_reference_progress(
+            coordinate_by_key,
+            set(adjacency),
+            reference_data.progress_by_key,
+        )
+        reference_match_ratio = len(reference_progress) / len(adjacency)
+        if reference_match_ratio < 0.5:
+            raise ValueError(
+                f"{path}: volume rod reference matches only "
+                f"{reference_match_ratio:.1%} of soft mesh positions"
+            )
+        progress_by_key = build_harmonic_surface_progress(
+            adjacency,
+            bottom_sources,
+            top_sources,
+            progress_by_key,
+            reference_progress,
+        )
+    elif progress_mode == VOLUME_ROD_PROGRESS_HARMONIC_PATHS:
         progress_by_key = build_harmonic_surface_progress(
             adjacency,
             bottom_sources,
@@ -1367,14 +1578,67 @@ def build_volume_rod_data(
 
     bottom_center = center_for_coordinate_keys(coordinate_by_key, bottom_locked_keys)
     top_center = center_for_coordinate_keys(coordinate_by_key, top_locked_keys)
-    centerline = build_volume_rod_centerline(
-        coordinate_by_key,
-        progress_by_key,
-        bottom_center,
-        top_center,
-        section_count,
-    )
+    if reference_data is not None and reference_data.centerline is not None:
+        centerline = adapt_volume_rod_centerline(
+            reference_data.centerline,
+            bottom_center,
+            top_center,
+            section_count,
+        )
+    else:
+        centerline = build_volume_rod_centerline(
+            coordinate_by_key,
+            progress_by_key,
+            bottom_center,
+            top_center,
+            section_count,
+        )
     return progress_by_key, VolumeRodData(centerline=tuple(centerline))
+
+
+def match_volume_rod_reference_progress(
+    coordinate_by_key: dict[tuple[float, float, float], tuple[float, float, float]],
+    current_keys: set[tuple[float, float, float]],
+    reference_progress_by_key: dict[tuple[float, float, float], float],
+) -> dict[tuple[float, float, float], float]:
+    tolerance = VOLUME_ROD_REFERENCE_POSITION_TOLERANCE
+
+    def cell_for(coordinate: tuple[float, float, float]) -> tuple[int, int, int]:
+        return (
+            math.floor(coordinate[0] / tolerance),
+            math.floor(coordinate[1] / tolerance),
+            math.floor(coordinate[2] / tolerance),
+        )
+
+    reference_keys_by_cell: dict[
+        tuple[int, int, int],
+        list[tuple[float, float, float]],
+    ] = {}
+    for reference_key in reference_progress_by_key:
+        reference_keys_by_cell.setdefault(cell_for(reference_key), []).append(reference_key)
+
+    matched_progress = {}
+    for current_key in current_keys:
+        coordinate = coordinate_by_key[current_key]
+        cell = cell_for(coordinate)
+        closest_reference = None
+        closest_distance = math.inf
+        for x_offset in (-1, 0, 1):
+            for y_offset in (-1, 0, 1):
+                for z_offset in (-1, 0, 1):
+                    neighbor_cell = (
+                        cell[0] + x_offset,
+                        cell[1] + y_offset,
+                        cell[2] + z_offset,
+                    )
+                    for reference_key in reference_keys_by_cell.get(neighbor_cell, ()):
+                        distance = vector_distance(coordinate, reference_key)
+                        if distance <= tolerance and distance < closest_distance:
+                            closest_reference = reference_key
+                            closest_distance = distance
+        if closest_reference is not None:
+            matched_progress[current_key] = reference_progress_by_key[closest_reference]
+    return matched_progress
 
 
 def shortest_surface_distances(
@@ -1408,15 +1672,24 @@ def build_harmonic_surface_progress(
     bottom_sources: set[tuple[float, float, float]],
     top_sources: set[tuple[float, float, float]],
     initial_progress: dict[tuple[float, float, float], float],
+    fixed_progress: dict[tuple[float, float, float], float] | None = None,
 ) -> dict[tuple[float, float, float], float]:
     if bottom_sources.intersection(top_sources):
         raise ValueError("Volume rod top and bottom boundaries overlap")
 
     progress = dict(initial_progress)
+    locked_progress = {
+        key: clamp(value, 0.0, 1.0)
+        for key, value in (fixed_progress or {}).items()
+        if key in adjacency
+    }
+    locked_progress.update((key, 0.0) for key in bottom_sources)
+    locked_progress.update((key, 1.0) for key in top_sources)
+    progress.update(locked_progress)
     interior = [
         key
         for key in adjacency
-        if key not in bottom_sources and key not in top_sources
+        if key not in locked_progress
     ]
     conductance_by_key: dict[
         tuple[float, float, float],
@@ -1451,13 +1724,47 @@ def build_harmonic_surface_progress(
     else:
         raise ValueError("Volume rod harmonic surface paths did not converge")
 
-    for key in bottom_sources:
-        progress[key] = 0.0
-    for key in top_sources:
-        progress[key] = 1.0
+    progress.update(locked_progress)
     for key in interior:
         progress[key] = clamp(progress[key], 0.0, 1.0)
     return progress
+
+
+def adapt_volume_rod_centerline(
+    reference_centerline: tuple[tuple[float, float, float], ...],
+    bottom_center: tuple[float, float, float],
+    top_center: tuple[float, float, float],
+    section_count: int,
+) -> list[tuple[float, float, float]]:
+    if len(reference_centerline) != section_count + 1:
+        raise ValueError(
+            f"Volume rod reference centerline has {len(reference_centerline)} points; "
+            f"expected {section_count + 1}"
+        )
+
+    reference_bottom = reference_centerline[0]
+    reference_top = reference_centerline[-1]
+    bottom_correction = tuple(
+        bottom_center[axis] - reference_bottom[axis]
+        for axis in range(3)
+    )
+    top_correction = tuple(
+        top_center[axis] - reference_top[axis]
+        for axis in range(3)
+    )
+    centerline = []
+    for index, reference_point in enumerate(reference_centerline):
+        progress = index / section_count
+        correction = lerp_vector(bottom_correction, top_correction, progress)
+        centerline.append(
+            tuple(
+                reference_point[axis] + correction[axis]
+                for axis in range(3)
+            )
+        )
+    centerline[0] = bottom_center
+    centerline[-1] = top_center
+    return centerline
 
 
 def build_volume_rod_centerline(
@@ -1773,10 +2080,15 @@ def convert_bundle(
     assets_dir: Path,
     output_dir: Path,
     exclude_objects: set[str] | None = None,
+    mesh_processing_by_object: dict | None = None,
 ) -> tuple[int, int, int, int, int]:
     source_path = assets_dir / source_asset
     output_path = assets_dir / output_asset if output_asset else output_dir / obj_to_bin_name(source_asset)
-    bundle_parts, stats = parse_obj_parts_by_object(source_path, exclude_objects)
+    bundle_parts, stats = parse_obj_parts_by_object(
+        source_path,
+        exclude_objects,
+        mesh_processing_by_object,
+    )
     write_parts_bundle(output_path, bundle_parts, stats)
     file_size = output_path.stat().st_size
     print(
@@ -1787,11 +2099,19 @@ def convert_bundle(
         f"bytes={file_size}"
     )
     for bundle_part in bundle_parts:
+        processing_info = ""
+        if "skipped_triangle_count" in bundle_part.stats:
+            processing_info = (
+                f" skippedTriangles={bundle_part.stats['skipped_triangle_count']}"
+                f" reorientedTriangles={bundle_part.stats['reoriented_triangle_count']}"
+                f" creaseEdges={bundle_part.stats['crease_edge_count']}"
+            )
         print(
             f"  part={bundle_part.part_id} faces={bundle_part.stats['face_count']} "
             f"triangles={bundle_part.stats['triangle_count']} "
             f"vertices={bundle_part.stats['vertex_count']} "
             f"indices={bundle_part.stats['index_count']}"
+            f"{processing_info}"
         )
     return (
         len(bundle_parts),
@@ -1828,6 +2148,7 @@ def convert_part(
         deformation,
         object_filter,
         part.get("meshProcessing"),
+        assets_dir,
     )
     write_binary(output_path, vertices, indices, stats)
     file_size = output_path.stat().st_size
@@ -1894,6 +2215,7 @@ def main() -> None:
             assets_dir,
             output_dir,
             object_filter_set(bundle, "excludeObjects"),
+            bundle.get("meshProcessingByObject"),
         )
         converted_part_count += bundle_part_count
         total_vertices += vertices
@@ -1921,6 +2243,7 @@ def main() -> None:
                     assets_dir,
                     output_dir,
                     object_filter_set(part, "excludeObjects"),
+                    part.get("meshProcessingByObject"),
                 )
                 converted_part_count += bundle_part_count
             else:

@@ -3,16 +3,52 @@
   "format": "V3PB",
   "allowLegacyFallbacks": false,
   "bundle": {
-    "asset": "STR2_V3_BIN/festh3_test9.v3bin",
-    "source": "STR2_V3/festh3_test9.obj",
+    "asset": "STR2_V3_BIN/festh3_test11.v3bin",
+    "source": "STR2_V3/festh3_test11.obj",
     "splitBy": "object",
-    "excludeObjects": ["gofra_1_part_12", "gofra_2_patr_6", "rotation_1.1", "rotation_1.2", "rotation_2"]
+    "excludeObjects": [
+      "gofra_1_part_12",
+      "gofra_2_patr_6",
+      "rotation_1.1",
+      "rotation_1.2",
+      "rotation_2"
+    ],
+    "meshProcessingByObject": {
+      "part_1": {
+        "recalculateNormals": true,
+        "creaseAngleDegrees": 45.0,
+        "skipDegenerateTriangles": true,
+        "minimumTriangleQuality": 0.0001,
+        "alignWindingToNormals": true
+      },
+      "part_2": {
+        "recalculateNormals": true,
+        "creaseAngleDegrees": 45.0,
+        "skipDegenerateTriangles": true,
+        "minimumTriangleQuality": 0.0001,
+        "alignWindingToNormals": true
+      },
+      "part_3": {
+        "recalculateNormals": true,
+        "creaseAngleDegrees": 45.0,
+        "skipDegenerateTriangles": true,
+        "minimumTriangleQuality": 0.0001,
+        "alignWindingToNormals": true
+      },
+      "part_4": {
+        "recalculateNormals": true,
+        "creaseAngleDegrees": 45.0,
+        "skipDegenerateTriangles": true,
+        "minimumTriangleQuality": 0.0001,
+        "alignWindingToNormals": true
+      }
+    }
   },
   "parts": [
     {
       "partId": "gofra_1_deformable",
-      "asset": "STR2_V3/festh3_test9.obj",
-      "binaryAsset": "STR2_V3_BIN/festh3_test9_gofra_1.v3bin",
+      "asset": "STR2_V3/festh3_test11.obj",
+      "binaryAsset": "STR2_V3_BIN/festh3_test11_gofra_1.v3bin",
       "object": "gofra_1_part_12",
       "groups": ["deformable_rubber"],
       "meshProcessing": {
@@ -25,7 +61,7 @@
       "deformation": {
         "type": "multi_top_one_bottom",
         "falloff": "ease_in",
-        "asset": "STR2_V3_BIN/festh3_test9_gofra_1.v3def",
+        "asset": "STR2_V3_BIN/festh3_test11_gofra_1.v3def",
         "bottom": {
           "faceGroup": "gofra_1_base",
           "transformId": "palm_base"
@@ -60,8 +96,8 @@
     },
     {
       "partId": "gofra_2_deformable",
-      "asset": "STR2_V3/festh3_test9.obj",
-      "binaryAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3bin",
+      "asset": "STR2_V3/festh3_test11.obj",
+      "binaryAsset": "STR2_V3_BIN/festh3_test11_gofra_2.v3bin",
       "object": "gofra_2_patr_6",
       "groups": ["deformable_rubber"],
       "meshProcessing": {
@@ -75,7 +111,12 @@
         "type": "volume_invariant_rod",
         "sections": 12,
         "progressMode": "harmonic_paths",
-        "asset": "STR2_V3_BIN/festh3_test9_gofra_2.v3def",
+        "progressReference": {
+          "binaryAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3bin",
+          "deformationAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3def",
+          "reuseCenterline": true
+        },
+        "asset": "STR2_V3_BIN/festh3_test11_gofra_2.v3def",
         "bottom": {
           "faceGroup": "gofra_2_base",
           "transformId": "palm_base"
@@ -92,35 +133,38 @@
     }
   ],
   "groups": {
-    "index_upper_metal": ["part_10", "part_27"],
+    "index_upper_white_plastic": ["part_10"],
+    "index_upper_metal": ["part_27"],
     "index_rubber": ["part_4"],
     "index_lower_plastic": ["falangi_2_part_19", "falangi_2_part_20"],
     "index_lower_metal": ["part_26"],
 
-    "middle_upper_metal": ["part_9", "part_29"],
+    "middle_upper_white_plastic": ["part_9"],
+    "middle_upper_metal": ["part_29"],
     "middle_rubber": ["part_3"],
     "middle_lower_plastic": ["falangi_2_part_17", "falangi_2_part_18"],
     "middle_lower_metal": ["part_28"],
 
-    "ring_upper_metal": ["part_8", "part_31"],
+    "ring_upper_white_plastic": ["part_8"],
+    "ring_upper_metal": ["part_31"],
     "ring_rubber": ["part_2"],
     "ring_lower_plastic": ["falangi_2_part_15", "falangi_2_part_16"],
     "ring_lower_metal": ["part_30"],
 
-    "little_upper_metal": ["part_7", "part_33"],
+    "little_upper_white_plastic": ["part_7"],
+    "little_upper_metal": ["part_33"],
     "little_rubber": ["part_1"],
     "little_lower_plastic": ["falangi_2_part_13", "falangi_2_part_14"],
     "little_lower_metal": ["part_32"],
 
-    "thumb_plastic": ["falangi_2_part_21"],
-    "thumb_gray_metal": ["falangi_2_part_22"],
-    "thumb_crown_metal": ["part_11"],
+    "thumb_white_plastic": ["falangi_2_part_21", "falangi_2_part_22"],
+    "thumb_crown_white_plastic": ["part_11"],
     "thumb_first_metal": ["part_35"],
     "thumb_second_metal": ["part_34"],
     "thumb_rubber": ["part_5"],
     "thumb_crown_metal_left": [],
 
-    "base_texture": ["palm_1_part_24", "palm_1_part_25"],
+    "base_white_plastic": ["palm_1_part_24", "palm_1_part_25"],
     "base_rubber": ["rubber_1_part_23"],
     "base_chrome": [],
 

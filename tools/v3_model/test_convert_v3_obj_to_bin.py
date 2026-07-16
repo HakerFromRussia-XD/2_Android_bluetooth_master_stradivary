@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.v3_model.convert_v3_obj_to_bin import build_harmonic_surface_progress
+
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 TOOL_PATH = ROOT_DIR / "tools" / "v3_model" / "convert_v3_obj_to_bin.py"
@@ -150,6 +152,106 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             self.assertEqual("first", data[offset:offset + name_len].decode("utf-8"))
             self.assertEqual((3, 3, 1, 1), (part_vertex_count, part_index_count, part_face_count, part_triangle_count))
 
+    def test_mesh_processing_splits_crease_and_removes_degenerate_triangle(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            assets_dir = tmp_dir / "assets"
+            mesh_dir = assets_dir / "mesh"
+            output_dir = tmp_dir / "out"
+            mesh_dir.mkdir(parents=True)
+            (mesh_dir / "crease.obj").write_text(
+                "\n".join(
+                    [
+                        "v 0 0 0",
+                        "v 1 0 0",
+                        "v 0 1 0",
+                        "v 0 0 1",
+                        "vn 0 0 1",
+                        "vn 0 1 0",
+                        "f 1//1 2//1 3//1",
+                        "f 1//2 2//2 4//2",
+                        "f 1//1 2//1 2//1",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (assets_dir / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "parts": [
+                            {
+                                "partId": "crease",
+                                "asset": "mesh/crease.obj",
+                                "meshProcessing": {
+                                    "recalculateNormals": True,
+                                    "creaseAngleDegrees": 45.0,
+                                    "skipDegenerateTriangles": True,
+                                    "minimumTriangleQuality": 0.0001,
+                                    "alignWindingToNormals": True,
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = self.run_converter(assets_dir, "manifest.json", output_dir)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("skippedTriangles=1", result.stdout)
+            self.assertIn("reorientedTriangles=1", result.stdout)
+            self.assertIn("creaseEdges=1", result.stdout)
+            data = (output_dir / "crease.v3bin").read_bytes()
+            header = struct.unpack("<4s10i", data[:44])
+            _, _, floats_per_vertex, vertex_count, index_count = header[:5]
+            self.assertEqual(6, vertex_count)
+            self.assertEqual(6, index_count)
+            self.assertEqual(2, header[7])
+            vertex_values = struct.unpack(
+                f"<{vertex_count * floats_per_vertex}f",
+                data[44:44 + vertex_count * floats_per_vertex * 4],
+            )
+            origin_normals = set()
+            for vertex_index in range(vertex_count):
+                offset = vertex_index * floats_per_vertex
+                if vertex_values[offset:offset + 3] == (0.0, 0.0, 0.0):
+                    origin_normals.add(tuple(round(value, 6) for value in vertex_values[offset + 3:offset + 6]))
+            self.assertEqual({(0.0, 0.0, 1.0), (0.0, 1.0, 0.0)}, origin_normals)
+
+    def test_harmonic_surface_progress_normalizes_each_path_by_its_length(self) -> None:
+        short_bottom = (0.0, 0.0, 0.0)
+        short_middle = (1.0, 0.0, 0.0)
+        short_top = (2.0, 0.0, 0.0)
+        long_bottom = (0.0, 1.0, 0.0)
+        long_middle = (1.0, 1.0, 0.0)
+        long_top = (4.0, 1.0, 0.0)
+        adjacency = {
+            short_bottom: {short_middle: 1.0},
+            short_middle: {short_bottom: 1.0, short_top: 1.0},
+            short_top: {short_middle: 1.0},
+            long_bottom: {long_middle: 1.0},
+            long_middle: {long_bottom: 1.0, long_top: 3.0},
+            long_top: {long_middle: 3.0},
+        }
+        bottom = {short_bottom, long_bottom}
+        top = {short_top, long_top}
+        initial = {
+            short_bottom: 0.0,
+            short_middle: 0.5,
+            short_top: 1.0,
+            long_bottom: 0.0,
+            long_middle: 0.5,
+            long_top: 1.0,
+        }
+
+        progress = build_harmonic_surface_progress(adjacency, bottom, top, initial)
+
+        self.assertAlmostEqual(0.5, progress[short_middle], places=6)
+        self.assertAlmostEqual(0.25, progress[long_middle], places=6)
+        self.assertEqual(0.0, progress[short_bottom])
+        self.assertEqual(1.0, progress[long_top])
+
     def test_current_v3_manifest_converts_without_deformation_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             output_dir = Path(tmp)
@@ -182,7 +284,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             self.assertEqual(b"V3DF", magic)
             self.assertEqual(2, version)
             self.assertEqual(44, vertex_count)
-            self.assertEqual(5, influence_count)
+            self.assertEqual(6, influence_count)
 
     def test_deformable_shared_soft_boundary_uses_one_blended_weight(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -325,7 +427,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             _, version, def_vertex_count, influence_count = struct.unpack("<4s3i", deformation_data[:16])
             self.assertEqual(2, version)
             self.assertEqual(vertex_count, def_vertex_count)
-            self.assertEqual(5, influence_count)
+            self.assertEqual(6, influence_count)
             weight_end = 16 + def_vertex_count * influence_count * 4
             weights = struct.unpack(
                 f"<{def_vertex_count * influence_count}f",
@@ -342,6 +444,7 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
                 self.assertAlmostEqual(0.25, weights[offset + 2], places=6)
                 self.assertAlmostEqual(0.0, weights[offset + 3], places=6)
                 self.assertAlmostEqual(0.0, weights[offset + 4], places=6)
+                self.assertAlmostEqual(0.0, weights[offset + 5], places=6)
             self.assertEqual({1, 2}, {selection_influences[index] for index in shared_vertex_indexes})
 
     def test_deformable_fixture_requires_all_face_groups(self) -> None:

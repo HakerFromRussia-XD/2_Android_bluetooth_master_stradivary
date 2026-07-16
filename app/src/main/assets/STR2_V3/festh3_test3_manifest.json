@@ -109,15 +109,17 @@
       },
       "deformation": {
         "type": "volume_invariant_rod",
-        "sections": 12,
+        "sections": 24,
         "progressMode": "harmonic_paths",
         "uniformCenterlineSpacing": true,
-        "maximumTriangleSectionSpan": 0.72,
+        "centerlineProjectionBlend": 0.75,
+        "centerlineProjectionWindowSections": 2.0,
+        "maximumTriangleSectionSpan": 1.42,
         "progressReference": {
           "binaryAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3bin",
           "deformationAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3def",
           "reuseCenterline": true,
-          "referenceTether": 0.005
+          "referenceTether": 0.001
         },
         "asset": "STR2_V3_BIN/festh3_test11_gofra_2.v3def",
         "bottom": {

@@ -222,8 +222,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final float VOLUME_ROD_PALM_STRAIN_BLEND = 0.35f;
 	private static final float VOLUME_ROD_FINGER_STRAIN_BLEND = VOLUME_ROD_ANCHOR_BLEND;
 	private static final float VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE = 1.85f;
-	private static final int VOLUME_ROD_STRETCH_SMOOTHING_PASSES = 3;
-	private static final int VOLUME_ROD_COMPRESSION_SMOOTHING_PASSES = 7;
+	private static final int VOLUME_ROD_STRETCH_SMOOTHING_PASSES = 16;
+	private static final int VOLUME_ROD_COMPRESSION_SMOOTHING_PASSES = 40;
 	private static final float VOLUME_ROD_COMPRESSION_RADIAL_GAIN = 0.05f;
 	private static final float VOLUME_ROD_MAX_COMPRESSION_RADIAL_SCALE = 1.04f;
 	private static final float VOLUME_ROD_MAX_COMPRESSION_COMBINED_RADIAL_SCALE = 1.15f;

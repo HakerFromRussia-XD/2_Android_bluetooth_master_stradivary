@@ -134,6 +134,8 @@ class DeformationSpec:
     rod_sections: int
     rod_progress_mode: str
     rod_uniform_centerline_spacing: bool
+    rod_centerline_projection_blend: float
+    rod_centerline_projection_window_sections: float
     rod_maximum_triangle_section_span: float | None
     rod_reference: VolumeRodReferenceSpec | None
 
@@ -1174,6 +1176,16 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
     rod_uniform_centerline_spacing = bool(
         deformation.get("uniformCenterlineSpacing", False)
     )
+    rod_centerline_projection_blend = float(
+        deformation.get("centerlineProjectionBlend", 0.0)
+    )
+    if not 0.0 <= rod_centerline_projection_blend <= 1.0:
+        raise ValueError("deformation.centerlineProjectionBlend must be between 0 and 1")
+    rod_centerline_projection_window_sections = float(
+        deformation.get("centerlineProjectionWindowSections", 2.0)
+    )
+    if rod_centerline_projection_window_sections <= 0.0:
+        raise ValueError("deformation.centerlineProjectionWindowSections must be positive")
     raw_maximum_triangle_section_span = deformation.get("maximumTriangleSectionSpan")
     rod_maximum_triangle_section_span = (
         float(raw_maximum_triangle_section_span)
@@ -1221,6 +1233,8 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         rod_sections=rod_sections,
         rod_progress_mode=rod_progress_mode,
         rod_uniform_centerline_spacing=rod_uniform_centerline_spacing,
+        rod_centerline_projection_blend=rod_centerline_projection_blend,
+        rod_centerline_projection_window_sections=rod_centerline_projection_window_sections,
         rod_maximum_triangle_section_span=rod_maximum_triangle_section_span,
         rod_reference=rod_reference,
     )
@@ -1328,8 +1342,10 @@ def create_deformation_resolvers(
             spec.rod_sections,
             spec.rod_progress_mode,
             spec.rod_uniform_centerline_spacing,
-            spec.rod_maximum_triangle_section_span,
-            reference_data,
+            centerline_projection_blend=spec.rod_centerline_projection_blend,
+            centerline_projection_window_sections=spec.rod_centerline_projection_window_sections,
+            maximum_triangle_section_span=spec.rod_maximum_triangle_section_span,
+            reference_data=reference_data,
         )
 
     def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, ...]:
@@ -1529,6 +1545,8 @@ def build_volume_rod_data(
     section_count: int,
     progress_mode: str,
     uniform_centerline_spacing: bool = False,
+    centerline_projection_blend: float = 0.0,
+    centerline_projection_window_sections: float = 2.0,
     maximum_triangle_section_span: float | None = None,
     reference_data: VolumeRodReferenceData | None = None,
 ) -> tuple[dict[tuple[float, float, float], float], VolumeRodData]:
@@ -1642,7 +1660,104 @@ def build_volume_rod_data(
         )
     if uniform_centerline_spacing:
         centerline = resample_volume_rod_centerline(centerline, section_count)
+    if centerline_projection_blend > 0.0:
+        progress_by_key = align_volume_rod_progress_to_centerline(
+            coordinate_by_key,
+            progress_by_key,
+            bottom_sources,
+            top_sources,
+            centerline,
+            centerline_projection_blend,
+            centerline_projection_window_sections,
+        )
+        if maximum_triangle_section_span is not None:
+            progress_by_key = limit_volume_rod_triangle_progress_jumps(
+                coordinates,
+                soft_faces,
+                bottom_sources,
+                top_sources,
+                progress_by_key,
+                maximum_triangle_section_span / section_count,
+            )
     return progress_by_key, VolumeRodData(centerline=tuple(centerline))
+
+
+def align_volume_rod_progress_to_centerline(
+    coordinate_by_key: dict[tuple[float, float, float], tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    centerline: list[tuple[float, float, float]],
+    blend: float,
+    window_sections: float,
+) -> dict[tuple[float, float, float], float]:
+    if len(centerline) < 2:
+        raise ValueError("Volume rod centerline must contain at least two points")
+
+    segment_lengths = [
+        vector_distance(centerline[index], centerline[index + 1])
+        for index in range(len(centerline) - 1)
+    ]
+    cumulative_lengths = [0.0]
+    for segment_length in segment_lengths:
+        cumulative_lengths.append(cumulative_lengths[-1] + segment_length)
+    total_length = cumulative_lengths[-1]
+    if total_length <= UV_EPSILON:
+        raise ValueError("Volume rod centerline is too short for progress alignment")
+
+    segment_count = len(segment_lengths)
+    progress_window = window_sections / segment_count
+    aligned = {}
+    for key, progress in initial_progress.items():
+        if key in bottom_sources:
+            aligned[key] = 0.0
+            continue
+        if key in top_sources:
+            aligned[key] = 1.0
+            continue
+
+        coordinate = coordinate_by_key[key]
+        best_distance_sq = math.inf
+        projected_progress = progress
+        for segment_index, segment_length in enumerate(segment_lengths):
+            segment_midpoint_progress = (segment_index + 0.5) / segment_count
+            if abs(segment_midpoint_progress - progress) > progress_window:
+                continue
+            start = centerline[segment_index]
+            end = centerline[segment_index + 1]
+            segment = tuple(end[axis] - start[axis] for axis in range(3))
+            segment_length_sq = dot(segment, segment)
+            if segment_length_sq <= UV_EPSILON:
+                continue
+            amount = clamp(
+                dot(
+                    tuple(coordinate[axis] - start[axis] for axis in range(3)),
+                    segment,
+                ) / segment_length_sq,
+                0.0,
+                1.0,
+            )
+            projected = tuple(
+                start[axis] + segment[axis] * amount
+                for axis in range(3)
+            )
+            distance_sq = sum(
+                (coordinate[axis] - projected[axis]) ** 2
+                for axis in range(3)
+            )
+            if distance_sq >= best_distance_sq:
+                continue
+            best_distance_sq = distance_sq
+            projected_progress = (
+                cumulative_lengths[segment_index] + segment_length * amount
+            ) / total_length
+
+        aligned[key] = clamp(
+            progress + (projected_progress - progress) * blend,
+            0.0,
+            1.0,
+        )
+    return aligned
 
 
 def match_volume_rod_reference_progress(
@@ -1921,11 +2036,8 @@ def adapt_volume_rod_centerline(
     top_center: tuple[float, float, float],
     section_count: int,
 ) -> list[tuple[float, float, float]]:
-    if len(reference_centerline) != section_count + 1:
-        raise ValueError(
-            f"Volume rod reference centerline has {len(reference_centerline)} points; "
-            f"expected {section_count + 1}"
-        )
+    if len(reference_centerline) < 2:
+        raise ValueError("Volume rod reference centerline must contain at least two points")
 
     reference_bottom = reference_centerline[0]
     reference_top = reference_centerline[-1]
@@ -1939,7 +2051,7 @@ def adapt_volume_rod_centerline(
     )
     centerline = []
     for index, reference_point in enumerate(reference_centerline):
-        progress = index / section_count
+        progress = index / (len(reference_centerline) - 1)
         correction = lerp_vector(bottom_correction, top_correction, progress)
         centerline.append(
             tuple(
@@ -1949,6 +2061,8 @@ def adapt_volume_rod_centerline(
         )
     centerline[0] = bottom_center
     centerline[-1] = top_center
+    if len(centerline) != section_count + 1:
+        centerline = resample_volume_rod_centerline(centerline, section_count)
     return centerline
 
 

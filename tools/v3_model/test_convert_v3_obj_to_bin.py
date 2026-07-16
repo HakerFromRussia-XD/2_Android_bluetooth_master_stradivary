@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tools.v3_model.convert_v3_obj_to_bin import adapt_volume_rod_centerline
+from tools.v3_model.convert_v3_obj_to_bin import align_volume_rod_progress_to_centerline
 from tools.v3_model.convert_v3_obj_to_bin import build_harmonic_surface_progress
 from tools.v3_model.convert_v3_obj_to_bin import Face
 from tools.v3_model.convert_v3_obj_to_bin import limit_volume_rod_triangle_progress_jumps
@@ -476,6 +477,22 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
         self.assertEqual((2.0, 2.0, 0.0), centerline[1])
         self.assertEqual((4.0, 3.0, 0.0), centerline[2])
 
+    def test_reference_centerline_is_resampled_for_new_section_count(self) -> None:
+        centerline = adapt_volume_rod_centerline(
+            (
+                (0.0, 0.0, 0.0),
+                (2.0, 0.0, 0.0),
+                (4.0, 0.0, 0.0),
+            ),
+            (0.0, 1.0, 0.0),
+            (4.0, 1.0, 0.0),
+            4,
+        )
+
+        self.assertEqual(5, len(centerline))
+        self.assertEqual((0.0, 1.0, 0.0), centerline[0])
+        self.assertEqual((4.0, 1.0, 0.0), centerline[-1])
+
     def test_centerline_is_resampled_to_uniform_segment_lengths(self) -> None:
         centerline = resample_volume_rod_centerline(
             [
@@ -495,6 +512,36 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             ],
             centerline,
         )
+
+    def test_centerline_projection_aligns_interior_progress_and_preserves_anchors(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        interior = (1.0, 2.0, 0.0)
+        top = (4.0, 0.0, 0.0)
+        coordinates = {
+            bottom: bottom,
+            interior: interior,
+            top: top,
+        }
+
+        progress = align_volume_rod_progress_to_centerline(
+            coordinates,
+            {bottom: 0.2, interior: 0.5, top: 0.8},
+            {bottom},
+            {top},
+            [
+                (0.0, 0.0, 0.0),
+                (1.0, 0.0, 0.0),
+                (2.0, 0.0, 0.0),
+                (3.0, 0.0, 0.0),
+                (4.0, 0.0, 0.0),
+            ],
+            0.5,
+            2.0,
+        )
+
+        self.assertEqual(0.0, progress[bottom])
+        self.assertAlmostEqual(0.375, progress[interior])
+        self.assertEqual(1.0, progress[top])
 
     def test_current_v3_manifest_converts_without_deformation_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

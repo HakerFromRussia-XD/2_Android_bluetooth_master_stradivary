@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import array
 from dataclasses import dataclass
+import heapq
 import json
 import math
 import struct
@@ -20,8 +21,16 @@ PARTS_VERSION = 1
 FLOATS_PER_VERTEX = 18
 UV_EPSILON = 0.000001
 COORDINATE_KEY_DECIMALS = 6
+DEFAULT_CREASE_ANGLE_DEGREES = 45.0
+DEFAULT_MIN_TRIANGLE_QUALITY = 0.0001
+VOLUME_ROD_PROGRESS_GEODESIC_RATIO = "geodesic_ratio"
+VOLUME_ROD_PROGRESS_HARMONIC_PATHS = "harmonic_paths"
+HARMONIC_PATH_RELAXATION = 1.75
+HARMONIC_PATH_TOLERANCE = 0.0000001
+HARMONIC_PATH_MAX_ITERATIONS = 10000
 DEFORMATION_MAGIC = b"V3DF"
 DEFORMATION_VERSION = 2
+DEFORMATION_VOLUME_ROD_VERSION = 3
 DEFORMATION_INFLUENCE_COUNT = 6
 INFLUENCE_ORDER = ("palm", "index", "middle", "ring", "little", "thumb")
 SUPPORTED_TRANSFORM_IDS = {
@@ -61,6 +70,34 @@ class ObjGeometry:
 
 
 @dataclass(frozen=True)
+class MeshProcessingSpec:
+    recalculate_normals: bool
+    crease_angle_degrees: float
+    skip_degenerate_triangles: bool
+    minimum_triangle_quality: float
+    align_winding_to_normals: bool
+
+
+@dataclass(frozen=True)
+class TriangleRecord:
+    refs: tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]]
+    face: Face
+    normal: tuple[float, float, float]
+
+
+@dataclass(frozen=True)
+class ProcessedTriangle:
+    refs: tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]]
+    face: Face
+    corner_normals: tuple[
+        tuple[float, float, float],
+        tuple[float, float, float],
+        tuple[float, float, float],
+    ]
+    smoothing_groups: tuple[int, int, int]
+
+
+@dataclass(frozen=True)
 class BinaryPart:
     part_id: str
     vertices: list[float]
@@ -79,10 +116,13 @@ class TopAnchorSpec:
 
 @dataclass(frozen=True)
 class DeformationSpec:
+    type: str
     bottom_group: str
     bottom_transform_id: str
     tops: tuple[TopAnchorSpec, ...]
     falloff: str
+    rod_sections: int
+    rod_progress_mode: str
 
     @property
     def required_groups(self) -> tuple[str, ...]:
@@ -91,6 +131,11 @@ class DeformationSpec:
             groups.append(top.top_group)
             groups.append(top.soft_group)
         return tuple(groups)
+
+
+@dataclass(frozen=True)
+class VolumeRodData:
+    centerline: tuple[tuple[float, float, float], ...]
 
 
 def parse_args() -> argparse.Namespace:
@@ -140,7 +185,15 @@ def parse_obj(
     path: Path,
     deformation: dict | None = None,
     object_filter: str | None = None,
-) -> tuple[list[float], list[int], dict[str, int], list[float] | None, list[int] | None]:
+    mesh_processing: dict | None = None,
+) -> tuple[
+    list[float],
+    list[int],
+    dict[str, int],
+    list[float] | None,
+    list[int] | None,
+    VolumeRodData | None,
+]:
     vertices: list[float] = []
     indices: list[int] = []
     deformation_weights: list[float] | None = [] if deformation else None
@@ -156,18 +209,44 @@ def parse_obj(
         if not faces:
             raise ValueError(f"{path}: object `{object_filter}` was not found")
 
+    mesh_processing_spec = parse_mesh_processing_spec(mesh_processing)
     deformation_spec = parse_deformation_spec(deformation) if deformation else None
     weight_resolver = None
     selection_resolver = None
+    volume_rod_data = None
     if deformation_spec:
-        weight_resolver, selection_resolver = create_deformation_resolvers(
+        weight_resolver, selection_resolver, volume_rod_data = create_deformation_resolvers(
             path,
             coordinates,
             faces,
             deformation_spec,
         )
 
-    if deformation_spec:
+    processing_stats: dict[str, int] = {}
+    if mesh_processing_spec is not None:
+        processed_triangles, processing_stats = process_mesh_triangles(
+            coordinates,
+            normals,
+            faces,
+            mesh_processing_spec,
+        )
+        if deformation_spec:
+            if weight_resolver is None or selection_resolver is None:
+                raise ValueError("Missing deformation resolvers")
+            vertices, indices, triangle_count, deformation_weights, deformation_selection_influences = build_processed_deformable_buffers(
+                coordinates,
+                textures,
+                processed_triangles,
+                weight_resolver,
+                selection_resolver,
+            )
+        else:
+            vertices, indices, triangle_count = build_processed_buffers(
+                coordinates,
+                textures,
+                processed_triangles,
+            )
+    elif deformation_spec:
         if weight_resolver is None or selection_resolver is None:
             raise ValueError("Missing deformation resolvers")
         vertices, indices, triangle_count, deformation_weights, deformation_selection_influences = build_indexed_deformable_buffers(
@@ -182,7 +261,8 @@ def parse_obj(
         vertices, indices, triangle_count = build_indexed_buffers(coordinates, textures, normals, faces)
 
     stats = build_stats(line_count, faces, triangle_count, coordinates, textures, normals, vertices, indices)
-    return vertices, indices, stats, deformation_weights, deformation_selection_influences
+    stats.update(processing_stats)
+    return vertices, indices, stats, deformation_weights, deformation_selection_influences, volume_rod_data
 
 
 def read_obj_geometry(path: Path) -> ObjGeometry:
@@ -265,6 +345,251 @@ def build_stats(
     }
 
 
+def parse_mesh_processing_spec(source: dict | None) -> MeshProcessingSpec | None:
+    if source is None:
+        return None
+    if not isinstance(source, dict):
+        raise ValueError("`meshProcessing` must be an object")
+
+    spec = MeshProcessingSpec(
+        recalculate_normals=bool(source.get("recalculateNormals", False)),
+        crease_angle_degrees=float(
+            source.get("creaseAngleDegrees", DEFAULT_CREASE_ANGLE_DEGREES)
+        ),
+        skip_degenerate_triangles=bool(source.get("skipDegenerateTriangles", False)),
+        minimum_triangle_quality=float(
+            source.get("minimumTriangleQuality", DEFAULT_MIN_TRIANGLE_QUALITY)
+        ),
+        align_winding_to_normals=bool(source.get("alignWindingToNormals", False)),
+    )
+    if not 0.0 < spec.crease_angle_degrees < 180.0:
+        raise ValueError("meshProcessing.creaseAngleDegrees must be between 0 and 180")
+    if spec.minimum_triangle_quality < 0.0:
+        raise ValueError("meshProcessing.minimumTriangleQuality must not be negative")
+    if not (
+        spec.recalculate_normals
+        or spec.skip_degenerate_triangles
+        or spec.align_winding_to_normals
+    ):
+        return None
+    return spec
+
+
+def process_mesh_triangles(
+    coordinates: list[tuple[float, float, float]],
+    normals: list[tuple[float, float, float]],
+    faces: list[Face],
+    spec: MeshProcessingSpec,
+) -> tuple[list[ProcessedTriangle], dict[str, int]]:
+    triangles: list[TriangleRecord] = []
+    skipped_triangle_count = 0
+    reoriented_triangle_count = 0
+
+    for face in faces:
+        first = face.refs[0]
+        previous = face.refs[1]
+        for current in face.refs[2:]:
+            refs = (first, previous, current)
+            face_cross, quality = triangle_cross_and_quality(coordinates, refs)
+            if spec.skip_degenerate_triangles and quality <= spec.minimum_triangle_quality:
+                skipped_triangle_count += 1
+                previous = current
+                continue
+
+            face_normal = normalize_vector(face_cross, (0.0, 0.0, 1.0))
+            source_normal = average_source_normal(normals, refs)
+            if (
+                spec.align_winding_to_normals
+                and source_normal is not None
+                and vector_dot(face_normal, source_normal) < 0.0
+            ):
+                refs = (first, current, previous)
+                face_normal = tuple(-value for value in face_normal)
+                reoriented_triangle_count += 1
+            triangles.append(TriangleRecord(refs=refs, face=face, normal=face_normal))
+            previous = current
+
+    if not spec.recalculate_normals:
+        processed = [
+            ProcessedTriangle(
+                refs=triangle.refs,
+                face=triangle.face,
+                corner_normals=tuple(
+                    get_normal(normals, ref[2]) for ref in triangle.refs
+                ),
+                smoothing_groups=(index * 3, index * 3 + 1, index * 3 + 2),
+            )
+            for index, triangle in enumerate(triangles)
+        ]
+        return processed, {
+            "skipped_triangle_count": skipped_triangle_count,
+            "reoriented_triangle_count": reoriented_triangle_count,
+            "crease_edge_count": 0,
+        }
+
+    node_count = len(triangles) * 3
+    parents = list(range(node_count))
+
+    def find(node: int) -> int:
+        while parents[node] != node:
+            parents[node] = parents[parents[node]]
+            node = parents[node]
+        return node
+
+    def union(first_node: int, second_node: int) -> None:
+        first_root = find(first_node)
+        second_root = find(second_node)
+        if first_root != second_root:
+            parents[second_root] = first_root
+
+    edge_corners: dict[
+        tuple[tuple[float, float, float], tuple[float, float, float]],
+        list[tuple[int, dict[tuple[float, float, float], int]]],
+    ] = {}
+    for triangle_index, triangle in enumerate(triangles):
+        position_keys = [
+            coordinate_key(coordinates[ref[0]]) for ref in triangle.refs
+        ]
+        for first_corner, second_corner in ((0, 1), (1, 2), (2, 0)):
+            first_key = position_keys[first_corner]
+            second_key = position_keys[second_corner]
+            if first_key == second_key:
+                continue
+            edge_key = tuple(sorted((first_key, second_key)))
+            edge_corners.setdefault(edge_key, []).append(
+                (
+                    triangle_index,
+                    {
+                        first_key: triangle_index * 3 + first_corner,
+                        second_key: triangle_index * 3 + second_corner,
+                    },
+                )
+            )
+
+    crease_cosine = math.cos(math.radians(spec.crease_angle_degrees))
+    crease_edge_count = 0
+    non_manifold_edge_count = 0
+    for edge_key, adjacent in edge_corners.items():
+        if len(adjacent) != 2:
+            if len(adjacent) > 2:
+                non_manifold_edge_count += 1
+            continue
+        first_triangle = triangles[adjacent[0][0]]
+        second_triangle = triangles[adjacent[1][0]]
+        if vector_dot(first_triangle.normal, second_triangle.normal) < crease_cosine:
+            crease_edge_count += 1
+            continue
+        for position_key in edge_key:
+            union(adjacent[0][1][position_key], adjacent[1][1][position_key])
+
+    normal_sums: dict[int, list[float]] = {}
+    for triangle_index, triangle in enumerate(triangles):
+        for corner_index in range(3):
+            root = find(triangle_index * 3 + corner_index)
+            corner_weight = triangle_corner_angle(coordinates, triangle.refs, corner_index)
+            target = normal_sums.setdefault(root, [0.0, 0.0, 0.0])
+            target[0] += triangle.normal[0] * corner_weight
+            target[1] += triangle.normal[1] * corner_weight
+            target[2] += triangle.normal[2] * corner_weight
+
+    processed: list[ProcessedTriangle] = []
+    smoothing_groups: set[int] = set()
+    for triangle_index, triangle in enumerate(triangles):
+        roots = tuple(find(triangle_index * 3 + corner_index) for corner_index in range(3))
+        smoothing_groups.update(roots)
+        processed.append(
+            ProcessedTriangle(
+                refs=triangle.refs,
+                face=triangle.face,
+                corner_normals=tuple(
+                    normalize_vector(normal_sums[root], triangle.normal) for root in roots
+                ),
+                smoothing_groups=roots,
+            )
+        )
+
+    return processed, {
+        "skipped_triangle_count": skipped_triangle_count,
+        "reoriented_triangle_count": reoriented_triangle_count,
+        "crease_edge_count": crease_edge_count,
+        "non_manifold_edge_count": non_manifold_edge_count,
+        "normal_cluster_count": len(smoothing_groups),
+    }
+
+
+def triangle_cross_and_quality(
+    coordinates: list[tuple[float, float, float]],
+    refs: tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]],
+) -> tuple[tuple[float, float, float], float]:
+    first, second, third = (coordinates[ref[0]] for ref in refs)
+    first_edge = subtract_vector(second, first)
+    second_edge = subtract_vector(third, first)
+    face_cross = cross_vector(first_edge, second_edge)
+    max_edge_length_squared = max(
+        vector_length_squared(subtract_vector(second, first)),
+        vector_length_squared(subtract_vector(third, second)),
+        vector_length_squared(subtract_vector(first, third)),
+    )
+    if max_edge_length_squared <= UV_EPSILON * UV_EPSILON:
+        return face_cross, 0.0
+    return face_cross, math.sqrt(vector_length_squared(face_cross)) / max_edge_length_squared
+
+
+def average_source_normal(
+    normals: list[tuple[float, float, float]],
+    refs: tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]],
+) -> tuple[float, float, float] | None:
+    available = [normals[ref[2]] for ref in refs if 0 <= ref[2] < len(normals)]
+    if not available:
+        return None
+    total = tuple(sum(normal[axis] for normal in available) for axis in range(3))
+    if vector_length_squared(total) <= UV_EPSILON * UV_EPSILON:
+        return None
+    return normalize_vector(total, (0.0, 0.0, 1.0))
+
+
+def triangle_corner_angle(
+    coordinates: list[tuple[float, float, float]],
+    refs: tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]],
+    corner_index: int,
+) -> float:
+    center = coordinates[refs[corner_index][0]]
+    previous = coordinates[refs[(corner_index - 1) % 3][0]]
+    following = coordinates[refs[(corner_index + 1) % 3][0]]
+    first_direction = normalize_vector(subtract_vector(previous, center), (1.0, 0.0, 0.0))
+    second_direction = normalize_vector(subtract_vector(following, center), (0.0, 1.0, 0.0))
+    return math.acos(clamp(vector_dot(first_direction, second_direction), -1.0, 1.0))
+
+
+def subtract_vector(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    return first[0] - second[0], first[1] - second[1], first[2] - second[2]
+
+
+def cross_vector(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    return (
+        first[1] * second[2] - first[2] * second[1],
+        first[2] * second[0] - first[0] * second[2],
+        first[0] * second[1] - first[1] * second[0],
+    )
+
+
+def vector_dot(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+) -> float:
+    return first[0] * second[0] + first[1] * second[1] + first[2] * second[2]
+
+
+def vector_length_squared(vector: tuple[float, float, float]) -> float:
+    return vector_dot(vector, vector)
+
+
 def parse_obj_parts_by_object(
     path: Path,
     exclude_objects: set[str] | None = None,
@@ -322,6 +647,136 @@ def parse_obj_parts_by_object(
         "index_count": total_indices,
     }
     return parts, global_stats
+
+
+def build_processed_buffers(
+    coordinates: list[tuple[float, float, float]],
+    textures: list[tuple[float, float]],
+    triangles: list[ProcessedTriangle],
+) -> tuple[list[float], list[int], int]:
+    vertices, indices, weights, selection_influences = build_processed_buffer_data(
+        coordinates,
+        textures,
+        triangles,
+    )
+    if weights is not None or selection_influences is not None:
+        raise ValueError("Unexpected deformation data for a static mesh")
+    return vertices, indices, len(triangles)
+
+
+def build_processed_deformable_buffers(
+    coordinates: list[tuple[float, float, float]],
+    textures: list[tuple[float, float]],
+    triangles: list[ProcessedTriangle],
+    weight_resolver,
+    selection_resolver,
+) -> tuple[list[float], list[int], int, list[float], list[int]]:
+    vertices, indices, weights, selection_influences = build_processed_buffer_data(
+        coordinates,
+        textures,
+        triangles,
+        weight_resolver,
+        selection_resolver,
+    )
+    if weights is None or selection_influences is None:
+        raise ValueError("Missing processed deformation data")
+    return vertices, indices, len(triangles), weights, selection_influences
+
+
+def build_processed_buffer_data(
+    coordinates: list[tuple[float, float, float]],
+    textures: list[tuple[float, float]],
+    triangles: list[ProcessedTriangle],
+    weight_resolver=None,
+    selection_resolver=None,
+) -> tuple[list[float], list[int], list[float] | None, list[int] | None]:
+    records: list[IndexedVertex] = []
+    weights_by_vertex: list[tuple[float, ...]] | None = [] if weight_resolver else None
+    selection_by_vertex: list[int] | None = [] if selection_resolver else None
+    indexes_by_key: dict[tuple, int] = {}
+    indices: list[int] = []
+
+    for triangle in triangles:
+        refs = triangle.refs
+        first, second, third = (coordinates[ref[0]] for ref in refs)
+        first_uv, second_uv, third_uv = (get_texture(textures, ref[1]) for ref in refs)
+        tangent, bitangent = calculate_tangent_space(
+            first,
+            second,
+            third,
+            first_uv,
+            second_uv,
+            third_uv,
+        )
+        selection_influence = selection_resolver(triangle.face) if selection_resolver else None
+        for corner_index, ref in enumerate(refs):
+            weights = weight_resolver(triangle.face, ref[0]) if weight_resolver else None
+            key = (
+                coordinate_key(coordinates[ref[0]]),
+                ref[1],
+                triangle.smoothing_groups[corner_index],
+                weights,
+                selection_influence,
+            )
+            vertex_index = indexes_by_key.get(key)
+            if vertex_index is None:
+                vertex_index = len(records)
+                indexes_by_key[key] = vertex_index
+                records.append(
+                    IndexedVertex(
+                        coordinate=coordinates[ref[0]],
+                        normal=triangle.corner_normals[corner_index],
+                        texture=get_texture(textures, ref[1]),
+                        tangent_sum=[0.0, 0.0, 0.0],
+                        bitangent_sum=[0.0, 0.0, 0.0],
+                    )
+                )
+                if weights_by_vertex is not None:
+                    if weights is None:
+                        raise ValueError("Missing weights for a processed deformable vertex")
+                    weights_by_vertex.append(weights)
+                if selection_by_vertex is not None:
+                    if selection_influence is None:
+                        raise ValueError("Missing selection influence for a processed deformable vertex")
+                    selection_by_vertex.append(selection_influence)
+            add_vector(records[vertex_index].tangent_sum, tangent)
+            add_vector(records[vertex_index].bitangent_sum, bitangent)
+            indices.append(vertex_index)
+
+    vertices: list[float] = []
+    deformation_weights: list[float] | None = [] if weights_by_vertex is not None else None
+    deformation_selection_influences: list[int] | None = [] if selection_by_vertex is not None else None
+    for vertex_index, record in enumerate(records):
+        tangent = normalize_vector(record.tangent_sum, (1.0, 0.0, 0.0))
+        bitangent = normalize_vector(record.bitangent_sum, (0.0, 1.0, 0.0))
+        vertices.extend(
+            (
+                record.coordinate[0],
+                record.coordinate[1],
+                record.coordinate[2],
+                record.normal[0],
+                record.normal[1],
+                record.normal[2],
+                1.0,
+                1.0,
+                0.0,
+                0.0,
+                record.texture[0],
+                record.texture[1],
+                tangent[0],
+                tangent[1],
+                tangent[2],
+                bitangent[0],
+                bitangent[1],
+                bitangent[2],
+            )
+        )
+        if deformation_weights is not None and weights_by_vertex is not None:
+            deformation_weights.extend(weights_by_vertex[vertex_index])
+        if deformation_selection_influences is not None and selection_by_vertex is not None:
+            deformation_selection_influences.append(selection_by_vertex[vertex_index])
+
+    return vertices, indices, deformation_weights, deformation_selection_influences
 
 
 def build_indexed_buffers(
@@ -615,10 +1070,10 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
     if not deformation:
         raise ValueError("Missing deformation block")
     deformation_type = deformation.get("type")
-    if deformation_type != "multi_top_one_bottom":
+    if deformation_type not in {"multi_top_one_bottom", "volume_invariant_rod"}:
         raise ValueError(f"Unsupported deformation type `{deformation_type}`")
     falloff = deformation.get("falloff", "smoothstep")
-    if falloff not in {"smoothstep", "linear", "ease_in"}:
+    if falloff not in {"smoothstep", "linear", "ease_in", "ease_out", "ease_out_cubic"}:
         raise ValueError(f"Unsupported deformation falloff `{falloff}`")
 
     bottom = deformation.get("bottom") or {}
@@ -649,12 +1104,30 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         )
     if not tops_by_finger:
         raise ValueError("deformation.tops must define at least one top anchor")
+    if deformation_type == "volume_invariant_rod" and len(tops_by_finger) != 1:
+        raise ValueError("volume_invariant_rod must define exactly one top anchor")
+
+    rod_sections = int(deformation.get("sections", 12))
+    if deformation_type == "volume_invariant_rod" and not 4 <= rod_sections <= 32:
+        raise ValueError("volume_invariant_rod sections must be between 4 and 32")
+    rod_progress_mode = deformation.get(
+        "progressMode",
+        VOLUME_ROD_PROGRESS_GEODESIC_RATIO,
+    )
+    if rod_progress_mode not in {
+        VOLUME_ROD_PROGRESS_GEODESIC_RATIO,
+        VOLUME_ROD_PROGRESS_HARMONIC_PATHS,
+    }:
+        raise ValueError(f"Unsupported volume rod progressMode `{rod_progress_mode}`")
 
     return DeformationSpec(
+        type=deformation_type,
         bottom_group=bottom_group,
         bottom_transform_id=bottom_transform_id,
         tops=tuple(tops_by_finger[finger] for finger in INFLUENCE_ORDER if finger in tops_by_finger),
         falloff=falloff,
+        rod_sections=rod_sections,
+        rod_progress_mode=rod_progress_mode,
     )
 
 
@@ -737,23 +1210,47 @@ def create_deformation_resolvers(
         for coordinate_index in group_coordinates[soft_group]:
             soft_groups_by_coordinate_key.setdefault(coordinate_key(coordinates[coordinate_index]), []).append(soft_group)
 
+    volume_rod_progress_by_key: dict[tuple[float, float, float], float] = {}
+    volume_rod_data = None
+    if spec.type == "volume_invariant_rod":
+        rod_top = spec.tops[0]
+        _, _, _, _, bottom_locked_keys, top_locked_keys = soft_axes[rod_top.soft_group]
+        rod_faces = [face for face in faces if resolved_groups[face] == rod_top.soft_group]
+        volume_rod_progress_by_key, volume_rod_data = build_volume_rod_data(
+            path,
+            coordinates,
+            coordinate_by_key,
+            rod_faces,
+            bottom_locked_keys,
+            top_locked_keys,
+            spec.rod_sections,
+            spec.rod_progress_mode,
+        )
+
     def soft_weights_for_key(group: str, key: tuple[float, float, float]) -> tuple[float, ...]:
         top, bottom_center, axis, axis_length_sq, _, _ = soft_axes[group]
-        coordinate = coordinate_by_key[key]
-        projection = dot(
-            (
-                coordinate[0] - bottom_center[0],
-                coordinate[1] - bottom_center[1],
-                coordinate[2] - bottom_center[2],
-            ),
-            axis,
-        )
-        raw_t = projection / axis_length_sq
-        t = clamp(raw_t, 0.0, 1.0)
-        if spec.falloff == "smoothstep":
-            t = t * t * (3.0 - 2.0 * t)
-        elif spec.falloff == "ease_in":
-            t = t * t
+        if spec.type == "volume_invariant_rod":
+            t = volume_rod_progress_by_key[key]
+        else:
+            coordinate = coordinate_by_key[key]
+            projection = dot(
+                (
+                    coordinate[0] - bottom_center[0],
+                    coordinate[1] - bottom_center[1],
+                    coordinate[2] - bottom_center[2],
+                ),
+                axis,
+            )
+            raw_t = projection / axis_length_sq
+            t = clamp(raw_t, 0.0, 1.0)
+            if spec.falloff == "smoothstep":
+                t = t * t * (3.0 - 2.0 * t)
+            elif spec.falloff == "ease_in":
+                t = t * t
+            elif spec.falloff == "ease_out":
+                t = 1.0 - ((1.0 - t) * (1.0 - t))
+            elif spec.falloff == "ease_out_cubic":
+                t = 1.0 - ((1.0 - t) * (1.0 - t) * (1.0 - t))
         weights = [0.0] * DEFORMATION_INFLUENCE_COUNT
         weights[0] = 1.0 - t
         weights[top.influence_index] = t
@@ -801,7 +1298,239 @@ def create_deformation_resolvers(
     def selection_for(face: Face) -> int:
         return selection_influence_by_group[resolved_groups[face]]
 
-    return weights_for, selection_for
+    return weights_for, selection_for, volume_rod_data
+
+
+def build_volume_rod_data(
+    path: Path,
+    coordinates: list[tuple[float, float, float]],
+    coordinate_by_key: dict[tuple[float, float, float], tuple[float, float, float]],
+    soft_faces: list[Face],
+    bottom_locked_keys: set[tuple[float, float, float]],
+    top_locked_keys: set[tuple[float, float, float]],
+    section_count: int,
+    progress_mode: str,
+) -> tuple[dict[tuple[float, float, float], float], VolumeRodData]:
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ] = {}
+    for face in soft_faces:
+        keys = [coordinate_key(coordinates[ref[0]]) for ref in face.refs]
+        for key in keys:
+            adjacency.setdefault(key, {})
+        for index, key in enumerate(keys):
+            neighbor = keys[(index + 1) % len(keys)]
+            if key == neighbor:
+                continue
+            distance = vector_distance(coordinate_by_key[key], coordinate_by_key[neighbor])
+            previous = adjacency[key].get(neighbor)
+            if previous is None or distance < previous:
+                adjacency[key][neighbor] = distance
+                adjacency[neighbor][key] = distance
+
+    bottom_sources = bottom_locked_keys.intersection(adjacency)
+    top_sources = top_locked_keys.intersection(adjacency)
+    if not bottom_sources or not top_sources:
+        raise ValueError(f"{path}: volume rod boundary is disconnected from its soft mesh")
+
+    distance_from_bottom = shortest_surface_distances(adjacency, bottom_sources)
+    distance_from_top = shortest_surface_distances(adjacency, top_sources)
+    missing_keys = set(adjacency).difference(distance_from_bottom).union(
+        set(adjacency).difference(distance_from_top)
+    )
+    if missing_keys:
+        raise ValueError(f"{path}: volume rod soft mesh contains disconnected vertices")
+
+    progress_by_key: dict[tuple[float, float, float], float] = {}
+    for key in adjacency:
+        if key in bottom_locked_keys:
+            progress_by_key[key] = 0.0
+            continue
+        if key in top_locked_keys:
+            progress_by_key[key] = 1.0
+            continue
+        bottom_distance = distance_from_bottom[key]
+        top_distance = distance_from_top[key]
+        total_distance = bottom_distance + top_distance
+        if total_distance <= UV_EPSILON:
+            raise ValueError(f"{path}: volume rod has an invalid zero-length surface path")
+        progress_by_key[key] = clamp(bottom_distance / total_distance, 0.0, 1.0)
+
+    if progress_mode == VOLUME_ROD_PROGRESS_HARMONIC_PATHS:
+        progress_by_key = build_harmonic_surface_progress(
+            adjacency,
+            bottom_sources,
+            top_sources,
+            progress_by_key,
+        )
+
+    bottom_center = center_for_coordinate_keys(coordinate_by_key, bottom_locked_keys)
+    top_center = center_for_coordinate_keys(coordinate_by_key, top_locked_keys)
+    centerline = build_volume_rod_centerline(
+        coordinate_by_key,
+        progress_by_key,
+        bottom_center,
+        top_center,
+        section_count,
+    )
+    return progress_by_key, VolumeRodData(centerline=tuple(centerline))
+
+
+def shortest_surface_distances(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    sources: set[tuple[float, float, float]],
+) -> dict[tuple[float, float, float], float]:
+    distances = {source: 0.0 for source in sources}
+    pending = [(0.0, source) for source in sources]
+    heapq.heapify(pending)
+    while pending:
+        distance, key = heapq.heappop(pending)
+        if distance > distances.get(key, math.inf):
+            continue
+        for neighbor, edge_length in adjacency[key].items():
+            next_distance = distance + edge_length
+            if next_distance >= distances.get(neighbor, math.inf):
+                continue
+            distances[neighbor] = next_distance
+            heapq.heappush(pending, (next_distance, neighbor))
+    return distances
+
+
+def build_harmonic_surface_progress(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+) -> dict[tuple[float, float, float], float]:
+    if bottom_sources.intersection(top_sources):
+        raise ValueError("Volume rod top and bottom boundaries overlap")
+
+    progress = dict(initial_progress)
+    interior = [
+        key
+        for key in adjacency
+        if key not in bottom_sources and key not in top_sources
+    ]
+    conductance_by_key: dict[
+        tuple[float, float, float],
+        tuple[tuple[tuple[float, float, float], float], ...],
+    ] = {}
+    total_conductance_by_key: dict[tuple[float, float, float], float] = {}
+    for key in interior:
+        neighbors = tuple(
+            (neighbor, 1.0 / max(edge_length, UV_EPSILON))
+            for neighbor, edge_length in adjacency[key].items()
+        )
+        total_conductance = sum(conductance for _, conductance in neighbors)
+        if total_conductance <= UV_EPSILON:
+            raise ValueError("Volume rod surface path contains an isolated vertex")
+        conductance_by_key[key] = neighbors
+        total_conductance_by_key[key] = total_conductance
+
+    for _ in range(HARMONIC_PATH_MAX_ITERATIONS):
+        maximum_change = 0.0
+        for key in interior:
+            weighted_progress = sum(
+                progress[neighbor] * conductance
+                for neighbor, conductance in conductance_by_key[key]
+            )
+            average = weighted_progress / total_conductance_by_key[key]
+            previous = progress[key]
+            updated = previous + HARMONIC_PATH_RELAXATION * (average - previous)
+            progress[key] = updated
+            maximum_change = max(maximum_change, abs(updated - previous))
+        if maximum_change < HARMONIC_PATH_TOLERANCE:
+            break
+    else:
+        raise ValueError("Volume rod harmonic surface paths did not converge")
+
+    for key in bottom_sources:
+        progress[key] = 0.0
+    for key in top_sources:
+        progress[key] = 1.0
+    for key in interior:
+        progress[key] = clamp(progress[key], 0.0, 1.0)
+    return progress
+
+
+def build_volume_rod_centerline(
+    coordinate_by_key: dict[tuple[float, float, float], tuple[float, float, float]],
+    progress_by_key: dict[tuple[float, float, float], float],
+    bottom_center: tuple[float, float, float],
+    top_center: tuple[float, float, float],
+    section_count: int,
+) -> list[tuple[float, float, float]]:
+    centerline = [bottom_center]
+    sigma = 0.75 / section_count
+    radius = sigma * 2.5
+    for section_index in range(1, section_count):
+        target_progress = section_index / section_count
+        weighted_x = weighted_y = weighted_z = total_weight = 0.0
+        for key, progress in progress_by_key.items():
+            progress_delta = abs(progress - target_progress)
+            if progress_delta > radius:
+                continue
+            normalized_delta = progress_delta / sigma
+            weight = math.exp(-0.5 * normalized_delta * normalized_delta)
+            coordinate = coordinate_by_key[key]
+            weighted_x += coordinate[0] * weight
+            weighted_y += coordinate[1] * weight
+            weighted_z += coordinate[2] * weight
+            total_weight += weight
+        if total_weight <= UV_EPSILON:
+            centerline.append(lerp_vector(bottom_center, top_center, target_progress))
+        else:
+            centerline.append(
+                (weighted_x / total_weight, weighted_y / total_weight, weighted_z / total_weight)
+            )
+    centerline.append(top_center)
+
+    for _ in range(2):
+        smoothed = [centerline[0]]
+        for index in range(1, len(centerline) - 1):
+            previous = centerline[index - 1]
+            current = centerline[index]
+            following = centerline[index + 1]
+            smoothed.append(
+                (
+                    previous[0] * 0.25 + current[0] * 0.5 + following[0] * 0.25,
+                    previous[1] * 0.25 + current[1] * 0.5 + following[1] * 0.25,
+                    previous[2] * 0.25 + current[2] * 0.5 + following[2] * 0.25,
+                )
+            )
+        smoothed.append(centerline[-1])
+        centerline = smoothed
+    return centerline
+
+
+def vector_distance(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+) -> float:
+    return math.sqrt(
+        (first[0] - second[0]) ** 2
+        + (first[1] - second[1]) ** 2
+        + (first[2] - second[2]) ** 2
+    )
+
+
+def lerp_vector(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+    amount: float,
+) -> tuple[float, float, float]:
+    return (
+        first[0] + (second[0] - first[0]) * amount,
+        first[1] + (second[1] - first[1]) * amount,
+        first[2] + (second[2] - first[2]) * amount,
+    )
 
 
 def resolve_deformation_group(path: Path, face: Face, required_groups: set[str]) -> str:
@@ -978,6 +1707,7 @@ def write_deformation(
     deformation_weights: list[float],
     selection_influences: list[int] | None,
     vertex_count: int,
+    volume_rod_data: VolumeRodData | None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     expected_weight_count = vertex_count * DEFORMATION_INFLUENCE_COUNT
@@ -993,10 +1723,11 @@ def write_deformation(
             f"Unexpected deformation selection influence count: expected {vertex_count}, "
             f"got {len(selection_influences)}"
         )
+    deformation_version = DEFORMATION_VOLUME_ROD_VERSION if volume_rod_data else DEFORMATION_VERSION
     header = struct.pack(
         "<4s3i",
         DEFORMATION_MAGIC,
-        DEFORMATION_VERSION,
+        deformation_version,
         vertex_count,
         DEFORMATION_INFLUENCE_COUNT,
     )
@@ -1010,6 +1741,15 @@ def write_deformation(
         target.write(header)
         weights_array.tofile(target)
         selection_array.tofile(target)
+        if volume_rod_data is not None:
+            target.write(struct.pack("<i", len(volume_rod_data.centerline)))
+            centerline_values = array.array(
+                "f",
+                (value for center in volume_rod_data.centerline for value in center),
+            )
+            if sys.byteorder != "little":
+                centerline_values.byteswap()
+            centerline_values.tofile(target)
 
 
 def binary_output_path_for(part: dict, source_asset: str, assets_dir: Path, output_dir: Path) -> Path:
@@ -1083,10 +1823,11 @@ def convert_part(
     output_path = binary_output_path_for(part, source_asset, assets_dir, output_dir)
     deformation = part.get("deformation")
     object_filter = part.get("object") or part.get("objectName")
-    vertices, indices, stats, deformation_weights, selection_influences = parse_obj(
+    vertices, indices, stats, deformation_weights, selection_influences, volume_rod_data = parse_obj(
         source_path,
         deformation,
         object_filter,
+        part.get("meshProcessing"),
     )
     write_binary(output_path, vertices, indices, stats)
     file_size = output_path.stat().st_size
@@ -1100,9 +1841,17 @@ def convert_part(
             deformation_weights,
             selection_influences,
             stats["vertex_count"],
+            volume_rod_data,
         )
         deformation_info = f" deformation={display_path(deformation_output_path, assets_dir)}"
     object_info = f" object={object_filter}" if object_filter else ""
+    processing_info = ""
+    if "skipped_triangle_count" in stats:
+        processing_info = (
+            f" skippedTriangles={stats['skipped_triangle_count']}"
+            f" reorientedTriangles={stats['reoriented_triangle_count']}"
+            f" creaseEdges={stats['crease_edge_count']}"
+        )
     print(
         f"{source_asset} -> {display_path(output_path, assets_dir)} "
         f"vertices={stats['vertex_count']} indices={stats['index_count']} "
@@ -1111,6 +1860,7 @@ def convert_part(
         f"bytes={file_size}"
         f"{object_info}"
         f"{deformation_info}"
+        f"{processing_info}"
     )
     return (
         stats["vertex_count"],

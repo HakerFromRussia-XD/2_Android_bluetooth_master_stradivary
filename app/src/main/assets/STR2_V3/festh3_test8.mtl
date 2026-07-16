@@ -1,0 +1,60 @@
+#  ==========================================================================
+#  Wavefront Material file
+#  Exported by Red-i Productions' "Riptide Pro"
+#  (a commercial plugin for Cinema 4D PC & Mac, R9.6 or later)
+#  
+#  Red-i Productions
+#  http://skinprops.com
+#  
+#  ==========================================================================
+
+newmtl default_Mat
+illum 1
+
+newmtl gofra_2_thumb_top
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_2_base
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_2_thumb_soft
+Kd 1.000000 0.000000 0.900000
+illum 1
+
+newmtl gofra_1_base
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_1_index_top
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_1_middle_top
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_1_ring_top
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_1_little_top
+Kd 0.000000 0.000000 0.000000
+illum 1
+
+newmtl gofra_1_index_soft
+Kd 1.000000 0.116667 0.000000
+illum 1
+
+newmtl gofra_1_middle_soft
+Kd 1.000000 0.933333 0.000000
+illum 1
+
+newmtl gofra_1_ring_soft
+Kd 0.000000 0.033333 1.000000
+illum 1
+
+newmtl gofra_1_little_soft
+Kd 0.166667 1.000000 0.000000
+illum 1

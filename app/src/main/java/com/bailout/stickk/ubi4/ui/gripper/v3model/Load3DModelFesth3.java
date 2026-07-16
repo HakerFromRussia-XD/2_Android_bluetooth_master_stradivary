@@ -38,7 +38,10 @@ public final class Load3DModelFesth3 {
     private static final int DEFORMATION_HEADER_BYTES = 16;
     private static final int DEFORMATION_MODEL_VERSION_LEGACY = 1;
     private static final int DEFORMATION_MODEL_VERSION_SELECTION = 2;
+    private static final int DEFORMATION_MODEL_VERSION_VOLUME_ROD = 3;
     private static final int DEFORMATION_INFLUENCE_COUNT = 6;
+    private static final String DEFORMATION_TYPE_LINEAR = "multi_top_one_bottom";
+    private static final String DEFORMATION_TYPE_VOLUME_ROD = "volume_invariant_rod";
     private static final byte BINARY_MAGIC_0 = 'V';
     private static final byte BINARY_MAGIC_1 = '3';
     private static final byte BINARY_MAGIC_2 = 'M';
@@ -759,7 +762,9 @@ public final class Load3DModelFesth3 {
         int version = buffer.getInt();
         int vertexCount = buffer.getInt();
         int influenceCount = buffer.getInt();
-        if (version != DEFORMATION_MODEL_VERSION_LEGACY && version != DEFORMATION_MODEL_VERSION_SELECTION) {
+        if (version != DEFORMATION_MODEL_VERSION_LEGACY
+                && version != DEFORMATION_MODEL_VERSION_SELECTION
+                && version != DEFORMATION_MODEL_VERSION_VOLUME_ROD) {
             throw new IOException("Unsupported V3 deformation version " + version + " in `" + assetPath + "`");
         }
         if (vertexCount != expectedVertexCount) {
@@ -774,13 +779,35 @@ public final class Load3DModelFesth3 {
         int weightCount = vertexCount * influenceCount;
         int weightBytes = weightCount * Float.BYTES;
         int selectionBytes = version >= DEFORMATION_MODEL_VERSION_SELECTION ? vertexCount * Integer.BYTES : 0;
-        int expectedBytes = DEFORMATION_HEADER_BYTES + weightBytes + selectionBytes;
+        int commonBytes = DEFORMATION_HEADER_BYTES + weightBytes + selectionBytes;
+        int rodNodeCount = 0;
+        int expectedBytes = commonBytes;
+        if (version == DEFORMATION_MODEL_VERSION_VOLUME_ROD) {
+            if (!DEFORMATION_TYPE_VOLUME_ROD.equals(deformationSpec.type)) {
+                throw new IOException("Volume-rod deformation data used by `" + deformationSpec.type
+                        + "` part `" + partId + "`");
+            }
+            if (bytes.length < commonBytes + Integer.BYTES) {
+                throw new IOException("V3 volume-rod data `" + assetPath + "` is missing its node count");
+            }
+            buffer.position(commonBytes);
+            rodNodeCount = buffer.getInt();
+            if (rodNodeCount < 5 || rodNodeCount > 33) {
+                throw new IOException("Unexpected V3 volume-rod node count " + rodNodeCount
+                        + " in `" + assetPath + "`");
+            }
+            expectedBytes += Integer.BYTES + rodNodeCount * 3 * Float.BYTES;
+        } else if (DEFORMATION_TYPE_VOLUME_ROD.equals(deformationSpec.type)) {
+            throw new IOException("V3 volume-rod part `" + partId + "` requires deformation version "
+                    + DEFORMATION_MODEL_VERSION_VOLUME_ROD);
+        }
         if (bytes.length != expectedBytes) {
             throw new IOException("Unexpected V3 deformation size for `" + assetPath
                     + "`: expected " + expectedBytes + " bytes, got " + bytes.length);
         }
 
         float[] weights = new float[weightCount];
+        buffer.position(DEFORMATION_HEADER_BYTES);
         buffer.asFloatBuffer().get(weights);
         int[] selectionInfluences = null;
         if (selectionBytes > 0) {
@@ -788,18 +815,26 @@ public final class Load3DModelFesth3 {
             selectionInfluences = new int[vertexCount];
             buffer.asIntBuffer().get(selectionInfluences);
         }
+        float[] volumeRodCenterline = null;
+        if (rodNodeCount > 0) {
+            buffer.position(commonBytes + Integer.BYTES);
+            volumeRodCenterline = new float[rodNodeCount * 3];
+            buffer.asFloatBuffer().get(volumeRodCenterline);
+        }
         V3ModelLoadMetrics.log("partDeformationLoaded partId=" + partId
                 + " asset=" + assetPath
                 + " loadMs=" + elapsedSince(loadStartedAtMs)
                 + " version=" + version
                 + " vertices=" + vertexCount
                 + " influences=" + influenceCount
+                + " rodNodes=" + rodNodeCount
                 + " bytes=" + bytes.length);
         return new DeformationData(
                 deformationSpec.type,
                 deformationSpec.transformIdsByInfluence,
                 weights,
                 selectionInfluences,
+                volumeRodCenterline,
                 vertexCount,
                 influenceCount
         );
@@ -850,7 +885,7 @@ public final class Load3DModelFesth3 {
 
     private static DeformationSpec parseDeformationSpec(JSONObject deformationJson, String partId) throws JSONException {
         String type = deformationJson.optString("type", "");
-        if (!"multi_top_one_bottom".equals(type)) {
+        if (!DEFORMATION_TYPE_LINEAR.equals(type) && !DEFORMATION_TYPE_VOLUME_ROD.equals(type)) {
             throw new JSONException("Unsupported V3 deformation type `" + type + "` for part `" + partId + "`");
         }
 
@@ -921,6 +956,9 @@ public final class Load3DModelFesth3 {
         }
         if (!hasAnyTop) {
             throw new JSONException("V3 deformation part `" + partId + "` must define at least one top anchor");
+        }
+        if (DEFORMATION_TYPE_VOLUME_ROD.equals(type) && tops.length() != 1) {
+            throw new JSONException("V3 volume-rod part `" + partId + "` must define exactly one top anchor");
         }
         return new DeformationSpec(type, transformIdsByInfluence);
     }
@@ -1075,6 +1113,7 @@ public final class Load3DModelFesth3 {
         public final String[] transformIdsByInfluence;
         public final float[] weights;
         public final int[] selectionInfluences;
+        public final float[] volumeRodCenterline;
         public final int vertexCount;
         public final int influenceCount;
 
@@ -1083,6 +1122,7 @@ public final class Load3DModelFesth3 {
                 String[] transformIdsByInfluence,
                 float[] weights,
                 int[] selectionInfluences,
+                float[] volumeRodCenterline,
                 int vertexCount,
                 int influenceCount
         ) {
@@ -1090,6 +1130,7 @@ public final class Load3DModelFesth3 {
             this.transformIdsByInfluence = transformIdsByInfluence.clone();
             this.weights = weights;
             this.selectionInfluences = selectionInfluences == null ? null : selectionInfluences.clone();
+            this.volumeRodCenterline = volumeRodCenterline == null ? null : volumeRodCenterline.clone();
             this.vertexCount = vertexCount;
             this.influenceCount = influenceCount;
         }

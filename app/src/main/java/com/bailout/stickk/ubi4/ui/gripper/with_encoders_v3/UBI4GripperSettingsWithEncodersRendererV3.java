@@ -112,7 +112,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private final float[] deformationBaseMatrix = new float[16];
 	private final float[] deformationInverseBaseMatrix = new float[16];
 	private final float[] deformationScratchMatrix = new float[16];
-	private final float[] thumbFirstPhalanxMatrix = new float[16];
+	private final float[] thumbTransformMatrix = new float[16];
+	private final float[] thumbRotationOffsetMatrix = new float[16];
 	private boolean deformationBindMatricesCaptured = false;
 
 	/** OpenGL handles to our program uniforms. */
@@ -202,8 +203,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final String TRANSFORM_RING_UPPER = "ring_upper";
 	private static final String TRANSFORM_LITTLE_UPPER = "little_upper";
 	private static final String TRANSFORM_THUMB_UPPER = "thumb_upper";
+	private static final String DEFORMATION_TYPE_VOLUME_ROD = "volume_invariant_rod";
+	private static boolean volumeRodDeformationEnabled = true;
 	private static final int DEFORMATION_INFLUENCE_NONE = -1;
 	private static final float DEFORMATION_FINGER_WEIGHT_EPSILON = 0.0001f;
+	private static final float VOLUME_ROD_ANCHOR_BLEND = 0.14f;
+	private static final float VOLUME_ROD_MIN_RADIAL_SCALE = 1.0f;
+	private static final float VOLUME_ROD_MIN_AXIAL_SCALE = 0.35f;
+	private static final float VOLUME_ROD_MAX_AXIAL_SCALE = 2.5f;
+	private static final float VOLUME_ROD_PALM_HANDLE_RATIO = 0.20f;
+	private static final float VOLUME_ROD_FINGER_HANDLE_RATIO = 0.50f;
+	private static final float VOLUME_ROD_MIN_HANDLE_SCALE = 0.65f;
+	private static final float VOLUME_ROD_MAX_HANDLE_SCALE = 1.20f;
+	private static final float VOLUME_ROD_BENDING_STRAIN_GAIN = 0.35f;
+	private static final float VOLUME_ROD_PALM_STRAIN_BLEND = 0.35f;
+	private static final float VOLUME_ROD_FINGER_STRAIN_BLEND = VOLUME_ROD_ANCHOR_BLEND;
+	private static final float VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE = 1.85f;
 	private static final float SELECT_PICK_CODE_SCALE = 1.0f / 255.0f;
 	private static final float[] DEFORMABLE_COLOR_WHITE = {1.0f, 1.0f, 1.0f, 1.0f};
 	private static final float[] DEFORMABLE_COLOR_YELLOW = {1.0f, 1.0f, 0.0f, 1.0f};
@@ -289,7 +304,18 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final int BIG_FINGER_SECOND_AXIS_MAX = 22;//56
 	private static final int BIG_FINGER_SECOND_PHALANX_MIN = -25;
 	private static final int BIG_FINGER_SECOND_PHALANX_MAX = 20;
+	private static final float BIG_FINGER_SECOND_PHALANX_OFFSET_DEGREES = 20.0f;
 	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = 34.0f;
+	// Marker centers from test10 rotation_1.1 and active test9 rotation_1.2/rotation_2.
+	private static final float BIG_FINGER_DELTA_X_PIVOT_X = -65.678083f; // rotation_1.1
+	private static final float BIG_FINGER_DELTA_X_PIVOT_Y = -18.191633f;
+	private static final float BIG_FINGER_DELTA_X_PIVOT_Z = -28.560333f;
+	private static final float BIG_FINGER_DELTA_Y_PIVOT_X = -40.648183f; // rotation_1.2
+	private static final float BIG_FINGER_DELTA_Y_PIVOT_Y = -27.336317f;
+	private static final float BIG_FINGER_DELTA_Y_PIVOT_Z = -31.565383f;
+	private static final float BIG_FINGER_SECOND_PHALANX_PIVOT_X = -18.000000f; // rotation_2
+	private static final float BIG_FINGER_SECOND_PHALANX_PIVOT_Y = -52.430767f;
+	private static final float BIG_FINGER_SECOND_PHALANX_PIVOT_Z = -49.062533f;
 	private final boolean emitFingerAngleUpdates;
 	private final long rendererCreatedAtMs;
 	private Boolean astcSupported;
@@ -1877,12 +1903,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 
 
-		Matrix.setIdentityM(modelMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.scaleM(modelMatrix, 0, 1, -1, 1);
-		}
-		Matrix.translateM(modelMatrix, 0, 40.0f, 18.0f, 28.0f);
-
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
 			angleBigFingerTransfer1 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5();
@@ -1936,20 +1956,6 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			}
 		}
 
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		/** перемещение моделек ко второму месту вращения */
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, 0, 20.0f, 0.0f);
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, 0, -15.0f, 0.0f);
-		}
-
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
 		/** поворот вокруг второй оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6()) {
 			angleBigFingerTransfer2 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6() + BIG_FINGER_SECOND_AXIS_MIN;
@@ -2000,23 +2006,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation2, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		/** перемещение модели в сборку */
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
-			Matrix.translateM(temporaryMatrix, 0, -56.0f, -2.0f, -28.0f);
-		} else {
-			Matrix.translateM(temporaryMatrix, 0, -40.0f, -3.0f, -28.0f);
-		}
-
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-
-		/** применение общего вращения */
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+		buildBigFingerModelMatrix(false);
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -2028,22 +2018,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		storeDeformationAnchorMatrix(TRANSFORM_THUMB_UPPER);
-		System.arraycopy(modelMatrix, 0, thumbFirstPhalanxMatrix, 0, 16);
 		renderPlasticPart(shaderMassiv[0], 7, 16, modelParts("thumb_plastic", 0));
 		renderGrayMetalPart(shaderMassiv[0], modelParts("thumb_gray_metal", 1));
 		renderChromeMetalPart(shaderMassiv[0], modelParts("thumb_first_metal"));
 
-		System.arraycopy(thumbFirstPhalanxMatrix, 0, modelMatrix, 0, 16);
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, 30.0f, 0.0f, 0.0f);
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationBigFingerSecondPhalanx, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
-		Matrix.setIdentityM(temporaryMatrix, 0);
-		Matrix.translateM(temporaryMatrix, 0, -30.0f, 0.0f, 0.0f);
-		Matrix.multiplyMM(temporaryMatrix, 0, temporaryMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+		buildBigFingerModelMatrix(true);
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -2208,6 +2187,78 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		System.arraycopy(temporaryMatrix, 0, accumulatedRotationBigFingerSecondPhalanx, 0, 16);
 	}
 
+	private void buildBigFingerModelMatrix(boolean includeSecondPhalanxRotation) {
+		boolean mirrored = UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0;
+		Matrix.setIdentityM(modelMatrix, 0);
+		if (mirrored) {
+			Matrix.scaleM(modelMatrix, 0, 1.0f, -1.0f, 1.0f);
+		}
+
+		if (includeSecondPhalanxRotation) {
+			Matrix.setIdentityM(thumbRotationOffsetMatrix, 0);
+			rotateBigFingerSecondPhalanx(
+					thumbRotationOffsetMatrix,
+					mirrored
+							? BIG_FINGER_SECOND_PHALANX_OFFSET_DEGREES
+							: -BIG_FINGER_SECOND_PHALANX_OFFSET_DEGREES
+			);
+			leftMultiplyBigFingerAroundPivot(
+					thumbRotationOffsetMatrix,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_X,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_Y,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_Z,
+					mirrored
+			);
+			leftMultiplyBigFingerAroundPivot(
+					accumulatedRotationBigFingerSecondPhalanx,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_X,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_Y,
+					BIG_FINGER_SECOND_PHALANX_PIVOT_Z,
+					mirrored
+			);
+		}
+
+		leftMultiplyBigFingerAroundPivot(
+				accumulatedRotation,
+				BIG_FINGER_DELTA_Y_PIVOT_X,
+				BIG_FINGER_DELTA_Y_PIVOT_Y,
+				BIG_FINGER_DELTA_Y_PIVOT_Z,
+				mirrored
+		);
+		leftMultiplyBigFingerAroundPivot(
+				accumulatedRotation2,
+				BIG_FINGER_DELTA_X_PIVOT_X,
+				BIG_FINGER_DELTA_X_PIVOT_Y,
+				BIG_FINGER_DELTA_X_PIVOT_Z,
+				mirrored
+		);
+		leftMultiplyBigFingerModel(accumulatedRotationGeneral);
+	}
+
+	private void leftMultiplyBigFingerAroundPivot(
+			float[] rotation,
+			float pivotX,
+			float pivotY,
+			float pivotZ,
+			boolean mirrored
+	) {
+		float transformedPivotY = mirrored ? -pivotY : pivotY;
+		leftTranslateBigFingerModel(-pivotX, -transformedPivotY, -pivotZ);
+		leftMultiplyBigFingerModel(rotation);
+		leftTranslateBigFingerModel(pivotX, transformedPivotY, pivotZ);
+	}
+
+	private void leftTranslateBigFingerModel(float x, float y, float z) {
+		Matrix.setIdentityM(thumbTransformMatrix, 0);
+		Matrix.translateM(thumbTransformMatrix, 0, x, y, z);
+		leftMultiplyBigFingerModel(thumbTransformMatrix);
+	}
+
+	private void leftMultiplyBigFingerModel(float[] transform) {
+		Matrix.multiplyMM(temporaryMatrix, 0, transform, 0, modelMatrix, 0);
+		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
+	}
+
 	private void rotateBigFingerFirstAxis(float[] targetMatrix, float angle) {
 		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
@@ -2221,7 +2272,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	private void rotateBigFingerSecondPhalanx(float[] targetMatrix, float angle) {
+		Matrix.rotateM(targetMatrix, 0, BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 		Matrix.rotateM(targetMatrix, 0, angle, 0.0f, 0.0f, -1.0f);
+		Matrix.rotateM(targetMatrix, 0, -BIG_FINGER_TOUCH_X_CORRECTION_DEGREES, 1.0f, 0.0f, 0.0f);
 	}
 
 	class HeightMap {
@@ -2233,10 +2286,80 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		float[][] dynamicVertices;
 		FloatBuffer[] dynamicVertexBuffers;
 		Load3DModelFesth3.DeformationData[] deformationData;
+		VolumeRodRuntime[] volumeRodRuntimes;
 
 		int partCount;
 
 		private int i = 0;
+
+		private final class VolumeRodRuntime {
+			final int nodeCount;
+			final int topInfluence;
+			final float[] currentCenters;
+			final float[] nodeRotations;
+			final float[] restTangents;
+			final float[] currentTangents;
+			final float[] restSegmentLengths;
+			final float[] segmentAxialScales;
+			final float[] segmentRadialScales;
+			final float totalRestLength;
+			final float restChordLength;
+			final float[] bottomReal = new float[4];
+			final float[] bottomDual = new float[4];
+			final float[] topReal = new float[4];
+			final float[] topDual = new float[4];
+			final float[] blendedReal = new float[4];
+			final float[] blendedDual = new float[4];
+			final float[] blendedTranslation = new float[3];
+			final float[] vertexRotation = new float[4];
+			final float[] restTangent = new float[3];
+			final float[] currentTangent = new float[3];
+			final float[] referenceTangent = new float[3];
+			final float[] bendNormal = new float[3];
+			final float[] restCenter = new float[3];
+			final float[] currentCenter = new float[3];
+			final float[] frameScalars = new float[4];
+			final float[] vectorScratch = new float[3];
+			final float[] rigidInput = new float[4];
+			final float[] rigidOutput = new float[4];
+			final float[] guideStart = new float[3];
+			final float[] guideEnd = new float[3];
+			final float[] guideStartTangent = new float[3];
+			final float[] guideEndTangent = new float[3];
+			final float[] restGuidePoint = new float[3];
+			final float[] currentGuidePoint = new float[3];
+
+			VolumeRodRuntime(Load3DModelFesth3.DeformationData data) {
+				nodeCount = data.volumeRodCenterline.length / 3;
+				int resolvedTopInfluence = DEFORMATION_INFLUENCE_NONE;
+				for (int influence = DEFORMATION_MATRIX_INDEX; influence < data.influenceCount; influence++) {
+					if (data.transformIdsByInfluence[influence] != null) {
+						resolvedTopInfluence = influence;
+						break;
+					}
+				}
+				topInfluence = resolvedTopInfluence;
+				currentCenters = new float[nodeCount * 3];
+				nodeRotations = new float[nodeCount * 4];
+				restTangents = new float[nodeCount * 3];
+				currentTangents = new float[nodeCount * 3];
+				restSegmentLengths = new float[nodeCount - 1];
+				segmentAxialScales = new float[nodeCount - 1];
+				segmentRadialScales = new float[nodeCount - 1];
+				computePolylineTangents(data.volumeRodCenterline, restTangents, restSegmentLengths);
+				float resolvedRestLength = 0.0f;
+				for (float segmentLength : restSegmentLengths) {
+					resolvedRestLength += segmentLength;
+				}
+				totalRestLength = resolvedRestLength;
+				int endOffset = (nodeCount - 1) * 3;
+				restChordLength = vectorLength(
+						data.volumeRodCenterline[endOffset] - data.volumeRodCenterline[0],
+						data.volumeRodCenterline[endOffset + 1] - data.volumeRodCenterline[1],
+						data.volumeRodCenterline[endOffset + 2] - data.volumeRodCenterline[2]
+				);
+			}
+		}
 
 			void loader() {
 				long loaderStartedAtMs = SystemClock.elapsedRealtime();
@@ -2259,6 +2382,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					dynamicVertices = new float[partCount][];
 					dynamicVertexBuffers = new FloatBuffer[partCount];
 					deformationData = new Load3DModelFesth3.DeformationData[partCount];
+					volumeRodRuntimes = new VolumeRodRuntime[partCount];
 
 					long glGenStartedAtMs = SystemClock.elapsedRealtime();
 					GLES20.glGenBuffers(partCount, vbo, 0);
@@ -2275,6 +2399,10 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							bindVertices[i] = vertices.clone();
 							dynamicVertices[i] = vertices.clone();
 							deformationData[i] = partDeformationData;
+							if (DEFORMATION_TYPE_VOLUME_ROD.equals(partDeformationData.type)
+									&& partDeformationData.volumeRodCenterline != null) {
+								volumeRodRuntimes[i] = new VolumeRodRuntime(partDeformationData);
+							}
 						}
 						indexCounts[i] = indices.length;
 						System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCounts[i]);
@@ -2368,10 +2496,23 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			float[] bind = bindVertices[partIndex];
 			float[] target = dynamicVertices[partIndex];
 			FloatBuffer targetBuffer = dynamicVertexBuffers[partIndex];
-			if (data == null || bind == null || target == null || targetBuffer == null) {
-				return;
-			}
-			int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+				if (data == null || bind == null || target == null || targetBuffer == null) {
+					return;
+				}
+				VolumeRodRuntime volumeRodRuntime = volumeRodRuntimes[partIndex];
+				if (volumeRodRuntime != null) {
+					updateVolumeRodPart(
+							bind,
+							target,
+							data,
+							volumeRodRuntime,
+							selectedInfluence,
+							pickingPass
+					);
+					uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
+					return;
+				}
+				int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
 			float[] input = new float[4];
 			float[] output = new float[4];
 			for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
@@ -2415,14 +2556,816 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						input,
 						output);
 			}
-			targetBuffer.position(0);
-			targetBuffer.put(target).position(0);
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
-			GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, target.length * BYTES_PER_FLOAT, targetBuffer);
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-		}
+				uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
+			}
 
-		private void writeDeformableVertexColor(
+			private void uploadDynamicVertexBuffer(
+					int partIndex,
+					float[] target,
+					FloatBuffer targetBuffer
+			) {
+				targetBuffer.position(0);
+				targetBuffer.put(target).position(0);
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[partIndex]);
+				GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, target.length * BYTES_PER_FLOAT, targetBuffer);
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+			}
+
+			private void updateVolumeRodPart(
+					float[] bind,
+					float[] target,
+					Load3DModelFesth3.DeformationData data,
+					VolumeRodRuntime runtime,
+					int selectedInfluence,
+					boolean pickingPass
+			) {
+				if (runtime.topInfluence <= DEFORMATION_MATRIX_PALM) {
+					return;
+				}
+				if (!volumeRodDeformationEnabled) {
+					copyUndeformedVolumeRodPart(
+							bind,
+							target,
+							data,
+							selectedInfluence,
+							pickingPass
+					);
+					return;
+				}
+				prepareVolumeRodRuntime(data, runtime);
+				float[] bottomMatrix = deformationMatrixFor(data.transformIdsByInfluence[DEFORMATION_MATRIX_PALM]);
+				float[] topMatrix = deformationMatrixFor(data.transformIdsByInfluence[runtime.topInfluence]);
+				int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+				int normalOffsetInVertex = POSITION_DATA_SIZE_IN_ELEMENTS;
+				int tangentOffsetInVertex = POSITION_DATA_SIZE_IN_ELEMENTS
+						+ NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS;
+				int bitangentOffsetInVertex = tangentOffsetInVertex + TANGENT_DATA_SIZE_IN_ELEMENTS;
+
+				for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
+					int vertexOffset = vertexIndex * floatsPerVertex;
+					int weightOffset = vertexIndex * data.influenceCount;
+					float progress = clampVolumeRod(
+							data.weights[weightOffset + runtime.topInfluence],
+							0.0f,
+							1.0f
+					);
+
+					System.arraycopy(
+							bind,
+							vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
+							target,
+							vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
+							COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS
+					);
+
+					if (progress <= DEFORMATION_FINGER_WEIGHT_EPSILON) {
+						transformRigidVolumeRodVector(bind, vertexOffset, bottomMatrix, true, target, vertexOffset, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + normalOffsetInVertex,
+								bottomMatrix, false, target, vertexOffset + normalOffsetInVertex, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + tangentOffsetInVertex,
+								bottomMatrix, false, target, vertexOffset + tangentOffsetInVertex, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + bitangentOffsetInVertex,
+								bottomMatrix, false, target, vertexOffset + bitangentOffsetInVertex, runtime);
+					} else if (progress >= 1.0f - DEFORMATION_FINGER_WEIGHT_EPSILON) {
+						transformRigidVolumeRodVector(bind, vertexOffset, topMatrix, true, target, vertexOffset, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + normalOffsetInVertex,
+								topMatrix, false, target, vertexOffset + normalOffsetInVertex, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + tangentOffsetInVertex,
+								topMatrix, false, target, vertexOffset + tangentOffsetInVertex, runtime);
+						transformRigidVolumeRodVector(bind, vertexOffset + bitangentOffsetInVertex,
+								topMatrix, false, target, vertexOffset + bitangentOffsetInVertex, runtime);
+					} else {
+						fillVolumeRodFrame(data, runtime, progress);
+						transformVolumeRodPosition(bind, vertexOffset, target, vertexOffset, runtime);
+						transformVolumeRodDirection(bind, vertexOffset + normalOffsetInVertex,
+								target, vertexOffset + normalOffsetInVertex, runtime, true);
+						transformVolumeRodDirection(bind, vertexOffset + tangentOffsetInVertex,
+								target, vertexOffset + tangentOffsetInVertex, runtime, false);
+						transformVolumeRodDirection(bind, vertexOffset + bitangentOffsetInVertex,
+								target, vertexOffset + bitangentOffsetInVertex, runtime, false);
+
+						float rodBlend = runtime.frameScalars[2];
+						if (rodBlend < 1.0f) {
+							float[] anchorMatrix = progress < 0.5f ? bottomMatrix : topMatrix;
+							blendVolumeRodWithAnchor(bind, vertexOffset, anchorMatrix, true,
+									target, vertexOffset, rodBlend, runtime);
+							blendVolumeRodWithAnchor(bind, vertexOffset + normalOffsetInVertex, anchorMatrix, false,
+									target, vertexOffset + normalOffsetInVertex, rodBlend, runtime);
+							blendVolumeRodWithAnchor(bind, vertexOffset + tangentOffsetInVertex, anchorMatrix, false,
+									target, vertexOffset + tangentOffsetInVertex, rodBlend, runtime);
+							blendVolumeRodWithAnchor(bind, vertexOffset + bitangentOffsetInVertex, anchorMatrix, false,
+									target, vertexOffset + bitangentOffsetInVertex, rodBlend, runtime);
+						}
+					}
+
+					writeDeformableVertexColor(
+							target,
+							vertexOffset,
+							data,
+							vertexIndex,
+							weightOffset,
+							selectedInfluence,
+							pickingPass
+					);
+				}
+			}
+
+			private void copyUndeformedVolumeRodPart(
+					float[] bind,
+					float[] target,
+					Load3DModelFesth3.DeformationData data,
+					int selectedInfluence,
+					boolean pickingPass
+			) {
+				System.arraycopy(bind, 0, target, 0, bind.length);
+				int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+				for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
+					int vertexOffset = vertexIndex * floatsPerVertex;
+					int weightOffset = vertexIndex * data.influenceCount;
+					writeDeformableVertexColor(
+							target,
+							vertexOffset,
+							data,
+							vertexIndex,
+							weightOffset,
+							selectedInfluence,
+							pickingPass
+					);
+				}
+			}
+
+			private void prepareVolumeRodRuntime(
+					Load3DModelFesth3.DeformationData data,
+					VolumeRodRuntime runtime
+			) {
+				float[] bottomMatrix = deformationMatrixFor(data.transformIdsByInfluence[DEFORMATION_MATRIX_PALM]);
+				float[] topMatrix = deformationMatrixFor(data.transformIdsByInfluence[runtime.topInfluence]);
+				matrixToDualQuaternion(bottomMatrix, runtime.bottomReal, runtime.bottomDual);
+				matrixToDualQuaternion(topMatrix, runtime.topReal, runtime.topDual);
+				if (dotQuaternion(runtime.bottomReal, runtime.topReal) < 0.0f) {
+					for (int component = 0; component < 4; component++) {
+						runtime.topReal[component] = -runtime.topReal[component];
+						runtime.topDual[component] = -runtime.topDual[component];
+					}
+				}
+				int endCenterOffset = (runtime.nodeCount - 1) * 3;
+				transformRigidVolumeRodVector(data.volumeRodCenterline, 0,
+						bottomMatrix, true, runtime.guideStart, 0, runtime);
+				transformRigidVolumeRodVector(data.volumeRodCenterline, endCenterOffset,
+						topMatrix, true, runtime.guideEnd, 0, runtime);
+				rotateByQuaternion(runtime.bottomReal,
+						runtime.restTangents[0], runtime.restTangents[1], runtime.restTangents[2],
+						runtime.guideStartTangent);
+				rotateByQuaternion(runtime.topReal,
+						runtime.restTangents[endCenterOffset],
+						runtime.restTangents[endCenterOffset + 1],
+						runtime.restTangents[endCenterOffset + 2],
+						runtime.guideEndTangent);
+				normalizeVector3(runtime.guideStartTangent);
+				normalizeVector3(runtime.guideEndTangent);
+				float currentChordLength = vectorLength(
+						runtime.guideEnd[0] - runtime.guideStart[0],
+						runtime.guideEnd[1] - runtime.guideStart[1],
+						runtime.guideEnd[2] - runtime.guideStart[2]
+				);
+				float handleScale = runtime.restChordLength > 0.000001f
+						? clampVolumeRod(
+								currentChordLength / runtime.restChordLength,
+								VOLUME_ROD_MIN_HANDLE_SCALE,
+								VOLUME_ROD_MAX_HANDLE_SCALE
+						)
+						: 1.0f;
+				float restPalmHandle = runtime.totalRestLength * VOLUME_ROD_PALM_HANDLE_RATIO;
+				float restFingerHandle = runtime.totalRestLength * VOLUME_ROD_FINGER_HANDLE_RATIO;
+				float currentPalmHandle = restPalmHandle * handleScale;
+				float currentFingerHandle = restFingerHandle * handleScale;
+
+				for (int nodeIndex = 0; nodeIndex < runtime.nodeCount; nodeIndex++) {
+					float progress = (float) nodeIndex / (runtime.nodeCount - 1);
+					blendDualQuaternion(
+							runtime.bottomReal,
+							runtime.bottomDual,
+							runtime.topReal,
+							runtime.topDual,
+							progress,
+							runtime.blendedReal,
+							runtime.blendedDual,
+							runtime.blendedTranslation
+					);
+					System.arraycopy(runtime.blendedReal, 0, runtime.nodeRotations, nodeIndex * 4, 4);
+					int centerOffset = nodeIndex * 3;
+					evaluateVolumeRodGuide(
+							data.volumeRodCenterline,
+							0,
+							runtime.restTangents,
+							0,
+							restPalmHandle,
+							data.volumeRodCenterline,
+							endCenterOffset,
+							runtime.restTangents,
+							endCenterOffset,
+							restFingerHandle,
+							progress,
+							runtime.restGuidePoint
+					);
+					evaluateVolumeRodGuide(
+							runtime.guideStart,
+							0,
+							runtime.guideStartTangent,
+							0,
+							currentPalmHandle,
+							runtime.guideEnd,
+							0,
+							runtime.guideEndTangent,
+							0,
+							currentFingerHandle,
+							progress,
+							runtime.currentGuidePoint
+					);
+					rotateByQuaternion(
+							runtime.blendedReal,
+							data.volumeRodCenterline[centerOffset] - runtime.restGuidePoint[0],
+							data.volumeRodCenterline[centerOffset + 1] - runtime.restGuidePoint[1],
+							data.volumeRodCenterline[centerOffset + 2] - runtime.restGuidePoint[2],
+							runtime.vectorScratch
+					);
+					runtime.currentCenters[centerOffset] = runtime.currentGuidePoint[0] + runtime.vectorScratch[0];
+					runtime.currentCenters[centerOffset + 1] = runtime.currentGuidePoint[1] + runtime.vectorScratch[1];
+					runtime.currentCenters[centerOffset + 2] = runtime.currentGuidePoint[2] + runtime.vectorScratch[2];
+				}
+
+				computePolylineTangents(runtime.currentCenters, runtime.currentTangents, null);
+				for (int segment = 0; segment < runtime.nodeCount - 1; segment++) {
+					int start = segment * 3;
+					int end = start + 3;
+					float currentLength = vectorLength(
+							runtime.currentCenters[end] - runtime.currentCenters[start],
+							runtime.currentCenters[end + 1] - runtime.currentCenters[start + 1],
+							runtime.currentCenters[end + 2] - runtime.currentCenters[start + 2]
+					);
+					float restLength = runtime.restSegmentLengths[segment];
+					float axialScale = restLength > 0.000001f ? currentLength / restLength : 1.0f;
+					axialScale = clampVolumeRod(
+							axialScale,
+							VOLUME_ROD_MIN_AXIAL_SCALE,
+							VOLUME_ROD_MAX_AXIAL_SCALE
+					);
+					runtime.segmentAxialScales[segment] = axialScale;
+					float volumeScale = (float) Math.sqrt(1.0f / axialScale);
+					runtime.segmentRadialScales[segment] = Math.max(
+							VOLUME_ROD_MIN_RADIAL_SCALE,
+							volumeScale
+					);
+				}
+			}
+
+			private void fillVolumeRodFrame(
+					Load3DModelFesth3.DeformationData data,
+					VolumeRodRuntime runtime,
+					float progress
+			) {
+				float nodePosition = progress * (runtime.nodeCount - 1);
+				int segment = Math.min((int) Math.floor(nodePosition), runtime.nodeCount - 2);
+				float amount = nodePosition - segment;
+				int startCenter = segment * 3;
+				int endCenter = startCenter + 3;
+				for (int axis = 0; axis < 3; axis++) {
+					runtime.restCenter[axis] = lerpVolumeRod(
+							data.volumeRodCenterline[startCenter + axis],
+							data.volumeRodCenterline[endCenter + axis],
+							amount
+					);
+					runtime.currentCenter[axis] = lerpVolumeRod(
+							runtime.currentCenters[startCenter + axis],
+							runtime.currentCenters[endCenter + axis],
+							amount
+					);
+					runtime.restTangent[axis] = lerpVolumeRod(
+							runtime.restTangents[startCenter + axis],
+							runtime.restTangents[endCenter + axis],
+							amount
+					);
+					runtime.currentTangent[axis] = lerpVolumeRod(
+							runtime.currentTangents[startCenter + axis],
+							runtime.currentTangents[endCenter + axis],
+							amount
+					);
+				}
+				normalizeVector3(runtime.restTangent);
+				normalizeVector3(runtime.currentTangent);
+				nlerpNodeRotation(runtime.nodeRotations, segment, amount, runtime.vertexRotation);
+				rotateByQuaternion(
+						runtime.vertexRotation,
+						runtime.restTangent[0],
+						runtime.restTangent[1],
+						runtime.restTangent[2],
+						runtime.referenceTangent
+				);
+				normalizeVector3(runtime.referenceTangent);
+				float tangentDot = clampVolumeRod(
+						runtime.referenceTangent[0] * runtime.currentTangent[0]
+								+ runtime.referenceTangent[1] * runtime.currentTangent[1]
+								+ runtime.referenceTangent[2] * runtime.currentTangent[2],
+						-1.0f,
+						1.0f
+				);
+				runtime.bendNormal[0] = runtime.referenceTangent[0]
+						- runtime.currentTangent[0] * tangentDot;
+				runtime.bendNormal[1] = runtime.referenceTangent[1]
+						- runtime.currentTangent[1] * tangentDot;
+				runtime.bendNormal[2] = runtime.referenceTangent[2]
+						- runtime.currentTangent[2] * tangentDot;
+				float bendAmount = vectorLength(
+						runtime.bendNormal[0],
+						runtime.bendNormal[1],
+						runtime.bendNormal[2]
+				);
+				if (bendAmount > 0.000001f) {
+					runtime.bendNormal[0] /= bendAmount;
+					runtime.bendNormal[1] /= bendAmount;
+					runtime.bendNormal[2] /= bendAmount;
+				} else {
+					runtime.bendNormal[0] = 0.0f;
+					runtime.bendNormal[1] = 0.0f;
+					runtime.bendNormal[2] = 0.0f;
+				}
+
+				float startAxialScale = volumeRodNodeScale(runtime.segmentAxialScales, segment);
+				float endAxialScale = volumeRodNodeScale(runtime.segmentAxialScales, segment + 1);
+				float startRadialScale = volumeRodNodeScale(runtime.segmentRadialScales, segment);
+				float endRadialScale = volumeRodNodeScale(runtime.segmentRadialScales, segment + 1);
+				float anchorBlend = Math.min(
+						smoothstepVolumeRod(progress / VOLUME_ROD_ANCHOR_BLEND),
+						smoothstepVolumeRod((1.0f - progress) / VOLUME_ROD_ANCHOR_BLEND)
+				);
+				float axialScale = lerpVolumeRod(startAxialScale, endAxialScale, amount);
+				float radialScale = lerpVolumeRod(startRadialScale, endRadialScale, amount);
+				runtime.frameScalars[0] = lerpVolumeRod(1.0f, axialScale, anchorBlend);
+				runtime.frameScalars[1] = lerpVolumeRod(1.0f, radialScale, anchorBlend);
+				runtime.frameScalars[2] = anchorBlend;
+				float strainBlend = Math.min(
+						smoothstepVolumeRod(progress / VOLUME_ROD_PALM_STRAIN_BLEND),
+						smoothstepVolumeRod((1.0f - progress) / VOLUME_ROD_FINGER_STRAIN_BLEND)
+				);
+				float requestedStrainScale = 1.0f + VOLUME_ROD_BENDING_STRAIN_GAIN
+						* bendAmount * strainBlend;
+				float maximumStrainScale = Math.max(
+						1.0f,
+						VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE / runtime.frameScalars[1]
+				);
+				runtime.frameScalars[3] = Math.min(requestedStrainScale, maximumStrainScale);
+			}
+
+			private void transformVolumeRodPosition(
+					float[] source,
+					int sourceOffset,
+					float[] target,
+					int targetOffset,
+					VolumeRodRuntime runtime
+			) {
+				float offsetX = source[sourceOffset] - runtime.restCenter[0];
+				float offsetY = source[sourceOffset + 1] - runtime.restCenter[1];
+				float offsetZ = source[sourceOffset + 2] - runtime.restCenter[2];
+				float axialOffset = offsetX * runtime.restTangent[0]
+						+ offsetY * runtime.restTangent[1]
+						+ offsetZ * runtime.restTangent[2];
+				float radialX = offsetX - axialOffset * runtime.restTangent[0];
+				float radialY = offsetY - axialOffset * runtime.restTangent[1];
+				float radialZ = offsetZ - axialOffset * runtime.restTangent[2];
+				float radialLength = vectorLength(radialX, radialY, radialZ);
+				rotateByQuaternion(runtime.vertexRotation, radialX, radialY, radialZ, runtime.vectorScratch);
+				removeTangentComponent(runtime.vectorScratch, runtime.currentTangent);
+				float rotatedRadialLength = vectorLength(
+						runtime.vectorScratch[0],
+						runtime.vectorScratch[1],
+						runtime.vectorScratch[2]
+				);
+				if (radialLength > 0.000001f && rotatedRadialLength > 0.000001f) {
+					float radialMultiplier = radialLength * runtime.frameScalars[1] / rotatedRadialLength;
+					runtime.vectorScratch[0] *= radialMultiplier;
+					runtime.vectorScratch[1] *= radialMultiplier;
+					runtime.vectorScratch[2] *= radialMultiplier;
+				} else {
+					runtime.vectorScratch[0] = 0.0f;
+					runtime.vectorScratch[1] = 0.0f;
+					runtime.vectorScratch[2] = 0.0f;
+				}
+				applyVolumeRodBendScale(
+						runtime.vectorScratch,
+						runtime.bendNormal,
+						runtime.frameScalars[3]
+				);
+				float transformedAxialOffset = axialOffset * runtime.frameScalars[0];
+				target[targetOffset] = runtime.currentCenter[0]
+						+ runtime.currentTangent[0] * transformedAxialOffset + runtime.vectorScratch[0];
+				target[targetOffset + 1] = runtime.currentCenter[1]
+						+ runtime.currentTangent[1] * transformedAxialOffset + runtime.vectorScratch[1];
+				target[targetOffset + 2] = runtime.currentCenter[2]
+						+ runtime.currentTangent[2] * transformedAxialOffset + runtime.vectorScratch[2];
+			}
+
+			private void transformVolumeRodDirection(
+					float[] source,
+					int sourceOffset,
+					float[] target,
+					int targetOffset,
+					VolumeRodRuntime runtime,
+					boolean inverseScale
+			) {
+				float sourceX = source[sourceOffset];
+				float sourceY = source[sourceOffset + 1];
+				float sourceZ = source[sourceOffset + 2];
+				float axial = sourceX * runtime.restTangent[0]
+						+ sourceY * runtime.restTangent[1]
+						+ sourceZ * runtime.restTangent[2];
+				float radialX = sourceX - axial * runtime.restTangent[0];
+				float radialY = sourceY - axial * runtime.restTangent[1];
+				float radialZ = sourceZ - axial * runtime.restTangent[2];
+				float radialLength = vectorLength(radialX, radialY, radialZ);
+				rotateByQuaternion(runtime.vertexRotation, radialX, radialY, radialZ, runtime.vectorScratch);
+				removeTangentComponent(runtime.vectorScratch, runtime.currentTangent);
+				float rotatedRadialLength = vectorLength(
+						runtime.vectorScratch[0],
+						runtime.vectorScratch[1],
+						runtime.vectorScratch[2]
+				);
+				float radialScale = inverseScale
+						? 1.0f / runtime.frameScalars[1]
+						: runtime.frameScalars[1];
+				if (radialLength > 0.000001f && rotatedRadialLength > 0.000001f) {
+					float multiplier = radialLength * radialScale / rotatedRadialLength;
+					runtime.vectorScratch[0] *= multiplier;
+					runtime.vectorScratch[1] *= multiplier;
+					runtime.vectorScratch[2] *= multiplier;
+				} else {
+					runtime.vectorScratch[0] = 0.0f;
+					runtime.vectorScratch[1] = 0.0f;
+					runtime.vectorScratch[2] = 0.0f;
+				}
+				float bendScale = inverseScale
+						? 1.0f / runtime.frameScalars[3]
+						: runtime.frameScalars[3];
+				applyVolumeRodBendScale(runtime.vectorScratch, runtime.bendNormal, bendScale);
+				float axialScale = inverseScale
+						? 1.0f / runtime.frameScalars[0]
+						: runtime.frameScalars[0];
+				float transformedAxial = axial * axialScale;
+				target[targetOffset] = runtime.currentTangent[0] * transformedAxial + runtime.vectorScratch[0];
+				target[targetOffset + 1] = runtime.currentTangent[1] * transformedAxial + runtime.vectorScratch[1];
+				target[targetOffset + 2] = runtime.currentTangent[2] * transformedAxial + runtime.vectorScratch[2];
+				normalizeVector3(target, targetOffset);
+			}
+
+			private void transformRigidVolumeRodVector(
+					float[] source,
+					int sourceOffset,
+					float[] matrix,
+					boolean position,
+					float[] target,
+					int targetOffset,
+					VolumeRodRuntime runtime
+			) {
+				runtime.rigidInput[0] = source[sourceOffset];
+				runtime.rigidInput[1] = source[sourceOffset + 1];
+				runtime.rigidInput[2] = source[sourceOffset + 2];
+				runtime.rigidInput[3] = position ? 1.0f : 0.0f;
+				Matrix.multiplyMV(runtime.rigidOutput, 0, matrix, 0, runtime.rigidInput, 0);
+				target[targetOffset] = runtime.rigidOutput[0];
+				target[targetOffset + 1] = runtime.rigidOutput[1];
+				target[targetOffset + 2] = runtime.rigidOutput[2];
+				if (!position) {
+					normalizeVector3(target, targetOffset);
+				}
+			}
+
+			private void blendVolumeRodWithAnchor(
+					float[] source,
+					int sourceOffset,
+					float[] anchorMatrix,
+					boolean position,
+					float[] target,
+					int targetOffset,
+					float rodBlend,
+					VolumeRodRuntime runtime
+			) {
+				runtime.rigidInput[0] = source[sourceOffset];
+				runtime.rigidInput[1] = source[sourceOffset + 1];
+				runtime.rigidInput[2] = source[sourceOffset + 2];
+				runtime.rigidInput[3] = position ? 1.0f : 0.0f;
+				Matrix.multiplyMV(runtime.rigidOutput, 0, anchorMatrix, 0, runtime.rigidInput, 0);
+				if (!position) {
+					normalizeVector3(runtime.rigidOutput, 0);
+				}
+				target[targetOffset] = lerpVolumeRod(runtime.rigidOutput[0], target[targetOffset], rodBlend);
+				target[targetOffset + 1] = lerpVolumeRod(runtime.rigidOutput[1], target[targetOffset + 1], rodBlend);
+				target[targetOffset + 2] = lerpVolumeRod(runtime.rigidOutput[2], target[targetOffset + 2], rodBlend);
+				if (!position) {
+					normalizeVector3(target, targetOffset);
+				}
+			}
+
+			private void evaluateVolumeRodGuide(
+					float[] start,
+					int startOffset,
+					float[] startTangent,
+					int startTangentOffset,
+					float startHandle,
+					float[] end,
+					int endOffset,
+					float[] endTangent,
+					int endTangentOffset,
+					float endHandle,
+					float progress,
+					float[] result
+			) {
+				float t = clampVolumeRod(progress, 0.0f, 1.0f);
+				float remaining = 1.0f - t;
+				float startWeight = remaining * remaining * remaining;
+				float startControlWeight = 3.0f * remaining * remaining * t;
+				float endControlWeight = 3.0f * remaining * t * t;
+				float endWeight = t * t * t;
+				for (int axis = 0; axis < 3; axis++) {
+					float startPoint = start[startOffset + axis];
+					float endPoint = end[endOffset + axis];
+					float startControl = startPoint
+							+ startTangent[startTangentOffset + axis] * startHandle;
+					float endControl = endPoint
+							- endTangent[endTangentOffset + axis] * endHandle;
+					result[axis] = startPoint * startWeight
+							+ startControl * startControlWeight
+							+ endControl * endControlWeight
+							+ endPoint * endWeight;
+				}
+			}
+
+			private void computePolylineTangents(
+					float[] centers,
+					float[] tangents,
+					float[] segmentLengths
+			) {
+				int nodeCount = centers.length / 3;
+				for (int segment = 0; segment < nodeCount - 1; segment++) {
+					int start = segment * 3;
+					int end = start + 3;
+					float dx = centers[end] - centers[start];
+					float dy = centers[end + 1] - centers[start + 1];
+					float dz = centers[end + 2] - centers[start + 2];
+					if (segmentLengths != null) {
+						segmentLengths[segment] = vectorLength(dx, dy, dz);
+					}
+				}
+				for (int node = 0; node < nodeCount; node++) {
+					int tangentOffset = node * 3;
+					if (node == 0) {
+						tangents[tangentOffset] = centers[3] - centers[0];
+						tangents[tangentOffset + 1] = centers[4] - centers[1];
+						tangents[tangentOffset + 2] = centers[5] - centers[2];
+					} else if (node == nodeCount - 1) {
+						int previous = tangentOffset - 3;
+						tangents[tangentOffset] = centers[tangentOffset] - centers[previous];
+						tangents[tangentOffset + 1] = centers[tangentOffset + 1] - centers[previous + 1];
+						tangents[tangentOffset + 2] = centers[tangentOffset + 2] - centers[previous + 2];
+					} else {
+						int previous = tangentOffset - 3;
+						int next = tangentOffset + 3;
+						float previousX = centers[tangentOffset] - centers[previous];
+						float previousY = centers[tangentOffset + 1] - centers[previous + 1];
+						float previousZ = centers[tangentOffset + 2] - centers[previous + 2];
+						float nextX = centers[next] - centers[tangentOffset];
+						float nextY = centers[next + 1] - centers[tangentOffset + 1];
+						float nextZ = centers[next + 2] - centers[tangentOffset + 2];
+						float previousLength = vectorLength(previousX, previousY, previousZ);
+						float nextLength = vectorLength(nextX, nextY, nextZ);
+						if (previousLength > 0.000001f) {
+							previousX /= previousLength;
+							previousY /= previousLength;
+							previousZ /= previousLength;
+						}
+						if (nextLength > 0.000001f) {
+							nextX /= nextLength;
+							nextY /= nextLength;
+							nextZ /= nextLength;
+						}
+						tangents[tangentOffset] = previousX + nextX;
+						tangents[tangentOffset + 1] = previousY + nextY;
+						tangents[tangentOffset + 2] = previousZ + nextZ;
+					}
+					normalizeVector3(tangents, tangentOffset);
+				}
+			}
+
+			private void matrixToDualQuaternion(float[] matrix, float[] real, float[] dual) {
+				float x0 = matrix[0];
+				float x1 = matrix[1];
+				float x2 = matrix[2];
+				float xLength = vectorLength(x0, x1, x2);
+				if (xLength > 0.000001f) {
+					x0 /= xLength;
+					x1 /= xLength;
+					x2 /= xLength;
+				}
+				float y0 = matrix[4];
+				float y1 = matrix[5];
+				float y2 = matrix[6];
+				float xy = x0 * y0 + x1 * y1 + x2 * y2;
+				y0 -= x0 * xy;
+				y1 -= x1 * xy;
+				y2 -= x2 * xy;
+				float yLength = vectorLength(y0, y1, y2);
+				if (yLength > 0.000001f) {
+					y0 /= yLength;
+					y1 /= yLength;
+					y2 /= yLength;
+				}
+				float z0 = x1 * y2 - x2 * y1;
+				float z1 = x2 * y0 - x0 * y2;
+				float z2 = x0 * y1 - x1 * y0;
+
+				float trace = x0 + y1 + z2;
+				if (trace > 0.0f) {
+					float scale = (float) Math.sqrt(trace + 1.0f) * 2.0f;
+					real[3] = 0.25f * scale;
+					real[0] = (y2 - z1) / scale;
+					real[1] = (z0 - x2) / scale;
+					real[2] = (x1 - y0) / scale;
+				} else if (x0 > y1 && x0 > z2) {
+					float scale = (float) Math.sqrt(1.0f + x0 - y1 - z2) * 2.0f;
+					real[3] = (y2 - z1) / scale;
+					real[0] = 0.25f * scale;
+					real[1] = (y0 + x1) / scale;
+					real[2] = (z0 + x2) / scale;
+				} else if (y1 > z2) {
+					float scale = (float) Math.sqrt(1.0f + y1 - x0 - z2) * 2.0f;
+					real[3] = (z0 - x2) / scale;
+					real[0] = (y0 + x1) / scale;
+					real[1] = 0.25f * scale;
+					real[2] = (z1 + y2) / scale;
+				} else {
+					float scale = (float) Math.sqrt(1.0f + z2 - x0 - y1) * 2.0f;
+					real[3] = (x1 - y0) / scale;
+					real[0] = (z0 + x2) / scale;
+					real[1] = (z1 + y2) / scale;
+					real[2] = 0.25f * scale;
+				}
+				normalizeQuaternion(real);
+
+				float tx = matrix[12];
+				float ty = matrix[13];
+				float tz = matrix[14];
+				dual[0] = 0.5f * (tx * real[3] + ty * real[2] - tz * real[1]);
+				dual[1] = 0.5f * (-tx * real[2] + ty * real[3] + tz * real[0]);
+				dual[2] = 0.5f * (tx * real[1] - ty * real[0] + tz * real[3]);
+				dual[3] = -0.5f * (tx * real[0] + ty * real[1] + tz * real[2]);
+			}
+
+			private void blendDualQuaternion(
+					float[] firstReal,
+					float[] firstDual,
+					float[] secondReal,
+					float[] secondDual,
+					float amount,
+					float[] resultReal,
+					float[] resultDual,
+					float[] translation
+			) {
+				for (int component = 0; component < 4; component++) {
+					resultReal[component] = lerpVolumeRod(firstReal[component], secondReal[component], amount);
+					resultDual[component] = lerpVolumeRod(firstDual[component], secondDual[component], amount);
+				}
+				float length = (float) Math.sqrt(dotQuaternion(resultReal, resultReal));
+				if (length <= 0.000001f) {
+					resultReal[0] = resultReal[1] = resultReal[2] = 0.0f;
+					resultReal[3] = 1.0f;
+					resultDual[0] = resultDual[1] = resultDual[2] = resultDual[3] = 0.0f;
+					translation[0] = translation[1] = translation[2] = 0.0f;
+					return;
+				}
+				for (int component = 0; component < 4; component++) {
+					resultReal[component] /= length;
+					resultDual[component] /= length;
+				}
+				float dualProjection = dotQuaternion(resultReal, resultDual);
+				for (int component = 0; component < 4; component++) {
+					resultDual[component] -= resultReal[component] * dualProjection;
+				}
+
+				float bx = -resultReal[0];
+				float by = -resultReal[1];
+				float bz = -resultReal[2];
+				float bw = resultReal[3];
+				translation[0] = 2.0f * (resultDual[3] * bx + resultDual[0] * bw
+						+ resultDual[1] * bz - resultDual[2] * by);
+				translation[1] = 2.0f * (resultDual[3] * by - resultDual[0] * bz
+						+ resultDual[1] * bw + resultDual[2] * bx);
+				translation[2] = 2.0f * (resultDual[3] * bz + resultDual[0] * by
+						- resultDual[1] * bx + resultDual[2] * bw);
+			}
+
+			private void nlerpNodeRotation(float[] rotations, int segment, float amount, float[] result) {
+				int firstOffset = segment * 4;
+				int secondOffset = firstOffset + 4;
+				float sign = rotations[firstOffset] * rotations[secondOffset]
+						+ rotations[firstOffset + 1] * rotations[secondOffset + 1]
+						+ rotations[firstOffset + 2] * rotations[secondOffset + 2]
+						+ rotations[firstOffset + 3] * rotations[secondOffset + 3] < 0.0f ? -1.0f : 1.0f;
+				for (int component = 0; component < 4; component++) {
+					result[component] = lerpVolumeRod(
+							rotations[firstOffset + component],
+							rotations[secondOffset + component] * sign,
+							amount
+					);
+				}
+				normalizeQuaternion(result);
+			}
+
+			private void rotateByQuaternion(float[] quaternion, float x, float y, float z, float[] result) {
+				float tx = 2.0f * (quaternion[1] * z - quaternion[2] * y);
+				float ty = 2.0f * (quaternion[2] * x - quaternion[0] * z);
+				float tz = 2.0f * (quaternion[0] * y - quaternion[1] * x);
+				result[0] = x + quaternion[3] * tx + quaternion[1] * tz - quaternion[2] * ty;
+				result[1] = y + quaternion[3] * ty + quaternion[2] * tx - quaternion[0] * tz;
+				result[2] = z + quaternion[3] * tz + quaternion[0] * ty - quaternion[1] * tx;
+			}
+
+			private void removeTangentComponent(float[] vector, float[] tangent) {
+				float projection = vector[0] * tangent[0] + vector[1] * tangent[1] + vector[2] * tangent[2];
+				vector[0] -= tangent[0] * projection;
+				vector[1] -= tangent[1] * projection;
+				vector[2] -= tangent[2] * projection;
+			}
+
+			private void applyVolumeRodBendScale(float[] vector, float[] bendNormal, float scale) {
+				float component = vector[0] * bendNormal[0]
+						+ vector[1] * bendNormal[1]
+						+ vector[2] * bendNormal[2];
+				float adjustment = component * (scale - 1.0f);
+				vector[0] += bendNormal[0] * adjustment;
+				vector[1] += bendNormal[1] * adjustment;
+				vector[2] += bendNormal[2] * adjustment;
+			}
+
+			private float volumeRodNodeScale(float[] segmentScales, int node) {
+				if (node <= 0) {
+					return segmentScales[0];
+				}
+				if (node >= segmentScales.length) {
+					return segmentScales[segmentScales.length - 1];
+				}
+				return (segmentScales[node - 1] + segmentScales[node]) * 0.5f;
+			}
+
+			private float dotQuaternion(float[] first, float[] second) {
+				return first[0] * second[0] + first[1] * second[1]
+						+ first[2] * second[2] + first[3] * second[3];
+			}
+
+			private void normalizeQuaternion(float[] quaternion) {
+				float length = (float) Math.sqrt(dotQuaternion(quaternion, quaternion));
+				if (length <= 0.000001f) {
+					quaternion[0] = quaternion[1] = quaternion[2] = 0.0f;
+					quaternion[3] = 1.0f;
+					return;
+				}
+				for (int component = 0; component < 4; component++) {
+					quaternion[component] /= length;
+				}
+			}
+
+			private void normalizeVector3(float[] vector) {
+				normalizeVector3(vector, 0);
+			}
+
+			private void normalizeVector3(float[] vector, int offset) {
+				float length = vectorLength(vector[offset], vector[offset + 1], vector[offset + 2]);
+				if (length <= 0.000001f) {
+					vector[offset] = 1.0f;
+					vector[offset + 1] = 0.0f;
+					vector[offset + 2] = 0.0f;
+					return;
+				}
+				vector[offset] /= length;
+				vector[offset + 1] /= length;
+				vector[offset + 2] /= length;
+			}
+
+			private float vectorLength(float x, float y, float z) {
+				return (float) Math.sqrt(x * x + y * y + z * z);
+			}
+
+			private float lerpVolumeRod(float start, float end, float amount) {
+				return start + (end - start) * amount;
+			}
+
+			private float clampVolumeRod(float value, float minimum, float maximum) {
+				return Math.max(minimum, Math.min(maximum, value));
+			}
+
+			private float smoothstepVolumeRod(float value) {
+				float clamped = clampVolumeRod(value, 0.0f, 1.0f);
+				return clamped * clamped * (3.0f - 2.0f * clamped);
+			}
+
+			private void writeDeformableVertexColor(
 				float[] target,
 				int vertexOffset,
 				Load3DModelFesth3.DeformationData data,
@@ -2441,7 +3384,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				target[colorOffset + 3] = 1.0f;
 				return;
 			}
-			float[] color = shouldHighlightDeformableVertex(selectionInfluence, selectedInfluence)
+			boolean highlightEnabled = !DEFORMATION_TYPE_VOLUME_ROD.equals(data.type);
+			float[] color = highlightEnabled
+					&& shouldHighlightDeformableVertex(selectionInfluence, selectedInfluence)
 					? DEFORMABLE_COLOR_YELLOW
 					: DEFORMABLE_COLOR_WHITE;
 			System.arraycopy(color, 0, target, colorOffset, COLOR_DATA_SIZE_IN_ELEMENTS);

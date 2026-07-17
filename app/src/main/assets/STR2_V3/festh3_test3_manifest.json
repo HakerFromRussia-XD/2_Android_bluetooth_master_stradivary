@@ -114,7 +114,12 @@
         "uniformCenterlineSpacing": true,
         "centerlineProjectionBlend": 0.75,
         "centerlineProjectionWindowSections": 2.0,
+        "creaseProgressFlattening": 1.0,
+        "creaseProgressMinimumVertices": 20,
+        "creaseProgressMaximumRange": 0.3,
         "maximumTriangleSectionSpan": 1.42,
+        "maximumSurfaceProgressGradient": 0.0326,
+        "surfaceProgressSmoothingPasses": 100,
         "progressReference": {
           "binaryAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3bin",
           "deformationAsset": "STR2_V3_BIN/festh3_test9_gofra_2.v3def",

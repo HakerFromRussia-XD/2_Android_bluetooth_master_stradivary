@@ -136,7 +136,15 @@ class DeformationSpec:
     rod_uniform_centerline_spacing: bool
     rod_centerline_projection_blend: float
     rod_centerline_projection_window_sections: float
+    rod_centerline_projection_smoothing_passes: int
+    rod_crease_progress_smoothing_passes: int
+    rod_crease_progress_flattening: float
+    rod_crease_progress_minimum_vertices: int
+    rod_crease_progress_maximum_range: float
+    rod_centerline_projection_minimum_order_ratio: float
     rod_maximum_triangle_section_span: float | None
+    rod_maximum_surface_progress_gradient: float | None
+    rod_surface_progress_smoothing_passes: int
     rod_reference: VolumeRodReferenceSpec | None
 
     @property
@@ -1186,6 +1194,40 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
     )
     if rod_centerline_projection_window_sections <= 0.0:
         raise ValueError("deformation.centerlineProjectionWindowSections must be positive")
+    rod_centerline_projection_smoothing_passes = int(
+        deformation.get("centerlineProjectionSmoothingPasses", 0)
+    )
+    if not 0 <= rod_centerline_projection_smoothing_passes <= 100:
+        raise ValueError(
+            "deformation.centerlineProjectionSmoothingPasses must be between 0 and 100"
+        )
+    rod_crease_progress_smoothing_passes = int(
+        deformation.get("creaseProgressSmoothingPasses", 0)
+    )
+    if not 0 <= rod_crease_progress_smoothing_passes <= 100:
+        raise ValueError("deformation.creaseProgressSmoothingPasses must be between 0 and 100")
+    rod_crease_progress_flattening = float(
+        deformation.get("creaseProgressFlattening", 0.0)
+    )
+    if not 0.0 <= rod_crease_progress_flattening <= 1.0:
+        raise ValueError("deformation.creaseProgressFlattening must be between 0 and 1")
+    rod_crease_progress_minimum_vertices = int(
+        deformation.get("creaseProgressMinimumVertices", 20)
+    )
+    if rod_crease_progress_minimum_vertices < 3:
+        raise ValueError("deformation.creaseProgressMinimumVertices must be at least 3")
+    rod_crease_progress_maximum_range = float(
+        deformation.get("creaseProgressMaximumRange", 0.3)
+    )
+    if not 0.0 < rod_crease_progress_maximum_range <= 1.0:
+        raise ValueError("deformation.creaseProgressMaximumRange must be between 0 and 1")
+    rod_centerline_projection_minimum_order_ratio = float(
+        deformation.get("centerlineProjectionMinimumOrderRatio", 0.0)
+    )
+    if not 0.0 <= rod_centerline_projection_minimum_order_ratio <= 1.0:
+        raise ValueError(
+            "deformation.centerlineProjectionMinimumOrderRatio must be between 0 and 1"
+        )
     raw_maximum_triangle_section_span = deformation.get("maximumTriangleSectionSpan")
     rod_maximum_triangle_section_span = (
         float(raw_maximum_triangle_section_span)
@@ -1197,6 +1239,34 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         and rod_maximum_triangle_section_span <= 0.0
     ):
         raise ValueError("deformation.maximumTriangleSectionSpan must be positive")
+    raw_maximum_surface_progress_gradient = deformation.get(
+        "maximumSurfaceProgressGradient"
+    )
+    rod_maximum_surface_progress_gradient = (
+        float(raw_maximum_surface_progress_gradient)
+        if raw_maximum_surface_progress_gradient is not None
+        else None
+    )
+    if (
+        rod_maximum_surface_progress_gradient is not None
+        and rod_maximum_surface_progress_gradient <= 0.0
+    ):
+        raise ValueError("deformation.maximumSurfaceProgressGradient must be positive")
+    rod_surface_progress_smoothing_passes = int(
+        deformation.get("surfaceProgressSmoothingPasses", 0)
+    )
+    if not 0 <= rod_surface_progress_smoothing_passes <= 1000:
+        raise ValueError(
+            "deformation.surfaceProgressSmoothingPasses must be between 0 and 1000"
+        )
+    if (
+        rod_surface_progress_smoothing_passes > 0
+        and rod_maximum_surface_progress_gradient is None
+    ):
+        raise ValueError(
+            "deformation.surfaceProgressSmoothingPasses requires "
+            "maximumSurfaceProgressGradient"
+        )
 
     rod_reference = None
     raw_rod_reference = deformation.get("progressReference")
@@ -1235,7 +1305,15 @@ def parse_deformation_spec(deformation: dict | None) -> DeformationSpec:
         rod_uniform_centerline_spacing=rod_uniform_centerline_spacing,
         rod_centerline_projection_blend=rod_centerline_projection_blend,
         rod_centerline_projection_window_sections=rod_centerline_projection_window_sections,
+        rod_centerline_projection_smoothing_passes=rod_centerline_projection_smoothing_passes,
+        rod_crease_progress_smoothing_passes=rod_crease_progress_smoothing_passes,
+        rod_crease_progress_flattening=rod_crease_progress_flattening,
+        rod_crease_progress_minimum_vertices=rod_crease_progress_minimum_vertices,
+        rod_crease_progress_maximum_range=rod_crease_progress_maximum_range,
+        rod_centerline_projection_minimum_order_ratio=rod_centerline_projection_minimum_order_ratio,
         rod_maximum_triangle_section_span=rod_maximum_triangle_section_span,
+        rod_maximum_surface_progress_gradient=rod_maximum_surface_progress_gradient,
+        rod_surface_progress_smoothing_passes=rod_surface_progress_smoothing_passes,
         rod_reference=rod_reference,
     )
 
@@ -1344,7 +1422,15 @@ def create_deformation_resolvers(
             spec.rod_uniform_centerline_spacing,
             centerline_projection_blend=spec.rod_centerline_projection_blend,
             centerline_projection_window_sections=spec.rod_centerline_projection_window_sections,
+            centerline_projection_smoothing_passes=spec.rod_centerline_projection_smoothing_passes,
+            crease_progress_smoothing_passes=spec.rod_crease_progress_smoothing_passes,
+            crease_progress_flattening=spec.rod_crease_progress_flattening,
+            crease_progress_minimum_vertices=spec.rod_crease_progress_minimum_vertices,
+            crease_progress_maximum_range=spec.rod_crease_progress_maximum_range,
+            centerline_projection_minimum_order_ratio=spec.rod_centerline_projection_minimum_order_ratio,
             maximum_triangle_section_span=spec.rod_maximum_triangle_section_span,
+            maximum_surface_progress_gradient=spec.rod_maximum_surface_progress_gradient,
+            surface_progress_smoothing_passes=spec.rod_surface_progress_smoothing_passes,
             reference_data=reference_data,
         )
 
@@ -1547,7 +1633,15 @@ def build_volume_rod_data(
     uniform_centerline_spacing: bool = False,
     centerline_projection_blend: float = 0.0,
     centerline_projection_window_sections: float = 2.0,
+    centerline_projection_smoothing_passes: int = 0,
+    crease_progress_smoothing_passes: int = 0,
+    crease_progress_flattening: float = 0.0,
+    crease_progress_minimum_vertices: int = 20,
+    crease_progress_maximum_range: float = 0.3,
+    centerline_projection_minimum_order_ratio: float = 0.0,
     maximum_triangle_section_span: float | None = None,
+    maximum_surface_progress_gradient: float | None = None,
+    surface_progress_smoothing_passes: int = 0,
     reference_data: VolumeRodReferenceData | None = None,
 ) -> tuple[dict[tuple[float, float, float], float], VolumeRodData]:
     adjacency: dict[
@@ -1661,6 +1755,7 @@ def build_volume_rod_data(
     if uniform_centerline_spacing:
         centerline = resample_volume_rod_centerline(centerline, section_count)
     if centerline_projection_blend > 0.0:
+        order_reference_progress = progress_by_key
         progress_by_key = align_volume_rod_progress_to_centerline(
             coordinate_by_key,
             progress_by_key,
@@ -1669,7 +1764,47 @@ def build_volume_rod_data(
             centerline,
             centerline_projection_blend,
             centerline_projection_window_sections,
+            adjacency,
+            centerline_projection_smoothing_passes,
+            0.0,
         )
+        if crease_progress_smoothing_passes > 0:
+            crease_chains = build_volume_rod_crease_chains(
+                coordinates,
+                soft_faces,
+                DEFAULT_CREASE_ANGLE_DEGREES,
+                8,
+            )
+            progress_by_key = smooth_volume_rod_progress_along_crease_chains(
+                progress_by_key,
+                crease_chains,
+                bottom_sources.union(top_sources),
+                crease_progress_smoothing_passes,
+            )
+        if crease_progress_flattening > 0.0:
+            crease_chains = build_volume_rod_crease_chains(
+                coordinates,
+                soft_faces,
+                DEFAULT_CREASE_ANGLE_DEGREES,
+                crease_progress_minimum_vertices,
+            )
+            progress_by_key = flatten_volume_rod_progress_across_creases(
+                adjacency,
+                progress_by_key,
+                crease_chains,
+                bottom_sources.union(top_sources),
+                crease_progress_flattening,
+                crease_progress_maximum_range,
+            )
+        if centerline_projection_minimum_order_ratio > 0.0:
+            progress_by_key = preserve_volume_rod_progress_order(
+                adjacency,
+                order_reference_progress,
+                progress_by_key,
+                bottom_sources.union(top_sources),
+                centerline_projection_minimum_order_ratio,
+                0.1 / (len(centerline) - 1),
+            )
         if maximum_triangle_section_span is not None:
             progress_by_key = limit_volume_rod_triangle_progress_jumps(
                 coordinates,
@@ -1678,6 +1813,23 @@ def build_volume_rod_data(
                 top_sources,
                 progress_by_key,
                 maximum_triangle_section_span / section_count,
+            )
+    if maximum_surface_progress_gradient is not None:
+        progress_by_key = limit_volume_rod_surface_progress_gradient(
+            adjacency,
+            bottom_sources,
+            top_sources,
+            progress_by_key,
+            maximum_surface_progress_gradient,
+        )
+        if surface_progress_smoothing_passes > 0:
+            progress_by_key = smooth_volume_rod_surface_progress(
+                adjacency,
+                bottom_sources,
+                top_sources,
+                progress_by_key,
+                maximum_surface_progress_gradient,
+                surface_progress_smoothing_passes,
             )
     return progress_by_key, VolumeRodData(centerline=tuple(centerline))
 
@@ -1690,6 +1842,12 @@ def align_volume_rod_progress_to_centerline(
     centerline: list[tuple[float, float, float]],
     blend: float,
     window_sections: float,
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ] | None = None,
+    smoothing_passes: int = 0,
+    minimum_order_ratio: float = 0.0,
 ) -> dict[tuple[float, float, float], float]:
     if len(centerline) < 2:
         raise ValueError("Volume rod centerline must contain at least two points")
@@ -1707,13 +1865,13 @@ def align_volume_rod_progress_to_centerline(
 
     segment_count = len(segment_lengths)
     progress_window = window_sections / segment_count
-    aligned = {}
+    projected_progress_by_key = {}
     for key, progress in initial_progress.items():
         if key in bottom_sources:
-            aligned[key] = 0.0
+            projected_progress_by_key[key] = 0.0
             continue
         if key in top_sources:
-            aligned[key] = 1.0
+            projected_progress_by_key[key] = 1.0
             continue
 
         coordinate = coordinate_by_key[key]
@@ -1752,12 +1910,386 @@ def align_volume_rod_progress_to_centerline(
                 cumulative_lengths[segment_index] + segment_length * amount
             ) / total_length
 
-        aligned[key] = clamp(
-            progress + (projected_progress - progress) * blend,
-            0.0,
-            1.0,
+        projected_progress_by_key[key] = projected_progress
+
+    fixed_sources = bottom_sources.union(top_sources)
+    correction_by_key = {
+        key: projected_progress_by_key[key] - progress
+        for key, progress in initial_progress.items()
+    }
+    if smoothing_passes > 0:
+        if adjacency is None:
+            raise ValueError("Volume rod projection smoothing requires mesh adjacency")
+        sigma = 0.75 / segment_count
+        for _ in range(smoothing_passes):
+            smoothed_correction = dict(correction_by_key)
+            for key, correction in correction_by_key.items():
+                if key in fixed_sources:
+                    smoothed_correction[key] = 0.0
+                    continue
+                weighted_correction = 0.0
+                total_weight = 0.0
+                for neighbor in adjacency[key]:
+                    progress_delta = abs(initial_progress[neighbor] - initial_progress[key])
+                    weight = math.exp(-0.5 * (progress_delta / sigma) ** 2)
+                    weighted_correction += correction_by_key[neighbor] * weight
+                    total_weight += weight
+                if total_weight > UV_EPSILON:
+                    smoothed_correction[key] = (
+                        correction * 0.5 + weighted_correction / total_weight * 0.5
+                    )
+            correction_by_key = smoothed_correction
+
+    aligned = {
+        key: clamp(progress + correction_by_key[key] * blend, 0.0, 1.0)
+        for key, progress in initial_progress.items()
+    }
+    for key in bottom_sources:
+        aligned[key] = 0.0
+    for key in top_sources:
+        aligned[key] = 1.0
+    if minimum_order_ratio > 0.0:
+        if adjacency is None:
+            raise ValueError("Volume rod progress order preservation requires mesh adjacency")
+        aligned = preserve_volume_rod_progress_order(
+            adjacency,
+            initial_progress,
+            aligned,
+            fixed_sources,
+            minimum_order_ratio,
+            0.1 / segment_count,
         )
     return aligned
+
+
+def build_volume_rod_crease_chains(
+    coordinates: list[tuple[float, float, float]],
+    soft_faces: list[Face],
+    minimum_angle_degrees: float,
+    minimum_vertices: int,
+) -> list[tuple[tuple[tuple[float, float, float], ...], bool]]:
+    triangles: list[
+        tuple[
+            tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]],
+            tuple[float, float, float],
+        ]
+    ] = []
+    for face in soft_faces:
+        keys = [coordinate_key(coordinates[ref[0]]) for ref in face.refs]
+        for index in range(1, len(keys) - 1):
+            triangle = (keys[0], keys[index], keys[index + 1])
+            first = coordinates[face.refs[0][0]]
+            second = coordinates[face.refs[index][0]]
+            third = coordinates[face.refs[index + 1][0]]
+            first_edge = tuple(second[axis] - first[axis] for axis in range(3))
+            second_edge = tuple(third[axis] - first[axis] for axis in range(3))
+            normal = (
+                first_edge[1] * second_edge[2] - first_edge[2] * second_edge[1],
+                first_edge[2] * second_edge[0] - first_edge[0] * second_edge[2],
+                first_edge[0] * second_edge[1] - first_edge[1] * second_edge[0],
+            )
+            normal_length = math.sqrt(dot(normal, normal))
+            if normal_length <= UV_EPSILON:
+                continue
+            triangles.append((triangle, tuple(value / normal_length for value in normal)))
+
+    triangle_indexes_by_edge: dict[
+        tuple[tuple[float, float, float], tuple[float, float, float]],
+        list[int],
+    ] = {}
+    for triangle_index, (triangle, _) in enumerate(triangles):
+        for first, second in (
+            (triangle[0], triangle[1]),
+            (triangle[1], triangle[2]),
+            (triangle[2], triangle[0]),
+        ):
+            if first == second:
+                continue
+            triangle_indexes_by_edge.setdefault(tuple(sorted((first, second))), []).append(
+                triangle_index
+            )
+
+    crease_edges = set()
+    minimum_normal_dot = math.cos(math.radians(minimum_angle_degrees))
+    for edge, triangle_indexes in triangle_indexes_by_edge.items():
+        if len(triangle_indexes) != 2:
+            continue
+        first_normal = triangles[triangle_indexes[0]][1]
+        second_normal = triangles[triangle_indexes[1]][1]
+        if dot(first_normal, second_normal) <= minimum_normal_dot:
+            crease_edges.add(edge)
+
+    crease_adjacency: dict[
+        tuple[float, float, float],
+        set[tuple[float, float, float]],
+    ] = {}
+    for first, second in crease_edges:
+        crease_adjacency.setdefault(first, set()).add(second)
+        crease_adjacency.setdefault(second, set()).add(first)
+
+    remaining_edges = set(crease_edges)
+    chains: list[tuple[tuple[tuple[float, float, float], ...], bool]] = []
+
+    def consume_chain(
+        start: tuple[float, float, float],
+        following: tuple[float, float, float],
+    ) -> tuple[tuple[float, float, float], ...]:
+        chain = [start, following]
+        remaining_edges.discard(tuple(sorted((start, following))))
+        previous = start
+        current = following
+        while len(crease_adjacency[current]) == 2:
+            candidates = [
+                neighbor
+                for neighbor in crease_adjacency[current]
+                if neighbor != previous
+                and tuple(sorted((current, neighbor))) in remaining_edges
+            ]
+            if not candidates:
+                break
+            next_key = min(candidates)
+            remaining_edges.discard(tuple(sorted((current, next_key))))
+            chain.append(next_key)
+            previous, current = current, next_key
+        return tuple(chain)
+
+    for start in sorted(crease_adjacency):
+        if len(crease_adjacency[start]) == 2:
+            continue
+        for following in sorted(crease_adjacency[start]):
+            if tuple(sorted((start, following))) not in remaining_edges:
+                continue
+            chain = consume_chain(start, following)
+            if len(chain) >= minimum_vertices:
+                chains.append((chain, False))
+
+    while remaining_edges:
+        start, following = min(remaining_edges)
+        chain = consume_chain(start, following)
+        is_loop = len(chain) > 2 and chain[-1] == chain[0]
+        if is_loop:
+            chain = chain[:-1]
+        if len(chain) >= minimum_vertices:
+            chains.append((chain, is_loop))
+    return chains
+
+
+def smooth_volume_rod_progress_along_crease_chains(
+    initial_progress: dict[tuple[float, float, float], float],
+    crease_chains: list[tuple[tuple[tuple[float, float, float], ...], bool]],
+    fixed_sources: set[tuple[float, float, float]],
+    smoothing_passes: int,
+) -> dict[tuple[float, float, float], float]:
+    progress = dict(initial_progress)
+    for _ in range(smoothing_passes):
+        smoothed = dict(progress)
+        for chain, is_loop in crease_chains:
+            for index, key in enumerate(chain):
+                if key in fixed_sources or (not is_loop and index in {0, len(chain) - 1}):
+                    continue
+                previous = chain[index - 1]
+                following = chain[(index + 1) % len(chain)]
+                smoothed[key] = (
+                    progress[previous] * 0.25
+                    + progress[key] * 0.5
+                    + progress[following] * 0.25
+                )
+        progress = smoothed
+    return progress
+
+
+def flatten_volume_rod_progress_across_creases(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    initial_progress: dict[tuple[float, float, float], float],
+    crease_chains: list[tuple[tuple[tuple[float, float, float], ...], bool]],
+    anchor_sources: set[tuple[float, float, float]],
+    flattening: float,
+    maximum_progress_range: float,
+) -> dict[tuple[float, float, float], float]:
+    fixed_correction = {
+        key: 0.0
+        for key in anchor_sources
+        if key in adjacency
+    }
+    correction_samples: dict[tuple[float, float, float], list[float]] = {}
+    for chain, _ in crease_chains:
+        if anchor_sources.intersection(chain):
+            continue
+        values = [initial_progress[key] for key in chain]
+        if max(values) - min(values) > maximum_progress_range:
+            continue
+        target = sum(values) / len(values)
+        for key, value in zip(chain, values):
+            correction_samples.setdefault(key, []).append(
+                (target - value) * flattening
+            )
+
+    if not correction_samples:
+        return dict(initial_progress)
+    fixed_correction.update(
+        (key, sum(samples) / len(samples))
+        for key, samples in correction_samples.items()
+    )
+    correction = solve_volume_rod_harmonic_correction(adjacency, fixed_correction)
+    return {
+        key: clamp(value + correction[key], 0.0, 1.0)
+        for key, value in initial_progress.items()
+    }
+
+
+def solve_volume_rod_harmonic_correction(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    fixed_correction: dict[tuple[float, float, float], float],
+) -> dict[tuple[float, float, float], float]:
+    fixed = {
+        key: value
+        for key, value in fixed_correction.items()
+        if key in adjacency
+    }
+    interior_keys = sorted(set(adjacency).difference(fixed))
+    if not interior_keys:
+        return fixed
+
+    interior_index = {key: index for index, key in enumerate(interior_keys)}
+    diagonal = [0.0] * len(interior_keys)
+    right_hand_side = [0.0] * len(interior_keys)
+    interior_neighbors: list[tuple[tuple[int, float], ...]] = []
+    for index, key in enumerate(interior_keys):
+        neighbors = []
+        for neighbor, edge_length in adjacency[key].items():
+            conductance = 1.0 / max(edge_length, UV_EPSILON)
+            diagonal[index] += conductance
+            if neighbor in fixed:
+                right_hand_side[index] += conductance * fixed[neighbor]
+            else:
+                neighbors.append((interior_index[neighbor], conductance))
+        if diagonal[index] <= UV_EPSILON:
+            raise ValueError("Volume rod crease correction found an isolated vertex")
+        interior_neighbors.append(tuple(neighbors))
+
+    def multiply_matrix(vector: list[float]) -> list[float]:
+        return [
+            diagonal[index] * vector[index]
+            - sum(
+                conductance * vector[neighbor]
+                for neighbor, conductance in interior_neighbors[index]
+            )
+            for index in range(len(interior_keys))
+        ]
+
+    solution = [0.0] * len(interior_keys)
+    residual = list(right_hand_side)
+    initial_residual = math.sqrt(sum(value * value for value in residual))
+    if initial_residual <= 0.0000000001:
+        result = dict(fixed)
+        result.update((key, 0.0) for key in interior_keys)
+        return result
+
+    preconditioned = [
+        residual[index] / diagonal[index]
+        for index in range(len(interior_keys))
+    ]
+    direction = list(preconditioned)
+    residual_dot = sum(
+        residual[index] * preconditioned[index]
+        for index in range(len(interior_keys))
+    )
+    tolerance = max(0.0000000001, initial_residual * 0.00000001)
+    maximum_iterations = max(64, min(4096, len(interior_keys) * 2))
+    for _ in range(maximum_iterations):
+        matrix_direction = multiply_matrix(direction)
+        denominator = sum(
+            direction[index] * matrix_direction[index]
+            for index in range(len(interior_keys))
+        )
+        if abs(denominator) <= 0.00000000000000000001:
+            raise ValueError("Volume rod crease correction matrix is singular")
+        amount = residual_dot / denominator
+        for index in range(len(interior_keys)):
+            solution[index] += amount * direction[index]
+            residual[index] -= amount * matrix_direction[index]
+        residual_length = math.sqrt(sum(value * value for value in residual))
+        if residual_length <= tolerance:
+            break
+        preconditioned = [
+            residual[index] / diagonal[index]
+            for index in range(len(interior_keys))
+        ]
+        next_residual_dot = sum(
+            residual[index] * preconditioned[index]
+            for index in range(len(interior_keys))
+        )
+        direction_scale = next_residual_dot / residual_dot
+        direction = [
+            preconditioned[index] + direction_scale * direction[index]
+            for index in range(len(interior_keys))
+        ]
+        residual_dot = next_residual_dot
+    else:
+        raise ValueError("Volume rod crease correction did not converge")
+
+    result = dict(fixed)
+    result.update(
+        (key, solution[index])
+        for index, key in enumerate(interior_keys)
+    )
+    return result
+
+
+def preserve_volume_rod_progress_order(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    reference_progress: dict[tuple[float, float, float], float],
+    initial_progress: dict[tuple[float, float, float], float],
+    fixed_sources: set[tuple[float, float, float]],
+    minimum_order_ratio: float,
+    minimum_reference_delta: float,
+) -> dict[tuple[float, float, float], float]:
+    edges = sorted({
+        tuple(sorted((key, neighbor)))
+        for key, neighbors in adjacency.items()
+        for neighbor in neighbors
+        if key != neighbor
+    })
+    progress = dict(initial_progress)
+    for _ in range(HARMONIC_PATH_MAX_ITERATIONS):
+        maximum_deficit = 0.0
+        for first, second in edges:
+            reference_difference = reference_progress[first] - reference_progress[second]
+            if abs(reference_difference) < minimum_reference_delta:
+                continue
+            direction = 1.0 if reference_difference > 0.0 else -1.0
+            required_difference = abs(reference_difference) * minimum_order_ratio
+            actual_difference = (progress[first] - progress[second]) * direction
+            deficit = required_difference - actual_difference
+            if deficit <= 0.0:
+                continue
+            maximum_deficit = max(maximum_deficit, deficit)
+            first_fixed = first in fixed_sources
+            second_fixed = second in fixed_sources
+            if first_fixed and second_fixed:
+                raise ValueError("Volume rod fixed edge violates its reference progress order")
+            if first_fixed:
+                progress[second] -= direction * deficit
+            elif second_fixed:
+                progress[first] += direction * deficit
+            else:
+                correction = direction * deficit * 0.5
+                progress[first] += correction
+                progress[second] -= correction
+        if maximum_deficit < HARMONIC_PATH_TOLERANCE:
+            break
+    else:
+        raise ValueError("Volume rod progress order preservation did not converge")
+    return progress
 
 
 def match_volume_rod_reference_progress(
@@ -1882,6 +2414,130 @@ def limit_volume_rod_triangle_progress_jumps(
             break
     else:
         raise ValueError("Volume rod triangle progress limiter did not converge")
+
+    for key in bottom_sources:
+        progress[key] = 0.0
+    for key in top_sources:
+        progress[key] = 1.0
+    return progress
+
+
+def limit_volume_rod_surface_progress_gradient(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+    maximum_gradient: float,
+) -> dict[tuple[float, float, float], float]:
+    distance_from_bottom = shortest_surface_distances(adjacency, bottom_sources)
+    shortest_anchor_path = min(
+        distance_from_bottom.get(source, math.inf)
+        for source in top_sources
+    )
+    if not math.isfinite(shortest_anchor_path):
+        raise ValueError("Volume rod surface gradient constraints do not connect both anchors")
+    if maximum_gradient * shortest_anchor_path < 1.0 - HARMONIC_PATH_TOLERANCE:
+        raise ValueError(
+            "Volume rod maximumSurfaceProgressGradient is too small for the shortest anchor path"
+        )
+
+    edges = sorted(
+        (first, second, edge_length)
+        for first, neighbors in adjacency.items()
+        for second, edge_length in neighbors.items()
+        if first < second
+    )
+    fixed_sources = bottom_sources.union(top_sources)
+    progress = dict(initial_progress)
+    for _ in range(HARMONIC_PATH_MAX_ITERATIONS):
+        maximum_excess = 0.0
+        for first, second, edge_length in edges:
+            allowed_difference = maximum_gradient * edge_length
+            difference = progress[first] - progress[second]
+            excess = abs(difference) - allowed_difference
+            if excess <= 0.0:
+                continue
+            maximum_excess = max(maximum_excess, excess)
+            direction = 1.0 if difference > 0.0 else -1.0
+            first_fixed = first in fixed_sources
+            second_fixed = second in fixed_sources
+            if first_fixed and second_fixed:
+                raise ValueError(
+                    "Volume rod fixed surface edge exceeds maximum progress gradient"
+                )
+            if first_fixed:
+                progress[second] += direction * excess
+            elif second_fixed:
+                progress[first] -= direction * excess
+            else:
+                correction = direction * excess * 0.5
+                progress[first] -= correction
+                progress[second] += correction
+        if maximum_excess < HARMONIC_PATH_TOLERANCE:
+            break
+    else:
+        raise ValueError("Volume rod surface progress gradient limiter did not converge")
+
+    for key in bottom_sources:
+        progress[key] = 0.0
+    for key in top_sources:
+        progress[key] = 1.0
+    return progress
+
+
+def smooth_volume_rod_surface_progress(
+    adjacency: dict[
+        tuple[float, float, float],
+        dict[tuple[float, float, float], float],
+    ],
+    bottom_sources: set[tuple[float, float, float]],
+    top_sources: set[tuple[float, float, float]],
+    initial_progress: dict[tuple[float, float, float], float],
+    maximum_gradient: float,
+    smoothing_passes: int,
+) -> dict[tuple[float, float, float], float]:
+    if smoothing_passes <= 0:
+        return dict(initial_progress)
+
+    fixed_sources = bottom_sources.union(top_sources)
+    interior = sorted(set(adjacency).difference(fixed_sources))
+    progress = dict(initial_progress)
+    conductance_by_key: dict[
+        tuple[float, float, float],
+        tuple[tuple[tuple[float, float, float], float, float], ...],
+    ] = {}
+    for key in interior:
+        neighbors = tuple(
+            (neighbor, edge_length, 1.0 / max(edge_length, UV_EPSILON))
+            for neighbor, edge_length in adjacency[key].items()
+        )
+        if not neighbors:
+            raise ValueError("Volume rod surface smoothing found an isolated vertex")
+        conductance_by_key[key] = neighbors
+
+    for pass_index in range(smoothing_passes):
+        ordered_keys = interior if pass_index % 2 == 0 else reversed(interior)
+        for key in ordered_keys:
+            neighbors = conductance_by_key[key]
+            total_conductance = sum(conductance for _, _, conductance in neighbors)
+            average = sum(
+                progress[neighbor] * conductance
+                for neighbor, _, conductance in neighbors
+            ) / total_conductance
+            lower = max(
+                progress[neighbor] - maximum_gradient * edge_length
+                for neighbor, edge_length, _ in neighbors
+            )
+            upper = min(
+                progress[neighbor] + maximum_gradient * edge_length
+                for neighbor, edge_length, _ in neighbors
+            )
+            if lower > upper:
+                continue
+            progress[key] = clamp(average, max(0.0, lower), min(1.0, upper))
 
     for key in bottom_sources:
         progress[key] = 0.0

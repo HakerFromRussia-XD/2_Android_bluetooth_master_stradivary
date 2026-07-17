@@ -210,21 +210,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static boolean volumeRodDeformationEnabled = true;
 	private static final int DEFORMATION_INFLUENCE_NONE = -1;
 	private static final float DEFORMATION_FINGER_WEIGHT_EPSILON = 0.0001f;
-	private static final float VOLUME_ROD_ANCHOR_BLEND = 0.14f;
+	private static final float VOLUME_ROD_PALM_ANCHOR_BLEND = 0.24f;
+	private static final float VOLUME_ROD_FINGER_ANCHOR_BLEND = 0.55f;
 	private static final float VOLUME_ROD_MIN_RADIAL_SCALE = 1.0f;
 	private static final float VOLUME_ROD_MIN_AXIAL_SCALE = 0.35f;
 	private static final float VOLUME_ROD_MAX_AXIAL_SCALE = 2.5f;
-	private static final float VOLUME_ROD_PALM_HANDLE_RATIO = 0.20f;
+	private static final float VOLUME_ROD_PALM_HANDLE_RATIO = 0.275f;
 	private static final float VOLUME_ROD_FINGER_HANDLE_RATIO = 0.50f;
 	private static final float VOLUME_ROD_MIN_HANDLE_SCALE = 0.65f;
 	private static final float VOLUME_ROD_MAX_HANDLE_SCALE = 1.20f;
-	private static final float VOLUME_ROD_BENDING_STRAIN_GAIN = 0.35f;
+	private static final float VOLUME_ROD_BENDING_STRAIN_GAIN = 0.0f;
 	private static final float VOLUME_ROD_PALM_STRAIN_BLEND = 0.35f;
-	private static final float VOLUME_ROD_FINGER_STRAIN_BLEND = VOLUME_ROD_ANCHOR_BLEND;
+	private static final float VOLUME_ROD_FINGER_STRAIN_BLEND = 0.32f;
 	private static final float VOLUME_ROD_MAX_COMBINED_RADIAL_SCALE = 1.85f;
 	private static final int VOLUME_ROD_STRETCH_SMOOTHING_PASSES = 16;
 	private static final int VOLUME_ROD_COMPRESSION_SMOOTHING_PASSES = 40;
-	private static final float VOLUME_ROD_COMPRESSION_RADIAL_GAIN = 0.05f;
+	private static final float VOLUME_ROD_COMPRESSION_RADIAL_GAIN = 0.0f;
 	private static final float VOLUME_ROD_MAX_COMPRESSION_RADIAL_SCALE = 1.04f;
 	private static final float VOLUME_ROD_MAX_COMPRESSION_COMBINED_RADIAL_SCALE = 1.15f;
 	private static final float SELECT_PICK_CODE_SCALE = 1.0f / 255.0f;
@@ -2333,6 +2334,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		boolean[] deformableParts;
 		float[][] bindVertices;
 		float[][] dynamicVertices;
+		int[][] deformableIndices;
 		FloatBuffer[] dynamicVertexBuffers;
 		Load3DModelFesth3.DeformationData[] deformationData;
 		VolumeRodRuntime[] volumeRodRuntimes;
@@ -2352,6 +2354,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			final float[] segmentAxialScales;
 			final float[] segmentRadialScales;
 			final float[] segmentScaleScratch;
+			final float[] normalSums;
 			final float totalRestLength;
 			final float restChordLength;
 			final float[] bottomReal = new float[4];
@@ -2365,6 +2368,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			final float[] restTangent = new float[3];
 			final float[] currentTangent = new float[3];
 			final float[] referenceTangent = new float[3];
+			final float[] frameAlignmentRotation = new float[4];
 			final float[] bendNormal = new float[3];
 			final float[] curvatureNormal = new float[3];
 			final float[] restCenter = new float[3];
@@ -2398,6 +2402,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				segmentAxialScales = new float[nodeCount - 1];
 				segmentRadialScales = new float[nodeCount - 1];
 				segmentScaleScratch = new float[nodeCount - 1];
+				normalSums = new float[data.vertexCount * 3];
 				computePolylineTangents(data.volumeRodCenterline, restTangents, restSegmentLengths);
 				float resolvedRestLength = 0.0f;
 				for (float segmentLength : restSegmentLengths) {
@@ -2432,6 +2437,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					deformableParts = new boolean[partCount];
 					bindVertices = new float[partCount][];
 					dynamicVertices = new float[partCount][];
+					deformableIndices = new int[partCount][];
 					dynamicVertexBuffers = new FloatBuffer[partCount];
 					deformationData = new Load3DModelFesth3.DeformationData[partCount];
 					volumeRodRuntimes = new VolumeRodRuntime[partCount];
@@ -2454,6 +2460,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							if (DEFORMATION_TYPE_VOLUME_ROD.equals(partDeformationData.type)
 									&& partDeformationData.volumeRodCenterline != null) {
 								volumeRodRuntimes[i] = new VolumeRodRuntime(partDeformationData);
+								deformableIndices[i] = indices;
 							}
 						}
 						indexCounts[i] = indices.length;
@@ -2548,23 +2555,30 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			float[] bind = bindVertices[partIndex];
 			float[] target = dynamicVertices[partIndex];
 			FloatBuffer targetBuffer = dynamicVertexBuffers[partIndex];
-				if (data == null || bind == null || target == null || targetBuffer == null) {
-					return;
-				}
-				VolumeRodRuntime volumeRodRuntime = volumeRodRuntimes[partIndex];
-				if (volumeRodRuntime != null) {
-					updateVolumeRodPart(
-							bind,
+			if (data == null || bind == null || target == null || targetBuffer == null) {
+				return;
+			}
+			VolumeRodRuntime volumeRodRuntime = volumeRodRuntimes[partIndex];
+			if (volumeRodRuntime != null) {
+				updateVolumeRodPart(
+						bind,
+						target,
+						data,
+						volumeRodRuntime,
+						selectedInfluence,
+						pickingPass
+				);
+				if (volumeRodDeformationEnabled && deformableIndices[partIndex] != null) {
+					recalculateVolumeRodSurfaceFrame(
 							target,
-							data,
-							volumeRodRuntime,
-							selectedInfluence,
-							pickingPass
+							deformableIndices[partIndex],
+							volumeRodRuntime
 					);
-					uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
-					return;
 				}
-				int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+				uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
+				return;
+			}
+			int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
 			float[] input = new float[4];
 			float[] output = new float[4];
 			for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
@@ -2608,8 +2622,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						input,
 						output);
 			}
-				uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
-			}
+			uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
+		}
 
 			private void uploadDynamicVertexBuffer(
 					int partIndex,
@@ -2722,6 +2736,114 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				}
 			}
 
+			private void recalculateVolumeRodSurfaceFrame(
+					float[] vertices,
+					int[] indices,
+					VolumeRodRuntime runtime
+			) {
+				int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
+				float[] normalSums = runtime.normalSums;
+				java.util.Arrays.fill(normalSums, 0.0f);
+
+				for (int index = 0; index + 2 < indices.length; index += 3) {
+					int firstVertex = indices[index];
+					int secondVertex = indices[index + 1];
+					int thirdVertex = indices[index + 2];
+					int firstOffset = firstVertex * floatsPerVertex;
+					int secondOffset = secondVertex * floatsPerVertex;
+					int thirdOffset = thirdVertex * floatsPerVertex;
+					float firstEdgeX = vertices[secondOffset] - vertices[firstOffset];
+					float firstEdgeY = vertices[secondOffset + 1] - vertices[firstOffset + 1];
+					float firstEdgeZ = vertices[secondOffset + 2] - vertices[firstOffset + 2];
+					float secondEdgeX = vertices[thirdOffset] - vertices[firstOffset];
+					float secondEdgeY = vertices[thirdOffset + 1] - vertices[firstOffset + 1];
+					float secondEdgeZ = vertices[thirdOffset + 2] - vertices[firstOffset + 2];
+					float normalX = firstEdgeY * secondEdgeZ - firstEdgeZ * secondEdgeY;
+					float normalY = firstEdgeZ * secondEdgeX - firstEdgeX * secondEdgeZ;
+					float normalZ = firstEdgeX * secondEdgeY - firstEdgeY * secondEdgeX;
+					float length = vectorLength(normalX, normalY, normalZ);
+					if (length <= 0.000001f) {
+						continue;
+					}
+					normalX /= length;
+					normalY /= length;
+					normalZ /= length;
+					int firstNormalOffset = firstVertex * 3;
+					int secondNormalOffset = secondVertex * 3;
+					int thirdNormalOffset = thirdVertex * 3;
+					normalSums[firstNormalOffset] += normalX;
+					normalSums[firstNormalOffset + 1] += normalY;
+					normalSums[firstNormalOffset + 2] += normalZ;
+					normalSums[secondNormalOffset] += normalX;
+					normalSums[secondNormalOffset + 1] += normalY;
+					normalSums[secondNormalOffset + 2] += normalZ;
+					normalSums[thirdNormalOffset] += normalX;
+					normalSums[thirdNormalOffset + 1] += normalY;
+					normalSums[thirdNormalOffset + 2] += normalZ;
+				}
+
+				int vertexCount = vertices.length / floatsPerVertex;
+				int normalOffsetInVertex = POSITION_DATA_SIZE_IN_ELEMENTS;
+				int tangentOffsetInVertex = POSITION_DATA_SIZE_IN_ELEMENTS
+						+ NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS;
+				int bitangentOffsetInVertex = tangentOffsetInVertex + TANGENT_DATA_SIZE_IN_ELEMENTS;
+				for (int vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
+					int vertexOffset = vertexIndex * floatsPerVertex;
+					int normalSumOffset = vertexIndex * 3;
+					float normalX = normalSums[normalSumOffset];
+					float normalY = normalSums[normalSumOffset + 1];
+					float normalZ = normalSums[normalSumOffset + 2];
+					float normalLength = vectorLength(normalX, normalY, normalZ);
+					if (normalLength <= 0.000001f) {
+						continue;
+					}
+					normalX /= normalLength;
+					normalY /= normalLength;
+					normalZ /= normalLength;
+					vertices[vertexOffset + normalOffsetInVertex] = normalX;
+					vertices[vertexOffset + normalOffsetInVertex + 1] = normalY;
+					vertices[vertexOffset + normalOffsetInVertex + 2] = normalZ;
+
+					int tangentOffset = vertexOffset + tangentOffsetInVertex;
+					float tangentProjection = vertices[tangentOffset] * normalX
+							+ vertices[tangentOffset + 1] * normalY
+							+ vertices[tangentOffset + 2] * normalZ;
+					vertices[tangentOffset] -= normalX * tangentProjection;
+					vertices[tangentOffset + 1] -= normalY * tangentProjection;
+					vertices[tangentOffset + 2] -= normalZ * tangentProjection;
+					if (vectorLength(
+							vertices[tangentOffset],
+							vertices[tangentOffset + 1],
+							vertices[tangentOffset + 2]
+					) <= 0.000001f) {
+						if (Math.abs(normalZ) < 0.9f) {
+							vertices[tangentOffset] = normalY;
+							vertices[tangentOffset + 1] = -normalX;
+							vertices[tangentOffset + 2] = 0.0f;
+						} else {
+							vertices[tangentOffset] = -normalZ;
+							vertices[tangentOffset + 1] = 0.0f;
+							vertices[tangentOffset + 2] = normalX;
+						}
+					}
+					normalizeVector3(vertices, tangentOffset);
+
+					float bitangentX = normalY * vertices[tangentOffset + 2]
+							- normalZ * vertices[tangentOffset + 1];
+					float bitangentY = normalZ * vertices[tangentOffset]
+							- normalX * vertices[tangentOffset + 2];
+					float bitangentZ = normalX * vertices[tangentOffset + 1]
+							- normalY * vertices[tangentOffset];
+					int bitangentOffset = vertexOffset + bitangentOffsetInVertex;
+					float handedness = bitangentX * vertices[bitangentOffset]
+							+ bitangentY * vertices[bitangentOffset + 1]
+							+ bitangentZ * vertices[bitangentOffset + 2] < 0.0f ? -1.0f : 1.0f;
+					vertices[bitangentOffset] = bitangentX * handedness;
+					vertices[bitangentOffset + 1] = bitangentY * handedness;
+					vertices[bitangentOffset + 2] = bitangentZ * handedness;
+				}
+			}
+
 			private void copyUndeformedVolumeRodPart(
 					float[] bind,
 					float[] target,
@@ -2760,6 +2882,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						runtime.topDual[component] = -runtime.topDual[component];
 					}
 				}
+
 				int endCenterOffset = (runtime.nodeCount - 1) * 3;
 				transformRigidVolumeRodVector(data.volumeRodCenterline, 0,
 						bottomMatrix, true, runtime.guideStart, 0, runtime);
@@ -2959,6 +3082,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						runtime.referenceTangent
 				);
 				normalizeVector3(runtime.referenceTangent);
+				shortestArcQuaternion(
+						runtime.referenceTangent,
+						runtime.currentTangent,
+						runtime.frameAlignmentRotation
+				);
 				float tangentDot = clampVolumeRod(
 						runtime.referenceTangent[0] * runtime.currentTangent[0]
 								+ runtime.referenceTangent[1] * runtime.currentTangent[1]
@@ -2992,8 +3120,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				float startRadialScale = volumeRodNodeScale(runtime.segmentRadialScales, segment);
 				float endRadialScale = volumeRodNodeScale(runtime.segmentRadialScales, segment + 1);
 				float anchorBlend = Math.min(
-						smoothstepVolumeRod(progress / VOLUME_ROD_ANCHOR_BLEND),
-						smoothstepVolumeRod((1.0f - progress) / VOLUME_ROD_ANCHOR_BLEND)
+						smoothstepVolumeRod(progress / VOLUME_ROD_PALM_ANCHOR_BLEND),
+						smoothstepVolumeRod((1.0f - progress) / VOLUME_ROD_FINGER_ANCHOR_BLEND)
 				);
 				float axialScale = lerpVolumeRod(startAxialScale, endAxialScale, amount);
 				float radialScale = lerpVolumeRod(startRadialScale, endRadialScale, amount);
@@ -3034,6 +3162,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				float radialZ = offsetZ - axialOffset * runtime.restTangent[2];
 				float radialLength = vectorLength(radialX, radialY, radialZ);
 				rotateByQuaternion(runtime.vertexRotation, radialX, radialY, radialZ, runtime.vectorScratch);
+				rotateByQuaternion(
+						runtime.frameAlignmentRotation,
+						runtime.vectorScratch[0],
+						runtime.vectorScratch[1],
+						runtime.vectorScratch[2],
+						runtime.vectorScratch
+				);
 				removeTangentComponent(runtime.vectorScratch, runtime.currentTangent);
 				float rotatedRadialLength = vectorLength(
 						runtime.vectorScratch[0],
@@ -3089,6 +3224,13 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				float radialZ = sourceZ - axial * runtime.restTangent[2];
 				float radialLength = vectorLength(radialX, radialY, radialZ);
 				rotateByQuaternion(runtime.vertexRotation, radialX, radialY, radialZ, runtime.vectorScratch);
+				rotateByQuaternion(
+						runtime.frameAlignmentRotation,
+						runtime.vectorScratch[0],
+						runtime.vectorScratch[1],
+						runtime.vectorScratch[2],
+						runtime.vectorScratch
+				);
 				removeTangentComponent(runtime.vectorScratch, runtime.currentTangent);
 				float rotatedRadialLength = vectorLength(
 						runtime.vectorScratch[0],
@@ -3381,6 +3523,32 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 							amount
 					);
 				}
+				normalizeQuaternion(result);
+			}
+
+			private void shortestArcQuaternion(float[] first, float[] second, float[] result) {
+				float dot = clampVolumeRod(
+						first[0] * second[0] + first[1] * second[1] + first[2] * second[2],
+						-1.0f,
+						1.0f
+				);
+				if (dot < -0.999999f) {
+					result[0] = 0.0f;
+					result[1] = first[2];
+					result[2] = -first[1];
+					result[3] = 0.0f;
+					if (vectorLength(result[0], result[1], result[2]) <= 0.000001f) {
+						result[0] = -first[2];
+						result[1] = 0.0f;
+						result[2] = first[0];
+					}
+					normalizeQuaternion(result);
+					return;
+				}
+				result[0] = first[1] * second[2] - first[2] * second[1];
+				result[1] = first[2] * second[0] - first[0] * second[2];
+				result[2] = first[0] * second[1] - first[1] * second[0];
+				result[3] = 1.0f + dot;
 				normalizeQuaternion(result);
 			}
 

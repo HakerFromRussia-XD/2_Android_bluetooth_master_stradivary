@@ -12,10 +12,15 @@ from tools.v3_model.convert_v3_obj_to_bin import adapt_volume_rod_centerline
 from tools.v3_model.convert_v3_obj_to_bin import align_volume_rod_progress_to_centerline
 from tools.v3_model.convert_v3_obj_to_bin import build_harmonic_surface_progress
 from tools.v3_model.convert_v3_obj_to_bin import Face
+from tools.v3_model.convert_v3_obj_to_bin import flatten_volume_rod_progress_across_creases
 from tools.v3_model.convert_v3_obj_to_bin import limit_volume_rod_triangle_progress_jumps
+from tools.v3_model.convert_v3_obj_to_bin import limit_volume_rod_surface_progress_gradient
 from tools.v3_model.convert_v3_obj_to_bin import match_volume_rod_reference_progress
+from tools.v3_model.convert_v3_obj_to_bin import preserve_volume_rod_progress_order
 from tools.v3_model.convert_v3_obj_to_bin import regularize_volume_rod_reference_progress
 from tools.v3_model.convert_v3_obj_to_bin import resample_volume_rod_centerline
+from tools.v3_model.convert_v3_obj_to_bin import smooth_volume_rod_progress_along_crease_chains
+from tools.v3_model.convert_v3_obj_to_bin import smooth_volume_rod_surface_progress
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -461,6 +466,84 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
             triangle_progress = [progress[keys[index]] for index in triangle]
             self.assertLessEqual(max(triangle_progress) - min(triangle_progress), 0.4000001)
 
+    def test_surface_progress_gradient_limiter_scales_jump_by_edge_length(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        middle = (0.25, 0.0, 0.0)
+        upper_middle = (1.0, 0.0, 0.0)
+        top = (2.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {middle: 0.25},
+            middle: {bottom: 0.25, upper_middle: 0.75},
+            upper_middle: {middle: 0.75, top: 1.0},
+            top: {upper_middle: 1.0},
+        }
+
+        progress = limit_volume_rod_surface_progress_gradient(
+            adjacency,
+            {bottom},
+            {top},
+            {
+                bottom: 0.0,
+                middle: 0.8,
+                upper_middle: 0.9,
+                top: 1.0,
+            },
+            0.5,
+        )
+
+        self.assertEqual(0.0, progress[bottom])
+        self.assertEqual(1.0, progress[top])
+        for first, neighbors in adjacency.items():
+            for second, edge_length in neighbors.items():
+                self.assertLessEqual(
+                    abs(progress[first] - progress[second]),
+                    0.5 * edge_length + 0.0000001,
+                )
+
+    def test_surface_progress_smoothing_preserves_gradient_and_anchors(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        first = (1.0, 0.0, 0.0)
+        second = (2.0, 0.0, 0.0)
+        top = (3.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {first: 1.0},
+            first: {bottom: 1.0, second: 1.0},
+            second: {first: 1.0, top: 1.0},
+            top: {second: 1.0},
+        }
+        initial = {bottom: 0.0, first: 0.5, second: 0.8, top: 1.0}
+
+        progress = smooth_volume_rod_surface_progress(
+            adjacency,
+            {bottom},
+            {top},
+            initial,
+            0.5,
+            20,
+        )
+
+        initial_energy = sum(
+            (initial[first_key] - initial[second_key]) ** 2 / edge_length
+            for first_key, neighbors in adjacency.items()
+            for second_key, edge_length in neighbors.items()
+            if first_key < second_key
+        )
+        smoothed_energy = sum(
+            (progress[first_key] - progress[second_key]) ** 2 / edge_length
+            for first_key, neighbors in adjacency.items()
+            for second_key, edge_length in neighbors.items()
+            if first_key < second_key
+        )
+        self.assertEqual(0.0, progress[bottom])
+        self.assertEqual(1.0, progress[top])
+        self.assertLess(smoothed_energy, initial_energy)
+        for first_key, neighbors in adjacency.items():
+            for second_key, edge_length in neighbors.items():
+                self.assertLessEqual(
+                    abs(progress[first_key] - progress[second_key]),
+                    0.5 * edge_length + 0.0000001,
+                )
+
     def test_reference_centerline_is_adapted_to_new_anchors(self) -> None:
         centerline = adapt_volume_rod_centerline(
             (
@@ -542,6 +625,96 @@ class ConvertV3ObjToBinTest(unittest.TestCase):
         self.assertEqual(0.0, progress[bottom])
         self.assertAlmostEqual(0.375, progress[interior])
         self.assertEqual(1.0, progress[top])
+
+    def test_progress_order_preservation_prevents_longitudinal_edge_inversion(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        first = (1.0, 0.0, 0.0)
+        second = (2.0, 0.0, 0.0)
+        top = (3.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {first: 1.0},
+            first: {bottom: 1.0, second: 1.0},
+            second: {first: 1.0, top: 1.0},
+            top: {second: 1.0},
+        }
+
+        progress = preserve_volume_rod_progress_order(
+            adjacency,
+            {bottom: 0.0, first: 0.3, second: 0.7, top: 1.0},
+            {bottom: 0.0, first: 0.6, second: 0.4, top: 1.0},
+            {bottom, top},
+            0.25,
+            0.01,
+        )
+
+        self.assertEqual(0.0, progress[bottom])
+        self.assertGreaterEqual(progress[second] - progress[first], 0.1 - 0.0000001)
+        self.assertEqual(1.0, progress[top])
+
+    def test_crease_chain_smoothing_removes_zigzag_without_moving_endpoints(self) -> None:
+        keys = [(float(index), 0.0, 0.0) for index in range(5)]
+        progress = smooth_volume_rod_progress_along_crease_chains(
+            dict(zip(keys, (0.0, 1.0, 0.0, 1.0, 0.0))),
+            [(tuple(keys), False)],
+            set(),
+            1,
+        )
+
+        self.assertEqual(0.0, progress[keys[0]])
+        self.assertEqual(0.5, progress[keys[1]])
+        self.assertEqual(0.5, progress[keys[2]])
+        self.assertEqual(0.5, progress[keys[3]])
+        self.assertEqual(0.0, progress[keys[4]])
+
+    def test_crease_flattening_uses_one_progress_across_a_fold(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        first = (1.0, 0.0, 0.0)
+        second = (1.0, 1.0, 0.0)
+        top = (2.0, 0.0, 0.0)
+        adjacency = {
+            bottom: {first: 1.0, second: 1.0},
+            first: {bottom: 1.0, second: 1.0, top: 1.0},
+            second: {bottom: 1.0, first: 1.0, top: 1.0},
+            top: {first: 1.0, second: 1.0},
+        }
+
+        progress = flatten_volume_rod_progress_across_creases(
+            adjacency,
+            {bottom: 0.0, first: 0.2, second: 0.6, top: 1.0},
+            [((first, second), False)],
+            {bottom, top},
+            1.0,
+            0.5,
+        )
+
+        self.assertEqual(0.0, progress[bottom])
+        self.assertAlmostEqual(0.4, progress[first])
+        self.assertAlmostEqual(0.4, progress[second])
+        self.assertEqual(1.0, progress[top])
+
+    def test_crease_flattening_skips_longitudinal_chain(self) -> None:
+        bottom = (0.0, 0.0, 0.0)
+        first = (1.0, 0.0, 0.0)
+        second = (2.0, 0.0, 0.0)
+        top = (3.0, 0.0, 0.0)
+        initial = {bottom: 0.0, first: 0.2, second: 0.8, top: 1.0}
+        adjacency = {
+            bottom: {first: 1.0},
+            first: {bottom: 1.0, second: 1.0},
+            second: {first: 1.0, top: 1.0},
+            top: {second: 1.0},
+        }
+
+        progress = flatten_volume_rod_progress_across_creases(
+            adjacency,
+            initial,
+            [((first, second), False)],
+            {bottom, top},
+            1.0,
+            0.3,
+        )
+
+        self.assertEqual(initial, progress)
 
     def test_current_v3_manifest_converts_without_deformation_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

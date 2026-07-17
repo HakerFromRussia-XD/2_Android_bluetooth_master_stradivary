@@ -84,11 +84,7 @@ class UBI4GripperV3ModelTestActivity : AppCompatActivity() {
         UBI4GripperScreenWithEncodersActivityV3.animationInProgress4 = false
         UBI4GripperScreenWithEncodersActivityV3.animationInProgress5 = false
         UBI4GripperScreenWithEncodersActivityV3.animationInProgress6 = false
-        UBI4GripperScreenWithEncodersActivityV3.side = settings.getInt(
-            settings.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") +
-                    PreferenceKeys.SWAP_LEFT_RIGHT_SIDE,
-            1
-        )
+        UBI4GripperScreenWithEncodersActivityV3.side = 0
     }
 
     private fun initializeRenderer() {

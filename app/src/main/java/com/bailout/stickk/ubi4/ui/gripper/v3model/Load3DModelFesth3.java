@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -149,6 +151,18 @@ public final class Load3DModelFesth3 {
 
     public static int[] getIndicesArray(int partIndex) {
         return requirePart(partIndex).indices;
+    }
+
+    public static FloatBuffer getPreparedVertexBuffer(int partIndex) {
+        FloatBuffer buffer = requirePart(partIndex).preparedVertexBuffer.asReadOnlyBuffer();
+        buffer.position(0);
+        return buffer;
+    }
+
+    public static IntBuffer getPreparedIndexBuffer(int partIndex) {
+        IntBuffer buffer = requirePart(partIndex).preparedIndexBuffer.asReadOnlyBuffer();
+        buffer.position(0);
+        return buffer;
     }
 
     public static DeformationData getDeformationData(int partIndex) {
@@ -1049,6 +1063,8 @@ public final class Load3DModelFesth3 {
     private static final class ModelPartBuffers {
         private final float[] vertices;
         private final int[] indices;
+        private final FloatBuffer preparedVertexBuffer;
+        private final IntBuffer preparedIndexBuffer;
         private final DeformationData deformationData;
         private final int lineCount;
         private final int faceCount;
@@ -1075,8 +1091,42 @@ public final class Load3DModelFesth3 {
                 int binaryBytes,
                 DeformationData deformationData
         ) {
+            this(
+                    vertices,
+                    indices,
+                    prepareVertexBuffer(vertices),
+                    prepareIndexBuffer(indices),
+                    lineCount,
+                    faceCount,
+                    triangleCount,
+                    coordinateCount,
+                    textureCount,
+                    normalCount,
+                    loadMs,
+                    binaryBytes,
+                    deformationData
+            );
+        }
+
+        private ModelPartBuffers(
+                float[] vertices,
+                int[] indices,
+                FloatBuffer preparedVertexBuffer,
+                IntBuffer preparedIndexBuffer,
+                int lineCount,
+                int faceCount,
+                int triangleCount,
+                int coordinateCount,
+                int textureCount,
+                int normalCount,
+                long loadMs,
+                int binaryBytes,
+                DeformationData deformationData
+        ) {
             this.vertices = vertices;
             this.indices = indices;
+            this.preparedVertexBuffer = preparedVertexBuffer;
+            this.preparedIndexBuffer = preparedIndexBuffer;
             this.deformationData = deformationData;
             this.lineCount = lineCount;
             this.faceCount = faceCount;
@@ -1095,6 +1145,8 @@ public final class Load3DModelFesth3 {
             return new ModelPartBuffers(
                     vertices,
                     indices,
+                    preparedVertexBuffer,
+                    preparedIndexBuffer,
                     lineCount,
                     faceCount,
                     triangleCount,
@@ -1105,6 +1157,24 @@ public final class Load3DModelFesth3 {
                     binaryBytes,
                     deformationData
             );
+        }
+
+        private static FloatBuffer prepareVertexBuffer(float[] vertices) {
+            FloatBuffer buffer = ByteBuffer
+                    .allocateDirect(vertices.length * Float.BYTES)
+                    .order(ByteOrder.nativeOrder())
+                    .asFloatBuffer();
+            buffer.put(vertices).position(0);
+            return buffer;
+        }
+
+        private static IntBuffer prepareIndexBuffer(int[] indices) {
+            IntBuffer buffer = ByteBuffer
+                    .allocateDirect(indices.length * Integer.BYTES)
+                    .order(ByteOrder.nativeOrder())
+                    .asIntBuffer();
+            buffer.put(indices).position(0);
+            return buffer;
         }
     }
 

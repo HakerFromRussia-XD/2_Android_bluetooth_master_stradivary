@@ -72,12 +72,18 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 		{
 			float x = event.getX();
 			float y = event.getY();
+			if (renderer != null)
+			{
+				renderer.X = x;
+				renderer.Y = y;
+			}
 
 			if (event.getAction() == MotionEvent.ACTION_DOWN)
 			{
 				if (renderer != null)
 				{
 					renderer.selectFlag = true;
+					requestRender();
 				}
 			}
 			if (event.getAction() == MotionEvent.ACTION_MOVE)
@@ -97,6 +103,7 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 //					System.err.println("deltaY="+deltaY);
 					renderer.deltaX += deltaX;
 					renderer.deltaY += deltaY;
+					requestRender();
 				}
 			}
 			if (event.getAction() == MotionEvent.ACTION_UP)
@@ -104,11 +111,9 @@ public class UBI4GripperSettingsWithEncodersGLSurfaceViewV3 extends GLSurfaceVie
 				if (renderer != null)
 				{
 					renderer.transferFlag = true;
+					requestRender();
 				}
 			}
-			assert renderer != null;
-			renderer.X = x;
-			renderer.Y = y;
 			previousX = x;
 			previousY = y;
 			return true;

@@ -13,6 +13,7 @@ uniform vec3 u_MetalFillLightDirection;
 uniform vec3 u_MetalRimLightDirection;
 uniform float u_MetalFillLightStrength;
 uniform float u_MetalRimLightStrength;
+uniform float u_ChromeToneMapStrength;
 uniform int u_FrontFaceMirrored;
 uniform int u_UseSolidColor;
 uniform vec4 u_SolidColor;
@@ -146,6 +147,26 @@ void main()
         chromeColor += vec3(0.80, 0.88, 1.0) * coolBand * u_ChromeStrength * 0.12;
         chromeColor += vec3(1.0, 1.0, 0.94) * whiteBand * u_ChromeStrength * 0.26;
         chromeColor += vec3(0.78, 0.88, 1.0) * fresnel * u_ChromeStrength * 0.15;
+
+        if (u_ChromeToneMapStrength > 0.0) {
+            float chromeLuminance = dot(chromeColor, vec3(0.2126, 0.7152, 0.0722));
+            float middleShadow = smoothstep(0.40, 0.50, chromeLuminance)
+                * (1.0 - smoothstep(0.52, 0.58, chromeLuminance));
+            float darkTarget = 0.10 + chromeLuminance * 0.70 - 0.07 * middleShadow;
+            float highlightTarget;
+            if (chromeLuminance < 0.66) {
+                float highlightT = clamp((chromeLuminance - 0.60) / 0.06, 0.0, 1.0);
+                highlightTarget = 0.52 + 0.21 * pow(highlightT, 1.30);
+            } else if (chromeLuminance < 0.70) {
+                float highlightT = clamp((chromeLuminance - 0.66) / 0.04, 0.0, 1.0);
+                highlightTarget = 0.73 + 0.17 * sqrt(highlightT);
+            } else {
+                highlightTarget = 0.90 + 0.03 * smoothstep(0.70, 0.78, chromeLuminance);
+            }
+            float targetLuminance = clamp(chromeLuminance < 0.60 ? darkTarget : highlightTarget, 0.0, 1.0);
+            vec3 toneMappedChrome = chromeColor * (targetLuminance / max(chromeLuminance, 0.001));
+            chromeColor = mix(chromeColor, toneMappedChrome, clamp(u_ChromeToneMapStrength, 0.0, 1.0));
+        }
 
         gl_FragColor = vec4(clamp(chromeColor, vec3(0.0), vec3(1.0)), diffMatColor.a);
     } else {

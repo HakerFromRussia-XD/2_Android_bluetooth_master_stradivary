@@ -3,6 +3,8 @@ package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreKeyV3
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
+import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
+import com.bailout.stickk.ubi4.models.ble.SpinnerV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +47,41 @@ object WidgetStateBridgeV3 {
                 dataCode = dataCode,
                 deviceAddress = addressDevice
             )
+        )
+    }
+
+    fun getSpinnerValueOrDefault(
+        addressDevice: Int,
+        parameterID: Int,
+        dataCode: Int,
+        defaultValue: Int
+    ): Int {
+        val parameterInfo = ParameterInfo(
+            parameterID = parameterID,
+            dataCode = dataCode,
+            deviceAddress = addressDevice,
+            dataOffsets = 0
+        )
+        return (ParameterStoreV3.get(parameterInfo) as? ParameterTypedValueV3.Spinner)
+            ?.value
+            ?.spinnerValue
+            ?: defaultValue
+    }
+
+    fun setSpinnerValue(
+        addressDevice: Int,
+        parameterID: Int,
+        dataCode: Int,
+        value: Int
+    ) {
+        ParameterStoreV3.put(
+            ParameterInfo(
+                parameterID = parameterID,
+                dataCode = dataCode,
+                deviceAddress = addressDevice,
+                dataOffsets = 0
+            ),
+            ParameterTypedValueV3.Spinner(SpinnerV3(spinnerValue = value))
         )
     }
 

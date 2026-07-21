@@ -521,7 +521,6 @@
                                     <color key="baseForegroundColor" name="ubi4_white"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="perehod:" destination="tD3-Cp-chy" eventType="touchUpOutside" id="SNW-46-ptt"/>
                                     <action selector="perehod:" destination="tD3-Cp-chy" eventType="touchUpInside" id="s03-0E-6il"/>
                                     <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="k7V-Bw-8ak"/>
                                 </connections>
@@ -614,7 +613,6 @@
                                     </attributedString>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="perehodWithSaveData:" destination="tD3-Cp-chy" eventType="touchUpOutside" id="3QM-v7-0P1"/>
                                     <action selector="perehodWithSaveData:" destination="tD3-Cp-chy" eventType="touchUpInside" id="tJc-LT-L1U"/>
                                     <segue destination="Dcv-Vv-Ut5" kind="unwind" unwindAction="unwindToThisGestureViewControllerWithSender:" id="vDv-td-nTS"/>
                                 </connections>

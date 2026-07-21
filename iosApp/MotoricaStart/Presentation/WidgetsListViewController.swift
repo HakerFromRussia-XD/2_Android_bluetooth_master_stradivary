@@ -32,6 +32,7 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         button.accessibilityIdentifier = AccessibilityIdentifier.widgetsResyncButton
         button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
         return button
     }()
     
@@ -108,7 +109,15 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         super.viewDidLoad()
         setupViews()
         viewModel.setCustomGestureSettingsOpener { [weak self] gestureId, isV3 in
-            DispatchQueue.main.async {
+            let tapStartedAt = CACurrentMediaTime()
+            NSLog("[V3OpenTrace] event=3dOpenTap thread=main gestureId=%d useV3Mode=%d", gestureId, isV3)
+            let openScreen = {
+                NSLog(
+                    "[V3OpenTrace] event=performSegue thread=main gestureId=%d useV3Mode=%d sinceTapMs=%.3f",
+                    gestureId,
+                    isV3,
+                    (CACurrentMediaTime() - tapStartedAt) * 1000.0
+                )
                 let animationsWereEnabled = UIView.areAnimationsEnabled
                 if !animationsWereEnabled {
                     UIView.setAnimationsEnabled(true)
@@ -117,6 +126,48 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
                 self?.open3DGestureId = gestureId
                 self?.open3DGestureIsV3 = isV3
                 self?.performSegue(withIdentifier: "go3DGripperSettings", sender: nil)
+            }
+            DispatchQueue.main.async {
+                guard isV3 else {
+                    openScreen()
+                    return
+                }
+                let cache = V3ModelResourceCache.shared()
+                NSLog(
+                    "[V3OpenTrace] event=mark3DOpenRequested thread=main gestureId=%d useV3Mode=%d cacheState=%ld isReady=%d",
+                    gestureId,
+                    isV3,
+                    cache.state.rawValue,
+                    cache.isReady
+                )
+                cache.mark3DOpenRequested()
+                guard !cache.isReady else {
+                    NSLog(
+                        "[V3OpenTrace] event=preloadReadyImmediate thread=main gestureId=%d useV3Mode=%d sinceTapMs=%.3f",
+                        gestureId,
+                        isV3,
+                        (CACurrentMediaTime() - tapStartedAt) * 1000.0
+                    )
+                    openScreen()
+                    return
+                }
+                let preloadWaitStartedAt = CACurrentMediaTime()
+                cache.preload { ready, error in
+                    NSLog(
+                        "[V3OpenTrace] event=preloadCallbackBeforeSegue thread=main gestureId=%d useV3Mode=%d ready=%d waitMs=%.3f sinceTapMs=%.3f error=%@",
+                        gestureId,
+                        isV3,
+                        ready,
+                        (CACurrentMediaTime() - preloadWaitStartedAt) * 1000.0,
+                        (CACurrentMediaTime() - tapStartedAt) * 1000.0,
+                        error?.localizedDescription ?? "none"
+                    )
+                    guard ready else {
+                        NSLog("[V3Model] preload before segue failed: %@", error?.localizedDescription ?? "unknown error")
+                        return
+                    }
+                    openScreen()
+                }
             }
         }
         
@@ -131,6 +182,9 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             hideWidgetsContentForSynchronization()
         } else {
             showWidgetsContent()
+        }
+        if display == 4 {
+            V3HandSideProvider.shared.startObserving()
         }
         
         view.addSubview(bottomButton)
@@ -350,6 +404,11 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             let destinationVC = segue.destination as? AAPLOpenGLViewControllerV3 {
             destinationVC.gestureNumber = open3DGestureId ?? 0
             destinationVC.useV3Mode = open3DGestureIsV3
+            NSLog(
+                "[V3OpenTrace] event=prepare3DDestination thread=main gestureId=%ld useV3Mode=%d",
+                destinationVC.gestureNumber,
+                destinationVC.useV3Mode
+            )
         }
     }
 

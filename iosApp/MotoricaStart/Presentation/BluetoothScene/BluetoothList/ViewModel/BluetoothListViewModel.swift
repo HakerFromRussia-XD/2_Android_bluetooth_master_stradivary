@@ -66,6 +66,10 @@ final class BluetoothListViewModel {
                 self?.logConnect("[BLE-CONNECT] ViewModel received connect callback for: \(uuid)")
                 guard let self = self else { return }
                 self.connectedDeviceID = uuid
+                if UiInterfaceModeBridgeV3.shared.isEnabled() {
+                    V3ModelResourceCache.shared().preload(completion: nil)
+                    V3HandSideProvider.shared.startObserving()
+                }
             }
             .store(in: &cancellables)
     }
@@ -178,7 +182,10 @@ final class BluetoothListViewModel {
             print("[Storage] failed to persist selected device name: \(error)")
         }
         appearanceStore.markNewConnection(device: device)
-        _ = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
+        let isV3 = UiInterfaceModeBridgeV3.shared.updateFromDeviceName(deviceName: device.name)
+        if isV3 {
+            V3ModelResourceCache.shared().preload(completion: nil)
+        }
         connectedDeviceID = nil
         logConnect("[BLE-CONNECT] phase=stopScan")
         bleManager.stopScanKmm()

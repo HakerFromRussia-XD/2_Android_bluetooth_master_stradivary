@@ -170,7 +170,10 @@ final class GestureService: NSObject {
         return parameter.data as NSString
     }
     @objc public func getStatusConnection() -> Int { 1 }
-    @objc public func getHandSide() -> Int { 1 }
+    @objc public func getHandSide() -> Int {
+        V3HandSideProvider.shared.startObserving()
+        return V3HandSideProvider.shared.currentSide
+    }
     @objc public func decodeGestureSettings(raw: String) -> Gesture? {
 //        print("Вызвана функция decodeGestureSettings  raw = \(raw)")
         guard !raw.isEmpty else { return nil }

@@ -12,6 +12,7 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
         button.setTitle(SharedLocalizedText.text(SharedRes.strings().push_me), for: .normal)
         button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
         return button
     }()
     

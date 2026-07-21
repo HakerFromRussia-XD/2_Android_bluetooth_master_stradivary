@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperV3ModelTestActivity
 
 object V3ModelTestLauncher {
-    const val TEMP_OPEN_V3_3D_FIRST_SCREEN = true
+    const val TEMP_OPEN_V3_3D_FIRST_SCREEN = false
 
     @JvmStatic
     fun openInsteadOfScan(activity: Activity): Boolean {

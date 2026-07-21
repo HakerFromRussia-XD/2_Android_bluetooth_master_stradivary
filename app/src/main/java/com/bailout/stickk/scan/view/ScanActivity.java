@@ -62,7 +62,8 @@ import com.bailout.stickk.scan.data.ScanItem;
 import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
-import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelTestLauncher;
+import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3;
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -165,9 +166,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (V3ModelTestLauncher.openInsteadOfScan(this)) {
-            return;
-        }
 //        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
         DaggerScanComponent.builder()
                 .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
@@ -544,14 +542,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             firstNavigateToActivity = false;
             if (extraDevice == null) return;
 
-            mHandler.postDelayed(() -> {
-                for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
-                    final int finalK = k;
-                    System.err.println("Запуск загрузки: " + finalK);
-                    threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-                    threadFunction[k].start();
-                }
-            }, 500);
+            mHandler.postDelayed(this::preloadLeHandModels, 500);
 
             Intent intent = new Intent(ScanActivity.this, StartActivity.class);
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));//NameUtil.INSTANCE.getCleanName(
@@ -567,14 +558,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
     private void testNavigate() {
-        mHandler.postDelayed(() -> {
-            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-                final int finalK = k;
-                System.err.println("Запуск загрузки: " + finalK);
-                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-                threadFunction[k].start();
-            }
-        }, 500);
+        mHandler.postDelayed(this::preloadLeHandModels, 500);
 
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "UBIv4_CPU_Roma");
@@ -586,6 +570,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         startActivity(intent);
         finish();
+    }
+
+    private void preloadLeHandModels() {
+        V3ModelLoadMetrics.init(getApplicationContext());
+        V3ModelLoadMetrics.log("production preloadRequest source=ScanActivity legacyModelStart");
+        Load3DModelFesth3.preloadAsync(getApplicationContext());
+        for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
+            final int finalK = k;
+            System.err.println("Запуск загрузки: " + finalK);
+            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+            threadFunction[k].start();
+        }
     }
 
     public boolean isFirstStart() {

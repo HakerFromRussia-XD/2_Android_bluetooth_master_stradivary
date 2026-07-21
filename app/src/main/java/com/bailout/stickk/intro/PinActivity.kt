@@ -22,7 +22,6 @@ import com.bailout.stickk.databinding.ActivityPinBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelTestLauncher
 
 class PinActivity : AppCompatActivity() {
     private var main: MainActivity? = null
@@ -78,8 +77,6 @@ class PinActivity : AppCompatActivity() {
     }
 
     private fun launchScanActivity() {
-        if (V3ModelTestLauncher.openInsteadOfScan(this)) return
-
         if ((ContextCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
             val intent = Intent(this@PinActivity, ScanActivity::class.java)

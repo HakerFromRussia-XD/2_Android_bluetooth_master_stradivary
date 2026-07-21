@@ -3,3 +3,4 @@
 //
 #import "AAPLOpenGLViewController.h"
 #import "AAPLOpenGLRendererV3.h"
+#import "V3ModelResourceCache.h"

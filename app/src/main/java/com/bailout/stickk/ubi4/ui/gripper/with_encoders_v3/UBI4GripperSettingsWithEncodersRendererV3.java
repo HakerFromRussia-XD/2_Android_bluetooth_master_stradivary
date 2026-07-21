@@ -17,6 +17,8 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -37,6 +39,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -58,10 +62,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private static final int ASTC_BLOCK_Y = 6;
 	private static final int ASTC_BLOCK_Z = 1;
 	private static final int GL_COMPRESSED_RGBA_ASTC_6X6_KHR = 0x93B4;
+	private static final int[] EMPTY_MODEL_PARTS = new int[0];
 
 	/** References to other main objects. */
 	private final Context fragmentGripperSettings;
 	private final UBI4ErrorHandlerV3 errorHandler;
+	private final Handler mainHandler = new Handler(Looper.getMainLooper());
+	private final Map<String, int[]> modelPartGroups = new HashMap<>();
+	private volatile Runnable firstFrameRenderedListener;
+	private volatile Runnable nextFrameRenderedListener;
+	private volatile boolean firstFrameRendered;
 
 	/**
 	 * Store the model matrix. This matrix is used to move models from object
@@ -265,6 +275,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int programSelect;
 	private int programTestMetal;
 	private int programMetal;
+	private final int[] programReference = new int[1];
+	private final int[] programWithColorReference = new int[1];
+	private final int[] programSelectReference = new int[1];
 
 
 	/** Retain the most recent delta for touch events. */
@@ -303,22 +316,22 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	private int angleBigFingerInt1 = 0;
 	private int lastAngleBigFingerInt1 = 0;
 	private int angleBigFingerTransfer1 = 0;
-	private float angleBigFingerFloat2 = -34;//90
+	private float angleBigFingerFloat2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
 	private int angleBigFingerInt2 = 0;
-	private int lastAngleBigFingerInt2 = -34;
-	private int angleBigFingerTransfer2 = -34;
+	private int lastAngleBigFingerInt2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
+	private int angleBigFingerTransfer2 = V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES;
 	private float angleBigFingerSecondPhalanxFloat = 0;
 	private int angleBigFingerSecondPhalanxInt = 0;
 	private int lastAngleBigFingerSecondPhalanxInt = 0;
 	private int angleBigFingerSecondPhalanxTransfer = 0;
 	private float angle90 = 90;
 	private float angle95 = 95;
-	private static final int BIG_FINGER_FIRST_AXIS_MIN = -35;
-	private static final int BIG_FINGER_FIRST_AXIS_MAX = 49;
-	private static final int BIG_FINGER_SECOND_AXIS_MIN = -68;//-34
-	private static final int BIG_FINGER_SECOND_AXIS_MAX = 22;//56
-	private static final int BIG_FINGER_SECOND_PHALANX_MIN = -25;
-	private static final int BIG_FINGER_SECOND_PHALANX_MAX = 20;
+	private static final int BIG_FINGER_FIRST_AXIS_MIN = V3FingerPositionMapping.THUMB_FIRST_AXIS_MIN_DEGREES;
+	private static final int BIG_FINGER_FIRST_AXIS_MAX = V3FingerPositionMapping.THUMB_FIRST_AXIS_MAX_DEGREES;
+	private static final int BIG_FINGER_SECOND_AXIS_MIN = V3FingerPositionMapping.THUMB_SECOND_AXIS_MIN_DEGREES;
+	private static final int BIG_FINGER_SECOND_AXIS_MAX = V3FingerPositionMapping.THUMB_SECOND_AXIS_MAX_DEGREES;
+	private static final int BIG_FINGER_SECOND_PHALANX_MIN = V3FingerPositionMapping.THUMB_SECOND_PHALANX_MIN_DEGREES;
+	private static final int BIG_FINGER_SECOND_PHALANX_MAX = V3FingerPositionMapping.THUMB_SECOND_PHALANX_MAX_DEGREES;
 	private static final float BIG_FINGER_SECOND_PHALANX_OFFSET_DEGREES = 20.0f;
 	private static final float BIG_FINGER_TOUCH_X_CORRECTION_DEGREES = 34.0f;
 	// Marker centers from test10 rotation_1.1 and active test9 rotation_1.2/rotation_2.
@@ -361,8 +374,53 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			V3ModelLoadMetrics.log("renderer created emitFingerAngleUpdates=" + emitFingerAngleUpdates);
 		}
 
-	private int[] modelParts(String groupName, int... fallbackIndexes) {
-		return Load3DModelFesth3.getGroup(groupName, fallbackIndexes);
+	private int[] modelParts(String groupName) {
+		return cachedModelParts(groupName, EMPTY_MODEL_PARTS);
+	}
+
+	private int[] modelParts(String groupName, int fallbackIndex) {
+		int[] cached = modelPartGroups.get(groupName);
+		if (cached != null) {
+			return cached;
+		}
+		return cachedModelParts(groupName, new int[]{fallbackIndex});
+	}
+
+	private int[] cachedModelParts(String groupName, int[] fallbackIndexes) {
+		int[] cached = modelPartGroups.get(groupName);
+		if (cached != null) {
+			return cached;
+		}
+		int[] resolved = Load3DModelFesth3.getGroup(groupName, fallbackIndexes);
+		modelPartGroups.put(groupName, resolved);
+		return resolved;
+	}
+
+	public void setOnFirstFrameRenderedListener(Runnable listener) {
+		firstFrameRenderedListener = listener;
+		if (listener != null && firstFrameRendered) {
+			mainHandler.post(listener);
+		}
+	}
+
+	public void setOnNextFrameRenderedListener(Runnable listener) {
+		nextFrameRenderedListener = listener;
+	}
+
+	private void notifyFirstFrameRendered() {
+		firstFrameRendered = true;
+		Runnable listener = firstFrameRenderedListener;
+		if (listener != null) {
+			mainHandler.post(listener);
+		}
+	}
+
+	private void notifyNextFrameRendered() {
+		Runnable listener = nextFrameRenderedListener;
+		if (listener != null) {
+			nextFrameRenderedListener = null;
+			mainHandler.post(listener);
+		}
 	}
 
 	private void resetDeformationAnchorMatrices() {
@@ -543,6 +601,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE});
 		programSelect = ShaderHelper.createAndLinkProgram(selectVertexShaderHandle, selectFragmentShaderHandle,
 				new String[] {POSITION_ATTRIBUTE, COLOR_ATTRIBUTE});
+		programReference[0] = program;
+		programWithColorReference[0] = programWithColor;
+		programSelectReference[0] = programSelect;
 			int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
 					new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
 							TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
@@ -827,46 +888,46 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		resetDeformationAnchorMatrices();
 
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){
-			foreFinger (new int[]{program}, 0);//programRubber
-			middleFinger (new int[]{program}, 0);//programTest
-			ringFinger (new int[]{program}, 0);//programTest
-			littleFinger (new int[]{program}, 0);//programTest
-			bigFinger (new int[]{program}, 0);//programTest
+			foreFinger (programReference, 0);//programRubber
+			middleFinger (programReference, 0);//programTest
+			ringFinger (programReference, 0);//programTest
+			littleFinger (programReference, 0);//programTest
+			bigFinger (programReference, 0);//programTest
 		} else
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{programWithColor}, 0);
-			bigFinger (new int[]{program}, 0);
+			foreFinger (programReference, 0);
+			middleFinger (programReference, 0);
+			ringFinger (programReference, 0);
+			littleFinger (programWithColorReference, 0);
+			bigFinger (programReference, 0);
 		} else
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{programWithColor}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
+			foreFinger (programReference, 0);
+			middleFinger (programReference, 0);
+			ringFinger (programWithColorReference, 0);
+			littleFinger (programReference, 0);
+			bigFinger (programReference, 0);
 		} else
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{programWithColor}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
+			foreFinger (programReference, 0);
+			middleFinger (programWithColorReference, 0);
+			ringFinger (programReference, 0);
+			littleFinger (programReference, 0);
+			bigFinger (programReference, 0);
 		} else
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
-			foreFinger (new int[]{programWithColor}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
+			foreFinger (programWithColorReference, 0);
+			middleFinger (programReference, 0);
+			ringFinger (programReference, 0);
+			littleFinger (programReference, 0);
+			bigFinger (programReference, 0);
 		} else
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{programWithColor}, 0);
+			foreFinger (programReference, 0);
+			middleFinger (programReference, 0);
+			ringFinger (programReference, 0);
+			littleFinger (programReference, 0);
+			bigFinger (programWithColorReference, 0);
 		}
 
 
@@ -935,7 +996,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				firstFrameMetricsLogged = true;
 				V3ModelLoadMetrics.log("firstFrame rendered rendererAgeMs=" + elapsedSince(rendererCreatedAtMs)
 						+ " sinceSurfaceCreatedStartMs=" + elapsedSince(surfaceCreatedStartedAtMs));
+				notifyFirstFrameRendered();
 			}
+			notifyNextFrameRendered();
 		}
 
 	private void setChromeMaterial(int shaderProgram, boolean enabled) {
@@ -1847,12 +1910,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** поворот вокруг первой оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress5()) {
-			angleBigFingerTransfer1 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5();
-			angleBigFingerSecondPhalanxTransfer = angleFromPercent(
-					angleBigFingerTransfer1,
-					BIG_FINGER_SECOND_PHALANX_MIN,
-					BIG_FINGER_SECOND_PHALANX_MAX
+			int firstAxisPercent = V3FingerPositionMapping.clampPercent(
+					UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger5()
 			);
+			angleBigFingerTransfer1 = V3FingerPositionMapping.thumbFirstAxisAngle(firstAxisPercent);
+			angleBigFingerSecondPhalanxTransfer = V3FingerPositionMapping.thumbSecondPhalanxAngle(firstAxisPercent);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
@@ -1900,7 +1962,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 		/** поворот вокруг второй оси */
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getAnimationInProgress6()) {
-			angleBigFingerTransfer2 = UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6() + BIG_FINGER_SECOND_AXIS_MIN;
+			angleBigFingerTransfer2 = V3FingerPositionMapping.thumbSecondAxisAngle(
+					UBI4GripperScreenWithEncodersActivityV3.Companion.getAngleFinger6()
+			);
 
 			Matrix.setIdentityM(currentRotation, 0);
 			if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
@@ -1983,20 +2047,20 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 
 	private void firstInit () {
 		selectStation = SelectStation.SELECT_FINGER_1;
-		littleFinger (new int[]{program}, 0);
-		littleFinger (new int[]{program}, 0);
+		littleFinger (programReference, 0);
+		littleFinger (programReference, 0);
 		selectStation = SelectStation.SELECT_FINGER_2;
-		ringFinger (new int[]{program}, 0);
-		ringFinger (new int[]{program}, 0);
+		ringFinger (programReference, 0);
+		ringFinger (programReference, 0);
 		selectStation = SelectStation.SELECT_FINGER_3;
-		middleFinger (new int[]{program}, 0);
-		middleFinger (new int[]{program}, 0);
+		middleFinger (programReference, 0);
+		middleFinger (programReference, 0);
 		selectStation = SelectStation.SELECT_FINGER_4;
-		foreFinger (new int[]{program}, 0);
-		foreFinger (new int[]{program}, 0);
+		foreFinger (programReference, 0);
+		foreFinger (programReference, 0);
 		selectStation = SelectStation.SELECT_FINGER_5;
-		bigFinger (new int[]{program}, 0);
-		bigFinger (new int[]{program}, 0);
+		bigFinger (programReference, 0);
+		bigFinger (programReference, 0);
 		selectStation = SelectStation.UNSELECTED_OBJECT;
 	}
 
@@ -2015,11 +2079,11 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		}
 
 		resetDeformationAnchorMatrices();
-		bigFinger(new int[]{programSelect},5);
-		foreFinger(new int[]{programSelect},4);
-		middleFinger(new int[]{programSelect},3);
-		ringFinger(new int[]{programSelect},2);
-		littleFinger(new int[]{programSelect},1);
+		bigFinger(programSelectReference,5);
+		foreFinger(programSelectReference,4);
+		middleFinger(programSelectReference,3);
+		ringFinger(programSelectReference,2);
+		littleFinger(programSelectReference,1);
 
 		Matrix.setIdentityM(modelMatrix, 0);
 		if (UBI4GripperScreenWithEncodersActivityV3.Companion.getSide() == 0) {
@@ -2087,23 +2151,16 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")) {
-			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: " + percentFromAngle(angleBigFingerTransfer1, BIG_FINGER_FIRST_AXIS_MIN, BIG_FINGER_FIRST_AXIS_MAX));
-			fingerAngleModel = new FingerAngle(5, percentFromAngle(angleBigFingerTransfer1, BIG_FINGER_FIRST_AXIS_MIN, BIG_FINGER_FIRST_AXIS_MAX));
+			int firstAxisPercent = V3FingerPositionMapping.thumbFirstAxisPercent(angleBigFingerTransfer1);
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: " + firstAxisPercent);
+			fingerAngleModel = new FingerAngle(5, firstAxisPercent);
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel);
-			//      далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
-			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: " + percentFromAngle(angleBigFingerTransfer2, BIG_FINGER_SECOND_AXIS_MIN, BIG_FINGER_SECOND_AXIS_MAX));
-			fingerAngleModel2 = new FingerAngle(6, percentFromAngle(angleBigFingerTransfer2, BIG_FINGER_SECOND_AXIS_MIN, BIG_FINGER_SECOND_AXIS_MAX));
+			int secondAxisPercent = V3FingerPositionMapping.thumbSecondAxisPercent(angleBigFingerTransfer2);
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: " + secondAxisPercent);
+			fingerAngleModel2 = new FingerAngle(6, secondAxisPercent);
 			RxUpdateMainEventUbi4.getInstance().updateFingerAngle(fingerAngleModel2);
 		}
 		transferFlag = false;
-	}
-
-	private int percentFromAngle(int angle, int minAngle, int maxAngle) {
-		return 100 - ((int) ((float) (angle - minAngle) / (maxAngle - minAngle) * 100));
-	}
-
-	private int angleFromPercent(int percent, int minAngle, int maxAngle) {
-		return ((100 - percent) * (maxAngle - minAngle) / 100) + minAngle;
 	}
 
 	private void updateBigFingerSecondPhalanxFromDelta(float delta) {
@@ -2235,6 +2292,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		FloatBuffer[] dynamicVertexBuffers;
 		Load3DModelFesth3.DeformationData[] deformationData;
 		VolumeRodRuntime[] volumeRodRuntimes;
+		final int[] singlePartRenderIndex = new int[1];
+		final float[] weightedTransformInput = new float[4];
+		final float[] weightedTransformOutput = new float[4];
 
 		int partCount;
 
@@ -2351,7 +2411,7 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						Load3DModelFesth3.DeformationData partDeformationData = Load3DModelFesth3.getDeformationData(i);
 						if (partDeformationData != null) {
 							deformableParts[i] = true;
-							bindVertices[i] = vertices.clone();
+							bindVertices[i] = vertices;
 							dynamicVertices[i] = vertices.clone();
 							deformationData[i] = partDeformationData;
 							if (DEFORMATION_TYPE_VOLUME_ROD.equals(partDeformationData.type)
@@ -2371,18 +2431,18 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						totalIndexBytes += indexBytes;
 
 						long cpuBufferStartedAtMs = SystemClock.elapsedRealtime();
-						final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
-								.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
-								.asFloatBuffer();
-						heightMapVertexDataBuffer.put(vertices).position(0);
+						final FloatBuffer heightMapVertexDataBuffer;
 						if (deformableParts[i]) {
+							heightMapVertexDataBuffer = ByteBuffer
+									.allocateDirect(vertices.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
+									.asFloatBuffer();
+							heightMapVertexDataBuffer.put(vertices).position(0);
 							dynamicVertexBuffers[i] = heightMapVertexDataBuffer;
+						} else {
+							heightMapVertexDataBuffer = Load3DModelFesth3.getPreparedVertexBuffer(i);
 						}
 
-						final IntBuffer heightMapIndexDataBuffer = ByteBuffer
-								.allocateDirect(indices.length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
-								.asIntBuffer();
-						heightMapIndexDataBuffer.put(indices).position(0);
+						final IntBuffer heightMapIndexDataBuffer = Load3DModelFesth3.getPreparedIndexBuffer(i);
 						long cpuBufferMs = elapsedSince(cpuBufferStartedAtMs);
 
 						if (vbo[i] > 0 && ibo[i] > 0) {
@@ -2439,7 +2499,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 					continue;
 				}
 				updateDeformablePart(partIndex, selectedInfluence, pickingPass);
-				render(new int[]{partIndex});
+				singlePartRenderIndex[0] = partIndex;
+				render(singlePartRenderIndex);
 			}
 		}
 
@@ -2476,14 +2537,14 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 				return;
 			}
 			int floatsPerVertex = STRIDE / BYTES_PER_FLOAT;
-			float[] input = new float[4];
-			float[] output = new float[4];
 			for (int vertexIndex = 0; vertexIndex < data.vertexCount; vertexIndex++) {
 				int vertexOffset = vertexIndex * floatsPerVertex;
 				int weightOffset = vertexIndex * data.influenceCount;
-				transformWeightedPosition(bind, vertexOffset, data, weightOffset, target, vertexOffset, input, output);
+				transformWeightedPosition(bind, vertexOffset, data, weightOffset, target, vertexOffset,
+						weightedTransformInput, weightedTransformOutput);
 				transformWeightedDirection(bind, vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS,
-						data, weightOffset, target, vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS, input, output);
+						data, weightOffset, target, vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS,
+						weightedTransformInput, weightedTransformOutput);
 				System.arraycopy(bind,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS,
 						target,
@@ -2506,8 +2567,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						target,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS,
-						input,
-						output);
+						weightedTransformInput,
+						weightedTransformOutput);
 				transformWeightedDirection(bind,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS,
@@ -2516,8 +2577,8 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 						target,
 						vertexOffset + POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS
 								+ COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS,
-						input,
-						output);
+						weightedTransformInput,
+						weightedTransformOutput);
 			}
 			uploadDynamicVertexBuffer(partIndex, target, targetBuffer);
 		}

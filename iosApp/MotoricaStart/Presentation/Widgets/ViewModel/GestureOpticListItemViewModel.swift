@@ -42,6 +42,11 @@ struct GestureListItemViewModel: Equatable, Hashable {
         } else {
             self.parameterInfoSet = []
         }
+
+        if self.isV3Widget {
+            V3HandSideProvider.shared.startObserving()
+            V3ModelResourceCache.shared().preload(completion: nil)
+        }
     }
 }
 

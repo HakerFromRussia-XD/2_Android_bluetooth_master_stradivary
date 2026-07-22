@@ -1,0 +1,11 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Используем твой фон с закруглёнными углами -->
+    <item android:drawable="@drawable/ubi4_view_with_corners_gray_outside_oval" />
+
+    <!-- Векторное изображение, отцентрированное внутри -->
+    <item
+        android:width="24dp"
+        android:height="24dp"
+        android:gravity="center"
+        android:drawable="@drawable/ubi4_account" />
+</layer-list>

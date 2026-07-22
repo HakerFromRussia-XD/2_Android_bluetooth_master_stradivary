@@ -75,7 +75,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x-targetView.width/3.9).toFloat()
         lottieView!!.y = (y-targetView.height/3.9).toFloat()
 
-        lottieView!!.setAnimation(R.raw.help_accent_circle)
+        lottieView!!.setAnimation(R.raw.help_accent_circle_json)
 
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
@@ -138,7 +138,7 @@ class Decorator(private val main: MainActivity,
         )
         lottieView!!.x = (x - scaleIncrement/2).toFloat()
         lottieView!!.y = (y - scaleIncrement/2).toFloat()
-        lottieView!!.setAnimation(R.raw.help_accent_circle)
+        lottieView!!.setAnimation(R.raw.help_accent_circle_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -200,7 +200,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = x.toFloat()
         lottieView!!.y = y.toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -262,7 +262,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x - scaleIncrement/2).toFloat()
         lottieView!!.y = (y - scaleIncrement/2).toFloat()
 //        lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_circle)
+        lottieView!!.setAnimation(R.raw.help_accent_circle_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -324,7 +324,7 @@ class Decorator(private val main: MainActivity,
         )
         lottieView!!.x = (x-scaleIncrement/2).toFloat()
         lottieView!!.y = (y-targetView.width/2+targetView.height/2-scaleIncrement/2).toFloat()
-        lottieView!!.setAnimation(R.raw.help_accent_circle)
+        lottieView!!.setAnimation(R.raw.help_accent_circle_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -386,7 +386,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x).toFloat()
         lottieView!!.y = (y).toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_vertical)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_vertical_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -460,7 +460,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x).toFloat()
         lottieView!!.y = (y).toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_vertical)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_vertical_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -534,7 +534,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = x.toFloat()
         lottieView!!.y = y.toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -596,7 +596,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = x.toFloat()
         lottieView!!.y = y.toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -659,7 +659,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x + scaleIncrement/2).toFloat()
         lottieView!!.y = (y - scaleIncrement/2).toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -720,7 +720,7 @@ class Decorator(private val main: MainActivity,
         lottieView!!.x = (x - scaleIncrement/2).toFloat()
         lottieView!!.y = (y - scaleIncrementY/2).toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
-        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal)
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_json)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 

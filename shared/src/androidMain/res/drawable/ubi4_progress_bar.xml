@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Фон прогресс-бара -->
+    <item android:gravity="center_vertical">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ubi4_gray"/>
+            <size android:height="8dp"/> <!-- Тонкий прогресс-бар -->
+            <corners android:radius="2dp"/> <!-- Уменьшенный радиус -->
+            <stroke
+                android:width="1dp"
+                android:color="@color/ubi4_gray_border"/>
+        </shape>
+    </item>
+
+    <!-- Полоса прогресса -->
+    <item android:gravity="center_vertical">
+        <scale
+            android:scaleWidth="100%"
+            android:drawable="@drawable/ubi4_progress_selector" />
+    </item>
+</layer-list>

@@ -17,6 +17,10 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 
 - (void)draw;
 - (void)resize:(CGSize)size;
+- (void)setDefaultFBOName:(GLuint)defaultFBOName;
+- (BOOL)isAnimating;
+- (void)setHandSide:(NSInteger)side;
+- (void)releaseGLResources;
 
 - (void)stopVC;
 - (void)stopVCWithSaveData;
@@ -37,6 +41,14 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 + (int32_t)runtimeGestureStateForClosed:(BOOL)isClosed;
 + (int32_t)transitionGestureStateForClosed:(BOOL)isClosed;
 + (int32_t)saveGestureState;
+#if DEBUG
++ (NSDictionary<NSString *, NSArray<NSNumber *> *> *_Nonnull)matrixSnapshotsForTestingWithHandSide:(NSInteger)handSide
+                                                                                          positions:(NSArray<NSNumber *> *_Nonnull)positions;
++ (NSArray<NSNumber *> *_Nonnull)transitionPositionsForTestingFrom:(NSArray<NSNumber *> *_Nonnull)start
+                                                               target:(NSArray<NSNumber *> *_Nonnull)target
+                                                               delays:(NSArray<NSNumber *> *_Nonnull)delays
+                                                              elapsed:(NSTimeInterval)elapsed;
+#endif
 - (BOOL)currentGestureState;
 - (NSArray<NSNumber *> *_Nullable)currentOpenToCloseShifts;
 - (NSArray<NSNumber *> *_Nullable)currentCloseToOpenShifts;

@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWid
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItem
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.skydoves.powerspinner.PowerSpinnerView
 import io.reactivex.disposables.CompositeDisposable

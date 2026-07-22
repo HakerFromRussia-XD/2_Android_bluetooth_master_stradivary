@@ -1,6 +1,8 @@
 package com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3
 
 import android.animation.ArgbEvaluator
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -12,6 +14,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
+import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -19,6 +22,7 @@ import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -52,15 +56,21 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.shared.SharedRes
+import com.bailout.stickk.ubi4.ui.gripper.v3model.Load3DModelFesth3
+import com.bailout.stickk.ubi4.ui.gripper.v3model.V3ModelLoadMetrics
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperSettingsWithEncodersRendererV3
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -69,6 +79,9 @@ import kotlin.properties.Delegates
 class UBI4GripperScreenWithEncodersActivityV3
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     companion object {
+        private const val FLOW_TAG = "V3GripperFlow"
+        private const val FINGER_DELAY_UNIT_MS = 10L
+        private const val FINGER_ANIMATION_MS_PER_PERCENT = 5L
         var angleFinger1 by Delegates.notNull<Int>()
         var angleFinger2 by Delegates.notNull<Int>()
         var angleFinger3 by Delegates.notNull<Int>()
@@ -86,6 +99,11 @@ class UBI4GripperScreenWithEncodersActivityV3
 
     private val json = Json { encodeDefaults = true }
     private var withEncodersRendererV3: UBI4GripperSettingsWithEncodersRendererV3? = null
+    private var rendererFirstFrameReady = false
+    private var pendingInitialTransition = false
+    private var initialTransitionStarted = false
+    private var fingerTransitionAnimator: ValueAnimator? = null
+    private val fingerTransitionInterpolator = AccelerateDecelerateInterpolator()
     private var numberFinger = 0
     private var angleFinger = 0
 
@@ -134,12 +152,19 @@ class UBI4GripperScreenWithEncodersActivityV3
         GESTURE_SAVE_BUTTON(255)
     }
 
+    private enum class FingerTargetState {
+        OPEN,
+        CLOSE
+    }
+
     private var score1 = 0
     private var score2 = 0
     private var score3 = 0
     private var score4 = 0
-    private var score5 = 0
-    private var score6 = 0
+    private var score5 = V3FingerPositionMapping.thumbFirstAxisPercent(0)
+    private var score6 = V3FingerPositionMapping.thumbSecondAxisPercent(
+        V3FingerPositionMapping.THUMB_SECOND_AXIS_INITIAL_DEGREES
+    )
 
     private var firstRequest = true
     private var countTick = 0
@@ -166,7 +191,6 @@ class UBI4GripperScreenWithEncodersActivityV3
         super.onCreate(savedInstanceState)
         binding = Ubi4LayoutGripperSettingsLeWithEncodersV3Binding.inflate(layoutInflater)
         setContentView(binding.root)
-        initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
@@ -177,8 +201,8 @@ class UBI4GripperScreenWithEncodersActivityV3
         angleFinger2 = 0
         angleFinger3 = 0
         angleFinger4 = 0
-        angleFinger5 = 0
-        angleFinger6 = 0
+        angleFinger5 = score5
+        angleFinger6 = score6
         animationInProgress1 = false
         animationInProgress2 = false
         animationInProgress3 = false
@@ -186,12 +210,13 @@ class UBI4GripperScreenWithEncodersActivityV3
         animationInProgress5 = false
         animationInProgress6 = false
         //control side in 3D
-        side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+        side = resolveV3HandSide()
 
         deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
         parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
         gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
+
+        initBaseView(this)
 
 
         lifecycleScope.launchWhenStarted {
@@ -214,8 +239,15 @@ class UBI4GripperScreenWithEncodersActivityV3
             .subscribe { parameterInfo ->
                 val parameter = ParameterProvider.getParameterV3(parameterInfo)
                 val gestureSettings = parseGestureInfoSafely(parameter.data)
-                gestureSettings?.let { loadGestureState(it)
-                } ?: main.showToast("Ошибка обносления состояния жеста")
+                gestureSettings?.let {
+                    Log.i(
+                        FLOW_TAG,
+                        "BLE RX gesture=${it.gestureId} " +
+                            "open=${positionSummary(it.openPosition1, it.openPosition2, it.openPosition3, it.openPosition4, it.openPosition5, it.openPosition6)} " +
+                            "close=${positionSummary(it.closePosition1, it.closePosition2, it.closePosition3, it.closePosition4, it.closePosition5, it.closePosition6)}"
+                    )
+                    loadGestureState(it)
+                } ?: main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
             }
 
         RxView.clicks(findViewById(R.id.editGestureNameBtn))
@@ -283,12 +315,12 @@ class UBI4GripperScreenWithEncodersActivityV3
                     compileBLEMassage ()
                 }
                 if (numberFinger == 5) {
-                    changeStateFinger5 (88 - angleFinger)
+                    changeStateFinger5(angleFinger)
 //                    compileBLEMassage ()
                     scheduleF56Send()
                 }
                 if (numberFinger == 6) {
-                    changeStateFinger6 (98 - angleFinger)
+                    changeStateFinger6(angleFinger)
 //                    compileBLEMassage ()
                     sendF56Now()
                 }
@@ -320,31 +352,57 @@ class UBI4GripperScreenWithEncodersActivityV3
         // initialize selector
         binding.gestureStateSelectorContainer.post { initSelector() }
     }
+
+    private fun resolveV3HandSide(): Int {
+        val handSideInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+        val storedSide = (ParameterStoreV3.get(handSideInfo) as? ParameterTypedValueV3.Spinner)
+            ?.value
+            ?.spinnerValue
+            ?.coerceIn(0, 1)
+        if (storedSide != null) return storedSide
+
+        return mSettings!!.getInt(
+            mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE,
+            1
+        )
+    }
+
     private fun parseGestureInfoSafely(data: String): GestureV3? {
         if (data.isBlank()) return null
         return runCatching { json.decodeFromString<GestureV3>(data) }
             .getOrNull()
     }
     override fun initializeUI() {
+        V3ModelLoadMetrics.init(applicationContext)
+        V3ModelLoadMetrics.log(
+            "productionScreen initializeUI modelReady=${Load3DModelFesth3.isReady()}"
+        )
+        Load3DModelFesth3.preloadAsync(applicationContext)
+
         val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val configurationInfo = activityManager.deviceConfigurationInfo
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000
 
         if (supportsEs2) {
-            binding.glSurfaceViewLeWithEncodersV3.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            val eglClientVersion = if (configurationInfo.reqGlEsVersion >= 0x00030000) 3 else 2
+            binding.glSurfaceViewLeWithEncodersV3.setV3EGLConfigChooser(eglClientVersion)
             binding.glSurfaceViewLeWithEncodersV3.holder.setFormat(PixelFormat.TRANSLUCENT)
             binding.glSurfaceViewLeWithEncodersV3.setBackgroundResource(R.color.ubi4_back)
             binding.glSurfaceViewLeWithEncodersV3.setZOrderOnTop(true)
-
-
-            binding.glSurfaceViewLeWithEncodersV3.setEGLContextClientVersion(2)
+            binding.glSurfaceViewLeWithEncodersV3.setPreserveEGLContextOnPause(true)
+            binding.glSurfaceViewLeWithEncodersV3.setEGLContextClientVersion(eglClientVersion)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)
 
             withEncodersRendererV3 = UBI4GripperSettingsWithEncodersRendererV3(this, binding.glSurfaceViewLeWithEncodersV3)
+            withEncodersRendererV3?.setOnFirstFrameRenderedListener {
+                rendererFirstFrameReady = true
+                startInitialTransitionIfReady()
+            }
 
             binding.glSurfaceViewLeWithEncodersV3.setRenderer(withEncodersRendererV3, displayMetrics.density)
+            binding.glSurfaceViewLeWithEncodersV3.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         }
     }
 
@@ -385,191 +443,220 @@ class UBI4GripperScreenWithEncodersActivityV3
         score4 = angleFinger
     }
     private fun changeStateFinger5(angleFinger: Int) {
+        val position = validationRange(angleFinger)
         if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            System.err.println("Изменили палец 5 gestureState = 1")
-            fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
+            fingerOpenState5 = position
         } else {
-            System.err.println("Изменили палец 5 gestureState = 0")
-            fingerCloseState5 = (angleFinger.toFloat() / 100 * 91).toInt() - 49
+            fingerCloseState5 = position
         }
-        score5 = (angleFinger.toFloat()/100*91).toInt()-49
+        score5 = position
     }
     private fun changeStateFinger6(angleFinger: Int) {
+        val position = validationRange(angleFinger)
         if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            fingerOpenState6 = (angleFinger.toFloat() / 100 * 90).toInt()
+            fingerOpenState6 = position
         } else {
-            fingerCloseState6 = (angleFinger.toFloat() / 100 * 90).toInt()
+            fingerCloseState6 = position
         }
-        score6 = (angleFinger.toFloat()/100*90).toInt()
+        score6 = position
     }
 
-    private fun animateFinger1 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                }
+    private fun startFingerTransition(targetState: FingerTargetState, sendBleCommand: Boolean) {
+        val opening = targetState == FingerTargetState.OPEN
+        val startPositions = intArrayOf(score1, score2, score3, score4, score5, score6)
+        val targetPositions = if (opening) {
+            intArrayOf(
+                fingerOpenState1,
+                fingerOpenState2,
+                fingerOpenState3,
+                fingerOpenState4,
+                fingerOpenState5,
+                fingerOpenState6
+            )
+        } else {
+            intArrayOf(
+                fingerCloseState1,
+                fingerCloseState2,
+                fingerCloseState3,
+                fingerCloseState4,
+                fingerCloseState5,
+                fingerCloseState6
+            )
+        }
+        val animatedPositions = IntArray(startPositions.size)
+        val startDelaysMs = transitionDelaysMs(opening)
+        val movementDurationsMs = LongArray(startPositions.size) { index ->
+            abs(targetPositions[index] - startPositions[index]) * FINGER_ANIMATION_MS_PER_PERCENT
+        }
+        var transitionDurationMs = 1L
+        for (index in startPositions.indices) {
+            transitionDurationMs = maxOf(
+                transitionDurationMs,
+                startDelaysMs[index] + movementDurationsMs[index]
+            )
+        }
+
+        fingerTransitionAnimator?.cancel()
+        setFingerAnimationInProgress(true)
+
+        Log.i(
+            FLOW_TAG,
+            "animation transition=${if (opening) "TO_OPEN" else "TO_CLOSE"} " +
+                "from=${currentPositionSummary()} " +
+                "to=${if (opening) openPositionSummary() else closePositionSummary()} " +
+                "delaysMs=${startDelaysMs.contentToString()} durationMs=$transitionDurationMs"
+        )
+
+        val selectorStateChanged = isOpenMode != opening
+        isOpenMode = opening
+        if (selectorStateChanged) {
+            updateSelectorUI(opening)
+        }
+        if (sendBleCommand) {
+            gestureState = if (opening) {
+                States.GESTURE_OPEN_DELAY.number
+            } else {
+                States.GESTURE_CLOSE_DELAY.number
             }
-            anim1.start()
-        } else
-        {
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                }
+            compileBLEMassage()
+        }
+        gestureState = if (opening) {
+            States.GESTURE_STATE_OPEN.number
+        } else {
+            States.GESTURE_STATE_CLOSE.number
+        }
+
+        var cancelled = false
+        val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = transitionDurationMs
+            addUpdateListener { valueAnimator ->
+                val playTimeMs = valueAnimator.currentPlayTime
+                updateAnimatedFingerPositions(
+                    startPositions,
+                    targetPositions,
+                    startDelaysMs,
+                    movementDurationsMs,
+                    playTimeMs,
+                    animatedPositions
+                )
+                requestModelRender()
             }
-            anim1.start()
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationCancel(animation: Animator) {
+                    cancelled = true
+                }
+
+                override fun onAnimationEnd(animation: Animator) {
+                    if (cancelled || fingerTransitionAnimator !== animation) {
+                        return
+                    }
+                    applyFingerPositions(targetPositions)
+                    val renderer = withEncodersRendererV3
+                    if (renderer != null) {
+                        renderer.setOnNextFrameRenderedListener {
+                            if (!isDestroyed && fingerTransitionAnimator == null) {
+                                setFingerAnimationInProgress(false)
+                            }
+                        }
+                    } else {
+                        setFingerAnimationInProgress(false)
+                    }
+                    requestModelRender()
+                    fingerTransitionAnimator = null
+                }
+            })
+        }
+        fingerTransitionAnimator = animator
+        animator.start()
+    }
+
+    private fun transitionDelaysMs(opening: Boolean): LongArray {
+        // Renderer order is little, ring, middle, index, thumb flexion, thumb rotation.
+        val delays = if (opening) {
+            intArrayOf(
+                fingerCloseStateDelay4,
+                fingerCloseStateDelay3,
+                fingerCloseStateDelay2,
+                fingerCloseStateDelay1,
+                fingerCloseStateDelay5,
+                fingerCloseStateDelay6
+            )
+        } else {
+            intArrayOf(
+                fingerOpenStateDelay4,
+                fingerOpenStateDelay3,
+                fingerOpenStateDelay2,
+                fingerOpenStateDelay1,
+                fingerOpenStateDelay5,
+                fingerOpenStateDelay6
+            )
+        }
+        return LongArray(delays.size) { index ->
+            delays[index].coerceAtLeast(0) * FINGER_DELAY_UNIT_MS
         }
     }
-    private fun animateFinger2 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim2 = ValueAnimator.ofInt(score2, fingerCloseState2)
-            anim2.duration = (abs(fingerCloseState2 - score2) * 10).toLong()
-            animationInProgress2 = true
-            anim2.addUpdateListener {
-                angleFinger2 = anim2.animatedValue as Int
-                score2 = anim2.animatedValue as Int
-                if (score2 == fingerCloseState2) {
-                    animationInProgress2 = false
-                }
-            }
-            anim2.start()
-        } else
-        {
-            val anim2 = ValueAnimator.ofInt(score2, fingerOpenState2)
-            anim2.duration = (abs(fingerOpenState2 - score2) * 10).toLong()
-            animationInProgress2 = true
-            anim2.addUpdateListener {
-                angleFinger2 = anim2.animatedValue as Int
-                score2 = anim2.animatedValue as Int
-                if (score2 == fingerOpenState2) {
-                    animationInProgress2 = false
-                }
-            }
-            anim2.start()
+
+    private fun updateAnimatedFingerPositions(
+        startPositions: IntArray,
+        targetPositions: IntArray,
+        startDelaysMs: LongArray,
+        movementDurationsMs: LongArray,
+        playTimeMs: Long,
+        positions: IntArray
+    ) {
+        for (index in startPositions.indices) {
+            positions[index] = interpolatedFingerPosition(
+                startPositions[index],
+                targetPositions[index],
+                startDelaysMs[index],
+                movementDurationsMs[index],
+                playTimeMs
+            )
         }
+        applyFingerPositions(positions)
     }
-    private fun animateFinger3 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim3 = ValueAnimator.ofInt(score3, fingerCloseState3)
-            anim3.duration = (abs(fingerCloseState3 - score3) * 10).toLong()
-            animationInProgress3 = true
-            anim3.addUpdateListener {
-                angleFinger3 = anim3.animatedValue as Int
-                score3 = anim3.animatedValue as Int
-                if (score3 == fingerCloseState3) {
-                    animationInProgress3 = false
-                }
-            }
-            anim3.start()
-        } else
-        {
-            val anim3 = ValueAnimator.ofInt(score3, fingerOpenState3)
-            anim3.duration = (abs(fingerOpenState3 - score3) * 10).toLong()
-            animationInProgress3 = true
-            anim3.addUpdateListener {
-                angleFinger3 = anim3.animatedValue as Int
-                score3 = anim3.animatedValue as Int
-                if (score3 == fingerOpenState3) {
-                    animationInProgress3 = false
-                }
-            }
-            anim3.start()
+
+    private fun interpolatedFingerPosition(
+        startPosition: Int,
+        targetPosition: Int,
+        startDelayMs: Long,
+        movementDurationMs: Long,
+        playTimeMs: Long
+    ): Int {
+        if (playTimeMs <= startDelayMs) {
+            return startPosition
         }
+        if (movementDurationMs == 0L) {
+            return targetPosition
+        }
+        val linearFraction = ((playTimeMs - startDelayMs).toFloat() / movementDurationMs)
+            .coerceIn(0f, 1f)
+        val interpolatedFraction = fingerTransitionInterpolator.getInterpolation(linearFraction)
+        return (startPosition + (targetPosition - startPosition) * interpolatedFraction).roundToInt()
     }
-    private fun animateFinger4 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim4 = ValueAnimator.ofInt(score4, fingerCloseState4)
-            anim4.duration = (abs(fingerCloseState4 - score4) * 10).toLong()
-            animationInProgress4 = true
-            anim4.addUpdateListener {
-                angleFinger4 = anim4.animatedValue as Int
-                score4 = anim4.animatedValue as Int
-                if (score4 == fingerCloseState4) {
-                    animationInProgress4 = false
-                }
-            }
-            anim4.start()
-        } else
-        {
-            val anim4 = ValueAnimator.ofInt(score4, fingerOpenState4)
-            anim4.duration = (abs(fingerOpenState4 - score4) * 10).toLong()
-            animationInProgress4 = true
-            anim4.addUpdateListener {
-                angleFinger4 = anim4.animatedValue as Int
-                score4 = anim4.animatedValue as Int
-                if (score4 == fingerOpenState4) {
-                    animationInProgress4 = false
-                }
-            }
-            anim4.start()
-        }
+
+    private fun applyFingerPositions(positions: IntArray) {
+        angleFinger1 = positions[0]
+        angleFinger2 = positions[1]
+        angleFinger3 = positions[2]
+        angleFinger4 = positions[3]
+        angleFinger5 = positions[4]
+        angleFinger6 = positions[5]
+        score1 = positions[0]
+        score2 = positions[1]
+        score3 = positions[2]
+        score4 = positions[3]
+        score5 = positions[4]
+        score6 = positions[5]
     }
-    private fun animateFinger5 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim5 = ValueAnimator.ofInt(score5, fingerCloseState5)
-            anim5.duration = (abs(fingerCloseState5 - score5) * 10).toLong()
-            animationInProgress5 = true
-            anim5.addUpdateListener {
-                angleFinger5 = anim5.animatedValue as Int
-                score5 = anim5.animatedValue as Int
-                if (score5 == fingerCloseState5) {
-                    animationInProgress5 = false
-                }
-            }
-            anim5.start()
-        } else
-        {
-            val anim5 = ValueAnimator.ofInt(score5, fingerOpenState5)
-            anim5.duration = (abs(fingerOpenState5 - score5) * 10).toLong()
-            animationInProgress5 = true
-            anim5.addUpdateListener {
-                angleFinger5 = anim5.animatedValue as Int
-                score5 = anim5.animatedValue as Int
-                if (score5 == fingerOpenState5) {
-                    animationInProgress5 = false
-                }
-            }
-            anim5.start()
-        }
-    }
-    private fun animateFinger6 () {
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
-            val anim6 = ValueAnimator.ofInt(score6, fingerCloseState6)
-            anim6.duration = (abs(fingerCloseState6 - score6) * 10).toLong()
-            animationInProgress6 = true
-            anim6.addUpdateListener {
-                angleFinger6 = anim6.animatedValue as Int
-                score6 = anim6.animatedValue as Int
-                if (score6 == fingerCloseState6) {
-                    animationInProgress6 = false
-                }
-            }
-            anim6.start()
-        } else
-        {
-            val anim6 = ValueAnimator.ofInt(score6, fingerOpenState6)
-            anim6.duration = (abs(fingerOpenState6 - score6) * 10).toLong()
-            animationInProgress6 = true
-            anim6.addUpdateListener {
-                angleFinger6 = anim6.animatedValue as Int
-                score6 = anim6.animatedValue as Int
-                if (score6 == fingerOpenState6) {
-                    animationInProgress6 = false
-                }
-            }
-            anim6.start()
-        }
+
+    private fun setFingerAnimationInProgress(inProgress: Boolean) {
+        animationInProgress1 = inProgress
+        animationInProgress2 = inProgress
+        animationInProgress3 = inProgress
+        animationInProgress4 = inProgress
+        animationInProgress5 = inProgress
+        animationInProgress6 = inProgress
     }
 
     @SuppressLint("InflateParams")
@@ -719,15 +806,23 @@ class UBI4GripperScreenWithEncodersActivityV3
     private fun compileBLEMassage () {
         val gesture = Gesture(gestureID, // проверить тут -2
             validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
-            validationRange(fingerOpenState1), validationRange(inverseRangConversion(fingerOpenState5, 85, -53)), validationRange(inverseRangConversion(fingerOpenState6, 85, 15)),
+            validationRange(fingerOpenState1), validationRange(fingerOpenState5), validationRange(fingerOpenState6),
             validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
-            validationRange(fingerCloseState1), validationRange(inverseRangConversion(fingerCloseState5, 85, -53)), validationRange(inverseRangConversion(fingerCloseState6, 85, 15)),
+            validationRange(fingerCloseState1), validationRange(fingerCloseState5), validationRange(fingerCloseState6),
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0)
         val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, gesture, gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
         persistGestureSettings(gesture)
-        main.bleCommandWithQueue(BLECommandsV3.sendGestureInfo(gestureStateModel), SERIALPORTCHAR_UUID, WRITE){}
+        val command = BLECommandsV3.sendGestureInfo(gestureStateModel)
+        Log.i(
+            FLOW_TAG,
+            "BLE TX gesture=${gesture.gestureId} state=$gestureState " +
+                "open=${positionSummary(gesture.openPosition1, gesture.openPosition2, gesture.openPosition3, gesture.openPosition4, gesture.openPosition5, gesture.openPosition6)} " +
+                "close=${positionSummary(gesture.closePosition1, gesture.closePosition2, gesture.closePosition3, gesture.closePosition4, gesture.closePosition5, gesture.closePosition6)} " +
+                "hex=${EncodeByteToHex.bytesToHexString(command)}"
+        )
+        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
     }
 
     private fun persistGestureSettings(gesture: Gesture) {
@@ -771,22 +866,12 @@ class UBI4GripperScreenWithEncodersActivityV3
         SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
     }
     private fun compileBLERead () {
-        Log.d("uiGestureSettingsObservable", "compileBLERead gesture id = $gestureID")
-        main.bleCommandWithQueue(BLECommandsV3.requestGestureInfo(gestureID), SERIALPORTCHAR_UUID, WRITE){}
-    }
-    private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
-//        val _inputNumber = validationRange(inputNumber)
-        var result = inputNumber.toFloat() / range.toFloat() * 100
-        result = range - result
-        result += offset
-        return result.toInt()
-    }
-    private fun rangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
-        val _inputNumber = validationRange(inputNumber)
-        var result = _inputNumber.toFloat() / 100 * range.toFloat()
-        result = range - result
-        result += offset
-        return result.toInt()
+        val command = BLECommandsV3.requestGestureInfo(gestureID)
+        Log.i(
+            FLOW_TAG,
+            "BLE TX requestGesture gesture=$gestureID hex=${EncodeByteToHex.bytesToHexString(command)}"
+        )
+        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
     }
     private fun validationRange(inputNumber: Int) : Int {
         var _inputNumber = inputNumber
@@ -805,15 +890,15 @@ class UBI4GripperScreenWithEncodersActivityV3
         fingerOpenState2 = validationRange( gestureSettings.openPosition3 )
         fingerOpenState3 = validationRange( gestureSettings.openPosition2 )
         fingerOpenState4 = validationRange( gestureSettings.openPosition1 )
-        fingerOpenState5 = rangConversion( gestureSettings.openPosition5, 90, -59)
-        fingerOpenState6 = rangConversion( gestureSettings.openPosition6, 92, -1)
+        fingerOpenState5 = validationRange(gestureSettings.openPosition5)
+        fingerOpenState6 = validationRange(gestureSettings.openPosition6)
 
         fingerCloseState1 = validationRange( gestureSettings.closePosition4 )
         fingerCloseState2 = validationRange( gestureSettings.closePosition3 )
         fingerCloseState3 = validationRange( gestureSettings.closePosition2 )
         fingerCloseState4 = validationRange( gestureSettings.closePosition1 )
-        fingerCloseState5 = rangConversion( gestureSettings.closePosition5, 90, -59)
-        fingerCloseState6 = rangConversion( gestureSettings.closePosition6, 92, -1)
+        fingerCloseState5 = validationRange(gestureSettings.closePosition5)
+        fingerCloseState6 = validationRange(gestureSettings.closePosition6)
 
         fingerOpenStateDelay1 = gestureSettings.openToCloseTimeShift1
         fingerOpenStateDelay2 = gestureSettings.openToCloseTimeShift2
@@ -829,15 +914,36 @@ class UBI4GripperScreenWithEncodersActivityV3
         fingerCloseStateDelay5 = gestureSettings.closeToOpenTimeShift5
         fingerCloseStateDelay6 = gestureSettings.closeToOpenTimeShift6
 
-        f56Handler.postDelayed({
-            animateFinger1 ()
-            animateFinger2 ()
-            animateFinger3 ()
-            animateFinger4 ()
-            animateFinger5 ()
-            animateFinger6 ()
-            gestureState = States.GESTURE_STATE_OPEN.number
-        }, 200)
+        Log.i(
+            FLOW_TAG,
+            "animation targets " +
+                "open=${openPositionSummary()} close=${closePositionSummary()} " +
+                "current=${currentPositionSummary()}"
+        )
+        if (!initialTransitionStarted) {
+            pendingInitialTransition = true
+            startInitialTransitionIfReady()
+        }
+    }
+
+    private fun startInitialTransitionIfReady() {
+        if (!rendererFirstFrameReady || !pendingInitialTransition || initialTransitionStarted) {
+            return
+        }
+        initialTransitionStarted = true
+        pendingInitialTransition = false
+        binding.glSurfaceViewLeWithEncodersV3.postOnAnimation {
+            if (isFinishing || isDestroyed) {
+                return@postOnAnimation
+            }
+            startFingerTransition(FingerTargetState.OPEN, sendBleCommand = true)
+        }
+    }
+
+    private fun requestModelRender() {
+        if (withEncodersRendererV3 != null) {
+            binding.glSurfaceViewLeWithEncodersV3.requestRender()
+        }
     }
     private fun loadGestureNameList() {
         val text = "load not work"
@@ -854,35 +960,52 @@ class UBI4GripperScreenWithEncodersActivityV3
     updateSelectorUI(isOpenMode)
     binding.gestureOpenBtn.setOnClickListener {
         if (!isOpenMode) {
-            // animate closing → opening
-            animateFinger1(); animateFinger2(); animateFinger3()
-            animateFinger4(); animateFinger5(); animateFinger6()
-            // update selector UI
-            isOpenMode = true
-            updateSelectorUI(true)
-            // send OPEN command
-            gestureState = States.GESTURE_OPEN_DELAY.number
-            compileBLEMassage()
-            gestureState = States.GESTURE_STATE_OPEN.number
+            startFingerTransition(FingerTargetState.OPEN, sendBleCommand = true)
         }
     }
     binding.gestureCloseBtn.setOnClickListener {
         if (isOpenMode) {
-            // animate opening → closing
-            animateFinger1(); animateFinger2(); animateFinger3()
-            animateFinger4(); animateFinger5(); animateFinger6()
-            // update selector UI
-            isOpenMode = false
-            updateSelectorUI(false)
-            // send CLOSE command
-            gestureState = States.GESTURE_CLOSE_DELAY.number
-            compileBLEMassage()
-            gestureState = States.GESTURE_STATE_CLOSE.number
-
-
+            startFingerTransition(FingerTargetState.CLOSE, sendBleCommand = true)
         }
     }
 }
+
+    private fun currentPositionSummary(): String = positionSummary(
+        score4,
+        score3,
+        score2,
+        score1,
+        score5,
+        score6
+    )
+
+    private fun openPositionSummary(): String = positionSummary(
+        fingerOpenState4,
+        fingerOpenState3,
+        fingerOpenState2,
+        fingerOpenState1,
+        fingerOpenState5,
+        fingerOpenState6
+    )
+
+    private fun closePositionSummary(): String = positionSummary(
+        fingerCloseState4,
+        fingerCloseState3,
+        fingerCloseState2,
+        fingerCloseState1,
+        fingerCloseState5,
+        fingerCloseState6
+    )
+
+    private fun positionSummary(
+        index: Int,
+        middle: Int,
+        ring: Int,
+        little: Int,
+        thumbDeltaY: Int,
+        thumbDeltaX: Int
+    ): String = "[index=$index,middle=$middle,ring=$ring,little=$little," +
+        "thumbDeltaY=$thumbDeltaY,thumbDeltaX=$thumbDeltaX]"
 
     private fun updateSelectorUI(isOpen: Boolean) {
         ObjectAnimator.ofFloat(
@@ -922,9 +1045,29 @@ class UBI4GripperScreenWithEncodersActivityV3
         compileBLEMassage()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (withEncodersRendererV3 != null) {
+            binding.glSurfaceViewLeWithEncodersV3.onResume()
+            requestModelRender()
+        }
+    }
+
+    override fun onPause() {
+        if (withEncodersRendererV3 != null) {
+            binding.glSurfaceViewLeWithEncodersV3.onPause()
+        }
+        super.onPause()
+    }
+
     override fun onDestroy() {
+        fingerTransitionAnimator?.cancel()
+        fingerTransitionAnimator = null
+        setFingerAnimationInProgress(false)
         f56Handler.removeCallbacksAndMessages(null)
         f56PendingSend = null
+        withEncodersRendererV3?.setOnFirstFrameRenderedListener(null)
+        withEncodersRendererV3?.setOnNextFrameRenderedListener(null)
         super.onDestroy()
     }
 

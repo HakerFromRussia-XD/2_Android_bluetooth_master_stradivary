@@ -2,6 +2,11 @@ import Foundation
 import shared
 
 struct SpinnerListItemViewModelV3: Equatable, Hashable {
+    private enum HandSideBinding {
+        static let parameterID = 0x10
+        static let dataCode = 0x0E
+    }
+
     private let identifier: String
     let title: String
     let widget: Widget
@@ -12,6 +17,11 @@ struct SpinnerListItemViewModelV3: Equatable, Hashable {
 }
 
 extension SpinnerListItemViewModelV3 {
+    var isHandSideSelector: Bool {
+        binding?.parameterID == HandSideBinding.parameterID &&
+            binding?.dataCode == HandSideBinding.dataCode
+    }
+
     init(widget: Widget, bleManager: BleManagerKmm) {
         self.title = widget.title ?? ""
         self.widget = widget
@@ -49,6 +59,14 @@ extension SpinnerListItemViewModelV3 {
 
     func sendSelectedIndex(_ index: Int) {
         guard let binding else { return }
+        if isHandSideSelector {
+            NSLog("[V3HandSide] source=widget selectedIndex=%d address=%d parameter=0x%02X dataCode=0x%02X",
+                  index,
+                  binding.deviceAddress,
+                  binding.parameterID,
+                  binding.dataCode)
+            V3HandSideProvider.shared.applyWidgetValue(index)
+        }
         guard let data = WidgetCommandBridgeV3.shared.buildSetInt(
             parameterID: Int32(binding.parameterID),
             dataCode: Int32(binding.dataCode),
@@ -57,6 +75,11 @@ extension SpinnerListItemViewModelV3 {
             value: Int32(index)
         ) else { return }
         sendBytes(data)
+    }
+
+    func applyHandSideDeviceSnapshot(_ index: Int) {
+        guard isHandSideSelector else { return }
+        V3HandSideProvider.shared.applyDeviceValue(index)
     }
 
     func matches(snapshot: ParameterSnapshotV3Bridge) -> Bool {
@@ -72,12 +95,13 @@ extension SpinnerListItemViewModelV3 {
 
     func currentSelectedIndex() -> Int? {
         guard let binding else { return nil }
-        guard let snapshot = WidgetStateBridgeV3.shared.getCurrent(
+        let value = Int(WidgetStateBridgeV3.shared.getSpinnerValueOrDefault(
             addressDevice: Int32(binding.deviceAddress),
             parameterID: Int32(binding.parameterID),
-            dataCode: Int32(binding.dataCode)
-        ) else { return nil }
-        return selectedIndex(from: snapshot)
+            dataCode: Int32(binding.dataCode),
+            defaultValue: -1
+        ))
+        return value >= 0 ? value : nil
     }
 
     private func sendBytes(_ data: KotlinByteArray) {

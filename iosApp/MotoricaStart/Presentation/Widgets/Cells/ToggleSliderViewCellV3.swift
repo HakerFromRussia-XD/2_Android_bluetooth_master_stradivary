@@ -294,7 +294,7 @@ struct ToggleSliderRowViewV3_Previews: PreviewProvider {
         Group {
             ToggleSliderRowViewV3(
                 provider: ToggleSliderProviderV3(
-                    title: "Чувствительность датчика открытия",
+                    title: SharedLocalizedText.text(SharedRes.strings().opening_sensor_sensitivity),
                     unitLabel: "",
                     minValue: 0,
                     maxValue: 100,
@@ -311,7 +311,7 @@ struct ToggleSliderRowViewV3_Previews: PreviewProvider {
 
             ToggleSliderRowViewV3(
                 provider: ToggleSliderProviderV3(
-                    title: "Чувствительность датчика открытия",
+                    title: SharedLocalizedText.text(SharedRes.strings().opening_sensor_sensitivity),
                     unitLabel: "",
                     minValue: 0,
                     maxValue: 100,

@@ -34,7 +34,7 @@
                 android:layout_marginStart="10dp"
                 android:maxLines="2"
                 android:fontFamily="@font/sf_pro_display_light"
-                android:text="Описание настройки"
+                android:text="@string/setting_description"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:layout_constraintTop_toTopOf="parent"

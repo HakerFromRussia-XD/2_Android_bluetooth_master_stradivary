@@ -42,6 +42,11 @@ struct GestureListItemViewModel: Equatable, Hashable {
         } else {
             self.parameterInfoSet = []
         }
+
+        if self.isV3Widget {
+            V3HandSideProvider.shared.startObserving()
+            V3ModelResourceCache.shared().preload(completion: nil)
+        }
     }
 }
 
@@ -567,7 +572,7 @@ private enum GestureCatalog {
             GestureItem(
                 id: baseIdentifier + index,
                 title: title,
-                subtitle: NSLocalizedString("Custom gesture", comment: ""),
+                subtitle: SharedLocalizedText.text(SharedRes.strings().custom_gesture),
                 image: nil
             )
         }

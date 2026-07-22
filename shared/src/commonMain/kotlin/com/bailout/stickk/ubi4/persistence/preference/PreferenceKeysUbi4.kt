@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
@@ -59,6 +60,7 @@ object PreferenceKeysUbi4 {
     const val FIRST_LOAD_ACCOUNT_INFO = "FIRST_LOAD_ACCOUNT_INFO"
     const val PREF_GESTURE_STATE = "pref_gesture_state"
     const val SET_MODE_SMART_CONNECTION = "SET_MODE_SMART_CONNECTION"
+    const val BLE_LOG_HIDE_GRAPH_STREAM = "BLE_LOG_HIDE_GRAPH_STREAM"
     const val NAME           = "ubi4_prefs"
     const val KEY_TOKEN      = "pref_key_token"
     const val KEY_SERIAL     = "pref_key_serial"
@@ -688,6 +690,7 @@ object PreferenceKeysUbi4 {
     //Разделение на все мобильные строки
     enum class MobileSettingsKey(val key: String) {
         AUTO_LOGIN ("AUTO_LOGIN"),
+        BLE_LOG ("BLE_LOG"),
     }
 
 
@@ -807,6 +810,8 @@ object PreferenceKeysUbi4 {
         PWCE_SET_FORCE_SETTINGS           (0x3F),
         PWCE_GET_FORCE_SETTINGS           (0x40),
         PWCE_GET_TELEMETRY_DATA           (0x41),
+        PWCE_GET_BINDING_DATA             (0x42),
+        PWCE_SET_BINDING_DATA             (0x43),
 
         PWCE_TEST_SWITCHER                (0XFF.toByte()),
 
@@ -925,6 +930,12 @@ object PreferenceKeysUbi4 {
                 codecId = ParameterCodecIdV3.ROTATION_GROUP,
                 widgetKind = WidgetKindV3.GESTURES,
                 valuePath = "rotationGroup[]"
+            ),
+            P_KEY_BINDING_DATA to ParameterMetaV3(
+                parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_BINDING_DATA.number.toInt(), 1, 0),
+                codecId = ParameterCodecIdV3.BINDING_GROUP,
+                widgetKind = WidgetKindV3.GESTURES,
+                valuePath = "bindingGroup[]"
             ),
             P_KEY_EMG_CHANGE_GESTURE to ParameterMetaV3(
                 parameterInfo = ParameterInfo(PROSTHESIS_MODULE_CONTROL.number.toInt(), PWCE_SET_EMG_CHANGE_GESTURE.number.toInt(), 1, 0),

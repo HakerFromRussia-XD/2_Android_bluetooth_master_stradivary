@@ -48,9 +48,12 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 //import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
+import com.bailout.stickk.ubi4.data.state.WidgetState.gameControlSignalFlow
+import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow
+import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
@@ -73,6 +76,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
@@ -84,6 +88,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_D
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
+import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import kotlinx.datetime.Clock
@@ -102,6 +107,8 @@ class BLEParserV3(
     private val bleCommandExecutor: BleCommandExecutor,
     private val bleManager: BleManagerKmm
 ) {
+    private var gameControlPacketSeq = 0L
+
     private companion object {
         const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val TELEMETRY_EXPECTED_SIZE = 158
@@ -138,7 +145,7 @@ class BLEParserV3(
         val address: Int,        // 0..255
         val deviceType: Int,     // 0..255
         val deviceCode: Int,     // 0..255
-        val dfu: Int,            // 0..255  // 0 - cannot update, 1 - update allowed
+        val dfu: Int,            // 0..255  // 0 - нельзя прошить, 1 - можно шить
         val fwVersion: String    // "major.minor.quickfix"
     )
     private data class BmsStatusCombinedV3(
@@ -175,10 +182,16 @@ class BLEParserV3(
             showToast(text(SharedRes.strings.ubi4_v3_error_113))
             plotArray = arrayListOf(0, 0, 0, 0, 0, 0)
         }
+        gameControlSignalFlow.value = GameControlSignal(
+            openLevel = plotArray.getOrNull(0) ?: 0,
+            closeLevel = plotArray.getOrNull(1) ?: 0,
+            connected = true,
+            packetSeq = ++gameControlPacketSeq
+        )
         coroutineScope.launch { plotArrayFlow.emit(PlotParameterRef(1, 1, plotArray)) }
     }
     fun parseReceivedData(data: ByteArray) {
-        // [new widgets V3] handle the device response: route -> decode codec -> ParameterStore -> emitTarget
+        // [new widgets V3] тут добавляем обработку ответа устройства: route -> decode codec -> ParameterStore -> emitTarget
         val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
         val receivePacket = runCatching { parseUbiPacketZeroAlloc(data) }
             .getOrElse { error ->
@@ -236,7 +249,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -252,7 +265,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -263,7 +276,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -274,7 +287,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -295,7 +308,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -310,7 +323,7 @@ class BLEParserV3(
                         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
                         platformLog(
                             "sendBytesKmm",
-                            "allow next command allowNextV3"
+                            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
                         )
                         return
                     }
@@ -328,7 +341,7 @@ class BLEParserV3(
         bleCommandExecutor.getQueueUBI4().allowNext(deviceAddress = 0,   parameterID = 0, receiveDataString = receiveDataString)
         platformLog(
             "sendBytesKmm",
-            "allow next command allowNextV3"
+            "А тут разрешаем протолкнуть следующую команду allowNextV3 "
         )
     }
 
@@ -526,6 +539,7 @@ class BLEParserV3(
                 WidgetEmitTargetV3.THRESHOLD_FLOW -> thresholdFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.CURRENT_GESTURE_FLOW -> currentGestureFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_GROUP_FLOW -> gestureGroupFlowV3.emit(parameterInfo)
+//                WidgetEmitTargetV3.BINDING_GROUP_FLOW -> bindingGroupFlowV3.emit(parameterInfo)
                 WidgetEmitTargetV3.GESTURE_SETTINGS_EVENT ->
                     RxUpdateMainEventUbi4Wrapper.updateUiGestureSettingsV3(parameterInfo)
                 WidgetEmitTargetV3.NO_UI -> Unit
@@ -636,7 +650,7 @@ class BLEParserV3(
             val payloadOffset = 2
             val payloadSize = 2
 
-            // SHORT is always complete by the current protocol logic (5 bytes).
+            // SHORT по твоей логике всегда полный (5 байт)
             val payloadView = ByteArrayView(data, payloadOffset, payloadSize)
 
             UbiPacketView(
@@ -697,7 +711,7 @@ class BLEParserV3(
         val devices = mutableListOf<BaseSubDeviceInfoStruct>()
 
         if (payload == null || payload.length == 0) {
-            // logger.debug("SUB_DEVICE_MANAGER response: empty payload")
+            // logger.debug("Ответ SUB_DEVICE_MANAGER: payload пуст")
             return devices
         }
 
@@ -705,11 +719,11 @@ class BLEParserV3(
         val subcommand = payload.u8(0)
 
         if (payload.length <= 1) {
-            // logger.debug("SUB_DEVICE_MANAGER response: empty device list (subcommand=$subcommand)")
+            // logger.debug("Ответ SUB_DEVICE_MANAGER: список устройств пуст (подкоманда=$subcommand)")
             return devices
         }
 
-        var i = 1 // start after the subcommand
+        var i = 1 // начинаем после подкоманды
         while (i + deviceSize <= payload.length) {
             val device = parseDevice(payload, i)
             if (device != null) devices += device
@@ -751,7 +765,7 @@ class BLEParserV3(
     }
 
     suspend fun generatedHardcodeWidgets() {
-        // [new widgets V3] describe widget composition for screens (display/widgetPosition/widgetCode/parameterInfoSet).
+        // [new widgets V3] тут описываем состав виджетов на экранах (display/widgetPosition/widgetCode/parameterInfoSet)
         baseParameterWidgetSStruct.clear()
         baseParameterWidgetSStruct.add(BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
             display = 1,
@@ -788,6 +802,7 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_CURRENT_GESTURE),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_SETTING),
                 ParameterInfoRegistry.require(P_KEY_GESTURE_GROUPE),
+//              ParameterInfoRegistry.require(P_KEY_BINDING_DATA),
             )
         ), text(SharedRes.strings.ubi4_v3_widget_gestures)))
         baseParameterWidgetSStruct.add(ToggleSliderParameterWidgetSStruct(
@@ -876,26 +891,22 @@ class BLEParserV3(
                 display = 2,
                 widgetCode = PWCE_SPINBOX_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-                )
-            ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                textList(
-                    SharedRes.strings.ubi4_v3_gesture_change_no_action,
-                    SharedRes.strings.ubi4_v3_gesture_change_move_to_open
-                ),
-                0
-            ),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE),
                 )
-            ), text(SharedRes.strings.ubi4_v3_widget_gesture_change_action))))
+            ),text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
 
-
+//        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+//            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+//                listOf("Профиль №1", "+"),
+//                0
+//            ),
+//            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+//                display = 2,
+//                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+//                parameterInfoSet = mutableSetOf(
+//                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+//                )
+//            ),"Профили настроек")))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
@@ -936,6 +947,7 @@ class BLEParserV3(
                     SharedRes.strings.ubi4_v3_role_service_engineer,
                     SharedRes.strings.ubi4_v3_role_not_selected
                 ),
+                //TODO убрать айтем с ubi4_v3_role_not_selected
                 2
             ),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
@@ -965,6 +977,17 @@ class BLEParserV3(
             widgetCode = PWCE_BUTTON_V3.number.toInt(),
             parameterInfoSet = mutableSetOf(ParameterInfoRegistry.require(P_KEY_START_CALIBRATE_COMMAND))
         ), text(SharedRes.strings.ubi4_v3_widget_prosthesis_calibration)))
+        baseParameterWidgetSStruct.add(CommandParameterWidgetSStruct(
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
+                BaseParameterWidgetStruct(
+                    display = 4,
+                    widgetCode = PWCE_BUTTON_V3.number.toInt(),
+                    parameterInfoSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>(),
+                    keyMobileSettings = PreferenceKeysUbi4.MobileSettingsKey.BLE_LOG.key
+                ),
+                "BLE Log"
+            )
+        ))
 
         baseParameterWidgetSStruct = assignWidgetOrder(baseParameterWidgetSStruct)
 
@@ -1007,7 +1030,7 @@ class BLEParserV3(
             )
             platformLog("baseSubDevicesInfoStructSetV3", "it: $deviceAddress $paramsById")
         }
-        baseSubDevicesInfoStructSetV3.forEach { platformLog("baseSubDevicesInfoStructSetV3", "before $it") }
+        baseSubDevicesInfoStructSetV3.forEach { platformLog("baseSubDevicesInfoStructSetV3", "до $it") }
     }
     private fun parseWidgets(widget: Any) {
         when (widget) {
@@ -1147,12 +1170,12 @@ class BLEParserV3(
             }
         } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
             listWidgets.forEach {
-//                platformLog("PWCE_GESTURES_WINDOW_V3", "checking S widget: $it")
+//                platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S  it = $it")
                 when (it) {
                     is BaseParameterWidgetSStruct -> {
                         val combineWidgetId = baseParameterWidgetStruct.baseParameterWidgetStruct.deviceId * 256 + baseParameterWidgetStruct.baseParameterWidgetStruct.widgetId
                         val combineWidgetIdIterated = it.baseParameterWidgetStruct.deviceId * 256 + it.baseParameterWidgetStruct.widgetId
-                        platformLog("PWCE_GESTURES_WINDOW_V3", "checking S BaseParameterWidgetSStruct")
+                        platformLog("PWCE_GESTURES_WINDOW_V3", "пошли по S BaseParameterWidgetSStruct")
                         if (combineWidgetId == combineWidgetIdIterated) { canAdd = false }
                     }
                     is CommandParameterWidgetSStruct -> {
@@ -1203,13 +1226,13 @@ class BLEParserV3(
             }
         }
         if (canAdd) {
-//            platformLog("PWCE_GESTURES_WINDOW_V3", "widget added")
+//            platformLog("PWCE_GESTURES_WINDOW_V3", "смогли добавить")
             listWidgets.add(widget)
             listWidgets.forEach { it ->
                 platformLog("listWidgets", "listWidgets: $it")
             }
         } else {
-            platformLog("PWCE_GESTURES_WINDOW_V3", "widget was not added")
+            platformLog("PWCE_GESTURES_WINDOW_V3", "не смогли добавить")
         }
     }
 
@@ -1319,8 +1342,8 @@ class BLEParserV3(
             .joinToString("")
     }
 
-    // When adding a new widget to generatedHardcodeWidgets,
-    // widgetPosition/widgetId do not need to be set manually; they are assigned here in order.
+    // при добавлении нового виджета в generatedHardcodeWidgets
+    // не нужно вручную выставлять widgetPosition/widgetId — они назначатся здесь по порядку.
     private fun assignWidgetOrder(widgets: MutableSet<Any>): MutableSet<Any> {
         val nextPositionByDisplay = mutableMapOf<Int, Int>()
         var nextWidgetId = 1
@@ -1390,12 +1413,12 @@ class BLEParserV3(
         else -> null
     }
     private fun String.substringSafe(startIndex: Int, endIndex: Int): String {
-        // Valid range: return the substring while guaranteeing an even length for hex parsing.
+        // корректный диапазон — отдаём подстроку, но гарантируем чётную длину (для hex)
         if (startIndex >= 0 && endIndex <= length && startIndex < endIndex) {
             val s = substring(startIndex, endIndex)
             return if (s.length % 2 == 1) "0$s" else s
         }
-        // Invalid range: return a safe zero byte instead of crashing in toInt(16).
+        // некорректный диапазон — больше не возвращаем "", чтобы не падать в toInt(16)
         platformLog(
             "substringSafe",
             text(

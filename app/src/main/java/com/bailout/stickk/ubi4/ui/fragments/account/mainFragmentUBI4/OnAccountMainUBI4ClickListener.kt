@@ -5,4 +5,5 @@ interface OnAccountMainUBI4ClickListener {
     fun onProsthesisInformationClicked()
     fun onStatisticsClicked() = Unit
     fun onAchievementsClicked() = Unit
+    fun onGamesClicked()
 }

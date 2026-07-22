@@ -10,10 +10,12 @@ import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
 import com.bailout.stickk.ubi4.data.state.ParameterTypedValueV3
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.testing.RecordingBleCommandExecutor
 import com.bailout.stickk.ubi4.testing.ensureWidgetRepoInitializedForTests
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,38 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ParserCoverageTest {
+
+    @Test
+    fun `service settings should contain exactly one hand side widget`() = runBlocking {
+        ensureWidgetRepoInitializedForTests()
+        val executor = RecordingBleCommandExecutor()
+        val manager = BleManagerKmm().also { it.setBleCommandExecutor(executor) }
+        val parser = BLEParserV3(
+            coroutineScope = CoroutineScope(Dispatchers.Default),
+            bleCommandExecutor = executor,
+            bleManager = manager
+        )
+
+        parser.generatedHardcodeWidgets()
+
+        val handSideInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
+        val handSideWidgets = parser.baseParameterWidgetSStruct
+            .filterIsInstance<SpinnerParameterWidgetSStruct>()
+            .filter { widget ->
+                val base = widget.baseParameterWidgetSStruct.baseParameterWidgetStruct
+                base.display == 4 && handSideInfo in base.parameterInfoSet
+            }
+
+        assertEquals(1, handSideWidgets.size)
+        val parameterInfo = handSideWidgets.single()
+            .baseParameterWidgetSStruct
+            .baseParameterWidgetStruct
+            .parameterInfoSet
+            .single { it == handSideInfo }
+        assertEquals(0x10, parameterInfo.parameterID)
+        assertEquals(0x0E, parameterInfo.dataCode)
+        assertEquals(1, parameterInfo.deviceAddress)
+    }
 
     @Test
     fun `ubi packet view data class should support equals hash and extraction`() {

@@ -48,6 +48,8 @@ final class PlotViewCellV3: UITableViewCell {
     @IBOutlet private weak var limitCH2: UIView!
     @IBOutlet private weak var openCHV: UIView!
     @IBOutlet private weak var closeCHV: UIView!
+    @IBOutlet private weak var openThresholdTitleLabel: UILabel!
+    @IBOutlet private weak var closeThresholdTitleLabel: UILabel!
     @IBOutlet private weak var openThresholdTv: UILabel!
     @IBOutlet private weak var closeThresholdTv: UILabel!
     private var timer: Timer?
@@ -73,9 +75,36 @@ final class PlotViewCellV3: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         initChart()
+        applyLocalizedStaticTexts()
         setupGestureRecognizers()
         startTimer()
         backgroundPlot.layer.borderColor = UIColor(named: "ubi4_gray_border")?.cgColor
+    }
+
+    private func applyLocalizedStaticTexts() {
+        setLocalizedText(
+            SharedLocalizedText.text(SharedRes.strings().open_threshold),
+            on: openThresholdTitleLabel
+        )
+        setLocalizedText(
+            SharedLocalizedText.text(SharedRes.strings().close_threshold),
+            on: closeThresholdTitleLabel
+        )
+    }
+
+    private func setLocalizedText(_ text: String, on label: UILabel?) {
+        guard let label else { return }
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
+        label.numberOfLines = 1
+
+        guard let attributedText = label.attributedText, attributedText.length > 0 else {
+            label.text = text
+            return
+        }
+
+        let attributes = attributedText.attributes(at: 0, effectiveRange: nil)
+        label.attributedText = NSAttributedString(string: text, attributes: attributes)
     }
     
     @available(iOS 16.0, *)
@@ -250,7 +279,7 @@ final class PlotViewCellV3: UITableViewCell {
     private func initChart() {
         guard let lineChartView = lineChartView else { return }
         print("initChart 2    прошли первую проверку")
-        lineChartView.noDataText = "Нет данных"
+        lineChartView.noDataText = SharedLocalizedText.text(SharedRes.strings().no_data)
         lineChartView.data = LineChartData()
         var data = lineChartView.data
         let set1 = LineChartDataSet(entries: [], label: "")

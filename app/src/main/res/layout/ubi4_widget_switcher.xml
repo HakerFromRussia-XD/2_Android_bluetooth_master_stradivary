@@ -39,7 +39,7 @@
                 android:fontFamily="@font/sf_pro_display_light"
                 android:maxLines="2"
                 android:orientation="vertical"
-                android:text="widget slider description"
+                android:text="@string/setting_description"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"

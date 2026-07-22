@@ -9,9 +9,10 @@ final class GestureWidgetsListViewController: UIViewController, StoryboardInstan
     @IBOutlet private var emptyDataLabel: UILabel!
     private lazy var bottomButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нажми меня", for: .normal)
+        button.setTitle(SharedLocalizedText.text(SharedRes.strings().push_me), for: .normal)
         button.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
         return button
     }()
     

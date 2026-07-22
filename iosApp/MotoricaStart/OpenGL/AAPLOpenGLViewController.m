@@ -5,11 +5,16 @@ Abstract:
 Implementation of the cross-platform view controller and cross-platform view that displays OpenGL content.
 */
 #import "AAPLOpenGLViewController.h"
+#import "AAPLOpenGLRenderer.h"
 #import "AAPLOpenGLRendererV3.h"
+#import "V3ModelResourceCache.h"
 #import "MotoricaStart-Swift.h"
 
 #import <UIKit/UIKit.h>
+#import <OpenGLES/ES2/glext.h>
 #import <objc/message.h>
+#import <os/log.h>
+#import <os/signpost.h>
 #define PlatformGLContext EAGLContext
 
 
@@ -29,10 +34,22 @@ Implementation of the cross-platform view controller and cross-platform view tha
     GestureService *gestureService;
     PlatformGLContext *_context;
     GLuint _defaultFBOName;
+    GLuint _presentationFBOName;
     
     GLuint _colorRenderbuffer;
     GLuint _depthRenderbuffer;
+    GLuint _multisampleFBOName;
+    GLuint _multisampleColorRenderbuffer;
+    GLuint _multisampleDepthRenderbuffer;
+    GLint _multisampleSamples;
     CADisplayLink *_displayLink;
+    dispatch_queue_t _v3RenderQueue;
+    BOOL _v3FramePending;
+    BOOL _v3TouchActive;
+    BOOL _v3GestureSettingsReady;
+    BOOL _v3FirstFrameReady;
+    BOOL _v3InitialOpenSent;
+    CGSize _lastDrawableBoundsSize;
     __weak IBOutlet UIButton *saveBtn;
     __weak IBOutlet UIButton *state_btn;
     UIView *segmentContainer;
@@ -65,13 +82,175 @@ Implementation of the cross-platform view controller and cross-platform view tha
     BOOL _gestureNameTextFieldLayoutConfigured;
 }
 
++ (Class)rendererClassForV3Mode:(BOOL)useV3Mode {
+    return useV3Mode ? AAPLOpenGLRendererV3.class : AAPLOpenGLRenderer.class;
+}
+
 
 static NSString *const GestureSettingsViewModelDidUpdateNotification = @"GestureSettingsViewModelDidUpdate";
 static NSString *const GestureSettingsViewModelDidUpdateV3Notification = @"GestureSettingsV3ViewModelDidUpdate";
 static NSString *const GestureSettingsScreenAccessibilityIdentifier = @"AccessibilityIdentifierGestureSettingsScreen";
+static NSString *const V3FirstFrameReadyAccessibilityIdentifier = @"AccessibilityIdentifierV3FirstFrameReady";
 static NSString *const GestureSettingsUITestExposeStateFlag = @"-ui-test-expose-gesture-settings-state";
 static NSString *const GestureSettingsUITestInjectGesture70Flag = @"-ui-test-inject-v3-gesture-70";
-static NSString *const GestureSettingsUITestGesture70Payload = @"46006164000000646464646400000000000000000000000000";
+static NSString *const GestureSettingsUITestGesture70Payload =
+    @"{\"gestureId\":70,"
+     "\"openPosition1\":0,\"openPosition2\":97,\"openPosition3\":100,\"openPosition4\":0,\"openPosition5\":0,\"openPosition6\":0,"
+     "\"closePosition1\":100,\"closePosition2\":100,\"closePosition3\":100,\"closePosition4\":100,\"closePosition5\":100,\"closePosition6\":0,"
+     "\"openToCloseTimeShift1\":0,\"openToCloseTimeShift2\":0,\"openToCloseTimeShift3\":0,\"openToCloseTimeShift4\":0,\"openToCloseTimeShift5\":0,\"openToCloseTimeShift6\":0,"
+     "\"closeToOpenTimeShift1\":0,\"closeToOpenTimeShift2\":0,\"closeToOpenTimeShift3\":0,\"closeToOpenTimeShift4\":0,\"closeToOpenTimeShift5\":0,\"closeToOpenTimeShift6\":0}";
+static const void *V3RenderQueueSpecificKey = &V3RenderQueueSpecificKey;
+
+static os_log_t V3FrameLog(void) {
+    static os_log_t log;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        log = os_log_create("com.bailout.stickk", "V3Frame");
+    });
+    return log;
+}
+
+- (void)performV3RenderSync:(dispatch_block_t)block {
+    CFTimeInterval startedAt = CACurrentMediaTime();
+    if (_v3RenderQueue == nil || dispatch_get_specific(V3RenderQueueSpecificKey) != NULL) {
+        block();
+        double durationMs = (CACurrentMediaTime() - startedAt) * 1000.0;
+        if (durationMs > 8.0) {
+            NSLog(@"[V3OpenTrace] event=performV3RenderSyncSlow thread=%@ mode=direct durationMs=%.3f useV3Mode=%d gestureId=%ld",
+                  NSThread.isMainThread ? @"main" : @"render",
+                  durationMs,
+                  self.useV3Mode,
+                  (long)_gestureNumber);
+        }
+        return;
+    }
+    dispatch_sync(_v3RenderQueue, block);
+    double durationMs = (CACurrentMediaTime() - startedAt) * 1000.0;
+    if (durationMs > 8.0) {
+        NSLog(@"[V3OpenTrace] event=performV3RenderSyncSlow thread=main mode=dispatch durationMs=%.3f useV3Mode=%d gestureId=%ld",
+              durationMs,
+              self.useV3Mode,
+              (long)_gestureNumber);
+    }
+}
+
+- (void)performV3RenderAsync:(dispatch_block_t)block {
+    if (_v3RenderQueue == nil || dispatch_get_specific(V3RenderQueueSpecificKey) != NULL) {
+        block();
+        return;
+    }
+    dispatch_async(_v3RenderQueue, block);
+}
+
+- (void)requestV3Frame {
+    if (!self.useV3Mode || _stop || _displayLink == nil) {
+        NSLog(@"[V3OpenTrace] event=requestV3FrameSkipped thread=%@ useV3Mode=%d stop=%d hasDisplayLink=%d gestureId=%ld",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              _stop,
+              _displayLink != nil,
+              (long)_gestureNumber);
+        return;
+    }
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self requestV3Frame]; });
+        return;
+    }
+    BOOL wasPaused = _displayLink.paused;
+    _displayLink.paused = NO;
+    NSLog(@"[V3OpenTrace] event=requestV3Frame thread=main wasPaused=%d nowPaused=%d gestureId=%ld",
+          wasPaused,
+          _displayLink.paused,
+          (long)_gestureNumber);
+}
+
+- (void)setRendererClosedState:(BOOL)closed {
+    if (!self.useV3Mode) {
+        [_openGLRenderer changeState:closed];
+        return;
+    }
+    [self performV3RenderAsync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer changeState:closed];
+    }];
+    [self requestV3Frame];
+}
+
+- (void)stopRendererSavingData:(BOOL)saveData {
+    _stop = true;
+    _displayLink.paused = YES;
+    if (!self.useV3Mode) {
+        saveData ? [_openGLRenderer stopVCWithSaveData] : [_openGLRenderer stopVC];
+        return;
+    }
+    if (saveData) {
+        [self performV3RenderSync:^{
+            [EAGLContext setCurrentContext:self->_context];
+            [(AAPLOpenGLRendererV3 *)self->_openGLRenderer stopVCWithSaveData];
+        }];
+    }
+    [self destroyV3Resources];
+}
+
+- (void)destroyV3Resources {
+    if (!self.useV3Mode || _v3RenderQueue == nil) return;
+    [_displayLink invalidate];
+    _displayLink = nil;
+    [self performV3RenderSync:^{
+        [EAGLContext setCurrentContext:self->_context];
+        if (self->_openGLRenderer != nil) {
+            [(AAPLOpenGLRendererV3 *)self->_openGLRenderer releaseGLResources];
+            self->_openGLRenderer = nil;
+        }
+        if (self->_multisampleColorRenderbuffer) glDeleteRenderbuffers(1, &self->_multisampleColorRenderbuffer);
+        if (self->_multisampleDepthRenderbuffer) glDeleteRenderbuffers(1, &self->_multisampleDepthRenderbuffer);
+        if (self->_multisampleFBOName) glDeleteFramebuffers(1, &self->_multisampleFBOName);
+        if (self->_depthRenderbuffer) glDeleteRenderbuffers(1, &self->_depthRenderbuffer);
+        if (self->_colorRenderbuffer) glDeleteRenderbuffers(1, &self->_colorRenderbuffer);
+        if (self->_presentationFBOName) glDeleteFramebuffers(1, &self->_presentationFBOName);
+        self->_multisampleColorRenderbuffer = 0;
+        self->_multisampleDepthRenderbuffer = 0;
+        self->_multisampleFBOName = 0;
+        self->_depthRenderbuffer = 0;
+        self->_colorRenderbuffer = 0;
+        self->_presentationFBOName = 0;
+        self->_defaultFBOName = 0;
+        self->_lastDrawableBoundsSize = CGSizeZero;
+        [EAGLContext setCurrentContext:nil];
+    }];
+    _context = nil;
+    _v3RenderQueue = nil;
+}
+
+- (void)attemptInitialV3Open {
+    NSLog(@"[V3OpenTrace] event=attemptInitialOpen thread=main modelTestMode=%d useV3Mode=%d initialOpenSent=%d gestureReady=%d firstFrameReady=%d gestureId=%ld",
+          self.modelTestMode,
+          self.useV3Mode,
+          _v3InitialOpenSent,
+          _v3GestureSettingsReady,
+          _v3FirstFrameReady,
+          (long)_gestureNumber);
+    if (self.modelTestMode || !self.useV3Mode || _v3InitialOpenSent || !_v3GestureSettingsReady || !_v3FirstFrameReady) {
+        return;
+    }
+    _v3InitialOpenSent = YES;
+    selectedStateSegmentIndex = 0;
+    state = NO;
+    [self selectStateSegmentIndex:0 animated:NO notifyRenderer:NO];
+    NSLog(@"[V3OpenTrace] event=sendInitialOpen thread=main gestureId=%ld state=128", (long)_gestureNumber);
+    NSLog(@"[V3BLE] first ready frame and gesture settings received; sending OPEN state=128");
+    [self setRendererClosedState:NO];
+}
+
+- (void)handleV3HandSideChange:(NSNotification *)notification {
+    if (!self.useV3Mode) return;
+    NSNumber *side = notification.userInfo[@"side"];
+    if (side == nil) return;
+    [self performV3RenderAsync:^{
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer setHandSide:side.integerValue];
+    }];
+    [self requestV3Frame];
+}
 
 - (void)registerGestureSettingsObserverIfNeeded {
     if (_gestureSettingsObserverRegistered) {
@@ -333,16 +512,26 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     [super viewWillDisappear:animated];
     NSLog(@"viewWillDisappear");
     [self unregisterGestureSettingsObserver];
+    BOOL leavesScreen = self.isMovingFromParentViewController ||
+        self.isBeingDismissed ||
+        self.navigationController.isBeingDismissed;
+    if (self.useV3Mode && leavesScreen && !_stop) {
+        [self stopRendererSavingData:NO];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self injectGestureSettingsV3ForUITestIfNeeded];
+    if (!self.modelTestMode) {
+        [self injectGestureSettingsV3ForUITestIfNeeded];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self registerGestureSettingsObserverIfNeeded];
+    if (!self.modelTestMode) {
+        [self registerGestureSettingsObserverIfNeeded];
+    }
 //    SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
 //    if (latestParameterRef != nil) {
 //        [self applyGestureSettingsUpdate:latestParameterRef];1
@@ -358,15 +547,47 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 //    }
 }
 - (void)viewDidLoad {
+    CFTimeInterval viewDidLoadStartedAt = CACurrentMediaTime();
     [super viewDidLoad];
+    NSLog(@"[V3OpenTrace] event=viewDidLoadBegin thread=main useV3Mode=%d modelTestMode=%d gestureId=%ld",
+          self.useV3Mode,
+          self.modelTestMode,
+          (long)self.gestureNumber);
     NSLog(@"Отсюда мы начинаем исполнение программы");
-    gestureService = [[GestureService alloc] init];
-    [self registerGestureSettingsObserverIfNeeded];
-    connectStatus = [UIImage imageNamed: @"connect_status.png"];
-    disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
-    [gestureService getDeviceName];
+    if (self.modelTestMode) {
+        NSLog(@"[V3TestMetrics] controllerViewDidLoad");
+    }
+    if (self.useV3Mode) {
+        _v3RenderQueue = dispatch_queue_create("com.bailout.stickk.v3-render", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(_v3RenderQueue,
+                                    V3RenderQueueSpecificKey,
+                                    (void *)V3RenderQueueSpecificKey,
+                                    NULL);
+        _v3FramePending = NO;
+        _v3TouchActive = NO;
+        _v3GestureSettingsReady = NO;
+        _v3FirstFrameReady = NO;
+        _v3InitialOpenSent = NO;
+        if (!self.modelTestMode) {
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(handleV3HandSideChange:)
+                                                         name:@"V3HandSideDidChange"
+                                                       object:nil];
+        }
+    }
+    if (!self.modelTestMode) {
+        gestureService = [[GestureService alloc] init];
+        [self registerGestureSettingsObserverIfNeeded];
+        connectStatus = [UIImage imageNamed: @"connect_status.png"];
+        disconnectStatus = [UIImage imageNamed: @"disconnect_status.png"];
+        [gestureService getDeviceName];
+    }
     state = 0;
-    if ([self isLegacyOpenGLStoryboard]) {
+    if (self.modelTestMode) {
+        for (UIView *subview in self.view.subviews) {
+            subview.hidden = YES;
+        }
+    } else if ([self isLegacyOpenGLStoryboard]) {
         [self stylizeLegacyStateButton];
         statusConnection.image = ([self legacyIntegerValueFromSelector:@selector(getStatusConnection) fallback:0] == 1)
             ? connectStatus
@@ -379,15 +600,17 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 
     
     
-    NSInteger selectedGestureNumber = self.gestureNumber;
-    if ([self isLegacyOpenGLStoryboard]) {
+    NSInteger selectedGestureNumber = self.modelTestMode ? 0 : self.gestureNumber;
+    if (!self.modelTestMode && [self isLegacyOpenGLStoryboard]) {
         selectedGestureNumber = [self legacyIntegerValueFromSelector:@selector(getGestureNum) fallback:0];
         if (selectedGestureNumber == 0) { selectedGestureNumber = 1; }
-    } else if (selectedGestureNumber == 0) {
+    } else if (!self.modelTestMode && selectedGestureNumber == 0) {
         selectedGestureNumber = 64;
     }
     _gestureNumber = selectedGestureNumber;
-    if ([self isLegacyOpenGLStoryboard]) {
+    if (self.modelTestMode) {
+        deviceName.text = @"";
+    } else if ([self isLegacyOpenGLStoryboard]) {
         NSString *legacyName = [self legacyGestureNameForNumber:_gestureNumber];
         if (_gestureNumber != 0 && legacyName.length > 4) {
             legacyName = [legacyName substringFromIndex:4];
@@ -403,33 +626,72 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     _previousX = 0.0f;
     _previousY = 0.0f;
     _didInjectGestureSettingsV3ForUITest = NO;
-    deviceName.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
+    if (!self.modelTestMode) {
+        deviceName.accessibilityIdentifier = GestureSettingsScreenAccessibilityIdentifier;
+    }
     
     _view = (AAPLOpenGLViewV3 *)self.view;
     
+    CFTimeInterval prepareStartedAt = CACurrentMediaTime();
     [self prepareView];
+    NSLog(@"[V3OpenTrace] event=prepareViewReturned thread=main useV3Mode=%d durationMs=%.3f gestureId=%ld",
+          self.useV3Mode,
+          (CACurrentMediaTime() - prepareStartedAt) * 1000.0,
+          (long)_gestureNumber);
 
-    [self makeCurrentContext];
+    CFTimeInterval rendererStartedAt = CACurrentMediaTime();
+    void (^createRenderer)(void) = ^{
+        CFTimeInterval blockStartedAt = CACurrentMediaTime();
+        NSLog(@"[V3OpenTrace] event=rendererInitBegin thread=%@ useV3Mode=%d gestureId=%ld defaultFBO=%u",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              (long)self->_gestureNumber,
+              self->_defaultFBOName);
+        [self makeCurrentContext];
+        Class rendererClass = [AAPLOpenGLViewControllerV3 rendererClassForV3Mode:self.useV3Mode];
+        self->_openGLRenderer = [[rendererClass alloc] initWithDefaultFBOName:self->_defaultFBOName
+                                                                gestureNumber:self->_gestureNumber];
+        if (!self->_openGLRenderer) return;
+        [self->_openGLRenderer resize:self.drawableSize];
+        CGRect screenRect = UIScreen.mainScreen.bounds;
+        [self->_openGLRenderer calculationOfCoefficients:screenRect.size.width :screenRect.size.height];
+        NSLog(@"[V3OpenTrace] event=rendererInitEnd thread=%@ useV3Mode=%d durationMs=%.3f gestureId=%ld",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              (CACurrentMediaTime() - blockStartedAt) * 1000.0,
+              (long)self->_gestureNumber);
+    };
+    if (self.useV3Mode) {
+        [self performV3RenderSync:createRenderer];
+    } else {
+        createRenderer();
+    }
 
-    _openGLRenderer = [[AAPLOpenGLRendererV3 alloc] initWithDefaultFBOName:_defaultFBOName
-                                                              gestureNumber:_gestureNumber];
-
-    if(!_openGLRenderer) {
+    if (!_openGLRenderer) {
         NSLog(@"OpenGL renderer failed initialization.");
         return;
     }
-
-    [_openGLRenderer resize:self.drawableSize];
-    
-    // Расчёт коэффициентов для верного пересчёта координат пальца на экране в координаты эекрана OpenGL
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    CGFloat screenWidth = screenRect.size.width;
-    CGFloat screenHeight = screenRect.size.height;
-    NSLog(@"Размер экрана   screenWidth: %f   screenHeight: %f", screenWidth, screenHeight);
-    [_openGLRenderer calculationOfCoefficients:screenWidth :screenHeight];
-    if (self.useV3Mode && _gestureNumber > 0) {
-        [gestureService requestGestureSettingsV3WithGestureId:(int)_gestureNumber];
+    if (self.modelTestMode) {
+        NSLog(@"[V3TestMetrics] rendererReady controllerToRendererMs=%.3f",
+              (CACurrentMediaTime() - rendererStartedAt) * 1000.0);
     }
+
+    NSLog(@"Размер экрана screenWidth: %f screenHeight: %f",
+          UIScreen.mainScreen.bounds.size.width,
+          UIScreen.mainScreen.bounds.size.height);
+    if (self.useV3Mode) {
+        if (!self.modelTestMode && _gestureNumber > 0) {
+            NSLog(@"[V3OpenTrace] event=requestGestureSettings thread=main gestureId=%ld useV3Mode=%d",
+                  (long)_gestureNumber,
+                  self.useV3Mode);
+            [gestureService requestGestureSettingsV3WithGestureId:(int)_gestureNumber];
+        }
+        [self requestV3Frame];
+    }
+    NSLog(@"[V3OpenTrace] event=viewDidLoadEnd thread=main useV3Mode=%d durationMs=%.3f gestureId=%ld",
+          self.useV3Mode,
+          (CACurrentMediaTime() - viewDidLoadStartedAt) * 1000.0,
+          (long)_gestureNumber);
 }
 
 - (void)viewDidLayoutSubviews {
@@ -437,13 +699,25 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     if (segmentContainer != nil) {
         [self selectStateSegmentIndex:selectedStateSegmentIndex animated:NO notifyRenderer:NO];
     }
+    CGSize boundsSize = self.view.bounds.size;
+    if (!self.useV3Mode || _openGLRenderer == nil || boundsSize.width <= 0.0 || boundsSize.height <= 0.0 ||
+        CGSizeEqualToSize(boundsSize, _lastDrawableBoundsSize)) {
+        return;
+    }
+    _lastDrawableBoundsSize = boundsSize;
+    [self performV3RenderSync:^{
+        [self resizeDrawable];
+        CGRect screenRect = UIScreen.mainScreen.bounds;
+        [(AAPLOpenGLRendererV3 *)self->_openGLRenderer calculationOfCoefficients:screenRect.size.width
+                                                                                   :screenRect.size.height];
+    }];
+    [self requestV3Frame];
 }
 
 - (IBAction)unwindToOpenGLVC:(UIStoryboardSegue *)segue {}
 
 - (IBAction)perehod:(UIButton *)sender {
-    _stop = true;
-    [_openGLRenderer stopVC];
+    [self stopRendererSavingData:NO];
     
     if (showRenameTextField) {
         NSString *result = @"";
@@ -457,8 +731,7 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     }
 }
 - (IBAction)perehodWithSaveData:(UIButton *)sender {
-    _stop = true;
-    [_openGLRenderer stopVCWithSaveData];
+    [self stopRendererSavingData:YES];
 }
 
 - (void)stateSegmentChanged:(UISegmentedControl *)sender {
@@ -474,7 +747,7 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     [state_btn setTitle:(state ? [gestureService gestureStateClose] : [gestureService gestureStateOpen])
                forState:UIControlStateNormal];
     if (_openGLRenderer != nil) {
-        [_openGLRenderer changeState:state];
+        [self setRendererClosedState:state];
     }
 }
 
@@ -529,17 +802,25 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     }
 
     if (notifyRenderer && _openGLRenderer != nil) {
-        [_openGLRenderer changeState:state];
+        [self setRendererClosedState:state];
     }
 }
 
 - (IBAction)openFingersDelayDialog:(UIButton *)sender {
-    [_openGLRenderer openFingersDelayDialog];
-    
-    
-    if ([_openGLRenderer currentGestureState]) {
+    __block BOOL currentState = NO;
+    __block NSArray<NSNumber *> *openToClose = nil;
+    __block NSArray<NSNumber *> *closeToOpen = nil;
+    void (^readRendererState)(void) = ^{
+        [self->_openGLRenderer openFingersDelayDialog];
+        currentState = [self->_openGLRenderer currentGestureState];
+        openToClose = [self->_openGLRenderer currentOpenToCloseShifts];
+        closeToOpen = [self->_openGLRenderer currentCloseToOpenShifts];
+    };
+    self.useV3Mode ? [self performV3RenderSync:readRendererState] : readRendererState();
+
+    if (currentState) {
         // закрытое состояние
-        NSArray<NSNumber *> *delayValues = [_openGLRenderer currentOpenToCloseShifts];
+        NSArray<NSNumber *> *delayValues = openToClose;
         __weak typeof(self) weakSelf = self;
         [FingersDelayDialogPresenter presentFrom:self
                                            title:[KmmLocalizedStrings delayStateTitle]
@@ -550,11 +831,14 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
                                            onSave:^(NSArray<NSNumber *> *updatedValues) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf || updatedValues.count < 6) { return; }
-            [strongSelf->_openGLRenderer applyOpenToCloseShifts:updatedValues];
+            void (^applyValues)(void) = ^{
+                [strongSelf->_openGLRenderer applyOpenToCloseShifts:updatedValues];
+            };
+            strongSelf.useV3Mode ? [strongSelf performV3RenderAsync:applyValues] : applyValues();
         }];
     } else {
         // открытое состояние
-        NSArray<NSNumber *> *delayValues = [_openGLRenderer currentCloseToOpenShifts];
+        NSArray<NSNumber *> *delayValues = closeToOpen;
         __weak typeof(self) weakSelf = self;
         [FingersDelayDialogPresenter presentFrom:self
                                            title:[KmmLocalizedStrings delayStateTitle]
@@ -565,7 +849,10 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
                                            onSave:^(NSArray<NSNumber *> *updatedValues) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf || updatedValues.count < 6) { return; }
-            [strongSelf->_openGLRenderer applyCloseToOpenShifts:updatedValues];
+            void (^applyValues)(void) = ^{
+                [strongSelf->_openGLRenderer applyCloseToOpenShifts:updatedValues];
+            };
+            strongSelf.useV3Mode ? [strongSelf performV3RenderAsync:applyValues] : applyValues();
         }];
     }
 }
@@ -682,39 +969,66 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 }
 
 - (void)prepareView {
+    CFTimeInterval prepareStartedAt = CACurrentMediaTime();
+    NSLog(@"[V3OpenTrace] event=prepareViewBegin thread=main useV3Mode=%d gestureId=%ld",
+          self.useV3Mode,
+          (long)_gestureNumber);
     NSLog(@"1 - Подготавливаем вью");
     CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.view.layer;
+    NSString *colorFormat = self.useV3Mode ? kEAGLColorFormatRGBA8 : kEAGLColorFormatSRGBA8;
 
     eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking : @NO,
-                                     kEAGLDrawablePropertyColorFormat     : kEAGLColorFormatSRGBA8 };
+                                     kEAGLDrawablePropertyColorFormat     : colorFormat };
     eaglLayer.opaque = YES;
     
 
-    _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    CFTimeInterval contextStartedAt = CACurrentMediaTime();
+    NSLog(@"[V3OpenTrace] event=newSharedContextBegin thread=main useV3Mode=%d cacheState=%ld gestureId=%ld",
+          self.useV3Mode,
+          (long)[V3ModelResourceCache sharedCache].state,
+          (long)_gestureNumber);
+    _context = self.useV3Mode
+        ? [[V3ModelResourceCache sharedCache] newSharedContext]
+        : [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    NSLog(@"[V3OpenTrace] event=newSharedContextEnd thread=main useV3Mode=%d durationMs=%.3f success=%d cacheState=%ld gestureId=%ld",
+          self.useV3Mode,
+          (CACurrentMediaTime() - contextStartedAt) * 1000.0,
+          _context != nil,
+          (long)[V3ModelResourceCache sharedCache].state,
+          (long)_gestureNumber);
 
-    if (!_context || ![EAGLContext setCurrentContext:_context])
-    {
+    if (!_context) {
         NSLog(@"Could not create an OpenGL ES context.");
         return;
     }
 
-    [self makeCurrentContext];
-
     self.view.contentScaleFactor = [UIScreen mainScreen].nativeScale;
 
-    // In iOS & tvOS, you must create an FBO and attach a drawable texture allocated by
-    // Core Animation to use as the default FBO for a view.
-    glGenFramebuffers(1, &_defaultFBOName);
-    glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBOName);
-
-    glGenRenderbuffers(1, &_colorRenderbuffer);
-
-    glGenRenderbuffers(1, &_depthRenderbuffer);
-
-    [self resizeDrawable];
-
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderbuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
+    void (^createDrawableResources)(void) = ^{
+        CFTimeInterval drawableStartedAt = CACurrentMediaTime();
+        NSLog(@"[V3OpenTrace] event=createDrawableResourcesBegin thread=%@ useV3Mode=%d gestureId=%ld",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              (long)self->_gestureNumber);
+        [self makeCurrentContext];
+        glGenFramebuffers(1, &self->_presentationFBOName);
+        glGenRenderbuffers(1, &self->_colorRenderbuffer);
+        glGenRenderbuffers(1, &self->_depthRenderbuffer);
+        [self resizeDrawable];
+        NSLog(@"[V3OpenTrace] event=createDrawableResourcesEnd thread=%@ useV3Mode=%d durationMs=%.3f defaultFBO=%u msaa=%d gestureId=%ld",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              (CACurrentMediaTime() - drawableStartedAt) * 1000.0,
+              self->_defaultFBOName,
+              self->_multisampleSamples,
+              (long)self->_gestureNumber);
+    };
+    if (self.useV3Mode) {
+        [self performV3RenderSync:createDrawableResources];
+    } else {
+        createDrawableResources();
+    }
+    _lastDrawableBoundsSize = self.view.bounds.size;
 
     // Create the display link so you render at 60 frames per second (FPS).
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(draw:)];
@@ -723,16 +1037,26 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 
     // Set the display link to run on the default run loop (and the main thread).
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    _displayLink.paused = self.useV3Mode;
+    NSLog(@"[V3OpenTrace] event=displayLinkCreated thread=main paused=%d useV3Mode=%d gestureId=%ld",
+          _displayLink.paused,
+          self.useV3Mode,
+          (long)_gestureNumber);
     
-    UIButton *delayButton = [self resolvedFingersDelayButton];
-    BOOL shouldShowDelayButton = [self isLegacyOpenGLStoryboard]
-        ? ([self legacyIntegerValueFromSelector:@selector(getFingersDelaySwitch) fallback:0] &&
-           [self legacyIntegerValueFromSelector:@selector(getUseFestX) fallback:0])
-        : [gestureService getFingersDelaySwitch];
-    if (shouldShowDelayButton) {
-        [delayButton setAlpha:1];
-    } else { [delayButton setAlpha:0]; }
-    
+    if (!self.modelTestMode) {
+        UIButton *delayButton = [self resolvedFingersDelayButton];
+        BOOL shouldShowDelayButton = [self isLegacyOpenGLStoryboard]
+            ? ([self legacyIntegerValueFromSelector:@selector(getFingersDelaySwitch) fallback:0] &&
+               [self legacyIntegerValueFromSelector:@selector(getUseFestX) fallback:0])
+            : [gestureService getFingersDelaySwitch];
+        if (shouldShowDelayButton) {
+            [delayButton setAlpha:1];
+        } else { [delayButton setAlpha:0]; }
+    }
+    NSLog(@"[V3OpenTrace] event=prepareViewEnd thread=main useV3Mode=%d durationMs=%.3f gestureId=%ld",
+          self.useV3Mode,
+          (CACurrentMediaTime() - prepareStartedAt) * 1000.0,
+          (long)_gestureNumber);
 }
 
 - (void)makeCurrentContext {
@@ -751,41 +1075,174 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 }
 
 - (void)resizeDrawable {
+    CFTimeInterval resizeStartedAt = CACurrentMediaTime();
+    NSLog(@"[V3OpenTrace] event=resizeDrawableBegin thread=%@ useV3Mode=%d gestureId=%ld",
+          NSThread.isMainThread ? @"main" : @"render",
+          self.useV3Mode,
+          (long)_gestureNumber);
     [self makeCurrentContext];
-
-    // First, ensure that you have a render buffer.
-    assert(_colorRenderbuffer != 0);
-
+    if (_colorRenderbuffer == 0 || _presentationFBOName == 0) {
+        NSLog(@"[V3OpenTrace] event=resizeDrawableSkipped thread=%@ useV3Mode=%d colorRB=%u presentationFBO=%u gestureId=%ld",
+              NSThread.isMainThread ? @"main" : @"render",
+              self.useV3Mode,
+              _colorRenderbuffer,
+              _presentationFBOName,
+              (long)_gestureNumber);
+        return;
+    }
     glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
     [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(id<EAGLDrawable>)_view.layer];
-
     CGSize drawableSize = self.drawableSize;
+    GLsizei width = (GLsizei)drawableSize.width;
+    GLsizei height = (GLsizei)drawableSize.height;
 
-    glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _presentationFBOName);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _colorRenderbuffer);
 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, drawableSize.width, drawableSize.height);
+    _multisampleSamples = 0;
+    if (self.useV3Mode) {
+        if (_multisampleColorRenderbuffer) glDeleteRenderbuffers(1, &_multisampleColorRenderbuffer);
+        if (_multisampleDepthRenderbuffer) glDeleteRenderbuffers(1, &_multisampleDepthRenderbuffer);
+        if (_multisampleFBOName) glDeleteFramebuffers(1, &_multisampleFBOName);
+        _multisampleColorRenderbuffer = 0;
+        _multisampleDepthRenderbuffer = 0;
+        _multisampleFBOName = 0;
 
-    GetGLError();
+        GLint maximumSamples = 0;
+        glGetIntegerv(GL_MAX_SAMPLES_APPLE, &maximumSamples);
+        const GLint candidates[] = {4, 2};
+        for (NSUInteger candidateIndex = 0; candidateIndex < 2; candidateIndex++) {
+            GLint samples = candidates[candidateIndex];
+            if (samples > maximumSamples) continue;
+            glGenFramebuffers(1, &_multisampleFBOName);
+            glBindFramebuffer(GL_FRAMEBUFFER, _multisampleFBOName);
+            glGenRenderbuffers(1, &_multisampleColorRenderbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, _multisampleColorRenderbuffer);
+            glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, samples, GL_RGBA8_OES, width, height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _multisampleColorRenderbuffer);
+            glGenRenderbuffers(1, &_multisampleDepthRenderbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, _multisampleDepthRenderbuffer);
+            glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT24_OES, width, height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _multisampleDepthRenderbuffer);
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+                _multisampleSamples = samples;
+                break;
+            }
+            glDeleteRenderbuffers(1, &_multisampleColorRenderbuffer);
+            glDeleteRenderbuffers(1, &_multisampleDepthRenderbuffer);
+            glDeleteFramebuffers(1, &_multisampleFBOName);
+            _multisampleColorRenderbuffer = 0;
+            _multisampleDepthRenderbuffer = 0;
+            _multisampleFBOName = 0;
+        }
+    }
 
+    if (_multisampleSamples > 0) {
+        _defaultFBOName = _multisampleFBOName;
+    } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, _presentationFBOName);
+        glBindRenderbuffer(GL_RENDERBUFFER, _depthRenderbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
+        _defaultFBOName = _presentationFBOName;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBOName);
+    NSLog(@"[V3Renderer] drawable=%dx%d msaa=%dx", width, height, _multisampleSamples);
+    if (self.useV3Mode && [_openGLRenderer respondsToSelector:@selector(setDefaultFBOName:)]) {
+        [(AAPLOpenGLRendererV3 *)_openGLRenderer setDefaultFBOName:_defaultFBOName];
+    }
     [_openGLRenderer resize:self.drawableSize];
+    NSLog(@"[V3OpenTrace] event=resizeDrawableEnd thread=%@ useV3Mode=%d durationMs=%.3f drawable=%dx%d msaa=%d defaultFBO=%u gestureId=%ld",
+          NSThread.isMainThread ? @"main" : @"render",
+          self.useV3Mode,
+          (CACurrentMediaTime() - resizeStartedAt) * 1000.0,
+          width,
+          height,
+          _multisampleSamples,
+          _defaultFBOName,
+          (long)_gestureNumber);
 }
 
 - (void)draw:(id)sender {
-    if (!_stop) {
+    if (_stop || _openGLRenderer == nil) return;
+    if (!self.useV3Mode) {
         [EAGLContext setCurrentContext:_context];
-            [_openGLRenderer draw];
-
-            glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
-            [_context presentRenderbuffer:GL_RENDERBUFFER];
+        [_openGLRenderer draw];
+        glBindRenderbuffer(GL_RENDERBUFFER, _colorRenderbuffer);
+        [_context presentRenderbuffer:GL_RENDERBUFFER];
+        return;
     }
+    if (_v3FramePending) return;
+    _v3FramePending = YES;
+    [self performV3RenderAsync:^{
+        @autoreleasepool {
+            [EAGLContext setCurrentContext:self->_context];
+            CFTimeInterval frameStart = CACurrentMediaTime();
+            os_signpost_id_t frameSignpost = os_signpost_id_generate(V3FrameLog());
+            os_signpost_interval_begin(V3FrameLog(), frameSignpost, "V3Frame");
+            [(AAPLOpenGLRendererV3 *)self->_openGLRenderer draw];
+            if (self->_multisampleSamples > 0) {
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, self->_presentationFBOName);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER_APPLE, self->_multisampleFBOName);
+                glResolveMultisampleFramebufferAPPLE();
+                const GLenum attachments[] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT};
+                glDiscardFramebufferEXT(GL_READ_FRAMEBUFFER_APPLE, 2, attachments);
+            }
+            glBindRenderbuffer(GL_RENDERBUFFER, self->_colorRenderbuffer);
+            [self->_context presentRenderbuffer:GL_RENDERBUFFER];
+            BOOL animating = [(AAPLOpenGLRendererV3 *)self->_openGLRenderer isAnimating];
+            double frameMs = (CACurrentMediaTime() - frameStart) * 1000.0;
+            os_signpost_interval_end(V3FrameLog(), frameSignpost, "V3Frame", "milliseconds=%{public}.3f", frameMs);
+            [[V3ModelResourceCache sharedCache] recordFrameDurationMilliseconds:frameMs];
+            if (frameMs > 16.67) {
+                NSLog(@"[V3OpenTrace] event=slowFrame thread=render frameMs=%.3f gestureId=%ld", frameMs, (long)self->_gestureNumber);
+                NSLog(@"[V3Metrics] slowFrameMs=%.3f", frameMs);
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_v3FramePending = NO;
+                if (!self->_v3FirstFrameReady) {
+                    self->_v3FirstFrameReady = YES;
+                    NSLog(@"[V3OpenTrace] event=firstFrameReady thread=main frameMs=%.3f gestureId=%ld",
+                          frameMs,
+                          (long)self->_gestureNumber);
+#if DEBUG
+                    self.view.accessibilityIdentifier = V3FirstFrameReadyAccessibilityIdentifier;
+#endif
+                    [[V3ModelResourceCache sharedCache] recordFirstPresentedFrame];
+                    [self attemptInitialV3Open];
+                }
+                BOOL shouldPause = !(animating || self->_v3TouchActive);
+                BOOL wasPaused = self->_displayLink.paused;
+                self->_displayLink.paused = shouldPause;
+                if (wasPaused != shouldPause) {
+                    NSLog(@"[V3OpenTrace] event=displayLinkPausedChanged thread=main wasPaused=%d nowPaused=%d animating=%d touchActive=%d gestureId=%ld",
+                          wasPaused,
+                          shouldPause,
+                          animating,
+                          self->_v3TouchActive,
+                          (long)self->_gestureNumber);
+                }
+            });
+        }
+    }];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     NSLog(@"Дебаг касания touchesBegan");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];
-    [_openGLRenderer touchIvent:newCoords.x :newCoords.y :0 :0];
-    [_openGLRenderer beginTouchIvent];
+    if (self.useV3Mode) {
+        _v3TouchActive = YES;
+        [self performV3RenderSync:^{
+            [EAGLContext setCurrentContext:self->_context];
+            [self->_openGLRenderer touchIvent:newCoords.x :newCoords.y :0 :0];
+            [self->_openGLRenderer beginTouchIvent];
+        }];
+        [self requestV3Frame];
+    } else {
+        [_openGLRenderer touchIvent:newCoords.x :newCoords.y :0 :0];
+        [_openGLRenderer beginTouchIvent];
+    }
     _previousX = newCoords.x;
     _previousY = newCoords.y;
 }
@@ -794,10 +1251,18 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
     NSLog(@"Дебаг касания touchesMoved");
     UITouch *touch = [touches anyObject];
     CGPoint newCoords = [touch locationInView:self.view];
-    float deltaX = (newCoords.x - _previousX) / 7.0f;
-    float deltaY = (newCoords.y - _previousY) / 7.0f;
+    float deltaX = (newCoords.x - _previousX) / 3.0f;
+    float deltaY = (newCoords.y - _previousY) / 3.0f;
     
-    [_openGLRenderer touchIvent:newCoords.x :newCoords.y :deltaX :deltaY];
+    if (self.useV3Mode) {
+        [self performV3RenderAsync:^{
+            [EAGLContext setCurrentContext:self->_context];
+            [self->_openGLRenderer touchIvent:newCoords.x :newCoords.y :deltaX :deltaY];
+        }];
+        [self requestV3Frame];
+    } else {
+        [_openGLRenderer touchIvent:newCoords.x :newCoords.y :deltaX :deltaY];
+    }
     
     _previousX = newCoords.x;
     _previousY = newCoords.y;
@@ -805,7 +1270,20 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     NSLog(@"Дебаг касания touchesEnded");
-    [_openGLRenderer endTouchIvent];
+    if (self.useV3Mode) {
+        _v3TouchActive = NO;
+        [self performV3RenderAsync:^{
+            [EAGLContext setCurrentContext:self->_context];
+            [self->_openGLRenderer endTouchIvent];
+        }];
+        [self requestV3Frame];
+    } else {
+        [_openGLRenderer endTouchIvent];
+    }
+}
+
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self touchesEnded:touches withEvent:event];
 }
 
 - (void)sendDataToFest :(uint8_t*) dataForWrite :(NSString*) characteristic  :(NSInteger) lenght {
@@ -851,9 +1329,40 @@ static NSString *const GestureSettingsUITestGesture70Payload = @"460061640000006
         return;
     }
     NSLog(@"[UI-TEST][GestureSettings] decoded gestureId=%d useV3=%d", gestureSettings.gestureId, self.useV3Mode);
+    NSLog(@"[V3OpenTrace] event=gestureSettingsDecoded thread=main decodedGestureId=%d useV3Mode=%d controllerGestureId=%ld",
+          gestureSettings.gestureId,
+          self.useV3Mode,
+          (long)_gestureNumber);
     [self updateGestureSettingsAccessibilityWithGesture:gestureSettings];
     NSLog(@"GestureSettings update (VC) requestGestureSettings gestureId=%ld", (long)gestureSettings.gestureId);
-    [_openGLRenderer updateGestureSettings: parameterRef
-                             parameterData: resolvedParameterData];
+    if (self.useV3Mode) {
+        [self performV3RenderAsync:^{
+            [self->_openGLRenderer updateGestureSettings:parameterRef
+                                           parameterData:resolvedParameterData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_v3GestureSettingsReady = YES;
+                NSLog(@"[V3OpenTrace] event=gestureSettingsReady thread=main gestureId=%ld firstFrameReady=%d",
+                      (long)self->_gestureNumber,
+                      self->_v3FirstFrameReady);
+                [self attemptInitialV3Open];
+                [self requestV3Frame];
+            });
+        }];
+    } else {
+        [_openGLRenderer updateGestureSettings:parameterRef
+                                 parameterData:resolvedParameterData];
+    }
+}
+
+- (void)dealloc {
+    [self unregisterGestureSettingsObserver];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:@"V3HandSideDidChange"
+                                                  object:nil];
+    if (self.useV3Mode) {
+        [self destroyV3Resources];
+    } else {
+        [_displayLink invalidate];
+    }
 }
 @end

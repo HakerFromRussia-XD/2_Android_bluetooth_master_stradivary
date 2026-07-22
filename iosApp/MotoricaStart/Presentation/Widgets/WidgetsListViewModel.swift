@@ -29,6 +29,7 @@ protocol WidgetsListViewModelInput {
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
     func requestInicializeInformation()
+    func requestTelemetryData()
     func setCustomGestureSettingsOpener(_ handler: @escaping (Int, Bool) -> Void)
 }
 
@@ -71,10 +72,10 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
     var isEmpty: Bool { return items.value.isEmpty }
-    let screenTitle = NSLocalizedString("Sensors", comment: "")
-    let emptyDataTitle = NSLocalizedString("Search results", comment: "")
-    let errorTitle = NSLocalizedString("Error", comment: "")
-    let searchBarPlaceholder = NSLocalizedString("Search Widgets", comment: "")
+    let screenTitle = SharedLocalizedText.text(SharedRes.strings().title_dashboard)
+    let emptyDataTitle = SharedLocalizedText.text(SharedRes.strings().search_results)
+    let errorTitle = SharedLocalizedText.text(SharedRes.strings().error)
+    let searchBarPlaceholder = SharedLocalizedText.text(SharedRes.strings().search_widgets)
 
     // MARK: - Init
     init(
@@ -111,6 +112,18 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
     }
 
     private func makeListItem(for widget: Widget) -> ListItemType {
+        if widget.isBleLogButton {
+            let showBleLog = actions?.showBleLog
+            return .bleLogButton(
+                BleLogButtonListItemViewModel(
+                    title: widget.title ?? Self.bleLogTitle,
+                    onTap: {
+                        showBleLog?()
+                    }
+                )
+            )
+        }
+
         if ProcessInfo.processInfo.arguments.contains("-ui-test-force-gestures-widget"),
            widget.id == "ui-test-gestures-widget" {
             return .gestureOpticV3(
@@ -230,8 +243,8 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
 
     private func handle(error: Error) {
         self.error.value = error.isInternetConnectionError ?
-            NSLocalizedString("No internet connection", comment: "") :
-            NSLocalizedString("Failed loading widgets", comment: "")
+            SharedLocalizedText.text(SharedRes.strings().no_internet_connection) :
+            SharedLocalizedText.text(SharedRes.strings().failed_loading_widgets)
     }
 
     private func update(widgetQuery: WidgetQuery) {
@@ -253,6 +266,20 @@ final class DefaultWidgetsListViewModel: WidgetsListViewModel {
             data: command,
             command: Constants.MAIN_CHANNEL_CHARACTERISTIC,
             typeCommand: Constants.WRITE,
+            onChunkSent: {}
+        )
+    }
+
+    func requestTelemetryData() {
+        let gatt = SampleGattAttributes()
+        let command = BLECommandsV3.shared.requestTelemetryData()
+        command.debugPrint()
+        print("[BLE-COMMUNICATION] request telemetry data")
+
+        bleManager.sendBytesKmm(
+            data: command,
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
             onChunkSent: {}
         )
     }
@@ -280,6 +307,8 @@ extension KotlinByteArray {
 }
 
 enum ListItemType: Hashable { // Assistant: добавил Hashable
+    case gestureUsage(GestureUsageListItemViewModel)
+    case bleLogButton(BleLogButtonListItemViewModel)
     case command(CommandListItemViewModel)
     case commandV3(CommandListItemViewModelV3)
     case plot(PlotListItemViewModel)
@@ -293,6 +322,52 @@ enum ListItemType: Hashable { // Assistant: добавил Hashable
     case toggleSliderV3(ToggleSliderListItemViewModelV3)
     case switcherV3(SwitcherListItemViewModelV3)
     case textInputV3(TextInputListItemViewModelV3)
+}
+
+struct BleLogButtonListItemViewModel: Hashable {
+    let id = "ble-log-button"
+    let title: String
+    let onTap: () -> Void
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(title)
+    }
+
+    static func == (lhs: BleLogButtonListItemViewModel, rhs: BleLogButtonListItemViewModel) -> Bool {
+        lhs.id == rhs.id && lhs.title == rhs.title
+    }
+}
+
+struct GestureUsageChartItem: Hashable {
+    let gestureId: Int
+    let title: String
+    let count: Int64
+    let colorIndex: Int
+}
+
+struct GestureUsageListItemViewModel: Hashable {
+    let id: String
+    let title: String
+    let emptyTitle: String
+    let totalTitle: String
+    let items: [GestureUsageChartItem]
+
+    var totalCount: Int64 {
+        items.reduce(0) { $0 + $1.count }
+    }
+}
+
+private extension DefaultWidgetsListViewModel {
+    static var bleLogTitle: String {
+        Locale.preferredLanguages.first?.hasPrefix("ru") == true ? "Журнал BLE" : "BLE Log"
+    }
+}
+
+private extension Widget {
+    var isBleLogButton: Bool {
+        (widget?.value as? String) == WidgetDescriptorFactoryV3.bleLogPayload
+    }
 }
 // MARK: - INPUT. View event methods
 

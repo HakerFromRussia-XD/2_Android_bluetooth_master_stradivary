@@ -31,6 +31,7 @@ public interface ConstantManager {
     String NEW_DEVICE_TYPE_FEST_EP = "FTEP"; //FEST-EP локоть пассивный
     String NEW_DEVICE_TYPE_FEST_EB = "FTEB"; //FEST-EB локоть бионический
     String UBI4 = "UBIv4"; //UBIv4 новый бионический стек
+    String V3_DEVICE_TYPE_INDY = "INDY3";
     String V3_DEVICE_TYPE_FEST_F = "FTFS3"; //FEST-F без оптики вместо UBIv4
     String V3_DEVICE_TYPE_FEST_F_O = "FTFO3"; //FEST-F с оптикой вместо UBIv4
     String V3_DEVICE_TYPE_FEST_H = "FTHS3"; //FEST-H без оптики вместо UBIv4
@@ -39,6 +40,7 @@ public interface ConstantManager {
     String V3_DEVICE_TYPE_FEST_EB = "FTEB3"; //FEST-EB локоть бионический вместо UBIv4
 
     static final List<String> V3_TYPES = List.of(
+            V3_DEVICE_TYPE_INDY,
             V3_DEVICE_TYPE_FEST_F,
             V3_DEVICE_TYPE_FEST_F_O,
             V3_DEVICE_TYPE_FEST_H,

@@ -67,10 +67,12 @@ import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.testing.V3BleEmulatorTestHooks
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.dialog.DialogManager
 import com.bailout.stickk.ubi4.ui.dialog.SyncProgressDialog
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
+import com.bailout.stickk.ubi4.ui.fragments.BleLogFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -79,6 +81,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SpecialSettingsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprGestureFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.customerServiceFragmentUBI4.AccountFragmentCustomerServiceUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.games.AccountGamesFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
@@ -145,6 +148,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var queueWorker: Thread? = null
     private lateinit var bottomNavigationController: BottomNavigationController
     private lateinit var telemetryCoordinator: TelemetryCoordinator
+    private var isV3BleEmulatorMode = false
 
 
     @SuppressLint("CommitTransaction", "ClickableViewAccessibility")
@@ -159,11 +163,25 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         window.statusBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         window.setBackgroundDrawableResource(R.color.ubi4_back)
+        isV3BleEmulatorMode = intent.getBooleanExtra(
+            V3BleEmulatorTestHooks.EXTRA_ENABLED,
+            false
+        ) || V3BleEmulatorTestHooks.isEnabled()
+        if (isV3BleEmulatorMode) {
+            V3BleEmulatorTestHooks.enable()
+            UiState.isInterfaceV3Activated = true
+            UiState.startupInProgress.value = false
+            UiState.v3WidgetsInteractionEnabled.value = true
+        }
         //TODO проверить
 //        setContentView(view)
         initAllVariables()
-        showStartupLoaderIfNeeded()
+        if (!isV3BleEmulatorMode) {
+            showStartupLoaderIfNeeded()
+        }
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+        //TODO проверить после мерджа
+        SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -199,8 +217,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
                 telemetryCoordinator.sendTelemetry(showResultToast = false)
             }
         }
-        mBLEController.initBLEStructure()
-        mBLEController.connectToSavedDeviceNow()
+        if (!isV3BleEmulatorMode) {
+            mBLEController.initBLEStructure()
+            mBLEController.connectToSavedDeviceNow()
+        } else {
+            lifecycleScope.launch {
+                bleParserV3.generatedHardcodeWidgets()
+                UiState.v3WidgetsInteractionEnabled.value = true
+                V3BleEmulatorTestHooks.injectInitialResponses(bleParserV3)
+            }
+        }
         bluetoothLeService = BluetoothLeService()
         startQueue()
 
@@ -227,9 +253,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
         if (savedInstanceState == null) {
-            binding.bottomNavigation.selectedItemId = R.id.page_2
-            showSensorsScreen()
+            if (isV3BleEmulatorMode &&
+                intent.getBooleanExtra(V3BleEmulatorTestHooks.EXTRA_OPEN_GESTURES, false)
+            ) {
+                binding.bottomNavigation.selectedItemId = R.id.page_1
+                showOpticGesturesScreen()
+            } else {
+                binding.bottomNavigation.selectedItemId = R.id.page_2
+                showSensorsScreen()
+            }
         }
+
 
         //после того как фрагмент будет удалён из back stack, activeFragment обновится
         supportFragmentManager.addOnBackStackChangedListener {
@@ -248,16 +282,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showHelpScreen()
         }
 
+
         binding.accountBtn.setOnClickListener {
             showAccountScreen()
-        }
 
+        }
         binding.statusBackBtn.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
 //        binding.runCommandBtn.setOnClickListener {
-//
+//            telemetryCoordinator.sendTelemetry()
 //        }
 
         val accountPb = binding.accountPb.apply {
@@ -296,6 +331,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         super.onResume()
         appCloseUploadRequested = false
         SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
+        if (isV3BleEmulatorMode) {
+            UiState.v3WidgetsInteractionEnabled.value = true
+            return
+        }
         if (!mBLEController.getBluetoothAdapter()?.isEnabled!!) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
@@ -356,6 +395,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
+    override fun showBleLogScreen() { launchFragmentWithoutStack(BleLogFragment()) }
     override fun showAccountScreen() {
         if (activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3)
             return
@@ -471,6 +511,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         )
     }
 
+    override fun showGamesScreen() {
+        if (activeFragment is AccountGamesFragment) return
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        val preserveCurrentFragmentView =
+            activeFragment is AccountFragmentMainUBI4 || activeFragment is AccountFragmentMainV3
+        launchFragmentWithStack(
+            fragment = AccountGamesFragment(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
     override fun showSecretScreen() {
         launchFragmentWithStack(ServiceFragment())
     }
@@ -508,7 +563,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
-
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBackUbi4() { onBackPressed()}
     override fun goToMenu() {
@@ -681,6 +735,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun getRemainingTasksCount(): Int = remainingTasks.get()
     override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit) {
         if (byteArray != null) {
+            if (V3BleEmulatorTestHooks.tryHandleOutgoing(byteArray, bleParserV3, onChunkSent)) {
+                return
+            }
             queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onChunkSent), byteArray)
             remainingTasks.incrementAndGet()
         }
@@ -732,6 +789,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
+            //TODO проверить после мерджа
+            SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
@@ -755,6 +814,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
+        //TODO проверить после мерджа
+        SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }

@@ -17,7 +17,7 @@ struct AAPLVertexData
 };
 
 // App-specific submesh class containing data to draw a submesh.
-@interface AAPLSubmeshData : NSObject
+@interface MotoricaSubmeshData : NSObject
 
 @property (nonatomic, readonly, nonnull) uint32_t *indexData;
 
@@ -29,7 +29,7 @@ struct AAPLVertexData
 
 // App-specific mesh class containing vertex data describing the mesh, and the submesh object describing
 //   how to draw parts of the mesh.
-@interface AAPLMeshData : NSObject
+@interface MotoricaMeshData : NSObject
 
 - (nullable instancetype)initWithURL:(nonnull NSURL*)URL
                                error:(NSError * __nullable * __nullable)error;
@@ -40,6 +40,6 @@ struct AAPLVertexData
 
 // An array of `AAPLSubmesh` objects containing buffers and data to make a draw call and material data
 // to set in a render command encoder for that draw call.
-@property (nonatomic, readonly, nonnull) NSDictionary<NSString *, AAPLSubmeshData*> *submeshes;
+@property (nonatomic, readonly, nonnull) NSDictionary<NSString *, MotoricaSubmeshData*> *submeshes;
 
 @end

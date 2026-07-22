@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.state
 
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
 import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.GestureV3
@@ -31,6 +32,7 @@ sealed interface ParameterTypedValueV3 {
     data class Thresholds(val value: ThresholdsV3) : ParameterTypedValueV3
     data class CurrentGesture(val value: CurrentGestureV3) : ParameterTypedValueV3
     data class RotationGroup(val value: RotationGroupV3) : ParameterTypedValueV3
+    data class BindingGroup(val value: BindingGestureGroup) : ParameterTypedValueV3
     data class GestureSettings(val value: GestureV3) : ParameterTypedValueV3
     data class Switcher(val value: SwitcherV3) : ParameterTypedValueV3
     data class Text(val value: String) : ParameterTypedValueV3

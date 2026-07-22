@@ -5,6 +5,7 @@ uniform vec3 u_LightPos;       	// The position of the light in eye space.
 uniform sampler2D u_Texture;    // The input texture.
 uniform sampler2D u_normalMap;    // The input texture.
 uniform int u_isUsingNormalMap;
+uniform int u_FrontFaceMirrored;
 
 varying vec3 v_Position;		// Interpolated position for this fragment.
 varying vec3 v_Normal;         	// Interpolated normal for this fragment.
@@ -20,6 +21,11 @@ float lightPower = 3600.0;//900
 
 void main()
 {
+    bool backFacing = u_FrontFaceMirrored == 1 ? gl_FrontFacing : !gl_FrontFacing;
+    if (backFacing) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
     vec4 diffMatColor = texture2D(u_Texture, v_TexCoordinate); //+
     vec3 usingNormal = v_Normal;
     if (u_isUsingNormalMap == 1) usingNormal =  normalize(normalize(texture2D(u_normalMap, v_TexCoordinate).rgb * 2.0  - 1.0 ) + (v_Normal * 2.0 ) );//* 2.0
@@ -40,4 +46,3 @@ void main()
 
     gl_FragColor = resultColor;
 }
-

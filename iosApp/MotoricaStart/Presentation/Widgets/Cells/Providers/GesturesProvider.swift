@@ -7,6 +7,7 @@
 
 import Combine
 import UIKit
+import shared
 
 final class GesturesProvider: ObservableObject {
 //    @Published var selectedSegment: Segment = .collection
@@ -90,11 +91,11 @@ final class GesturesProvider: ObservableObject {
         var title: String {
             switch self {
             case .collection:
-                return NSLocalizedString("collection_of_gestures", comment: "")
+                return SharedLocalizedText.text(SharedRes.strings().collection_of_gestures)
             case .rotationGroup:
-                return NSLocalizedString("rotation_group", comment: "")
+                return SharedLocalizedText.text(SharedRes.strings().rotation_group)
             case .sprGroup:
-                return NSLocalizedString("spr_gestures", comment: "")
+                return SharedLocalizedText.text(SharedRes.strings().spr_gestures)
             }
         }
     }

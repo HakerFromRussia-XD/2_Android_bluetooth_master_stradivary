@@ -32,6 +32,7 @@ import com.bailout.stickk.ubi4.models.ble.SliderV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SliderItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DURATION_ANIMATION
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -385,7 +386,7 @@ class SliderDelegateAdapterV3(
     private fun sendProgress(parameterInfo: ParameterInfo<Int, Int, Int, Int>, progress: Int) {
         val parameterMeta = ParameterInfoRegistry.getMeta(parameterInfo)
         if (parameterMeta == null) {
-            main.showToast("В SliderDelegateAdapterV3 нет метаданных параметра")
+            main.showToast(main.getString(SharedRes.strings.parameter_metadata_missing.resourceId))
             platformLog("SliderDelegateAdapterV3", "Нет метаданных для $parameterInfo")
             return
         }

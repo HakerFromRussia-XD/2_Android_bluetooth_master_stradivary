@@ -6,8 +6,11 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.blelog.BleLogStore
 import com.bailout.stickk.ubi4.data.state.BLEState
+import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
@@ -47,6 +50,8 @@ import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
+
+private const val EMG_GRAPH_STREAM_PACKET_SIZE = 12
 
 
 /** Информация об обнаруженном устройстве */
@@ -121,6 +126,7 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","подключение не удалось!!!")
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishError()
             startAutoReconnect(didFailToConnectPeripheral)
         }
@@ -132,6 +138,7 @@ actual class BleManagerKmm actual constructor() {
             error: NSError?
         ) {
             platformLog("[BLE-CONNECT]","устройство отключено!!!")
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishDisconnect()
             startAutoReconnect(didDisconnectPeripheral)
         }
@@ -300,6 +307,10 @@ actual class BleManagerKmm actual constructor() {
                     pendingDeviceDataResponseAck?.complete(true)
                 }
                 val bytes = data.toByteArray()
+                val isGraphStream = isEmgGraphStreamNotification(bytes, characteristicUuid)
+                if (BleLogStore.shouldLogIncoming(isGraphStream)) {
+                    BleLogStore.logIncoming(bytes)
+                }
                 handleV3InitResponseProgress(bytes, characteristicUuid)
                 if (UiState.isInterfaceV3Activated) {
                     when (characteristicUuid) {
@@ -370,6 +381,7 @@ actual class BleManagerKmm actual constructor() {
         if (peripheral != null) {
             manager.cancelPeripheralConnection(peripheral)
         } else {
+            WidgetState.gameControlSignalFlow.value = GameControlSignal(connected = false)
             BLEState.publishDisconnect()
         }
     }
@@ -455,6 +467,7 @@ actual class BleManagerKmm actual constructor() {
                     }
 
                     WRITE -> {
+                        BleLogStore.logOutgoing(data)
                         selectedDevice?.writeValue(data = data.toNSData(), forCharacteristic = c, type = CBCharacteristicWriteWithResponse)
                         platformLog("sendBytesKmm", "отправляем данные: $receiveDataString")
                     }
@@ -803,5 +816,10 @@ actual class BleManagerKmm actual constructor() {
         manager.scanForPeripheralsWithServices(null, null)
         reconnectScanActive = true
         platformLog("[BLE-RECONNECT]", "scan started for auto reconnect target=$reconnectTargetUuid")
+    }
+
+    private fun isEmgGraphStreamNotification(bytes: ByteArray, characteristicUuid: String): Boolean {
+        if (characteristicUuid != SENSORS_STREAM_UUID.lowercase()) return false
+        return bytes.size == EMG_GRAPH_STREAM_PACKET_SIZE
     }
 }

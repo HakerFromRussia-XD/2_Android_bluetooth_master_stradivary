@@ -35,11 +35,13 @@ import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItem
 import com.bailout.stickk.ubi4.models.widgets.ToggleSliderItemV3
 import com.bailout.stickk.ubi4.models.widgets.TrainingGestureItem
+import com.bailout.stickk.ubi4.models.blelog.BleLogButtonItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.MobileSettingsKey
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.parameterWidgetLabel
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 import com.bailout.stickk.ubi4.utility.logging.systemLang
+import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 
 
 class DataFactory {
@@ -53,23 +55,17 @@ class DataFactory {
         add(SliderItem("SLIDER E", SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(widgetPosition = 7, widgetCode = ParameterWidgetCode.PWCE_SLIDER.number.toInt())))))
         add(
             SpinnerItemV3(
-                "Режим работы протеза",
+                LocalizedWidgetText.prosthesisOperatingMode,
                 SpinnerParameterWidgetSStruct(
                     baseParameterWidgetSStruct = BaseParameterWidgetSStruct(
                         BaseParameterWidgetStruct(
                             widgetPosition = 8,
                             widgetCode = ParameterWidgetCode.PWCE_SPINBOX_V3.number.toInt()
                         ),
-                        "Режим работы протеза"
+                        LocalizedWidgetText.prosthesisOperatingMode
                     ),
                     dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                        spinnerItems = listOf(
-                            "Нормальный",
-                            "Спортивный",
-                            "Плавное управление силой",
-                            "Плавное управление скоростью",
-                            "Плавное управление силой и скоростью"
-                        ),
+                        spinnerItems = LocalizedWidgetText.handControlModes(),
                         selectedIndex = 0
                     )
                 )
@@ -314,6 +310,7 @@ class DataFactory {
         val isRussian = lang.startsWith("ru", ignoreCase = true)
         return when (key) {
             MobileSettingsKey.AUTO_LOGIN -> if (isRussian) "Автоматический вход" else "Auto login"
+            MobileSettingsKey.BLE_LOG -> if (isRussian) "Журнал BLE" else "BLE Log"
         }
     }
 
@@ -325,6 +322,10 @@ class DataFactory {
 
 
     private fun toWidgetItemS(widgetCode: Int, label: String = "no name%no name%no name", widget: Any): Any? {
+        if (mobileSettingsKey(widget) == MobileSettingsKey.BLE_LOG.key) {
+            return if (widget.extractDisplayOrNull() == BLE_LOG_DISPLAY) BleLogButtonItem else null
+        }
+
         val partsLabel = label.split("%").map { it.trim() }
 
         val resultLabel = if (partsLabel.size < 3) {
@@ -412,7 +413,7 @@ class DataFactory {
             ParameterWidgetCode.PWCE_TEXT_INPUT_V3.number.toInt() -> {
                 val buttonTitle = resultLabel[1]
                     .takeUnless { it.isBlank() || it.equals("no name", ignoreCase = true) }
-                    ?: "Отправить"
+                    ?: LocalizedWidgetText.send
                 TextInputItemV3(
                     title = resultLabel[0],
                     buttonTitle = buttonTitle,
@@ -421,6 +422,25 @@ class DataFactory {
             }
             else -> OneButtonItem(resultLabel[0], "description", widget)
         }
+    }
+
+    private fun mobileSettingsKey(widget: Any): String = when (widget) {
+        is BaseParameterWidgetEStruct -> widget.baseParameterWidgetStruct.keyMobileSettings
+        is BaseParameterWidgetSStruct -> widget.baseParameterWidgetStruct.keyMobileSettings
+        is CommandParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is CommandParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is PlotParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is PlotParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is OpticStartLearningWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SwitchParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SwitchParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is ToggleSliderParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        is ToggleSliderParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SpinnerParameterWidgetEStruct -> widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.keyMobileSettings
+        is SpinnerParameterWidgetSStruct -> widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.keyMobileSettings
+        else -> ""
     }
 
     fun Any.extractDisplayOrNull(): Int? = when (this) {
@@ -447,5 +467,8 @@ class DataFactory {
         else -> null
     }
 
+    private companion object {
+        const val BLE_LOG_DISPLAY = 4
+    }
 
 }

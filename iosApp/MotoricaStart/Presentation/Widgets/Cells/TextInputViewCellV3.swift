@@ -33,7 +33,7 @@ final class TextInputViewCellV3: UITableViewCell {
                     self?.viewModel?.trimToByteLimit(text) ?? text
                 },
                 onLimitReached: { [weak self] in
-                    self?.showToast("Лимит символов исчерпан")
+                    self?.showToast(SharedLocalizedText.text(SharedRes.strings().text_limit_reached))
                 },
                 onRequestPrefill: { [weak self] in
                     self?.prefilledText() ?? ""
@@ -55,19 +55,19 @@ final class TextInputViewCellV3: UITableViewCell {
     private func handleSend(_ input: String) {
         let normalizedInput = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedInput.isEmpty else {
-            showToast("Введите текст")
+            showToast(SharedLocalizedText.text(SharedRes.strings().enter_text))
             return
         }
 
         guard let fullName = viewModel?.sendInput(normalizedInput) else {
-            showToast("Ошибка отправки")
+            showToast(SharedLocalizedText.text(SharedRes.strings().send_error))
             return
         }
 
         try? keyValueStorage.save(fullName, for: BluetoothStorageKeys.selectedDeviceNameStorageKey)
         let displayName = DeviceNameBridgeV3.shared.displayName(deviceName: fullName)
         NotificationCenter.default.post(name: .v3DeviceNameDidUpdate, object: displayName)
-        showToast("Имя установлено")
+        showToast(SharedLocalizedText.text(SharedRes.strings().name_set))
     }
 
     private func showToast(_ message: String) {

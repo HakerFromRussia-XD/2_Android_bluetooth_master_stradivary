@@ -28,6 +28,7 @@ class AccountMainAdapterUBI4(
         val statisticsItem: View = view.findViewById(R.id.statisticsItem)
         val statisticsDivider: View = view.findViewById(R.id.dividerStatistics)
         val achievementsItem: View = view.findViewById(R.id.achievementsItem)
+        val gamesBtn: View = view.findViewById(R.id.gamesClick)
         val fioTv: TextView = view.findViewById(R.id.ubi4_fio_tv) as TextView
 //        val applicationVersionNumTv: TextView = view.findViewById(R.id.ubi4_version_app_num_tv) as TextView
     }
@@ -59,9 +60,13 @@ class AccountMainAdapterUBI4(
         holder.statisticsItem.setOnClickListener {
             if (showStatisticsItem) onAccountClickListener.onStatisticsClicked()
         }
+        holder.gamesBtn.setOnClickListener {
+            onAccountClickListener.onGamesClicked()
+        }
         holder.achievementsItem.setOnClickListener {
             if (showAchievementsItem) onAccountClickListener.onAchievementsClicked()
         }
+
     }
 
 

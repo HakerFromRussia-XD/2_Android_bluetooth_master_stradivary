@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "partId": "four_finger_corrugation_rubber",
+      "asset": "STR2_V3/v3_part_99_four_finger_corrugation_rubber.obj",
+      "groups": ["deformable_rubber", "four_finger_corrugation"],
+      "deformation": {
+        "type": "multi_top_one_bottom",
+        "bottom": {
+          "faceGroup": "bottom_fixed_palm",
+          "transformId": "palm_base"
+        },
+        "tops": [
+          {
+            "finger": "index",
+            "topFaceGroup": "top_fixed_index",
+            "softFaceGroup": "soft_index",
+            "transformId": "index_upper"
+          },
+          {
+            "finger": "middle",
+            "topFaceGroup": "top_fixed_middle",
+            "softFaceGroup": "soft_middle",
+            "transformId": "middle_upper"
+          },
+          {
+            "finger": "ring",
+            "topFaceGroup": "top_fixed_ring",
+            "softFaceGroup": "soft_ring",
+            "transformId": "ring_upper"
+          },
+          {
+            "finger": "little",
+            "topFaceGroup": "top_fixed_little",
+            "softFaceGroup": "soft_little",
+            "transformId": "little_upper"
+          }
+        ],
+        "falloff": "smoothstep"
+      }
+    }
+  ]
+}

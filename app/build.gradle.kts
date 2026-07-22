@@ -1,5 +1,7 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
+import java.util.Properties
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -7,6 +9,51 @@ plugins {
     kotlin("kapt")
     id("com.android.application")
     id("org.jetbrains.compose")
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun signingProperty(name: String): String? =
+    (findProperty(name) as? String)
+        ?: localProperties.getProperty(name)
+        ?: System.getenv(name)
+
+val motoricaReleaseStoreFile = signingProperty("motoricaReleaseStoreFile")
+    ?: rootProject.file("keystore.jks").takeIf { it.isFile }?.absolutePath
+val motoricaReleaseStorePassword = signingProperty("motoricaReleaseStorePassword")
+val motoricaReleaseKeyAlias = signingProperty("motoricaReleaseKeyAlias")
+val motoricaReleaseKeyPassword = signingProperty("motoricaReleaseKeyPassword")
+val hasMotoricaReleaseSigning = listOf(
+    motoricaReleaseStoreFile,
+    motoricaReleaseStorePassword,
+    motoricaReleaseKeyAlias,
+    motoricaReleaseKeyPassword
+).all { !it.isNullOrBlank() }
+val missingMotoricaReleaseSigning = buildList {
+    if (motoricaReleaseStoreFile.isNullOrBlank()) add("motoricaReleaseStoreFile")
+    if (motoricaReleaseStorePassword.isNullOrBlank()) add("motoricaReleaseStorePassword")
+    if (motoricaReleaseKeyAlias.isNullOrBlank()) add("motoricaReleaseKeyAlias")
+    if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
+}
+
+gradle.taskGraph.whenReady {
+    val needsReleaseApk = allTasks.any { task ->
+        task.path == ":app:assembleRelease" ||
+            task.path == ":app:installRelease" ||
+            task.path == ":app:packageRelease"
+    }
+    if (needsReleaseApk && !hasMotoricaReleaseSigning) {
+        throw GradleException(
+            "Motorica release signing is not configured. Missing: " +
+                missingMotoricaReleaseSigning.joinToString() +
+                ". Add uncommented values to ${rootProject.file("local.properties").absolutePath}."
+        )
+    }
 }
 
 kotlin {
@@ -24,14 +71,20 @@ android {
     namespace = "com.bailout.stickk"
     compileSdk = 35
     sourceSets["main"].manifest.srcFile("src/main/AndroidManifest.xml")
+    sourceSets.maybeCreate("metrics").java.srcDir("src/debug/java")
     defaultConfig {
         applicationId = "com.bailout.stickk"
         minSdk = 28
         targetSdk = 33
         versionCode = 13
-        versionName = "3.3.1704"
+        versionName = "3.3.1727"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+        manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"
+
+        val motoricaGamesManifestUrl = providers.gradleProperty("motoricaGamesManifestUrl").orElse("").get()
+        buildConfigField("String", "MOTORICA_GAMES_MANIFEST_URL", "\"${motoricaGamesManifestUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        buildConfigField("String", "MOTORICA_STK_PACKAGE", "\"com.motorica.games.stk\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -41,7 +94,26 @@ android {
         jvmToolchain(17)
     }
 
+    signingConfigs {
+        if (hasMotoricaReleaseSigning) {
+            create("motoricaRelease") {
+                storeFile = file(motoricaReleaseStoreFile!!)
+                storePassword = motoricaReleaseStorePassword
+                keyAlias = motoricaReleaseKeyAlias
+                keyPassword = motoricaReleaseKeyPassword
+            }
+        }
+    }
+
+
     buildTypes {
+        create("metrics") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".metrics"
+            versionNameSuffix = "-metrics"
+            matchingFallbacks += listOf("debug")
+            manifestPlaceholders["gameControlPermission"] = "com.bailout.stickk.metrics.permission.CONTROL_GAME"
+        }
         getByName("release") {
             // отключаем профилирование
             isProfileable = false
@@ -55,6 +127,9 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
+            if (hasMotoricaReleaseSigning) {
+                signingConfig = signingConfigs.getByName("motoricaRelease")
+            }
         }
     }
     lint {
@@ -75,6 +150,12 @@ android {
             merges.add("META-INF/LICENSE-notice.md")
         }
     }
+    androidResources {
+        noCompress += "v3bin"
+        noCompress += "v3def"
+        noCompress += "astc"
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:fest3_test1.obj:fest3_test2.obj:festh3_test3.obj:festh3_test4.obj"
+    }
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs(listOf("libs"))
@@ -89,6 +170,7 @@ android {
         }
     }
     buildFeatures {
+        aidl = true
         buildConfig = true
         compose = true
         viewBinding = true

@@ -4,7 +4,13 @@ import shared
 
 final class SpinnerViewCellV3: UITableViewCell {
     static let reuseIdentifier = String(describing: SpinnerViewCellV3.self)
-
+    private enum RoleAccess {
+        static let prosthetistIndex = 0
+        static let serviceEngineerIndex = 1
+        static let deviceRoleParameterID = 0x0F
+        static let deviceRoleDataCode = 0
+        static let pin = "1234"
+    }
     private var viewModel: SpinnerListItemViewModelV3?
     private var provider: SpinnerProviderV3?
     private var job: Kotlinx_coroutines_coreJob?
@@ -37,7 +43,11 @@ final class SpinnerViewCellV3: UITableViewCell {
         layer.masksToBounds = false
         contentView.layer.masksToBounds = false
 
-        let selected = viewModel.currentSelectedIndex() ?? viewModel.initialSelectedIndex
+        let currentSelectedIndex = viewModel.currentSelectedIndex()
+        let selected = currentSelectedIndex ?? viewModel.initialSelectedIndex
+        if let currentSelectedIndex {
+            viewModel.applyHandSideDeviceSnapshot(currentSelectedIndex)
+        }
         let provider = SpinnerProviderV3(
             title: viewModel.title,
             items: viewModel.items,
@@ -54,8 +64,7 @@ final class SpinnerViewCellV3: UITableViewCell {
             SpinnerRowViewV3(
                 provider: provider,
                 onSelect: { [weak self] index in
-                    self?.provider?.selectedIndex = index
-                    self?.viewModel?.sendSelectedIndex(index)
+                    self?.handleSelection(index)
                 },
                 onExpandedChanged: { [weak self] isExpanded in
                     self?.updateDropdownState(isExpanded: isExpanded)
@@ -80,6 +89,7 @@ final class SpinnerViewCellV3: UITableViewCell {
             guard let index = self.viewModel?.selectedIndex(from: snapshot) else { return }
             DispatchQueue.main.async {
                 self.provider?.selectedIndex = index
+                self.viewModel?.applyHandSideDeviceSnapshot(index)
             }
         }
 
@@ -133,10 +143,86 @@ final class SpinnerViewCellV3: UITableViewCell {
             itemFrames: dropdownItemFramesInCell,
             itemCount: itemCount
         ), provider.selectedIndex != selectedIndex {
-            provider.selectedIndex = selectedIndex
-            viewModel?.sendSelectedIndex(selectedIndex)
+            handleSelection(selectedIndex)
         }
         return true
+    }
+
+    private func handleSelection(_ index: Int) {
+        guard let provider, let viewModel else { return }
+        guard provider.items.indices.contains(index) else { return }
+        guard isProtectedRoleIndex(index, viewModel: viewModel) else {
+            provider.selectedIndex = index
+            viewModel.sendSelectedIndex(index)
+            return
+        }
+
+        let previousIndex = provider.selectedIndex
+        presentRolePinDialog(
+            onSuccess: { [weak self] in
+                self?.provider?.selectedIndex = index
+                self?.viewModel?.sendSelectedIndex(index)
+            },
+            onCancelOrFail: { [weak self] in
+                self?.provider?.selectedIndex = previousIndex
+            }
+        )
+    }
+
+    private func isProtectedRoleIndex(_ index: Int, viewModel: SpinnerListItemViewModelV3) -> Bool {
+        guard index == RoleAccess.prosthetistIndex || index == RoleAccess.serviceEngineerIndex else {
+            return false
+        }
+        return isDeviceRoleSelector(viewModel)
+    }
+
+    private func isDeviceRoleSelector(_ viewModel: SpinnerListItemViewModelV3) -> Bool {
+        if let binding = viewModel.binding,
+           binding.parameterID == RoleAccess.deviceRoleParameterID,
+           binding.dataCode == RoleAccess.deviceRoleDataCode {
+            return true
+        }
+
+        guard viewModel.items.count >= 2 else { return false }
+        let normalizedItems = viewModel.items.map(normalizedRoleName)
+        let prosthetistNames = [
+            SharedLocalizedText.text(SharedRes.strings().prosthetist),
+            "Prosthetist",
+            "Протезист"
+        ].map(normalizedRoleName)
+        let serviceEngineerNames = [
+            SharedLocalizedText.text(SharedRes.strings().service_engineer),
+            "Service engineer",
+            "Сервисный инженер"
+        ].map(normalizedRoleName)
+
+        return prosthetistNames.contains(normalizedItems[RoleAccess.prosthetistIndex]) &&
+            serviceEngineerNames.contains(normalizedItems[RoleAccess.serviceEngineerIndex])
+    }
+
+    private func normalizedRoleName(_ value: String) -> String {
+        value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    private func presentRolePinDialog(
+        onSuccess: @escaping () -> Void,
+        onCancelOrFail: @escaping () -> Void
+    ) {
+        guard let viewController = alertPresenter() else {
+            NSLog("[RoleAccess] Failed to find presenter for role PIN dialog")
+            onCancelOrFail()
+            return
+        }
+        let dialog = RolePinDialogViewController(
+            title: SharedLocalizedText.text(SharedRes.strings().enter_settings_pin),
+            cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel),
+            expectedPin: RoleAccess.pin,
+            onSuccess: onSuccess,
+            onCancelOrFail: onCancelOrFail
+        )
+        DispatchQueue.main.async {
+            viewController.present(dialog, animated: false)
+        }
     }
 
     private func effectiveDropdownFrame(itemCount: Int) -> CGRect {
@@ -217,37 +303,214 @@ final class SpinnerViewCellV3: UITableViewCell {
         }
         return nil
     }
+
+    private func nearestViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        while let current = responder {
+            if let viewController = current as? UIViewController {
+                return viewController
+            }
+            responder = current.next
+        }
+        return nil
+    }
+
+    private func alertPresenter() -> UIViewController? {
+        if let viewController = nearestViewController() {
+            return topViewController(from: viewController)
+        }
+
+        let rootViewController = window?.rootViewController ?? UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?
+            .rootViewController
+        return topViewController(from: rootViewController)
+    }
+
+    private func topViewController(from root: UIViewController?) -> UIViewController? {
+        if let presented = root?.presentedViewController {
+            return topViewController(from: presented)
+        }
+        if let navigation = root as? UINavigationController {
+            return topViewController(from: navigation.visibleViewController)
+        }
+        if let tabBar = root as? UITabBarController {
+            return topViewController(from: tabBar.selectedViewController)
+        }
+        return root
+    }
 }
 
-enum SpinnerDropdownTapResolver {
-    static func selectedIndex(
-        at location: CGPoint,
-        dropdownFrame: CGRect,
-        itemFrames: [Int: CGRect],
-        itemCount: Int
-    ) -> Int? {
-        guard itemCount > 0 else { return nil }
+private final class RolePinDialogViewController: UIViewController, UITextFieldDelegate {
+    private enum Layout {
+        static let width: CGFloat = 350
+        static let cornerRadius: CGFloat = 16
+        static let contentInset: CGFloat = 16
+        static let dividerInset: CGFloat = 10
+        static let verticalSpacing: CGFloat = 16
+        static let inputHeight: CGFloat = 48
+        static let inputCornerRadius: CGFloat = 10
+        static let dividerHeight: CGFloat = 1
+    }
 
-        let validItemFrames = itemFrames.filter { itemFrame in
-            itemFrame.key >= 0 && itemFrame.key < itemCount
+    private let dialogTitle: String
+    private let cancelTitle: String
+    private let expectedPin: String
+    private let onSuccess: () -> Void
+    private let onCancelOrFail: () -> Void
+    private let input = UITextField()
+    private var completed = false
+
+    init(
+        title: String,
+        cancelTitle: String,
+        expectedPin: String,
+        onSuccess: @escaping () -> Void,
+        onCancelOrFail: @escaping () -> Void
+    ) {
+        self.dialogTitle = title
+        self.cancelTitle = cancelTitle
+        self.expectedPin = expectedPin
+        self.onSuccess = onSuccess
+        self.onCancelOrFail = onCancelOrFail
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        buildView()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        input.becomeFirstResponder()
+    }
+
+    private func buildView() {
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.32)
+
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = UIColor(named: "ubi4_gray") ?? UIColor(white: 0x37 / 255, alpha: 1)
+        card.layer.cornerRadius = Layout.cornerRadius
+        card.layer.shadowColor = UIColor.black.cgColor
+        card.layer.shadowOpacity = 0.3
+        card.layer.shadowRadius = 8
+        card.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.addSubview(card)
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = dialogTitle
+        titleLabel.textColor = .white
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 2
+        titleLabel.font = boldDisplayFont(size: 17)
+        card.addSubview(titleLabel)
+
+        input.translatesAutoresizingMaskIntoConstraints = false
+        input.delegate = self
+        input.keyboardType = .numberPad
+        input.textContentType = .oneTimeCode
+        input.isSecureTextEntry = false
+        input.textAlignment = .center
+        input.textColor = .white
+        input.tintColor = UIColor(named: "ubi4_yes_system_blue") ?? UIColor(red: 10 / 255, green: 132 / 255, blue: 1, alpha: 1)
+        input.font = UIFont(name: "SFProDisplay-Light", size: 17) ?? .systemFont(ofSize: 17, weight: .light)
+        input.backgroundColor = UIColor(named: "ubi4_back") ?? UIColor(white: 0x2A / 255, alpha: 1)
+        input.layer.cornerRadius = Layout.inputCornerRadius
+        input.layer.borderWidth = 1
+        input.layer.borderColor = (UIColor(named: "ubi4_gray_border") ?? UIColor(white: 0x44 / 255, alpha: 1)).cgColor
+        input.accessibilityIdentifier = "RolePinTextField"
+        input.addTarget(self, action: #selector(inputChanged), for: .editingChanged)
+        card.addSubview(input)
+
+        let divider = UIView()
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.backgroundColor = UIColor(named: "ubi4_gray_border") ?? UIColor(white: 0x44 / 255, alpha: 1)
+        card.addSubview(divider)
+
+        let cancelButton = UIButton(type: .system)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.setTitle(cancelTitle, for: .normal)
+        cancelButton.setTitleColor(UIColor(named: "ubi4_yes_system_blue") ?? UIColor(red: 10 / 255, green: 132 / 255, blue: 1, alpha: 1), for: .normal)
+        cancelButton.titleLabel?.font = UIFont(name: "SFProText-Bold", size: 18) ?? .systemFont(ofSize: 18, weight: .bold)
+        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        card.addSubview(cancelButton)
+
+        NSLayoutConstraint.activate([
+            card.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            card.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            card.widthAnchor.constraint(equalToConstant: Layout.width).withPriority(.defaultHigh),
+            card.leadingAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Layout.contentInset),
+            card.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Layout.contentInset),
+
+            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: Layout.contentInset),
+            titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: Layout.contentInset),
+            titleLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -Layout.contentInset),
+
+            input.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Layout.verticalSpacing),
+            input.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: Layout.contentInset),
+            input.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -Layout.contentInset),
+            input.heightAnchor.constraint(equalToConstant: Layout.inputHeight),
+
+            divider.topAnchor.constraint(equalTo: input.bottomAnchor, constant: Layout.verticalSpacing),
+            divider.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: Layout.dividerInset),
+            divider.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -Layout.dividerInset),
+            divider.heightAnchor.constraint(equalToConstant: Layout.dividerHeight),
+
+            cancelButton.topAnchor.constraint(equalTo: divider.bottomAnchor),
+            cancelButton.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            cancelButton.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            cancelButton.heightAnchor.constraint(equalToConstant: 54),
+            cancelButton.bottomAnchor.constraint(equalTo: card.bottomAnchor)
+        ])
+    }
+
+    private func boldDisplayFont(size: CGFloat) -> UIFont {
+        let base = UIFont(name: "SFProDisplay-Light", size: size) ?? .systemFont(ofSize: size, weight: .light)
+        guard let descriptor = base.fontDescriptor.withSymbolicTraits(.traitBold) else {
+            return .systemFont(ofSize: size, weight: .bold)
         }
+        return UIFont(descriptor: descriptor, size: size)
+    }
 
-        if let exactIndex = validItemFrames.first(where: { itemFrame in
-            itemFrame.value.contains(location)
-        })?.key {
-            return exactIndex
+    @objc private func inputChanged() {
+        let digits = (input.text ?? "").filter(\.isNumber)
+        let limited = String(digits.prefix(expectedPin.count))
+        if input.text != limited {
+            input.text = limited
         }
+        guard limited.count == expectedPin.count else { return }
+        finish(success: limited == expectedPin)
+    }
 
-        if !validItemFrames.isEmpty {
-            return nil
+    @objc private func cancelTapped() {
+        finish(success: false)
+    }
+
+    private func finish(success: Bool) {
+        guard !completed else { return }
+        completed = true
+        input.resignFirstResponder()
+        dismiss(animated: false) { [onSuccess, onCancelOrFail] in
+            success ? onSuccess() : onCancelOrFail()
         }
+    }
+}
 
-        guard dropdownFrame.contains(location) else { return nil }
-
-        let relativeY = location.y - dropdownFrame.minY
-        let itemHeight = max(dropdownFrame.height / CGFloat(itemCount), 1)
-        let rawIndex = Int(floor(relativeY / itemHeight))
-        return min(max(rawIndex, 0), itemCount - 1)
+private extension NSLayoutConstraint {
+    func withPriority(_ priority: UILayoutPriority) -> NSLayoutConstraint {
+        self.priority = priority
+        return self
     }
 }
 
@@ -475,13 +738,13 @@ struct SpinnerRowViewV3_Previews: PreviewProvider {
         Group {
             SpinnerRowViewV3(
                 provider: SpinnerProviderV3(
-                    title: "Режим работы протеза",
+                    title: SharedLocalizedText.text(SharedRes.strings().v3_prosthesis_operating_mode),
                     items: [
-                        "Нормальный",
-                        "Спортивный",
-                        "Плавное управление силой",
-                        "Плавное управление скоростью",
-                        "Плавное управление силой и скоростью"
+                        SharedLocalizedText.text(SharedRes.strings().v3_normal_mode),
+                        SharedLocalizedText.text(SharedRes.strings().v3_sport_mode),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_force_control),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_speed_control),
+                        SharedLocalizedText.text(SharedRes.strings().v3_smooth_force_and_speed_control)
                     ],
                     selectedIndex: 1
                 ),

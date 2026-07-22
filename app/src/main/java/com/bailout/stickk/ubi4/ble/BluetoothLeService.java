@@ -35,7 +35,9 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bailout.stickk.ubi4.blelog.BleLogStore;
 import com.bailout.stickk.ubi4.data.state.BLEState;
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4;
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
@@ -58,6 +60,7 @@ public class BluetoothLeService extends Service {
     private static final long RSSI_POLL_INTERVAL_MS = 25_000L;
     private static final double CONNECTION_INTERVAL_UNIT_MS = 1.25d;
     private static final int SUPERVISION_TIMEOUT_UNIT_MS = 10;
+    private static final int EMG_GRAPH_STREAM_PACKET_SIZE = 12;
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -573,6 +576,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                BleLogStore.INSTANCE.logIncoming(characteristic.getValue());
                 broadcastUpdate(characteristic, SampleGattAttributes.READ);
             }
         }
@@ -596,6 +600,9 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             byte[] d   = characteristic.getValue();
+            if (!shouldHideFromBleLog(characteristic)) {
+                BleLogStore.INSTANCE.logIncoming(d);
+            }
             String hex = String.valueOf(EncodeByteToHex.bytesToHexString(d));
             platformLog("BLE_RAW", "UUID=" + characteristic.getUuid() + "  len=" + d.length + "  " + hex);
             platformLog("onCharacteristicChanged", "Характеристика изменилась: " +
@@ -643,6 +650,24 @@ public class BluetoothLeService extends Service {
             }
         }
     };
+
+    private boolean shouldHideFromBleLog(BluetoothGattCharacteristic characteristic) {
+        if (characteristic == null) return false;
+        String uuid = String.valueOf(characteristic.getUuid());
+        byte[] data = characteristic.getValue();
+        boolean isDedicatedGraphCharacteristic = uuid.equals(SampleGattAttributes.MIO_MEASUREMENT)
+                || uuid.equals(SampleGattAttributes.MIO_MEASUREMENT_NEW);
+        boolean isSharedGraphCharacteristic = uuid.equals(SampleGattAttributes.MIO_MEASUREMENT_NEW_VM)
+                || uuid.equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.SENSORS_STREAM_UUID);
+        boolean isGraphStream = isDedicatedGraphCharacteristic
+                || (isSharedGraphCharacteristic
+                    && data != null
+                    && data.length == EMG_GRAPH_STREAM_PACKET_SIZE);
+        if (!isGraphStream) return false;
+
+        return getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
+                .getBoolean(PreferenceKeysUbi4.BLE_LOG_HIDE_GRAPH_STREAM, true);
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -831,6 +856,7 @@ public class BluetoothLeService extends Service {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
             return;
         }
+        BleLogStore.INSTANCE.logOutgoing(characteristic.getValue());
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
 

@@ -2,6 +2,8 @@ import Foundation
 import shared
 
 enum WidgetDescriptorFactoryV3 {
+    static let bleLogPayload = "__ble_log_button__"
+
     private enum WidgetCode {
         static let button = 0x01
         static let `switch` = 0x02
@@ -37,6 +39,10 @@ enum WidgetDescriptorFactoryV3 {
         var explicitType: WidgetsResponseDTO.WidgetDTO.WidgetTypeDTO?
 
         switch source {
+        case is BleLogButtonItem:
+            title = bleLogTitle
+            payload = bleLogPayload
+            explicitType = .commandWidget
         case let item as PlotItem:
             title = item.title
             payload = item.widget
@@ -145,6 +151,8 @@ enum WidgetDescriptorFactoryV3 {
 
     private static func fallbackTitle(from widget: Any?) -> String? {
         switch widget {
+        case is BleLogButtonItem:
+            return bleLogTitle
         case let plotItem as PlotItem:
             return plotItem.title
         case let plotItem as PlotItemV3:
@@ -182,5 +190,9 @@ enum WidgetDescriptorFactoryV3 {
         default:
             return nil
         }
+    }
+
+    private static var bleLogTitle: String {
+        Locale.preferredLanguages.first?.hasPrefix("ru") == true ? "Журнал BLE" : "BLE Log"
     }
 }

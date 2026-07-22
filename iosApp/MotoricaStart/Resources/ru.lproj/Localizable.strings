@@ -140,3 +140,14 @@
 "gesture_14" = "    жест 14";
 "Select start gesture" = "Выберете стартовый жест";
 "Select end gesture" = "Выберете конечный жест";
+"motorica_games" = "Игры";
+"motorica_stk_title" = "Super Tux Kart";
+"game_status_available" = "Доступна для скачивания";
+"game_status_installed" = "Установлена";
+"game_status_update_available" = "Доступно обновление";
+"game_status_catalog_unavailable" = "Каталог игр недоступен";
+"install_game" = "Установить";
+"play_game" = "Играть";
+"update_game" = "Обновить";
+"game_app_store_url_missing" = "Ссылка на игру в App Store не настроена";
+"game_launch_failed" = "Не удалось открыть игру";

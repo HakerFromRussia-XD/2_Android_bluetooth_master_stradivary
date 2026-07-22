@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.data.state.UiState.activeGestureFragmentFilterFlow
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlow
@@ -763,7 +764,7 @@ class GesturesOpticDelegateAdapter(
                 // игнор, job отменён
             } catch (e: Exception) {
                 main.runOnUiThread {
-                    main.showToast("collectActiveFlows error: ${e.message}")
+                    main.showToast(main.getString(SharedRes.strings.collect_active_flows_error.resourceId, e.message ?: ""))
                 }
             }
         }

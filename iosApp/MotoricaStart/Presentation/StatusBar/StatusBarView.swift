@@ -32,6 +32,7 @@ struct StatusBarView: View {
     var leadingButton: LeadingButton = .account
     var isDisconnectActionEnabled = true
     var onAccountTap: (() -> Void)?
+    var onAccountLongPress: (() -> Void)?
     var onHelpTap: (() -> Void)?
     var onBackTap: (() -> Void)?
     var onDisconnectConfirmed: (() -> Void)?
@@ -43,16 +44,7 @@ struct StatusBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {
-                Button {
-                    handleLeadingButtonTap()
-                } label: {
-                    statusBarButtonBackground {
-                        leadingButtonImage
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(leadingButton == .back ? "Назад" : "Вход в личный кабинет"))
-                .accessibilityIdentifier(leadingButton == .back ? "AccessibilityIdentifierStatusBarBackButton" : AccessibilityIdentifier.statusBarAccountButton)
+                leadingButtonControl
 
                 if leadingButton == .account, onHelpTap != nil {
                     Button {
@@ -88,7 +80,7 @@ struct StatusBarView: View {
                     }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(AccessibilityIdentifier.statusBarDeviceNameButton)
-                .accessibilityLabel(Text("Серийный номер устройства"))
+                .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().device_serial_number)))
                 .accessibilityValue(Text(viewModel.serialNumber))
 
                 ConnectionStatusIndicatorView(isConnected: viewModel.isConnected)
@@ -96,14 +88,14 @@ struct StatusBarView: View {
                     .scaleEffect(0.03)
                     .frame(width: Constants.statusIndicatorVisualSize, height: Constants.statusIndicatorVisualSize)
                     .accessibilityIdentifier(AccessibilityIdentifier.statusBarConnectionIndicator)
-                    .accessibilityLabel(Text(viewModel.isConnected ? "Соединение установлено" : "Соединение потеряно"))
+                    .accessibilityLabel(Text(viewModel.isConnected ? SharedLocalizedText.text(SharedRes.strings().connection_established) : SharedLocalizedText.text(SharedRes.strings().connection_lost)))
             }
 
             Spacer()
 
             BatteryRingView(level: viewModel.batteryLevel)
                 .frame(width: Constants.batteryRingSize, height: Constants.batteryRingSize)
-                .accessibilityLabel(Text("Уровень заряда"))
+                .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().charge_level)))
         }
         .padding(.horizontal, 16)
         .frame(height: Constants.height)
@@ -160,12 +152,34 @@ struct StatusBarView: View {
         .frame(width: Constants.leadingButtonSize, height: Constants.leadingButtonSize)
     }
 
-    private func handleLeadingButtonTap() {
+    @ViewBuilder
+    private var leadingButtonControl: some View {
         switch leadingButton {
         case .account:
-            onAccountTap?()
+            statusBarButtonBackground {
+                leadingButtonImage
+            }
+            .contentShape(Circle())
+            .onTapGesture {
+                onAccountTap?()
+            }
+            .onLongPressGesture(minimumDuration: 0.8) {
+                onAccountLongPress?()
+            }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().account)))
+            .accessibilityIdentifier(AccessibilityIdentifier.statusBarAccountButton)
         case .back:
-            onBackTap?()
+            Button {
+                onBackTap?()
+            } label: {
+                statusBarButtonBackground {
+                    leadingButtonImage
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(SharedLocalizedText.text(SharedRes.strings().back)))
+            .accessibilityIdentifier("AccessibilityIdentifierStatusBarBackButton")
         }
     }
 
@@ -495,7 +509,7 @@ final class StatusBarConnectionIndicatorHostView: UIView {
 
     private func updateAccessibility(isConnected: Bool) {
         accessibilityIdentifier = AccessibilityIdentifier.statusBarConnectionIndicator
-        accessibilityLabel = isConnected ? "Соединение установлено" : "Соединение потеряно"
+        accessibilityLabel = isConnected ? SharedLocalizedText.text(SharedRes.strings().connection_established) : SharedLocalizedText.text(SharedRes.strings().connection_lost)
         accessibilityValue = isConnected ? "connected" : "disconnected"
     }
 }

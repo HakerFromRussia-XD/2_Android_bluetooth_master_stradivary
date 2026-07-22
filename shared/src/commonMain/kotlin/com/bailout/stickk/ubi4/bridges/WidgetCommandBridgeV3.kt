@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges
 
 import com.bailout.stickk.ubi4.ble.BLECommandsV3
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecActionV3
 import com.bailout.stickk.ubi4.data.parser.ParameterCodecRegistryV3
 import com.bailout.stickk.ubi4.data.parser.ParameterEncodedActionV3
@@ -44,7 +45,9 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_DEVICE_NAME
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_BINDING_DATA
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_GESTURE_CHANGE_MODE
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_SET_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import com.bailout.stickk.ubi4.utility.logging.platformLog
 
@@ -90,6 +93,8 @@ object WidgetCommandBridgeV3 {
                         BLECommandsV3.request(PWCE_GET_SPEED_SETTINGS.number.toInt())
                     PWCE_SET_FORCE_SETTINGS.number.toInt() ->
                         BLECommandsV3.request(PWCE_GET_FORCE_SETTINGS.number.toInt())
+                    PWCE_SET_BINDING_DATA.number.toInt() ->
+                        BLECommandsV3.request(PWCE_GET_BINDING_DATA.number.toInt())
                     else ->
                         BLECommandsV3.requestWithCommand(command = parameterID, subcommand = dataCode)
                 }
@@ -199,6 +204,19 @@ object WidgetCommandBridgeV3 {
         return buildActionBytes(parameterInfo, ParameterCodecActionV3.SetText(text = text))
     }
 
+    fun buildSetBindingGroup(
+        parameterID: Int,
+        dataCode: Int,
+        deviceAddress: Int,
+        bindingGestureGroup: BindingGestureGroup
+    ): ByteArray? {
+        val parameterInfo = ParameterInfo(parameterID, dataCode, deviceAddress, 0)
+        return buildActionBytes(
+            parameterInfo,
+            ParameterCodecActionV3.SetBindingGroup(bindingGroup = bindingGestureGroup)
+        )
+    }
+
     private fun buildActionBytes(
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,
         action: ParameterCodecActionV3
@@ -248,6 +266,7 @@ object WidgetCommandBridgeV3 {
                 PWCE_GET_GESTURE_CHANGE_MODE.number.toInt() -> PWCE_SET_GESTURE_CHANGE_MODE.number.toInt()
                 PWCE_GET_SPEED_SETTINGS.number.toInt() -> PWCE_SET_SPEED_SETTINGS.number.toInt()
                 PWCE_GET_FORCE_SETTINGS.number.toInt() -> PWCE_SET_FORCE_SETTINGS.number.toInt()
+                PWCE_GET_BINDING_DATA.number.toInt() -> PWCE_SET_BINDING_DATA.number.toInt()
                 else -> parameterInfo.dataCode
             }
             EMG_MASTER_CONTROL.number.toInt() -> when (parameterInfo.dataCode) {

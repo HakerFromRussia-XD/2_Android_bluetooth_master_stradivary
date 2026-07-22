@@ -18,6 +18,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.BleLogButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.GestureUsageChartDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.OneButtonDelegateAdapter
@@ -56,6 +57,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3
@@ -89,6 +91,9 @@ abstract class BaseWidgetsFragment : Fragment() {
             ),
             ButtonsDelegateAdapterV3(
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            BleLogButtonDelegateAdapter(
+                onClick = { navigator().showBleLogScreen() }
             ),
             //TODO Сделать ячейки GesturesDelegateAdapter и GesturesOpticDelegateAdapter разными
 //            GesturesDelegateAdapter(
@@ -163,11 +168,19 @@ abstract class BaseWidgetsFragment : Fragment() {
                 gestureNameList = gestureNameList,
                 onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
                 onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
+                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
+                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
+                },
+                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
+                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
+                },
                 onSendBLERotationGroup = { sendBLERotationGroupV3() },
                 onSendBLEActiveGesture = { activeGesture -> sendBLEActiveGestureV3(activeGesture) },
+                onSendBLEBindingGroup = { bindingGestureGroup -> sendBLEBindingGroupV3(bindingGestureGroup) },
                 onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
                 onRequestActiveGesture = { requestActiveGestureV3() },
                 onRequestRotationGroup = { requestRotationGroupV3() },
+                onRequestBindingGroup = { requestBindingGroupV3() },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             TrainingFragmentDelegateAdapter(
@@ -511,23 +524,27 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
+    open fun sendBLEBindingGroupV3(bindingGestureGroup: BindingGestureGroup) {
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommandsV3.sendBindingGroup(bindingGestureGroup), SERIALPORTCHAR_UUID, WRITE){}
+    }
     open fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL_CHARACTERISTIC, WRITE){}
     }
     @SuppressLint("MissingInflatedId")
     open fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     open fun sendBLERotationGroupV3 () {
         Log.d("RotationDebug", "BaseWidgetsFragment.sendBLERotationGroupV3, fragment=${this::class.java.simpleName}")
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) return
@@ -539,6 +556,11 @@ abstract class BaseWidgetsFragment : Fragment() {
         if (!isAdded) return
         transmitter().bleCommandWithQueue(BLECommandsV3.request(PWCE_GET_GESTURE_GROUPE.number.toInt()), SERIALPORTCHAR_UUID, WRITE){}
 
+    }
+    private fun requestBindingGroupV3() {
+        platformLog("requestBindingGroupV3", "спросили группу биндингов")
+        if (!isAdded) return
+        transmitter().bleCommandWithQueue(BLECommandsV3.requestBindingGroup(), SERIALPORTCHAR_UUID, WRITE){}
     }
     open fun refreshWidgetsList() {
         if (UiState.isInterfaceV3Activated) {
@@ -582,7 +604,7 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
     open fun showFilesDialog(addressDevice: Int, parameterID: Int) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
 
     open fun showModelEmg8FilesDialog(preselectName: String? = null,onSendClick: (selectedFiles: List<File>) -> Unit) {
@@ -591,7 +613,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     open fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit), gestureName: String) {
-        main?.showToast("Виджет отображается вне своего экрана")
+        main?.showToast(getString(SharedRes.strings.widget_outside_screen.resourceId))
     }
 
 

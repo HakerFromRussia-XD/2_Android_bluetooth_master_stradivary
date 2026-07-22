@@ -295,25 +295,25 @@ enum FirmwareLocalizedText {
         if rawMessage.hasPrefix("Не удалось начать обновление") {
             return rawMessage.replacingOccurrences(
                 of: "Не удалось начать обновление",
-                with: NSLocalizedString("Failed to start update", comment: "")
+                with: SharedLocalizedText.text(SharedRes.strings().failed_to_start_update)
             )
         }
         if rawMessage.hasPrefix("Модуль не готов к записи") {
             return rawMessage.replacingOccurrences(
                 of: "Модуль не готов к записи",
-                with: NSLocalizedString("Module is not ready for writing", comment: "")
+                with: SharedLocalizedText.text(SharedRes.strings().module_not_ready_for_writing)
             )
         }
         if rawMessage == "Не удалось подготовить память для прошивки" {
-            return NSLocalizedString("Failed to prepare memory for firmware", comment: "")
+            return SharedLocalizedText.text(SharedRes.strings().failed_to_prepare_memory_for_firmware)
         }
         if rawMessage == "CRC mismatch! Обновление не удалось." {
-            return NSLocalizedString("CRC mismatch! Update failed.", comment: "")
+            return SharedLocalizedText.text(SharedRes.strings().crc_mismatch_update_failed)
         }
         if rawMessage.hasPrefix("Обновление не удалось:") {
             return rawMessage.replacingOccurrences(
                 of: "Обновление не удалось",
-                with: NSLocalizedString("Update failed", comment: "")
+                with: SharedLocalizedText.text(SharedRes.strings().update_failed)
             )
         }
         return rawMessage
@@ -349,7 +349,7 @@ private final class FirmwareFilesDialogViewController: FirmwareBaseDialogViewCon
         card.accessibilityIdentifier = AccessibilityIdentifier.firmwareFilesDialog
 
         let title = UILabel()
-        title.text = NSLocalizedString("Select firmware file", comment: "")
+        title.text = SharedLocalizedText.text(SharedRes.strings().select_firmware_file)
         title.textColor = colors.text
         title.font = FirmwareAndroidStyle.titleFont(size: 18)
         title.textAlignment = .center

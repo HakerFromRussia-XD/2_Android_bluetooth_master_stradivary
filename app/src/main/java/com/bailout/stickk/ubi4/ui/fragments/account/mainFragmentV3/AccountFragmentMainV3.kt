@@ -448,6 +448,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         val accountClickListener = object : OnAccountMainUBI4ClickListener {
             override fun onCustomerServiceClicked() { navigator().showAccountCustomerServiceScreen() }
             override fun onProsthesisInformationClicked() { navigator().showAccountProsthesisInformationScreen() }
+            override fun onGamesClicked() { navigator().showGamesScreen() }
             override fun onStatisticsClicked() { navigator().showAccountStatisticsScreen() }
             override fun onAchievementsClicked() { navigator().showAchievementsScreen() }
         }

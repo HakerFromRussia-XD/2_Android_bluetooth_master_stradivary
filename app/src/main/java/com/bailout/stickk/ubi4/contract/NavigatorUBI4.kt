@@ -24,6 +24,7 @@ interface NavigatorUBI4 {
     fun showAccountProsthesisInformationScreen()
     fun showAccountStatisticsScreen()
     fun showAchievementsScreen()
+    fun showGamesScreen()
     fun showDashboardSlotsScreen(deviceAddress: Int)
     fun showDashboardSlotContentScreen(
         deviceAddress: Int,
@@ -36,6 +37,7 @@ interface NavigatorUBI4 {
     fun showSecretScreen()
 
     fun showHelpScreen()
+    fun showBleLogScreen()
 
 
     fun showToast(massage: String)

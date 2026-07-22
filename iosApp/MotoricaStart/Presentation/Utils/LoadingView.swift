@@ -1,4 +1,5 @@
 import UIKit
+import shared
 
 final class LoadingView {
     struct State {
@@ -16,7 +17,7 @@ final class LoadingView {
     private static let animationName = "sinchronization"
     private static let hideFadeDuration: TimeInterval = 0.3
     private static let fallbackState = State(
-        message: NSLocalizedString("Синхронизация данных...", comment: ""),
+        message: SharedLocalizedText.text(SharedRes.strings().synchronization_data),
         progress: 0
     )
 

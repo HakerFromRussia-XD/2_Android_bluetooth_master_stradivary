@@ -1395,8 +1395,7 @@
             android:layout_marginTop="120dp"
             android:gravity="center"
             android:fontFamily="@font/font_open_sans_bold"
-            android:text="Здесь можно выбрать жесты для\nповседневного использования в\nгруппе ротации.\n
-            Переключение внутри этой группы\nможно осуществлять датчиками или\nкнопками на протезе."
+            android:text="@string/rotation_group_explanation"
             android:textColor="@color/ubi4_deactivate_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -1438,5 +1437,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.TextInputItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.DEVICE_NAME_PREFIX
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.EXTRAS_DEVICE_NAME
@@ -42,7 +43,6 @@ class TextInputDelegateAdapterV3(
 ) {
     companion object {
         private const val MAX_INPUT_BYTES = 10
-        private const val BYTE_LIMIT_WARNING = "Лимит 10 байт исчерпан"
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -54,9 +54,9 @@ class TextInputDelegateAdapterV3(
         onDestroyParent { onDestroy() }
 
         val hintText = item.title.takeUnless { it.isBlank() || it.equals("no name", ignoreCase = true) }
-            ?: "Введите текст"
+            ?: main.getString(SharedRes.strings.enter_text.resourceId)
         val buttonTitle = item.buttonTitle.takeUnless { it.isBlank() || it.equals("no name", ignoreCase = true) }
-            ?: "Отправить"
+            ?: main.getString(SharedRes.strings.send.resourceId)
 
         widgetInputEt.hint = hintText
         sendBtnTv.text = buttonTitle
@@ -89,12 +89,12 @@ class TextInputDelegateAdapterV3(
             if (!isInteractionEnabled) return@setOnClickListener
             val enteredText = widgetInputEt.text?.toString()?.trim().orEmpty()
             if (enteredText.isEmpty()) {
-                main.showToast("Введите текст")
+                main.showToast(main.getString(SharedRes.strings.enter_text.resourceId))
                 return@setOnClickListener
             }
 
             if (parameterInfo == null) {
-                main.showToast("Параметр команды не найден")
+                main.showToast(main.getString(SharedRes.strings.command_parameter_not_found.resourceId))
 //                Log.w("TextInputDelegateAdapterV3", "No parameterInfo for widget: ${item.widget::class.java.simpleName}")
                 return@setOnClickListener
             }
@@ -117,9 +117,9 @@ class TextInputDelegateAdapterV3(
                 text = transportText
             ) ?: run {
                 if (isSerialNumber) {
-                    main.showToast("Не удалось подготовить серийный номер")
+                    main.showToast(main.getString(SharedRes.strings.failed_prepare_serial_number.resourceId))
                 } else {
-                    main.showToast("Не удалось подготовить команду")
+                    main.showToast(main.getString(SharedRes.strings.failed_prepare_command.resourceId))
                 }
                 return@setOnClickListener
             }
@@ -152,12 +152,12 @@ class TextInputDelegateAdapterV3(
             when {
                 isDeviceName -> {
                     main.applyDeviceNameImmediately(transportText)
-                    main.showToast("Имя установлено")
+                    main.showToast(main.getString(SharedRes.strings.name_set.resourceId))
                 }
                 isSerialNumber ->
-                    main.showToast("Серийный номер записан")
+                    main.showToast(main.getString(SharedRes.strings.serial_number_set.resourceId))
                 else ->
-                    main.showToast("Значение отправлено")
+                    main.showToast(main.getString(SharedRes.strings.value_sent.resourceId))
             }
         }
     }
@@ -226,7 +226,7 @@ class TextInputDelegateAdapterV3(
                 input.setText(trimmed)
                 input.setSelection(trimmed.length)
                 isInternalChange = false
-                main.showToast(BYTE_LIMIT_WARNING)
+                main.showToast(main.getString(SharedRes.strings.text_limit_reached.resourceId))
             }
         }
 

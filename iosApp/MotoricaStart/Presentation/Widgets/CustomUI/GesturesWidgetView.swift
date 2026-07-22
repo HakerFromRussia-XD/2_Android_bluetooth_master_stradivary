@@ -363,9 +363,9 @@ struct GesturesWidgetView: View {
         .fullScreenCover(isPresented: $isRotationGroupAddGesturesDialogPresented) {
             RotationGroupAddGesturesDialogOverlay(
                 isVisible: $isRotationGroupAddGesturesDialogVisible,
-                title: NSLocalizedString("rotation_dialog_title", comment: ""),
-                saveTitle: NSLocalizedString("dialog_save", comment: ""),
-                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().add_gestures_to_the_group),
+                saveTitle: SharedLocalizedText.text(SharedRes.strings().save_gripper_settings),
+                cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel_gripper_settings),
                 options: rotationDialogOptions,
                 selection: $rotationGroupAddGesturesDialogSelection,
                 errorMessage: rotationGroupAddGesturesDialogError,
@@ -381,9 +381,9 @@ struct GesturesWidgetView: View {
         .fullScreenCover(isPresented: $isSprGesturesDialogPresented) {
             SprGesturesDialogOverlay(
                 isVisible: $isSprGesturesDialogVisible,
-                title: NSLocalizedString("spr_dialog_title", comment: ""),
-                saveTitle: NSLocalizedString("dialog_save", comment: ""),
-                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().select_control_gestures),
+                saveTitle: SharedLocalizedText.text(SharedRes.strings().save_gripper_settings),
+                cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel_gripper_settings),
                 options: sprDialogOptions,
                 selection: $sprGesturesDialogSelection,
                 onOptionTap: toggleSprDialogSelection,
@@ -397,8 +397,8 @@ struct GesturesWidgetView: View {
             RotationGroupAddGesturesDialogOverlay(
                 isVisible: $isSprBindingDialogVisible,
                 title: SharedRes.strings().assign_gesture.desc().localized(),
-                saveTitle: NSLocalizedString("dialog_save", comment: ""),
-                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                saveTitle: SharedLocalizedText.text(SharedRes.strings().save_gripper_settings),
+                cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel_gripper_settings),
                 options: rotationDialogOptions,
                 selection: $sprBindingDialogSelection,
                 errorMessage: nil,
@@ -412,10 +412,10 @@ struct GesturesWidgetView: View {
         .fullScreenCover(isPresented: $isRotationDeleteDialogPresented) {
             RotationDeleteDialogOverlay(
                 isVisible: $isRotationDeleteDialogVisible,
-                title: NSLocalizedString("rotation_delete_dialog_title", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().remove_the_gesture_from_the_group),
                 message: $rotationDeleteDialogMessage,
-                deleteTitle: NSLocalizedString("dialog_delete", comment: ""),
-                cancelTitle: NSLocalizedString("dialog_cancel", comment: ""),
+                deleteTitle: SharedLocalizedText.text(SharedRes.strings().delete_),
+                cancelTitle: SharedLocalizedText.text(SharedRes.strings().cancel_gripper_settings),
                 onDelete: handleRotationDeleteConfirm,
                 onCancel: dismissRotationDeleteDialog
             )
@@ -659,9 +659,8 @@ struct GesturesWidgetView: View {
     // MARK: - Active Gesture
     private var activeGestureView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            let activeTitle = provider.activeGestureTitle ?? NSLocalizedString("gesture_not_selected", comment: "")
-            let format = NSLocalizedString("active_gesture_is", comment: "")
-            Text(String(format: format, activeTitle))
+            let activeTitle = provider.activeGestureTitle ?? SharedLocalizedText.text(SharedRes.strings().gesture_not_selected)
+            Text(SharedLocalizedText.format(SharedRes.strings().active_gesture_is, activeTitle))
                 .font(.system(size: 12, weight: .light))
                 .foregroundColor(.white)
         }
@@ -683,7 +682,7 @@ struct GesturesWidgetView: View {
     private var collectionView: some View {
         VStack(alignment: .leading, spacing: 16) {
             collapsibleSection(
-                title: NSLocalizedString("collection_of_gestures", comment: ""),
+                title: SharedLocalizedText.text(SharedRes.strings().collection_of_gestures),
                 isExpanded: provider.isFactoryExpanded,
                 toggle: toggleFactorySection
             ) {
@@ -703,7 +702,7 @@ struct GesturesWidgetView: View {
             }
 
             VStack(alignment: .leading, spacing: 12) {
-                Text(NSLocalizedString("custom_gestures_section", comment: ""))
+                Text(SharedLocalizedText.text(SharedRes.strings().custom_gestures_section))
                     .font(.system(size: 12, weight: .light))
                     .foregroundColor(.white)
 
@@ -814,7 +813,7 @@ struct GesturesWidgetView: View {
     
     private var rotationGroupAddButton: some View {
         Button(action: presentRotationGroupAddGesturesDialog) {
-            Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
+            Label(SharedLocalizedText.text(SharedRes.strings().add_gesture), systemImage: "plus")
                 .font(.system(size: 12, weight: .light))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -836,7 +835,7 @@ struct GesturesWidgetView: View {
         VStack(spacing: 20) {
             VStack(spacing: 8) {
                 Button(action: presentRotationGroupAddGesturesDialog) {
-                    Label(NSLocalizedString("add_gesture", comment: ""), systemImage: "plus")
+                    Label(SharedLocalizedText.text(SharedRes.strings().add_gesture), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor( .white)
                         .frame(maxWidth: .infinity)
@@ -859,7 +858,7 @@ struct GesturesWidgetView: View {
                     .frame(width: 60)
                     .offset(x: -100)
                 
-                Text(NSLocalizedString("rotation_group_tap_hint", comment: ""))
+                Text(SharedLocalizedText.text(SharedRes.strings().rotation_group_tap_hint))
                     .font(.custom("OpenSansRoman-Bold", size: 14))
                     .foregroundColor(Color("ubi4_deactivate_text"))
                     .multilineTextAlignment(.center)
@@ -867,12 +866,12 @@ struct GesturesWidgetView: View {
                     .offset(x: -130)
             }
             VStack(spacing: 8) {
-                Text(NSLocalizedString("rotation_group_hint", comment: ""))
+                Text(SharedLocalizedText.text(SharedRes.strings().rotation_group_hint))
                     .font(.custom("SFProText-Bold", size: 14))
                     .foregroundColor(Color("ubi4_deactivate_text"))
                     .multilineTextAlignment(.center)
 
-                Text(NSLocalizedString("rotation_group_switch_hint", comment: ""))
+                Text(SharedLocalizedText.text(SharedRes.strings().rotation_group_switch_hint))
                     .font(.custom("SFProText-Bold", size: 14))
                     .foregroundColor(Color("ubi4_deactivate_text"))
                     .multilineTextAlignment(.center)
@@ -985,7 +984,7 @@ struct GesturesWidgetView: View {
 
         let maxCount = RotationGroupAddGesturesDialog.Constants.maxGestures
         if rotationGroupAddGesturesDialogSelection.count >= maxCount {
-            rotationGroupAddGesturesDialogError = NSLocalizedString("rotation_dialog_limit_message", comment: "")
+            rotationGroupAddGesturesDialogError = SharedLocalizedText.text(SharedRes.strings().rotation_dialog_limit_message)
             return
         }
 
@@ -1007,8 +1006,10 @@ struct GesturesWidgetView: View {
         guard provider.rotationGroup.indices.contains(index) else { return }
         let item = provider.rotationGroup[index]
         rotationDeleteDialogItem = item
-        let format = NSLocalizedString("rotation_delete_dialog_message", comment: "")
-        rotationDeleteDialogMessage = String(format: format, item.title)
+        rotationDeleteDialogMessage = SharedLocalizedText.format(
+            SharedRes.strings().the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group,
+            "\"\(item.title)\""
+        )
         print ("presentRotationDeleteDialog for \(index) \(rotationDeleteDialogMessage)")
         rotationDeleteDialogDismissWorkItem?.cancel()
         isRotationDeleteDialogVisible = false
@@ -1071,7 +1072,7 @@ struct GesturesWidgetView: View {
                     .padding(.top, 4)
                 }
                 Button(action: presentSprGesturesDialog) {
-                    Label(NSLocalizedString("control_gestures", comment: ""), systemImage: "plus")
+                    Label(SharedLocalizedText.text(SharedRes.strings().control_gestures), systemImage: "plus")
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -1095,7 +1096,7 @@ struct GesturesWidgetView: View {
             VStack(spacing: 20) {
                 VStack(spacing: 8) {
                     Button(action: presentSprGesturesDialog) {
-                        Label(NSLocalizedString("control_gestures", comment: ""), systemImage: "plus")
+                        Label(SharedLocalizedText.text(SharedRes.strings().control_gestures), systemImage: "plus")
                             .font(.system(size: 12, weight: .light))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -1118,7 +1119,7 @@ struct GesturesWidgetView: View {
                         .frame(width: 60)
                         .offset(x: -100)
                     
-                    Text(NSLocalizedString("rotation_group_tap_hint", comment: ""))
+                    Text(SharedLocalizedText.text(SharedRes.strings().rotation_group_tap_hint))
                         .font(.custom("OpenSansRoman-Bold", size: 14))
                         .foregroundColor(Color("ubi4_deactivate_text"))
                         .multilineTextAlignment(.center)
@@ -1126,7 +1127,7 @@ struct GesturesWidgetView: View {
                         .offset(x: -130)
                 }
                 VStack(spacing: 8) {
-                    Text(NSLocalizedString("annotation_main_text", comment: ""))
+                    Text(SharedLocalizedText.text(SharedRes.strings().annotation_main_text))
                         .font(.custom("SFProText-Bold", size: 14))
                         .foregroundColor(Color("ubi4_deactivate_text"))
                         .multilineTextAlignment(.center)

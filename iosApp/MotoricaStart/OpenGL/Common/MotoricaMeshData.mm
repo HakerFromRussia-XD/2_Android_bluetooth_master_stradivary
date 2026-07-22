@@ -5,7 +5,7 @@ Abstract:
 Implementation of mesh and submesh objects used for managing model data.
 */
 
-#import "AAPLMeshData.h"
+#import "MotoricaMeshData.h"
 #import <vector>
 #import <unordered_map>
 
@@ -30,7 +30,7 @@ template<> struct std::hash<AAPLVertexData>
     }
 };
 
-@implementation AAPLSubmeshData
+@implementation MotoricaSubmeshData
 {
     std::vector<uint32_t> _indexVector;
 }
@@ -56,10 +56,10 @@ template<> struct std::hash<AAPLVertexData>
 }
 @end
 
-@implementation AAPLMeshData
+@implementation MotoricaMeshData
 {
-    NSMutableDictionary<NSString*, AAPLSubmeshData *> *_submeshes;
-    AAPLSubmeshData *_currentSubmesh;
+    NSMutableDictionary<NSString*, MotoricaSubmeshData *> *_submeshes;
+    MotoricaSubmeshData *_currentSubmesh;
 
     std::vector<vector_float3>  _positions;
     std::vector<vector_float3>  _normals;
@@ -71,7 +71,7 @@ template<> struct std::hash<AAPLVertexData>
     NSURL *_OBJURL;
 }
 
-- (NSDictionary<NSString*, AAPLSubmeshData *>*)submeshes
+- (NSDictionary<NSString*, MotoricaSubmeshData *>*)submeshes
 {
     return _submeshes;
 }
@@ -103,7 +103,7 @@ template<> struct std::hash<AAPLVertexData>
 
     fileString = nil;
 
-    AAPLSubmeshData * currentSubmesh;
+    MotoricaSubmeshData * currentSubmesh;
 
     char scannedString[256];
 
@@ -113,7 +113,7 @@ template<> struct std::hash<AAPLVertexData>
         {
             NSString *materialNameString = [[NSString alloc] initWithUTF8String:scannedString];
 
-            currentSubmesh = [AAPLSubmeshData new];
+            currentSubmesh = [MotoricaSubmeshData new];
 
             _submeshes[materialNameString] = currentSubmesh;
         }

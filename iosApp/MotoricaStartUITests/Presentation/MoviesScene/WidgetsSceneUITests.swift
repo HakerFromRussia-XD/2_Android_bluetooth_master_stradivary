@@ -1261,6 +1261,86 @@ class WidgetsSceneUITests: XCTestCase {
         )
     }
 
+    func testV3Renderer_whenFakeV3GestureOpens_thenFirstFrameIsPresented() {
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "-ui-test-fake-ble-device",
+            "-ui-test-skip-synchronization",
+            "-ui-test-force-gestures-widget",
+            "-ui-test-inject-v3-gesture-70"
+        ]
+        app.launch()
+
+        let devicesTable = app.tables[AccessibilityIdentifier.bleDevicesTable]
+        XCTAssertTrue(devicesTable.waitForExistence(timeout: 20), "BLE table did not appear")
+        guard let fakeDevice = waitForDeviceElement(
+            namedAnyOf: ["UBIv4_CPU_Roma"],
+            in: devicesTable,
+            timeout: 10
+        ) else {
+            XCTFail("Fake V3 device did not appear")
+            return
+        }
+        fakeDevice.tap()
+
+        let mainTabsRoot = app.otherElements[AccessibilityIdentifier.mainTabBarRoot]
+        XCTAssertTrue(mainTabsRoot.waitForExistence(timeout: 12), "Main tabs did not open for fake V3 device")
+        let gesturesTabButton = app.tabBars.buttons[AccessibilityIdentifier.mainTabGesturesItem]
+        XCTAssertTrue(gesturesTabButton.waitForExistence(timeout: 5), "Gestures tab button was not found")
+        gesturesTabButton.tap()
+
+        let widgetsTable = app.tables[AccessibilityIdentifier.widgetsTable]
+        XCTAssertTrue(widgetsTable.waitForExistence(timeout: 20), "Widgets table did not appear")
+        let selector = elementByIdentifierOrLabels(
+            in: app,
+            identifier: AccessibilityIdentifier.gesturesSegmentSelector,
+            fallbackLabels: ["gestures.segment.selector"]
+        )
+        XCTAssertTrue(scrollToElement(selector, in: widgetsTable, maxSwipes: 10), "Gestures selector was not found")
+        tapSelectorSegment(selector, normalizedX: 0.25, normalizedY: 0.5)
+
+        let settingsIdentifier = "\(AccessibilityIdentifier.gesturesCustomSettingsButtonPrefix).70"
+        let settingsButtons = app.buttons.matching(identifier: settingsIdentifier)
+        var visibleSettingsButton = settingsButtons.allElementsBoundByIndex.first(where: { $0.exists && $0.isHittable })
+        for _ in 0..<12 where visibleSettingsButton == nil {
+            widgetsTable.swipeUp()
+            visibleSettingsButton = settingsButtons.allElementsBoundByIndex.first(where: { $0.exists && $0.isHittable })
+        }
+        guard let visibleSettingsButton else {
+            XCTFail("Gesture 70 settings button is not hittable")
+            return
+        }
+        visibleSettingsButton.tap()
+
+        let firstFrame = app.otherElements["AccessibilityIdentifierV3FirstFrameReady"]
+        XCTAssertTrue(firstFrame.waitForExistence(timeout: 10), "V3 renderer did not present its first frame")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "V3 renderer first frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    func testV3ModelTestScene_whenAppLaunches_thenFirstFrameIsPresentedDirectly() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-v3-model-test-scene"]
+        app.launch()
+
+        let firstFrame = app.otherElements["AccessibilityIdentifierV3FirstFrameReady"]
+        XCTAssertTrue(
+            firstFrame.waitForExistence(timeout: 10),
+            "Direct V3 model test scene did not present its first frame"
+        )
+        XCTAssertFalse(
+            app.tables[AccessibilityIdentifier.bleDevicesTable].exists,
+            "Direct V3 model test scene must bypass the BLE device list"
+        )
+
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Direct V3 model test scene first frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     func testBottomBarStyle_whenConnectedToRoma1_thenCaptureRealDeviceScreenshot() {
         let app = XCUIApplication()
         app.launchArguments += ["-ui-test-debug-tabbar"]

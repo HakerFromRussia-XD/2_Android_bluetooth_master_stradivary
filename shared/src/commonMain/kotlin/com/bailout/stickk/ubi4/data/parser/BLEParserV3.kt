@@ -937,7 +937,6 @@ class BLEParserV3(
                     SharedRes.strings.ubi4_v3_role_service_engineer,
                     SharedRes.strings.ubi4_v3_role_user
                 ),
-                //TODO убрать айтем с ubi4_v3_role_not_selected
                 2
             ),
             baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(

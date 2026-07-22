@@ -38,7 +38,7 @@ enum class WidgetEmitTargetV3 {
     THRESHOLD_FLOW,
     CURRENT_GESTURE_FLOW,
     GESTURE_GROUP_FLOW,
-    BINDING_GROUP_FLOW,
+//    BINDING_GROUP_FLOW,
     GESTURE_SETTINGS_EVENT,
     NO_UI
 }
@@ -76,12 +76,12 @@ object WidgetResponseRoutesV3 {
             parameterKey = P_KEY_GESTURE_GROUPE,
             emitTarget = WidgetEmitTargetV3.GESTURE_GROUP_FLOW
         ),
-        WidgetResponseRouteV3(
-            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
-            responseSubcommand = PWCE_GET_BINDING_DATA.number.toInt(),
-            parameterKey = P_KEY_BINDING_DATA,
-            emitTarget = WidgetEmitTargetV3.BINDING_GROUP_FLOW
-        ),
+//        WidgetResponseRouteV3(
+//            command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
+//            responseSubcommand = PWCE_GET_BINDING_DATA.number.toInt(),
+//            parameterKey = P_KEY_BINDING_DATA,
+//            emitTarget = WidgetEmitTargetV3.BINDING_GROUP_FLOW
+//        ),
         WidgetResponseRouteV3(
             command = PROSTHESIS_MODULE_CONTROL.number.toInt(),
             responseSubcommand = PWCE_GET_CURRENT_GESTURE_NUM.number.toInt(),

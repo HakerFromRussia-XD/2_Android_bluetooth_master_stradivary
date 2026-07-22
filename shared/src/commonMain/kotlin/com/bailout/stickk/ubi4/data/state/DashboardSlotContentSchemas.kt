@@ -289,7 +289,9 @@ object DashboardSlotContentSchemas {
     }
 
     private fun String.normalizedType(): String =
-        lowercase().removeSuffix("_t")
+        lowercase()
+            .substringBefore("[")
+            .removeSuffix("_t")
 
     private data class SlotInputPath(
         val offset: Int,
@@ -350,10 +352,10 @@ object DashboardSlotContentSchemas {
                 f("ProtocolSubVersion", "uint8", 4, 1),
                 f("BootloaderAdditionalInfoType", "uint8", 5, 1),
                 f("BootloaderCRC", "uint8", 6, 1),
-                f("BootloaderFlags", "bitfield", 7, 1),
-                f("BootloaderStartAddress", "uint32", 8, 4, FORMAT_HEX),
+                f("BootloaderStart", "uint8", 7, 1),
+                f("BootloaderStartAddress", "uint32", 8, 4, format = "hex"),
                 f("BootloaderSize", "uint32", 12, 4),
-                f("BootloaderAdditionalInfo", "uint32", 16, 4, FORMAT_HEX)
+                f("BootloaderAdditionalInfo", "uint32", 16, 4, format = "hex")
             )
         ),
         SlotSchema(
@@ -369,15 +371,37 @@ object DashboardSlotContentSchemas {
                 f("FWLabel", "string", 36, 16),
                 f("FWType", "uint8", 52, 1),
                 f("FWCode", "uint8", 53, 1),
-                f("FWStartAddress", "uint32", 54, 4, FORMAT_HEX),
+                f("FWStartAddress", "uint32", 54, 4, format = "hex"),
                 f("FWSize", "uint32", 58, 4),
-                f("FWCRC", "uint32", 62, 4, FORMAT_HEX),
+                f("FWCRC", "uint32", 62, 4, format = "hex"),
                 f("SDKMajorVersion", "uint8", 66, 1),
                 f("SDKMinorVersion", "uint8", 67, 1),
                 f("SDKQuickFixVersion", "uint8", 68, 1),
                 f("SDKSinceLastTag", "uint8", 69, 1),
                 f("FWAdditionalInfoType", "uint8", 70, 1),
-                f("FWAdditionalInfo", "uint32", 71, 4, FORMAT_HEX)
+                f("FWAdditionalInfo", "uint32", 71, 4, format = "hex")
+            )
+        ),
+        SlotSchema(
+            dataCode = 3,
+            version = 1,
+            subVersion = 1,
+            fields = listOf(
+                f("DeviceName", "string", 0, 32),
+                f("DeviceVersion", "uint8", 32, 1),
+                f("DeviceSubVersion", "uint8", 33, 1),
+                f("DeviceLabel", "string", 34, 16),
+                f("DeviceType", "uint8", 50, 1, format = "hex"),
+                f("DeviceCode", "uint8", 51, 1, format = "hex"),
+                f("DeviceRole", "uint8", 52, 1, format = "hex"),
+                f("DeviceAddress", "uint8", 53, 1, format = "hex"),
+                f("DeviceUUID_Prefix", "string", 54, 16),
+                f("DeviceUUID", "uint32", 70, 4, format = "hex"),
+                f("DeviceAdditionalInfoType", "uint8", 74, 1, format = "hex"),
+                f("DeviceAdditionalInfo", "uint32", 75, 4, format = "hex"),
+                f("DeviceIsCopyable", "uint8", 79, 1),
+                f("min_device_address", "uint8", 80, 1, format = "hex"),
+                f("max_device_address", "uint8", 81, 1, format = "hex")
             )
         ),
         SlotSchema(
@@ -385,19 +409,40 @@ object DashboardSlotContentSchemas {
             version = 1,
             subVersion = 2,
             fields = listOf(
-                f("DeviceName", "string", 0, 32),
+                f("DeviceName", "string", 0, 32, format = "text"),
                 f("DeviceVersion", "uint8", 32, 1),
                 f("DeviceSubVersion", "uint8", 33, 1),
-                f("DeviceLabel", "string", 34, 16),
+                f("DeviceLabel", "string", 34, 16, format = "text"),
                 f("DeviceType", "uint8", 50, 1),
                 f("DeviceCode", "uint8", 51, 1),
                 f("DeviceRole", "uint8", 52, 1),
-                f("DeviceAddress", "uint8", 53, 1, FORMAT_HEX),
-                f("DeviceUUID_Prefix", "string", 54, 16),
-                f("DeviceUUID", "uint32", 70, 4, FORMAT_HEX),
+                f("DeviceAddress", "uint8", 53, 1, format = "hex"),
+                f("DeviceUUID_Prefix", "string", 54, 16, format = "text"),
+                f("DeviceUUID", "uint32", 70, 4, format = "hex"),
                 f("DeviceAdditionalInfoType", "uint8", 74, 1),
-                f("DeviceAdditionalInfo", "uint32", 75, 4, FORMAT_HEX),
+                f("DeviceAdditionalInfo", "uint32", 75, 4, format = "hex"),
                 f("DeviceIsCopyable", "uint8", 79, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 3,
+            version = 1,
+            subVersion = 3,
+            fields = listOf(
+                f("DeviceName", "string", 0, 32, format = "text"),
+                f("DeviceVersion", "uint8", 32, 1),
+                f("DeviceSubVersion", "uint8", 33, 1),
+                f("DeviceLabel", "string", 34, 16, format = "text"),
+                f("DeviceType", "uint8", 50, 1),
+                f("DeviceCode", "uint8", 51, 1),
+                f("DeviceRole", "uint8", 52, 1),
+                f("DeviceAddress", "uint8", 53, 1, format = "hex"),
+                f("DeviceUUID", "string", 54, 32, format = "text"),
+                f("DeviceAdditionalInfoType", "uint8", 86, 1),
+                f("DeviceAdditionalInfo", "uint32", 87, 4, format = "hex"),
+                f("DeviceIsCopyable", "uint8", 91, 1),
+                f("min_device_address", "uint8", 92, 1, format = "hex"),
+                f("max_device_address", "uint8", 93, 1, format = "hex")
             )
         ),
         SlotSchema(
@@ -405,7 +450,7 @@ object DashboardSlotContentSchemas {
             version = 1,
             subVersion = 0,
             fields = listOf(
-                f("BoardName", "string", 0, 32),
+                f("BoardName", "string", 0, 32, format = "text"),
                 f("BoardVersion", "uint8", 32, 1),
                 f("BoardSubVersion", "uint8", 33, 1),
                 f("BoardRev", "uint8", 34, 1),
@@ -414,7 +459,7 @@ object DashboardSlotContentSchemas {
                 f("BoardType", "uint8", 38, 1),
                 f("BoardCode", "uint8", 39, 1),
                 f("BoardAdditionalInfoType", "uint8", 40, 1),
-                f("BoardAdditionalInfo", "uint32", 41, 4, FORMAT_HEX)
+                f("BoardAdditionalInfo", "uint32", 41, 4, format = "hex")
             )
         ),
         SlotSchema(
@@ -422,16 +467,16 @@ object DashboardSlotContentSchemas {
             version = 1,
             subVersion = 0,
             fields = listOf(
-                f("ProductName", "string", 0, 32),
+                f("ProductName", "string", 0, 32, format = "text"),
                 f("ProductVersion", "uint8", 32, 1),
                 f("ProductSubVersion", "uint8", 33, 1),
-                f("ProductLabel", "string", 34, 16),
+                f("ProductLabel", "string", 34, 16, format = "text"),
                 f("ProductType", "uint8", 50, 1),
                 f("ProductCode", "uint8", 51, 1),
-                f("ProductUUID_Prefix", "string", 52, 16),
-                f("ProductUUID", "uint32", 68, 4, FORMAT_HEX),
+                f("ProductUUID_Prefix", "string", 52, 16, format = "text"),
+                f("ProductUUID", "uint32", 68, 4, format = "hex"),
                 f("ProductAdditionalInfoType", "uint8", 72, 1),
-                f("ProductAdditionalInfo", "uint32", 73, 4, FORMAT_HEX)
+                f("ProductAdditionalInfo", "uint32", 73, 4, format = "hex")
             )
         ),
         SlotSchema(
@@ -447,8 +492,66 @@ object DashboardSlotContentSchemas {
                 f("LastServiceDate_Year", "uint16", 6, 2)
             )
         ),
-        gestureSlotSchema(dataCode = 9, gestureCount = 16),
-        gestureSlotSchema(dataCode = 10, gestureCount = 15),
+        SlotSchema(
+            dataCode = 9,
+            version = 1,
+            subVersion = 0,
+            fields = listOf(
+                f("Size", "uint8", 0, 1),
+                f("Count", "uint8", 1, 1),
+                f("ItemSize", "uint16", 2, 2),
+                f("NumDrive", "uint8", 4, 1),
+                f("gestures", "gesture", 5, 25, array = 16, fields = listOf(
+                    f("id", "uint8", 0, 1),
+                    f("open_positions", "uint8", 1, 1, format = "hex", array = 6),
+                    f("close_positions", "uint8", 7, 1, format = "hex", array = 6),
+                    f("open_to_close_time", "uint8", 13, 1, format = "hex", array = 6),
+                    f("close_to_open_time", "uint8", 19, 1, format = "hex", array = 6)
+                ))
+            )
+        ),
+        SlotSchema(
+            dataCode = 10,
+            version = 1,
+            subVersion = 0,
+            fields = listOf(
+                f("Size", "uint8", 0, 1),
+                f("Count", "uint8", 1, 1),
+                f("ItemSize", "uint16", 2, 2),
+                f("NumDrive", "uint8", 4, 1),
+                f("gestures", "gesture", 5, 25, array = 15, fields = listOf(
+                    f("id", "uint8", 0, 1),
+                    f("open_positions", "uint8", 1, 1, format = "hex", array = 6),
+                    f("close_positions", "uint8", 7, 1, format = "hex", array = 6),
+                    f("open_to_close_time", "uint8", 13, 1, format = "hex", array = 6),
+                    f("close_to_open_time", "uint8", 19, 1, format = "hex", array = 6)
+                ))
+            )
+        ),
+        SlotSchema(
+            dataCode = 12,
+            version = 3,
+            subVersion = 3,
+            fields = listOf(
+                f("switch_sensors", "uint8", 0, 1),
+                f("alpha", "float", 1, 4),
+                f("beta_up", "float", 5, 4),
+                f("beta_down", "float", 9, 4),
+                f("beta", "float", 13, 4),
+                f("gamma_low", "float", 17, 4),
+                f("gamma_high", "float", 21, 4),
+                f("AVRcoef", "float", 25, 4),
+                f("gain", "float", 29, 4),
+                f("sens", "uint8", 33, 1),
+                f("LastResult", "uint8", 34, 1),
+                f("env_offset", "float", 35, 4),
+                f("gain_table_max_value", "float", 39, 4),
+                f("gain_table_exp_value", "float", 43, 4),
+                f("env_offset_max", "float", 47, 4),
+                f("env_offset_min", "float", 51, 4),
+                f("adaptive_filter_multiplier", "float", 55, 4)
+            )
+        ),
         SlotSchema(
             dataCode = 15,
             version = 1,
@@ -466,10 +569,158 @@ object DashboardSlotContentSchemas {
                 f("FirstFingerChannel", "uint8", 12, 1),
                 f("FingerChannel", "uint8", 13, 1),
                 f("ChangeGestureMode", "uint8", 14, 1),
-                f("EMG_LockTimer_Raw", "uint8", 15, 1, FORMAT_HEX),
+                f("EMG_LockTimer_Raw", "uint8", 15, 1, format = "hex"),
                 f("EMG_LockTimer_Value", "uint8", 15, 1),
-                f("EMG_ChangeGestureTimer_Raw", "uint8", 16, 1, FORMAT_HEX),
+                f("EMG_ChangeGestureTimer_Raw", "uint8", 16, 1, format = "hex"),
                 f("EMG_ChangeGestureTimer_Value", "uint8", 16, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 1,
+            fields = listOf(
+                f("hall_to_phase_array", "uint8", 0, 1, array = 8),
+                f("position_delta", "int16", 8, 2),
+                f("calibration_done", "uint8", 10, 1),
+                f("hall_shift", "int8", 11, 1),
+                f("motor_direction", "int8", 12, 1),
+                f("min_speed_limit", "uint32", 16, 4),
+                f("speed_limit", "uint8", 20, 1),
+                f("min_duty_limit", "uint8", 21, 1),
+                f("duty_limit", "uint8", 22, 1),
+                f("max_current", "uint16", 24, 2),
+                f("idle_duty", "uint8", 26, 1),
+                f("overcurrent_to_stop_time", "uint8", 27, 1),
+                f("open_endstop_extension", "uint16", 28, 2),
+                f("close_endstop_extension", "uint16", 30, 2)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 2,
+            fields = listOf(
+                f("hall_to_phase_array", "uint8", 0, 1, array = 8),
+                f("position_delta", "int16", 8, 2),
+                f("calibration_done", "uint8", 10, 1),
+                f("hall_shift", "int8", 11, 1),
+                f("motor_direction", "int8", 12, 1),
+                f("min_speed_limit", "uint32", 16, 4),
+                f("speed_limit", "uint8", 20, 1),
+                f("min_duty_limit", "uint8", 21, 1),
+                f("duty_limit", "uint8", 22, 1),
+                f("max_current", "uint16", 24, 2),
+                f("idle_duty", "uint8", 26, 1),
+                f("overcurrent_to_stop_time", "uint8", 27, 1),
+                f("open_endstop_extension", "int16", 28, 2),
+                f("close_endstop_extension", "int16", 30, 2),
+                f("motor_channel", "uint8", 32, 1),
+                f("safe_space_open_side_percent", "uint8", 33, 1),
+                f("safe_space_close_side_percent", "uint8", 34, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 3,
+            fields = listOf(
+                f("hall_to_phase_array", "uint8", 0, 1, array = 8),
+                f("position_delta", "int16", 8, 2),
+                f("calibration_done", "uint8", 10, 1),
+                f("hall_shift", "int8", 11, 1),
+                f("motor_direction", "int8", 12, 1),
+                f("min_speed_limit", "uint32", 16, 4),
+                f("speed_limit", "uint8", 20, 1),
+                f("min_duty_limit", "uint8", 21, 1),
+                f("duty_limit", "uint8", 22, 1),
+                f("max_current", "uint16", 24, 2),
+                f("idle_duty", "uint8", 26, 1),
+                f("overcurrent_to_stop_time", "uint8", 27, 1),
+                f("open_endstop_extension", "int16", 28, 2),
+                f("close_endstop_extension", "int16", 30, 2),
+                f("motor_channel", "uint8", 32, 1),
+                f("safe_space_open_side_percent", "uint8", 33, 1),
+                f("safe_space_close_side_percent", "uint8", 34, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 4,
+            fields = listOf(
+                f("hall_to_phase_array", "uint8", 0, 1, array = 8),
+                f("position_delta", "int16", 8, 2),
+                f("calibration_done", "uint8", 10, 1),
+                f("hall_shift", "int8", 11, 1),
+                f("motor_direction", "int8", 12, 1),
+                f("min_speed_limit", "uint32", 16, 4),
+                f("speed_limit", "uint8", 20, 1),
+                f("min_duty_limit", "uint8", 21, 1),
+                f("duty_limit", "uint8", 22, 1),
+                f("max_current", "uint16", 24, 2),
+                f("idle_duty", "uint8", 26, 1),
+                f("overcurrent_to_stop_time", "uint8", 27, 1),
+                f("open_endstop_extension", "int16", 28, 2),
+                f("close_endstop_extension", "int16", 30, 2),
+                f("motor_channel", "uint8", 32, 1),
+                f("safe_space_open_side_percent", "uint8", 33, 1),
+                f("safe_space_close_side_percent", "uint8", 34, 1),
+                f("last_calibration_error", "bitfield", 35, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 5,
+            fields = listOf(
+                f("hall_to_phase_array", "uint8", 0, 1, array = 8),
+                f("position_delta", "int16", 8, 2),
+                f("calibration_done", "uint8", 10, 1),
+                f("hall_shift", "int8", 11, 1),
+                f("motor_direction", "int8", 12, 1),
+                f("min_speed_limit", "uint32", 16, 4),
+                f("speed_limit", "uint8", 20, 1),
+                f("min_duty_limit", "uint8", 21, 1),
+                f("duty_limit", "uint8", 22, 1),
+                f("max_current", "uint16", 24, 2),
+                f("idle_duty", "uint8", 26, 1),
+                f("overcurrent_to_stop_time", "uint8", 27, 1),
+                f("open_endstop_extension", "int16", 28, 2),
+                f("close_endstop_extension", "int16", 30, 2),
+                f("motor_channel", "uint8", 32, 1),
+                f("safe_space_open_side_percent", "uint8", 33, 1),
+                f("safe_space_close_side_percent", "uint8", 34, 1),
+                f("last_calibration_error", "bitfield", 35, 1),
+                f("startup_enabled", "uint8", 36, 1),
+                f("startup_duty", "uint8", 37, 1),
+                f("startup_hall_ticks", "uint8", 38, 1)
+            )
+        ),
+        SlotSchema(
+            dataCode = 16,
+            version = 1,
+            subVersion = 6,
+            fields = listOf(
+                f("motor_channel", "uint8", 0, 1),
+                f("motor_direction", "int8", 1, 1),
+                f("hall_to_phase_array", "uint8", 2, 1, array = 8),
+                f("hall_shift", "int8", 10, 1),
+                f("calibration_done", "uint8", 11, 1),
+                f("last_calibration_error", "bitfield", 12, 1),
+                f("position_delta", "int16", 14, 2),
+                f("open_endstop_extension", "int16", 16, 2),
+                f("close_endstop_extension", "int16", 18, 2),
+                f("safe_space_open_side_percent", "uint8", 20, 1),
+                f("safe_space_close_side_percent", "uint8", 21, 1),
+                f("endstop_correction_deadband", "int16", 22, 2),
+                f("speed_limit", "uint8", 24, 1),
+                f("min_speed_limit", "uint32", 28, 4),
+                f("duty_limit", "uint8", 32, 1),
+                f("min_duty_limit", "uint8", 33, 1),
+                f("startup_enabled", "uint8", 34, 1),
+                f("startup_duty", "uint8", 35, 1),
+                f("startup_hall_ticks", "uint8", 36, 1)
             )
         ),
         SlotSchema(
@@ -503,7 +754,7 @@ object DashboardSlotContentSchemas {
                     f("id", "uint8", 2, 1),
                     f("image_key", "uint8", 3, 1),
                     f("code", "uint8", 4, 1),
-                    f("name", "string", 5, 16)
+                    f("name", "string", 5, 16, format = "text")
                 ))
             )
         ),
@@ -538,26 +789,64 @@ object DashboardSlotContentSchemas {
                 f("MaxGainValue", "uint8", 3, 1),
                 f("EMGMode", "uint8", 4, 1)
             )
-        )
-    )
-
-    private fun gestureSlotSchema(dataCode: Int, gestureCount: Int): SlotSchema =
+        ),
         SlotSchema(
-            dataCode = dataCode,
+            dataCode = 30,
             version = 1,
             subVersion = 0,
             fields = listOf(
-                f("Size", "uint8", 0, 1),
-                f("Count", "uint8", 1, 1),
-                f("ItemSize", "uint16", 2, 2),
-                f("NumDrive", "uint8", 4, 1),
-                f("gestures", "gesture", 5, 25, array = gestureCount, fields = listOf(
-                    f("id", "uint8", 0, 1),
-                    f("open_positions", "uint8", 1, 1, FORMAT_HEX, array = 6),
-                    f("close_positions", "uint8", 7, 1, FORMAT_HEX, array = 6),
-                    f("open_to_close_time", "uint8", 13, 1, FORMAT_HEX, array = 6),
-                    f("close_to_open_time", "uint8", 19, 1, FORMAT_HEX, array = 6)
-                ))
+                f("telemetry_version", "uint8", 0, 1),
+                f("telemetry_subversion", "uint8", 1, 1),
+                f("DeviceUUID", "string", 2, 32, format = "text"),
+                f("gesture_movement_count", "uint32", 34, 4, array = 16),
+                f("user_gesture_movement_count", "uint32", 98, 4, array = 15)
+            )
+        ),
+        SlotSchema(
+            dataCode = 31,
+            version = 1,
+            subVersion = 1,
+            fields = listOf(
+                f("pos_Kp", "float", 0, 4),
+                f("pos_Ki", "float", 4, 4),
+                f("pos_Kd", "float", 8, 4),
+                f("pos_Kmult", "float", 12, 4),
+                f("pos_output_min", "float", 16, 4),
+                f("pos_output_max", "float", 20, 4),
+                f("pos_deadzone", "float", 24, 4),
+                f("spd_Kp", "float", 28, 4),
+                f("spd_Ki", "float", 32, 4),
+                f("spd_Kd", "float", 36, 4),
+                f("spd_Kmult", "float", 40, 4),
+                f("spd_output_min", "float", 44, 4),
+                f("spd_output_max", "float", 48, 4),
+                f("spd_deadzone", "float", 52, 4),
+                f("dt", "float", 56, 4)
+            )
+        ),
+        SlotSchema(
+            dataCode = 31,
+            version = 1,
+            subVersion = 2,
+            fields = listOf(
+                f("position.Kp", "float", 0, 4),
+                f("position.Ki", "float", 4, 4),
+                f("position.Kd", "float", 8, 4),
+                f("position.Kmult", "float", 12, 4),
+                f("position.output_min", "float", 16, 4),
+                f("position.output_max", "float", 20, 4),
+                f("position.dt", "float", 24, 4),
+                f("position.deadzone", "float", 28, 4),
+                f("speed.Kp", "float", 32, 4),
+                f("speed.Ki", "float", 36, 4),
+                f("speed.Kd", "float", 40, 4),
+                f("speed.Kmult", "float", 44, 4),
+                f("speed.output_min", "float", 48, 4),
+                f("speed.output_max", "float", 52, 4),
+                f("speed.dt", "float", 56, 4),
+                f("speed.deadzone", "float", 60, 4)
             )
         )
+    )
+
 }

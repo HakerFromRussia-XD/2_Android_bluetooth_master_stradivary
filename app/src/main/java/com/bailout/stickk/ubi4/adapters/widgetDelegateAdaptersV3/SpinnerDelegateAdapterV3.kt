@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.models.widgets.SpinnerItemV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterInfoRegistry
+import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
@@ -62,8 +63,10 @@ class SpinnerDelegateAdapterV3 (
     private var interactionJob: kotlinx.coroutines.Job? = null
     private var isInteractionEnabled = UiState.v3WidgetsInteractionEnabled.value
     private val recyclerTouchListeners = mutableMapOf<RecyclerView, RecyclerView.SimpleOnItemTouchListener>()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var pinDialog: Dialog? = null
+    private var showPinKeyboardRunnable: Runnable? = null
 
-    private val roleItems = listOf("Протезист", "Сервисный инженер", "Не выбрано")
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
     private val roleDefaultIndex = 2
@@ -94,7 +97,7 @@ class SpinnerDelegateAdapterV3 (
         val isRoleSelector = isRoleParameter(currentParameterInfo)
         val isSettingsProfileSelector = isSettingsProfileParameter(currentParameterInfo)
         if (isRoleSelector) {
-            spinnerItems = roleItems.toMutableList()
+            spinnerItems = buildRoleItems(spinnerPsv.context).toMutableList()
             selectedIndexFromWidget = roleDefaultIndex
         }
         val prefs = spinnerPsv.context.getSharedPreferences(
@@ -102,7 +105,7 @@ class SpinnerDelegateAdapterV3 (
             Context.MODE_PRIVATE
         )
         if (isSettingsProfileSelector) {
-            spinnerItems = buildSettingsProfileItems(MIN_SETTINGS_PROFILE_COUNT).toMutableList()
+            spinnerItems = buildSettingsProfileItems(spinnerPsv.context, MIN_SETTINGS_PROFILE_COUNT).toMutableList()
             selectedIndexFromWidget = 0
         }
         val info = WidgetSpinnerInfo(
@@ -114,16 +117,17 @@ class SpinnerDelegateAdapterV3 (
             isSettingsProfileSelector = isSettingsProfileSelector
         )
         spinnerInfoList.removeAll {
-            it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
+            it.spinner === spinnerPsv ||
+                (it.parameterInfo.deviceAddress == info.parameterInfo.deviceAddress &&
                 it.parameterInfo.parameterID == info.parameterInfo.parameterID &&
                 it.parameterInfo.dataCode == info.parameterInfo.dataCode &&
-                it.widgetPosition == info.widgetPosition
+                it.widgetPosition == info.widgetPosition)
         }
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
         val initialIndex = if (isRoleSelector) {
             prefs.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, roleDefaultIndex)
-                .coerceIn(roleItems.indices)
+                .coerceIn(roleIndexRange())
         } else {
             selectedIndexFromWidget
         }
@@ -133,6 +137,7 @@ class SpinnerDelegateAdapterV3 (
         if (isRoleSelector) {
             setServiceEngineerUiEnabled(initialIndex == serviceEngineerIndex)
         }
+        spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, _, _ -> }
         // стартовое состояние из структуры или локальных настроек для роли
         safeIndexOrNull(
             items = info.items,
@@ -298,12 +303,14 @@ class SpinnerDelegateAdapterV3 (
                 ensureSettingsProfileItemsContain(infoWidget, spinnerValue)
             }
             applyProgrammaticSelection(infoWidget, spinnerValue)
-            platformLog("SpinnerDelegateAdapterV3", "принимаем spinnerValue=$spinnerValue")
+            platformLog("SpinnerDelegateAdapterV3", "received spinnerValue=$spinnerValue")
         }
 
     }
 
     private fun applyProgrammaticSelection(infoWidget: WidgetSpinnerInfo, index: Int) {
+        if (!isCurrentSpinnerInfo(infoWidget)) return
+
         val safeIndex = safeIndexOrNull(
             items = infoWidget.items,
             requestedIndex = index,
@@ -323,8 +330,10 @@ class SpinnerDelegateAdapterV3 (
         prefs: SharedPreferences,
         newIndex: Int
     ) {
+        if (!isCurrentSpinnerInfo(info)) return
+
         val previousIndex = info.selectedIndex
-            .takeIf { it in roleItems.indices }
+            .takeIf { it in roleIndexRange() }
             ?: roleDefaultIndex
 
         if (newIndex == previousIndex) return
@@ -355,7 +364,7 @@ class SpinnerDelegateAdapterV3 (
         info: WidgetSpinnerInfo,
         index: Int
     ) {
-        val safeIndex = index.coerceIn(roleItems.indices)
+        val safeIndex = index.coerceIn(roleIndexRange())
         info.selectedIndex = safeIndex
         prefs.edit().putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, safeIndex).apply()
         setServiceEngineerUiEnabled(safeIndex == serviceEngineerIndex)
@@ -370,6 +379,9 @@ class SpinnerDelegateAdapterV3 (
     private fun setServiceEngineerUiEnabled(enabled: Boolean) {
         UiState.isServiceEngineerRole.value = enabled
     }
+
+    private fun isCurrentSpinnerInfo(info: WidgetSpinnerInfo): Boolean =
+        spinnerInfoList.any { it === info }
 
     private fun handleSettingsProfileSelection(
         info: WidgetSpinnerInfo,
@@ -461,14 +473,25 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun applySettingsProfileItems(info: WidgetSpinnerInfo, profileCount: Int) {
-        val items = buildSettingsProfileItems(profileCount)
+        val items = buildSettingsProfileItems(info.spinner.context, profileCount)
         info.items = items
         info.spinner.setItems(items)
     }
 
-    private fun buildSettingsProfileItems(profileCount: Int): List<String> {
+    private fun buildRoleItems(context: Context): List<String> =
+        listOf(
+            context.getString(SharedRes.strings.ubi4_v3_role_prosthetist.resourceId),
+            context.getString(SharedRes.strings.ubi4_v3_role_service_engineer.resourceId),
+            context.getString(SharedRes.strings.ubi4_v3_role_not_selected.resourceId)
+        )
+
+    private fun roleIndexRange(): IntRange = prosthetistIndex..roleDefaultIndex
+
+    private fun buildSettingsProfileItems(context: Context, profileCount: Int): List<String> {
         val safeCount = profileCount.coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
-        val profiles = (1..safeCount).map { index -> "Профиль №$index" }
+        val profiles = (1..safeCount).map { index ->
+            context.getString(SharedRes.strings.ubi4_v3_settings_profile_number.resourceId, index)
+        }
         return if (safeCount < MAX_SETTINGS_PROFILE_COUNT) {
             profiles + SETTINGS_PROFILE_ADD_ITEM
         } else {
@@ -477,7 +500,7 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun settingsProfileCount(info: WidgetSpinnerInfo): Int =
-        info.items.count { it.startsWith("Профиль №") }
+        info.items.count { it != SETTINGS_PROFILE_ADD_ITEM }
             .coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
 
     private fun setLocalValue(info: WidgetSpinnerInfo, value: Int) {
@@ -498,6 +521,7 @@ class SpinnerDelegateAdapterV3 (
         onSuccess: () -> Unit,
         onCancelOrFail: () -> Unit
     ) {
+        dismissPinCodeDialog()
         val dialogView = View.inflate(context, R.layout.ubi4_dialog_enter_pin, null)
         val dialog = Dialog(context).apply {
             setContentView(dialogView)
@@ -505,24 +529,40 @@ class SpinnerDelegateAdapterV3 (
             show()
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
+        pinDialog = dialog
+        dialog.setOnDismissListener {
+            clearPinDialogState(dialog)
+        }
 
         val pinView = dialog.findViewById<PasscodeView>(R.id.ubi4_pin_dialog_passcode_view)
         pinView.requestFocus()
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            pinView.showKeyboard()
-        }, 200)
+        val keyboardRunnable = Runnable {
+            if (pinDialog === dialog && dialog.isShowing) {
+                pinView.showKeyboard()
+            }
+        }
+        showPinKeyboardRunnable = keyboardRunnable
+        mainHandler.postDelayed(keyboardRunnable, 200)
 
         pinView.setPasscodeEntryListener { passcode ->
             val ok = passcode == SECRET_PIN
             hideKeyboard(context, pinView)
-            dialog.dismiss()
+            dismissPinCodeDialog()
 
             if (ok) {
-                Toast.makeText(context, "Доступ разрешён", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(SharedRes.strings.ubi4_v3_pin_access_granted.resourceId),
+                    Toast.LENGTH_SHORT
+                ).show()
                 onSuccess()
             } else {
-                Toast.makeText(context, "Неверный пинкод", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(SharedRes.strings.ubi4_v3_pin_invalid.resourceId),
+                    Toast.LENGTH_SHORT
+                ).show()
                 onCancelOrFail()
             }
         }
@@ -530,8 +570,24 @@ class SpinnerDelegateAdapterV3 (
         val cancelBtn = dialogView.findViewById<View>(R.id.ubi4_pin_dialog_cancel_click_area)
         cancelBtn.setOnClickListener {
             hideKeyboard(context, pinView)
-            dialog.dismiss()
+            dismissPinCodeDialog()
             onCancelOrFail()
+        }
+    }
+
+    private fun dismissPinCodeDialog() {
+        showPinKeyboardRunnable?.let(mainHandler::removeCallbacks)
+        showPinKeyboardRunnable = null
+        pinDialog?.setOnDismissListener(null)
+        pinDialog?.dismiss()
+        pinDialog = null
+    }
+
+    private fun clearPinDialogState(dialog: Dialog) {
+        showPinKeyboardRunnable?.let(mainHandler::removeCallbacks)
+        showPinKeyboardRunnable = null
+        if (pinDialog === dialog) {
+            pinDialog = null
         }
     }
 
@@ -607,6 +663,7 @@ class SpinnerDelegateAdapterV3 (
         else -> "spinner-$title"
     }
     fun onDestroy() {
+        dismissPinCodeDialog()
         spinnerInfoList.forEach { it.spinner.dismiss() }
         spinnerInfoList.clear()
         recyclerTouchListeners.forEach { (recycler, listener) ->

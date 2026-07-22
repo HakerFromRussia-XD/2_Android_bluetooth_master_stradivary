@@ -34,6 +34,9 @@ interface SettingsProfileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProfile(entity: SettingsProfileEntity)
 
+    @Query("DELETE FROM settings_profiles WHERE serial_number = :serial")
+    suspend fun deleteProfiles(serial: String)
+
     @Query("UPDATE settings_profiles SET is_active = 0, updated_ts_ms = :tsMs WHERE serial_number = :serial")
     suspend fun clearActive(serial: String, tsMs: Long)
 
@@ -48,6 +51,9 @@ interface SettingsProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertValue(entity: SettingsProfileValueEntity)
+
+    @Query("DELETE FROM settings_profile_values WHERE serial_number = :serial")
+    suspend fun deleteValues(serial: String)
 
     @Query(
         """

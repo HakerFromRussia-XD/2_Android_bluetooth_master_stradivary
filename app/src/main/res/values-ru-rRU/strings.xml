@@ -142,7 +142,7 @@
     <string name="sensor_settings">настройки датчиков</string>
     <string name="sensor_settingss">Настройки датчиков</string>
     <string name="special_settings">Спецнастройки</string>
-    <string name="service_settings">Служебные настройки</string>
+    <string name="service_settings">Служебные</string>
     <string name="driver_0_00v">драйвер: 0.00v</string>
     <string name="driver">"драйвер: "</string>
     <string name="bms_0_00v">бмс: 0.00v</string>
@@ -269,6 +269,8 @@
     <string name="smart_connection">умное подключение</string>
     <string name="disconnection_from_the_device">Отключение от устройства</string>
     <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Вы действительно хотите отключиться от устройства и перейти на экран сканирования?</string>
+    <string name="reset_all_slots">Сброс всех слотов</string>
+    <string name="are_you_sure_you_want_to_reset_all_slots">Вы уверены, что хотите сбросить все слоты до заводских настроек?</string>
     <string name="got_it">Понятно</string>
     <string name="availible_devices">ДОСТУПНЫЕ УСТРОЙСТВА</string>
     <string name="paired_device">СВЯЗАННЫЕ УСТРОЙСТВА</string>
@@ -516,6 +518,7 @@
     <string name="general">Главные</string>
     <string name="customer_service">Служба поддержки</string>
     <string name="prosthesis_information">Информация о протезе</string>
+    <string name="statistics">Статистика</string>
     <string name="motorica_games">Игры</string>
     <string name="motorica_stk_title">Super Tux Kart</string>
     <string name="motorica_stk_description">Игра с EMG-управлением Motorica</string>

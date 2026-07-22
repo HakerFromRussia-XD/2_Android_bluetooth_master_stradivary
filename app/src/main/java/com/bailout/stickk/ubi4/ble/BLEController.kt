@@ -37,7 +37,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
+import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
+import com.bailout.stickk.ubi4.data.network.Ubi4SettingsProfileReceiver
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.data.parser.BLEParserV3
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
@@ -50,9 +53,11 @@ import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModuleControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.EmgMasterControlEnum.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.data.state.FlagState.canSendFlag
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -69,6 +74,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.internal.notifyAll
+import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 
 class BLEController(private val bleManager: BleManagerKmm) {
@@ -96,10 +102,13 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private var mConnected = false
     private var endFlag = false
     private var mScanning = false
+    private var onConnectedListener: (() -> Unit)? = null
     private var onNeedFullInitListener: (() -> Unit)? = null
+    private val settingsProfileReceiver = Ubi4SettingsProfileReceiver()
 
     @Volatile private var isTransferFlowActive = false
     @Volatile private var productInfoRequested = false
+    @Volatile private var settingsProfileDownloadedForConnection = false
 
     private val bleJob = Job()
     private val bleScope = CoroutineScope(Dispatchers.Main + bleJob)
@@ -190,6 +199,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
                     System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
                     reconnectThreadFlag = false
+                    settingsProfileDownloadedForConnection = false
+                    SettingsProfileUploadWorkScheduler.onConnected(mContext)
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     isTransferFlowActive = false
@@ -201,6 +212,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
                     mConnected = false
                     isUploading = false
                     endFlag = true
+                    SettingsProfileUploadWorkScheduler.enqueueDisconnectUpload(
+                        context = mContext,
+                        reason = "ble_disconnect"
+                    )
                     progressDialog?.dismiss()
                     progressDialog = null
                     needReRequestTransferFlow = true
@@ -461,8 +476,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
     private fun parseReceivedDataV3(data: ByteArray?) {
         if (data == null) { return }
         runCatching {
-            handleV3InitResponseProgress(data)
             mBLEParserV3?.parseReceivedData(data)
+            handleV3InitResponseProgress(data)
         }.onFailure { t ->
             main.showToast(main.getString(SharedRes.strings.parser_error.resourceId, "mBLEParserV3"))
         }
@@ -574,6 +589,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
         reconnectJob?.cancel()
         if (mScanning) scanLeDevice(false)
         ControllerBleStatusConnection.UiBridges.bleStatusController?.stopReconnecting()
+        SettingsProfileUploadWorkScheduler.enqueueDisconnectUpload(
+            context = mContext,
+            reason = "manual_disconnect"
+        )
         mDisconnected = true
         println("--> дисконнектим всё к хуям и анбайндим")
         bleScope.launch(Dispatchers.IO) {
@@ -740,6 +759,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
         progressDialog?.dismiss()
         progressDialog = null
         onNeedFullInitListener = null
+        onConnectedListener = null
         onDisconnectedListener = null
         runCatching { mBluetoothLeService?.disconnect() }
         runCatching { mBluetoothLeService?.close() }
@@ -767,6 +787,8 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 continue
             }
 
+            sendPhoneDateTimeV3()
+
             val mainChannelNotifyEnabled = enableNotifyAndAwaitResponse(MAIN_CHANNEL_CHARACTERISTIC) { attempt, max ->
                 main.showToast(main.getString(SharedRes.strings.main_channel_notify_attempt.resourceId, attempt, max))
                 Log.w("BLEParserV3", "Не включилась notify MAIN_CHANNEL — попытка $attempt/$max")
@@ -782,6 +804,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
             if (initRequests.isEmpty()) {
                 UiState.widgetsLoadingFlow.tryEmit(Unit)
+                onConnectedListener?.invoke()
                 return
             }
 
@@ -817,10 +840,10 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     fun requestSerialNumberV3() {
-        val packet = requestWithCommand(
+        val packet = WidgetCommandBridgeV3.buildReadRequest(
             DEVICE_INFORMATION.number.toInt(),
-            GET_SERIAL_NUMBER.number
-        )
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
         Log.d(
             "DeviceSerialV3",
             "TX GET_SERIAL_NUMBER packet=${EncodeByteToHex.bytesToHexString(packet)}"
@@ -832,8 +855,44 @@ class BLEController(private val bleManager: BleManagerKmm) {
         ) {}
     }
 
+    private suspend fun sendPhoneDateTimeV3(timeoutMs: Long = 500L) {
+        val calendar = Calendar.getInstance()
+        val weekDay = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+        val packet = BLECommandsV3.sendDateTime(
+            year = calendar.get(Calendar.YEAR),
+            month = calendar.get(Calendar.MONTH) + 1,
+            day = calendar.get(Calendar.DAY_OF_MONTH),
+            weekDay = weekDay,
+            hour = calendar.get(Calendar.HOUR_OF_DAY),
+            minute = calendar.get(Calendar.MINUTE),
+            second = calendar.get(Calendar.SECOND)
+        )
+        val sent = CompletableDeferred<Unit>()
+
+        Log.d(
+            "DateTimeV3",
+            "TX GMCE_SET_DATE_TIME packet=${EncodeByteToHex.bytesToHexString(packet)}"
+        )
+        bleManager.sendBytesKmm(
+            packet,
+            SERIALPORTCHAR_UUID,
+            WRITE
+        ) {
+            sent.complete(Unit)
+        }
+
+        val completed = withTimeoutOrNull(timeoutMs) { sent.await() } != null
+        if (!completed) {
+            Log.w("DateTimeV3", "GMCE_SET_DATE_TIME write callback timeout")
+        }
+    }
+
     fun setOnNeedFullInitListener(listener: () -> Unit) {
         onNeedFullInitListener = listener
+    }
+
+    fun setOnConnectedListener(listener: () -> Unit) {
+        onConnectedListener = listener
     }
 
     internal fun setUploadingState(state: Boolean) { isUploading = state }
@@ -848,6 +907,11 @@ class BLEController(private val bleManager: BleManagerKmm) {
     }
 
     private fun buildV3InitRequests(): List<V3InitRequest> {
+        val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
+            DEVICE_INFORMATION.number.toInt(),
+            SET_SERIAL_NUMBER.number
+        ) ?: requestWithCommand(DEVICE_INFORMATION.number.toInt(), GET_SERIAL_NUMBER.number)
+
         return listOf(
             V3InitRequest(
                 packet = request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
@@ -933,10 +997,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 expectedResponseSubcommand = PWCE_GET_FORCE_SETTINGS.number.toInt()
             ),
             V3InitRequest(
-                packet = requestWithCommand(
-                    DEVICE_INFORMATION.number.toInt(),
-                    GET_SERIAL_NUMBER.number
-                ),
+                packet = getSerialNumberPacket,
                 expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
                 expectedResponseSubcommand = GET_SERIAL_NUMBER.number
             )
@@ -1001,6 +1062,40 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
         if (shouldEmitCompletion) {
             UiState.widgetsLoadingFlow.tryEmit(Unit)
+            onConnectedListener?.invoke()
+            downloadSettingsProfilesAfterV3Init()
+        }
+    }
+
+    private fun downloadSettingsProfilesAfterV3Init() {
+        if (settingsProfileDownloadedForConnection) return
+        val serial = SettingsProfileManager.serial().trim()
+        if (serial.isBlank()) {
+            platformLog(SETTINGS_PROFILE_DOWNLOAD_LOG_TAG, "skip: device serial is not loaded from GET_SERIAL_NUMBER")
+            return
+        }
+
+        settingsProfileDownloadedForConnection = true
+        val lang = main.locate.takeIf { it.isNotBlank() } ?: "en"
+        platformLog(SETTINGS_PROFILE_DOWNLOAD_LOG_TAG, "start: serial=$serial lang=$lang")
+
+        main.lifecycleScope.launch {
+            runCatching {
+                settingsProfileReceiver.downloadAndApplyForSerial(
+                    serial = serial,
+                    lang = lang
+                )
+            }.onSuccess { result ->
+                platformLog(
+                    SETTINGS_PROFILE_DOWNLOAD_LOG_TAG,
+                    "success: deviceId=${result.deviceId} profileCount=${result.state.profileCount} activeProfile=${result.state.activeProfileId} applied=${result.applyValues.size}"
+                )
+            }.onFailure { error ->
+                platformLog(
+                    SETTINGS_PROFILE_DOWNLOAD_LOG_TAG,
+                    "failed: ${error.message ?: error::class.simpleName}"
+                )
+            }
         }
     }
 
@@ -1018,5 +1113,9 @@ class BLEController(private val bleManager: BleManagerKmm) {
 
     private fun v3InitResponseKey(command: Int, subcommand: Int): String {
         return "$command:$subcommand"
+    }
+
+    private companion object {
+        private const val SETTINGS_PROFILE_DOWNLOAD_LOG_TAG = "SettingsProfileDownload"
     }
 }

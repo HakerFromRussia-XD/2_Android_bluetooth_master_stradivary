@@ -47,6 +47,7 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.DeviceInfoStructs
+import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
 import com.bailout.stickk.ubi4.data.network.TelemetryCoordinator
 import com.bailout.stickk.ubi4.data.state.BLEState.bleParser
 import com.bailout.stickk.ubi4.data.state.ConnectionState.connectedDeviceAddress
@@ -84,6 +85,8 @@ import com.bailout.stickk.ubi4.ui.fragments.account.games.AccountGamesFragment
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFragmentMainUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
+import com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3.AccountFragmentStatisticsV3
+import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
@@ -122,6 +125,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var resumePlotPointsRunnable: Runnable? = null
     private var isImeVisible = false
     private var bottomNavHiddenByIme = false
+    private var openingScanAfterDisconnect = false
+    private var appCloseUploadRequested = false
 
     private val percentProgressLearningModel = MutableStateFlow(0)
 
@@ -175,6 +180,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showStartupLoaderIfNeeded()
         }
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
+        //TODO проверить после мерджа
         SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
@@ -194,6 +200,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         telemetryCoordinator = TelemetryCoordinator(
             scope = lifecycleScope,
+            preferences = mSettings!!,
             requestTelemetryData = { mBLEController.requestTelemetryDataV3() },
             fallbackDeviceIds = {
                 listOf(
@@ -205,6 +212,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             },
             showToast = ::showToast
         )
+        mBLEController.setOnConnectedListener {
+            if (UiState.isInterfaceV3Activated) {
+                telemetryCoordinator.sendTelemetry(showResultToast = false)
+            }
+        }
         if (!isV3BleEmulatorMode) {
             mBLEController.initBLEStructure()
             mBLEController.connectToSavedDeviceNow()
@@ -317,6 +329,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+        appCloseUploadRequested = false
+        SettingsProfileUploadWorkScheduler.cancelAppCloseUpload(this)
         if (isV3BleEmulatorMode) {
             UiState.v3WidgetsInteractionEnabled.value = true
             return
@@ -340,7 +354,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
+    override fun onStop() {
+        enqueueAppCloseUploadIfNeeded()
+        super.onStop()
+    }
+
     override fun onDestroy() {
+        enqueueAppCloseUploadIfNeeded()
         queueWorkerRunning = false
         queueWorker?.interrupt()
         queueWorker = null
@@ -354,6 +374,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.cleanup()
         clearMainIfSame(this)
         super.onDestroy()
+    }
+
+    private fun enqueueAppCloseUploadIfNeeded() {
+        if (openingScanAfterDisconnect || appCloseUploadRequested) return
+        if (!this::mBLEController.isInitialized || !mBLEController.getStatusConnected()) {
+            platformLog("SettingsProfileUploadWork", "skip app close enqueue: device is not connected")
+            return
+        }
+
+        appCloseUploadRequested = true
+        SettingsProfileUploadWorkScheduler.enqueueAppCloseUpload(
+            context = this,
+            lang = locate.takeIf { it.isNotBlank() } ?: "en"
+        )
     }
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
@@ -411,6 +445,29 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             fragment = AccountFragmentProsthesisInformationUBI4(),
             withSlideAnimation = true,
             preserveCurrentFragmentView = preserveCurrentFragmentView
+        )
+    }
+
+    override fun showAccountStatisticsScreen() {
+        showTopStatusBar()
+        setStatusBarBackMode(enabled = true)
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = AccountFragmentStatisticsV3(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
+        )
+    }
+
+    override fun showAchievementsScreen() {
+        hideTopStatusBar()
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = AchievementsFragment(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
         )
     }
 
@@ -573,6 +630,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     fun openScanActivity() {
         System.err.println("Check openScanActivity()")
+        openingScanAfterDisconnect = true
         resetLastMAC()
         val intent = Intent(this@MainActivityUBI4, ScanActivity::class.java)
         startActivity(intent)
@@ -731,6 +789,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
+            //TODO проверить после мерджа
             SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
@@ -755,6 +814,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
+        //TODO проверить после мерджа
         SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
@@ -850,6 +910,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     fun showTopStatusBar() {
         binding.statusBar.visibility = View.VISIBLE
         binding.dividerV.visibility = View.VISIBLE
+    }
+
+    fun hideTopStatusBar() {
+        binding.statusBar.visibility = View.GONE
+        binding.dividerV.visibility = View.GONE
     }
 
     fun setStatusBarBackMode(enabled: Boolean) {

@@ -52,6 +52,7 @@ object PreferenceKeysUbi4 {
     const val LAST_ACTIVE_GESTURE_FILTER = "LAST_ACTIVE_GESTURE_FILTER"
     const val LAST_ACTIVE_SETTINGS_FILTER = "LAST_ACTIVE_SETTINGS_FILTER"
     const val LAST_HIDE_COLLECTION_BTN_STATE = "LAST_HIDE_COLLECTION_BTN_STATE"
+    const val LAST_TELEMETRY_SEND_TIMESTAMP = "LAST_TELEMETRY_SEND_TIMESTAMP"
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
     const val GAME_LAUNCH_RATE = "GAME_LAUNCH_RATE"
     const val MAXIMUM_POINTS = "MAXIMUM_POINTS"
@@ -465,16 +466,18 @@ object PreferenceKeysUbi4 {
         DTCE_STATIC_BINDING_STRUCTS         (17  ) ,
         DTCE_DYNAMIC_BINDING_STRUCTS        (18  ) ,
         DTCE_UPPER_LIMB_PROSTHESIS_SETTINGS (19  ) ,
-        DCTE_GESTURES_KEY_DESCRIPTION       (20  ) ,
-        DCTE_GESTURES_STRING_DESCRIPTION    (21  ) ,
-        DCTE_GESTURE_GROUP                  (22  ) ,
-        DCTE_DMS_BINDING_DATA               (23  ) ,
+        DTCE_GESTURES_KEY_DESCRIPTION       (20  ) ,
+        DTCE_GESTURES_STRING_DESCRIPTION    (21  ) ,
+        DTCE_GESTURE_GROUP                  (22  ) ,
+        DTCE_DMS_BINDING_DATA               (23  ) ,
         DTCE_OPTIC_SETTINGS                 (24  ) ,
         DTCE_GUI_SETTINGS                   (25  ) ,
         DTCE_PRESSURE_SETTINGS              (26  ) ,
         DTCE_ML_MODEL_DATA                  (27  ) ,
         DTCE_DEVICES_CACHE                  (28  ) ,
         DTCE_EMG_MASTER_SETTINGS            (29  ) ,
+        DTCE_TELEMETRY_DATA                 (30  ) ,
+        DTCE_MOTOR_PID_SETTINGS             (31  ) ,
         DTCE_FREE_SLOT                      ((0xFF).toByte())
     }
 

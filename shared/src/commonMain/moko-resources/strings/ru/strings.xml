@@ -216,6 +216,7 @@
 <string name="not_calibrated_message">Для того чтобы его откалибровать перейдите в расширенные настройки.</string>
 <string name="not_calibrated">Протез не откалиброван</string>
 <string name="calibration_status">статус калибровки</string>
+<string name="sync_data_progress">Синхронизация данных...</string>
 <string name="sync_0">синхро 0%</string>
 <string name="start">старт</string>
 <string name="pre_status_finger">статус пальца %d:</string>
@@ -528,6 +529,8 @@
 <string name="do_you_really_want_to_soft_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть настройки протеза к заводским? (состояния жестов и имя протеза не будут затронуты)</string>
 <string name="do_you_really_want_to_hard_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть все настройки протеза к заводским?</string>
 <string name="do_you_really_want_to_gesture_reset_your_prosthesis_to_factory_settings">Вы действительно хотите восстановить все жесты протеза к заводским?</string>
+<string name="reset_all_slots">Сброс всех слотов</string>
+<string name="are_you_sure_you_want_to_reset_all_slots">Вы уверены, что хотите сбросить все слоты до заводских настроек?</string>
 <string name="calibration_of_the_prosthesis">Калибровка протеза</string>
 <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Калибровка займёт примерно 15 секунд. Вы действительно хотите продолжить?</string>
 <string name="setting_the_serial_number_of_the_prosthesis">Установка серийного номера протеза</string>
@@ -548,6 +551,7 @@
 <string name="general">Главные</string>
 <string name="customer_service">Служба поддержки</string>
 <string name="prosthesis_information">Информация о протезе</string>
+<string name="statistics">Стаитистика</string>
 <string name="driver_version">Версия драйвера</string>
 <string name="software_information">Информация о версиях</string>
 <string name="bms_version">Версия БМС</string>
@@ -802,6 +806,56 @@
 <string name="update_firmware">Обновить</string>
 <string name="update_board" formatted="true">Обновить %1$s</string>
 <string name="unknown_board">Неизвестно</string>
+<string name="ubi4_v3_error_113">Ошибка 113</string>
+<string name="ubi4_v3_dashboard_command_completed" formatted="true">Команда %1$s выполнена</string>
+<string name="ubi4_v3_read_data_empty">Ответ READ_DATA пустой</string>
+<string name="ubi4_v3_read_data_part_too_short">Ответ READ_DATA_PART слишком короткий</string>
+<string name="ubi4_v3_packet_too_short">Пакет слишком короткий</string>
+<string name="ubi4_v3_long_packet_payload_too_short" formatted="true">LONG пакет: payloadSize &lt; 3: %1$s</string>
+<string name="ubi4_v3_long_packet_incomplete" formatted="true">LONG пакет неполный: size=%1$s, нужно минимум=%2$s (payloadSize=%3$s)</string>
+<string name="ubi4_v3_invalid_indexes" formatted="true">Невалидные индексы: ожидали [%1$s, %2$s), но длина строки = %3$s</string>
+<string name="ubi4_v3_widget_plots">Графики</string>
+<string name="ubi4_v3_widget_opening_sensor_sensitivity">Чувствительность датчика открытия</string>
+<string name="ubi4_v3_widget_closing_sensor_sensitivity">Чувствительность датчика закрытия</string>
+<string name="ubi4_v3_widget_open_close" formatted="false">Открыть%Закрыть</string>
+<string name="ubi4_v3_widget_gestures">Жесты</string>
+<string name="ubi4_v3_unit_seconds">сек</string>
+<string name="ubi4_v3_widget_gesture_switching_by_sensors">Переключение жестов сенсорами</string>
+<string name="ubi4_v3_widget_emg_movement_lock">Блокировка движения с ЕМГ</string>
+<string name="ubi4_v3_widget_screen_timeout">Время работы экрана</string>
+<string name="ubi4_v3_widget_max_sensor_sensitivity">Максимальная чувствительность датчиков</string>
+<string name="ubi4_v3_widget_force_setting">Настройка силы</string>
+<string name="ubi4_v3_widget_speed_setting">Настройка скорости</string>
+<string name="ubi4_v3_hand_control_normal">Нормальный</string>
+<string name="ubi4_v3_hand_control_sport">Спортивный</string>
+<string name="ubi4_v3_hand_control_smooth_force">Плавное управление силой</string>
+<string name="ubi4_v3_hand_control_smooth_speed">Плавное управление скоростью</string>
+<string name="ubi4_v3_hand_control_smooth_force_and_speed">Плавное управление силой и скоростью</string>
+<string name="ubi4_v3_widget_prosthesis_work_mode">Режим работы протеза</string>
+<string name="ubi4_v3_settings_profile_1">Профиль №1</string>
+<string name="ubi4_v3_settings_profile_number" formatted="true">Профиль №%1$d</string>
+<string name="ubi4_v3_settings_profile_add">+</string>
+<string name="ubi4_v3_widget_settings_profiles">Профили настроек</string>
+<string name="ubi4_v3_gesture_change_no_action">Без действия</string>
+<string name="ubi4_v3_gesture_change_move_to_open">Перейти в открытое положение</string>
+<string name="ubi4_v3_widget_gesture_change_action">Действие при смене жеста</string>
+<string name="ubi4_v3_emg_mode_4_0">ЕМГ 4.0</string>
+<string name="ubi4_v3_emg_mode_3_0">ЕМГ 3.0</string>
+<string name="ubi4_v3_emg_mode_first_start">Первый старт</string>
+<string name="ubi4_v3_emg_mode_4_1">ЕМГ 4.1</string>
+<string name="ubi4_v3_widget_emg_work_mode">Режим работы ЕМГ</string>
+<string name="ubi4_v3_left_hand">Левая</string>
+<string name="ubi4_v3_right_hand">Правая</string>
+<string name="ubi4_v3_widget_hand_side">Сторона руки</string>
+<string name="ubi4_v3_role_prosthetist">Протезист</string>
+<string name="ubi4_v3_role_service_engineer">Сервисный инженер</string>
+<string name="ubi4_v3_role_not_selected">Не выбрано</string>
+<string name="ubi4_v3_widget_role">Роль</string>
+<string name="ubi4_v3_widget_device_name_write" formatted="false">Имя протеза%Записать</string>
+<string name="ubi4_v3_widget_serial_number_write" formatted="false">Серийный номер%Записать</string>
+<string name="ubi4_v3_widget_prosthesis_calibration">Калибровка протеза</string>
+<string name="ubi4_v3_pin_access_granted">Доступ разрешён</string>
+<string name="ubi4_v3_pin_invalid">Неверный пинкод</string>
 
 
 <string-array name="numbers">

@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.network
 
 import AllOptionsV3
+import SettingsModelV3
 import Token
 import com.bailout.stickk.ubi4.models.device.DeviceInfo
 import com.bailout.stickk.ubi4.models.deviceList.DeviceInList_DEV
@@ -97,13 +98,38 @@ class Ubi4RequestsApi(
 
     suspend fun getProthesisSettings(deviceId: String, token: String): NetworkResult<AllOptionsV3> =
         safeGet(
-            client = passportClient,
+            client = userClient,
             builder = {
-                url("${BaseUrlUtilsUBI4.PASSPORT_BASE}v1/device-mobile-app/$deviceId")
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/device-mobile-app/$deviceId")
                 header(HttpHeaders.Authorization, "Bearer $token")
             },
             decode = { it.body() }
         )
+
+    suspend fun getProthesisSettingsRaw(deviceId: String, token: String): NetworkResult<String> =
+        safeGet(
+            client = userClient,
+            builder = {
+                url("${BaseUrlUtilsUBI4.USER_BASE}v1/device-mobile-app/$deviceId")
+                header(HttpHeaders.Authorization, "Bearer $token")
+            },
+            decode = { it.bodyAsText() }
+        )
+
+    suspend fun postProthesisSettings(
+        deviceId: String,
+        token: String,
+        request: SettingsModelV3
+    ): NetworkResult<String> = safePost(
+        client = userClient,
+        builder = {
+            url("${BaseUrlUtilsUBI4.USER_BASE}v1/device-mobile-app/$deviceId")
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        },
+        decode = { it.bodyAsText() }
+    )
 
     // ==== PASSPORT-API ====
 

@@ -21,11 +21,27 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import kotlin.concurrent.Volatile
 
 private const val MAX_SETTINGS_PROFILE_COUNT = 3
 private const val TARGET_BLE = "BLE"
 private const val TARGET_MOBILE = "MOBILE"
+private const val EMPTY_PROFILE_JSON = "{}"
+private val settingsProfileServerJson = Json { encodeDefaults = true }
 
 data class SettingsProfileState(
     val profileCount: Int,
@@ -44,6 +60,46 @@ data class SettingsProfileApplyValue(
 class SettingsProfileRepository(
     private val dao: SettingsProfileDao
 ) {
+    suspend fun migrateSerial(
+        oldSerial: String,
+        newSerial: String
+    ): SettingsProfileState = withContext(Dispatchers.IO) {
+        val normalizedOld = normalizeSerial(oldSerial)
+        val normalizedNew = normalizeSerial(newSerial) ?: return@withContext SettingsProfileState(1, 1)
+        if (normalizedOld == null || normalizedOld == normalizedNew) {
+            return@withContext ensureState(normalizedNew)
+        }
+
+        val oldProfiles = dao.getProfiles(normalizedOld)
+        if (oldProfiles.isEmpty()) {
+            return@withContext ensureState(normalizedNew)
+        }
+
+        val ts = getTimeMillis()
+        val oldActiveProfileId = oldProfiles.firstOrNull { it.is_active }?.profile_id
+            ?: oldProfiles.first().profile_id
+        oldProfiles.forEach { profile ->
+            dao.upsertProfile(
+                profile.copy(
+                    serial_number = normalizedNew,
+                    is_active = profile.profile_id == oldActiveProfileId,
+                    updated_ts_ms = ts
+                )
+            )
+            dao.getValues(normalizedOld, profile.profile_id).forEach { value ->
+                dao.upsertValue(
+                    value.copy(
+                        serial_number = normalizedNew,
+                        updated_ts_ms = ts
+                    )
+                )
+            }
+        }
+        dao.deleteValues(normalizedOld)
+        dao.deleteProfiles(normalizedOld)
+        ensureState(normalizedNew)
+    }
+
     suspend fun ensureState(serial: String): SettingsProfileState = withContext(Dispatchers.IO) {
         val normalizedSerial = normalizeSerial(serial) ?: return@withContext SettingsProfileState(1, 1)
         ensureDefaultProfile(normalizedSerial)
@@ -107,6 +163,56 @@ class SettingsProfileRepository(
 
             ensureState(normalizedSerial) to loadApplyValues(normalizedSerial, profile.profile_id)
         }
+
+    suspend fun buildServerSettingsPayload(serial: String): String = withContext(Dispatchers.IO) {
+        val normalizedSerial = normalizeSerial(serial) ?: return@withContext settingsProfileServerJson.encodeToString(
+            defaultServerProfiles()
+        )
+        ensureDefaultProfile(normalizedSerial)
+        settingsProfileServerJson.encodeToString(
+            defaultServerProfiles().toMutableMap().apply {
+                for (profileId in 1..MAX_SETTINGS_PROFILE_COUNT) {
+                    this["PROFILE$profileId"] = buildServerProfileJson(normalizedSerial, profileId)
+                }
+            }
+        )
+    }
+
+    suspend fun importServerSettingsPayload(
+        serial: String,
+        payload: String
+    ): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> = withContext(Dispatchers.IO) {
+        val normalizedSerial = normalizeSerial(serial)
+            ?: return@withContext SettingsProfileState(1, 1) to emptyList()
+        val profiles = parseServerProfiles(payload)
+        if (profiles.isEmpty()) {
+            return@withContext ensureState(normalizedSerial) to emptyList()
+        }
+
+        dao.deleteValues(normalizedSerial)
+        dao.deleteProfiles(normalizedSerial)
+
+        val activeProfileId = profiles.firstOrNull { it.isActive }?.profileId
+            ?: profiles.first().profileId
+        profiles.forEach { profile ->
+            dao.upsertProfile(
+                SettingsProfileEntity(
+                    serial_number = normalizedSerial,
+                    profile_id = profile.profileId,
+                    name = profile.name.ifBlank { profileName(profile.profileId) },
+                    is_active = profile.profileId == activeProfileId,
+                    created_ts_ms = profile.updatedTsMs,
+                    updated_ts_ms = profile.updatedTsMs
+                )
+            )
+            profile.values.forEach { value ->
+                dao.upsertValue(value.copy(serial_number = normalizedSerial))
+            }
+        }
+
+        val state = ensureState(normalizedSerial)
+        state to loadApplyValues(normalizedSerial, state.activeProfileId)
+    }
 
     suspend fun saveBleValue(
         serial: String,
@@ -193,7 +299,7 @@ class SettingsProfileRepository(
     private suspend fun snapshotCurrentBleValues(serial: String, profileId: Int) {
         ParameterStoreV3.values.value.forEach { (key, typedValue) ->
             val parameterInfo = key.toParameterInfo()
-            val meta = PreferenceKeysUbi4.ParameterInfoRegistry.getMeta(parameterInfo) ?: return@forEach
+            val meta = metaFor(parameterInfo) ?: return@forEach
             if (!isBleProfileSetting(meta)) return@forEach
             upsertBleValue(serial, profileId, parameterInfo, meta, typedValue)
         }
@@ -282,7 +388,164 @@ class SettingsProfileRepository(
         serial?.trim()?.takeIf { it.isNotBlank() }
 
     private fun profileName(profileId: Int): String = "Профиль №$profileId"
+
+    private suspend fun buildServerProfileJson(serial: String, profileId: Int): String {
+        val profile = dao.getProfile(serial, profileId) ?: return EMPTY_PROFILE_JSON
+        val values = dao.getValues(serial, profileId)
+        val profileJson = buildJsonObject {
+            put("profile_id", profile.profile_id)
+            put("name", profile.name)
+            put("is_active", profile.is_active)
+            put("updated_ts_ms", profile.updated_ts_ms)
+            put(
+                "settings",
+                buildJsonArray {
+                    values.forEach { value ->
+                        add(value.toServerJson())
+                    }
+                }
+            )
+        }
+        return settingsProfileServerJson.encodeToString(JsonObject.serializer(), profileJson)
+    }
+
+    private fun SettingsProfileValueEntity.toServerJson(): JsonObject = buildJsonObject {
+        put("target", target)
+        put("setting_key", setting_key)
+        if (target == TARGET_BLE) {
+            put("parameter_id", parameter_id)
+            put("data_code", data_code)
+            put("data_offset", data_offset)
+            put("device_address", device_address)
+            put("codec_id", codec_id)
+        }
+        put("value", toServerValueJson())
+        put("updated_ts_ms", updated_ts_ms)
+    }
+
+    private fun SettingsProfileValueEntity.toServerValueJson(): JsonElement {
+        return when (target) {
+            TARGET_MOBILE -> JsonPrimitive(value_i1 == 1L)
+            TARGET_BLE -> value_text?.toJsonElementOrString() ?: JsonNull
+            else -> value_text?.toJsonElementOrString() ?: JsonNull
+        }
+    }
+
+    private fun String.toJsonElementOrString(): JsonElement =
+        runCatching { settingsProfileServerJson.parseToJsonElement(this) }
+            .getOrElse { JsonPrimitive(this) }
+
+    private fun defaultServerProfiles(): Map<String, String> =
+        mapOf(
+            "PROFILE1" to EMPTY_PROFILE_JSON,
+            "PROFILE2" to EMPTY_PROFILE_JSON,
+            "PROFILE3" to EMPTY_PROFILE_JSON
+        )
+
+    private fun parseServerProfiles(payload: String): List<ServerSettingsProfile> {
+        val root = runCatching { settingsProfileServerJson.parseToJsonElement(payload) }.getOrNull()
+            ?: return emptyList()
+        val profilesRoot = root.extractProfilesRoot() ?: return emptyList()
+
+        return (1..MAX_SETTINGS_PROFILE_COUNT).mapNotNull { profileId ->
+            val profilePayload = profilesRoot["PROFILE$profileId"] ?: return@mapNotNull null
+            val profileJson = profilePayload.toJsonObjectOrNull() ?: return@mapNotNull null
+            if (profileJson.isEmpty()) return@mapNotNull null
+
+            val safeProfileId = profileJson["profile_id"]?.jsonPrimitive?.contentOrNull?.toIntOrNull()
+                ?.coerceIn(1, MAX_SETTINGS_PROFILE_COUNT)
+                ?: profileId
+            val updatedTsMs = profileJson["updated_ts_ms"]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+                ?: getTimeMillis()
+            val values = profileJson["settings"]?.runCatchingJsonArray()
+                ?.mapNotNull { it.toProfileValueEntityOrNull(safeProfileId) }
+                .orEmpty()
+
+            ServerSettingsProfile(
+                profileId = safeProfileId,
+                name = profileJson["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                isActive = profileJson["is_active"]?.jsonPrimitive?.booleanOrNull == true,
+                updatedTsMs = updatedTsMs,
+                values = values
+            )
+        }
+    }
+
+    private fun JsonElement.extractProfilesRoot(): JsonObject? {
+        val rootObject = runCatching { jsonObject }.getOrNull() ?: return null
+        val settings = rootObject["settings"]
+        return when {
+            settings != null -> settings.toJsonObjectOrNull()
+            rootObject.keys.any { it.startsWith("PROFILE") } -> rootObject
+            else -> null
+        }
+    }
+
+    private fun JsonElement.toJsonObjectOrNull(): JsonObject? {
+        return when (this) {
+            is JsonObject -> this
+            is JsonPrimitive -> contentOrNull
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { settingsProfileServerJson.parseToJsonElement(it).jsonObject }.getOrNull() }
+            else -> null
+        }
+    }
+
+    private fun JsonElement.runCatchingJsonArray() =
+        runCatching { jsonArray }.getOrNull()
+
+    private fun JsonElement.toProfileValueEntityOrNull(profileId: Int): SettingsProfileValueEntity? {
+        val item = runCatching { jsonObject }.getOrNull() ?: return null
+        val target = item["target"]?.jsonPrimitive?.contentOrNull ?: return null
+        val settingKey = item["setting_key"]?.jsonPrimitive?.contentOrNull ?: return null
+        val updatedTsMs = item["updated_ts_ms"]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+            ?: getTimeMillis()
+
+        return when (target) {
+            TARGET_BLE -> SettingsProfileValueEntity(
+                serial_number = "",
+                profile_id = profileId,
+                setting_key = settingKey,
+                target = TARGET_BLE,
+                parameter_id = item["parameter_id"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: return null,
+                data_code = item["data_code"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: return null,
+                data_offset = item["data_offset"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0,
+                device_address = item["device_address"]?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0,
+                codec_id = item["codec_id"]?.jsonPrimitive?.contentOrNull ?: return null,
+                value_text = item["value"]?.let { settingsProfileServerJson.encodeToString(JsonElement.serializer(), it) },
+                value_i1 = null,
+                value_i2 = null,
+                value_i3 = null,
+                updated_ts_ms = updatedTsMs
+            )
+            TARGET_MOBILE -> SettingsProfileValueEntity(
+                serial_number = "",
+                profile_id = profileId,
+                setting_key = settingKey,
+                target = TARGET_MOBILE,
+                parameter_id = 0,
+                data_code = 0,
+                data_offset = 0,
+                device_address = 0,
+                codec_id = "",
+                value_text = null,
+                value_i1 = if (item["value"]?.jsonPrimitive?.booleanOrNull == true) 1L else 0L,
+                value_i2 = null,
+                value_i3 = null,
+                updated_ts_ms = updatedTsMs
+            )
+            else -> null
+        }
+    }
 }
+
+private data class ServerSettingsProfile(
+    val profileId: Int,
+    val name: String,
+    val isActive: Boolean,
+    val updatedTsMs: Long,
+    val values: List<SettingsProfileValueEntity>
+)
 
 object SettingsProfileRepositoryProvider {
     @Volatile
@@ -307,10 +570,17 @@ object SettingsProfileManager {
     fun setCurrentSerial(serial: String?) {
         val normalized = serial?.trim().orEmpty()
         if (normalized.isBlank() || normalized == currentSerial) return
+        if (normalized.startsWith(ConstantManagerUBI4.DEVICE_NAME_PREFIX)) {
+            platformLog("SettingsProfileManager", "skip device-name value as serial=$normalized")
+            return
+        }
+        val previousSerial = currentSerial
         currentSerial = normalized
         scope.launch {
-            runCatching { SettingsProfileRepositoryProvider.get().ensureState(normalized) }
-                .onFailure { platformLog("SettingsProfileManager", "ensureState failed: ${it.message}") }
+            runCatching {
+                SettingsProfileRepositoryProvider.get().migrateSerial(previousSerial, normalized)
+            }
+                .onFailure { platformLog("SettingsProfileManager", "migrateSerial failed: ${it.message}") }
         }
     }
 
@@ -327,6 +597,12 @@ object SettingsProfileManager {
     suspend fun switchToProfile(profileId: Int): Pair<SettingsProfileState, List<SettingsProfileApplyValue>> =
         SettingsProfileRepositoryProvider.getOrNull()?.switchToProfile(currentSerial, profileId)
             ?: (SettingsProfileState(1, 1) to emptyList())
+
+    suspend fun buildServerSettingsPayload(): String? {
+        val serial = currentSerial
+        if (serial.isBlank()) return null
+        return SettingsProfileRepositoryProvider.getOrNull()?.buildServerSettingsPayload(serial)
+    }
 
     fun saveBleValue(
         parameterInfo: ParameterInfo<Int, Int, Int, Int>,

@@ -67,10 +67,6 @@ class SpinnerDelegateAdapterV3 (
     private var pinDialog: Dialog? = null
     private var showPinKeyboardRunnable: Runnable? = null
 
-    private val prosthetistIndex = 0
-    private val serviceEngineerIndex = 1
-    private val roleDefaultIndex = 2
-
     // TODO: возьми реальный PIN
     private val SECRET_PIN = "1234"
 
@@ -98,7 +94,7 @@ class SpinnerDelegateAdapterV3 (
         val isSettingsProfileSelector = isSettingsProfileParameter(currentParameterInfo)
         if (isRoleSelector) {
             spinnerItems = buildRoleItems(spinnerPsv.context).toMutableList()
-            selectedIndexFromWidget = roleDefaultIndex
+            selectedIndexFromWidget = roleItemIndex(spinnerPsv.context, spinnerItems, DeviceRole.USER)
         }
         val prefs = spinnerPsv.context.getSharedPreferences(
             PreferenceKeysUbi4.APP_PREFERENCES,
@@ -126,8 +122,10 @@ class SpinnerDelegateAdapterV3 (
         spinnerInfoList.add(info)
         registerSpinner(spinnerPsv)
         val initialIndex = if (isRoleSelector) {
-            prefs.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, roleDefaultIndex)
-                .coerceIn(roleIndexRange())
+            val storedRole = DeviceRole.fromValue(
+                prefs.getInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, DeviceRole.USER.value)
+            ) ?: DeviceRole.USER
+            roleItemIndex(spinnerPsv.context, spinnerItems, storedRole)
         } else {
             selectedIndexFromWidget
         }
@@ -135,7 +133,8 @@ class SpinnerDelegateAdapterV3 (
         spinnerPsv.setItems(spinnerItems)
         applySpinnerLockState(info)
         if (isRoleSelector) {
-            setServiceEngineerUiEnabled(initialIndex == serviceEngineerIndex)
+            val initialRole = roleAt(spinnerPsv.context, spinnerItems, initialIndex)
+            setServiceEngineerUiEnabled(initialRole == DeviceRole.SERVICE_ENGINEER)
         }
         spinnerPsv.setOnSpinnerItemSelectedListener<String> { _, _, _, _ -> }
         // стартовое состояние из структуры или локальных настроек для роли
@@ -332,42 +331,46 @@ class SpinnerDelegateAdapterV3 (
     ) {
         if (!isCurrentSpinnerInfo(info)) return
 
-        val previousIndex = info.selectedIndex
-            .takeIf { it in roleIndexRange() }
-            ?: roleDefaultIndex
+        val previousIndex = info.selectedIndex.takeIf { it in info.items.indices }
+            ?: roleItemIndex(info.spinner.context, info.items, DeviceRole.USER)
 
         if (newIndex == previousIndex) return
 
-        when (newIndex) {
-            prosthetistIndex, serviceEngineerIndex -> {
+        val selectedRole = roleAt(info.spinner.context, info.items, newIndex)
+            ?: run {
+                applyProgrammaticSelection(info, previousIndex)
+                return
+            }
+
+        when {
+            selectedRole.requiresPin -> {
                 showPinCodeDialog(
                     context = info.spinner.context,
                     onSuccess = {
-                        persistRoleSelection(prefs, info, newIndex)
-                        sendValue(info, newIndex)
+                        persistRoleSelection(prefs, info, newIndex, selectedRole)
+                        sendValue(info, selectedRole.value)
                     },
                     onCancelOrFail = {
                         applyProgrammaticSelection(info, previousIndex)
                     }
                 )
             }
-            roleDefaultIndex -> {
-                persistRoleSelection(prefs, info, newIndex)
-                sendValue(info, newIndex)
+            else -> {
+                persistRoleSelection(prefs, info, newIndex, selectedRole)
+                sendValue(info, selectedRole.value)
             }
-            else -> applyProgrammaticSelection(info, previousIndex)
         }
     }
 
     private fun persistRoleSelection(
         prefs: SharedPreferences,
         info: WidgetSpinnerInfo,
-        index: Int
+        itemIndex: Int,
+        role: DeviceRole
     ) {
-        val safeIndex = index.coerceIn(roleIndexRange())
-        info.selectedIndex = safeIndex
-        prefs.edit().putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, safeIndex).apply()
-        setServiceEngineerUiEnabled(safeIndex == serviceEngineerIndex)
+        info.selectedIndex = itemIndex
+        prefs.edit().putInt(PreferenceKeysUbi4.KEY_DEVICE_ROLE_SELECTED, role.value).apply()
+        setServiceEngineerUiEnabled(role == DeviceRole.SERVICE_ENGINEER)
     }
 
     private fun isRoleParameter(parameterInfo: ParameterInfo<Int, Int, Int, Int>): Boolean =
@@ -479,13 +482,27 @@ class SpinnerDelegateAdapterV3 (
     }
 
     private fun buildRoleItems(context: Context): List<String> =
-        listOf(
-            context.getString(SharedRes.strings.ubi4_v3_role_prosthetist.resourceId),
-            context.getString(SharedRes.strings.ubi4_v3_role_service_engineer.resourceId),
-            context.getString(SharedRes.strings.ubi4_v3_role_not_selected.resourceId)
-        )
+        ENABLED_ROLES.map { roleName(context, it) }
 
-    private fun roleIndexRange(): IntRange = prosthetistIndex..roleDefaultIndex
+    private fun roleAt(context: Context, items: List<String>, itemIndex: Int): DeviceRole? {
+        val selectedName = items.getOrNull(itemIndex) ?: return null
+        return DeviceRole.entries.firstOrNull { roleName(context, it) == selectedName }
+    }
+
+    private fun roleItemIndex(context: Context, items: List<String>, role: DeviceRole): Int {
+        val requestedRoleName = roleName(context, role)
+        val requestedIndex = items.indexOf(requestedRoleName)
+        if (requestedIndex >= 0) return requestedIndex
+
+        val userIndex = items.indexOf(roleName(context, DeviceRole.USER))
+        return userIndex.takeIf { it >= 0 } ?: 0
+    }
+
+    private fun roleName(context: Context, role: DeviceRole): String = when (role) {
+        DeviceRole.PROSTHETIST -> context.getString(SharedRes.strings.ubi4_v3_role_prosthetist.resourceId)
+        DeviceRole.SERVICE_ENGINEER -> context.getString(SharedRes.strings.ubi4_v3_role_service_engineer.resourceId)
+        DeviceRole.USER -> context.getString(SharedRes.strings.ubi4_v3_role_user.resourceId)
+    }
 
     private fun buildSettingsProfileItems(context: Context, profileCount: Int): List<String> {
         val safeCount = profileCount.coerceIn(MIN_SETTINGS_PROFILE_COUNT, MAX_SETTINGS_PROFILE_COUNT)
@@ -679,6 +696,7 @@ class SpinnerDelegateAdapterV3 (
     }
 
     companion object {
+        private val ENABLED_ROLES = listOf(DeviceRole.SERVICE_ENGINEER, DeviceRole.USER)
         private const val KEY_SETTINGS_PROFILE_COUNT = "UBI4_SETTINGS_PROFILE_COUNT_V3"
         private const val KEY_SETTINGS_PROFILE_SELECTED = "UBI4_SETTINGS_PROFILE_SELECTED_V3"
         private const val SETTINGS_PROFILE_ADD_ITEM = "+"
@@ -712,6 +730,16 @@ class SpinnerDelegateAdapterV3 (
                     if (spinner !== current) spinner.dismiss()
                 }
             }
+        }
+    }
+
+    private enum class DeviceRole(val value: Int, val requiresPin: Boolean) {
+        PROSTHETIST(value = 0, requiresPin = true),
+        SERVICE_ENGINEER(value = 1, requiresPin = true),
+        USER(value = 2, requiresPin = false);
+
+        companion object {
+            fun fromValue(value: Int): DeviceRole? = entries.firstOrNull { it.value == value }
         }
     }
 }

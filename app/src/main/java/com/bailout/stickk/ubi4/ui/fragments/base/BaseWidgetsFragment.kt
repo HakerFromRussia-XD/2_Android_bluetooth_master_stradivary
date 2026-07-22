@@ -29,7 +29,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.ToggleSliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.ButtonsDelegateAdapterV3
-import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesDelegateAdapterV3
+import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.GesturesTwoSectionDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.PlotDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SliderDelegateAdapterV3
 import com.bailout.stickk.ubi4.adapters.widgetDelegateAdaptersV3.SpinnerDelegateAdapterV3
@@ -163,24 +163,16 @@ abstract class BaseWidgetsFragment : Fragment() {
                     onDestroyParentCallbacks.add(onDestroyParent)
                 }
             ),
-            GesturesDelegateAdapterV3 (
+            GesturesTwoSectionDelegateAdapterV3(
                 coroutineScope = main?.lifecycleScope, // см. пункт 2 ниже
                 gestureNameList = gestureNameList,
                 onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
                 onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
-                onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
-                    showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
-                },
-                onSetCustomGesture = { onSaveDotsClick, bindingItem ->
-                    showCustomGesturesDialog(onSaveDotsClick, bindingItem)
-                },
                 onSendBLERotationGroup = { sendBLERotationGroupV3() },
                 onSendBLEActiveGesture = { activeGesture -> sendBLEActiveGestureV3(activeGesture) },
-                onSendBLEBindingGroup = { bindingGestureGroup -> sendBLEBindingGroupV3(bindingGestureGroup) },
                 onShowGestureSettings = {subcommand, gestureID -> showGestureSettingsV3(subcommand, gestureID) },
                 onRequestActiveGesture = { requestActiveGestureV3() },
                 onRequestRotationGroup = { requestRotationGroupV3() },
-                onRequestBindingGroup = { requestBindingGroupV3() },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),
             TrainingFragmentDelegateAdapter(

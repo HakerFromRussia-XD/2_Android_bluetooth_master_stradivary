@@ -848,7 +848,7 @@
     <string name="ubi4_v3_widget_hand_side">Hand side</string>
     <string name="ubi4_v3_role_prosthetist">Prosthetist</string>
     <string name="ubi4_v3_role_service_engineer">Service engineer</string>
-    <string name="ubi4_v3_role_not_selected">Not selected</string>
+    <string name="ubi4_v3_role_user">User</string>
     <string name="ubi4_v3_widget_role">Role</string>
     <string name="ubi4_v3_widget_device_name_write" formatted="false">Prosthesis name%Write</string>
     <string name="ubi4_v3_widget_serial_number_write" formatted="false">Serial number%Write</string>

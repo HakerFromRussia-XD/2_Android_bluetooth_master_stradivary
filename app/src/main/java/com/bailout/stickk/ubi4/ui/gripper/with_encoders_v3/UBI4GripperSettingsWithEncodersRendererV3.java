@@ -521,17 +521,17 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 	}
 
 	@SuppressLint("InlinedApi")
-		@Override
+	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
-			surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
-			deformationBindMatricesCaptured = false;
-			V3ModelLoadMetrics.init(fragmentGripperSettings);
-			V3ModelLoadMetrics.log("surfaceCreated begin rendererAgeMs=" + elapsedSince(rendererCreatedAtMs));
-			boolean useAstcTextures = isAstcSupported();
-			heightMap = new HeightMap();
-			long buffersStartedAtMs = SystemClock.elapsedRealtime();
-			heightMap.loader();
-			long buffersMs = elapsedSince(buffersStartedAtMs);
+	surfaceCreatedStartedAtMs = SystemClock.elapsedRealtime();
+	deformationBindMatricesCaptured = false;
+	V3ModelLoadMetrics.init(fragmentGripperSettings);
+	V3ModelLoadMetrics.log("surfaceCreated begin rendererAgeMs=" + elapsedSince(rendererCreatedAtMs));
+	boolean useAstcTextures = isAstcSupported();
+	heightMap = new HeightMap();
+	long buffersStartedAtMs = SystemClock.elapsedRealtime();
+	heightMap.loader();
+	long buffersMs = elapsedSince(buffersStartedAtMs);
 
 	//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
 
@@ -562,9 +562,9 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		// matrices separately if we choose.
 		Matrix.setLookAtM(viewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 
-			long shaderStartedAtMs = SystemClock.elapsedRealtime();
-			final String vertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_vertex_shader_tex_and_light_new);
-			final String fragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_general_new);
+		long shaderStartedAtMs = SystemClock.elapsedRealtime();
+		final String vertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_vertex_shader_tex_and_light_new);
+		final String fragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_general_new);
 		final String fragmentShaderWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_tex_color_light_new);
 		final String fragmentShaderRubber = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber);
 		final String fragmentShaderRubberWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber_with_color);
@@ -604,33 +604,33 @@ public class UBI4GripperSettingsWithEncodersRendererV3 implements GLSurfaceView.
 		programReference[0] = program;
 		programWithColorReference[0] = programWithColor;
 		programSelectReference[0] = programSelect;
-			int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
-					new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
-							TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
-			long shaderMs = elapsedSince(shaderStartedAtMs);
+		int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
+				new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
+						TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});
+		long shaderMs = elapsedSince(shaderStartedAtMs);
 
-			long textureStartedAtMs = SystemClock.elapsedRealtime();
-			int textureCount = 0;
-			textureCount += loadTextureUnit(1, R.drawable.str2_srednii_part8_new, "str2_srednii_part8_new");
-			textureCount += loadTextureUnit(2, R.drawable.str2_ukazatelnii_part15_new, "str2_ukazatelnii_part15_new");
-			textureCount += loadTextureUnit(3, R.drawable.gray, "gray");
-			textureCount += loadTextureUnit(5, R.drawable.str2_bezimiannii_part10_new, "str2_bezimiannii_part10_new");
-			textureCount += loadTextureUnit(6, R.drawable.str2_mizinec_part12_new, "str2_mizinec_part12_new");
-			textureCount += loadTextureUnit(7, R.drawable.str2_big_finger_part18_new, "str2_big_finger_part18_new");
-			textureCount += loadTextureUnit(8, R.drawable.str2_part9_new, "str2_part9_new");
-			textureCount += loadTextureUnit(9, R.drawable.str2_part9_new_material_normal, "str2_part9_new_material_normal");
-			textureCount += loadTextureUnit(10, R.drawable.str2_ukazatelnii_part15_new_material_normal, "str2_ukazatelnii_part15_new_material_normal");
-			textureCount += loadTextureUnit(11, R.drawable.str2_srednii_part8_new_material_normal, "str2_srednii_part8_new_material_normal");
-			textureCount += loadTextureUnit(12, R.drawable.metal_color2, "metal_color2");
-			textureCount += loadTextureUnit(14, R.drawable.str2_bezimiannii_part10_new_material_normal, "str2_bezimiannii_part10_new_material_normal");
-			textureCount += loadTextureUnit(15, R.drawable.str2_mizinec_part12_new_material_normal, "str2_mizinec_part12_new_material_normal");
-			textureCount += loadTextureUnit(16, R.drawable.str2_big_finger_part18_new_material_normal, "str2_big_finger_part18_new_material_normal");
-			long textureMs = elapsedSince(textureStartedAtMs);
-			V3ModelLoadMetrics.log("texturesLoaded totalMs=" + textureMs
-					+ " count=" + textureCount
-					+ " astcSupported=" + useAstcTextures
-					+ " skippedUnits=0,4,13"
-					+ " mipmaps=false");
+		long textureStartedAtMs = SystemClock.elapsedRealtime();
+		int textureCount = 0;
+		textureCount += loadTextureUnit(1, R.drawable.str2_srednii_part8_new, "str2_srednii_part8_new");
+		textureCount += loadTextureUnit(2, R.drawable.str2_ukazatelnii_part15_new, "str2_ukazatelnii_part15_new");
+		textureCount += loadTextureUnit(3, R.drawable.gray, "gray");
+		textureCount += loadTextureUnit(5, R.drawable.str2_bezimiannii_part10_new, "str2_bezimiannii_part10_new");
+		textureCount += loadTextureUnit(6, R.drawable.str2_mizinec_part12_new, "str2_mizinec_part12_new");
+		textureCount += loadTextureUnit(7, R.drawable.str2_big_finger_part18_new, "str2_big_finger_part18_new");
+		textureCount += loadTextureUnit(8, R.drawable.str2_part9_new, "str2_part9_new");
+		textureCount += loadTextureUnit(9, R.drawable.str2_part9_new_material_normal, "str2_part9_new_material_normal");
+		textureCount += loadTextureUnit(10, R.drawable.str2_ukazatelnii_part15_new_material_normal, "str2_ukazatelnii_part15_new_material_normal");
+		textureCount += loadTextureUnit(11, R.drawable.str2_srednii_part8_new_material_normal, "str2_srednii_part8_new_material_normal");
+		textureCount += loadTextureUnit(12, R.drawable.metal_color2, "metal_color2");
+		textureCount += loadTextureUnit(14, R.drawable.str2_bezimiannii_part10_new_material_normal, "str2_bezimiannii_part10_new_material_normal");
+		textureCount += loadTextureUnit(15, R.drawable.str2_mizinec_part12_new_material_normal, "str2_mizinec_part12_new_material_normal");
+		textureCount += loadTextureUnit(16, R.drawable.str2_big_finger_part18_new_material_normal, "str2_big_finger_part18_new_material_normal");
+		long textureMs = elapsedSince(textureStartedAtMs);
+		V3ModelLoadMetrics.log("texturesLoaded totalMs=" + textureMs
+				+ " count=" + textureCount
+				+ " astcSupported=" + useAstcTextures
+				+ " skippedUnits=0,4,13"
+				+ " mipmaps=false");
 
 
 

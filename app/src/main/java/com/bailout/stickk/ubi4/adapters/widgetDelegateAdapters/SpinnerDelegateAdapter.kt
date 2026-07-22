@@ -57,7 +57,7 @@ class SpinnerDelegateAdapter(
     private var pinDialog: Dialog? = null
     private var showPinKeyboardRunnable: Runnable? = null
 
-    private val roleItems = listOf("Протезист", "Сервисный инженер","Не выбрано")
+    private val roleItems = listOf("Протезист", "Сервисный инженер","Пользователь")
     private val prosthetistIndex = 0
     private val serviceEngineerIndex = 1
     private val roleDefaultIndex = 2

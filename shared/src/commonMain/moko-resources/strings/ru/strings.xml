@@ -849,7 +849,7 @@
 <string name="ubi4_v3_widget_hand_side">Сторона руки</string>
 <string name="ubi4_v3_role_prosthetist">Протезист</string>
 <string name="ubi4_v3_role_service_engineer">Сервисный инженер</string>
-<string name="ubi4_v3_role_not_selected">Не выбрано</string>
+<string name="ubi4_v3_role_user">Пользователь</string>
 <string name="ubi4_v3_widget_role">Роль</string>
 <string name="ubi4_v3_widget_device_name_write" formatted="false">Имя протеза%Записать</string>
 <string name="ubi4_v3_widget_serial_number_write" formatted="false">Серийный номер%Записать</string>

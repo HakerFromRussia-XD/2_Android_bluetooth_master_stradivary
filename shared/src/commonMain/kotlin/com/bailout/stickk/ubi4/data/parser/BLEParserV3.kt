@@ -36,9 +36,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.ToggleSliderParameterWi
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ble.EMGGainsV3
 import com.bailout.stickk.ubi4.models.ble.PlotParameterRef
-import com.bailout.stickk.ubi4.models.ble.ThresholdsV3
 import com.bailout.stickk.ubi4.models.commonModels.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ParameterWidgetCode.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.*
@@ -49,7 +47,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.Paramet
 import com.bailout.stickk.ubi4.data.state.GlobalParameters.baseSubDevicesInfoStructSetV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.currentGestureFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gameControlSignalFlow
-import com.bailout.stickk.ubi4.data.state.WidgetState.bindingGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.gestureGroupFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.spinnerFlowV3
 import com.bailout.stickk.ubi4.data.state.WidgetState.telemetryGestureCountersFlow
@@ -57,12 +54,6 @@ import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.widget.endStructures.DataSpinnerParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
-import com.bailout.stickk.ubi4.models.ble.CurrentGestureV3
-import com.bailout.stickk.ubi4.models.ble.ToggleV3
-import com.bailout.stickk.ubi4.models.ble.GestureV3
-import com.bailout.stickk.ubi4.models.ble.RotationGroupV3
-import com.bailout.stickk.ubi4.models.ble.SpinnerV3
-import com.bailout.stickk.ubi4.models.ble.SwitcherV3
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DataManagerCommand
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4Wrapper
@@ -76,7 +67,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_G
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MAX_GAIN_VALUE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_GROUPE
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_BINDING_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_SETTING
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_HAND_CONTROL_MODE
@@ -88,9 +78,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_D
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_DEVICE_ROLE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SPEED_SETTINGS
-import com.bailout.stickk.ubi4.utility.localization.LocalizedWidgetText
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_FORCE_SETTINGS
-import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import kotlinx.datetime.Clock
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_START_CALIBRATE_COMMAND
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -945,7 +933,7 @@ class BLEParserV3(
                 textList(
                     SharedRes.strings.ubi4_v3_role_prosthetist,
                     SharedRes.strings.ubi4_v3_role_service_engineer,
-                    SharedRes.strings.ubi4_v3_role_not_selected
+                    SharedRes.strings.ubi4_v3_role_user
                 ),
                 //TODO убрать айтем с ubi4_v3_role_not_selected
                 2

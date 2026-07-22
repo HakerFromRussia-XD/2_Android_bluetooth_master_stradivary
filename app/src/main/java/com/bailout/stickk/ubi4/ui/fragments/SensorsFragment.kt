@@ -76,6 +76,7 @@ class SensorsFragment : BaseWidgetsFragment() {
         main = null
         _binding = null
         super.onDestroyView()
+
     }
 
 

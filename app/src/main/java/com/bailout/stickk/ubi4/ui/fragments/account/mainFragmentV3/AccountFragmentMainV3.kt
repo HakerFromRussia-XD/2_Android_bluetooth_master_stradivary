@@ -449,6 +449,7 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
             override fun onCustomerServiceClicked() { navigator().showAccountCustomerServiceScreen() }
             override fun onProsthesisInformationClicked() { navigator().showAccountProsthesisInformationScreen() }
             override fun onStatisticsClicked() { navigator().showAccountStatisticsScreen() }
+            override fun onAchievementsClicked() { navigator().showAchievementsScreen() }
         }
         val bootloaderClickListener = object : BootloaderAdapterUBI4.OnBootloaderClickListener {
             override fun onUpdateClick(item: BootloaderBoardItemUBI4) { showFirmwareFilesDialog(item) }
@@ -456,7 +457,8 @@ class AccountFragmentMainV3 : BaseWidgetsFragment() {
         }
         accountAdapter = AccountMainAdapterUBI4(
             onAccountClickListener = accountClickListener,
-            showStatisticsItem = true
+            showStatisticsItem = true,
+            showAchievementsItem = true
         )
         bootloaderAdapter = BootloaderAdapterUBI4(
             listener = bootloaderClickListener,

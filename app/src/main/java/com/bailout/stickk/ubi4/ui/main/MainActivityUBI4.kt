@@ -83,6 +83,7 @@ import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentUBI4.AccountFrag
 import com.bailout.stickk.ubi4.ui.fragments.account.mainFragmentV3.AccountFragmentMainV3
 import com.bailout.stickk.ubi4.ui.fragments.account.prosthesisInformationFragmentUBI4.AccountFragmentProsthesisInformationUBI4
 import com.bailout.stickk.ubi4.ui.fragments.account.statisticsFragmentV3.AccountFragmentStatisticsV3
+import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotContentFragment
 import com.bailout.stickk.ubi4.ui.fragments.dashboard.DashboardSlotsFragment
 import com.bailout.stickk.ubi4.ui.fragments.help.HelpFragmentUBI4
@@ -414,6 +415,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         launchFragmentWithStack(
             fragment = AccountFragmentStatisticsV3(),
+            withSlideAnimation = true,
+            preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
+        )
+    }
+
+    override fun showAchievementsScreen() {
+        hideTopStatusBar()
+        hideBottomNavigationAnimated()
+
+        launchFragmentWithStack(
+            fragment = AchievementsFragment(),
             withSlideAnimation = true,
             preserveCurrentFragmentView = activeFragment is AccountFragmentMainV3
         )
@@ -837,6 +849,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     fun showTopStatusBar() {
         binding.statusBar.visibility = View.VISIBLE
         binding.dividerV.visibility = View.VISIBLE
+    }
+
+    fun hideTopStatusBar() {
+        binding.statusBar.visibility = View.GONE
+        binding.dividerV.visibility = View.GONE
     }
 
     fun setStatusBarBackMode(enabled: Boolean) {

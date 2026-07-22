@@ -879,22 +879,24 @@ class BLEParserV3(
                 display = 2,
                 widgetCode = PWCE_SPINBOX_V3.number.toInt(),
                 parameterInfoSet = mutableSetOf(
+                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+                )
+            ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
+        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                textList(
+                    SharedRes.strings.ubi4_v3_gesture_change_no_action,
+                    SharedRes.strings.ubi4_v3_gesture_change_move_to_open
+                ),
+                0
+            ),
+            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                display = 2,
+                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                parameterInfoSet = mutableSetOf(
                     ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE),
                 )
-            ),text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
-
-//        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-//            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-//                listOf("Профиль №1", "+"),
-//                0
-//            ),
-//            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-//                display = 2,
-//                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-//                parameterInfoSet = mutableSetOf(
-//                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-//                )
-//            ),"Профили настроек")))
+            ), text(SharedRes.strings.ubi4_v3_widget_gesture_change_action))))
 
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(

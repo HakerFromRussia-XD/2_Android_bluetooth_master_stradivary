@@ -180,8 +180,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showStartupLoaderIfNeeded()
         }
         WidgetRepoProvider.setCurrentMac(connectedDeviceAddress)
-        //TODO проверить после мерджа
-        SettingsProfileManager.setCurrentSerial(connectedDeviceName)
 
 
         bottomNavigationController = BottomNavigationController(bottomNavigation = binding.bottomNavigation)
@@ -789,8 +787,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun updateSerialNumberV3() {
         if (UiState.isInterfaceV3Activated) {
             currentSerial = connectedDeviceName
-            //TODO проверить после мерджа
-            SettingsProfileManager.setCurrentSerial(currentSerial)
             val displayName = NameUtil.getDisplayName(connectedDeviceName)
             runOnUiThread { binding.nameTv.text = displayName }
             return
@@ -814,8 +810,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = fullDeviceName
         mDeviceName = fullDeviceName
         currentSerial = fullDeviceName
-        //TODO проверить после мерджа
-        SettingsProfileManager.setCurrentSerial(currentSerial)
 
         val displayName = NameUtil.getDisplayName(fullDeviceName)
         runOnUiThread { binding.nameTv.text = displayName }

@@ -15,8 +15,10 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStru
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.testing.RecordingBleCommandExecutor
 import com.bailout.stickk.ubi4.testing.ensureWidgetRepoInitializedForTests
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_GESTURE_CHANGE_MODE
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_LEFT_RIGHT_HAND
 import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.utility.ConstantManagerUBI4.Companion.P_KEY_SETTINGS_PROFILE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -29,6 +31,38 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ParserCoverageTest {
+
+    @Test
+    fun `settings profiles and gesture change should use separate widgets`() = runBlocking {
+        ensureWidgetRepoInitializedForTests()
+        val executor = RecordingBleCommandExecutor()
+        val manager = BleManagerKmm().also { it.setBleCommandExecutor(executor) }
+        val parser = BLEParserV3(
+            coroutineScope = CoroutineScope(Dispatchers.Default),
+            bleCommandExecutor = executor,
+            bleManager = manager
+        )
+
+        parser.generatedHardcodeWidgets()
+
+        val profileInfo = PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE)
+        val gestureChangeInfo =
+            PreferenceKeysUbi4.ParameterInfoRegistry.require(P_KEY_GESTURE_CHANGE_MODE)
+        val spinners = parser.baseParameterWidgetSStruct
+            .filterIsInstance<SpinnerParameterWidgetSStruct>()
+
+        val profileWidget = spinners.single { widget ->
+            profileInfo in widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+        }
+        val gestureChangeWidget = spinners.single { widget ->
+            gestureChangeInfo in widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
+        }
+
+        assertEquals(0, profileWidget.dataSpinnerParameterWidgetStruct.selectedIndex)
+        assertEquals(2, profileWidget.dataSpinnerParameterWidgetStruct.spinnerItems.size)
+        assertEquals("+", profileWidget.dataSpinnerParameterWidgetStruct.spinnerItems.last())
+        assertTrue(profileWidget !== gestureChangeWidget)
+    }
 
     @Test
     fun `service settings should contain exactly one hand side widget`() = runBlocking {

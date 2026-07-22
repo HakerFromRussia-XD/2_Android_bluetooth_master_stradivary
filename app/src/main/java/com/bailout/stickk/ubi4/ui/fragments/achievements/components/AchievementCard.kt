@@ -1,8 +1,12 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,14 +17,19 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
@@ -34,7 +43,9 @@ internal fun AchievementCard(
     val title = stringResource(achievement.titleRes)
 
     Card(
-        modifier = modifier.aspectRatio(1f),
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(1f),
         shape = RoundedCornerShape(12.dp),
         backgroundColor = AchievementsColors.Card,
         elevation = 3.dp
@@ -80,6 +91,51 @@ internal fun AchievementCard(
                     .size(88.dp),
                 colorFilter = ColorFilter.tint(AchievementsColors.White)
             )
+
+            AchievementStageProgress(
+                achievedTier = achievement.achievedTier,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AchievementStageProgress(
+    achievedTier: AchievementTier?,
+    modifier: Modifier = Modifier
+) {
+    val activeColor = colorResource(R.color.ubi4_active)
+    val progressFraction = (achievedTier?.level ?: 0) / AchievementTier.entries.size.toFloat()
+    val progressText = when (achievedTier) {
+        AchievementTier.BRONZE -> stringResource(R.string.achievement_progress_bronze)
+        AchievementTier.SILVER -> stringResource(R.string.achievement_progress_silver)
+        AchievementTier.GOLD -> stringResource(R.string.achievement_progress_gold)
+        null -> stringResource(R.string.achievement_progress_none)
+    }
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(AchievementsColors.ProgressTrack)
+                .semantics {
+                    contentDescription = progressText
+                }
+        ) {
+            if (progressFraction > 0f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progressFraction)
+                        .background(activeColor)
+                )
+            }
         }
     }
 }

@@ -22,10 +22,10 @@ enum class AchievementId {
     CHAMPION
 }
 
-enum class AchievementTier {
-    BRONZE,
-    SILVER,
-    GOLD
+enum class AchievementTier(val level: Int) {
+    BRONZE(level = 1),
+    SILVER(level = 2),
+    GOLD(level = 3)
 }
 
 @Immutable
@@ -39,5 +39,6 @@ data class AchievementUiModel(
     val id: AchievementId,
     @StringRes val titleRes: Int,
     val stages: List<AchievementStageUiModel>,
-    @DrawableRes val iconRes: Int
+    @DrawableRes val iconRes: Int,
+    val achievedTier: AchievementTier? = null
 )

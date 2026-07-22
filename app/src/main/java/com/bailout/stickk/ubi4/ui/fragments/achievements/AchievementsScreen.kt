@@ -42,6 +42,7 @@ import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementI
 internal object AchievementsColors {
     val Background = Color(0xFF2A2A2A)
     val Card = Color(0xFF373737)
+    val ProgressTrack = Color(0xFF242424)
     val Border = Color(0xFF444444)
     val White = Color(0xFFFCFCFC)
     val Accent = Color(0xFFC6F158)

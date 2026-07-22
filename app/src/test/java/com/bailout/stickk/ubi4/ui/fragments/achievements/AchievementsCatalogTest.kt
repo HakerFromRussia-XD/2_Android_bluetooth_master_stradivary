@@ -14,6 +14,7 @@ class AchievementsCatalogTest {
         assertEquals(AchievementId.entries, items.map(AchievementUiModel::id))
         assertEquals(items.size, items.map(AchievementUiModel::id).distinct().size)
         assertTrue(items.all { it.iconRes == R.drawable.trophy })
+        assertTrue(items.all { it.achievedTier == null })
         assertTrue(
             items.all { item ->
                 item.stages.map(AchievementStageUiModel::tier) == AchievementTier.entries

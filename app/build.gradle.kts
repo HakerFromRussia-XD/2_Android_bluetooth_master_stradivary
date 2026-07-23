@@ -77,7 +77,7 @@ android {
         minSdk = 28
         targetSdk = 33
         versionCode = 14
-        versionName = "3.3.1783"
+        versionName = "3.3.1784"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"

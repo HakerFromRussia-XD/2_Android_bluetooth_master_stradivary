@@ -31,6 +31,11 @@ private func intValue(from value: Any?) -> Int? {
     }
 }
 
+private struct LegacySavedString: Decodable {
+    let key: String
+    let value: String
+}
+
 @objcMembers
 final class GestureSettingsViewModel: NSObject {
     static let shared = GestureSettingsViewModel()
@@ -173,6 +178,33 @@ final class GestureService: NSObject {
     @objc public func getHandSide() -> Int {
         V3HandSideProvider.shared.startObserving()
         return V3HandSideProvider.shared.currentSide
+    }
+    @objc public func getLegacyHandSide() -> Int {
+        let handSideKey = "HAND_SIDE"
+        guard
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first,
+            let fileURLs = try? FileManager.default.contentsOfDirectory(
+                at: documentsURL,
+                includingPropertiesForKeys: nil
+            )
+        else {
+            return 0
+        }
+
+        let decoder = JSONDecoder()
+        for fileURL in fileURLs {
+            guard
+                let data = try? Data(contentsOf: fileURL),
+                let item = try? decoder.decode(LegacySavedString.self, from: data),
+                item.key == handSideKey,
+                let side = Int(item.value),
+                side == 0 || side == 1
+            else {
+                continue
+            }
+            return side
+        }
+        return 0
     }
     @objc public func decodeGestureSettings(raw: String) -> Gesture? {
 //        print("Вызвана функция decodeGestureSettings  raw = \(raw)")

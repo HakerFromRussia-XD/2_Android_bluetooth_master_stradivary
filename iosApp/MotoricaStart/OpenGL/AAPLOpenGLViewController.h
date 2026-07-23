@@ -19,6 +19,7 @@ Header for the cross-platform view controller and cross-platform view that displ
 - (void)setNumberGesture:(NSInteger)number;
 @property (nonatomic, assign) NSInteger gestureNumber;
 @property (nonatomic, assign) BOOL useV3Mode;
+@property (nonatomic, assign) BOOL useV3GestureProtocol;
 @property (nonatomic, assign) BOOL modelTestMode;
 
 @end

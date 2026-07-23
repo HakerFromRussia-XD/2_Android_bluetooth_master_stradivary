@@ -59,8 +59,8 @@ import com.bailout.stickk.ubi4.data.state.UiState.listWidgets
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.shared.SharedRes
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
-import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders_v3.UBI4GripperScreenWithEncodersActivityV3.Companion.EXTRA_USE_V3_GESTURE_PROTOCOL
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.utility.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
@@ -393,7 +393,8 @@ abstract class BaseWidgetsFragment : Fragment() {
         }
     }
     open fun showGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
-        val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
+        val intent = Intent(context, UBI4GripperScreenWithEncodersActivityV3::class.java)
+        intent.putExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, false)
         intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
         intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
         intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
@@ -401,6 +402,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     open fun showGestureSettingsV3(subcommand: Int, gestureID: Int) {
         val intent = Intent(context, UBI4GripperScreenWithEncodersActivityV3::class.java)
+        intent.putExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
         intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, subcommand)
         intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
         startActivity(intent)

@@ -79,6 +79,8 @@ import kotlin.properties.Delegates
 class UBI4GripperScreenWithEncodersActivityV3
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     companion object {
+        const val EXTRA_USE_V3_GESTURE_PROTOCOL =
+            "com.bailout.stickk.ubi4.extra.USE_V3_GESTURE_PROTOCOL"
         private const val FLOW_TAG = "V3GripperFlow"
         private const val FINGER_DELAY_UNIT_MS = 10L
         private const val FINGER_ANIMATION_MS_PER_PERCENT = 5L
@@ -178,6 +180,7 @@ class UBI4GripperScreenWithEncodersActivityV3
     private var deviceAddress = 0
     private var parameterID = 0
     private var gestureID = 0
+    private var useV3GestureProtocol = true
 
     private lateinit var binding: Ubi4LayoutGripperSettingsLeWithEncodersV3Binding
 
@@ -195,6 +198,10 @@ class UBI4GripperScreenWithEncodersActivityV3
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
         mSettings = this.getSharedPreferences(PreferenceKeysUbi4.APP_PREFERENCES, Context.MODE_PRIVATE)
         gestureNumber = mSettings!!.getInt(PreferenceKeysUbi4.SELECT_GESTURE_SETTINGS_NUM, 0)
+        useV3GestureProtocol = intent.getBooleanExtra(EXTRA_USE_V3_GESTURE_PROTOCOL, true)
+        deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
+        parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
+        gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
 
 
         angleFinger1 = 0
@@ -210,11 +217,7 @@ class UBI4GripperScreenWithEncodersActivityV3
         animationInProgress5 = false
         animationInProgress6 = false
         //control side in 3D
-        side = resolveV3HandSide()
-
-        deviceAddress = intent.getIntExtra(DEVICE_ID_IN_SYSTEM_UBI4, 0)
-        parameterID = intent.getIntExtra(PARAMETER_ID_IN_SYSTEM_UBI4, 0)
-        gestureID = intent.getIntExtra(GESTURE_ID_IN_SYSTEM_UBI4, 0)
+        side = resolveHandSide()
 
         initBaseView(this)
 
@@ -233,22 +236,7 @@ class UBI4GripperScreenWithEncodersActivityV3
         }
 
 
-        RxUpdateMainEventUbi4.getInstance().uiGestureSettingsV3Observable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameterInfo ->
-                val parameter = ParameterProvider.getParameterV3(parameterInfo)
-                val gestureSettings = parseGestureInfoSafely(parameter.data)
-                gestureSettings?.let {
-                    Log.i(
-                        FLOW_TAG,
-                        "BLE RX gesture=${it.gestureId} " +
-                            "open=${positionSummary(it.openPosition1, it.openPosition2, it.openPosition3, it.openPosition4, it.openPosition5, it.openPosition6)} " +
-                            "close=${positionSummary(it.closePosition1, it.closePosition2, it.closePosition3, it.closePosition4, it.closePosition5, it.closePosition6)}"
-                    )
-                    loadGestureState(it)
-                } ?: main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
-            }
+        subscribeToGestureSettings()
 
         RxView.clicks(findViewById(R.id.editGestureNameBtn))
             .observeOn(AndroidSchedulers.mainThread())
@@ -353,7 +341,10 @@ class UBI4GripperScreenWithEncodersActivityV3
         binding.gestureStateSelectorContainer.post { initSelector() }
     }
 
-    private fun resolveV3HandSide(): Int {
+    private fun resolveHandSide(): Int {
+        if (!useV3GestureProtocol) {
+            return legacyHandSide()
+        }
         val handSideInfo = ParameterInfoRegistry.require(P_KEY_LEFT_RIGHT_HAND)
         val storedSide = (ParameterStoreV3.get(handSideInfo) as? ParameterTypedValueV3.Spinner)
             ?.value
@@ -361,11 +352,82 @@ class UBI4GripperScreenWithEncodersActivityV3
             ?.coerceIn(0, 1)
         if (storedSide != null) return storedSide
 
+        return legacyHandSide()
+    }
+
+    private fun legacyHandSide(): Int {
         return mSettings!!.getInt(
             mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "") + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE,
             1
         )
     }
+
+    private fun subscribeToGestureSettings() {
+        if (useV3GestureProtocol) {
+            RxUpdateMainEventUbi4.getInstance().uiGestureSettingsV3Observable
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { parameterInfo ->
+                    val parameter = ParameterProvider.getParameterV3(parameterInfo)
+                    handleGestureSettings(parseGestureInfoSafely(parameter.data))
+                }
+            return
+        }
+
+        RxUpdateMainEventUbi4.getInstance().uiGestureSettingsObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameterRef ->
+                val parameter = ParameterProvider.getParameter(
+                    parameterRef.addressDevice,
+                    parameterRef.parameterID
+                )
+                val gesture = runCatching {
+                    json.decodeFromString<Gesture>("\"${parameter.data}\"")
+                }.getOrNull()
+                handleGestureSettings(gesture?.toGestureV3())
+            }
+    }
+
+    private fun handleGestureSettings(gestureSettings: GestureV3?) {
+        gestureSettings?.let {
+            Log.i(
+                FLOW_TAG,
+                "BLE RX protocol=${if (useV3GestureProtocol) "V3" else "UBI4"} gesture=${it.gestureId} " +
+                    "open=${positionSummary(it.openPosition1, it.openPosition2, it.openPosition3, it.openPosition4, it.openPosition5, it.openPosition6)} " +
+                    "close=${positionSummary(it.closePosition1, it.closePosition2, it.closePosition3, it.closePosition4, it.closePosition5, it.closePosition6)}"
+            )
+            loadGestureState(it)
+        } ?: main.showToast(getString(SharedRes.strings.gesture_state_update_error.resourceId))
+    }
+
+    private fun Gesture.toGestureV3() = GestureV3(
+        gestureId = gestureId,
+        openPosition1 = openPosition1,
+        openPosition2 = openPosition2,
+        openPosition3 = openPosition3,
+        openPosition4 = openPosition4,
+        openPosition5 = openPosition5,
+        openPosition6 = openPosition6,
+        closePosition1 = closePosition1,
+        closePosition2 = closePosition2,
+        closePosition3 = closePosition3,
+        closePosition4 = closePosition4,
+        closePosition5 = closePosition5,
+        closePosition6 = closePosition6,
+        openToCloseTimeShift1 = openToCloseTimeShift1,
+        openToCloseTimeShift2 = openToCloseTimeShift2,
+        openToCloseTimeShift3 = openToCloseTimeShift3,
+        openToCloseTimeShift4 = openToCloseTimeShift4,
+        openToCloseTimeShift5 = openToCloseTimeShift5,
+        openToCloseTimeShift6 = openToCloseTimeShift6,
+        closeToOpenTimeShift1 = closeToOpenTimeShift1,
+        closeToOpenTimeShift2 = closeToOpenTimeShift2,
+        closeToOpenTimeShift3 = closeToOpenTimeShift3,
+        closeToOpenTimeShift4 = closeToOpenTimeShift4,
+        closeToOpenTimeShift5 = closeToOpenTimeShift5,
+        closeToOpenTimeShift6 = closeToOpenTimeShift6
+    )
 
     private fun parseGestureInfoSafely(data: String): GestureV3? {
         if (data.isBlank()) return null
@@ -813,8 +875,14 @@ class UBI4GripperScreenWithEncodersActivityV3
             fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0)
         val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, gesture, gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-        persistGestureSettings(gesture)
-        val command = BLECommandsV3.sendGestureInfo(gestureStateModel)
+        if (useV3GestureProtocol) {
+            persistGestureSettings(gesture)
+        }
+        val command = if (useV3GestureProtocol) {
+            BLECommandsV3.sendGestureInfo(gestureStateModel)
+        } else {
+            BLECommands.sendGestureInfo(gestureStateModel)
+        }
         Log.i(
             FLOW_TAG,
             "BLE TX gesture=${gesture.gestureId} state=$gestureState " +
@@ -822,7 +890,12 @@ class UBI4GripperScreenWithEncodersActivityV3
                 "close=${positionSummary(gesture.closePosition1, gesture.closePosition2, gesture.closePosition3, gesture.closePosition4, gesture.closePosition5, gesture.closePosition6)} " +
                 "hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
-        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
+        val characteristic = if (useV3GestureProtocol) {
+            SERIALPORTCHAR_UUID
+        } else {
+            MAIN_CHANNEL_CHARACTERISTIC
+        }
+        main.bleCommandWithQueue(command, characteristic, WRITE){}
     }
 
     private fun persistGestureSettings(gesture: Gesture) {
@@ -866,12 +939,21 @@ class UBI4GripperScreenWithEncodersActivityV3
         SettingsProfileManager.saveBleValue(parameterInfo, typedValue)
     }
     private fun compileBLERead () {
-        val command = BLECommandsV3.requestGestureInfo(gestureID)
+        val command = if (useV3GestureProtocol) {
+            BLECommandsV3.requestGestureInfo(gestureID)
+        } else {
+            BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID)
+        }
         Log.i(
             FLOW_TAG,
             "BLE TX requestGesture gesture=$gestureID hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
-        main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
+        val characteristic = if (useV3GestureProtocol) {
+            SERIALPORTCHAR_UUID
+        } else {
+            MAIN_CHANNEL_CHARACTERISTIC
+        }
+        main.bleCommandWithQueue(command, characteristic, WRITE){}
     }
     private fun validationRange(inputNumber: Int) : Int {
         var _inputNumber = inputNumber

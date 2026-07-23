@@ -266,6 +266,7 @@ static int V3SelectionCodeForInfluence(int influence) {
     NSInteger _gestureNumber;
     NSString *_gestureSettingsParameterData;
     NSInteger _handSide;
+    BOOL _useV3GestureProtocol;
 
     NSInteger openStage1;
     NSInteger openStage2;
@@ -300,16 +301,32 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (instancetype) initWithDefaultFBOName:(GLuint)defaultFBOName
                         gestureNumber:(NSInteger)gestureNumber {
+    NSInteger handSide = [V3HandSideProvider shared].currentSide;
+    return [self initWithDefaultFBOName:defaultFBOName
+                         gestureNumber:gestureNumber
+                  useV3GestureProtocol:YES
+                              handSide:handSide];
+}
+
+- (instancetype)initWithDefaultFBOName:(GLuint)defaultFBOName
+                         gestureNumber:(NSInteger)gestureNumber
+                  useV3GestureProtocol:(BOOL)useV3GestureProtocol
+                              handSide:(NSInteger)handSide {
     self = [super init];
     if (!self) return nil;
 
     _gestureNumber = gestureNumber;
     _defaultFBOName = defaultFBOName;
+    _useV3GestureProtocol = useV3GestureProtocol;
     _gestureService = [[GestureService alloc] init];
-    [[V3HandSideProvider shared] startObserving];
-    _handSide = [V3HandSideProvider shared].currentSide;
+    if (_useV3GestureProtocol) {
+        [[V3HandSideProvider shared] startObserving];
+        _handSide = [V3HandSideProvider shared].currentSide;
+    } else {
+        _handSide = handSide;
+    }
     if (_handSide != 0 && _handSide != 1) {
-        os_log_error(V3RendererLog(), "V3 hand side is missing from ParameterStoreV3");
+        os_log_error(V3RendererLog(), "Hand side is unavailable for gesture protocol");
         return nil;
     }
 
@@ -383,8 +400,12 @@ static int V3SelectionCodeForInfluence(int influence) {
           normalized == 0 ? @"left" : @"right");
 }
 
+- (void)setUseV3GestureProtocol:(BOOL)useV3GestureProtocol {
+    _useV3GestureProtocol = useV3GestureProtocol;
+}
+
 - (void)v3SynchronizeHandSideFromProvider {
-    if (!_v3) return;
+    if (!_v3 || !_useV3GestureProtocol) return;
     NSInteger providerSide = [V3HandSideProvider shared].currentSide;
     if (providerSide != 0 && providerSide != 1) return;
     if (providerSide != _v3->handSide) {
@@ -1281,8 +1302,13 @@ static int V3SelectionCodeForInfluence(int influence) {
 
 - (void) sendDataToFestPreservingGestureState {
     [self logV3GestureObjectIfNeededBeforeSend];
-    SharedKotlinByteArray *command = [[SharedBLECommandsV3 shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
-    [_gestureService sendDataToFestV3WithDataForWrite:command];
+    if (_useV3GestureProtocol) {
+        SharedKotlinByteArray *command = [[SharedBLECommandsV3 shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
+        [_gestureService sendDataToFestV3WithDataForWrite:command];
+    } else {
+        SharedKotlinByteArray *command = [[SharedBLECommands shared] sendGestureInfoGestureWithAddress:_gestureWithAddress];
+        [_gestureService sendDataToFestWithDataForWrite:command];
+    }
 }
 
 - (void) stopVC {
@@ -1392,7 +1418,9 @@ static int V3SelectionCodeForInfluence(int influence) {
     _gestureWithAddress.addressDevice = parameterRef.addressDevice;
     _gestureWithAddress.parameterID = parameterRef.parameterID;
     _gestureSettingsParameterData = parameterData;
-    SharedGesture *decodedGesture = [_gestureService decodeGestureSettingsV3WithRaw:_gestureSettingsParameterData];
+    SharedGesture *decodedGesture = _useV3GestureProtocol
+        ? [_gestureService decodeGestureSettingsV3WithRaw:_gestureSettingsParameterData]
+        : [_gestureService decodeGestureSettingsWithRaw:_gestureSettingsParameterData];
     if (decodedGesture == nil) {
         return;
     }

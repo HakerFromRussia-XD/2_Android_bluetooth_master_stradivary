@@ -243,7 +243,7 @@ static os_log_t V3FrameLog(void) {
 }
 
 - (void)handleV3HandSideChange:(NSNotification *)notification {
-    if (!self.useV3Mode) return;
+    if (!self.useV3Mode || !self.useV3GestureProtocol) return;
     NSNumber *side = notification.userInfo[@"side"];
     if (side == nil) return;
     [self performV3RenderAsync:^{
@@ -256,7 +256,7 @@ static os_log_t V3FrameLog(void) {
     if (_gestureSettingsObserverRegistered) {
         return;
     }
-    NSString *notificationName = self.useV3Mode
+    NSString *notificationName = self.useV3GestureProtocol
         ? GestureSettingsViewModelDidUpdateV3Notification
         : GestureSettingsViewModelDidUpdateNotification;
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -302,11 +302,11 @@ static os_log_t V3FrameLog(void) {
 
 - (void)injectGestureSettingsV3ForUITestIfNeeded {
     if (_didInjectGestureSettingsV3ForUITest ||
-        !self.useV3Mode ||
+        !self.useV3GestureProtocol ||
         _gestureNumber != 70 ||
         ![self hasLaunchArgument:GestureSettingsUITestInjectGesture70Flag]) {
         NSLog(@"[UI-TEST][GestureSettings] skip inject useV3=%d gestureNumber=%ld didInject=%d hasFlag=%d",
-              self.useV3Mode,
+        self.useV3GestureProtocol,
               (long)_gestureNumber,
               _didInjectGestureSettingsV3ForUITest,
               [self hasLaunchArgument:GestureSettingsUITestInjectGesture70Flag]);
@@ -568,7 +568,7 @@ static os_log_t V3FrameLog(void) {
         _v3GestureSettingsReady = NO;
         _v3FirstFrameReady = NO;
         _v3InitialOpenSent = NO;
-        if (!self.modelTestMode) {
+        if (!self.modelTestMode && self.useV3GestureProtocol) {
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(handleV3HandSideChange:)
                                                          name:@"V3HandSideDidChange"
@@ -649,8 +649,20 @@ static os_log_t V3FrameLog(void) {
               self->_defaultFBOName);
         [self makeCurrentContext];
         Class rendererClass = [AAPLOpenGLViewControllerV3 rendererClassForV3Mode:self.useV3Mode];
-        self->_openGLRenderer = [[rendererClass alloc] initWithDefaultFBOName:self->_defaultFBOName
-                                                                gestureNumber:self->_gestureNumber];
+        if (self.useV3Mode) {
+            NSInteger handSide = self.useV3GestureProtocol
+                ? [V3HandSideProvider shared].currentSide
+                : [gestureService getLegacyHandSide];
+            self->_openGLRenderer = [[AAPLOpenGLRendererV3 alloc]
+                initWithDefaultFBOName:self->_defaultFBOName
+                gestureNumber:self->_gestureNumber
+                useV3GestureProtocol:self.useV3GestureProtocol
+                handSide:handSide];
+        } else {
+            self->_openGLRenderer = [[rendererClass alloc]
+                initWithDefaultFBOName:self->_defaultFBOName
+                gestureNumber:self->_gestureNumber];
+        }
         if (!self->_openGLRenderer) return;
         [self->_openGLRenderer resize:self.drawableSize];
         CGRect screenRect = UIScreen.mainScreen.bounds;
@@ -680,7 +692,13 @@ static os_log_t V3FrameLog(void) {
           UIScreen.mainScreen.bounds.size.width,
           UIScreen.mainScreen.bounds.size.height);
     if (self.useV3Mode) {
-        if (!self.modelTestMode && _gestureNumber > 0) {
+        if (!self.modelTestMode && !self.useV3GestureProtocol) {
+            SharedParameterRef *latestParameterRef = [GestureSettingsViewModel shared].latestParameterRef;
+            if (latestParameterRef != nil) {
+                [self applyGestureSettingsUpdate:latestParameterRef parameterData:nil];
+            }
+        }
+        if (!self.modelTestMode && self.useV3GestureProtocol && _gestureNumber > 0) {
             NSLog(@"[V3OpenTrace] event=requestGestureSettings thread=main gestureId=%ld useV3Mode=%d",
                   (long)_gestureNumber,
                   self.useV3Mode);
@@ -1321,14 +1339,21 @@ static os_log_t V3FrameLog(void) {
     if (resolvedParameterData == nil) {
         return;
     }
-    SharedGesture *gestureSettings = self.useV3Mode
+    SharedGesture *gestureSettings = self.useV3GestureProtocol
         ? [gestureService decodeGestureSettingsV3WithRaw:resolvedParameterData]
         : [gestureService decodeGestureSettingsWithRaw:resolvedParameterData];
     if (gestureSettings == nil) {
-        NSLog(@"[UI-TEST][GestureSettings] decode returned nil useV3=%d data=%@", self.useV3Mode, resolvedParameterData);
+        NSLog(@"[UI-TEST][GestureSettings] decode returned nil useV3=%d data=%@", self.useV3GestureProtocol, resolvedParameterData);
         return;
     }
-    NSLog(@"[UI-TEST][GestureSettings] decoded gestureId=%d useV3=%d", gestureSettings.gestureId, self.useV3Mode);
+    if (_gestureNumber > 0 && gestureSettings.gestureId != _gestureNumber) {
+        NSLog(@"[V3OpenTrace] event=gestureSettingsIgnored reason=gestureMismatch expected=%ld actual=%d useV3Protocol=%d",
+              (long)_gestureNumber,
+              gestureSettings.gestureId,
+              self.useV3GestureProtocol);
+        return;
+    }
+    NSLog(@"[UI-TEST][GestureSettings] decoded gestureId=%d useV3=%d", gestureSettings.gestureId, self.useV3GestureProtocol);
     NSLog(@"[V3OpenTrace] event=gestureSettingsDecoded thread=main decodedGestureId=%d useV3Mode=%d controllerGestureId=%ld",
           gestureSettings.gestureId,
           self.useV3Mode,

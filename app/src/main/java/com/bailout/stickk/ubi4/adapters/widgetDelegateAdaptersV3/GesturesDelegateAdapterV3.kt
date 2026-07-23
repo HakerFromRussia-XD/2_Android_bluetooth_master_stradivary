@@ -347,7 +347,7 @@ class GesturesDelegateAdapterV3(
             }
         }
 
-        for (i in 1..8) {
+        for (i in 1..PreferenceKeysUbi4.NUM_GESTURES) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
             val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")

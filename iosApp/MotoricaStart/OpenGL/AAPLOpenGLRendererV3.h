@@ -14,12 +14,17 @@ Header for the renderer class that performs OpenGL state setup and per-frame ren
 @interface AAPLOpenGLRendererV3 : NSObject
 - (instancetype _Nullable )initWithDefaultFBOName:(GLuint)defaultFBOName
                         gestureNumber:(NSInteger)gestureNumber;
+- (instancetype _Nullable)initWithDefaultFBOName:(GLuint)defaultFBOName
+                                   gestureNumber:(NSInteger)gestureNumber
+                            useV3GestureProtocol:(BOOL)useV3GestureProtocol
+                                        handSide:(NSInteger)handSide;
 
 - (void)draw;
 - (void)resize:(CGSize)size;
 - (void)setDefaultFBOName:(GLuint)defaultFBOName;
 - (BOOL)isAnimating;
 - (void)setHandSide:(NSInteger)side;
+- (void)setUseV3GestureProtocol:(BOOL)useV3GestureProtocol;
 - (void)releaseGLResources;
 
 - (void)stopVC;

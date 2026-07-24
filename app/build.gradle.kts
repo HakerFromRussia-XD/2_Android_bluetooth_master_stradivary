@@ -1,5 +1,6 @@
 @file:Suppress("UNUSED_EXPRESSION")
 
+import groovy.json.JsonSlurper
 import java.util.Properties
 
 plugins {
@@ -41,6 +42,29 @@ val missingMotoricaReleaseSigning = buildList {
     if (motoricaReleaseKeyPassword.isNullOrBlank()) add("motoricaReleaseKeyPassword")
 }
 
+val v3ManifestFile = file("src/main/assets/STR2_V3/festh3_test3_manifest.json")
+val packagedV3AssetNames = mutableSetOf(v3ManifestFile.name)
+
+fun collectPackagedV3AssetNames(value: Any?) {
+    when (value) {
+        is Map<*, *> -> value.values.forEach(::collectPackagedV3AssetNames)
+        is Iterable<*> -> value.forEach(::collectPackagedV3AssetNames)
+        is String -> if (value.endsWith(".v3bin") || value.endsWith(".v3def")) {
+            packagedV3AssetNames += value.substringAfterLast('/')
+        }
+    }
+}
+
+collectPackagedV3AssetNames(JsonSlurper().parse(v3ManifestFile))
+
+val unusedV3AssetNames = listOf("STR2_V3", "STR2_V3_BIN")
+    .flatMap { directory ->
+        file("src/main/assets/$directory").listFiles()?.filter { it.isFile }.orEmpty()
+    }
+    .map { it.name }
+    .filterNot(packagedV3AssetNames::contains)
+    .distinct()
+
 gradle.taskGraph.whenReady {
     val needsReleaseApk = allTasks.any { task ->
         task.path == ":app:assembleRelease" ||
@@ -76,8 +100,8 @@ android {
         applicationId = "com.bailout.stickk"
         minSdk = 28
         targetSdk = 33
-        versionCode = 14
-        versionName = "3.3.1784"
+        versionCode = 15
+        versionName = "3.3.1785"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         manifestPlaceholders["gameControlPermission"] = "com.motorica.gamecontrol.permission.CONTROL_GAME"
@@ -154,7 +178,10 @@ android {
         noCompress += "v3bin"
         noCompress += "v3def"
         noCompress += "astc"
-        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:fest3_test1.obj:fest3_test2.obj:festh3_test3.obj:festh3_test4.obj"
+        ignoreAssetsPattern = (
+            listOf("!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~") +
+                unusedV3AssetNames
+            ).joinToString(":")
     }
     sourceSets {
         getByName("main") {

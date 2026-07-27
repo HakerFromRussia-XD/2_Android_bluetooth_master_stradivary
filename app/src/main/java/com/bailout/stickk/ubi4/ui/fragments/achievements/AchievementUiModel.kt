@@ -3,30 +3,9 @@ package com.bailout.stickk.ubi4.ui.fragments.achievements
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-
-enum class AchievementId {
-    BIONIC,
-    CYBORG,
-    STREAK,
-    LONG_HAUL,
-    SCIENTIST,
-    DAILY_CHALLENGE,
-    PRECISION,
-    POWER,
-    GET_A_GRIP,
-    ALTER_EGO,
-    ANNIVERSARY,
-    SQUARE_EYES,
-    PERSONALISATION,
-    ALWAYS_CONNECTED,
-    CHAMPION
-}
-
-enum class AchievementTier(val level: Int) {
-    BRONZE(level = 1),
-    SILVER(level = 2),
-    GOLD(level = 3)
-}
+import com.bailout.stickk.ubi4.achievements.AchievementId
+import com.bailout.stickk.ubi4.achievements.AchievementProgress
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 
 @Immutable
 data class AchievementStageUiModel(
@@ -40,5 +19,8 @@ data class AchievementUiModel(
     @StringRes val titleRes: Int,
     val stages: List<AchievementStageUiModel>,
     @DrawableRes val iconRes: Int,
-    val achievedTier: AchievementTier? = null
-)
+    val progress: AchievementProgress = AchievementProgress()
+) {
+    val achievedTier: AchievementTier?
+        get() = progress.achievedTier
+}

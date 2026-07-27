@@ -706,6 +706,7 @@
     <string name="achievement_progress_bronze">Bronze stage completed</string>
     <string name="achievement_progress_silver">Silver stage completed</string>
     <string name="achievement_progress_gold">Gold stage completed</string>
+    <string name="achievement_progress_value">%1$s of %2$s</string>
     <string name="achievement_bionic_title">Bionic</string>
     <string name="achievement_bionic_bronze">Use the device while powered on for at least 4 hours in one day.</string>
     <string name="achievement_bionic_silver">Use the device while powered on for at least 8 hours in one day.</string>

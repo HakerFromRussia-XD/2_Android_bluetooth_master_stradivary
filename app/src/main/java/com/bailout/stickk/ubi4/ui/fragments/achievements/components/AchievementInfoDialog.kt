@@ -12,17 +12,17 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementStageUiModel
-import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementTier
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementUiModel
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsColors
 import com.bailout.stickk.ubi4.ui.fragments.achievements.AchievementsFontFamily
+import com.bailout.stickk.ubi4.ui.fragments.achievements.color
 
 @Composable
 internal fun AchievementInfoDialog(
@@ -95,10 +95,4 @@ private fun AchievementTier.titleRes(): Int = when (this) {
     AchievementTier.BRONZE -> R.string.achievement_tier_bronze
     AchievementTier.SILVER -> R.string.achievement_tier_silver
     AchievementTier.GOLD -> R.string.achievement_tier_gold
-}
-
-private fun AchievementTier.color(): Color = when (this) {
-    AchievementTier.BRONZE -> AchievementsColors.Bronze
-    AchievementTier.SILVER -> AchievementsColors.Silver
-    AchievementTier.GOLD -> AchievementsColors.Gold
 }

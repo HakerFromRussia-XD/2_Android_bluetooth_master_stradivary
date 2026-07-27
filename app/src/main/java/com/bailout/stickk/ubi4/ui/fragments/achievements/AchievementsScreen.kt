@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementCard
 import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementInfoDialog
 

@@ -11,6 +11,7 @@
     <string name="achievement_progress_bronze">Выполнена бронзовая стадия</string>
     <string name="achievement_progress_silver">Выполнена серебряная стадия</string>
     <string name="achievement_progress_gold">Выполнена золотая стадия</string>
+    <string name="achievement_progress_value">%1$s из %2$s</string>
     <string name="achievement_bionic_title">Бионик</string>
     <string name="achievement_bionic_bronze">Используйте включённое устройство не менее 4 часов за день.</string>
     <string name="achievement_bionic_silver">Используйте включённое устройство не менее 8 часов за день.</string>

@@ -1,6 +1,10 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements
 
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.achievements.AchievementDefinitions
+import com.bailout.stickk.ubi4.achievements.AchievementId
+import com.bailout.stickk.ubi4.achievements.AchievementProgressCalculator
+import com.bailout.stickk.ubi4.achievements.AchievementTier
 
 object AchievementsCatalog {
     val items: List<AchievementUiModel> = listOf(
@@ -125,6 +129,10 @@ object AchievementsCatalog {
             AchievementStageUiModel(AchievementTier.SILVER, silverRes),
             AchievementStageUiModel(AchievementTier.GOLD, goldRes)
         ),
-        iconRes = R.drawable.trophy
+        iconRes = R.drawable.trophy,
+        progress = AchievementProgressCalculator.calculate(
+            currentValue = 0L,
+            definition = AchievementDefinitions[id]
+        )
     )
 }

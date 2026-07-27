@@ -37,11 +37,11 @@
     <string name="achievement_daily_challenge_silver">Выполните 7 ежедневных испытаний.</string>
     <string name="achievement_daily_challenge_gold">Выполните 30 ежедневных испытаний.</string>
     <string name="achievement_precision_title">Точность</string>
-    <string name="achievement_precision_bronze">Выполните 50 движений хватами Tripod или Pinch.</string>
+    <string name="achievement_precision_bronze">Выполните 50 движений жестами «Щёпоть», «Ключ» или «Пинцет».</string>
     <string name="achievement_precision_silver">Выполните 250 движений точными хватами.</string>
     <string name="achievement_precision_gold">Выполните 1 000 движений точными хватами.</string>
     <string name="achievement_power_title">Сила</string>
-    <string name="achievement_power_bronze">Выполните 50 движений хватами Hook или Fist.</string>
+    <string name="achievement_power_bronze">Выполните 50 движений жестами «Кулак» или «Кулак 2».</string>
     <string name="achievement_power_silver">Выполните 250 движений силовыми хватами.</string>
     <string name="achievement_power_gold">Выполните 1 000 движений силовыми хватами.</string>
     <string name="achievement_get_a_grip_title">Настройка хватов</string>

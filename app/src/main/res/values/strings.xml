@@ -732,11 +732,11 @@
     <string name="achievement_daily_challenge_silver">Complete 7 daily challenges.</string>
     <string name="achievement_daily_challenge_gold">Complete 30 daily challenges.</string>
     <string name="achievement_precision_title">Precision</string>
-    <string name="achievement_precision_bronze">Perform 50 movements using the Tripod or Pinch grip.</string>
+    <string name="achievement_precision_bronze">Perform 50 movements using Pinch, Key, or Tweezers.</string>
     <string name="achievement_precision_silver">Perform 250 movements using precision grips.</string>
     <string name="achievement_precision_gold">Perform 1,000 movements using precision grips.</string>
     <string name="achievement_power_title">Power</string>
-    <string name="achievement_power_bronze">Perform 50 movements using the Hook or Fist grip.</string>
+    <string name="achievement_power_bronze">Perform 50 movements using Fist or Fist 2.</string>
     <string name="achievement_power_silver">Perform 250 movements using power grips.</string>
     <string name="achievement_power_gold">Perform 1,000 movements using power grips.</string>
     <string name="achievement_get_a_grip_title">Get a Grip</string>

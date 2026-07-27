@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.data.state.AchievementsState
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.state.UiState
@@ -25,14 +24,13 @@ class AchievementsFragment : Fragment() {
     ): View = ComposeView(requireContext()).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
-            val cyborgProgress by AchievementsState.cyborgProgress.collectAsState()
-            val achievements = remember(cyborgProgress) {
+            val progressByAchievement by
+                AchievementsState.progressByAchievement.collectAsState()
+            val achievements = remember(progressByAchievement) {
                 AchievementsCatalog.items.map { achievement ->
-                    if (achievement.id == AchievementId.CYBORG) {
-                        achievement.copy(progress = cyborgProgress)
-                    } else {
-                        achievement
-                    }
+                    progressByAchievement[achievement.id]
+                        ?.let { progress -> achievement.copy(progress = progress) }
+                        ?: achievement
                 }
             }
             AchievementsScreen(

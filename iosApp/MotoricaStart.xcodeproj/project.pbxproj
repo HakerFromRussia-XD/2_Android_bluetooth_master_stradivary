@@ -157,7 +157,7 @@
 		65BDBADE2EABA76300685580 /* GesturesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BDBADD2EABA75400685580 /* GesturesProvider.swift */; };
 		65BE00022FA2000100BE0002 /* LegacyBleCommandProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */; };
 		65BE00042FA2000100BE0004 /* LegacyBleCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */; };
-		65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* HelpViewController.swift */; };
+		65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */; };
 		65C0DE012FA5000100C0DE01 /* BleLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */; };
 		65DF01012FBC000100000001 /* OldMotoricaStartDataManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */; };
 		65DF01032FBC000100000003 /* OldMotoricaStart.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 592973F23F82C10CA21B3DD6 /* OldMotoricaStart.framework */; };
@@ -329,7 +329,7 @@
 		0DA6759BC9626C06D660D097 /* DialogDisconnectViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogDisconnectViewController.swift; path = ViewControllers/Dialogs/DialogDisconnectViewController.swift; sourceTree = "<group>"; };
 		0DE3CE2CB4583A1953A4A8A0 /* InstractionFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionFesthViewController.swift; path = ViewControllers/Help/InstractionFesthViewController.swift; sourceTree = "<group>"; };
 		125B4091EFDB6B194BFDAF0D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = en; path = en.lproj/Main.storyboard; sourceTree = "<group>"; };
-		12E6E6A147F10F37CF7FDCBE /* v3_per_pixel_fragment_shader_general.glsl */ = {isa = PBXFileReference; includeInIndex = 1; name = v3_per_pixel_fragment_shader_general.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_fragment_shader_general.glsl; sourceTree = "<group>"; };
+		12E6E6A147F10F37CF7FDCBE /* v3_per_pixel_fragment_shader_general.glsl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = v3_per_pixel_fragment_shader_general.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_fragment_shader_general.glsl; sourceTree = "<group>"; };
 		13414FAC1397AB48525BB081 /* V3HandSideProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = V3HandSideProvider.swift; sourceTree = "<group>"; };
 		1370A388306A4C3A081D7090 /* BluetoothStorageKeysTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothStorageKeysTests.swift; sourceTree = "<group>"; };
 		14B1AB212B9961B39846E022 /* NewViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NewViewController.swift; path = ViewControllers/NewViewController.swift; sourceTree = "<group>"; };
@@ -400,14 +400,14 @@
 		2419EE98408CF865A2FC843A /* OldMotoricaStartLauncher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncher.swift; sourceTree = "<group>"; };
 		24A21C86558B3D2B20C076DB /* ScanViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScanViewController.swift; path = ViewControllers/Main/ScanViewController.swift; sourceTree = "<group>"; };
 		284CCDE158C62E4FB124E96F /* InstractionControlsInTheAppViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionControlsInTheAppViewController.swift; path = ViewControllers/Help/InstractionControlsInTheAppViewController.swift; sourceTree = "<group>"; };
-		29685A140FEB08A6C9D1EA36 /* V3ModelResourceCache.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = V3ModelResourceCache.mm; sourceTree = "<group>"; };
+		29685A140FEB08A6C9D1EA36 /* V3ModelResourceCache.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = V3ModelResourceCache.mm; sourceTree = "<group>"; };
 		2AE5297769ECE7ED5AAF9F75 /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
-		2B8D0A4783484E74E06D4308 /* v3_per_pixel_fragment_shader_selection.glsl */ = {isa = PBXFileReference; includeInIndex = 1; name = v3_per_pixel_fragment_shader_selection.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_fragment_shader_selection.glsl; sourceTree = "<group>"; };
+		2B8D0A4783484E74E06D4308 /* v3_per_pixel_fragment_shader_selection.glsl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = v3_per_pixel_fragment_shader_selection.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_fragment_shader_selection.glsl; sourceTree = "<group>"; };
 		34E178902751905FCE40A8EA /* DeviceCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceCell.swift; path = ViewControllers/Cells/DeviceCell.swift; sourceTree = "<group>"; };
-		3D46A5D9CB2017047CD32C6E /* festh3_test11_gofra_2.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test11_gofra_2.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_2.v3bin; sourceTree = "<group>"; };
+		3D46A5D9CB2017047CD32C6E /* festh3_test11_gofra_2.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_2.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_2.v3bin; sourceTree = "<group>"; };
 		41B2BB4D0C450695C366DEA3 /* SampleGattAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SampleGattAttributes.swift; path = Utility/SampleGattAttributes.swift; sourceTree = "<group>"; };
 		470B3EF0D98002F9261006A1 /* GestureSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GestureSettingsViewController.swift; path = ViewControllers/Main/GestureSettingsViewController.swift; sourceTree = "<group>"; };
-		47897D524FBA880B4F5B54D8 /* v3_select_fragment_shader.glsl */ = {isa = PBXFileReference; includeInIndex = 1; name = v3_select_fragment_shader.glsl; path = ../../app/src/main/res/raw/v3_select_fragment_shader.glsl; sourceTree = "<group>"; };
+		47897D524FBA880B4F5B54D8 /* v3_select_fragment_shader.glsl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = v3_select_fragment_shader.glsl; path = ../../app/src/main/res/raw/v3_select_fragment_shader.glsl; sourceTree = "<group>"; };
 		514FBFE63083AC97A5CE712F /* DialogSoftResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogSoftResetViewController.swift; path = ViewControllers/Dialogs/DialogSoftResetViewController.swift; sourceTree = "<group>"; };
 		534353D67B97F4A1CBF1B22C /* UserDefaultsKeyValueStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeyValueStorageTests.swift; sourceTree = "<group>"; };
 		554D3A61F0F8CBAB58D52C3D /* TextInputViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputViewCellV3.swift; sourceTree = "<group>"; };
@@ -473,7 +473,7 @@
 		65BDBADD2EABA75400685580 /* GesturesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturesProvider.swift; sourceTree = "<group>"; };
 		65BE00012FA2000100BE0001 /* LegacyBleCommandProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandProbe.swift; sourceTree = "<group>"; };
 		65BE00032FA2000100BE0003 /* LegacyBleCommandBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegacyBleCommandBridge.swift; sourceTree = "<group>"; };
-		65BEEF022F91000100BEEF02 /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
+		65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Help/HelpViewController.swift; sourceTree = "<group>"; };
 		65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleLogViewController.swift; sourceTree = "<group>"; };
 		65DF01022FBC000100000002 /* OldMotoricaStartDataManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartDataManagerTests.swift; sourceTree = "<group>"; };
 		65EAF4762ED865D400B3C49D /* abduction.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = abduction.lottie; sourceTree = "<group>"; };
@@ -544,10 +544,10 @@
 		66A0D12B30B2AA0000000019 /* OpenSans-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-wght.ttf"; sourceTree = "<group>"; };
 		66C0A10230B1000100ABC001 /* AAPLOpenGLRendererV3.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AAPLOpenGLRendererV3.mm; sourceTree = "<group>"; };
 		66C0A10330B1000100ABC001 /* AAPLOpenGLRendererV3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AAPLOpenGLRendererV3.h; sourceTree = "<group>"; };
-		66D0A10330B3000100ABC003 /* SpinnerDropdownTapResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolver.swift; sourceTree = "<group>"; };
-		66D0B10230B3000200ABC002 /* V3ModelResourceCacheTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = V3ModelResourceCacheTests.swift; sourceTree = "<group>"; };
 		66C0A11130B1000100ABC011 /* V3VolumeRodDeformer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = V3VolumeRodDeformer.cpp; sourceTree = "<group>"; };
 		66C0A11230B1000100ABC012 /* V3VolumeRodDeformer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = V3VolumeRodDeformer.hpp; sourceTree = "<group>"; };
+		66D0A10330B3000100ABC003 /* SpinnerDropdownTapResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolver.swift; sourceTree = "<group>"; };
+		66D0B10230B3000200ABC002 /* V3ModelResourceCacheTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = V3ModelResourceCacheTests.swift; sourceTree = "<group>"; };
 		66F6A1042F53CE9B00A1B2C3 /* connect_to_disconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = connect_to_disconnect.lottie; sourceTree = "<group>"; };
 		66F6A1052F53CE9B00A1B2C3 /* disconnect_to_connect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = disconnect_to_connect.lottie; sourceTree = "<group>"; };
 		66F6A1062F53CE9B00A1B2C3 /* reconnect.lottie */ = {isa = PBXFileReference; lastKnownFileType = file; path = reconnect.lottie; sourceTree = "<group>"; };
@@ -555,14 +555,14 @@
 		6FB559B71FA408288BC5EAD2 /* Quote.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Quote.swift; path = "test transition/Quote.swift"; sourceTree = "<group>"; };
 		73C6A1855E7FC46ACC049DE6 /* V3ModelResourceCache.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = V3ModelResourceCache.h; sourceTree = "<group>"; };
 		79AF3551241EA20A2DD72DE9 /* metal_color2.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = metal_color2.png; path = ../../shared/src/androidMain/res/drawable/metal_color2.png; sourceTree = "<group>"; };
-		82D6FFF4B6BD526F6C047789 /* festh3_test11_gofra_1.v3def */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test11_gofra_1.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3def; sourceTree = "<group>"; };
-		85FAAAFDF6B1179BFF0ECE15 /* festh3_test11.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test11.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11.v3bin; sourceTree = "<group>"; };
+		82D6FFF4B6BD526F6C047789 /* festh3_test11_gofra_1.v3def */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_1.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3def; sourceTree = "<group>"; };
+		85FAAAFDF6B1179BFF0ECE15 /* festh3_test11.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11.v3bin; sourceTree = "<group>"; };
 		8A40E230B6282C3A114D0819 /* AdvancedSettinsFesthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedSettinsFesthViewController.swift; path = ViewControllers/Main/AdvancedSettinsFesthViewController.swift; sourceTree = "<group>"; };
 		8C227C0B0693223D0B3D828B /* TextInputListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextInputListItemViewModelV3.swift; sourceTree = "<group>"; };
 		8DB95006C4301C6E661EA2BA /* ProsthesisFamilyClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProsthesisFamilyClassifier.swift; path = MotoricaStart/OldMotoricaStartIntegration/ProsthesisFamilyClassifier.swift; sourceTree = "<group>"; };
 		8EB13250E9AD082075E3BD08 /* DataManger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataManger.swift; path = Utility/DataManger.swift; sourceTree = "<group>"; };
 		92ECA664C1220B2658F99A5A /* Solution.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Solution.swift; path = ViewControllers/Main/Solution.swift; sourceTree = "<group>"; };
-		97E3BF8B00BC3509B61ECF84 /* v3_per_pixel_vertex_shader_tex_and_light.glsl */ = {isa = PBXFileReference; includeInIndex = 1; name = v3_per_pixel_vertex_shader_tex_and_light.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_vertex_shader_tex_and_light.glsl; sourceTree = "<group>"; };
+		97E3BF8B00BC3509B61ECF84 /* v3_per_pixel_vertex_shader_tex_and_light.glsl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = v3_per_pixel_vertex_shader_tex_and_light.glsl; path = ../../app/src/main/res/raw/v3_per_pixel_vertex_shader_tex_and_light.glsl; sourceTree = "<group>"; };
 		9A0C4F20377DC56FD4F3DE5F /* DialogFingersDelayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogFingersDelayViewController.swift; path = ViewControllers/Dialogs/DialogFingersDelayViewController.swift; sourceTree = "<group>"; };
 		9E28B0D8E4AC1AA31980C83A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A01840F9D8A20C76FEC47608 /* DialogResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogResetViewController.swift; path = ViewControllers/Dialogs/DialogResetViewController.swift; sourceTree = "<group>"; };
@@ -578,22 +578,22 @@
 		ABCD03022F9D000100000001 /* FirmwareUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwareUpdateUITests.swift; sourceTree = "<group>"; };
 		ABCD05012FA0000100000001 /* BluetoothScanDeviceNameFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothScanDeviceNameFormatter.swift; sourceTree = "<group>"; };
 		ABCD06022FA3000100000001 /* SpinnerDropdownTapResolverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerDropdownTapResolverTests.swift; sourceTree = "<group>"; };
-		B26E1B3D5C9F382DF0B212F8 /* v3_select_vertex_shader.glsl */ = {isa = PBXFileReference; includeInIndex = 1; name = v3_select_vertex_shader.glsl; path = ../../app/src/main/res/raw/v3_select_vertex_shader.glsl; sourceTree = "<group>"; };
+		B26E1B3D5C9F382DF0B212F8 /* v3_select_vertex_shader.glsl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = v3_select_vertex_shader.glsl; path = ../../app/src/main/res/raw/v3_select_vertex_shader.glsl; sourceTree = "<group>"; };
 		B28E66F9DD2FE5F84B6450D2 /* SaveObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SaveObject.swift; path = Utility/SaveObject.swift; sourceTree = "<group>"; };
 		B69E64DD83C247F02CC09E67 /* ExtentionTextField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtentionTextField.swift; path = Utility/ExtentionTextField.swift; sourceTree = "<group>"; };
 		B6C1D2E3F40516273849A5B7 /* GestureSettingsV3DistributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GestureSettingsV3DistributionTests.swift; sourceTree = "<group>"; };
-		BDC778CD34D4F0D89FE36C32 /* festh3_test3_manifest.json */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test3_manifest.json; path = ../../app/src/main/assets/STR2_V3/festh3_test3_manifest.json; sourceTree = "<group>"; };
+		BDC778CD34D4F0D89FE36C32 /* festh3_test3_manifest.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = festh3_test3_manifest.json; path = ../../app/src/main/assets/STR2_V3/festh3_test3_manifest.json; sourceTree = "<group>"; };
 		C31E63A8DFC4154EA375182C /* DialogGesturesResetViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogGesturesResetViewController.swift; path = ViewControllers/Dialogs/DialogGesturesResetViewController.swift; sourceTree = "<group>"; };
 		C360AEA12565969FFD7FBDB7 /* DialogConfirmationScaleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogConfirmationScaleViewController.swift; path = ViewControllers/Dialogs/DialogConfirmationScaleViewController.swift; sourceTree = "<group>"; };
 		C3B6B1E675A66AC6F89EC091 /* GribSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GribSettingsViewController.swift; path = ViewControllers/Main/GribSettingsViewController.swift; sourceTree = "<group>"; };
 		C404F65880A4221B8074CF05 /* DialogCalibrationStatusViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogCalibrationStatusViewController.swift; path = ViewControllers/Dialogs/DialogCalibrationStatusViewController.swift; sourceTree = "<group>"; };
 		C5F276B3B380C8A2332A508A /* SwitcherViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwitcherViewCellV3.swift; sourceTree = "<group>"; };
 		C63FACFD548CD17641AA1F17 /* ToggleSliderListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleSliderListItemViewModelV3.swift; sourceTree = "<group>"; };
-		C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test11_gofra_1.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3bin; sourceTree = "<group>"; };
+		C8BF58510991AFF5C2A74418 /* festh3_test11_gofra_1.v3bin */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_1.v3bin; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_1.v3bin; sourceTree = "<group>"; };
 		CA3C711EEFACEFB5D00B737F /* V3ModelResources.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; path = V3ModelResources.hpp; sourceTree = "<group>"; };
 		CE5E19CB1AA146F7F440B573 /* ScanDeviceNib.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = ScanDeviceNib.xib; sourceTree = "<group>"; };
 		CFA70B579034069F496D6406 /* gray.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = gray.png; path = ../../shared/src/androidMain/res/drawable/gray.png; sourceTree = "<group>"; };
-		D0F4CC8F3658582F1505CA07 /* festh3_test11_gofra_2.v3def */ = {isa = PBXFileReference; includeInIndex = 1; name = festh3_test11_gofra_2.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_2.v3def; sourceTree = "<group>"; };
+		D0F4CC8F3658582F1505CA07 /* festh3_test11_gofra_2.v3def */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = festh3_test11_gofra_2.v3def; path = ../../app/src/main/assets/STR2_V3_BIN/festh3_test11_gofra_2.v3def; sourceTree = "<group>"; };
 		D2D4BF30F5430917B4540345 /* SensorsSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SensorsSettingsViewController.swift; sourceTree = "<group>"; };
 		D3FE552B8C14A81B6F4F5B90 /* OldMotoricaStartLauncherAdapter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OldMotoricaStartLauncherAdapter.swift; sourceTree = "<group>"; };
 		D49918A44DFD5C9869C6120B /* Test.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
@@ -602,7 +602,7 @@
 		DA397F6E15C89A4C0FD69DE5 /* DialogWaitViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DialogWaitViewController.swift; path = ViewControllers/Dialogs/DialogWaitViewController.swift; sourceTree = "<group>"; };
 		DA4ECB1AF6F9500F519B8504 /* ScanItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScanItem.swift; path = Utility/ScanItem.swift; sourceTree = "<group>"; };
 		DC0E073A4FE83289F27411D6 /* MergedScanStorageKeys.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MergedScanStorageKeys.swift; sourceTree = "<group>"; };
-		E1A95931AAB08B7875636DF1 /* metal_color2.astc */ = {isa = PBXFileReference; includeInIndex = 1; name = metal_color2.astc; path = ../../app/src/main/assets/STR2_TEXTURE_ASTC/metal_color2.astc; sourceTree = "<group>"; };
+		E1A95931AAB08B7875636DF1 /* metal_color2.astc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = metal_color2.astc; path = ../../app/src/main/assets/STR2_TEXTURE_ASTC/metal_color2.astc; sourceTree = "<group>"; };
 		E1AFB7DA949D16925BCD7C82 /* SpinnerViewCellV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerViewCellV3.swift; sourceTree = "<group>"; };
 		E6E882E600C188FAACCC417D /* ObservableTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
 		EBF94C4A1C0D10E88184032E /* InstractionProsthisesUseViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InstractionProsthisesUseViewController.swift; path = ViewControllers/Help/InstractionProsthisesUseViewController.swift; sourceTree = "<group>"; };
@@ -610,7 +610,7 @@
 		F2426E2EC69160471B500191 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F6BD20D26CEBA25682F62395 /* V3ModelResourceCacheInternal.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; path = V3ModelResourceCacheInternal.hpp; sourceTree = "<group>"; };
 		F84365BB50D50D97E500FEF5 /* ToDoTableViewCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToDoTableViewCell.swift; path = Utility/ToDoTableViewCell.swift; sourceTree = "<group>"; };
-		F8F5EBE678A18CB5ECEE03CA /* gray.astc */ = {isa = PBXFileReference; includeInIndex = 1; name = gray.astc; path = ../../app/src/main/assets/STR2_TEXTURE_ASTC/gray.astc; sourceTree = "<group>"; };
+		F8F5EBE678A18CB5ECEE03CA /* gray.astc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = gray.astc; path = ../../app/src/main/assets/STR2_TEXTURE_ASTC/gray.astc; sourceTree = "<group>"; };
 		F956F9476CE450AB8C3124CC /* SpinnerListItemViewModelV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpinnerListItemViewModelV3.swift; sourceTree = "<group>"; };
 		FA764F73C9CB4526B81E2802 /* WidgetV3Support.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetV3Support.swift; path = Widgets/V3/WidgetV3Support.swift; sourceTree = "<group>"; };
 		FC2B715B2156FF93002BD59E /* AppAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
@@ -954,7 +954,7 @@
 				65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */,
 				65ACCA022F90000100ACCA01 /* AccountViewController.swift */,
 				65ACCB022FB2000100ACCB02 /* AccountGamesViewController.swift */,
-				65BEEF022F91000100BEEF02 /* HelpViewController.swift */,
+				65BEEF022F91000100BEEF02 /* Help/HelpViewController.swift */,
 				65C0DE022FA5000100C0DE02 /* BleLogViewController.swift */,
 				ABCD02072F9C000100000001 /* AccountFirmwareModels.swift */,
 				ABCD02082F9C000100000001 /* FirmwareArchiveReader.swift */,
@@ -1735,7 +1735,7 @@
 			mainGroup = 1FA53380201E1FDE00747E55;
 			packageReferences = (
 				65A2A0CF2E6F1E2F00D57E7C /* XCRemoteSwiftPackageReference "Charts" */,
-				65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios.git" */,
+				65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 1FA5338A201E1FDE00747E55 /* Products */;
 			projectDirPath = "";
@@ -2046,7 +2046,7 @@
 				65F27E8E2E60639C00AD5DFD /* MainTabBarController.swift in Sources */,
 				65ACCA012F90000100ACCA01 /* AccountViewController.swift in Sources */,
 				65ACCB012FB2000100ACCB01 /* AccountGamesViewController.swift in Sources */,
-				65BEEF012F91000100BEEF01 /* HelpViewController.swift in Sources */,
+				65BEEF012F91000100BEEF01 /* Help/HelpViewController.swift in Sources */,
 				ABCD01032F9A000100000001 /* PhoneDialURLFormatter.swift in Sources */,
 				1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */,
 				65AA10012FB0000100AA1001 /* GameControlBroadcaster.swift in Sources */,
@@ -2181,8 +2181,9 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2206,8 +2207,9 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				INFOPLIST_FILE = MotoricaStartUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2366,8 +2368,8 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				CURRENT_PROJECT_VERSION = 16;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
@@ -2377,13 +2379,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.14;
+				MARKETING_VERSION = 3.3.15;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2401,8 +2403,8 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				CURRENT_PROJECT_VERSION = 16;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
@@ -2412,13 +2414,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.14;
+				MARKETING_VERSION = 3.3.15;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2433,7 +2435,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2458,7 +2460,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = R7K637DW83;
+				DEVELOPMENT_TEAM = WWLXR9V94H;
 				INFOPLIST_FILE = MotoricaStartTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2480,9 +2482,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = R7K637DW83;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = WWLXR9V94H;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = WWLXR9V94H;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2520,9 +2526,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = R7K637DW83;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = WWLXR9V94H;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = WWLXR9V94H;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2606,7 +2616,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios.git" */ = {
+		65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
 			requirement = {
@@ -2627,7 +2637,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		65588F9D2EA0E499005CF5BA /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios.git" */;
+			package = 65588F9C2EA0E499005CF5BA /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
 		65A2A0D02E6F1E2F00D57E7C /* DGCharts */ = {

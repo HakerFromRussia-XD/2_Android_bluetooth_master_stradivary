@@ -71,38 +71,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/gameTitleTv" />
 
-            <ProgressBar
-                android:id="@+id/gameProgress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="8dp"
-                android:layout_marginTop="20dp"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="0"
-                android:progressBackgroundTint="@color/ubi4_gray_border"
-                android:progressTint="@color/color_accent"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gameDescriptionTv"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/gameStatusTv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/font_open_sans_regular"
-                android:textColor="@color/ubi4_deactivate_text"
-                android:textSize="12sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gameProgress"
-                tools:text="Downloading 40%"
-                tools:visibility="visible" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/gameActionContainer"
                 android:layout_width="112dp"
@@ -129,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:elevation="4dp"
                     android:fontFamily="@font/sf_pro_display_light"
-                    android:text="@string/download"
+                    android:text="@string/install_game"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"

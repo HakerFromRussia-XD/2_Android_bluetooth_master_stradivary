@@ -85,13 +85,13 @@ object AchievementsCatalog {
             silverRes = R.string.achievement_anniversary_silver,
             goldRes = R.string.achievement_anniversary_gold
         ),
-        achievement(
-            id = AchievementId.SQUARE_EYES,
-            titleRes = R.string.achievement_square_eyes_title,
-            bronzeRes = R.string.achievement_square_eyes_bronze,
-            silverRes = R.string.achievement_square_eyes_silver,
-            goldRes = R.string.achievement_square_eyes_gold
-        ),
+//        achievement(
+//            id = AchievementId.SQUARE_EYES,
+//            titleRes = R.string.achievement_square_eyes_title,
+//            bronzeRes = R.string.achievement_square_eyes_bronze,
+//            silverRes = R.string.achievement_square_eyes_silver,
+//            goldRes = R.string.achievement_square_eyes_gold
+//        ),
         achievement(
             id = AchievementId.PERSONALISATION,
             titleRes = R.string.achievement_personalisation_title,

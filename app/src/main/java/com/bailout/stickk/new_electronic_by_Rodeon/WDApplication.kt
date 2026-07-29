@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.data.local.db.AndroidCtx
 import com.bailout.stickk.ubi4.data.local.db.DbProvider
 import com.bailout.stickk.ubi4.data.local.db.RoomInit
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileRepositoryProvider
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventRepositoryProvider
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
@@ -52,6 +53,7 @@ class WDApplication : MultiDexApplication() {
       deviceCrcDao = db.deviceCrcDao(),
     )
     SettingsProfileRepositoryProvider.init(db.settingsProfileDao())
+    AchievementEventRepositoryProvider.init(db.achievementUniqueEventDao())
   }
 
   companion object {

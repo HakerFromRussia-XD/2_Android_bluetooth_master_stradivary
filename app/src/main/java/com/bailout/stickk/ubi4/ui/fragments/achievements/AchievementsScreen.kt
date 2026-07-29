@@ -47,6 +47,7 @@ internal object AchievementsColors {
     val Border = Color(0xFF444444)
     val White = Color(0xFFFCFCFC)
     val Accent = Color(0xFFC6F158)
+    val SystemBlue = Color(0xFF0A84FF)
     val Bronze = Color(0xFFCD7F32)
     val Silver = Color(0xFFC0C0C0)
     val Gold = Color(0xFFFFD700)

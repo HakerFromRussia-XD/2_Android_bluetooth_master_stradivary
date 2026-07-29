@@ -16,7 +16,11 @@ object AchievementDefinitions {
         AchievementId.SQUARE_EYES to definition(1L, 3L, 5L),
         AchievementId.PERSONALISATION to definition(1L, 2L, 3L),
         AchievementId.ALWAYS_CONNECTED to definition(1L, 7L, 30L),
-        AchievementId.CHAMPION to definition(5L, 10L, 14L)
+        AchievementId.CHAMPION to definition(
+            bronzeTarget = 5L,
+            silverTarget = 10L,
+            goldTarget = AchievementId.entries.size.toLong() - 1L
+        )
     )
 
     operator fun get(id: AchievementId): AchievementDefinition =

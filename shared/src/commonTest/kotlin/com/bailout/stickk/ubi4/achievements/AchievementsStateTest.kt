@@ -4,8 +4,12 @@ import com.bailout.stickk.ubi4.data.state.TelemetryGestureCounters
 import com.bailout.stickk.ubi4.data.state.totalPerformedGestures
 import com.bailout.stickk.ubi4.data.state.totalPrecisionGestures
 import com.bailout.stickk.ubi4.data.state.totalPowerGestures
+import com.bailout.stickk.ubi4.data.local.repository.isCustomGestureId
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GestureEnum
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class AchievementsStateTest {
 
@@ -52,5 +56,13 @@ class AchievementsStateTest {
         )
 
         assertEquals(100L, counters.totalPrecisionGestures())
+    }
+
+    @Test
+    fun `get a grip accepts only custom gesture ids`() {
+        assertTrue(GestureEnum.GESTURE_CUSTOM_0.number.isCustomGestureId())
+        assertTrue(GestureEnum.GESTURE_CUSTOM_13.number.isCustomGestureId())
+        assertFalse(GestureEnum.GESTURE_NATURAL_POSITION.number.isCustomGestureId())
+        assertFalse((GestureEnum.GESTURE_CUSTOM_13.number + 1).isCustomGestureId())
     }
 }

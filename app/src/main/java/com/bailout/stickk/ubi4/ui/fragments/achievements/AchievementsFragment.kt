@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.bailout.stickk.ubi4.data.state.AchievementsState
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.state.UiState
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 
 class AchievementsFragment : Fragment() {
@@ -43,6 +44,9 @@ class AchievementsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as? MainActivityUBI4)?.apply {
+            AchievementsState.refreshAnniversaryProgress(
+                loadText(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS)
+            )
             hideTopStatusBar()
             if (UiState.isInterfaceV3Activated) {
                 getBLEController()?.requestTelemetryDataV3()

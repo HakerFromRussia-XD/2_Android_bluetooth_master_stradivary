@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.local.bootstrap.WidgetBootstrapHydrator
 import com.bailout.stickk.ubi4.data.local.db.RoomPersistence
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.local.repository.WidgetRepoProvider
 import com.bailout.stickk.ubi4.data.network.SettingsProfileUploadWorkScheduler
@@ -238,6 +239,7 @@ class BLEController(private val bleManager: BleManagerKmm) {
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
                     Log.d("BLE_CONN", "▶ ACTION_GATT_SERVICES_DISCOVERED, services count = ${mBluetoothLeService?.supportedGattServices?.size ?: 0}")
                     mConnected = true
+                    AchievementEventManager.recordSuccessfulBleConnection()
                     Toast.makeText(
                         context,
                         context.getString(SharedRes.strings.connected_device.resourceId, connectedDeviceAddress),

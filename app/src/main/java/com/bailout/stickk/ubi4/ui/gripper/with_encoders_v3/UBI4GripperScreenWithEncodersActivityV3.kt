@@ -42,6 +42,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL_CHARACTERIS
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.SERIALPORTCHAR_UUID
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
 import com.bailout.stickk.ubi4.data.local.repository.SettingsProfileManager
 import com.bailout.stickk.ubi4.data.state.BLEState
 import com.bailout.stickk.ubi4.data.state.ParameterStoreV3
@@ -178,6 +179,7 @@ class UBI4GripperScreenWithEncodersActivityV3
     private var deviceAddress = 0
     private var parameterID = 0
     private var gestureID = 0
+    private var initialFingerPositions: List<Int>? = null
 
     private lateinit var binding: Ubi4LayoutGripperSettingsLeWithEncodersV3Binding
 
@@ -332,7 +334,8 @@ class UBI4GripperScreenWithEncodersActivityV3
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 gestureState = States.GESTURE_SAVE_BUTTON.number
-                compileBLEMassage()
+                val savedGesture = compileBLEMassage()
+                recordCustomGripConfigurationIfChanged(savedGesture)
                 if (editMode) {
                     gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                     val macKey = mSettings!!.getString(PreferenceKeysUbi4.LAST_CONNECTION_MAC_UBI4, "text")
@@ -803,7 +806,7 @@ class UBI4GripperScreenWithEncodersActivityV3
         }
     }
 
-    private fun compileBLEMassage () {
+    private fun compileBLEMassage(): Gesture {
         val gesture = Gesture(gestureID, // проверить тут -2
             validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
             validationRange(fingerOpenState1), validationRange(fingerOpenState5), validationRange(fingerOpenState6),
@@ -823,6 +826,7 @@ class UBI4GripperScreenWithEncodersActivityV3
                 "hex=${EncodeByteToHex.bytesToHexString(command)}"
         )
         main.bleCommandWithQueue(command, SERIALPORTCHAR_UUID, WRITE){}
+        return gesture
     }
 
     private fun persistGestureSettings(gesture: Gesture) {
@@ -886,6 +890,9 @@ class UBI4GripperScreenWithEncodersActivityV3
         editor.apply()
     }
     private fun loadGestureState(gestureSettings: GestureV3) {
+        if (initialFingerPositions == null) {
+            initialFingerPositions = gestureSettings.fingerPositions()
+        }
         fingerOpenState1 = validationRange( gestureSettings.openPosition4 )
         fingerOpenState2 = validationRange( gestureSettings.openPosition3 )
         fingerOpenState3 = validationRange( gestureSettings.openPosition2 )
@@ -925,6 +932,43 @@ class UBI4GripperScreenWithEncodersActivityV3
             startInitialTransitionIfReady()
         }
     }
+
+    private fun recordCustomGripConfigurationIfChanged(savedGesture: Gesture) {
+        val initialPositions = initialFingerPositions ?: return
+        if (savedGesture.fingerPositions() == initialPositions) return
+
+        AchievementEventManager.recordCustomGripConfiguration(savedGesture.gestureId)
+    }
+
+    private fun GestureV3.fingerPositions(): List<Int> = listOf(
+        openPosition1,
+        openPosition2,
+        openPosition3,
+        openPosition4,
+        openPosition5,
+        openPosition6,
+        closePosition1,
+        closePosition2,
+        closePosition3,
+        closePosition4,
+        closePosition5,
+        closePosition6
+    ).map { it.coerceIn(0, 100) }
+
+    private fun Gesture.fingerPositions(): List<Int> = listOf(
+        openPosition1,
+        openPosition2,
+        openPosition3,
+        openPosition4,
+        openPosition5,
+        openPosition6,
+        closePosition1,
+        closePosition2,
+        closePosition3,
+        closePosition4,
+        closePosition5,
+        closePosition6
+    )
 
     private fun startInitialTransitionIfReady() {
         if (!rendererFirstFrameReady || !pendingInitialTransition || initialTransitionStarted) {

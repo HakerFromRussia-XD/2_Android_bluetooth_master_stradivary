@@ -1,15 +1,19 @@
 package com.bailout.stickk.ubi4.ui.fragments.achievements.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -47,14 +51,27 @@ internal fun AchievementInfoDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.achievements_close),
-                    color = AchievementsColors.Accent,
-                    fontFamily = AchievementsFontFamily,
-                    fontWeight = FontWeight.Bold
+        buttons = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Divider(
+                    color = AchievementsColors.Border,
+                    thickness = 1.dp
                 )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .clickable(onClick = onDismiss),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.achievements_close),
+                        color = AchievementsColors.SystemBlue,
+                        fontFamily = AchievementsFontFamily,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         },
         shape = RoundedCornerShape(16.dp),

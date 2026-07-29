@@ -15,10 +15,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentPersonalAccountCustomerServiceBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.data.network.RequestsUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
@@ -76,8 +76,8 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
             binding.refreshLayout.setRefreshing(false)
         }
 
-        //TODO изменить константы val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
-        val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
+        val dateOfReceipt: String =
+            main?.loadText(PreferenceKeysUbi4.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()
         var warrantyDate: String? = null
         if (dateOfReceipt.length > 7 ) {
             val year = dateOfReceipt.takeLast(4).toInt()
@@ -91,9 +91,9 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
             AccountCustomerServiceItemUBI4(
                 dateOfReceiptOfProsthesis = dateOfReceipt,
                 warrantyExpirationDate = warrantyDate.toString(),
-                yourManager = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_FIO).toString(),
-                yourManagerPhone = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString(),
-                prosthesisStatus = main?.loadText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS).toString())
+                yourManager = main?.loadText(PreferenceKeysUbi4.ACCOUNT_MANAGER_FIO).toString(),
+                yourManagerPhone = main?.loadText(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE).toString(),
+                prosthesisStatus = main?.loadText(PreferenceKeysUbi4.ACCOUNT_STATUS_PROSTHESIS).toString())
         )
 
         initializeUI()
@@ -122,7 +122,7 @@ class AccountFragmentCustomerServiceUBI4 : Fragment() {
                             Intent.ACTION_DIAL,
                             Uri.parse(
                                 "tel:${
-                                    main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString()
+                                    main?.loadText(PreferenceKeysUbi4.ACCOUNT_MANAGER_PHONE).toString()
                                 }"
                             )
                         )

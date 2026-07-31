@@ -47,7 +47,7 @@ class AccountMainAdapterUBI4(
         holder.fioTv.text               = "${item.getName()} ${item.getSurname()}"
         holder.statisticsItem.visibility = if (showStatisticsItem) View.VISIBLE else View.GONE
         holder.statisticsDivider.visibility =
-            if (showStatisticsItem && showAchievementsItem) View.VISIBLE else View.GONE
+            if (showStatisticsItem) View.VISIBLE else View.GONE
         holder.achievementsItem.visibility = if (showAchievementsItem) View.VISIBLE else View.GONE
 //        holder.applicationVersionNumTv.text = BuildConfig.VERSION_NAME
 

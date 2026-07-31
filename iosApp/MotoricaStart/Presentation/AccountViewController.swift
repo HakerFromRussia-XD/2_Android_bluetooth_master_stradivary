@@ -274,6 +274,20 @@ final class AccountViewController: UIViewController {
         section.addDivider(color: borderColor)
         section.addRow(
             AccountMenuRow(
+                iconName: "prosthesis_information",
+                title: SharedLocalizedText.text(SharedRes.strings().statistics),
+                textColor: textColor,
+                accessibilityIdentifier: AccessibilityIdentifier.accountStatisticsButton
+            ) { [weak self] in
+                self?.navigationController?.pushViewController(
+                    AccountStatisticsViewController(),
+                    animated: true
+                )
+            }
+        )
+        section.addDivider(color: borderColor)
+        section.addRow(
+            AccountMenuRow(
                 iconName: "ic_trophy",
                 title: NSLocalizedString("motorica_games", comment: ""),
                 textColor: textColor
@@ -329,6 +343,224 @@ final class AccountViewController: UIViewController {
         return languageCode == "ru" ? "ru" : "en"
     }
 
+}
+
+/// V3 gesture statistics opened from Account, matching the Android account flow.
+final class AccountStatisticsViewController: UIViewController {
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var statusBarHostingController: UIHostingController<StatusBarView>?
+    private var telemetryCountersJob: Kotlinx_coroutines_coreJob?
+    private var viewModel = GestureUsageListItemViewModel(
+        id: "account-gesture-usage",
+        title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
+        emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
+        totalTitle: AccountStatisticsViewController.totalTitle,
+        items: []
+    )
+
+    private let backgroundColor = UIColor.accountColor("ubi4_back", fallback: 0x2A2A2A)
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = backgroundColor
+        view.accessibilityIdentifier = AccessibilityIdentifier.accountStatisticsRoot
+        setupTopBar()
+        setupTableView()
+        observeTelemetry()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+        requestTelemetryData()
+    }
+
+    deinit {
+        telemetryCountersJob?.cancel(cause: nil)
+    }
+
+    private func setupTopBar() {
+        let hostingController = UIHostingController(
+            rootView: StatusBarView(
+                viewModel: WidgetsTabContainerViewController.sharedStatusBarViewModel,
+                leadingButton: .back,
+                onBackTap: { [weak self] in
+                    self?.navigationController?.popViewController(animated: true)
+                },
+                onDisconnectConfirmed: { [weak self] in
+                    StatusBarDisconnectCoordinator.disconnectAndShowScan(from: self)
+                }
+            )
+        )
+        statusBarHostingController = hostingController
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.backgroundColor = .clear
+        view.addSubview(hostingController.view)
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            hostingController.view.heightAnchor.constraint(equalToConstant: StatusBarView.Constants.height)
+        ])
+        hostingController.didMove(toParent: self)
+    }
+
+    private func setupTableView() {
+        guard let topBar = statusBarHostingController?.view else { return }
+        tableView.backgroundColor = backgroundColor
+        tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
+        tableView.estimatedRowHeight = 320
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.dataSource = self
+        tableView.register(
+            GestureUsageChartViewCell.self,
+            forCellReuseIdentifier: GestureUsageChartViewCell.reuseIdentifier
+        )
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 8),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+
+    private func observeTelemetry() {
+        telemetryCountersJob?.cancel(cause: nil)
+        telemetryCountersJob = WidgetStateBridge.shared.observeTelemetryGestureCounters { [weak self] counters in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.viewModel = GestureUsageListItemViewModel(
+                    id: "account-gesture-usage",
+                    title: SharedLocalizedText.text(SharedRes.strings().gesture_usage_chart_title),
+                    emptyTitle: SharedLocalizedText.text(SharedRes.strings().gesture_usage_empty),
+                    totalTitle: Self.totalTitle,
+                    items: self.makeItems(from: counters)
+                )
+                self.tableView.reloadData()
+            }
+        }
+    }
+
+    private func requestTelemetryData() {
+        guard UiInterfaceModeBridgeV3.shared.isEnabled() else { return }
+        let gatt = SampleGattAttributes()
+        BLEComponents.shared.bleManager.sendBytesKmm(
+            data: BLECommandsV3.shared.requestTelemetryData(),
+            command: gatt.SERIALPORTCHAR_UUID,
+            typeCommand: gatt.WRITE,
+            onChunkSent: {}
+        )
+    }
+
+    private func makeItems(from counters: TelemetryGestureCounters) -> [GestureUsageChartItem] {
+        let baseItems: [GestureUsageChartItem] = counters.baseGestureMovementCount.enumerated().compactMap { index, rawCount in
+            guard Self.baseGestureIds.indices.contains(index) else { return nil }
+            let gestureId = Self.baseGestureIds[index]
+            let count = longValue(from: rawCount)
+            guard gestureId != 0, count > 0 else { return nil }
+            return GestureUsageChartItem(
+                gestureId: gestureId,
+                title: baseGestureName(for: gestureId),
+                count: count,
+                colorIndex: gestureId
+            )
+        }
+        let customNames = customGestureNames()
+        let customItems: [GestureUsageChartItem] = counters.customGestureMovementCount.enumerated().compactMap { index, rawCount in
+            let count = longValue(from: rawCount)
+            guard count > 0 else { return nil }
+            let gestureId = 64 + index
+            return GestureUsageChartItem(
+                gestureId: gestureId,
+                title: customNames.indices.contains(index)
+                    ? customNames[index]
+                    : "\(SharedLocalizedText.text(SharedRes.strings().custom_gesture)) \(index + 1)",
+                count: count,
+                colorIndex: gestureId
+            )
+        }
+        return (baseItems + customItems).sorted {
+            $0.count == $1.count ? $0.gestureId < $1.gestureId : $0.count > $1.count
+        }
+    }
+
+    private func longValue(from value: Any) -> Int64 {
+        if let value = value as? KotlinLong { return value.int64Value }
+        if let value = value as? NSNumber { return value.int64Value }
+        return 0
+    }
+
+    private func baseGestureName(for gestureId: Int) -> String {
+        let resources: [StringResource] = [
+            SharedRes.strings().fist, // Gesture 0 is filtered before this lookup.
+            SharedRes.strings().fist,
+            SharedRes.strings().gesture_point,
+            SharedRes.strings().gesture_pinch,
+            SharedRes.strings().gesture_fist_thumb_over,
+            SharedRes.strings().gesture_key,
+            SharedRes.strings().gesture_rock,
+            SharedRes.strings().gesture_twizzers,
+            SharedRes.strings().gesture_cupholder,
+            SharedRes.strings().gesture_half_grab,
+            SharedRes.strings().gesture_ok,
+            SharedRes.strings().gesture_thumb_up,
+            SharedRes.strings().gesture_middle_finger,
+            SharedRes.strings().gesture_double_point,
+            SharedRes.strings().gesture_call_me,
+            SharedRes.strings().gesture_natural_position
+        ]
+        guard resources.indices.contains(gestureId) else { return "Gesture \(gestureId)" }
+        return SharedLocalizedText.text(resources[gestureId])
+    }
+
+    private func customGestureNames() -> [String] {
+        let stored = GestureService.shared.loadNames()
+        let defaults = [
+            SharedRes.strings().gesture_1_btn, SharedRes.strings().gesture_2_btn,
+            SharedRes.strings().gesture_3_btn, SharedRes.strings().gesture_4_btn,
+            SharedRes.strings().gesture_5_btn, SharedRes.strings().gesture_6_btn,
+            SharedRes.strings().gesture_7_btn, SharedRes.strings().gesture_8_btn,
+            SharedRes.strings().gesture_9_btn, SharedRes.strings().gesture_10_btn,
+            SharedRes.strings().gesture_11_btn, SharedRes.strings().gesture_12_btn,
+            SharedRes.strings().gesture_13_btn, SharedRes.strings().gesture_14_btn,
+            SharedRes.strings().gesture_15_btn
+        ].map(SharedLocalizedText.text)
+        guard stored.count < defaults.count else { return Array(stored.prefix(defaults.count)) }
+        return stored + Array(defaults[stored.count...])
+    }
+
+    private static var totalTitle: String {
+        Locale.current.languageCode == "ru" ? "Всего:" : "Total:"
+    }
+
+    private static let baseGestureIds = Array(0...15)
+}
+
+extension AccountStatisticsViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: GestureUsageChartViewCell.reuseIdentifier,
+            for: indexPath
+        ) as! GestureUsageChartViewCell
+        cell.configure(with: viewModel)
+        return cell
+    }
 }
 
 private final class AccountCustomerServiceViewController: AccountDetailsViewController {
@@ -504,9 +736,16 @@ private final class AccountDivider: UIView {
 private final class AccountMenuRow: UIControl {
     private let action: () -> Void
 
-    init(iconName: String, title: String, textColor: UIColor, action: @escaping () -> Void) {
+    init(
+        iconName: String,
+        title: String,
+        textColor: UIColor,
+        accessibilityIdentifier: String? = nil,
+        action: @escaping () -> Void
+    ) {
         self.action = action
         super.init(frame: .zero)
+        self.accessibilityIdentifier = accessibilityIdentifier
         setup(iconName: iconName, title: title, textColor: textColor)
     }
 

@@ -200,7 +200,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         setPlotPointRenderingPaused(false)
         startObservingWidgetUpdates()
         reloadWidgetsFromShared()
-        requestTelemetryDataIfNeeded()
         if isSpecialSettingsMobileSource {
             LoadingView.hide()
             showWidgetsContent()
@@ -282,7 +281,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
             }
         }
 
-        startObservingTelemetryCountersIfNeeded()
     }
 
     private func stopObservingWidgetUpdates() {
@@ -330,7 +328,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         print("[WIDGET_COORDINATOR] widgetsDTO: \(widgetsDTO)")
         let widgetsSignature = makeWidgetsSignature(from: widgetsDTO)
         guard widgetsSignature != lastWidgetsSignature else {
-            applyGestureUsageWidgetIfNeeded()
             return
         }
         lastWidgetsSignature = widgetsSignature
@@ -344,7 +341,6 @@ final class WidgetsListViewController: UIViewController, StoryboardInstantiable,
         
         let requestDTO = WidgetsRequestDTO(query: WidgetQuery(query: "My request").query, page: 1)
         viewModel.update(with: mockResponseDTO.toDomain())
-        applyGestureUsageWidgetIfNeeded()
         storage.save(response: mockResponseDTO, for: requestDTO)
     }
 

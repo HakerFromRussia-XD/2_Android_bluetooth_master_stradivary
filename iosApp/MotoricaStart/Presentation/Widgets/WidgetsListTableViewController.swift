@@ -497,6 +497,7 @@ private final class GestureUsageDonutChartView: UIView {
         dataSet.drawIconsEnabled = false
         dataSet.drawValuesEnabled = true
         dataSet.sliceSpace = 1
+        dataSet.automaticallyDisableSliceSpacing = true
         dataSet.selectionShift = 0
         dataSet.valueLineColor = .clear
         dataSet.valueTextColor = .white
@@ -561,13 +562,16 @@ private final class GestureUsageDonutChartView: UIView {
 }
 
 private final class GestureUsagePercentValueFormatter: NSObject, ValueFormatter {
+    private static let minimumVisiblePercent = 3.0
+
     func stringForValue(
         _ value: Double,
         entry: ChartDataEntry,
         dataSetIndex: Int,
         viewPortHandler: ViewPortHandler?
     ) -> String {
-        "\(Int(value.rounded()))%"
+        guard value >= Self.minimumVisiblePercent else { return "" }
+        return "\(Int(value.rounded()))%"
     }
 }
 

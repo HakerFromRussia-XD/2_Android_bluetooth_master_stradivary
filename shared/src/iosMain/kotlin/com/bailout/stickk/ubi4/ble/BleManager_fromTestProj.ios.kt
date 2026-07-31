@@ -12,6 +12,8 @@ import com.bailout.stickk.ubi4.data.state.GameControlSignal
 import com.bailout.stickk.ubi4.data.state.UiState
 import com.bailout.stickk.ubi4.data.state.WidgetState
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.BaseCommandsV3.*
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.GET_SERIAL_NUMBER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.DeviceInformationCommandV3.SET_SERIAL_NUMBER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_CHANGE_GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_EMG_MOVEMENT_LOCK
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.ProsthesisModuleControlEnum.PWCE_GET_HAND_CONTROL_MODE
@@ -24,6 +26,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GuiModu
 import com.bailout.stickk.ubi4.models.other.WidgetsLoadingProgress
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.logging.platformLog
+import com.bailout.stickk.ubi4.resources.com.bailout.stickk.ubi4.bridges.WidgetCommandBridgeV3
 import com.bailout.stickk.ubi4.utility.synchronized
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
@@ -624,6 +627,14 @@ actual class BleManagerKmm actual constructor() {
     }
 
     private fun buildV3InitRequests(): List<InitRequestV3> {
+        val getSerialNumberPacket = WidgetCommandBridgeV3.buildReadRequest(
+            DEVICE_INFORMATION.number.toInt(),
+            SET_SERIAL_NUMBER.number
+        ) ?: BLECommandsV3.requestWithCommand(
+            DEVICE_INFORMATION.number.toInt(),
+            GET_SERIAL_NUMBER.number
+        )
+
         return listOf(
             InitRequestV3(
                 packet = BLECommandsV3.request(PWCE_GET_THRESHOLD_VALUE.number.toInt()),
@@ -692,6 +703,11 @@ actual class BleManagerKmm actual constructor() {
                 packet = BLECommandsV3.request(PWCE_GET_HAND_CONTROL_MODE.number.toInt()),
                 expectedResponseCommand = PROSTHESIS_MODULE_CONTROL.number.toInt(),
                 expectedResponseSubcommand = PWCE_GET_HAND_CONTROL_MODE.number.toInt()
+            ),
+            InitRequestV3(
+                packet = getSerialNumberPacket,
+                expectedResponseCommand = DEVICE_INFORMATION.number.toInt(),
+                expectedResponseSubcommand = GET_SERIAL_NUMBER.number
             )
         )
     }

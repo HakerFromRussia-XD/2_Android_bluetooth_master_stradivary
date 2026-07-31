@@ -144,7 +144,7 @@
                                                         </label>
                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="w39-mB-07J">
                                                             <rect key="frame" x="6" y="6" width="298" height="3"/>
-                                                            <color key="backgroundColor" name="ubi4_deactivate_text"/>
+                                                            <color key="backgroundColor" name="ubi4_white"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="3" id="ApU-gO-2Xb"/>
                                                             </constraints>
@@ -157,7 +157,7 @@
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="30">
                                                                             <attributes>
-                                                                                <color key="NSColor" name="ubi4_white"/>
+                                                                                <color key="NSColor" name="ubi4_deactivate_text"/>
                                                                                 <font key="NSFont" metaFont="miniSystem"/>
                                                                                 <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                             </attributes>
@@ -167,7 +167,7 @@
                                                                 </label>
                                                             </subviews>
                                                             <viewLayoutGuide key="safeArea" id="2JK-ry-VBM"/>
-                                                            <color key="backgroundColor" name="ubi4_deactivate_text"/>
+                                                            <color key="backgroundColor" name="ubi4_white"/>
                                                             <constraints>
                                                                 <constraint firstItem="kZQ-IQ-j7F" firstAttribute="centerY" secondItem="1Us-9T-IXy" secondAttribute="centerY" id="Wnt-9w-85x"/>
                                                                 <constraint firstItem="kZQ-IQ-j7F" firstAttribute="centerX" secondItem="1Us-9T-IXy" secondAttribute="centerX" constant="-1" id="eyY-pT-MEL"/>
@@ -210,7 +210,7 @@
                                                         </label>
                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HcX-4Q-1yU">
                                                             <rect key="frame" x="40" y="6" width="298" height="3"/>
-                                                            <color key="backgroundColor" name="ubi4_white"/>
+                                                            <color key="backgroundColor" name="ubi4_deactivate_text"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="3" id="als-4Y-wzp"/>
                                                             </constraints>
@@ -223,7 +223,7 @@
                                                                     <attributedString key="attributedText">
                                                                         <fragment content="30">
                                                                             <attributes>
-                                                                                <color key="NSColor" name="ubi4_deactivate_text"/>
+                                                                                <color key="NSColor" name="ubi4_white"/>
                                                                                 <font key="NSFont" metaFont="miniSystem"/>
                                                                                 <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                                                             </attributes>
@@ -233,7 +233,7 @@
                                                                 </label>
                                                             </subviews>
                                                             <viewLayoutGuide key="safeArea" id="vpt-TT-1Z6"/>
-                                                            <color key="backgroundColor" name="ubi4_white"/>
+                                                            <color key="backgroundColor" name="ubi4_deactivate_text"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="30" id="2uN-cs-wSW"/>
                                                                 <constraint firstAttribute="height" constant="15" id="D85-e3-eqS"/>
@@ -305,13 +305,13 @@
                                     <outlet property="allCHRl" destination="U2J-nJ-kCH" id="g6U-Ap-76n"/>
                                     <outlet property="backgroundPlot" destination="Xn1-A6-eIY" id="2Eb-xS-TJ2"/>
                                     <outlet property="closeCHV" destination="s9D-Oi-R9B" id="hlP-4q-gdY"/>
-                                    <outlet property="closeThresholdTitleLabel" destination="1KY-iF-G1p" id="p7K-Xn-pAE"/>
+                                    <outlet property="closeThresholdTitleLabel" destination="Lvo-7I-dm5" id="p7K-Xn-pAE"/>
                                     <outlet property="closeThresholdTv" destination="kZQ-IQ-j7F" id="1Vi-Ia-fej"/>
                                     <outlet property="limitCH1" destination="Frj-Ub-yHJ" id="GiL-Tw-Ksa"/>
                                     <outlet property="limitCH2" destination="bhd-MP-HAf" id="nIl-gy-0Tf"/>
                                     <outlet property="lineChartView" destination="f96-AD-XFo" id="eDr-GJ-Gdb"/>
                                     <outlet property="openCHV" destination="kW2-b7-d4t" id="r3K-05-77i"/>
-                                    <outlet property="openThresholdTitleLabel" destination="Lvo-7I-dm5" id="R4v-MC-kJp"/>
+                                    <outlet property="openThresholdTitleLabel" destination="1KY-iF-G1p" id="R4v-MC-kJp"/>
                                     <outlet property="openThresholdTv" destination="vts-ce-daj" id="5Nw-J0-2X3"/>
                                 </connections>
                             </tableViewCell>

@@ -99,6 +99,7 @@ class BLEParserV3(
     private var gameControlPacketSeq = 0L
 
     private companion object {
+        const val SETTINGS_PROFILE_WIDGET_ENABLED = false
         const val DASHBOARD_SLOTS_LOG_TAG = "DASHBOARD_SLOTS"
         const val TELEMETRY_EXPECTED_SIZE = 158
         const val TELEMETRY_DEVICE_UUID_OFFSET = 2
@@ -868,21 +869,24 @@ class BLEParserV3(
                 ParameterInfoRegistry.require(P_KEY_HAND_CONTROL_MODE),
             )
         ), text(SharedRes.strings.ubi4_v3_widget_prosthesis_work_mode))))
-        baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
-            dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
-                textList(
-                    SharedRes.strings.ubi4_v3_settings_profile_1,
-                    SharedRes.strings.ubi4_v3_settings_profile_add
+        if (SETTINGS_PROFILE_WIDGET_ENABLED) {
+            baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
+                dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
+                    textList(
+                        SharedRes.strings.ubi4_v3_settings_profile_1,
+                        SharedRes.strings.ubi4_v3_settings_profile_add
+                    ),
+                    0
                 ),
-                0
-            ),
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
-                display = 2,
-                widgetCode = PWCE_SPINBOX_V3.number.toInt(),
-                parameterInfoSet = mutableSetOf(
-                    ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
-                )
-            ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))))
+                baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(
+                    display = 2,
+                    widgetCode = PWCE_SPINBOX_V3.number.toInt(),
+                    parameterInfoSet = mutableSetOf(
+                        ParameterInfoRegistry.require(P_KEY_SETTINGS_PROFILE),
+                    )
+                ), text(SharedRes.strings.ubi4_v3_widget_settings_profiles))
+            ))
+        }
         baseParameterWidgetSStruct.add(SpinnerParameterWidgetSStruct(
             dataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct(
                 textList(

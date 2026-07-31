@@ -549,6 +549,23 @@ static os_log_t V3FrameLog(void) {
 - (void)viewDidLoad {
     CFTimeInterval viewDidLoadStartedAt = CACurrentMediaTime();
     [super viewDidLoad];
+    NSString *localizedSaveTitle = NSLocalizedString(@"save", nil);
+    if (@available(iOS 15.0, *)) {
+        UIButtonConfiguration *configuration = saveBtn.configuration;
+        NSAttributedString *currentTitle = configuration.attributedTitle;
+        NSDictionary<NSAttributedStringKey, id> *attributes =
+            currentTitle.length > 0 ? [currentTitle attributesAtIndex:0 effectiveRange:NULL] : @{};
+        configuration.attributedTitle =
+            [[NSAttributedString alloc] initWithString:localizedSaveTitle attributes:attributes];
+        saveBtn.configuration = configuration;
+    } else {
+        NSAttributedString *currentTitle = [saveBtn attributedTitleForState:UIControlStateNormal];
+        NSDictionary<NSAttributedStringKey, id> *attributes =
+            currentTitle.length > 0 ? [currentTitle attributesAtIndex:0 effectiveRange:NULL] : @{};
+        [saveBtn setAttributedTitle:[[NSAttributedString alloc] initWithString:localizedSaveTitle
+                                                                    attributes:attributes]
+                          forState:UIControlStateNormal];
+    }
     NSLog(@"[V3OpenTrace] event=viewDidLoadBegin thread=main useV3Mode=%d modelTestMode=%d gestureId=%ld",
           self.useV3Mode,
           self.modelTestMode,

@@ -72,4 +72,6 @@
     <string name="achievement_champion_bronze">Получите бронзу в пяти других достижениях.</string>
     <string name="achievement_champion_silver">Получите серебро в десяти других достижениях.</string>
     <string name="achievement_champion_gold">Получите золото во всех остальных достижениях.</string>
+    <string name="achievement_celebration_animation">Достижение получено</string>
+    <string name="achievement_celebration_message">Поздравляем! Вы получили достижение «%1$s»</string>
 </resources>

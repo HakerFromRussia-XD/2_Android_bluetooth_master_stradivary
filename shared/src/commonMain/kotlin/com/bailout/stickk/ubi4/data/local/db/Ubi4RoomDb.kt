@@ -7,12 +7,14 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import com.bailout.stickk.ubi4.data.local.db.dao.BaseParameterInfoDao
+import com.bailout.stickk.ubi4.data.local.db.dao.AchievementCelebrationStateDao
 import com.bailout.stickk.ubi4.data.local.db.dao.AchievementUniqueEventDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DeviceCrcDao
 import com.bailout.stickk.ubi4.data.local.db.dao.ListWidgetsDao
 import com.bailout.stickk.ubi4.data.local.db.dao.DataParameterDao
 import com.bailout.stickk.ubi4.data.local.db.dao.SettingsProfileDao
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseParameterInfoEntity
+import com.bailout.stickk.ubi4.data.local.db.entity.AchievementCelebrationStateEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.AchievementUniqueEventEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.BaseSubDeviceInfoEntity
 import com.bailout.stickk.ubi4.data.local.db.entity.DeviceCrcEntity
@@ -24,9 +26,14 @@ import com.bailout.stickk.ubi4.data.local.db.entity.SettingsProfileValueEntity
 @Database(
     entities = [DataParameterEntity::class, BaseParameterInfoEntity::class, BaseSubDeviceInfoEntity::class,
         ListWidgetsEntity::class, DeviceCrcEntity::class, SettingsProfileEntity::class,
-        SettingsProfileValueEntity::class, AchievementUniqueEventEntity::class],
-    version = 3,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+        SettingsProfileValueEntity::class, AchievementUniqueEventEntity::class,
+        AchievementCelebrationStateEntity::class],
+    version = 4,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4)
+    ],
     exportSchema = true // схемы уже настроены в Gradle
 )
 @ConstructedBy(Ubi4RoomDbConstructor::class)
@@ -38,6 +45,7 @@ abstract class Ubi4RoomDb : RoomDatabase() {
     abstract fun deviceCrcDao(): DeviceCrcDao
     abstract fun settingsProfileDao(): SettingsProfileDao
     abstract fun achievementUniqueEventDao(): AchievementUniqueEventDao
+    abstract fun achievementCelebrationStateDao(): AchievementCelebrationStateDao
 }
 
 expect object Ubi4RoomDbConstructor : RoomDatabaseConstructor<Ubi4RoomDb> {

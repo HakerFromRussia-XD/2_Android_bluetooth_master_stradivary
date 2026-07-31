@@ -27,6 +27,8 @@ class AchievementsFragment : Fragment() {
         setContent {
             val progressByAchievement by
                 AchievementsState.progressByAchievement.collectAsState()
+            val pendingCelebration by
+                AchievementsState.pendingCelebration.collectAsState()
             val achievements = remember(progressByAchievement) {
                 AchievementsCatalog.items.map { achievement ->
                     progressByAchievement[achievement.id]
@@ -36,7 +38,9 @@ class AchievementsFragment : Fragment() {
             }
             AchievementsScreen(
                 onBackClick = { navigator().goingBackUbi4() },
-                achievements = achievements
+                achievements = achievements,
+                pendingCelebration = pendingCelebration,
+                onCelebrationAcknowledged = AchievementsState::markCelebrated
             )
         }
     }

@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,9 +39,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.achievements.AchievementCelebration
 import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementCard
+import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementCupAnimationOverlay
 import com.bailout.stickk.ubi4.ui.fragments.achievements.components.AchievementInfoDialog
+import kotlinx.coroutines.delay
 
 internal object AchievementsColors {
     val Background = Color(0xFF2A2A2A)
@@ -62,12 +68,40 @@ internal val AchievementsFontFamily = FontFamily(
 fun AchievementsScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    achievements: List<AchievementUiModel> = AchievementsCatalog.items
+    achievements: List<AchievementUiModel> = AchievementsCatalog.items,
+    pendingCelebration: AchievementCelebration? = null,
+    onCelebrationAcknowledged: (AchievementCelebration) -> Unit = {}
 ) {
+    val gridState = rememberLazyGridState()
     var selectedAchievementId by rememberSaveable {
         mutableStateOf<AchievementId?>(null)
     }
+    var activeCelebration by remember {
+        mutableStateOf<AchievementCelebration?>(null)
+    }
+    var showCupAnimation by remember {
+        mutableStateOf(false)
+    }
     val selectedAchievement = achievements.firstOrNull { it.id == selectedAchievementId }
+
+    LaunchedEffect(pendingCelebration) {
+        val celebration = pendingCelebration ?: return@LaunchedEffect
+        if (activeCelebration != null) return@LaunchedEffect
+
+        val achievementIndex = achievements.indexOfFirst {
+            it.id == celebration.achievementId
+        }
+        if (achievementIndex < 0) {
+            onCelebrationAcknowledged(celebration)
+            return@LaunchedEffect
+        }
+
+        activeCelebration = celebration
+        selectedAchievementId = null
+        gridState.animateScrollToItem(achievementIndex)
+        delay(250L)
+        showCupAnimation = true
+    }
 
     Column(
         modifier = modifier
@@ -78,6 +112,7 @@ fun AchievementsScreen(
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
+            state = gridState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = 16.dp,
@@ -94,7 +129,11 @@ fun AchievementsScreen(
             ) { achievement ->
                 AchievementCard(
                     achievement = achievement,
-                    onInfoClick = { selectedAchievementId = achievement.id }
+                    onInfoClick = {
+                        if (activeCelebration == null) {
+                            selectedAchievementId = achievement.id
+                        }
+                    }
                 )
             }
         }
@@ -104,6 +143,25 @@ fun AchievementsScreen(
         AchievementInfoDialog(
             achievement = achievement,
             onDismiss = { selectedAchievementId = null }
+        )
+    }
+
+    if (showCupAnimation) {
+        val celebrationAchievement = activeCelebration?.let { celebration ->
+            achievements.firstOrNull { it.id == celebration.achievementId }
+        }
+
+        AchievementCupAnimationOverlay(
+            achievementTitle = celebrationAchievement
+                ?.let { stringResource(it.titleRes) }
+                .orEmpty(),
+            onFinished = {
+                showCupAnimation = false
+                activeCelebration?.let { celebration ->
+                    activeCelebration = null
+                    onCelebrationAcknowledged(celebration)
+                }
+            }
         )
     }
 }

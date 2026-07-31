@@ -767,6 +767,8 @@
     <string name="achievement_champion_bronze">Earn Bronze in five other achievements.</string>
     <string name="achievement_champion_silver">Earn Silver in ten other achievements.</string>
     <string name="achievement_champion_gold">Earn Gold in every other achievement.</string>
+    <string name="achievement_celebration_animation">Achievement unlocked</string>
+    <string name="achievement_celebration_message">Congratulations! You have earned the “%1$s” achievement</string>
 
     <string-array name="numbers">
         <item>0</item>

@@ -1,11 +1,14 @@
 package com.bailout.stickk.ubi4.data.state
 
 import com.bailout.stickk.ubi4.achievements.AchievementDefinitions
+import com.bailout.stickk.ubi4.achievements.AchievementCelebration
 import com.bailout.stickk.ubi4.achievements.AchievementId
 import com.bailout.stickk.ubi4.achievements.AchievementProgress
 import com.bailout.stickk.ubi4.achievements.AchievementProgressCalculator
 import com.bailout.stickk.ubi4.achievements.AnniversaryElapsedDaysCalculator
 import com.bailout.stickk.ubi4.achievements.ChampionProgressCalculator
+import com.bailout.stickk.ubi4.achievements.PendingAchievementCelebrationCalculator
+import com.bailout.stickk.ubi4.data.local.repository.AchievementCelebrationManager
 import com.bailout.stickk.ubi4.data.local.repository.AchievementEventManager
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUbi4.GestureEnum
 import kotlinx.coroutines.CoroutineScope
@@ -55,9 +58,30 @@ object AchievementsState {
                 )
             )
 
+    val pendingCelebration: StateFlow<AchievementCelebration?> =
+        combine(
+            progressByAchievement,
+            AchievementCelebrationManager.observeHighestCelebratedTiers()
+        ) { progress, highestCelebratedTiers ->
+            PendingAchievementCelebrationCalculator.findFirst(
+                progressByAchievement = progress,
+                highestCelebratedTierByAchievement = highestCelebratedTiers
+            )
+        }
+            .distinctUntilChanged()
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = null
+            )
+
     fun refreshAnniversaryProgress(dateOfReceipt: String?) {
         anniversaryElapsedDays.value =
             AnniversaryElapsedDaysCalculator.calculate(dateOfReceipt)
+    }
+
+    fun markCelebrated(celebration: AchievementCelebration) {
+        AchievementCelebrationManager.markCelebrated(celebration)
     }
 
     private fun calculateTelemetryProgress(

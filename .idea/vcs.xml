@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/iosApp/build/DerivedData-company/SourcePackages/checkouts/Charts" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/iosApp/build/DerivedData-company/SourcePackages/checkouts/lottie-ios" vcs="Git" />
   </component>
 </project>

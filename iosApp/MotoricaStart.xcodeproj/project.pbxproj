@@ -44,7 +44,7 @@
 		1FA20490242F528E000C4B56 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA2048F242F528E000C4B56 /* LoadingView.swift */; };
 		1FA5338D201E1FDE00747E55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA5338C201E1FDE00747E55 /* AppDelegate.swift */; };
 		1FA53394201E1FDE00747E55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53393201E1FDE00747E55 /* Assets.xcassets */; };
-		1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */; };
+		1FA53397201E1FDE00747E55 /* MotoricaLaunchV2.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */; };
 		1FA533B2201EE2A500747E55 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533B1201EE2A500747E55 /* Widget.swift */; };
 		1FA533D7201EF2B500747E55 /* AppDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533D6201EF2B500747E55 /* AppDIContainer.swift */; };
 		1FA533E2201EF5F700747E55 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA533E1201EF5F700747E55 /* APIEndpoints.swift */; };
@@ -362,7 +362,7 @@
 		1FA53389201E1FDE00747E55 /* MotoricaStart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotoricaStart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FA5338C201E1FDE00747E55 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1FA53393201E1FDE00747E55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		1FA53396201E1FDE00747E55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MotoricaLaunchV2.storyboard; sourceTree = "<group>"; };
 		1FA53398201E1FDE00747E55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1FA5339D201E1FDE00747E55 /* MotoricaStartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoricaStartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FA533B1201EE2A500747E55 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
@@ -382,7 +382,7 @@
 		1FE49D83230AA7C200D1D42E /* WidgetsListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetsListViewModel.swift; sourceTree = "<group>"; };
 		1FEE31612218B17E00C160B9 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		1FEED0EF2023576A000F4EAA /* Alertable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertable.swift; sourceTree = "<group>"; };
-		1FF082B2239438D900876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		1FF082B2239438D900876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MotoricaLaunchV2.strings; sourceTree = "<group>"; };
 		1FF082B4239438DC00876A22 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FF082B6239438E000876A22 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FF53EB323688893008D6CCC /* DataTransferError+ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataTransferError+ConnectionError.swift"; sourceTree = "<group>"; };
@@ -510,7 +510,7 @@
 		65ED773B2E4B5CE600D64A61 /* ConvertToKotlinByteArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertToKotlinByteArray.swift; sourceTree = "<group>"; };
 		65ED773D2E4B68ED00D64A61 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		65F27E8D2E60639900AD5DFD /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
-		65F27E8F2E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		65F27E8F2E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MotoricaLaunchV2.strings; sourceTree = "<group>"; };
 		65F27E902E658CD400AD5DFD /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		65F27E952E66046900AD5DFD /* CommandViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandViewCell.swift; sourceTree = "<group>"; };
 		65F27E972E66057700AD5DFD /* CommandListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandListItemViewModel.swift; sourceTree = "<group>"; };
@@ -858,7 +858,7 @@
 				1FF082B5239438DC00876A22 /* Localizable.strings */,
 				1FA53393201E1FDE00747E55 /* Assets.xcassets */,
 				1FA53398201E1FDE00747E55 /* Info.plist */,
-				1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */,
+				1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1712,7 +1712,6 @@
 					1FA53388201E1FDE00747E55 = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1020;
-						ProvisioningStyle = Automatic;
 					};
 					1FA5339C201E1FDE00747E55 = {
 						CreatedOnToolsVersion = 9.2;
@@ -1796,7 +1795,7 @@
 				65EAF4A12EE8232500B3C49D /* select_vertex_shader.vsh in Resources */,
 				65EAF4A22EE8232500B3C49D /* reflect.fsh in Resources */,
 				65EAF4A32EE8232500B3C49D /* temple.vsh in Resources */,
-				1FA53397201E1FDE00747E55 /* LaunchScreen.storyboard in Resources */,
+				1FA53397201E1FDE00747E55 /* MotoricaLaunchV2.storyboard in Resources */,
 				659A45B62DB92E0F002BE2BC /* BluetoothList.storyboard in Resources */,
 				65588FA72EA6557C005CF5BA /* sinchronization.lottie in Resources */,
 				654FEF7A2E37B39E0009E524 /* WidgetsListViewController.storyboard in Resources */,
@@ -2127,14 +2126,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		1FA53395201E1FDE00747E55 /* LaunchScreen.storyboard */ = {
+		1FA53395201E1FDE00747E55 /* MotoricaLaunchV2.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				1FA53396201E1FDE00747E55 /* Base */,
 				1FF082B2239438D900876A22 /* es */,
 				65F27E8F2E658CD400AD5DFD /* ru */,
 			);
-			name = LaunchScreen.storyboard;
+			name = MotoricaLaunchV2.storyboard;
 			sourceTree = "<group>";
 		};
 		1FF082B5239438DC00876A22 /* Localizable.strings */ = {
@@ -2368,8 +2367,8 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
-				DEVELOPMENT_TEAM = WWLXR9V94H;
+				CURRENT_PROJECT_VERSION = 17;
+				DEVELOPMENT_TEAM = R7M384QD5A;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
@@ -2385,7 +2384,7 @@
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";
@@ -2403,8 +2402,8 @@
 				CODE_SIGN_ENTITLEMENTS = MotoricaStart/MotoricaStart.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
-				DEVELOPMENT_TEAM = WWLXR9V94H;
+				CURRENT_PROJECT_VERSION = 17;
+				DEVELOPMENT_TEAM = R7M384QD5A;
 				IMAGE_BASE_URL = "http://image.tmdb.org";
 				INFOPLIST_FILE = "$(SRCROOT)/MotoricaStart/Resources/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Motorica start";
@@ -2420,7 +2419,7 @@
 					"-weak_framework",
 					SwiftUI,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.starttt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.motorica.startttt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "MotoricaStart/OpenGL/MotoricaStart-Bridging-Header.h";

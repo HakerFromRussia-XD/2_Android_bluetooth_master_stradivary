@@ -10,12 +10,12 @@ private enum AccountGamesMetrics {
 
 final class AccountGamesViewController: UIViewController {
     private enum Constants {
-        static let appGroup = "group.com.motorica.start.gamecontroll"
+        static let appGroup = "group.com.motorica.start.gamecontrolll"
         static let installedGameKey = "installedGame.stk"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
         static let gameId = "stk"
         static let fallbackTitle = "Super Tux Kart"
-        static let fallbackBundleId = "com.motorica.games.stk"
+        static let fallbackBundleId = "com.motorica.games.stkttt"
         static let fallbackScheme = "motorica-stk"
     }
 

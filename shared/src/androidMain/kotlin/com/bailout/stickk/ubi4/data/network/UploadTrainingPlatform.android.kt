@@ -154,12 +154,11 @@ actual suspend fun uploadTrainingDataSsePlatform(
     val multipart = MultipartBody.Builder().setType(MultipartBody.FORM).apply {
         val modelVersions = ModelVersions(
             boardName = opticsBoardHardwareInfo.boardName,
-            // boardCode
+            boardCode = 4,  // opticsBoardHardwareInfo.boardCode,
             boardHardwareVersion = opticsBoardHardwareInfo.boardVersionString,
             boardSoftwareVersion = firmwareInfo.fwVersion,
-            appVersion = appVersion,
             modelCode = mlModelSettings.modelCode,
-            modelVersion = mlModelSettings.modelVersion
+            modelVersion = "${mlModelSettings.majorModelVersion}.${mlModelSettings.minorModelVersion}.${mlModelSettings.quickfixModelVersion}"
         )
         Log.i("modelVersions", modelVersions.toString())
 

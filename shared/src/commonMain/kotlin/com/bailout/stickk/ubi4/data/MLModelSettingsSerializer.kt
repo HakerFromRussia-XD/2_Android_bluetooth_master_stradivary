@@ -17,11 +17,15 @@ object MLModelSettingsSerializer : KSerializer<MLModelSettings> {
         val hex = decoder.decodeString().padEnd(16, '0')
 
         val modelCode = hex.substring(0, 2).toInt(16)
-        val modelVersion = hex.substring(2, 16).decodeHex().trimEnd('\u0000')
+        val majorModelVersion = hex.substring(2, 4).toInt(16)
+        val minorModelVersion = hex.substring(4, 6).toInt(16)
+        val quickfixModelVersion = hex.substring(6, 8).toInt(16)
 
         return MLModelSettings(
             modelCode = modelCode,
-            modelVersion = modelVersion
+            majorModelVersion = majorModelVersion,
+            minorModelVersion = minorModelVersion,
+            quickfixModelVersion = quickfixModelVersion
         )
     }
 

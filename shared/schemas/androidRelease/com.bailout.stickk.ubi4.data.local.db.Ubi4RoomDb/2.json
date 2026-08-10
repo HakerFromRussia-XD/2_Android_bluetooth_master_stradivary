@@ -1,0 +1,276 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "fe1ddb914087f9a6ea9fdfbee7fa1036",
+    "entities": [
+      {
+        "tableName": "widget_state",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`device_mac` TEXT NOT NULL, `device_addr` INTEGER NOT NULL, `widget_id` INTEGER NOT NULL, `widget_code` INTEGER NOT NULL, `parameter_id` INTEGER NOT NULL, `data_code` INTEGER NOT NULL, `data_offset` INTEGER NOT NULL, `ts_ms` INTEGER NOT NULL, `value_text` TEXT, `value_i1` INTEGER, `value_i2` INTEGER, `value_i3` INTEGER, PRIMARY KEY(`device_mac`, `device_addr`, `widget_id`, `widget_code`, `parameter_id`, `data_code`, `data_offset`))",
+        "fields": [
+          {
+            "fieldPath": "device_mac",
+            "columnName": "device_mac",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device_addr",
+            "columnName": "device_addr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "widget_id",
+            "columnName": "widget_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "widget_code",
+            "columnName": "widget_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parameter_id",
+            "columnName": "parameter_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_code",
+            "columnName": "data_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_offset",
+            "columnName": "data_offset",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts_ms",
+            "columnName": "ts_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value_text",
+            "columnName": "value_text",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "value_i1",
+            "columnName": "value_i1",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "value_i2",
+            "columnName": "value_i2",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "value_i3",
+            "columnName": "value_i3",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "device_mac",
+            "device_addr",
+            "widget_id",
+            "widget_code",
+            "parameter_id",
+            "data_code",
+            "data_offset"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_widget_state_device_addr_widget_id_parameter_id_data_code_data_offset",
+            "unique": true,
+            "columnNames": [
+              "device_addr",
+              "widget_id",
+              "parameter_id",
+              "data_code",
+              "data_offset"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_widget_state_device_addr_widget_id_parameter_id_data_code_data_offset` ON `${TABLE_NAME}` (`device_addr`, `widget_id`, `parameter_id`, `data_code`, `data_offset`)"
+          }
+        ]
+      },
+      {
+        "tableName": "base_parameter_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`device_mac` TEXT NOT NULL, `device_addr` INTEGER NOT NULL, `parameter_id` INTEGER NOT NULL, `data_code` INTEGER NOT NULL, `ts_ms` INTEGER NOT NULL, `payload` TEXT NOT NULL, PRIMARY KEY(`device_mac`, `device_addr`, `parameter_id`, `data_code`))",
+        "fields": [
+          {
+            "fieldPath": "device_mac",
+            "columnName": "device_mac",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device_addr",
+            "columnName": "device_addr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parameter_id",
+            "columnName": "parameter_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_code",
+            "columnName": "data_code",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts_ms",
+            "columnName": "ts_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "device_mac",
+            "device_addr",
+            "parameter_id",
+            "data_code"
+          ]
+        }
+      },
+      {
+        "tableName": "base_sub_device_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`device_mac` TEXT NOT NULL, `sub_device_addr` INTEGER NOT NULL, `ts_ms` INTEGER NOT NULL, `payload` TEXT NOT NULL, PRIMARY KEY(`device_mac`, `sub_device_addr`))",
+        "fields": [
+          {
+            "fieldPath": "device_mac",
+            "columnName": "device_mac",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sub_device_addr",
+            "columnName": "sub_device_addr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts_ms",
+            "columnName": "ts_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "device_mac",
+            "sub_device_addr"
+          ]
+        }
+      },
+      {
+        "tableName": "list_widgets_snapshot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`device_mac` TEXT NOT NULL, `device_addr` INTEGER NOT NULL, `ts_ms` INTEGER NOT NULL, `payload` TEXT NOT NULL, PRIMARY KEY(`device_mac`, `device_addr`))",
+        "fields": [
+          {
+            "fieldPath": "device_mac",
+            "columnName": "device_mac",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device_addr",
+            "columnName": "device_addr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts_ms",
+            "columnName": "ts_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "device_mac",
+            "device_addr"
+          ]
+        }
+      },
+      {
+        "tableName": "device_crc",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`device_mac` TEXT NOT NULL, `device_addr` INTEGER NOT NULL, `ts_ms` INTEGER NOT NULL, `crc` INTEGER NOT NULL, PRIMARY KEY(`device_mac`, `device_addr`))",
+        "fields": [
+          {
+            "fieldPath": "device_mac",
+            "columnName": "device_mac",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device_addr",
+            "columnName": "device_addr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ts_ms",
+            "columnName": "ts_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crc",
+            "columnName": "crc",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "device_mac",
+            "device_addr"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fe1ddb914087f9a6ea9fdfbee7fa1036')"
+    ]
+  }
+}

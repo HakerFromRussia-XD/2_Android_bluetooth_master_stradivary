@@ -1267,7 +1267,7 @@ class BLEParser(
         platformLog("parseMLModelSettings", "deviceAddr=$deviceAddr, payload=$payload")
         try {
             val mlModelSettings = Json.decodeFromString<MLModelSettings>("\"$payload\"")
-            platformLog("parseMLModelSettings", "Parsed: modelCode=${mlModelSettings.modelCode}, modelVersion=${mlModelSettings.modelVersion}")
+            platformLog("parseMLModelSettings", "Parsed: modelCode=${mlModelSettings.modelCode}, modelVersion=${mlModelSettings.majorModelVersion}.${mlModelSettings.minorModelVersion}.${mlModelSettings.quickfixModelVersion}")
             MLModelSettingsState.emitMLModelSettings(mlModelSettings)
         }
         catch (e: Exception) {

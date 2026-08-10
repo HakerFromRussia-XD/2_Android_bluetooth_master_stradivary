@@ -10,12 +10,11 @@ private enum AccountGamesMetrics {
 
 final class AccountGamesViewController: UIViewController {
     private enum Constants {
-        static let appGroup = "group.com.motorica.start.gamecontrolll"
         static let installedGameKey = "installedGame.stk"
         static let manifestUrlInfoKey = "MotoricaGamesManifestURL"
         static let gameId = "stk"
         static let fallbackTitle = "Super Tux Kart"
-        static let fallbackBundleId = "com.motorica.games.stkttt"
+        static let fallbackBundleId = "com.motorica.games.stktt"
         static let fallbackScheme = "motorica-stk"
     }
 
@@ -390,8 +389,9 @@ final class AccountGamesViewController: UIViewController {
     }
 
     private func installedGameInfo() -> InstalledGameInfo? {
-        guard let defaults = UserDefaults(suiteName: Constants.appGroup) else {
-            NSLog("\(gameDebugLogPrefix) ios games app group unavailable: \(Constants.appGroup)")
+        guard let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
+            NSLog("\(gameDebugLogPrefix) ios games expected exactly one signed app group")
             return nil
         }
 

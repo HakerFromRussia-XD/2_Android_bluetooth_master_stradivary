@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.motorica.start.gamecontrolll</string>
+		<string>$(MOTORICA_GAME_CONTROL_APP_GROUP)</string>
 	</array>
 </dict>
 </plist>

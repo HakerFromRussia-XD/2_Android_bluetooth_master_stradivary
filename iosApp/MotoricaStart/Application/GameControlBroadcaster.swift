@@ -2,11 +2,23 @@ import Foundation
 import QuartzCore
 import shared
 
+enum MotoricaGameControlAppGroup {
+    static let value: String? = {
+        guard let value = Bundle.main.object(
+            forInfoDictionaryKey: "MotoricaGameControlAppGroup"
+        ) as? String,
+        !value.isEmpty,
+        !value.contains("$(") else {
+            return nil
+        }
+        return value
+    }()
+}
+
 final class GameControlBroadcaster {
     static let shared = GameControlBroadcaster()
 
     private enum Keys {
-        static let appGroup = "group.com.motorica.start.gamecontrolll"
         static let snapshot = "snapshot"
         static let version = "version"
         static let seq = "seq"
@@ -66,10 +78,11 @@ final class GameControlBroadcaster {
         guard force || now - lastPublishTime >= minPublishInterval else { return }
         lastPublishTime = now
 
-        guard let defaults = UserDefaults(suiteName: Keys.appGroup) else {
+        guard let appGroup = MotoricaGameControlAppGroup.value,
+              let defaults = UserDefaults(suiteName: appGroup) else {
             if !appGroupWarningLogged {
                 appGroupWarningLogged = true
-                NSLog("\(logPrefix) ios broadcaster app group unavailable: \(Keys.appGroup)")
+                NSLog("\(logPrefix) ios broadcaster expected exactly one signed app group")
             }
             return
         }
